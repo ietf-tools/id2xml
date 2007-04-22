@@ -11,14 +11,16 @@ class LiaisonPurpose(models.Model):
     class Admin:
 	pass
 
-# poc = person?
-# is_l_m and o_sdo = boolean?
+# poc is sometimes a PersonOrOrgInfo and sometimes not.
+# This makes django raise DoesNotExist / PersonOrOrgInfo matching query does not exist
+# todo: helper function to get the poc info
 class FromBodies(models.Model):
     from_id = models.AutoField(primary_key=True)
     body_name = models.CharField(blank=True, maxlength=35)
-    poc = models.IntegerField(null=True, blank=True)
-    is_liaison_manager = models.IntegerField(null=True, blank=True)
-    other_sdo = models.IntegerField(null=True, blank=True)
+    poc = models.IntegerField()
+    #poc = models.ForeignKey(PersonOrOrgInfo, db_column='poc', raw_id_admin=True)
+    is_liaison_manager = models.BooleanField()
+    other_sdo = models.BooleanField()
     email_priority = models.IntegerField(null=True, blank=True)
     def __str__(self):
 	return self.body_name
@@ -27,6 +29,8 @@ class FromBodies(models.Model):
     class Admin:
 	pass
 
+# Todo: helper function to look up from_id in FromBodes
+# and Acronyms.
 class LiaisonDetail(models.Model):
     detail_id = models.AutoField(primary_key=True)
     person_or_org_tag = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)

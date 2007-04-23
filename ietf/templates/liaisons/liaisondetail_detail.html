@@ -1,0 +1,72 @@
+<html>
+<head><title>Liaison Statement Detail</title>
+<style type="text/css">
+
+a:link, a:visited {
+  border-bottom:1px dotted #69f;
+  color:blue;
+  text-decoration:none;
+  }
+a:visited {
+  border-bottom:1px dotted #969;
+  color:#939;
+  }
+a:hover {
+  border-bottom:1px dotted #f00;
+  color:#f00;
+  }
+</style>
+</head>
+<body topmargin='0' bottommargin='0' leftmargin='0' rightmargin='0' background='/media/liaisons/back_dot.gif'>
+<table bgcolor="#F4F2F2" border=2 cellpadding=0 cellspacing=0 width='671' height="300" align='center'>
+  <tr valign="top"><td>
+      <table width="100%" height='100%' border=0 cellpadding=0 cellspacing=0 bgcolor="#FFFFFF">
+          <tr valign="top"><td><img src="/media/liaisons/liaison_title.gif" height="96" border="0"></td></tr>
+          <tr valign="top"><td>
+
+<center><h3>{{ object.title }}</h3></center>
+<!-- why does each td have a bgcolor? -->
+<!-- todo: filter to make hrefs for email addresses -->
+  <blockquote>
+  <table cellspacing="3" bgcolor="cccc99" width="600">
+  <tr>
+  <td bgcolor="#efefef" width="25%">Submission Date: </td><td width="75%"><pre>{{ object.submitted_date }}</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef" width="25%">From: </td><td width="75%"><pre>need helper function</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef">To: </td><td><pre>{{ object.to_body|escape }} ({{ object.to_poc|escape }})</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef">Cc:</td><td><pre>{{ object.cc1|escape }}</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef">Response Contact:</td>
+  <td>
+<pre>{{ object.response_contact|escape }}</pre>
+  </td></tr>
+  <tr>
+  <td bgcolor="#efefef">Technical Contact:</td>
+  <td>
+<pre>{{ object.technical_contact|escape }}</pre></td>
+  </tr>
+  <tr>
+  <td bgcolor="#efefef">Purpose:</td><td><pre>{% if object.purpose_text %}{{ object.purpose_text }}{% else %}{{ object.purpose }}{% endif %}</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef">Deadline:</td><td><pre>{{ object.deadline_date }}</pre></td></tr>
+  <tr>
+  <td bgcolor="#efefef">Body:</td><td><pre>{{ object.body }}</pre></td></tr>
+  </table>
+  <blockquote>
+<hr>
+<h3>Attached Document(s)</h3>
+{% if object.uploads_set.count %}
+<ul>
+{% for file in object.uploads_set.all %}
+  <a href="https://datatracker.ietf.org/documents/LIAISON/file{{ file.file_id }}{{ file.file_extension }}">{{ file.file_title }}</a><br>
+{% endfor %}
+</ul>
+{% else %}
+NONE
+{% endif %}
+
+</td></tr></table>
+</body>
+</html>

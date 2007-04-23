@@ -66,11 +66,16 @@ class LiaisonDetail(models.Model):
     class Admin:
 	pass
 
-class Sdos(models.Model):
+class SDOs(models.Model):
     sdo_id = models.AutoField(primary_key=True)
     sdo_name = models.CharField(blank=True, maxlength=255)
     def __str__(self):
 	return self.sdo_name
+    def liaisonmanager(self):
+	try:
+	    return self.liaisonmanagers_set.all()[0]
+	except:
+	    return None
     class Meta:
         db_table = 'sdos'
     class Admin:
@@ -79,7 +84,12 @@ class Sdos(models.Model):
 class LiaisonManagers(models.Model):
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     email_priority = models.IntegerField(null=True, blank=True, core=True)
-    sdo = models.ForeignKey(Sdos, edit_inline=models.TABULAR, num_in_admin=1)
+    sdo = models.ForeignKey(SDOs, edit_inline=models.TABULAR, num_in_admin=1)
+    def email(self):
+	try:
+	    return self.person.emailaddress_set.filter(priority=self.email_priority)[0]
+	except:
+	    return None
     class Meta:
         db_table = 'liaison_managers'
 
@@ -109,7 +119,7 @@ class Uploads(models.Model):
 
 # empty table
 #class SdoChairs(models.Model):
-#    sdo = models.ForeignKey(Sdos)
+#    sdo = models.ForeignKey(SDOs)
 #    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
 #    email_priority = models.IntegerField(null=True, blank=True)
 #    class Meta:

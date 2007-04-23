@@ -11,3 +11,10 @@ urlpatterns = patterns('django.views.generic.list_detail',
      (r'^(?P<object_id>\d+)/$', 'object_detail', info_dict),
      (r'^managers/$', 'object_list', { 'queryset': LiaisonManagers.objects.all().select_related().order_by('sdos.sdo_name') }),	#XXX order_by relies on select_related()
 )
+
+urlpatterns += patterns('django.views.generic.simple',
+     (r'^help/$', 'direct_to_template', {'template': 'liaisons/help.html'}),
+     (r'^help/fields/', 'direct_to_template', {'template': 'liaisons/field_help.html'}),
+     (r'^help/from_ietf/', 'direct_to_template', {'template': 'liaisons/guide_from_ietf.html'}),
+     (r'^help/to_ietf/', 'direct_to_template', {'template': 'liaisons/guide_to_ietf.html'}),
+)

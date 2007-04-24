@@ -256,10 +256,9 @@ class IDAuthors(models.Model):
     def __str__(self):
 	return "%s authors %s" % ( self.person, self.document.filename )
     def email(self):
-	addr = self.person.emailaddresses_set.filter(type='I-D').filter(priority=self.document_id)
 	try:
-	    return addr[0].address
-	except IndexError:	# no [0]
+	    return self.person.emailaddress_set.filter(type='I-D').get(priority=self.document_id).address
+	except EmailAddress.DoesNotExist:
 	    return None
     class Meta:
         db_table = 'id_authors'

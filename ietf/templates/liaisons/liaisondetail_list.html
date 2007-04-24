@@ -14,7 +14,7 @@
 {% for liaison in object_list %}
 <tr>
 <td>{{ liaison.submitted_date|date:"F Y" }}</td>
-<td>need helper function</td>
+<td>{{ liaison.from_body }}</td>
 <td>
 {% if liaison.by_secretariat %}
   {% if liaison.submitter_email %}

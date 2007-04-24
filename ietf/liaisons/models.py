@@ -1,5 +1,6 @@
 from django.db import models
-from ietf.idtracker.models import PersonOrOrgInfo
+from ietf.idtracker.models import Acronym,PersonOrOrgInfo
+from django.core.exceptions import ObjectDoesNotExist
 
 class LiaisonPurpose(models.Model):
     purpose_id = models.AutoField(primary_key=True)
@@ -29,17 +30,11 @@ class FromBodies(models.Model):
     class Admin:
 	pass
 
-# Todo: helper function to look up from_id in FromBodes
-# and Acronyms.
 class LiaisonDetail(models.Model):
     detail_id = models.AutoField(primary_key=True)
     person_or_org_tag = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     submitted_date = models.DateField(null=True, blank=True)
     last_modified_date = models.DateField(null=True, blank=True)
-    # If from the IETF, from_id is the acronym_id of the source.
-    # If to the IETF, it's from FromBodies
-    # There's assumed to be no overlap between the index values
-    # of the two tables.
     from_id = models.IntegerField(null=True, blank=True)
     to_body = models.CharField(blank=True, maxlength=255)
     title = models.CharField(blank=True, maxlength=255)
@@ -61,6 +56,30 @@ class LiaisonDetail(models.Model):
     replyto = models.CharField(blank=True, maxlength=255)
     def __str__(self):
 	return self.title or "<no title>"
+    def from_body(self):
+	"""The from_id field is a foreign key for either
+	FromBodies or Acronyms, depending on whether it's
+	the IETF or not.  There is no flag field saying
+	which, so we just try it.  If the index values
+	overlap, then this function will be ambiguous
+	and will return the value from FromBodies.  Current
+	acronym IDs start at 925 so the day of reckoning
+	is not nigh."""
+	try:
+	    from_body = FromBodies.objects.get(pk=self.from_id)
+	    return from_body.body_name
+	except ObjectDoesNotExist:
+	    pass
+	try:
+	    acronym = Acronym.objects.get(pk=self.from_id)
+	    if acronym.areas_set.count():
+		type = "AREA"
+	    else:
+		type = "WG"
+	    return "IETF %s %s" % ( acronym.acronym.upper(), type )
+	except ObjectDoesNotExist:
+	    pass
+	return "<unknown body %d>" % self.from_id
     class Meta:
         db_table = 'liaison_detail'
     class Admin:
@@ -87,8 +106,8 @@ class LiaisonManagers(models.Model):
     sdo = models.ForeignKey(SDOs, edit_inline=models.TABULAR, num_in_admin=1)
     def email(self):
 	try:
-	    return self.person.emailaddress_set.filter(priority=self.email_priority)[0]
-	except:
+	    return self.person.emailaddress_set.get(priority=self.email_priority)
+	except ObjectDoesNotExist:
 	    return None
     class Meta:
         db_table = 'liaison_managers'

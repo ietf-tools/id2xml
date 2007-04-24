@@ -26,15 +26,15 @@ class IprLicensing(models.Model):
 
 class IprDetail(models.Model):
     ipr_id = models.AutoField(primary_key=True)
-    p_h_legal_name = models.CharField(blank=True, maxlength=255)
+    p_h_legal_name = models.CharField("Patent Holder's Legal Name", blank=True, maxlength=255)
     document_title = models.CharField(blank=True, maxlength=255)
-    rfc_number = models.IntegerField(null=True, blank=True)
-    id_document_tag = models.IntegerField(null=True, blank=True)
+    rfc_number = models.IntegerField(null=True, blank=True)	# always NULL
+    id_document_tag = models.IntegerField(null=True, blank=True)	# always NULL
     other_designations = models.CharField(blank=True, maxlength=255)
     p_applications = models.CharField(blank=True, maxlength=255)
     date_applied = models.CharField(blank=True, maxlength=255)
     selecttype = models.ForeignKey(IprSelecttype, to_field='selecttype', db_column='selecttype')
-    disclouser_identify = models.CharField(blank=True, maxlength=255)
+    discloser_identify = models.CharField(blank=True, maxlength=255, db_column='disclouser_identify')
     licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
     other_notes = models.TextField(blank=True)
     submitted_date = models.DateField(null=True, blank=True)
@@ -55,7 +55,7 @@ class IprDetail(models.Model):
     # I don't understand selectowned, it looks like it should be a boolean field.
     selectowned = models.CharField(blank=True, maxlength=3)
     comply = models.BooleanField()
-    lic_checkbox = models.IntegerField(null=True, blank=True)
+    lic_checkbox = models.BooleanField()
     update_notified_date = models.DateField(null=True, blank=True)
     def __str__(self):
 	return self.document_title
@@ -82,7 +82,7 @@ class IprContacts(models.Model):
     address1 = models.CharField(blank=True, maxlength=255)
     address2 = models.CharField(blank=True, maxlength=255)
     def __str__(self):
-	return self.name
+	return self.name or "<noname>"
     class Meta:
         db_table = 'ipr_contacts'
     class Admin:
@@ -105,7 +105,7 @@ class IprNotifications(models.Model):
     date_sent = models.DateField(null=True, blank=True)
     time_sent = models.CharField(blank=True, maxlength=25)
     def __str__(self):
-	return "IPR notification for %s sent %s %s" % (self.ipr, self.date_sent, self_time_sent)
+	return "IPR notification for %s sent %s %s" % (self.ipr, self.date_sent, self.time_sent)
     class Meta:
         db_table = 'ipr_notifications'
     class Admin:

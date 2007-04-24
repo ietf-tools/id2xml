@@ -99,25 +99,25 @@ class InternetDraft(models.Model):
     revision_date = models.DateField()
     file_type = models.CharField(maxlength=20)
     txt_page_count = models.IntegerField()
-    local_path = models.CharField(maxlength=255)
+    local_path = models.CharField(maxlength=255, blank=True)
     start_date = models.DateField()
     expiration_date = models.DateField()
     abstract = models.TextField()
     dunn_sent_date = models.DateField()
-    extension_date = models.DateField()
+    extension_date = models.DateField(null=True, blank=True)
     status = models.ForeignKey(IDStatus)
     intended_status = models.ForeignKey(IDIntendedStatus)
-    lc_sent_date = models.DateField()
+    lc_sent_date = models.DateField(null=True, blank=True)
     lc_changes = models.CharField(maxlength=3)
-    lc_expiration_date = models.DateField()
-    b_sent_date = models.DateField()
-    b_discussion_date = models.DateField()
-    b_approve_date = models.DateField()
-    wgreturn_date = models.DateField()
-    rfc_number = models.IntegerField()
-    comments = models.TextField()
+    lc_expiration_date = models.DateField(null=True, blank=True)
+    b_sent_date = models.DateField(null=True, blank=True)
+    b_discussion_date = models.DateField(null=True, blank=True)
+    b_approve_date = models.DateField(null=True, blank=True)
+    wgreturn_date = models.DateField(null=True, blank=True)
+    rfc_number = models.IntegerField(null=True, blank=True)
+    comments = models.TextField(blank=True)
     last_modified_date = models.DateField()
-    replaced_by = models.ForeignKey('self', db_column='replaced_by')
+    replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True)
     review_by_rfc_editor = models.IntegerField()	# boolean
     expired_tombstone = models.IntegerField() # boolean
     def save(self):
@@ -249,9 +249,8 @@ class IDInternal(models.Model):
     class Admin:
 	pass
 
-# should edit in document admin?
 class IDAuthors(models.Model):
-    document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', raw_id_admin=True)
+    document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', edit_inline=models.TABULAR)
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     author_order = models.IntegerField(null=True, blank=True)
     def __str__(self):

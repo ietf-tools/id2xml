@@ -1,3 +1,5 @@
+{# no template, this page has its own look. #}
+{% load ietf_filters %}
 <html>
 <head><title>Liaison Statement Detail</title>
 <style type="text/css">
@@ -25,8 +27,6 @@ a:hover {
           <tr valign="top"><td>
 
 <center><h3>{{ object.title }}</h3></center>
-<!-- why does each td have a bgcolor? -->
-<!-- todo: filter to make hrefs for email addresses -->
   <blockquote>
   <table cellspacing="3" bgcolor="cccc99" width="600">
   <tr>
@@ -34,18 +34,18 @@ a:hover {
   <tr>
   <td bgcolor="#efefef" width="25%">From: </td><td width="75%"><pre>{{ object.from_body }}</pre></td></tr>
   <tr>
-  <td bgcolor="#efefef">To: </td><td><pre>{{ object.to_body|escape }} ({{ object.to_poc|escape }})</pre></td></tr>
+  <td bgcolor="#efefef">To: </td><td><pre>{{ object.to_body|escape }} ({{ object.to_poc|parse_email_list }})</pre></td></tr>
   <tr>
-  <td bgcolor="#efefef">Cc:</td><td><pre>{{ object.cc1|escape }}</pre></td></tr>
+  <td bgcolor="#efefef">Cc:</td><td><pre>{{ object.cc1|parse_email_list|make_one_per_line }}</pre></td></tr>
   <tr>
   <td bgcolor="#efefef">Response Contact:</td>
   <td>
-<pre>{{ object.response_contact|escape }}</pre>
+<pre>{{ object.response_contact|parse_email_list|make_one_per_line }}</pre>
   </td></tr>
   <tr>
   <td bgcolor="#efefef">Technical Contact:</td>
   <td>
-<pre>{{ object.technical_contact|escape }}</pre></td>
+<pre>{{ object.technical_contact|parse_email_list|make_one_per_line }}</pre></td>
   </tr>
   <tr>
   <td bgcolor="#efefef">Purpose:</td><td><pre>{% if object.purpose_text %}{{ object.purpose_text }}{% else %}{{ object.purpose }}{% endif %}</pre></td></tr>

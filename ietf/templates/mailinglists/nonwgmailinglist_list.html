@@ -1,8 +1,45 @@
-
 {% load ietf_filters %}
+<html>
+<HEAD><TITLE>IETF Non-WG Mailing Lists</title>
+<STYLE TYPE="text/css">
+<!--
+TD {text-decoration: none; color: #000000; font: 11pt;}
+body {
+  margin:0;
+  padding:0;
+  font-style: normal;
+  }
+th {
+  padding:6px 0px 10px 30px;
+  line-height:1em;
+  font-size: 1.0em;
+  color: #333;
+                                                                                
+                   
+ }
+/* Links
+----------------------------------------------- */
+a:link, a:visited {
+  border-bottom:1px dotted #69f;
+  color:#36c;
+  text-decoration:none;
+  }
+a:visited {
+  border-bottom-color:#969;
+  color:#36c;
+  }
+a:hover {
+  border-bottom:1px solid #f00;
+  color:#f00;
+  }
+a.noline:link, a.noline:visited, a.noline:hover {border-style:none;}
+-->
+</STYLE>
 
-
+</head>
 <body>
+<blockquote>
+<center><h2>IETF Non-WG Mailing Lists</h2></center>
 <p>This page attempts to list all the active, publicly visible lists that are
 considered to be related to the IETF, but are not the main list of any working
 group, in alphabetical order by list name.</p>
@@ -24,16 +61,13 @@ page.</p>
 
 {% for list in object_list %}
 <tr>
-{# current code prefixes url with http:// if it starts with ^www #}
-<td><a href="{{ list.list_url }}">{% firstof list.list_name list.list_url %}</a></td>
+<td><a href="{{ list.list_url|add_scheme }}">{% firstof list.list_name list.list_url %}</a></td>
 <td>{{ list.admin|make_one_per_line }}</td>
-<td>{{ list.purpose|truncatewords:"15" }}</td>
-<td>{{ list.area_acronym.acronym }}</td>
+<td>{{ list.purpose|truncatewords:"20"|escape }}</td>
+<td>{{ list.area_acronym }}</td>
 <td>{% if list.subscribe_url %}
-{# need to only make link if https?: or mailto: #}
-{# need an "if"-like template tag :-( #}
-{# or a filter that just does this... #}
-<a href="{{ list.subscribe_url|fix_ampersands }}">{{ list.subscribe_url|escape }}</a>
+{# There are lots of non-urls in the database #}
+{{ list.subscribe_url|link_if_url }}</a>
 {% else %}
 &nbsp;
 {% endif %}
@@ -49,9 +83,7 @@ page.</p>
 </table>
 
 <p>To add a list, or to update or delete an existing entry, please go to the
-<A HREF="https://datatracker.ietf.org/public/nwg_list_submit.cgi">IETF Non-WG Ma
-iling List Posting Page</a>. When adding a list, please provide the following in
-formation:</p>
+<A HREF="https://datatracker.ietf.org/public/nwg_list_submit.cgi">IETF Non-WG Mailing List Posting Page</a>. When adding a list, please provide the following information:</p>
 <ul>
   <li>The name and email address of the submitter 
   <li>The name of the list
@@ -61,8 +93,7 @@ formation:</p>
   <li>The IETF Area to which the list belongs</li>
   <li>The URL or other instructions for subscribing to the list</li></ul>
 
-<p>An AD for the specified Area must approve the request to add, update, or dele
-te a listing. 
+<p>An AD for the specified Area must approve the request to add, update, or delete a listing. 
 An AD can also request that the listing be changed or removed. </p>
 <p>The following types of lists SHOULD be added:</p>
 <ul>
@@ -95,4 +126,6 @@ the IESG.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-
+</blockquote>
+</body>
+</html>

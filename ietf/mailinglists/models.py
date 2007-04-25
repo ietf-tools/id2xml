@@ -1,5 +1,5 @@
 from django.db import models
-from ietf.idtracker.models import Acronym, PersonOrOrgInfo
+from ietf.idtracker.models import Acronym, Areas, PersonOrOrgInfo
 
 class ImportedMailingList(models.Model):
     group_acronym = models.ForeignKey(Acronym)
@@ -72,7 +72,7 @@ class MailingList(models.Model):
 class NonWgMailingList(models.Model):
     id = models.CharField(primary_key=True, maxlength=35)
     purpose = models.TextField(blank=True)
-    area_acronym = models.ForeignKey(Acronym)
+    area_acronym = models.ForeignKey(Areas)
     admin = models.TextField(blank=True)
     list_url = models.CharField(maxlength=255)
     s_name = models.CharField(blank=True, maxlength=255)
@@ -86,8 +86,11 @@ class NonWgMailingList(models.Model):
     ds_name = models.CharField(blank=True, maxlength=255)
     ds_email = models.CharField(blank=True, maxlength=255)
     msg_to_ad = models.TextField(blank=True)
+    def __str__(self):
+	return self.list_name 
     class Meta:
         db_table = 'none_wg_mailing_list'
+	ordering = ['list_name']
     class Admin:
 	pass
 

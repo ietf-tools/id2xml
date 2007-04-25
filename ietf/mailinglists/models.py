@@ -69,3 +69,25 @@ class MailingList(models.Model):
     class Admin:
 	pass
 
+class NonWgMailingList(models.Model):
+    id = models.CharField(primary_key=True, maxlength=35)
+    purpose = models.TextField(blank=True)
+    area_acronym = models.ForeignKey(Acronym)
+    admin = models.TextField(blank=True)
+    list_url = models.CharField(maxlength=255)
+    s_name = models.CharField(blank=True, maxlength=255)
+    s_email = models.CharField(blank=True, maxlength=255)
+    # Can be 0, 1, -1, or what looks like a person_or_org_tag, positive or neg.
+    # The values less than 1 don't get displayed on the list of lists.
+    status = models.IntegerField()
+    list_name = models.CharField(blank=True, maxlength=255)
+    subscribe_url = models.CharField(blank=True, maxlength=255)
+    subscribe_other = models.TextField(blank=True)
+    ds_name = models.CharField(blank=True, maxlength=255)
+    ds_email = models.CharField(blank=True, maxlength=255)
+    msg_to_ad = models.TextField(blank=True)
+    class Meta:
+        db_table = 'none_wg_mailing_list'
+    class Admin:
+	pass
+

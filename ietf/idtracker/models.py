@@ -125,11 +125,16 @@ class InternetDraft(models.Model):
         super(InternetDraft, self).save()
     def __str__(self):
         return self.filename
+    idinternal_fetched = False
+    idinternal_cached = None
     def idinternal(self):
-	if len(self.idinternal_set.all()) == 0:
-	    return None
-	else:
-	    return self.idinternal_set.all()[0]
+	if not(self.idinternal_fetched):
+	    try:
+		self.idinternal_cached = self.idinternal_set.all().get()
+	    except IDInternal.DoesNotExist:
+		self.idinternal_cached = None
+	    self.idinternal_fetched = True
+	return self.idinternal_cached
     def idstate(self):
 	idinternal = self.idinternal()
 	if idinternal:
@@ -251,7 +256,7 @@ class IDInternal(models.Model):
 
 class IDAuthors(models.Model):
     document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', edit_inline=models.TABULAR)
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
     author_order = models.IntegerField(null=True, blank=True)
     def __str__(self):
 	return "%s authors %s" % ( self.person, self.document.filename )
@@ -323,12 +328,115 @@ class PhoneNumber(models.Model):
         db_table = 'phone_numbers'
 	#unique_together = (('phone_priority', 'person_or_org'), )
 
+### Working Groups
+
+class GType(models.Model):
+    group_type_id = models.AutoField(primary_key=True)
+    type = models.CharField(maxlength=25, db_column='group_type')
+    def __str__(self):
+	return self.type
+    class Meta:
+        db_table = 'g_type'
+    class Admin:
+	pass
+
+class GStatus(models.Model):
+    status_id = models.AutoField(primary_key=True)
+    status = models.CharField(maxlength=25, db_column='status_value')
+    def __str__(self):
+	return self.status
+    class Meta:
+        db_table = 'g_status'
+    class Admin:
+	pass
+
+class GroupIETF(models.Model):
+    group_acronym = models.ForeignKey(Acronym, primary_key=True, unique=True, editable=False)
+    group_type = models.ForeignKey(GType)
+    proposed_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    dormant_date = models.DateField(null=True, blank=True)
+    concluded_date = models.DateField(null=True, blank=True)
+    status = models.ForeignKey(GStatus)
+    area_director = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True)
+    meeting_scheduled = models.CharField(blank=True, maxlength=3)
+    email_address = models.CharField(blank=True, maxlength=60)
+    email_subscribe = models.CharField(blank=True, maxlength=120)
+    email_keyword = models.CharField(blank=True, maxlength=50)
+    email_archive = models.CharField(blank=True, maxlength=95)
+    comments = models.TextField(blank=True)
+    last_modified_date = models.DateField()
+    meeting_scheduled_old = models.CharField(blank=True, maxlength=3)
+    def __str__(self):
+	return self.group_acronym.acronym
+    def active_drafts(self):
+	return self.group_acronym.internetdraft_set.all().filter(status__status="Active")
+    class Meta:
+        db_table = 'groups_ietf'
+	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it
+    class Admin:
+	pass
+
+class GChairs(models.Model):
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+    group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
+    class Meta:
+        db_table = 'g_chairs'
+
+class GEditors(models.Model):
+    group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+    class Meta:
+        db_table = 'g_editors'
+
+# Which is right? Secretaries or Secretary?
+class GSecretaries(models.Model):
+    group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+    class Meta:
+        db_table = 'g_secretaries'
+
+#class GSecretary(models.Model):
+#    group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
+#    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+#    class Meta:
+#        db_table = 'g_secretary'
+
+class GTechAdvisors(models.Model):
+    group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+    class Meta:
+        db_table = 'g_tech_advisors'
+
+class AreaGroup(models.Model):
+    area = models.ForeignKey(Areas, db_column='area_acronym_id', related_name='areagroup', core=True)
+    group = models.ForeignKey(GroupIETF, db_column='group_acronym_id', edit_inline=models.TABULAR, num_in_admin=1, unique=True)
+    class Meta:
+        db_table = 'area_group'
+
+class GoalsMilestones(models.Model):
+    gm_id = models.AutoField(primary_key=True)
+    group_acronym = models.ForeignKey(GroupIETF, raw_id_admin=True)
+    description = models.TextField()
+    expected_due_date = models.DateField()
+    done_date = models.DateField(null=True, blank=True)
+    done = models.CharField(blank=True, maxlength=4)
+    last_modified_date = models.DateField()
+    def __str__(self):
+	return self.description
+    class Meta:
+        db_table = 'goals_milestones'
+    class Admin:
+	pass
+
+#### end wg stuff
+
 # No admin panel needed; this is edited in Areas.
 class AreaDirectors(models.Model):
-    id = models.AutoField(primary_key=True)
     area = models.ForeignKey(Areas, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2)
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True, unique=True)
     def __str__(self):
         return "(%s) %s" % ( self.area, self.person )
     class Meta:
         db_table = 'area_directors'
+

@@ -26,9 +26,19 @@ def link_if_url(value):
     else:
 	return escape(value)
 
+# This replicates the nwg_list.cgi method.
+# It'd probably be better to check for the presence of
+# a scheme with a better RE.
 @register.filter(name='add_scheme')
 def add_scheme(value):
     if (re.match('www', value)):
 	return "http://" + value
     else:
 	return value
+
+@register.filter(name='timesum')
+def timesum(value):
+    sum = 0.0
+    for v in value:
+        sum += float(v['time'])
+    return sum

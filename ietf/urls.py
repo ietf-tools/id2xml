@@ -7,6 +7,7 @@ urlpatterns = patterns('',
       (r'^idindex/', include('ietf.idindex.urls')),
       (r'^liaisons/', include('ietf.liaisons.urls')),
       (r'^(?P<path>public|cgi-bin)/', include('ietf.redirects.urls')),
+      (r'^ipr/', include('ietf.ipr.urls')),
 
     # Uncomment this for admin:
      (r'^admin/', include('django.contrib.admin.urls')),

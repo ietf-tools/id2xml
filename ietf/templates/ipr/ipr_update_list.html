@@ -25,7 +25,7 @@
 
    <tr><th width="100">Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in generic_disclosures %}
-   {% include "ipr/ipr_update_list_item.html" %}
+   {% include "ipr/ipr_item.html" %}
    {% endfor %}
 </table>
 
@@ -42,7 +42,7 @@
 <table border="1" cellpadding="2" cellspacing="2" width="820">
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in specific_disclosures %}
-   {% include "ipr/ipr_update_list_item.html" %}
+   {% include "ipr/ipr_item.html" %}
    {% endfor %}
 </table>
 <br>
@@ -61,7 +61,7 @@
 
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in thirdpty_disclosures %}
-   {% include "ipr/ipr_update_list_item.html" %}
+   {% include "ipr/ipr_item.html" %}
    {% endfor %}
 </table>
 

@@ -1,5 +1,5 @@
 from django.db import models
-from ietf.idtracker.models import PersonOrOrgInfo
+from ietf.idtracker.models import PersonOrOrgInfo, ChairsHistory
 
 # I don't know why the IETF database mostly stores times
 # as char(N) instead of TIME.  Until it's important, let's
@@ -27,31 +27,35 @@ class AnnouncedTo(models.Model):
     class Admin:
 	pass
 
-class Announcements(models.Model):
+class Announcement(models.Model):
     announcement_id = models.AutoField(primary_key=True)
     announced_by = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True, db_column='announced_by')
     announced_date = models.DateField(null=True, blank=True)
     announced_time = models.CharField(blank=True, maxlength=20)
-    announcement_text = models.TextField(blank=True)
+    text = models.TextField(blank=True, db_column='announcement_text')
     announced_from = models.ForeignKey(AnnouncedFrom)
     cc = models.CharField(blank=True, maxlength=255)
     subject = models.CharField(blank=True, maxlength=255)
     extra = models.TextField(blank=True)
     announced_to = models.ForeignKey(AnnouncedTo)
-    #nomcom = models.IntegerField(null=True, blank=True)	# Boolean
     nomcom = models.BooleanField()
     nomcom_chair_id = models.IntegerField(null=True, blank=True) # ForeignKey to nomcom chairs
-    #manualy_added = models.IntegerField(null=True, blank=True) #Boolean
     manually_added = models.BooleanField(db_column='manualy_added')
     other_val = models.CharField(blank=True, maxlength=255)
     def __str__(self):
 	return "Announcement from %s to %s on %s %s" % (self.announced_from, self.announced_to, self.announced_date, self.announced_time)
+    def from_name(self):
+	if self.announced_from_id == 99:
+	    return self.other_val
+	if self.announced_from_id == 14:	# sigh hardcoding
+	    return ChairsHistory.objects.all().get(id=self.nomcom_chair_id).person
+	return self.announced_from
     class Meta:
         db_table = 'announcements'
     class Admin:
 	pass
 
-class ScheduledAnnouncements(models.Model):
+class ScheduledAnnouncement(models.Model):
     mail_sent = models.BooleanField()
     to_be_sent_date = models.DateField(null=True, blank=True)
     to_be_sent_time = models.CharField(blank=True, maxlength=50)

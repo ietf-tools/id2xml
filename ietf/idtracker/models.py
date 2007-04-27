@@ -117,7 +117,7 @@ class InternetDraft(models.Model):
     rfc_number = models.IntegerField(null=True, blank=True)
     comments = models.TextField(blank=True)
     last_modified_date = models.DateField()
-    replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True)
+    replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True, null=True)
     review_by_rfc_editor = models.IntegerField()	# boolean
     expired_tombstone = models.IntegerField() # boolean
     def save(self):
@@ -130,7 +130,7 @@ class InternetDraft(models.Model):
     def idinternal(self):
 	if not(self.idinternal_fetched):
 	    try:
-		self.idinternal_cached = self.idinternal_set.all().get()
+		self.idinternal_cached = self.idinternal_set.all().get(rfc_flag=0)
 	    except IDInternal.DoesNotExist:
 		self.idinternal_cached = None
 	    self.idinternal_fetched = True
@@ -299,7 +299,7 @@ class PostalAddress(models.Model):
     country = models.CharField(maxlength=20, blank=True)
     def save(self):
 	self.aff_company_key = self.affiliated_company.upper()
-	super(PersonOrOrgInfo, self).save()
+	super(PostalAddress, self).save()
     class Meta:
         db_table = 'postal_addresses'
 	#unique_together = (('address_type', 'person_or_org'), )
@@ -404,7 +404,7 @@ class GSecretaries(models.Model):
 
 class GTechAdvisors(models.Model):
     group_acronym = models.ForeignKey(GroupIETF, edit_inline=models.TABULAR)
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
     class Meta:
         db_table = 'g_tech_advisors'
 
@@ -434,9 +434,22 @@ class GoalsMilestones(models.Model):
 # No admin panel needed; this is edited in Areas.
 class AreaDirectors(models.Model):
     area = models.ForeignKey(Areas, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2)
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True, unique=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
     def __str__(self):
         return "(%s) %s" % ( self.area, self.person )
     class Meta:
         db_table = 'area_directors'
 
+class ChairsHistory(models.Model):
+    CHAIR_CHOICES = (
+	( '1', 'IETF' ),
+	( '2', 'IAB' ),
+	( '3', 'NOMCOM' ),
+    )
+    chair_type_id = models.IntegerField(choices=CHAIR_CHOICES)
+    present_chair = models.BooleanField()
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    start_year = models.IntegerField()
+    end_year = models.IntegerField(null=True, blank=True)
+    class Meta:
+        db_table = 'chairs_history'

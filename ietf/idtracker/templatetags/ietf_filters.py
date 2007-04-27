@@ -42,3 +42,7 @@ def timesum(value):
     for v in value:
         sum += float(v['time'])
     return sum
+
+@register.filter(name='text_to_html')
+def text_to_html(value):
+    return "<br>\n".join(escape(value).split("\n"))

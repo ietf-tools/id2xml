@@ -1,25 +1,12 @@
+from django.http import HttpResponse,HttpResponseRedirect
 from django.views.generic.list_detail import object_list
 from django.db.models import Q
 from django.http import Http404
+from django.template import RequestContext, Context, loader
 from ietf.idtracker.models import Acronym, GroupIETF, InternetDraft
+from ietf.idindex.forms import IDIndexSearchForm
+from ietf.idindex.models import alphabet, orgs
 import operator
-
-alphabet = [chr(65 + i) for i in range(0, 26)]
-orgs_initial = {
-	'iab': { 'name': 'IAB' },
-	'iana': { 'name': 'IANA' },
-	'iasa': { 'name': 'IASA' },
-	'iesg': { 'name': 'IESG' },
-	'irtf': { 'name': 'IRTF' },
-	'proto': { 'name': 'PROTO' },
-	'rfc-editor': { 'name': 'RFC Editor', 'prefixes': [ 'rfc-editor', 'rfced' ] },
-	'tools': { 'name': 'Tools' },
-}
-orgs_keys = orgs_initial.keys()
-for o in orgs_keys:
-    orgs_initial[o]['key'] = o
-orgs_keys.sort()
-orgs = [orgs_initial[o] for o in orgs_keys]
 
 base_extra = { 'alphabet': alphabet, 'orgs': orgs }
 
@@ -120,3 +107,37 @@ def showdocs(request, cat=None, sortby=None):
     extra['sort_header'] = sortmap[sortby]['header']
     extra.update(base_extra)
     return object_list(request, queryset=queryset, template_name='idindex/showdocs.html', extra_context=extra)
+
+
+def search(request):
+    form = IDIndexSearchForm()
+    t = loader.get_template('idindex/search.html')
+    # if there's a post, do the search and supply results to the template
+    # XXX should handle GET too
+    if request.method == 'POST':
+	qdict = { 'filename': 'filename__icontains',
+		  'id_tracker_state_id': 'idtracker__cur_state',
+		  'wg_id': 'group',
+		  'status_id': 'status',
+		  'last_name': 'authors__person__last_name__icontains',
+		  'first_name': 'authors__person__first_name__icontains',
+		}
+	q_objs = [Q(**{qdict[k]: request.POST[k]})
+		for k in qdict.keys()
+		if request.POST[k] != '']
+	# todo: helper function to make Q objects for otherdocs
+	matches = InternetDraft.objects.all().filter(*q_objs)
+	matches = matches.order_by('filename')
+	searched = True
+    else:
+	matches = None
+        searched = False
+
+    c = RequestContext(request, {
+	'form': form,
+	'object_list': matches,
+	'didsearch': searched,
+	'alphabet': alphabet,
+	'orgs': orgs,
+    })
+    return HttpResponse(t.render(c))

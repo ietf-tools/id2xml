@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from ietf.idtracker.models import InternetDraft
 from ietf.idindex import views
+from ietf.idindex import forms
 
 info_dict = {
     'queryset': InternetDraft.objects.all(),
@@ -20,5 +21,5 @@ urlpatterns = patterns('',
      (r'^showdocs/(?P<cat>[^/]+)/((?P<sortby>[^/]+)/)?$', views.showdocs),
      (r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
      (r'^(?P<slug>[^/]+)/$', 'django.views.generic.list_detail.object_detail', info_dict2),
-     (r'^$', 'django.views.generic.simple.direct_to_template', { 'template': 'idindex/base.html', 'extra_context': { 'alphabet': views.alphabet, 'orgs': views.orgs } }),
+     (r'^$', views.search),
 )

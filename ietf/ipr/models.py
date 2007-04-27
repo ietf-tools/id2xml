@@ -123,8 +123,8 @@ class IprRfcs(models.Model):
 
 class IprUpdates(models.Model):
     id = models.IntegerField(primary_key=True)
-    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='updated_by')
-    updated = models.ForeignKey(IprDetail, db_column='updated', raw_id_admin=True, related_name='updates')
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='updates')
+    updated = models.ForeignKey(IprDetail, db_column='updated', raw_id_admin=True, related_name='updated_by')
     status_to_be = models.IntegerField(null=True, blank=True)
     processed = models.IntegerField(null=True, blank=True)
     class Meta:

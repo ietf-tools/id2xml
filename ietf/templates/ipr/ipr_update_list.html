@@ -25,18 +25,7 @@
 
    <tr><th width="100">Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in generic_disclosures %}
-   <tr>
-      <td align="center">{{ ipr.submitted_date }}</td>
-      <td align="right">{{ ipr.ipr_id }}</td>
-      <td>
-	 {% ifequal status 1 %}
-	    {{ ipr.document_title }}
-	    <br>This IPR disclosure was removed at the request of the submitter."
-	 {% else %}
-	    <a href="{{ ipr.ipr_id }}">{{ ipr.document_title }}</a>
-	 {% endifequal %}
-      </td>
-   </tr>
+   {% include "ipr/ipr_update_list_item.html" %}
    {% endfor %}
 </table>
 
@@ -53,18 +42,7 @@
 <table border="1" cellpadding="2" cellspacing="2" width="820">
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in specific_disclosures %}
-   <tr>
-      <td align="center">{{ ipr.submitted_date }}</td>
-      <td align="right">{{ ipr.ipr_id }}</td>
-      <td>
-	 {% ifequal status 1 %}
-	    {{ ipr.document_title }}
-	    <br>This IPR disclosure was removed at the request of the submitter."
-	 {% else %}
-	    <a href="{{ ipr.ipr_id }}">{{ ipr.document_title }}</a>
-	 {% endifequal %}
-      </td>
-   </tr>
+   {% include "ipr/ipr_update_list_item.html" %}
    {% endfor %}
 </table>
 <br>
@@ -83,18 +61,7 @@
 
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in thirdpty_disclosures %}
-   <tr>
-      <td align="center">{{ ipr.submitted_date }}</td>
-      <td align="right">{{ ipr.ipr_id }}</td>
-      <td>
-	 {% ifequal status 1 %}
-	    {{ ipr.document_title }}
-	    <br>This IPR disclosure was removed at the request of the submitter."
-	 {% else %}
-	    <a href="{{ ipr.ipr_id }}">{{ ipr.document_title }}</a>
-	 {% endifequal %}
-      </td>
-   </tr>
+   {% include "ipr/ipr_update_list_item.html" %}
    {% endfor %}
 </table>
 

@@ -84,6 +84,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'ietf.idtracker',
+    'ietf.rfcs',
+    'ietf.ipr',
 )
 
 INTERNAL_IPS = (

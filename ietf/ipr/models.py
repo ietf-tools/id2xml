@@ -1,5 +1,6 @@
 from django.db import models
 from ietf.idtracker.views import InternetDraft
+from ietf.rfcs.models import Rfc
 
 # not clear why this has both an ID and selecttype
 # Also not clear why a table for "YES" and "NO".
@@ -25,6 +26,18 @@ class IprLicensing(models.Model):
 	pass
 
 class IprDetail(models.Model):
+    SELECT_CHOICES = (
+	('1', 'YES'),
+	('2', 'NO'),
+    )
+    LICENSE_CHOICES = (
+	('1', 'No License Required for Implementers.'),
+	('2', 'Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.'),
+	('3', 'Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.'),
+	('4', 'Licensing Declaration to be Provided Later.'),
+	('5', 'Unwilling to Commit to the Provisions.'),
+	('6', 'See Text Below for Licensing Declaration.'),
+    )
     ipr_id = models.AutoField(primary_key=True)
     p_h_legal_name = models.CharField("Patent Holder's Legal Name", blank=True, maxlength=255)
     document_title = models.CharField(blank=True, maxlength=255)
@@ -33,9 +46,11 @@ class IprDetail(models.Model):
     other_designations = models.CharField(blank=True, maxlength=255)
     p_applications = models.CharField(blank=True, maxlength=255)
     date_applied = models.CharField(blank=True, maxlength=255)
-    selecttype = models.ForeignKey(IprSelecttype, to_field='selecttype', db_column='selecttype')
+    #selecttype = models.ForeignKey(IprSelecttype, to_field='selecttype', db_column='selecttype')
+    selecttype = models.IntegerField(null=True, choices=SELECT_CHOICES)
     discloser_identify = models.CharField(blank=True, maxlength=255, db_column='disclouser_identify')
-    licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
+    #licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
+    licensing_option = models.IntegerField(null=True, choices=LICENSE_CHOICES)
     other_notes = models.TextField(blank=True)
     submitted_date = models.DateField(null=True, blank=True)
     status = models.IntegerField(null=True, blank=True)
@@ -53,25 +68,35 @@ class IprDetail(models.Model):
     lic_opt_c_sub = models.BooleanField()
     generic = models.BooleanField()
     # I don't understand selectowned, it looks like it should be a boolean field.
-    selectowned = models.CharField(blank=True, maxlength=3)
+    selectowned = models.IntegerField(null=True, choices=SELECT_CHOICES)
     comply = models.BooleanField()
     lic_checkbox = models.BooleanField()
     update_notified_date = models.DateField(null=True, blank=True)
     def __str__(self):
 	return self.document_title
+    def selecttypetext(self):
+        if self.selecttype == "1":
+            return "YES"
+        else:
+            return "NO"
+    def selectownedtext(self):
+        if self.selectowned == "1":
+            return "YES"
+        else:
+            return "NO"
     class Meta:
         db_table = 'ipr_detail'
     class Admin:
 	pass
 
-class IprContacts(models.Model):
+class IprContact(models.Model):
     TYPE_CHOICES = (
 	('1', 'Patent Holder Contact'),
 	('2', 'IETF Participant Contact'),
 	('3', 'Submitter Contact'),
     )
     contact_id = models.AutoField(primary_key=True)
-    ipr = models.ForeignKey(IprDetail, raw_id_admin=True)
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name="contact")
     contact_type = models.IntegerField(choices=TYPE_CHOICES)
     name = models.CharField(blank=True, maxlength=255)
     title = models.CharField(blank=True, maxlength=255)
@@ -82,15 +107,17 @@ class IprContacts(models.Model):
     address1 = models.CharField(blank=True, maxlength=255)
     address2 = models.CharField(blank=True, maxlength=255)
     def __str__(self):
-	return self.name or "<noname>"
+	return self.name
     class Meta:
         db_table = 'ipr_contacts'
     class Admin:
 	pass
+    
 
-class IprIds(models.Model):
+
+class IprDraft(models.Model):
     document = models.ForeignKey(InternetDraft, db_column='id_document_tag', raw_id_admin=True)
-    ipr = models.ForeignKey(IprDetail, raw_id_admin=True)
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='drafts')
     revision = models.CharField(maxlength=2)
     def __str__(self):
 	return "%s applies to %s-%s" % ( self.ipr, self.document, self.revision )
@@ -99,7 +126,7 @@ class IprIds(models.Model):
     class Admin:
 	pass
 
-class IprNotifications(models.Model):
+class IprNotification(models.Model):
     ipr = models.ForeignKey(IprDetail, raw_id_admin=True)
     notification = models.TextField(blank=True)
     date_sent = models.DateField(null=True, blank=True)
@@ -111,9 +138,9 @@ class IprNotifications(models.Model):
     class Admin:
 	pass
 
-class IprRfcs(models.Model):
-    ipr = models.ForeignKey(IprDetail, raw_id_admin=True)
-    rfc_number = models.IntegerField()
+class IprRfc(models.Model):
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='rfcs')
+    rfc_number = models.ForeignKey(Rfc, db_column='rfc_number', raw_id_admin=True)
     def __str__(self):
 	return "%s applies to RFC%04d" % ( self.ipr, self.rfc_number )
     class Meta:
@@ -121,7 +148,7 @@ class IprRfcs(models.Model):
     class Admin:
 	pass
 
-class IprUpdates(models.Model):
+class IprUpdate(models.Model):
     id = models.IntegerField(primary_key=True)
     ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='updates')
     updated = models.ForeignKey(IprDetail, db_column='updated', raw_id_admin=True, related_name='updated_by')

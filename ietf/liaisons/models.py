@@ -12,14 +12,10 @@ class LiaisonPurpose(models.Model):
     class Admin:
 	pass
 
-# poc is sometimes a PersonOrOrgInfo and sometimes not.
-# This makes django raise DoesNotExist / PersonOrOrgInfo matching query does not exist
-# todo: helper function to get the poc info
 class FromBodies(models.Model):
     from_id = models.AutoField(primary_key=True)
     body_name = models.CharField(blank=True, maxlength=35)
-    poc = models.IntegerField()
-    #poc = models.ForeignKey(PersonOrOrgInfo, db_column='poc', raw_id_admin=True)
+    poc = models.ForeignKey(PersonOrOrgInfo, db_column='poc', raw_id_admin=True, null=True)
     is_liaison_manager = models.BooleanField()
     other_sdo = models.BooleanField()
     email_priority = models.IntegerField(null=True, blank=True)

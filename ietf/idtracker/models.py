@@ -1,4 +1,5 @@
 from django.db import models
+from ietf.utils import FKAsOneToOne
 
 class Acronym(models.Model):
     acronym_id = models.AutoField(primary_key=True)
@@ -117,26 +118,18 @@ class InternetDraft(models.Model):
     rfc_number = models.IntegerField(null=True, blank=True)
     comments = models.TextField(blank=True)
     last_modified_date = models.DateField()
-    replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True, null=True)
-    review_by_rfc_editor = models.IntegerField()	# boolean
-    expired_tombstone = models.IntegerField() # boolean
+    replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True, null=True, related_name='replaces_set')
+    replaces = FKAsOneToOne('replaces', reverse=True)
+    review_by_rfc_editor = models.BooleanField()
+    expired_tombstone = models.BooleanField()
+    idinternal = FKAsOneToOne('idinternal', reverse=True, query=models.Q(rfc_flag = 0))
     def save(self):
         self.id_document_key = self.id_document_name.upper()
         super(InternetDraft, self).save()
     def __str__(self):
         return self.filename
-    idinternal_fetched = False
-    idinternal_cached = None
-    def idinternal(self):
-	if not(self.idinternal_fetched):
-	    try:
-		self.idinternal_cached = self.idinternal_set.all().get(rfc_flag=0)
-	    except IDInternal.DoesNotExist:
-		self.idinternal_cached = None
-	    self.idinternal_fetched = True
-	return self.idinternal_cached
     def idstate(self):
-	idinternal = self.idinternal()
+	idinternal = self.idinternal
 	if idinternal:
 	    if idinternal.cur_sub_state:
 		return "%s :: %s" % ( idinternal.cur_state, idinternal.cur_sub_state )
@@ -144,6 +137,11 @@ class InternetDraft(models.Model):
 		return idinternal.cur_state
 	else:
 	    return "I-D Exists"
+    def revision_display(self):
+	r = int(self.revision)
+	if self.status.status != 'Active' and not self.expired_tombstone:
+	   r = max(r - 1, 0)
+	return "%02d" % r
     class Meta:
         db_table = "internet_drafts"
     class Admin:

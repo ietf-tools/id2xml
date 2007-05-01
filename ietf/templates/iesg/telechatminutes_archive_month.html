@@ -13,7 +13,7 @@
 {% if object_list %}
 <ul>
 {% for object in object_list %}
-<li><a href="{{object.telechat_date|date:"d" }}/{{object.telechat_id }}/">{{ object.telechat_date|date:"F d" }}
+<li><a href="../../detail/{{ object.id }}/">{{ object.telechat_date|date:"F j" }}
 {% endfor %}
 </ul>
 {% else %}

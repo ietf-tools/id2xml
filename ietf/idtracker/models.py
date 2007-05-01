@@ -451,3 +451,24 @@ class ChairsHistory(models.Model):
     end_year = models.IntegerField(null=True, blank=True)
     class Meta:
         db_table = 'chairs_history'
+
+#
+# IRTF RG info
+class IRTF(models.Model):
+    irtf_id = models.AutoField(primary_key=True)
+    acronym = models.CharField(blank=True, maxlength=25, db_column='irtf_acronym')
+    name = models.CharField(blank=True, maxlength=255, db_column='irtf_name')
+    charter_text = models.TextField(blank=True)
+    meeting_scheduled = models.BooleanField(null=True, blank=True)
+    class Meta:
+        db_table = 'irtf'
+    class Admin:
+	pass
+
+class IRTFChairs(models.Model):
+    irtf = models.ForeignKey(IRTF)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    class Meta:
+        db_table = 'irtf_chairs'
+    class Admin:
+	pass

@@ -2,15 +2,16 @@ from django.conf.urls.defaults import *
 from ietf.idtracker.models import InternetDraft
 from ietf.idindex import views
 from ietf.idindex import forms
+from ietf.idindex.views import alphabet, orgs
 
 info_dict = {
     'queryset': InternetDraft.objects.all(),
     'template_name': 'idindex/internetdraft_detail.html',
+    'extra_context': {
+	'alphabet': alphabet,
+	'orgs': orgs,
+    }
 }
-info_dict2 = info_dict
-info_dict2.update({
-    'slug_field': 'filename',
-})
 
 urlpatterns = patterns('',
      (r'^wgdocs/(?P<id>\d+)/$', views.wgdocs),
@@ -20,6 +21,6 @@ urlpatterns = patterns('',
      (r'^otherdocs/(?P<cat>[^/]+)/$', views.otherdocs),
      (r'^showdocs/(?P<cat>[^/]+)/((?P<sortby>[^/]+)/)?$', views.showdocs),
      (r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
-     (r'^(?P<slug>[^/]+)/$', 'django.views.generic.list_detail.object_detail', info_dict2),
+     (r'^(?P<slug>[^/]+)/$', 'django.views.generic.list_detail.object_detail', dict(info_dict, slug_field='filename')),
      (r'^$', views.search),
 )

@@ -2,6 +2,24 @@ from django.db import models
 from ietf.idtracker.views import InternetDraft
 from ietf.rfcs.models import Rfc
 
+LICENSE_CHOICES = (
+    (1, 'No License Required for Implementers.'),
+    (2, 'Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.'),
+    (3, 'Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.'),
+    (4, 'Licensing Declaration to be Provided Later.'),
+    (5, 'Unwilling to Commit to the Provisions.'),
+    (6, 'See Text Below for Licensing Declaration.'),
+)
+STDONLY_CHOICES = (
+    (False, ""),
+    (True,  "The licensing declaration is limited solely to standards-track IETF documents."),
+)
+SELECT_CHOICES = (
+    ("0", 'NO'),
+    ("1", 'YES'),
+    ("2", 'NO'),
+)
+
 # not clear why this has both an ID and selecttype
 # Also not clear why a table for "YES" and "NO".
 class IprSelecttype(models.Model):
@@ -25,30 +43,19 @@ class IprLicensing(models.Model):
     class Admin:
 	pass
 
+
 class IprDetail(models.Model):
-    SELECT_CHOICES = (
-	('1', 'YES'),
-	('2', 'NO'),
-    )
-    LICENSE_CHOICES = (
-	('1', 'No License Required for Implementers.'),
-	('2', 'Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.'),
-	('3', 'Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.'),
-	('4', 'Licensing Declaration to be Provided Later.'),
-	('5', 'Unwilling to Commit to the Provisions.'),
-	('6', 'See Text Below for Licensing Declaration.'),
-    )
     ipr_id = models.AutoField(primary_key=True)
     p_h_legal_name = models.CharField("Patent Holder's Legal Name", blank=True, maxlength=255)
     document_title = models.CharField(blank=True, maxlength=255)
     rfc_number = models.IntegerField(null=True, blank=True)	# always NULL
     id_document_tag = models.IntegerField(null=True, blank=True)	# always NULL
     other_designations = models.CharField(blank=True, maxlength=255)
-    p_applications = models.CharField(blank=True, maxlength=255)
+    p_applications = models.TextField(blank=True, maxlength=255)
     date_applied = models.CharField(blank=True, maxlength=255)
     #selecttype = models.ForeignKey(IprSelecttype, to_field='selecttype', db_column='selecttype')
     selecttype = models.IntegerField(null=True, choices=SELECT_CHOICES)
-    discloser_identify = models.CharField(blank=True, maxlength=255, db_column='disclouser_identify')
+    discloser_identify = models.TextField(blank=True, maxlength=255, db_column='disclouser_identify')
     #licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
     licensing_option = models.IntegerField(null=True, choices=LICENSE_CHOICES)
     other_notes = models.TextField(blank=True)
@@ -63,9 +70,9 @@ class IprDetail(models.Model):
     country = models.CharField(blank=True, maxlength=100)
     p_notes = models.TextField(blank=True)
     third_party = models.BooleanField()
-    lic_opt_a_sub = models.BooleanField()
-    lic_opt_b_sub = models.BooleanField()
-    lic_opt_c_sub = models.BooleanField()
+    lic_opt_a_sub = models.BooleanField(choices=STDONLY_CHOICES)
+    lic_opt_b_sub = models.BooleanField(choices=STDONLY_CHOICES)
+    lic_opt_c_sub = models.BooleanField(choices=STDONLY_CHOICES)
     generic = models.BooleanField()
     # I don't understand selectowned, it looks like it should be a boolean field.
     selectowned = models.IntegerField(null=True, choices=SELECT_CHOICES)
@@ -98,12 +105,12 @@ class IprContact(models.Model):
     contact_id = models.AutoField(primary_key=True)
     ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name="contact")
     contact_type = models.IntegerField(choices=TYPE_CHOICES)
-    name = models.CharField(blank=True, maxlength=255)
+    name = models.CharField(maxlength=255)
     title = models.CharField(blank=True, maxlength=255)
     department = models.CharField(blank=True, maxlength=255)
-    telephone = models.CharField(blank=True, maxlength=25)
+    telephone = models.CharField(maxlength=25)
     fax = models.CharField(blank=True, maxlength=25)
-    email = models.CharField(blank=True, maxlength=255)
+    email = models.CharField(maxlength=255)
     address1 = models.CharField(blank=True, maxlength=255)
     address2 = models.CharField(blank=True, maxlength=255)
     def __str__(self):

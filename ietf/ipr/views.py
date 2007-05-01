@@ -1,20 +1,25 @@
-from models import IprDetail
+import models
 from django.shortcuts import render_to_response as render
+import django.newforms as forms
 
 def default(request):
-    return render("ipr/ipr_disclosure.html", {})
-
-def updatelist(request):
-    return list(request, 'ipr/ipr_update_list.html')
+    """Default page, with links to sub-pages"""
+    return render("ipr/disclosure.html", {})
 
 def showlist(request):
-    return list(request, 'ipr/ipr_list.html')
+    """Display a list of existing disclosures"""
+    return list(request, 'ipr/list.html')
+
+def updatelist(request):
+    """Display a list of existing disclosures, with links to update forms"""
+    return list(request, 'ipr/update_list.html')
 
 def list(request, template):
-    disclosures = IprDetail.objects.all()
-    generic_disclosures  = disclosures.filter(status__in=[1,3], generic__exact=1)    
-    specific_disclosures = disclosures.filter(status__in=[1,3], generic__exact=0, third_party__exact=0)
-    thirdpty_disclosures = disclosures.filter(status__in=[1,3], generic__exact=0, third_party__exact=1)
+    """Display a list of existing disclosures, using the provided template"""    
+    disclosures = models.IprDetail.objects.all()
+    generic_disclosures  = disclosures.filter(status__in=[1,3], generic=1)    
+    specific_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=0)
+    thirdpty_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=1)
     
     return render(template,
         {
@@ -24,32 +29,82 @@ def list(request, template):
         } )
 
 def show(request, ipr_id=None):
+    """Show a specific IPR disclosure"""
     assert ipr_id != None
-    ipr = IprDetail.objects.filter(ipr_id__exact=ipr_id)[0]
+    ipr = models.IprDetail.objects.filter(ipr_id=ipr_id)[0]
     ipr.disclosure_type = get_disclosure_type(ipr)
     try:
-        ipr.holder_contact = ipr.contact.filter(contact_type__exact=1)[0]    
+        ipr.holder_contact = ipr.contact.filter(contact_type=1)[0]    
     except IndexError:
         ipr.holder_contact = ""
     try:
-        ipr.ietf_contact = ipr.contact.filter(contact_type__exact=2)[0]
+        ipr.ietf_contact = ipr.contact.filter(contact_type=2)[0]
     except IndexError:
         ipr.ietf_contact = ""
     try:
-        ipr.submitter = ipr.contact.filter(contact_type__exact=3)[0]
+        ipr.submitter = ipr.contact.filter(contact_type=3)[0]
     except IndexError:
         ipr.submitter = ""
 
     if   ipr.generic:
-        return render("ipr/ipr_details_generic.html",  {"ipr": ipr})
+        return render("ipr/details_generic.html",  {"ipr": ipr})
     if ipr.third_party:
-        return render("ipr/ipr_details_thirdpty.html", {"ipr": ipr})
+        return render("ipr/details_thirdpty.html", {"ipr": ipr})
     else:
-        return render("ipr/ipr_details_specific.html", {"ipr": ipr})
+        return render("ipr/details_specific.html", {"ipr": ipr})
         
 
 def update(request, ipr_id=None):
+    """Update a specific IPR disclosure"""
+    # TODO: replace the placeholder code with the appropriate update code
     return show(request, ipr_id)
+
+def new(request):
+    return render("ipr/new.html", {})
+
+def detail_field_fixup(field):
+    if field.name == "licensing_option":
+        return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES))
+    if field.name in ["selecttype", "selectowned"]:
+        return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))))
+    return field.formfield()
+
+def new_specific(request):
+    """Form to make a new specific IPR disclosure"""
+    debug = ""
+
+    IprForm = forms.form_for_model(models.IprDetail, formfield_callback=detail_field_fixup)
+    # Some extra fields which will get post-processing to generate the IprRfcs
+    # and IprDrafts entries which go into the database:
+    IprForm.base_fields["rfclist"] = forms.CharField(required=False)
+    IprForm.base_fields["draftlist"] = forms.CharField(required=False)
+    IprForm.base_fields["stdonly_license"] = forms.BooleanField(required=False)
+
+    ContactForm = forms.form_for_model(models.IprContact)
+    form = IprForm(request.POST)
+
+    form.holder_contact = ContactForm(request.POST)
+    form.ietf_contact = ContactForm(request.POST)
+    form.submitter = ContactForm(request.POST)
+
+    form.unbound_form = True
+    return render("ipr/new.html", {"ipr": form, "debug": debug, })
+
+def new_generic(request):
+    """Form to make a new specific IPR disclosure"""
+    debug = ""
+    IprForm = forms.form_for_model(models.IprDetail)
+    form = IprForm(request.POST)
+    form.unbound_form = not form.is_bound
+    return render("ipr/details_generic.html", {"ipr": form, "debug": debug, })
+
+def new_thirdpty(request):
+    """Form to make a new specific IPR disclosure"""
+    debug = ""
+    IprForm = forms.form_for_model(models.IprDetail)
+    form = IprForm(request.POST)
+    form.unbound_form = not form.is_bound
+    return render("ipr/details_thirdpty.html", {"ipr": form, "debug": debug, })
 
 # ---- Helper functions ------------------------------------------------------
 

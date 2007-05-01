@@ -83,14 +83,25 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'ietf.agenda',
+    'ietf.announcements',
+    'ietf.idindex',
     'ietf.idtracker',
-    'ietf.rfcs',
+    'ietf.iesg',
     'ietf.ipr',
+    'ietf.liaisons',
+    'ietf.mailinglists',
+    'ietf.my',
+    'ietf.proceedings',
+    'ietf.redirects',
+    'ietf.rfcs',
 )
 
 INTERNAL_IPS = (
-# heh, aloha.net
-	'64.75.163.14',
+# llama in san jose
+	'135.207.33.119',
+# fenestro
+	'67.188.114.134',
 )
 
 # Put SECRET_KEY in here, or any other sensitive or site-specific

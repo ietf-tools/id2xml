@@ -88,7 +88,7 @@
       Click <a href="update/{{ ipr.ipr_id }}">here</a> to update this IPR disclosure<br>
       <!-- tag 1 -->
       <br>
-      <font size="3"><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></font>
+      <font size="3"><strong>Submitted Date: {{ ipr.submitted_date }}</strong></font>
    </blockquote>
 
    {% block section1 %}
@@ -255,7 +255,7 @@
 	    </tr>
 	    <tr>
 	       <td colspan="2" class="iprtext">
-		  <b>{% include "ipr/ipr_licensing_option.html" %}</b>
+		  <b>{% include "ipr/licensing_option.html" %}</b>
 	       </td>
 	    </tr>
 	    <tr>

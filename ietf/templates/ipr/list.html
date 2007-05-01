@@ -31,7 +31,7 @@ which any license under such rights might or might not be available; nor does it
 <h2>Generic IPR Disclosures</h2><br>
 <table border="1" cellpadding="2" cellspacing="2" width="820">
    {% for ipr in generic_disclosures %}
-   {% include "ipr/item.html" %}
+   {% include "ipr/list_item.html" %}
    {% endfor %}
 </table>
 
@@ -42,7 +42,7 @@ which any license under such rights might or might not be available; nor does it
 <table border="1" cellpadding="2" cellspacing="2" width="820">
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in specific_disclosures %}
-   {% include "ipr/item.html" %}
+   {% include "ipr/list_item.html" %}
    {% endfor %}
 </table>
 <br>
@@ -53,7 +53,7 @@ which any license under such rights might or might not be available; nor does it
 <table border="1" cellpadding="2" cellspacing="2" width="820">
    <tr><th>Date Submitted</th><th width="70">ID #</th><th align="center">Title of IPR Disclosure</th></tr>
    {% for ipr in thirdpty_disclosures %}
-   {% include "ipr/item.html" %}
+   {% include "ipr/list_item.html" %}
    {% endfor %}
 </table>
 

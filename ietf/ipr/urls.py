@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from ietf.ipr import views
+from ietf.ipr import models, views
 
 urlpatterns = patterns('',
      (r'^$', views.default),
@@ -12,3 +12,14 @@ urlpatterns = patterns('',
      (r'^new/generic/$', views.new_generic),
      (r'^new/third-party/$', views.new_thirdpty),
 )
+
+queryset = models.IprDetail.objects.all()
+archive = {'queryset':queryset, 'date_field': 'submitted_date', 'allow_empty':True }
+
+urlpatterns += patterns('django.views.generic.date_based',
+	(r'^date/$', 'archive_index', archive),
+	(r'^date/(?P<year>\d{4})/$', 'archive_year', archive),
+	(r'^date/(?P<year>\d{4})/(?P<month>[a-z]{3})/$', 'archive_month', archive),
+)
+
+

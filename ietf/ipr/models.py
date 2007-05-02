@@ -11,8 +11,8 @@ LICENSE_CHOICES = (
     (6, 'See Text Below for Licensing Declaration.'),
 )
 STDONLY_CHOICES = (
-    (False, ""),
-    (True,  "The licensing declaration is limited solely to standards-track IETF documents."),
+    (0, ""),
+    (1,  "The licensing declaration is limited solely to standards-track IETF documents."),
 )
 SELECT_CHOICES = (
     ("0", 'NO'),
@@ -57,7 +57,7 @@ class IprDetail(models.Model):
     selecttype = models.IntegerField(null=True, choices=SELECT_CHOICES)
     discloser_identify = models.TextField(blank=True, maxlength=255, db_column='disclouser_identify')
     #licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
-    licensing_option = models.IntegerField(null=True, choices=LICENSE_CHOICES)
+    licensing_option = models.IntegerField(null=True, blank=True, choices=LICENSE_CHOICES)
     other_notes = models.TextField(blank=True)
     submitted_date = models.DateField(null=True, blank=True)
     status = models.IntegerField(null=True, blank=True)
@@ -70,12 +70,12 @@ class IprDetail(models.Model):
     country = models.CharField(blank=True, maxlength=100)
     p_notes = models.TextField(blank=True)
     third_party = models.BooleanField()
-    lic_opt_a_sub = models.BooleanField(choices=STDONLY_CHOICES)
-    lic_opt_b_sub = models.BooleanField(choices=STDONLY_CHOICES)
-    lic_opt_c_sub = models.BooleanField(choices=STDONLY_CHOICES)
+    lic_opt_a_sub = models.IntegerField(choices=STDONLY_CHOICES)
+    lic_opt_b_sub = models.IntegerField(choices=STDONLY_CHOICES)
+    lic_opt_c_sub = models.IntegerField(choices=STDONLY_CHOICES)
     generic = models.BooleanField()
     # I don't understand selectowned, it looks like it should be a boolean field.
-    selectowned = models.IntegerField(null=True, choices=SELECT_CHOICES)
+    selectowned = models.IntegerField(null=True, blank=True, choices=SELECT_CHOICES)
     comply = models.BooleanField()
     lic_checkbox = models.BooleanField()
     update_notified_date = models.DateField(null=True, blank=True)

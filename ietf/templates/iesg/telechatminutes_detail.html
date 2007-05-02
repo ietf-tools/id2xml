@@ -5,6 +5,6 @@
 
 {% block content %}
 <blockquote>
-{{ object.telechat_minute|text_to_html|urlize }}
+{{ object.telechat_minute|escape|linebreaks|urlize }}
 </blockquote>
 {% endblock %}

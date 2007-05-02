@@ -71,7 +71,7 @@
 	  <br>
 	  This IPR disclosure updates IPR disclosure ID #{{ item.updated.ipr_id }},
 	  {% ifequal item.status_to_be 1 %}
-	     "<a href="../{{ item.updated.ipr_id }}">{{ item.updated.document_title }}</a>".
+	     "<a href="{% url ietf.ipr.views.show item.updated.ipr_id %}">{{ item.updated.document_title }}</a>".
 	  {% else %}
 	     "{{ item.updated.document_title }}", which was removed at the request of the submitter.
 	  {% endifequal %}
@@ -85,7 +85,7 @@
 	  <br>
 	  This IPR disclosure has been updated by IPR disclosure ID #{{ item.ipr.ipr_id }},
 	  {% ifequal item.status_to_be 1 %}
-	     "<a href="../{{ item.ipr.ipr_id }}">{{ item.ipr.document_title }}</a>".
+	     "<a href="{% url ietf.ipr.views.show item.ipr.ipr_id %}">{{ item.ipr.document_title }}</a>".
 	  {% else %}
 	     "{{ item.ipr.document_title }}", which was removed at the request of the submitter.
 	  {% endifequal %}
@@ -95,7 +95,7 @@
       {% endfor %}
 
       <br>
-      Click <a href="update/{{ ipr.ipr_id }}">here</a> to update this IPR disclosure<br>
+      Click <a href="{% url ietf.ipr.views.update ipr.ipr_id %}">here</a> to update this IPR disclosure<br>
       <!-- tag 1 -->
       <br>
       <font size="3"><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></font>

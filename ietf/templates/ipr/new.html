@@ -14,15 +14,15 @@
    </p>
    <p>
       <img src="http://www.ietf.org/images/blue.gif" hspace="3" border="0" />
-      "Specific": <a href="/ipr/new/specific">A disclosure about your IPR related to a specific IETF contribution</a>
+      "Specific": <a href="{% url ietf.ipr.views.new_specific %}">A disclosure about your IPR related to a specific IETF contribution</a>
    </p>
    <p>
       <img src="http://www.ietf.org/images/blue.gif" hspace="3" border="0" />
-      "Generic": <a href="/ipr/new/generic">An IPR disclosure about your IPR that is not related to a specific IETF contribution</a>
+      "Generic": <a href="{% url ietf.ipr.views.new_generic %}">An IPR disclosure about your IPR that is not related to a specific IETF contribution</a>
    </p>
    <p>
       <img src="http://www.ietf.org/images/blue.gif" hspace="3" border="0" />
-      "Third-Party": <a href="/ipr/new/third-party">Notify the IETF of IPR other than your own which you believe may be related to a specific IETF contribution</a>
+      "Third-Party": <a href="{% url ietf.ipr.views.new_thirdpty %}">Notify the IETF of IPR other than your own which you believe may be related to a specific IETF contribution</a>
    </p>
 </div>
 {% else %}

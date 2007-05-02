@@ -28,7 +28,7 @@ class FromBodies(models.Model):
 
 class LiaisonDetail(models.Model):
     detail_id = models.AutoField(primary_key=True)
-    person_or_org_tag = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     submitted_date = models.DateField(null=True, blank=True)
     last_modified_date = models.DateField(null=True, blank=True)
     from_id = models.IntegerField(null=True, blank=True)
@@ -76,6 +76,17 @@ class LiaisonDetail(models.Model):
 	except ObjectDoesNotExist:
 	    pass
 	return "<unknown body %d>" % self.from_id
+    def from_email(self):
+	"""If there is an entry in from_bodies, it has
+	the desired email priority.  However, if it's from
+	an IETF WG, there is no entry in from_bodies, so
+	default to 1."""
+	try:
+	    from_body = FromBodies.objects.get(pk=self.from_id)
+	    email_priority = from_body.email_priority
+	except FromBodies.DoesNotExist:
+	    email_priority = 1
+	return self.person.emailaddress_set.all().get(priority=email_priority)
     class Meta:
         db_table = 'liaison_detail'
     class Admin:

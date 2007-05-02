@@ -32,7 +32,7 @@ a:hover {
   <tr>
   <td bgcolor="#efefef" width="25%">Submission Date: </td><td width="75%"><pre>{{ object.submitted_date }}</pre></td></tr>
   <tr>
-  <td bgcolor="#efefef" width="25%">From: </td><td width="75%"><pre>{{ object.from_body }}</pre></td></tr>
+  <td bgcolor="#efefef" width="25%">From: </td><td width="75%"><pre>{{ object.from_body|escape }} (<a href="mailto:{{ object.from_email|fix_ampersands }}">{{ object.person|escape }}</a>)</pre></td></tr>
   <tr>
   <td bgcolor="#efefef">To: </td><td><pre>{{ object.to_body|escape }} ({{ object.to_poc|parse_email_list }})</pre></td></tr>
   <tr>
@@ -52,7 +52,7 @@ a:hover {
   <tr>
   <td bgcolor="#efefef">Deadline:</td><td><pre>{{ object.deadline_date }}</pre></td></tr>
   <tr>
-  <td bgcolor="#efefef">Body:</td><td><pre>{{ object.body }}</pre></td></tr>
+  <td bgcolor="#efefef">Body:</td><td><pre>{{ object.body|wordwrap:"71"|escape }}</pre></td></tr>
   </table>
   <blockquote>
 <hr>

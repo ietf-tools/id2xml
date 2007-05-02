@@ -1,5 +1,9 @@
 from django import template
 from django.utils.html import escape, fix_ampersands
+try:
+    from email import utils as emailutils
+except ImportError:
+    from email import Utils as emailutils
 import re
 
 register = template.Library()
@@ -10,8 +14,14 @@ def expand_comma(value):
 
 @register.filter(name='parse_email_list')
 def parse_email_list(value):
-    # parse_email_list from GEN_UTIL.pm
-    return escape(value)
+    addrs = re.split(", ?", value)
+    ret = []
+    for addr in addrs:
+	(name, email) = emailutils.parseaddr(addr)
+	if not(name):
+	    name = email
+	ret.append('<a href="mailto:%s">%s</a>' % ( fix_ampersands(email), escape(name) ))
+    return ", ".join(ret)
 
 # there's an "ahref -> a href" in GEN_UTIL
 # but let's wait until we understand what that's for.

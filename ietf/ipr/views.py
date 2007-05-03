@@ -59,18 +59,8 @@ def update(request, ipr_id=None):
     # TODO: replace the placeholder code with the appropriate update code
     return show(request, ipr_id)
 
-def new(request):
-    return render("ipr/new.html", {})
-
-def detail_field_fixup(field):
-    if field.name == "licensing_option":
-        return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES))
-    if field.name in ["selecttype", "selectowned"]:
-        return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))))
-    return field.formfield()
-
-def new_specific(request):
-    """Form to make a new specific IPR disclosure"""
+def new(request, type):
+    """Form to make a new IPR disclosure"""
     debug = ""
 
     IprForm = forms.form_for_model(models.IprDetail, formfield_callback=detail_field_fixup)
@@ -81,30 +71,36 @@ def new_specific(request):
     IprForm.base_fields["stdonly_license"] = forms.BooleanField(required=False)
 
     ContactForm = forms.form_for_model(models.IprContact)
-    form = IprForm(request.POST)
 
-    form.holder_contact = ContactForm(request.POST)
-    form.ietf_contact = ContactForm(request.POST)
-    form.submitter = ContactForm(request.POST)
+    for contact in ["holder", "ietf", 
 
-    form.unbound_form = True
-    return render("ipr/new.html", {"ipr": form, "debug": debug, })
+    if request.method == 'POST':
+        form = IprForm(request.POST)
 
-def new_generic(request):
-    """Form to make a new specific IPR disclosure"""
-    debug = ""
-    IprForm = forms.form_for_model(models.IprDetail)
-    form = IprForm(request.POST)
+        form.holder_contact = ContactForm(request.POST)
+        form.ietf_contact = ContactForm(request.POST)
+        form.submitter = ContactForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/ipr/")
+    else:
+        form = IprForm()
+        form.holder_contact = ContactForm()
+        form.ietf_contact = ContactForm()
+        form.submitter = ContactForm()
+
     form.unbound_form = not form.is_bound
-    return render("ipr/details_generic.html", {"ipr": form, "debug": debug, })
+    form.disclosure_type = type.capitalize()
+    return render("ipr/new_%s.html" % type, {"ipr": form, "debug": debug, })
 
-def new_thirdpty(request):
-    """Form to make a new specific IPR disclosure"""
-    debug = ""
-    IprForm = forms.form_for_model(models.IprDetail)
-    form = IprForm(request.POST)
-    form.unbound_form = not form.is_bound
-    return render("ipr/details_thirdpty.html", {"ipr": form, "debug": debug, })
+def detail_field_fixup(field):
+    if field.name == "licensing_option":
+        return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES))
+    if field.name in ["selecttype", "selectowned"]:
+        return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))))
+    return field.formfield()
+
 
 # ---- Helper functions ------------------------------------------------------
 

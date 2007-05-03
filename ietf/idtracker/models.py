@@ -37,6 +37,19 @@ class IDState(models.Model):
         return self.state
     class Meta:
         db_table = 'ref_doc_states_new'
+    class Admin:
+	pass
+
+class IDNextState(models.Model):
+    cur_state = models.ForeignKey(IDState, related_name='nextstate')
+    next_state = models.ForeignKey(IDState, related_name='prevstate', core=True)
+    condition = models.CharField(blank=True, maxlength=255)
+    def __str__(self):
+	return "%s -> %s" % (self.cur_state.state, self.next_state.state )
+    class Meta:
+        db_table = 'ref_next_states_new'
+    class Admin:
+	pass
 
 class IDSubState(models.Model):
     sub_state_id = models.AutoField(primary_key=True)
@@ -46,6 +59,8 @@ class IDSubState(models.Model):
         return self.sub_state
     class Meta:
         db_table = 'sub_state'
+    class Admin:
+	pass
 
 
 class Areas(models.Model):
@@ -210,6 +225,15 @@ class IESGLogin(models.Model):
         ordering = ['user_level','last_name']
 	pass
 
+# No admin panel needed; this is edited in Areas.
+class AreaDirectors(models.Model):
+    area = models.ForeignKey(Areas, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
+    def __str__(self):
+        return "(%s) %s" % ( self.area, self.person )
+    class Meta:
+        db_table = 'area_directors'
+
 class IDInternal(models.Model):
     draft = models.ForeignKey(InternetDraft, primary_key=True, unique=True, db_column='id_document_tag')
     # the above ignores the possibility that it's an RFC.
@@ -356,7 +380,7 @@ class GroupIETF(models.Model):
     dormant_date = models.DateField(null=True, blank=True)
     concluded_date = models.DateField(null=True, blank=True)
     status = models.ForeignKey(GStatus)
-    area_director = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True)
+    area_director = models.ForeignKey(AreaDirectors, raw_id_admin=True)
     meeting_scheduled = models.CharField(blank=True, maxlength=3)
     email_address = models.CharField(blank=True, maxlength=60)
     email_subscribe = models.CharField(blank=True, maxlength=120)
@@ -428,15 +452,6 @@ class GoalsMilestones(models.Model):
 	pass
 
 #### end wg stuff
-
-# No admin panel needed; this is edited in Areas.
-class AreaDirectors(models.Model):
-    area = models.ForeignKey(Areas, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2)
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
-    def __str__(self):
-        return "(%s) %s" % ( self.area, self.person )
-    class Meta:
-        db_table = 'area_directors'
 
 class ChairsHistory(models.Model):
     CHAIR_CHOICES = (

@@ -1,19 +1,19 @@
 from django.conf.urls.defaults import *
-from ietf.idtracker.models import InternetDraft
+from ietf.idtracker.models import InternetDraft, IDState, IDSubState
 from ietf.idtracker import views
 
-# lame anyway, gotta deal with rfc
-info_dict = {
+id_dict = {
     'queryset': InternetDraft.objects.all(),
-}
-info_dict2 = {
-    'queryset': InternetDraft.objects.all(),
-    'slug_field': 'filename',
 }
 
-urlpatterns = patterns('',
-     (r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
-     (r'^(?P<slug>.+)/$', 'django.views.generic.list_detail.object_detail', info_dict2),
+urlpatterns = patterns('django.views.generic.simple',
+     (r'^states/$', 'direct_to_template', { 'template': 'idtracker/states.html', 'extra_context': { 'states': IDState.objects.all(), 'substates': IDSubState.objects.all() } }),
+)
+urlpatterns += patterns('django.views.generic.list_detail',
+     (r'^(?P<object_id>\d+)/$', 'object_detail', id_dict),
+     (r'^(?P<slug>.+)/$', 'object_detail', dict(id_dict, slug_field='filename')),
+)
+urlpatterns += patterns('',
      (r'^(?P<id>\d+)/edit/$', views.edit_idinternal),
      (r'^$', views.search),
 )

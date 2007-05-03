@@ -72,23 +72,21 @@ def new(request, type):
 
     ContactForm = forms.form_for_model(models.IprContact)
 
-    for contact in ["holder", "ietf", 
-
     if request.method == 'POST':
         form = IprForm(request.POST)
 
-        form.holder_contact = ContactForm(request.POST)
-        form.ietf_contact = ContactForm(request.POST)
-        form.submitter = ContactForm(request.POST)
+        form.holder_contact = ContactForm(request.POST, prefix="ph")
+        form.ietf_contact = ContactForm(request.POST, prefix="ietf")
+        form.submitter = ContactForm(request.POST, prefix="sub")
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect("/ipr/")
     else:
         form = IprForm()
-        form.holder_contact = ContactForm()
-        form.ietf_contact = ContactForm()
-        form.submitter = ContactForm()
+        form.holder_contact = ContactForm(prefix="ph")
+        form.ietf_contact = ContactForm(prefix="ietf")
+        form.submitter = ContactForm(prefix="sub")
 
     form.unbound_form = not form.is_bound
     form.disclosure_type = type.capitalize()

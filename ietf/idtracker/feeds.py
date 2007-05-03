@@ -26,3 +26,6 @@ class DocumentComments(Feed):
     def item_pubdate(self, item):
 	time = datetime.time(*[int(t) for t in item.time.split(":")])
 	return datetime.datetime.combine(item.date, time)
+
+    def item_author_name(self, item):
+	return item.get_author()

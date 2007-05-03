@@ -296,6 +296,11 @@ class DocumentComment(models.Model):
 	    return "/idtracker/rfc%d/comment/%d/" % (self.document_id, self.id)
 	else:
 	    return "/idtracker/%s/comment/%d/" % (self.document.draft.filename, self.id)
+    def get_author(self):
+	if self.created_by:
+	    return self.created_by.__str__()
+	else:
+	    return "system"
     class Meta:
         db_table = 'document_comments'
 

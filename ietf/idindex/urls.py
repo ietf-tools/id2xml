@@ -22,5 +22,7 @@ urlpatterns = patterns('',
      (r'^showdocs/(?P<cat>[^/]+)/((?P<sortby>[^/]+)/)?$', views.showdocs),
      (r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
      (r'^(?P<slug>[^/]+)/$', 'django.views.generic.list_detail.object_detail', dict(info_dict, slug_field='filename')),
+     (r'^all_id_txt.html$', views.all_id, { 'template_name': 'idindex/all_id_txt.html' }),
+     (r'^all_id.html$', views.all_id, { 'template_name': 'idindex/all_id.html' }),
      (r'^$', views.search),
 )

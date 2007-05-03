@@ -19,7 +19,7 @@ def wglist(request, wg=None):
     else:
 	queryset = GroupIETF.objects.filter(group_acronym__acronym__istartswith=wg)
     queryset = queryset.filter(group_type__type='WG').select_related().order_by('g_status.status', 'acronym.acronym')
-    return object_list(request, queryset=queryset, template_name='idindex/wglist.html', extra_context=base_extra)
+    return object_list(request, queryset=queryset, template_name='idindex/wglist.html', allow_empty=True, extra_context=base_extra)
 
 def wgdocs(request, **kwargs):
     if kwargs.has_key('id'):
@@ -31,7 +31,7 @@ def wgdocs(request, **kwargs):
     queryset = queryset.order_by('status_id', 'filename')
     extra = base_extra
     extra['group'] = group
-    return object_list(request, queryset=queryset, template_name='idindex/wgdocs.html', extra_context=extra)
+    return object_list(request, queryset=queryset, template_name='idindex/wgdocs.html', allow_empty=True, extra_context=extra)
 
 def inddocs(request, filter=None):
     ind_exception = orl(
@@ -46,7 +46,7 @@ def inddocs(request, filter=None):
     queryset = queryset.exclude(ind_exception).filter(group__acronym='none').order_by('filename')
     extra = base_extra
     extra['filter'] = filter
-    return object_list(request, queryset=queryset, template_name='idindex/inddocs.html', extra_context=extra)
+    return object_list(request, queryset=queryset, template_name='idindex/inddocs.html', allow_empty=True, extra_context=extra)
 
 def otherdocs(request, cat=None):
     try:
@@ -60,7 +60,7 @@ def otherdocs(request, cat=None):
     queryset = queryset.order_by('filename')
     extra = base_extra
     extra['category'] = cat
-    return object_list(request, queryset=queryset, template_name='idindex/otherdocs.html', extra_context=extra)
+    return object_list(request, queryset=queryset, template_name='idindex/otherdocs.html', allow_empty=True, extra_context=extra)
 
 def showdocs(request, cat=None, sortby=None):
     catmap = {
@@ -90,7 +90,7 @@ def showdocs(request, cat=None, sortby=None):
     extra = catmap[cat]['extra']
     extra['sort_header'] = sortmap[sortby]['header']
     extra.update(base_extra)
-    return object_list(request, queryset=queryset, template_name='idindex/showdocs.html', extra_context=extra)
+    return object_list(request, queryset=queryset, template_name='idindex/showdocs.html', allow_empty=True, extra_context=extra)
 
 
 def search(request):

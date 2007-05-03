@@ -5,15 +5,15 @@ from django.http import Http404
 from django.template import RequestContext, Context, loader
 from ietf.idtracker.models import Acronym, GroupIETF, InternetDraft
 from ietf.idindex.forms import IDIndexSearchForm
-from ietf.idindex.models import alphabet, orgs
-import operator
+from ietf.idindex.models import alphabet, orgs, orgs_dict
+from ietf.utils import orl, flattenl
 
 base_extra = { 'alphabet': alphabet, 'orgs': orgs }
 
 def wglist(request, wg=None):
     if wg == 'other':
         queryset = GroupIETF.objects.filter(
-	    reduce(operator.__or__, [Q(group_acronym__acronym__istartswith="%d" % i) for i in range(0,10)])
+	    orl([Q(group_acronym__acronym__istartswith="%d" % i) for i in range(0,10)])
 	    )
     else:
 	queryset = GroupIETF.objects.filter(group_acronym__acronym__istartswith=wg)
@@ -33,25 +33,12 @@ def wgdocs(request, **kwargs):
     return object_list(request, queryset=queryset, template_name='idindex/wgdocs.html', extra_context=extra)
 
 def inddocs(request, filter=None):
-    # I'd rather this wasn't here.
-    # However, the info doesn't seem to be in the database.
-    # todo: use orgs to generate this
-    ind_exception_list = [
-	    'draft-ietf-',
-	    'draft-iesg-',
-	    'draft-iab-',
-	    'draft-iana-',
-	    'draft-irtf-',
-	    'draft-rfced-',
-	    'draft-rfc-editor-',
-	    'draft-proto-',
-	    'draft-tools-',
-	    'draft-iasa-',
-    ]
-    ind_exception = reduce(operator.__or__, [Q(filename__istartswith=e) for e in ind_exception_list])
+    ind_exception = orl(
+	[Q(filename__istartswith='draft-%s-' % e) for e in
+	    flattenl([org.get('prefixes', [ org['key'] ]) for org in orgs]) + ['ietf']])
     if filter == 'other':
         queryset = InternetDraft.objects.filter(
-	    reduce(operator.__or__, [Q(filename__istartswith="draft-%d" % i) for i in range(0,10)])
+	    orl([Q(filename__istartswith="draft-%d" % i) for i in range(0,10)])
 	    )
     else:
 	queryset = InternetDraft.objects.filter(filename__istartswith='draft-' + filter)
@@ -61,18 +48,14 @@ def inddocs(request, filter=None):
     return object_list(request, queryset=queryset, template_name='idindex/inddocs.html', extra_context=extra)
 
 def otherdocs(request, cat=None):
-    # todo: use orgs to generate this
-    exceptions = { 'rfc-editor':
-			Q(filename__istartswith='draft-rfc-editor-') |
-			Q(filename__istartswith='draft-ietf-rfc-editor-') |
-			Q(filename__istartswith='draft-rfced-') |
-			Q(filename__istartswith='draft-ietf-rfced-') }
-    if exceptions.has_key(cat):
-	queryset = InternetDraft.objects.filter(exceptions[cat])
-    else:
-	queryset = InternetDraft.objects.filter(
-			Q(filename__istartswith='draft-' + cat + '-') |
-			Q(filename__istartswith='draft-ietf-' + cat + '-'))
+    try:
+	org = orgs_dict[cat]
+    except KeyError:
+	raise Http404
+    queryset = InternetDraft.objects.filter(
+	orl([Q(filename__istartswith="draft-%s-" % p)|
+	     Q(filename__istartswith="draft-ietf-%s-" % p)
+		for p in org.get('prefixes', [ org['key'] ])]))
     queryset = queryset.order_by('filename')
     extra = base_extra
     extra['category'] = cat
@@ -125,7 +108,14 @@ def search(request):
 	q_objs = [Q(**{qdict[k]: request.POST[k]})
 		for k in qdict.keys()
 		if request.POST[k] != '']
-	# todo: helper function to make Q objects for otherdocs
+	try:
+	    other = orgs_dict[request.POST['other_group']]
+	    q_objs += [orl(
+		[Q(filename__istartswith="draft-%s-" % p)|
+		 Q(filename__istartswith="draft-ietf-%s-" % p)
+		    for p in other.get('prefixes', [ other['key'] ])])]
+	except KeyError:
+	    pass	# either no other_group arg or no orgs_dict entry
 	matches = InternetDraft.objects.all().filter(*q_objs)
 	matches = matches.order_by('filename')
 	searched = True

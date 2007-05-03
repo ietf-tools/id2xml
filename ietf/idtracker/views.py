@@ -4,6 +4,7 @@ from django import newforms as forms
 from django.template import RequestContext, Context, loader
 from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
+from django.views.generic.list_detail import object_detail
 from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState
 
 # Override default form field mappings
@@ -113,3 +114,7 @@ IESG to do anything with the document.
     return render_to_response('idtracker/state_desc.html', {'state': object},
 	context_instance=RequestContext(request))
 
+def comment(request, slug, object_id, queryset):
+    draft = get_object_or_404(InternetDraft, filename=slug)
+    queryset = queryset.filter(document=draft.id_document_tag)
+    return object_detail(request, queryset=queryset, object_id=object_id)

@@ -62,7 +62,6 @@ class IDSubState(models.Model):
     class Admin:
 	pass
 
-
 class Areas(models.Model):
     area_acronym = models.ForeignKey(Acronym, primary_key=True, unique=True)
     start_date = models.DateField(auto_now_add=True)
@@ -275,6 +274,22 @@ class IDInternal(models.Model):
 	verbose_name = 'IDTracker Draft'
     class Admin:
 	pass
+
+class DocumentComment(models.Model):
+    document = models.ForeignKey(IDInternal)
+    rfc_flag = models.IntegerField(null=True, blank=True)
+    public_flag = models.IntegerField()
+    date = models.DateField(db_column='comment_date')
+    time = models.CharField(db_column='comment_time', maxlength=20)
+    version = models.CharField(blank=True, maxlength=3)
+    comment_text = models.TextField(blank=True)
+    created_by = models.ForeignKey(IESGLogin, db_column='created_by', null=True)
+    result_state = models.ForeignKey(IDState, db_column='result_state', null=True, related_name=None)
+    origin_state = models.ForeignKey(IDState, db_column='origin_state', null=True, related_name=None)
+    ballot = models.IntegerField(null=True, blank=True)
+    class Meta:
+        db_table = 'document_comments'
+
 
 class IDAuthors(models.Model):
     document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', edit_inline=models.TABULAR)

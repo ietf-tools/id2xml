@@ -11,9 +11,11 @@ urlpatterns = patterns('django.views.generic.simple',
 )
 urlpatterns += patterns('django.views.generic.list_detail',
      (r'^(?P<object_id>\d+)/$', 'object_detail', id_dict),
-     (r'^(?P<slug>.+)/$', 'object_detail', dict(id_dict, slug_field='filename')),
+     (r'^(?P<slug>[^/]+)/$', 'object_detail', dict(id_dict, slug_field='filename')),
 )
 urlpatterns += patterns('',
+     (r'^states/(?P<state>\d+)/$', views.state_desc),
+     (r'^states/substate/(?P<state>\d+)/$', views.state_desc, { 'is_substate': 1 }),
      (r'^(?P<id>\d+)/edit/$', views.edit_idinternal),
      (r'^$', views.search),
 )

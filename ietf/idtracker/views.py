@@ -2,9 +2,9 @@
 from django.http import HttpResponse,HttpResponseRedirect
 from django import newforms as forms
 from django.template import RequestContext, Context, loader
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
-from ietf.idtracker.models import InternetDraft, IDInternal
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState
 
 # Override default form field mappings
 # group_acronym: CharField(max_length=10)
@@ -94,3 +94,22 @@ def edit_idinternal(request, id=None):
 	'draft': draft,
     })
     return HttpResponse(t.render(c))
+
+def state_desc(request, state, is_substate=0):
+    if int(state) == 100:
+	object = {
+		'state': 'I-D Exists',
+		'description': """
+Initial (default) state for all internet drafts. Such documents are
+not being tracked by the IESG as no request has been made of the
+IESG to do anything with the document.
+"""
+		}
+    elif is_substate:
+	sub = get_object_or_404(IDSubState, pk=state)
+	object = { 'state': sub.sub_state, 'description': sub.description }
+    else:
+	object = get_object_or_404(IDState, pk=state)
+    return render_to_response('idtracker/state_desc.html', {'state': object},
+	context_instance=RequestContext(request))
+

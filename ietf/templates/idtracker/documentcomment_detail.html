@@ -17,7 +17,9 @@
 </head>
 <body link="blue" vlink="blue">
 
-
+{% if object.ballot %}
+<h3><font color="red">[IN IESG DISCUSSION <b>*{{ object.get_ballot_display }}*</b>]</font></h3>
+{% endif %}
    <table cellpadding="1" cellspacing="1" border="0">
 
    <tr><td><b>Date and Time:</td><td>{{ object.date }}, {{ object.time }}</td></tr>

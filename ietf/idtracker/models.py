@@ -276,6 +276,10 @@ class IDInternal(models.Model):
 	pass
 
 class DocumentComment(models.Model):
+    BALLOT_CHOICES = (
+	(1, 'discuss'),
+	(2, 'comment'),
+    )
     document = models.ForeignKey(IDInternal)
     rfc_flag = models.IntegerField(null=True, blank=True)
     public_flag = models.IntegerField()
@@ -286,7 +290,7 @@ class DocumentComment(models.Model):
     created_by = models.ForeignKey(IESGLogin, db_column='created_by', null=True)
     result_state = models.ForeignKey(IDState, db_column='result_state', null=True, related_name=None)
     origin_state = models.ForeignKey(IDState, db_column='origin_state', null=True, related_name=None)
-    ballot = models.IntegerField(null=True, blank=True)
+    ballot = models.IntegerField(null=True, choices=BALLOT_CHOICES)
     def get_absolute_url(self):
 	if self.rfc_flag:
 	    return "/idtracker/rfc%d/comment/%d/" % (self.document_id, self.id)

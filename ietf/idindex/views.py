@@ -99,7 +99,7 @@ def search(request):
     # XXX should handle GET too
     if request.method == 'POST':
 	qdict = { 'filename': 'filename__icontains',
-		  'id_tracker_state_id': 'idtracker__cur_state',
+		  'id_tracker_state_id': 'idinternal__cur_state',
 		  'wg_id': 'group',
 		  'status_id': 'status',
 		  'last_name': 'authors__person__last_name__icontains',

@@ -1,3 +1,4 @@
+{% load ietf_filters %}
 <html>
 <HEAD><TITLE>IETF I-D Tracker v1.0 -- WCF</title>
 <STYLE TYPE="text/css">
@@ -31,7 +32,7 @@
 {% if object.result_state %}
    <tr><td><b>State after Comment:</td><td>{{ object.result_state }}</td></tr>
 {% endif %}
-   <Tr><td><b>Comment:</td><td>{{ object.comment_text }}</td></tr>
+   <Tr><td><b>Comment:</td><td>{{ object.comment_text|format_textarea }}</td></tr>
    </table>
    <center><form>
    <input type="button" value="close" onClick="history.go(-1);return true">

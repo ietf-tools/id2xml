@@ -4,6 +4,7 @@ from ietf.idtracker.models import InternetDraft, DocumentComment
 import datetime
 
 class DocumentComments(Feed):
+    feed_type = Atom1Feed
     def get_object(self, bits):
 	if len(bits) != 1:
 	    raise ObjectDoesNotExist

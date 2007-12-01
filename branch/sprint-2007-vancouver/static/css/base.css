@@ -1,34 +1,95 @@
 body {
-  margin:0;
-  padding:0;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  color: #022D66;
-  font-style: normal;
-  }
-th {
-  padding:6px 0px 10px 30px;
-  line-height:1em;
-  font-family: Arial, sans-serif;
-  font-size: 1.0em;
-  color: #333;
-                                                                                                                                                                       
- }
-td {text-decoration: none; color: #000000; font: 10pt arial;}
-td img { whitespace: nowrap; display:inline; }
-/* Links
------------------------------------------------ */
-a:link, a:visited {
-  border-bottom:1px dotted #69f;
-  color:#36c;
-  text-decoration:none;
-  }
-a:visited {
-  border-bottom-color:#969;
-  color:#36c;
-  }
-a:hover {
-  border-bottom:1px solid #f00;
-  color:#f00;
-  }
-a.noline:link, a.noline:visited, a.noline:hover {border-style:none;}
+	font-size: 85%;
+	/* font-size: 10pt; */
+}
+
+#title {
+	font-size: 140%;
+	font-weight: bold;
+	padding-bottom: 1em;
+}
+
+#leftmenu {
+	float: left;
+	background-color: #313163;
+	color: #c8c8c8;
+	border: 1px #797979 solid;
+	padding: 0.3em;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+#leftmenu ul li { 
+	list-style-type: none;
+	background-color: #313163;
+	color: #c8c8c8; 
+}
+
+#leftmenu ul li a:link, #leftmenu ul li a:visited {
+	color: #ffffff;
+	background-color: #313163;
+	text-decoration: none;
+}
+
+
+#leftmenu ul {
+	padding-left: 3px;
+	margin-left: 0;
+}
+
+#leftmenu ul li ul {
+	margin-left: 20px;
+	font-size: 80%;
+}
+
+#leftmenu img.menulogo { 
+	text-align: center;
+}
+
+#maincontent {
+	padding-left: 180px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+#maincontent .welcomehead { 
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	color: #313163;
+	text-align: center;
+	padding-left: 30%;
+	margin-left: -30%
+}
+
+#maincontent img.welcomehead { 
+	position: relative;
+	left: 28%;
+	/*margin-left: 30%;*/
+
+}
+
+#maincontent ul {
+	padding-left: 3px;
+	margin-left: 0;
+}
+
+#maincontent ul li ul {
+	margin-left: 20px;
+	font-size: 80%;
+}
+
+#footer {
+	/*float:right;*/
+	padding-top: 10ex;
+	/*margin-left: 60%;*/
+	color: #313153;
+	font-size: 80%;
+	/* text-align: right; */
+	text-align: center;
+}
+
+#topmenu	{
+	text-align: center;
+	font-weight: bold;
+	margin: 0.5ex;
+	font-family: Verdana, Optima, Helvetica, sans-serif;
+	font-size: 10pt;
+}

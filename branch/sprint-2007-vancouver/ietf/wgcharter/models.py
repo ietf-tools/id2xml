@@ -7,8 +7,8 @@ from ietf.idtracker.models import PersonOrOrgInfo
 
 class WGCharterInfo(models.Model):
     id = models.AutoField(primary_key=True)
-    #approvedVersion = models.ForeignKey(CharterVersion,null=True,editable=False)
-    #recentDraftVersion = models.ForeignKey(CharterVersion,null=True,editable=False)
+    approvedVersion = models.IntegerField(null=True,editable=False)
+    recentDraftVersion = models.ForIntegerFieldeignKey(null=True,editable=False)
 
 class CharterVersion(models.Model):
     version_id = models.AutoField(primary_key=True)

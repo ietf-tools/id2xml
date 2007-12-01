@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'ietf.my',
     'ietf.proceedings',
     'ietf.redirects',
+    'ietf.wgcharter',
 )
 
 INTERNAL_IPS = (

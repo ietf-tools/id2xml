@@ -213,9 +213,37 @@ def inpast(date):
 	return date < datetime.datetime.now()
     return True
 
+@register.filter(name='truncatemore')
+def truncatemore(text, arg):
+    """Truncate the text if longer than 'words', and if truncated,
+    add a link to the full text (given in 'link').
+    """
+    from django.utils.text import truncate_words
+    args = arg.split(",")
+    if len(args) == 3:
+        count, link, format = args
+    elif len(args) == 2:
+        format = "[<a href='%s'>more</a>]"
+        count, link = args
+    else:
+        return text
+    try:
+        length = int(count)
+    except ValueError: # invalid literal for int()
+        return text # Fail silently.
+    if not isinstance(text, basestring):
+        text = str(text)
+    words = text.split()
+    if len(words) > length:
+        words = words[:length]
+        words.append(format % link)
+    return ' '.join(words)
+
 def _test():
     import doctest
     doctest.testmod()
 
 if __name__ == "__main__":
     _test()
+
+    

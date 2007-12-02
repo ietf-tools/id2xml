@@ -581,12 +581,17 @@ class DocumentComment(models.Model):
 	if self.created_by_id and self.created_by_id != 999:
 	    return self.created_by.__str__()
 	else:
-	    return "system"
+	    return "(System)"
     def get_username(self):
 	if self.created_by_id and self.created_by_id != 999:
 	    return self.created_by.login_name
 	else:
-	    return "system"
+	    return "(System)"
+    def get_fullname(self):
+	if self.created_by_id and self.created_by_id != 999:
+	    return self.created_by.first_name + " " + self.created_by.last_name
+	else:
+	    return "(System)"
     class Meta:
         db_table = 'document_comments'
 

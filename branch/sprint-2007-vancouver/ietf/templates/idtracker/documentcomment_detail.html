@@ -3,29 +3,36 @@
 
 {% load ietf_filters %}
 
-{% block title %}-- comment on {{ object.document.document.filename }}{% endblock %}
+{% block title %}Comment on {{ object.document.document.filename }}{% endblock %}
 
 {% block content %}
+<h1 class="first">Comment on {{ object.document.document.filename }}</h1>
 
-{% if object.ballot %}
-<h3><font color="red">[IN IESG DISCUSSION <b>*{{ object.get_ballot_display }}*</b>]</font></h3>
-{% endif %}
-   <table cellpadding="1" cellspacing="1" border="0">
 
-   <tr><td><b>Date and Time:</td><td>{{ object.date }}, {{ object.time }}</td></tr>
-   <tr><td><b>Document:</td><td>{{ object.document.document.filename }}</td></tr>
-   <tr><td><b>Version:</td><td>{{ object.version }}</td></tr>
-   <tr><td><b>Commented by:</td><td>{{ object.get_author }}</td></tr>
+   <table class="top">
+
+   <tr><th>Date:</td><td>{{ object.date }}, {{ object.time }}</td></tr>
+   <tr><th>Document:</td><td>{{ object.document.document.filename }}</td></tr>
+   <tr><th>Version:</td><td>{{ object.version }}</td></tr>
+   <tr><th>Commented by:</td><td>{{ object.get_author }}</td></tr>
+   
 {% if object.origin_state %}
-   <tr><td><b>State before Comment:</td><td>{{ object.origin_state }}</td></tr>
+   <tr><th>State before Comment:</td><td>{{ object.origin_state }}</td></tr>
 {% endif %}
+
 {% if object.result_state %}
-   <tr><td><b>State after Comment:</td><td>{{ object.result_state }}</td></tr>
+   <tr><th>State after Comment:</td><td>{{ object.result_state }}</td></tr>
 {% endif %}
-   <tr><td><b>Comment:</td><td>{{ object.comment_text|format_textarea }}</td></tr>
+
+   <tr><th>Comment:</td><td>
+   
+{% if object.ballot %}
+	<span class="{{ object.get_ballot_display }}">[IESG Evaluation {{ object.get_ballot_display|upper }}] </span>
+{% endif %}
+   
+   {{ object.comment_text|removetags:"b br" }}</td></tr>
    </table>
-   <center><form>
-   <input type="button" value="close" onClick="history.go(-1);return true">
-   </form></center>
+   
+   <p><a href="history.go(-1)">Back</a></p>
    
 {% endblock %}

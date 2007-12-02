@@ -19,10 +19,10 @@ function clear_fields() {
 </script>
 
 
-<h1>IETF I-D Tracker</h1>
+<h1 class="first">IETF I-D Tracker</h1>
 
 <form action="." method="get" name="search_form">
-<table class="search">
+<table class="top">
 <tr>
 	<th><label for="id_search_job_owner">Responsible AD:</label></td>
 	<td>{{ form.search_job_owner }} </td>
@@ -79,7 +79,7 @@ Please fix the following error{{ errors|pluralize }} and retry your search:
 {% endif %}
 
 {% if matches or searching %}
-<p><a href=".">Back</a></p>
+	<p><a href=".">Back</a></p>
 {% endif %}
 
 {% endblock %}

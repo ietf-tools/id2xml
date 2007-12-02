@@ -17,3 +17,5 @@
 
 - make sure have good nav controlls on all pages 
 
+- make dates be date/times 
+

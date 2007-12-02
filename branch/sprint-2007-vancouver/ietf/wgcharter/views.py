@@ -13,7 +13,10 @@ from django import newforms as forms
 
 from django.newforms import form_for_model,form_for_instance
 
+from django.contrib.auth.decorators import login_required
+
 from ietf.wgcharter.models import  CharterVersion
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # define to be the diff command
@@ -135,12 +138,12 @@ class DiffForm(forms.Form):
         charters = wgci.charterversion_set.all()
         choices=[]
         for i in charters:
-            logging.error("Charter %s" % i.creation_date)
             choices.append(("%d"%i.version_id,"%s"%i.creation_date))
-
-        logging.error("%s"%choices)
         self.fields['diffWidget'].choices = choices
 
+
+
+@login_required
 def draft(request, wgname, version):
     test = ''
     wgci = find_wgcharter_info(wgname)
@@ -150,18 +153,24 @@ def draft(request, wgname, version):
     role = 'sec' ; #sec, ad, chair, other
     charter = find_charter_version(wgname, version)
     if request.method == 'POST':
-        #test = request.POST.value
+	try:
+	    profile = request.user.get_profile()
+	    person = profile.person
+	    #test += person
+	except ObjectDoesNotExist:
+	    role = 'other'
+	    test += 'person-not-found'
 	data = request.POST
 	if ( data.has_key('adReview')  and ( role=='sec' or role=='ad' or role=='chair' )):
-	    test = 'adReview'
+	    test += 'adReview'
 	if ( data.has_key('iesgProposedReview')  and ( role=='sec' or role=='ad')):
-	    test = 'iesgProposedReview'
+	    test += 'iesgProposedReview'
 	if ( data.has_key('lastCall')  and ( role=='sec' or role=='ad')):
-	    test = 'lastCall'
+	    test += 'lastCall'
 	if ( data.has_key('iesgApprovalReview') and ( role=='sec' or role=='ad') ):
 	    test = 'iesgApprovalReview'
 	if ( data.has_key('approve') and (role == 'sec') ):
-	    test = 'approve'
+	    test += 'approve'
     return render_to_response('wgcharter/draft.html', {'diffForm':diffForm,'wgname':wgname,'charter': charter,'role':role,'log':test})
 
 

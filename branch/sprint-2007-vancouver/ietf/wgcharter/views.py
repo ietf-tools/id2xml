@@ -110,11 +110,22 @@ def diff(request, wgname, version1, version2):
 
 def draft(request, wgname, version):
     test = ''
+    role = 'other' ; #sec, ad, chair, other
     charter = find_charter_version(wgname, version)
     if request.method == 'POST':
-	print request.POST
-	test = request.POST.value
-    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter,'log':test})
+        #test = request.POST.value
+	data = request.POST
+	if ( data.has_key('adReview')  and ( role=='sec' or role=='ad' or role=='chair' )):
+	    test = 'adReview'
+	if ( data.has_key('iesgProposedReview')  and ( role=='sec' or role=='ad')):
+	    test = 'iesgProposedReview'
+	if ( data.has_key('lastCall')  and ( role=='sec' or role=='ad')):
+	    test = 'lastCall'
+	if ( data.has_key('iesgApprovalReview') and ( role=='sec' or role=='ad') ):
+	    test = 'iesgApprovalReview'
+	if ( data.has_key('approve') and (role == 'sec') ):
+	    test = 'approve'
+    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter,'role':role,'log':test})
 
 
 

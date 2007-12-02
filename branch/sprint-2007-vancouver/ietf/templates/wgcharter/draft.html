@@ -15,11 +15,20 @@
 </pre>
 
 <form action="" method="post">
-<input type="submit" value="Request AD Review" />
-<input type="submit" value="Request IESG Proposed Review" />
-<input type="submit" value="Request IETF Last Call" />
-<input type="submit" value="Request IESG Approval" />
-<input type="submit" value="Approve" />
+{% ifequal role "sec" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
+{% ifequal role "ad" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
+{% ifequal role "chair" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
+
+{% ifequal role "sec" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}
+{% ifequal role "ad" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}
+
+{% ifequal role "sec" %}<input type="submit" name="lastCall" value="Request IETF Last Call" />{% endifequal %}
+{% ifequal role "ad" %}<input type="submit" name="lastCall" value="Request IETF Last Call" />{% endifequal %}
+
+{% ifequal role "sec" %}<input type="submit" name="iesgApprovalReview" value="Request IESG Approval" />{% endifequal %}
+{% ifequal role "ad" %}<input type="submit" name="iesgApprovalReview" value="Request IESG Approval" />{% endifequal %}
+
+{% ifequal role "sec" %}<input type="submit" name="approve" value="Approve" />{% endifequal %}
 </form>
 
 {% endblock %}

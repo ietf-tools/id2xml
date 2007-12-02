@@ -57,12 +57,10 @@ def current(request, wgname):
 
     # Need to fix state once states work    
     approved_list=charter_list.filter(state='approved')
-    
-    if(len(approved_list)==0):
-        html = "No current approved version for wg \'%s\'" %wgname
-        return HttpResponse(html)
-    
-    charter=approved_list[0]
+    charter=None
+    if (len(approved_list)>0):
+        charter=approved_list[0]
+        
     return render_to_response('wgcharter/current.html',{'wgname':wgname,'charter':charter,'lastdraft':charter_list[0]})
     
 

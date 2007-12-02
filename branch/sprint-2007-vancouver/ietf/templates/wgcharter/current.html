@@ -1,15 +1,18 @@
 <!-- need to add  { % extends "base.html" % } -->
 
-{% block title %}Current Charter for {{wgname}}{% endblock %}
 
+{% block title %}Working Group {{wgname}}{% endblock %}
 
 {% block content %}
-<h1> Current Charter </h1>
+
+  {% if charter %}
+<h4>Current Charter</h4>
 <pre>
   {{charter.text}}
 </pre>
 <P>
 Last edited {{charter.creation_date}} by {{charter.submitter}}
+  {%endif%}
 <P>
 <A HREF="{{lastdraft.version_id}}/">Last draft</A> <A HREF="all/">All Drafts</A> <A HREF="add/">New Draft</A>
 {% endblock %}

@@ -1,26 +1,46 @@
 body {
 	font-size: .85em;
 	margin: 0;
+	padding: 0;
 	background-color: white;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
 #content h1 {
-	font-size: 1.5em;
+	margin-top: 0;
+	font-size: 2em;
 }
 
 #content h2 {
 	font-size: 1.15em;
 }
 
+#content table, td, th {
+	padding: 0em;
+	margin: 0em;
+	vertical-align: top;
+	border-style: none;
+	border-width: 0em;
+	border-collapse: collapse;
+}
+
+#content p.replace {
+	padding: 0em;
+	margin: 0em;
+	padding-left: 1em;
+}
+
+#content th, td {
+	text-align: left;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
 
 #content th {
 	font-weight: bold;
-	text-align: left;
 	background-color: lightgray;
-}
-
-#content td {
-	vertical-align: top;
 }
 
 #content td.buttons {
@@ -46,93 +66,47 @@ body {
 
 
 
-#title {
-	font-size: 140%;
-	font-weight: bold;
-	padding-bottom: 1em;
-}
 
 #leftmenu {
 	float: left;
 	background-color: #313163;
 	color: #c8c8c8;
-	border: 1px #797979 solid;
-	padding: 0.3em;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
+	padding: 0.5em;
+	margin-right: 0em;
+	margin-right: 1em;
 }
 
 #leftmenu ul li { 
 	list-style-type: none;
-	background-color: #313163;
-	color: #c8c8c8; 
 }
 
 #leftmenu ul li a:link, #leftmenu ul li a:visited {
 	color: #ffffff;
-	background-color: #313163;
 	text-decoration: none;
 }
 
 
 #leftmenu ul {
-	padding-left: 3px;
+	padding-left: 0;
 	margin-left: 0;
 }
 
 #leftmenu ul li ul {
-	margin-left: 20px;
-	font-size: 80%;
+	margin-left: 1.5em;
+	font-size: .85em;
 }
 
 #leftmenu img.menulogo { 
 	text-align: center;
 }
 
-#maincontent {
-	padding-left: 180px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-}
-
-#maincontent .welcomehead { 
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	font-weight: bold;
-	color: #313163;
-	text-align: center;
-	padding-left: 30%;
-	margin-left: -30%
-}
-
-#maincontent img.welcomehead { 
-	position: relative;
-	left: 28%;
-	/*margin-left: 30%;*/
-
-}
-
-#maincontent ul {
-	padding-left: 3px;
-	margin-left: 0;
-}
-
-#maincontent ul li ul {
-	margin-left: 20px;
-	font-size: 80%;
-}
 
 #footer {
-	/*float:right;*/
-	padding-top: 10ex;
-	/*margin-left: 60%;*/
-	color: #313153;
-	font-size: 80%;
-	/* text-align: right; */
-	text-align: center;
+	margin-right: 1em;
+	font-size: 7pt;
+	font-style: italic;
 }
 
-#topmenu	{
-	text-align: center;
-	font-weight: bold;
-	margin: 0.5ex;
-	font-family: Verdana, Optima, Helvetica, sans-serif;
-	font-size: 10pt;
+#debug {
+	font-size: 7pt;
 }

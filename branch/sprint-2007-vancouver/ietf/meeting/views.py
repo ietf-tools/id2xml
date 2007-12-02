@@ -10,6 +10,8 @@ from  django.db.models import Q
 import datetime
 
 def show_html_materials(request, meeting_num=None):
+    if not meeting_num:
+        meeting_num = Meeting.objects.order_by('-meeting_num')[0].meeting_num
     proceeding = get_object_or_404(Proceeding, meeting_num=meeting_num)
     begin_date = proceeding.sub_begin_date
     cut_off_date = proceeding.sub_cut_off_date
@@ -35,6 +37,10 @@ def show_html_materials(request, meeting_num=None):
     return object_list(request,queryset=queryset_list, template_name="meeting/list.html",allow_empty=True, extra_context={'meeting_num':meeting_num,'irtf_list':queryset_irtf, 'interim_list':queryset_interim, 'training_list':queryset_training, 'begin_date':begin_date, 'cut_off_date':cut_off_date, 'cor_cut_off_date':cor_cut_off_date,'sub_began':sub_began})
 
 def show_html_agenda(request, meeting_num=None, html_or_txt=None):
+    if not meeting_num:
+        meeting_num = Meeting.objects.order_by('-meeting_num')[0].meeting_num
+    if not html_or_txt:
+        html_or_txt = 'html'
     if html_or_txt == 'txt':
         return HttpResponsePermanentRedirect('http://www.ietf.org/meetings/agenda_%d.txt' % int(meeting_num))
     queryset_list=MeetingTime.objects.filter(meeting=meeting_num,day_id__gt='0').order_by("day_id","time_desc")

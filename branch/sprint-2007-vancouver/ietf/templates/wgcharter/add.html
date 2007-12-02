@@ -1,0 +1,10 @@
+<!-- need to add  { % extends "base.html" % } -->
+
+{% block title %} Add new draft charter for {{wgname}} {% endblock %}
+
+{% block content %}
+<form method="post" action="">
+<table>{{ form.as_table }}</table>
+<input type="submit" />
+</form>
+{% endblock %}

@@ -14,9 +14,21 @@ def current(request, wgname):
     html = "<html><body>Current Draft View, WG=%s</body></html>" % wgname
     return HttpResponse(html)
 
+class AddForm(forms.Form):
+    text = forms.CharField(required=True)
+
 def add(request, wgname):
-    html = "<html><body>Add  View, WG=%s</body></html>" % wgname
-    return HttpResponse(html)
+    if request.method == 'POST':
+	form = AddForm(request.POST)
+	if form.is_valid():
+	    data = form.clean_data
+	    text = data['text']
+	    #TODO create new charter here with the text=text, wg-wgname, and get the id 
+	    id =22
+	    return HttpResponseRedirect('/wgcharter/%s/%d/status'%(wgname,id))
+    else:
+	form = AddForm()
+    return render_to_response('wgcharter/add.html', {'form': form})
 
 def list(request, wgname):
     charters = CharterVersion.objects.all()

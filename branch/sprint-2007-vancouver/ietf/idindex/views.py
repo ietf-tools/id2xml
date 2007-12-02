@@ -13,6 +13,8 @@ from ietf.idindex.forms import IDIndexSearchForm
 from ietf.idindex.models import alphabet, orgs, orgs_dict
 from ietf.utils import orl, flattenl, normalize_draftname
 
+import datetime
+
 base_extra = { 'alphabet': alphabet, 'orgs': orgs }
 
 def wgdocs_redir(request, id):
@@ -100,10 +102,25 @@ def showdocs(request, cat=None):
     return object_list(request, queryset=queryset, template_name='idindex/showdocs.html', allow_empty=True, extra_context=extra)
 
 
+def within_helper(args, param, days):
+    if args.get(param,''):
+	within_start = datetime.date.today()-datetime.timedelta(int(args[param]))-datetime.timedelta(days) 
+	within_end   = datetime.date.today()+datetime.timedelta(int(args[param]))-datetime.timedelta(days) 
+	return [Q(revision_date__gte=within_start),Q(revision_date__lte=within_end)]
+    else:
+	return []
+
 def search(request):
     args = request.GET.copy()
     if args.has_key('filename'):
 	args['filename'] = normalize_draftname(args['filename'])
+    # days_to_expire  occurs a couple of times below - it is a magic number that's supposed to be days until drafts expire
+    days_to_expire = 183
+    if args.get('exp_before_date',''):
+        args['exp_before_date'] = datetime.datetime.strptime(args['exp_before_date'],'%Y-%m-%d') - datetime.timedelta(days_to_expire) 
+    if args.get('exp_after_date',''):
+        args['exp_after_date'] = datetime.datetime.strptime(args['exp_after_date'],'%Y-%m-%d') - datetime.timedelta(days_to_expire) 
+    # also need to object to badly formed dates here
     form = IDIndexSearchForm()
     t = loader.get_template('idindex/search.html')
     # if there's a query, do the search and supply results to the template
@@ -114,8 +131,12 @@ def search(request):
 	      'status_id': 'status',
 	      'last_name': 'authors__person__last_name__icontains',
 	      'first_name': 'authors__person__first_name__icontains',
+              'sub_before_date': 'revision_date__lte',
+	      'sub_after_date': 'revision_date__gte',
+              'exp_before_date': 'revision_date__lte',
+	      'exp_after_date': 'revision_date__gte',
 	    }
-    for key in qdict.keys() + ['other_group']:
+    for key in qdict.keys() + ['other_group', 'sub_within_date', 'exp_within_date']:
 	if key in args:
 	    searching = True
     if searching:
@@ -136,6 +157,8 @@ def search(request):
 		    for p in other.get('prefixes', [ other['key'] ])])]
 	except KeyError:
 	    pass	# either no other_group arg or no orgs_dict entry
+	q_objs += within_helper(args, 'sub_within_date', 0)
+	q_objs += within_helper(args, 'exp_within_date', days_to_expire)
 	matches = InternetDraft.objects.all().filter(*q_objs)
 	matches = matches.order_by('status_id', 'filename')
 	searched = True

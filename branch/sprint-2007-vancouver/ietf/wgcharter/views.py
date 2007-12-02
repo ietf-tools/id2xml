@@ -55,6 +55,7 @@ def current(request, wgname):
     return HttpResponse(html)
 
 
+
 class AddForm(forms.Form):
     text = forms.CharField(required=True)
 
@@ -108,8 +109,12 @@ def diff(request, wgname, version1, version2):
                                                      'version2':v2,
                                                      'diff':diff})
 
+
 def draft(request, wgname, version):
     test = ''
+    wgci = find_wgcharter_info(wgname)
+    charters = wgci.charterversion_set.all().order_by('-version_id')
+    default_diff=int(version)-1
     role = 'other' ; #sec, ad, chair, other
     charter = find_charter_version(wgname, version)
     if request.method == 'POST':
@@ -126,7 +131,6 @@ def draft(request, wgname, version):
 	if ( data.has_key('approve') and (role == 'sec') ):
 	    test = 'approve'
     return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter,'role':role,'log':test})
-
 
 
 def draft_status(request, wgname, version):

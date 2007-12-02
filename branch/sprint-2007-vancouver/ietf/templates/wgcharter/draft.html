@@ -7,8 +7,21 @@
 
 <p> remove-this log: {{log}} </p> 
 
-<B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR
+<B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR>
 <B>State: </B> {{ charter.state }}
+
+{% if  %}
+<form action="/wgcharter/{{wgname}}/diff" method="post">
+<select name="diffagainst">
+{% for ch in charters %}
+<option value="{{ch.version_id}}"
+{% if (default_diff == ch.version_id) %}selected{%endif}
+>{{ch.creation_date}}--{{ch.version_id}}</option>
+{% endfor %}
+</select>
+<input type="submit" value="Diff">
+</form>
+{%endif}
 
 <pre>
   {{ charter.text}}  

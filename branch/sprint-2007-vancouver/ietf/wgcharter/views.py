@@ -13,6 +13,13 @@ from django.newforms import form_for_model,form_for_instance
 
 from ietf.wgcharter.models import  CharterVersion
 
+
+def add_charter_version(wg, state, charter_text, submitter) :
+    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, creation_date = datetime.datetime.now(tz=None))
+    charter.save()
+    return charter
+    
+
 def find_wgcharter_info (wgname):
     wgci_list = WGCharterInfo.objects.filter(wg_acronym=wgname)
 
@@ -22,6 +29,17 @@ def find_wgcharter_info (wgname):
         raise Exception("No WG with this name")
 
     return wgci_list[0]
+
+
+def find_charter_version (wgname, version):
+    wgci = find_wgcharter_info(wgname)
+    charter_list = wgci.charterversion_set.filter(version_id=version)
+
+    if(len(charter_list)!=1):
+        raise Exception("No such version found")
+
+    return charter_list[0]
+    
 
 
 def current(request, wgname):
@@ -41,7 +59,7 @@ def add(request, wgname):
 	if form.is_valid():
 	    data = form.clean_data
 	    text = data['text']
-            charter_version = add_charter_version(wgci, state='Draft', charter_text=text, submitter="Unknown")
+            charter_version = add_charter_version(wgci, state='draft', charter_text=text, submitter="Unknown")
             id = charter_version.version_id
 	    return HttpResponseRedirect('/wgcharter/%s/%d/status'%(wgname,id))
     else:
@@ -62,20 +80,14 @@ def diff(request, wgname, version1, version2):
 
 
 def draft(request, wgname, version):
-    html = "<html><body>Draft Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
-    return HttpResponse(html)
-
+    charter = find_charter_version(wgname, version)
+    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter})
+    
 
 def draft_status(request, wgname, version):
     html = "<html><body>Status Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
     return HttpResponse(html)
 
-
-def add_charter_version(wg, state, charter_text, submitter) :
-    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, creation_date = datetime.datetime.now(tz=None))
-    charter.save()
-    return charter
-    
 # Test code
 def fake_wg(request, wgname):
     wgci_list = WGCharterInfo.objects.filter(wg_acronym=wgname)

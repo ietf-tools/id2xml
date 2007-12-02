@@ -5,13 +5,11 @@
 
 {% block content %}
 
+<P>
 {% for charter in charterList %}
-<h4> Edited {{ charter.creation_date }} by {{ charter.submitter }}: </h4>
-<pre>
-  {{ charter.text}}  
-</pre>
-
+<A HREF="/wgcharter/{{wgname}}/{{charter.version_id}}/">
+{{ charter.creation_date }} by ({{ charter.submitter }}) state={{charter.state}}
+</A>
+<BR>
 {% endfor %}
-
-<p> data </p>
 {% endblock %}

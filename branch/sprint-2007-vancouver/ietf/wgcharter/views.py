@@ -49,11 +49,18 @@ def find_charter_version (wgname, version):
 
 
 def current(request, wgname):
-    wgci_list = WGCharterInfo.objects.filter(wg_acronym=wgname)
-    html = "<html><body>Current Draft View, WG=%s, %d wgs" % (wgname, len(wgci_list))
-    wgci = wgci_list[0]  # better not be more than one
-    return HttpResponse(html)
-
+    # Need to fix state once states work
+    wgci = find_wgcharter_info(wgname)
+    charter_list = wgci.charterversion_set.order_by('-version_id')
+    
+    if(len(charter_list)<0):
+        html = "No current approved version for wg %s" %wgname
+        return HttpResponse(html)
+    
+    charter=charter_list[0]
+    return render_to_response('wgcharter/current.html',{'wgname':wgname,'charter':charter})
+    
+    
 
 
 class AddForm(forms.Form):

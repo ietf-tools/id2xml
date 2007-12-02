@@ -17,7 +17,7 @@ from ietf.wgcharter.models import  CharterVersion
 
 
 # define to be the diff command
-diff_command = "diff"
+diff_command = "htmlwdiff"
 
 
 def add_charter_version(wg, state, charter_text, submitter) :
@@ -53,6 +53,7 @@ def current(request, wgname):
     html = "<html><body>Current Draft View, WG=%s, %d wgs" % (wgname, len(wgci_list))
     wgci = wgci_list[0]  # better not be more than one
     return HttpResponse(html)
+
 
 class AddForm(forms.Form):
     text = forms.CharField(required=True)
@@ -108,13 +109,19 @@ def diff(request, wgname, version1, version2):
                                                      'diff':diff})
 
 def draft(request, wgname, version):
+    test = ''
     charter = find_charter_version(wgname, version)
-    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter})
-    
+    if request.method == 'POST':
+	print request.POST
+	test = request.POST.value
+    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter,'log':test})
+
+
 
 def draft_status(request, wgname, version):
     html = "<html><body>Status Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
     return HttpResponse(html)
+
 
 # Test code
 def fake_wg(request, wgname):

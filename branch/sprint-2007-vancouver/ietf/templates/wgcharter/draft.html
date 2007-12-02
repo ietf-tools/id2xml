@@ -5,12 +5,22 @@
 
 {% block content %}
 
+<p> remove-this log: {{log}} </p> 
+
 <B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR
 <B>State: </B> {{ charter.state }}
 
 <pre>
   {{ charter.text}}  
 </pre>
+
+<form action="" method="post">
+<input type="submit" value="Request AD Review" />
+<input type="submit" value="Request IESG Proposed Review" />
+<input type="submit" value="Request IETF Last Call" />
+<input type="submit" value="Request IESG Approval" />
+<input type="submit" value="Approve" />
+</form>
 
 {% endblock %}
 

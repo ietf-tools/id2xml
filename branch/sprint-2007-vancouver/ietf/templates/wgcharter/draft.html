@@ -10,18 +10,10 @@
 <B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR>
 <B>State: </B> {{ charter.state }}
 
-{% if  %}
-<form action="/wgcharter/{{wgname}}/diff" method="post">
-<select name="diffagainst">
-{% for ch in charters %}
-<option value="{{ch.version_id}}"
-{% if (default_diff == ch.version_id) %}selected{%endif}
->{{ch.creation_date}}--{{ch.version_id}}</option>
-{% endfor %}
-</select>
-<input type="submit" value="Diff">
+<form method="post" action="">
+<table>{{ diffForm.as_table }}</table>
+<input type="submit" />
 </form>
-{%endif}
 
 <pre>
   {{ charter.text}}  
@@ -30,7 +22,7 @@
 <form action="" method="post">
 {% ifequal role "sec" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
 {% ifequal role "ad" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
-{% ifequal role "chair" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
+{% ifequal role "chair" %} <input type="subgmit" name="adReview" value="Request AD Review" />{% endifequal %}
 
 {% ifequal role "sec" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}
 {% ifequal role "ad" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}

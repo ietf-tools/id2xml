@@ -110,12 +110,28 @@ def diff(request, wgname, version1, version2):
                                                      'diff':diff})
 
 
+class DiffForm(forms.Form):
+    fooWidget = forms.ChoiceField(required=False)
+    def __init__(self,*args,**kwargs):
+	super(DiffForm, self).__init__(*args, **kwargs)
+	choices=[('a','aaa'),('b','bbb')]
+	self.fields['fooWidget'].choices = choices
+    YEAR_IN_SCHOOL_CHOICES = (
+	('FR', 'Freshman'),
+	('SO', 'Sophomore'),
+	('JR', 'Junior'),
+	('SR', 'Senior'),
+	('GR', 'Graduate'),
+	)
+    
+
 def draft(request, wgname, version):
+    diffForm = DiffForm()
     test = ''
     wgci = find_wgcharter_info(wgname)
     charters = wgci.charterversion_set.all().order_by('-version_id')
     default_diff=int(version)-1
-    role = 'other' ; #sec, ad, chair, other
+    role = 'sec' ; #sec, ad, chair, other
     charter = find_charter_version(wgname, version)
     if request.method == 'POST':
         #test = request.POST.value
@@ -130,7 +146,7 @@ def draft(request, wgname, version):
 	    test = 'iesgApprovalReview'
 	if ( data.has_key('approve') and (role == 'sec') ):
 	    test = 'approve'
-    return render_to_response('wgcharter/draft.html', {'wgname':wgname,'charter': charter,'role':role,'log':test})
+    return render_to_response('wgcharter/draft.html', {'diffForm':diffForm,'wgname':wgname,'charter': charter,'role':role,'log':test})
 
 
 def draft_status(request, wgname, version):

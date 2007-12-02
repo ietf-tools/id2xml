@@ -52,17 +52,18 @@ def find_charter_version (wgname, version):
 
 
 def current(request, wgname):
-    # Need to fix state once states work
     wgci = find_wgcharter_info(wgname)
     charter_list = wgci.charterversion_set.order_by('-version_id')
+
+    # Need to fix state once states work    
+    approved_list=charter_list.filter(state='draft')
     
-    if(len(charter_list)<0):
-        html = "No current approved version for wg %s" %wgname
+    if(len(approved_list)==0):
+        html = "No current approved version for wg \'%s\'" %wgname
         return HttpResponse(html)
     
-    charter=charter_list[0]
-    return render_to_response('wgcharter/current.html',{'wgname':wgname,'charter':charter})
-    
+    charter=approved_list[0]
+    return render_to_response('wgcharter/current.html',{'wgname':wgname,'charter':charter,'lastdraft':charter_list[0]})
     
 
 

@@ -1,6 +1,8 @@
 # Create your views here.
 import logging
 import datetime
+import tempfile, os
+
 from ietf.wgcharter.models import WGCharterInfo, CharterVersion
 
 from django.shortcuts import render_to_response
@@ -75,9 +77,22 @@ def list(request, wgname):
 
 
 def diff(request, wgname, version1, version2):
-    html = "<html><body>Diff Drafts View, WG=%s, first=%s, second=%s</body></html>" % (wgname, version1, version2)
-    return HttpResponse(html)
+    v1 = find_charter_version(wgname, version1)
+    v2 = find_charter_version(wgname, version2)
 
+    fd1, path1 = tempfile.mkstmp(suffix='.txt', text=True)
+    fd2, path2 = tempfile.mkstmp(suffix='.txt', text=True)
+    
+    try:
+        os.write(v1.text)
+        os.close(fd1)
+        os.write(v2.text)
+        os.close(fd2)
+        
+    finally:
+        os.unlink(path1)
+        os.unlink(path2)
+        
 
 def draft(request, wgname, version):
     charter = find_charter_version(wgname, version)

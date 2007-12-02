@@ -56,7 +56,7 @@ def current(request, wgname):
     charter_list = wgci.charterversion_set.order_by('-version_id')
 
     # Need to fix state once states work    
-    approved_list=charter_list.filter(state='draft')
+    approved_list=charter_list.filter(state='approved')
     
     if(len(approved_list)==0):
         html = "No current approved version for wg \'%s\'" %wgname
@@ -153,6 +153,9 @@ def draft(request, wgname, version):
     default_diff=int(version)-1
     role = 'sec' ; #sec, ad, chair, other
     charter = find_charter_version(wgname, version)
+    if (charter.version_id != charters[0].version_id):
+        role='other'
+        
     if request.method == 'POST':
 	try:
 	    profile = request.user.get_profile()
@@ -172,6 +175,8 @@ def draft(request, wgname, version):
 	    test = 'iesgApprovalReview'
 	if ( data.has_key('approve') and (role == 'sec') ):
 	    test += 'approve'
+            charter.state='approved'
+            charter.save()
     return render_to_response('wgcharter/draft.html', {'diffForm':diffForm,'wgname':wgname,'charter': charter,'role':role,'log':test})
 
 

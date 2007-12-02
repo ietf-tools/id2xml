@@ -82,6 +82,17 @@ def list(request, wgname):
     return render_to_response('wgcharter/all.html', {'wgname':wgname,'charterList': charters})
 
 
+def diff1(request, wgname, version):
+     if request.method == 'POST':
+        data = request.POST
+        diff_from = int(data['diffWidget'])
+        logging.error("Diff from %d"%diff_from)
+     else:
+         raise Exception("This page must be called with POST")
+               
+     return diff(request, wgname, diff_from, version)
+    
+
 def diff(request, wgname, version1, version2):
     v1 = find_charter_version(wgname, version1)
     v2 = find_charter_version(wgname, version2)
@@ -111,24 +122,22 @@ def diff(request, wgname, version1, version2):
 
 
 class DiffForm(forms.Form):
-    fooWidget = forms.ChoiceField(required=False)
-    def __init__(self,*args,**kwargs):
+    diffWidget = forms.ChoiceField(required=False)
+    def __init__(self,wgci=None,*args,**kwargs):
 	super(DiffForm, self).__init__(*args, **kwargs)
-	choices=[('a','aaa'),('b','bbb')]
-	self.fields['fooWidget'].choices = choices
-    YEAR_IN_SCHOOL_CHOICES = (
-	('FR', 'Freshman'),
-	('SO', 'Sophomore'),
-	('JR', 'Junior'),
-	('SR', 'Senior'),
-	('GR', 'Graduate'),
-	)
-    
+        charters = wgci.charterversion_set.all()
+        choices=[]
+        for i in charters:
+            logging.error("Charter %s" % i.creation_date)
+            choices.append(("%d"%i.version_id,"%s"%i.creation_date))
+
+        logging.error("%s"%choices)
+        self.fields['diffWidget'].choices = choices
 
 def draft(request, wgname, version):
-    diffForm = DiffForm()
     test = ''
     wgci = find_wgcharter_info(wgname)
+    diffForm = DiffForm(wgci=wgci)
     charters = wgci.charterversion_set.all().order_by('-version_id')
     default_diff=int(version)-1
     role = 'sec' ; #sec, ad, chair, other

@@ -70,6 +70,7 @@ def current(request, wgname):
 class AddForm(forms.Form):
     text = forms.CharField(required=True)
 
+@login_required
 def add(request, wgname):
     wgci=find_wgcharter_info(wgname)
     
@@ -167,15 +168,25 @@ def draft(request, wgname, version):
 	data = request.POST
 	if ( data.has_key('adReview')  and ( role=='sec' or role=='ad' or role=='chair' )):
 	    test += 'adReview'
+	    charter.state='ad'
+            charter.save()
 	if ( data.has_key('iesgProposedReview')  and ( role=='sec' or role=='ad')):
 	    test += 'iesgProposedReview'
+	    charter.state='internal'
+            charter.save()
 	if ( data.has_key('lastCall')  and ( role=='sec' or role=='ad')):
 	    test += 'lastCall'
+	    charter.state='external'
+            charter.save()
 	if ( data.has_key('iesgApprovalReview') and ( role=='sec' or role=='ad') ):
 	    test = 'iesgApprovalReview'
 	if ( data.has_key('approve') and (role == 'sec') ):
 	    test += 'approve'
             charter.state='approved'
+            charter.save()
+	if ( data.has_key('dead') and (role == 'sec' or role=='ad') ):
+	    test += 'dead'
+            charter.state='dead'
             charter.save()
     return render_to_response('wgcharter/draft.html', {'diffForm':diffForm,'wgname':wgname,'charter': charter,'role':role,'log':test})
 

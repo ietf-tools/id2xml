@@ -15,8 +15,11 @@ class CharterVersion(models.Model):
     version_id = models.AutoField(primary_key=True)
     STATE_CHOICES = (
 	('draft','Draft'),
-	('lastCalled','Sent to IETF Last Call'),
+	('ad','AD Review'),
+	('internal','Internal IESG Review'),
+	('external','Sent to IETF Last Call'),
 	('approved','Approved'),
+	('dead','Entombed'),
 	)
     creation_date = models.DateField(null=True, blank=True)
     state = models.CharField(maxlength=30,choices=STATE_CHOICES,blank=False,default='draft')

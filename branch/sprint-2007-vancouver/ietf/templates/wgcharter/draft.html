@@ -34,6 +34,9 @@
 {% ifequal role "ad" %}<input type="submit" name="iesgApprovalReview" value="Request IESG Approval" />{% endifequal %}
 
 {% ifequal role "sec" %}<input type="submit" name="approve" value="Approve" />{% endifequal %}
+
+{% ifequal role "sec" %}<input type="submit" name="dead" value="Entomb" />{% endifequal %}
+{% ifequal role "ad" %}<input type="submit" name="dead" value="Entombl" />{% endifequal %}
 </form>
 
 {% endblock %}

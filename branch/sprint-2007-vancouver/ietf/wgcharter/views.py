@@ -1,14 +1,20 @@
 # Create your views here.
-from django.http import HttpResponse
-import datetime
+
+from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django import oldforms as forms
+from django import newforms as forms
+from django.newforms import form_for_model,form_for_instance
+
 
 def current(request, wgname):
     html = "<html><body>Current Draft View, WG=%s</body></html>" % wgname
     return HttpResponse(html)
 
 def list(request, wgname):
-    html = "<html><body>List Drafts View, WG=%s</body></html>"  % wgname
-    return HttpResponse(html)
+    charters = CharterVersion.objects.all()
+    return render_to_response('all.html', {'wgname':wgname,'charterList': charters})
 
 def diff(request, wgname, version1, version2):
     html = "<html><body>Diff Drafts View, WG=%s, first=%s, second=%s</body></html>" % (wgname, version1, version2)

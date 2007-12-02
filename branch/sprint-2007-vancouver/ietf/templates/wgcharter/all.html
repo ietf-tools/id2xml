@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}All Charters for {{wgname}} {% endblock %}
+
+{% block content %}
+
+{% for charter in charterList %}
+<h2> Charter: {{ charter.date }} </h2>
+{% endfor %}
+
+<p> data </p>
+{% endblock %}

@@ -16,6 +16,10 @@ from django.newforms import form_for_model,form_for_instance
 from ietf.wgcharter.models import  CharterVersion
 
 
+# define to be the diff command
+diff_command = "diff"
+
+
 def add_charter_version(wg, state, charter_text, submitter) :
     charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, creation_date = datetime.datetime.now(tz=None))
     charter.save()
@@ -80,19 +84,28 @@ def diff(request, wgname, version1, version2):
     v1 = find_charter_version(wgname, version1)
     v2 = find_charter_version(wgname, version2)
 
-    fd1, path1 = tempfile.mkstmp(suffix='.txt', text=True)
-    fd2, path2 = tempfile.mkstmp(suffix='.txt', text=True)
+    fd1, path1 = tempfile.mkstemp(suffix='.txt', text=True)
+    fd2, path2 = tempfile.mkstemp(suffix='.txt', text=True)
     
     try:
-        os.write(v1.text)
+        os.write(fd1,v1.text)
         os.close(fd1)
-        os.write(v2.text)
+        os.write(fd2,v2.text)
         os.close(fd2)
+        dc = "%s %s %s" % (diff_command,path1, path2)
+        fd3 = os.popen(dc, "r")
+        #diff=dc;
+        diff=diff = fd3.read()
+        fd3.close()
         
     finally:
         os.unlink(path1)
         os.unlink(path2)
-        
+
+    return render_to_response('wgcharter/diff.html',{'wgname':wgname,
+                                                     'version1':v1,
+                                                     'version2':v2,
+                                                     'diff':diff})
 
 def draft(request, wgname, version):
     charter = find_charter_version(wgname, version)

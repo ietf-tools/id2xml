@@ -1,0 +1,14 @@
+<!-- need to add  { % extends "base.html" % } -->
+
+
+{% block title %}Diff for {{wgname}} {% endblock %}
+<P>
+{% block content %}
+
+<B>First version:</B> {{ version1.creation_date }}
+<BR>
+<B>Second version:</B> {{ version2.creation_date }}
+<P>
+  {{ diff}} 
+<P>
+{% endblock %}

@@ -1,6 +1,6 @@
 # Create your views here.
 import logging
-
+import datetime
 from ietf.wgcharter.models import WGCharterInfo, CharterVersion
 
 from django.shortcuts import render_to_response
@@ -48,6 +48,7 @@ def add(request, wgname):
 	form = AddForm()
     return render_to_response('wgcharter/add.html', {'form': form})
 
+
 def list(request, wgname):
     wgci = find_wgcharter_info(wgname)
     charters = wgci.charterversion_set.all()
@@ -70,7 +71,7 @@ def draft_status(request, wgname, version):
 
 
 def add_charter_version(wg, state, charter_text, submitter) :
-    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg)
+    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, creation_date = datetime.datetime.now(tz=None))
     charter.save()
     return charter
     

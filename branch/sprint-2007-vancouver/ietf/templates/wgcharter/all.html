@@ -6,7 +6,11 @@
 {% block content %}
 
 {% for charter in charterList %}
-<h2> Charter: {{ charter.date }} </h2>
+<h4> Edited {{ charter.creation_date }} by {{ charter.submitter }}: </h4>
+<pre>
+  {{ charter.text}}  
+</pre>
+
 {% endfor %}
 
 <p> data </p>

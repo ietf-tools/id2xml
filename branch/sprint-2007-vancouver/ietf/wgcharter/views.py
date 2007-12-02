@@ -52,18 +52,19 @@ def add(request, wgname):
 def list(request, wgname):
     wgci = find_wgcharter_info(wgname)
     charters = wgci.charterversion_set.all()
-
-    logging.error("WG %s, num charters %d",wgname,len(charters))
     
     return render_to_response('wgcharter/all.html', {'wgname':wgname,'charterList': charters})
+
 
 def diff(request, wgname, version1, version2):
     html = "<html><body>Diff Drafts View, WG=%s, first=%s, second=%s</body></html>" % (wgname, version1, version2)
     return HttpResponse(html)
 
+
 def draft(request, wgname, version):
     html = "<html><body>Draft Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
     return HttpResponse(html)
+
 
 def draft_status(request, wgname, version):
     html = "<html><body>Status Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)

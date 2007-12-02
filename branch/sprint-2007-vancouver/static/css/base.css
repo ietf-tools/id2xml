@@ -1,8 +1,50 @@
 body {
-	font-size: 85%;
-	/* font-size: 10pt; */
-	margin: 0px;
+	font-size: .85em;
+	margin: 0;
+	background-color: white;
 }
+
+#content h1 {
+	font-size: 1.5em;
+}
+
+#content h2 {
+	font-size: 1.15em;
+}
+
+
+#content th {
+	font-weight: bold;
+	text-align: left;
+	background-color: lightgray;
+}
+
+#content td {
+	vertical-align: top;
+}
+
+#content td.buttons {
+	text-align: right;
+}
+
+#content table.search {
+	background-color: lightgray;
+	padding: .5em;
+}
+
+#content p.error {
+	font-weight: bold;
+	color: red;
+}
+
+#content th.state {
+	padding-top: 2em;
+	font-size: 1.15em;
+	background-color: white;
+}
+
+
+
 
 #title {
 	font-size: 140%;

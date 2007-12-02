@@ -34,13 +34,15 @@ class AddForm(forms.Form):
     text = forms.CharField(required=True)
 
 def add(request, wgname):
+    wgci=find_wgcharter_info(wgname)
+    
     if request.method == 'POST':
 	form = AddForm(request.POST)
 	if form.is_valid():
 	    data = form.clean_data
 	    text = data['text']
-	    #TODO create new charter here with the text=text, wg-wgname, and get the id 
-	    id =22
+            charter_version = add_charter_version(wgci, state='Draft', charter_text=text, submitter="Unknown")
+            id = charter_version.version_id
 	    return HttpResponseRedirect('/wgcharter/%s/%d/status'%(wgname,id))
     else:
 	form = AddForm()
@@ -70,8 +72,7 @@ def draft_status(request, wgname, version):
 def add_charter_version(wg, state, charter_text, submitter) :
     charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg)
     charter.save()
-    charters = wg.charterversion_set.all()
-    
+    return charter
     
 # Test code
 def fake_wg(request, wgname):

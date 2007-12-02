@@ -1,0 +1,16 @@
+<!-- need to add  { % extends "base.html" % } -->
+
+
+{% block title %}<H4>Charter Draft for {{wgname}} ({{charter.creation_date}})</H4> {% endblock %}
+
+{% block content %}
+
+<B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR
+<B>State: </B> {{ charter.state }}
+
+<pre>
+  {{ charter.text}}  
+</pre>
+
+{% endblock %}
+

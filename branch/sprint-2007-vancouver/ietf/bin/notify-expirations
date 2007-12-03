@@ -2,8 +2,6 @@
 
 import datetime
 
-from django.db.models import Q
-
 from ietf.idtracker.models import InternetDraft,IDAuthor,WGChair
 from ietf.utils.mail import send_mail_subj
 
@@ -12,9 +10,8 @@ days_to_expire = 183 # Value subject to debate
 start_date = datetime.date.today() - datetime.timedelta(days_to_expire)
 end_date = start_date + datetime.timedelta(14)
 
-q_objs = [Q(revision_date__gte=start_date),Q(revision_date__lte=end_date),Q(status__status='Active')]
 
-matches = InternetDraft.objects.filter(*q_objs)
+matches = InternetDraft.objects.filter(revision_date__gte=start_date,revision_date__lte=end_date,status__status='Active')
 
 #For development - focus on one draft
 #matches = InternetDraft.objects.filter(filename__icontains='geopriv-http-location-delivery')

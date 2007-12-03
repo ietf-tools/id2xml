@@ -12,13 +12,12 @@ days_to_expire = 183 # Value subject to debate
 start_date = datetime.date.today() - datetime.timedelta(days_to_expire)
 end_date = start_date + datetime.timedelta(14)
 
-q_objs = [Q(revision_date__gte=start_date),Q(revision_date__lte=end_date)]
+q_objs = [Q(revision_date__gte=start_date),Q(revision_date__lte=end_date),Q(status__status='Active')]
 
 matches = InternetDraft.objects.filter(*q_objs)
 
 #For development - focus on one draft
-#matches = InternetDraft.objects.all().filter(filename__icontains='geopriv-deref-protocol')
-#matches = InternetDraft.objects.all().filter(filename__icontains='geopriv-http-location-delivery')
+#matches = InternetDraft.objects.filter(filename__icontains='geopriv-http-location-delivery')
 
 for draft in matches:
     authors = draft.authors.all()
@@ -27,6 +26,16 @@ for draft in matches:
     if draft.group.acronym != 'none':
         cc_addrs = [chair.person.email() for chair in WGChair.objects.filter(group_acronym=draft.group)]
     
+    #For development debugging
+    """
+    print "filename: "+draft.filename
+    print "to: ", to_addrs
+    print "cc: ", cc_addrs
+    print "expires: ", draft.revision_date+datetime.timedelta(days_to_expire)
+    print "status: ", draft.status.status
+    print
+    """
+
     send_mail_subj(None, to_addrs, None, 'notify_expirations/subject.txt', 'notify_expirations/body.txt', 
                    {
                       'draft':draft,

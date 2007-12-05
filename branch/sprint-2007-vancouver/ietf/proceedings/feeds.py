@@ -22,6 +22,7 @@ class LatestWgProceedingsActivity(Feed):
             m = re.match("^slide, '(.*)', was uploaded$", act.activity)
             if m:
                 obj['title'] = m.group(1) 
+                obj['title'] = re.sub("[^ -~]+", "", obj['title'])
                 slides = Slide.objects.filter(meeting=act.meeting).filter(slide_name=m.group(1)).filter(group_acronym_id=act.group_acronym_id)
                 if len(slides) == 1:
                     obj['link'] = self.base_url + slides[0].file_loc()

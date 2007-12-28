@@ -124,8 +124,5 @@ def send_mail_text(request, to, frm,subject, txt, cc=None, extra=None):
 	    msg[k] = v
     if settings.SERVER_MODE == 'production':
 	send_smtp(msg)
-    #only for dev
-    copy_email(msg, "homin1972@gmail.com")
-    #use the line below when commit to IETF SVN
-    #copy_email(msg, "ietf.tracker.archive+%s@gmail.com" % settings.SERVER_MODE)
+    copy_email(msg, "ietf.tracker.archive+%s@gmail.com" % settings.SERVER_MODE)
 

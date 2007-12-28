@@ -1,0 +1,87 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+
+{% extends "base.html" %}
+
+{% block title %}IETF Meeting Session Request Tool{% endblock %}
+
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://www.ietf.org/css/base.css" />
+{% endblock %}
+
+{% block content %}
+
+<h2><center>IETF Meeting Session Request Tool</center></h2>
+
+<h3>IETF {{meeting_num}}: Edit/Cancel Previously Requested Session</h3>
+<hr/>
+<h4>Requested Information</h4>
+
+<table cellpadding="1" cellspacing="1" border="0" width="800">
+
+<tr bgcolor="#cccccc"><td width="200">Working Group Name: </td><td>{{group.group_acronym.name}} ({{group.group_acronym.acronym}})</td></tr>
+<tr bgcolor="#eeeeee"><td>Area Name: </td><td>{{group.area.area.area_acronym.name}} ({{group.area.area.area_acronym.acronym}})</td></tr>
+<tr bgcolor="#cccccc"><td>Number of Sessions Requested:</td><td>
+{{session.num_session}}
+</td></tr>
+
+<tr bgcolor="#eeeeee"><td valign="top">Length of Session 1:</td><td>{{session.length_session1.hour_desc}}</td></tr>
+{% if session.length_session2 %}
+<tr bgcolor="#eeeeee"><td valign="top">Length of Session 2:</td><td>{{session.length_session2.hour_desc}}</td></tr>
+{% endif %}
+{% if session.length_session3 %}
+<tr bgcolor="#eeeeee"><td valign="top">Length of Session 3:</td><td>{{session.length_session3.hour_desc}}</td></tr>
+{% endif %}
+
+<tr bgcolor="#cccccc"><td>Number of Attendees:</td><td>
+{{session.number_attendee}}
+</td></tr>
+
+<tr bgcolor="#eeeeee"><td valign="top">Conflicts to Avoid:</td>
+<td>
+<table border="0">
+{% if session.conflict1 %}<tr><td>First Priority:</td><td>{{session.conflict1}}</td></tr>{% endif %}
+{% if session.conflict2 %}<tr><td>Second Priority:</td><td>{{session.conflict2}}</td></tr>{% endif %}
+{% if session.conflict3 %}<tr><td>Third Priority:</td><td>{{session.conflict3}}</td></tr>{% endif %}
+{% if session.conflict_other %}<tr><td>BOF or IRTF Sessions:</td><td>{{session.conflict_other|escape|linebreaksbr}}</td></tr>{% endif %}
+</table>
+</td>
+</tr>
+
+<tr bgcolor="#cccccc"><td valign="top">Other WGs that included {{group.group_acronym.acronym}} in their conflict lists:</td>
+<td>
+{% if conflicts %}
+{% for conflict in conflicts %}
+{{conflict.group_acronym.acronym}}{% if not forloop.last %},{% endif %}
+{% endfor %}
+{% else %}
+<i>None so far</i>
+{% endif %}
+</td></tr>
+
+<tr bgcolor="#eeeeee"><td valign="top">Special Requests:</td>
+<td>
+{{session.special_req|escape|linebreaksbr}}
+</td>
+</tr>
+</table>
+
+<h4>Activities Log</h4>
+
+<table cellpadding="1" cellspacing="1" border="0" width="800">
+<tr bgcolor="#cccccc"><td width="90">Date</td><td width="90">Time</td><td>Action</td><td>Name</td></tr>
+{% for activity in session_activity %}
+<tr bgcolor="#eeeeee"><td>{{activity.act_date}}</td><td>{{activity.act_time}}</td><td>{{activity.activity}}</td><td>{{activity.person.first_name}} {{activity.person.last_name}}</td></tr>
+{% endfor %}
+</table>
+
+<form method="post">
+<input name="edit" type="submit" value="Edit this Request">
+<input name="cancel" type="submit" value="Cancel this Request">
+</form>
+
+<form action="../">
+<input type="submit" value="User's First Screen">
+</form>
+
+{% endblock %}

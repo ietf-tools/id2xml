@@ -24,9 +24,6 @@
 {% for group in unscheduled_groups %}
 <li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> {% if group.no_meeting %}<font color="#cc0000">(Currently, this group does not plan to hold a session at IETF {{meeting_num}})</font></li>{% endif %}
 {% endfor %}
-{% for irtf in unscheduled_irtf %}
-<li><a href="{{irtf.irtf_id}}">{{irtf.acronym}}</a></li>
-{% endfor %}
 </ul>
 </li>
 <li><h3>Edit/Cancel Previously Requested Sessions</h3>
@@ -36,9 +33,6 @@
 {% if scheduled_groups %}
 {% for group in scheduled_groups %}
 <li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> - {{group.meeting_session.status.status}}</li>
-{% endfor %}
-{% for irtf in scheduled_irtf %}
-<li><a href="{{irtf.irtf_id}}">{{irtf.acronym}}</a></li>
 {% endfor %}
 {% else %}
 <i>NONE</i>

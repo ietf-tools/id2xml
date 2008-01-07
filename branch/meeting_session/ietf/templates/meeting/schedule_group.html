@@ -66,9 +66,10 @@ window.onload = function()
            var objSelect = e.target ? e.target : e.srcElement;
            var acronym = objSelect.options[objSelect.selectedIndex].text;
            var Priority = document.getElementById('id_conflict' + (objSelect.indexnum + 1));
-           Priority.value = Priority.value + ( Priority.value ? ' ' : '' ) + acronym;
-           objSelect.selectedIndex = 0;
-
+           if (objSelect.selectedIndex > 0) {
+             Priority.value = Priority.value + ( Priority.value ? ' ' : '' ) + acronym;
+             objSelect.selectedIndex = 0;
+           }
            return handleconflictfield(objSelect.indexnum + 1)
         }
     }
@@ -122,23 +123,28 @@ function retrieve_data()
   var form_post = document.forms[1];
 
   form_post.num_session.selectedIndex = last_session.num_session;
-  form_post.length_session1.selectedIndex = last_session.length_session1;
-  form_post.length_session2.selectedIndex = last_session.length_session2;
-  form_post.length_session3.selectedIndex = last_session.length_session3;
+  form_post.length_session1.selectedIndex = last_session.length_session1-1;
+  form_post.length_session2.selectedIndex = last_session.length_session2-1;
+  form_post.length_session3.selectedIndex = last_session.length_session3-1;
   form_post.number_attendee.value = last_session.number_attendee;
   form_post.conflict1.value = last_session.conflict1;
   form_post.conflict2.value = last_session.conflict2;
   form_post.conflict3.value = last_session.conflict3;
   form_post.conflict_other.value = last_session.conflict_other;
   form_post.special_req.value = last_session.special_req;
+  if (last_session.num_session == 1) {
+    form_post.length_session2.disabled=true;
+    form_post.length_session3.disabled=true;
+  }
 }
 
 {% if last_session %}
 var last_session = {
   'num_session': {{last_session.num_session|default:1}},
-  'length_session1': {{last_session.length_session1.hour_id|default:1}},
-  'length_session2': {{last_session.length_session2.hour_id|default:1}},
-  'length_session3': {{last_session.length_session3.hour_id|default:1}},
+  'length_session1': {{last_session.length_session1.hour_id|default:0}},
+  'length_session2': {{last_session.length_session2.hour_id|default:0}},
+  'length_session3': {{last_session.length_session3.hour_id|default:0}},
+  'number_attendee':{{last_session.number_attendee}},
   'conflict1': '{{last_session.conflict1}}',
   'conflict2': '{{last_session.conflict2}}',
   'conflict3': '{{last_session.conflict3}}',

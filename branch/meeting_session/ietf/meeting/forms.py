@@ -1,5 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+import re
 from django import newforms as forms
 from ietf.idtracker.models import Acronym, IETFWG
 from ietf.proceedings.models import MeetingHours
@@ -19,11 +20,11 @@ class MeetingSession(forms.Form):
     length_session3 = forms.ChoiceField(choices=session_lengths, required=False)
     number_attendee = forms.CharField(max_length=5, widget=forms.TextInput(attrs={'size':'5'}), required=True)
     work_groups = forms.ChoiceField(choices=[('', '--Select WG(s)')] + IETFWG.choices(), required=False)
-    conflict1 = forms.CharField(max_length=55, widget=forms.TextInput(attrs={'size':'55'}), required=False)
-    conflict2 = forms.CharField(max_length=55, widget=forms.TextInput(attrs={'size':'55'}), required=False)
-    conflict3 = forms.CharField(max_length=55, widget=forms.TextInput(attrs={'size':'55'}), required=False)
-    conflict_other = forms.CharField(max_length=55, widget=forms.Textarea(attrs={'cols':'40', 'rows': 3}), required=False)
-    special_req = forms.CharField(max_length=55, widget=forms.Textarea(attrs={'cols':'65', 'rows': 6}), required=False)
+    conflict1 = forms.CharField(max_length=85, widget=forms.TextInput(attrs={'size':'55'}), required=False)
+    conflict2 = forms.CharField(max_length=85, widget=forms.TextInput(attrs={'size':'55'}), required=False)
+    conflict3 = forms.CharField(max_length=85, widget=forms.TextInput(attrs={'size':'55'}), required=False)
+    conflict_other = forms.CharField(max_length=85, widget=forms.Textarea(attrs={'cols':'40', 'rows': 3}), required=False)
+    special_req = forms.CharField(max_length=85, widget=forms.Textarea(attrs={'cols':'65', 'rows': 6}), required=False)
 
     def clean_number_attendee(self):
         if self.clean_data['number_attendee'] == '0':
@@ -31,7 +32,7 @@ class MeetingSession(forms.Form):
 
     def check_acronyms(self, acronymlist):
         bad_acronyms = []
-        for acronym in acronymlist.split(' '):
+        for acronym in acronymlist.replace(',',' ').split(' '):
             if acronym and Acronym.objects.filter(acronym=acronym).count() == 0:
                 bad_acronyms.append(acronym)
 

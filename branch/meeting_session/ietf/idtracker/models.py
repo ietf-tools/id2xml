@@ -786,16 +786,16 @@ class IETFWG(models.Model):
 	list_filter = ['status', 'group_type', 'area_director']
 	pass
 
-    def get_chairs(self):
+    def get_chairs(self,tag=None):
         chairs = []
         # If IRTF group
         if self.group_acronym_id < 50:
             # Get IRTF chair
             chairs += [ person_or_org for person_or_org in PersonOrOrgInfo.objects.filter(role__role_name='IRTF') ]
-            chairs += [ person_or_org for person_or_org in PersonOrOrgInfo.objects.filter(irtfchair__irtf=self.group_acronym_id).exclude(person_or_org_tag=person.person_or_org_tag) ]
+            chairs += [ person_or_org for person_or_org in PersonOrOrgInfo.objects.filter(irtfchair__irtf=self.group_acronym_id).exclude(person_or_org_tag=tag) ]
         # Else regular WG
         else:
-            chairs = [ person_or_org for person_or_org in PersonOrOrgInfo.objects.filter(wgchair__group_acronym=self.group_acronym_id) ]
+            chairs = [ person_or_org for person_or_org in PersonOrOrgInfo.objects.filter(wgchair__group_acronym=self.group_acronym_id).exclude(person_or_org_tag=tag) ]
         return chairs
 
     # Get the area directors

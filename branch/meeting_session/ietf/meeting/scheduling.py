@@ -1,10 +1,25 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+from django.shortcuts import render_to_response as render
 from ietf.proceedings.models import WgMeetingSession, SessionConflict, Meeting
 from ietf.idtracker.models import NotMeetingGroups, SessionRequestActivities
 from ietf.utils.mail import send_mail
 import datetime,time
 from ietf import settings
+
+# Send a request for new session request of update request
+def send_request_email(request_type,group,request,meeting_num,person):
+    people = [person]
+    people += group.get_chairs(person.person_or_org_tag) + group.directors()
+    cc = [ person_or_org.email() for person_or_org in people if person_or_org.email() != '' ]
+
+    if cc:
+        # Notify everyone by email that the group is cancelled
+        send_mail(request, ["session-request@ietf.org"], \
+                "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
+                "%s - %s Meeting Session Request for IETF %s" % \
+                 (group.group_acronym.acronym,request_type, meeting_num), \
+                "meeting/schedule_request_email.txt", {'new_or_updated':request_type, 'person':person, 'session':request.session['meeting_session'], 'meeting_num': meeting_num, 'group': group,'cc':cc}, cc)
 
 # Cancel a meeting request 
 def cancel_meeting(group, request, meeting_num, person):
@@ -16,10 +31,7 @@ def cancel_meeting(group, request, meeting_num, person):
     SessionRequestActivities(group_acronym_id=group.group_acronym_id, activity="Session was cancelled for IETF meeting", meeting_num=meeting_num, person=person).save()
 
     people = [person]
-
-    # Only email others if not in debug mode
-    if settings.DEBUG == False:
-        people += group.get_chairs() + group.get_directors()
+    people += group.get_chairs() + group.directors()
 
     cc = [ person_or_org.email() for person_or_org in people if person_or_org.email() != '' ]
 
@@ -41,10 +53,7 @@ def not_meeting(group, request, meeting_num, person):
     SessionRequestActivities(group_acronym_id=group.group_acronym_id, activity="A message was sent to notify not having a session at IETF %s" % meeting_num, meeting_num=meeting_num, person=person).save()
 
     people = [person]
-
-    # Only email others if not in debug mode
-    if settings.DEBUG == False:
-        people += group.get_chairs() + group.get_directors()
+    people += group.get_chairs() + group.directors()
 
     cc = [ person_or_org.email() for person_or_org in people if person_or_org.email() != '' ]
 

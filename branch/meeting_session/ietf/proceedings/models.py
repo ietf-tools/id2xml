@@ -281,6 +281,8 @@ class MeetingRoom(models.Model):
 class MeetingHours(models.Model):
     hour_id = models.IntegerField(primary_key=True)
     hour_desc = models.CharField(blank=True, maxlength=20)
+    def __str__(self):
+        return self.hour_desc
     class Meta:
         db_table = 'meeting_hours'
 
@@ -290,9 +292,9 @@ class WgMeetingSession(models.Model, ResolveAcronym):
     group_acronym_id = models.IntegerField()
     irtf = models.BooleanField()
     num_session = models.IntegerField()
-    length_session1 = models.OneToOneField(MeetingHours, db_column='length_session1', related_name='length1')
-    length_session2 = models.OneToOneField(MeetingHours, db_column='length_session2', related_name='length2')
-    length_session3 = models.OneToOneField(MeetingHours, db_column='length_session3', related_name='length3')
+    length_session1 = models.ForeignKey(MeetingHours, db_column='length_session1', related_name='length1')
+    length_session2 = models.ForeignKey(MeetingHours, db_column='length_session2', related_name='length2')
+    length_session3 = models.ForeignKey(MeetingHours, db_column='length_session3', related_name='length3')
     conflict1 = models.CharField(blank=True, maxlength=255)
     conflict2 = models.CharField(blank=True, maxlength=255)
     conflict3 = models.CharField(blank=True, maxlength=255)
@@ -300,7 +302,7 @@ class WgMeetingSession(models.Model, ResolveAcronym):
     special_req = models.TextField(blank=True)
     number_attendee = models.IntegerField(null=True, blank=True)
     approval_ad = models.IntegerField(null=True, blank=True)
-    status_id = models.IntegerField(null=True, blank=True)
+    #status_id = models.IntegerField(null=True, blank=True)
     status = models.ForeignKey(SessionStatus, db_column='status_id',blank=True)
     ts_status_id = models.IntegerField(null=True, blank=True)
     requested_date = models.DateField(null=True, blank=True)

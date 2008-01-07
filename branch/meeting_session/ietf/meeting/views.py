@@ -165,7 +165,6 @@ def schedule_group(request, meeting_num=None, group_id=None):
             meeting_session.length_session1 = MeetingHours(hour_id=request.POST.get('length_session1', ''))
             meeting_session.length_session2 = MeetingHours(hour_id=request.POST.get('length_session2', ''))
             meeting_session.number_attendee = request.POST['number_attendee']
-            meeting_session.number_attendee = request.POST['number_attendee']
             meeting_session.conflict1 = request.POST['conflict1']
             meeting_session.conflict2 = request.POST['conflict2']
             meeting_session.conflict3 = request.POST['conflict3']

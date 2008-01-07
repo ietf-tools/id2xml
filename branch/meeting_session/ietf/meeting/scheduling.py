@@ -1,6 +1,5 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-from django.shortcuts import render_to_response as render
 from ietf.proceedings.models import WgMeetingSession, SessionConflict, Meeting
 from ietf.idtracker.models import NotMeetingGroups, SessionRequestActivities
 from ietf.utils.mail import send_mail
@@ -14,7 +13,7 @@ def send_request_email(request_type,group,request,meeting_num,person):
     cc = [ person_or_org.email() for person_or_org in people if person_or_org.email() != '' ]
 
     if cc:
-        # Notify everyone by email that the group is cancelled
+        # Notify everyone by email that the new/udpate session is requested 
         send_mail(request, ["session-request@ietf.org"], \
                 "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
                 "%s - %s Meeting Session Request for IETF %s" % \

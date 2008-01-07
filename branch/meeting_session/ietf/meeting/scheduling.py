@@ -14,19 +14,19 @@ def send_request_email(request_type,group,request,meeting_num,person):
 
     if cc:
         # Notify everyone by email that the new/udpate session is requested 
-        send_mail(request, ["session-request@ietf.org"], \
-                "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
-                "%s - %s Meeting Session Request for IETF %s" % \
-                 (group.group_acronym.acronym,request_type, meeting_num), \
-                "meeting/schedule_request_email.txt", {'new_or_updated':request_type, 'person':person, 'session':request.session['meeting_session'], 'meeting_num': meeting_num, 'group': group,'cc':cc}, cc)
-
+        #send_mail(request, ["session-request@ietf.org"], \
+        #        "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
+        #        "%s - %s Meeting Session Request for IETF %s" % \
+        #         (group.group_acronym.acronym,request_type, meeting_num), \
+        #        "meeting/schedule_request_email.txt", {'new_or_updated':request_type, 'person':person, 'session':request.session['meeting_session'], 'meeting_num': meeting_num, 'group': group,'cc':cc}, cc)
+        pass
 # Cancel a meeting request 
 def cancel_meeting(group, request, meeting_num, person):
     group.meeting_scheduled = 'NO'
     group.save()
 
     WgMeetingSession.objects.filter(group_acronym_id=group.group_acronym_id, meeting=meeting_num).delete()
-    SessionConflict.objects.filter(conflict_gid=group.group_acronym_id, meeting_num=meeting_num).delete()
+    SessionConflict.objects.filter(group_acronym=group.group_acronym, meeting_num=meeting_num).delete()
     SessionRequestActivities(group_acronym_id=group.group_acronym_id, activity="Session was cancelled for IETF meeting", meeting_num=meeting_num, person=person).save()
 
     people = [person]
@@ -36,11 +36,11 @@ def cancel_meeting(group, request, meeting_num, person):
 
     if cc:
         # Notify everyone by email that the group is cancelled
-        send_mail(request, ["session-request@ietf.org"], \
-                "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
-                "%s-Cancelling a session at IETF %s" % (group.group_acronym.name, meeting_num), \
-                "meeting/meeting_cancel_email.txt", {'meeting_num': meeting_num, 'group': group}, cc)
-
+        #send_mail(request, ["session-request@ietf.org"], \
+        #        "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
+        #        "%s-Cancelling a session at IETF %s" % (group.group_acronym.name, meeting_num), \
+        #        "meeting/meeting_cancel_email.txt", {'meeting_num': meeting_num, 'group': group}, cc)
+        pass
 # Mark group as not meeting
 def not_meeting(group, request, meeting_num, person):
 
@@ -58,11 +58,11 @@ def not_meeting(group, request, meeting_num, person):
 
     if cc:
         # Notify everyone by email that the group is not meeting
-        send_mail(request, ["session-request@ietf.org"], \
-                "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
-                "%s-Not having a session at IETF %s" % (group.group_acronym.name, meeting_num), \
-                "meeting/not_meeting_email.txt", {'meeting_num': meeting_num, 'group': group}, cc)
-
+        #send_mail(request, ["session-request@ietf.org"], \
+        #        "IETF Meeting Session Request Tool <session_request_developers@ietf.org>", \
+        #        "%s-Not having a session at IETF %s" % (group.group_acronym.name, meeting_num), \
+        #        "meeting/not_meeting_email.txt", {'meeting_num': meeting_num, 'group': group}, cc)
+        pass
 def get_meeting_num():
     meeting = Meeting.objects.order_by('-meeting_num')[0]
     return meeting.meeting_num

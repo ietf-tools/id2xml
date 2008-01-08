@@ -49,6 +49,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
       <div id="content">
 	 {% block content %}{% endblock %}
 	 {% block main_content %}{% endblock %}
+         {% block local_footer %}{% endblock %}
       </div>
       {% block footer %}{% include "footer.html" %}{% endblock %}
       {% include "debug.html" %}

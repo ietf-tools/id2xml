@@ -9,17 +9,11 @@ from django.http import HttpResponsePermanentRedirect, Http404, HttpResponseRedi
 from django.db import connection
 from django.db.models import Q
 from ietf.proceedings.models import WgMeetingSession, Proceeding, MeetingTime, NonSession, IESGHistory, SessionConflict, Meeting, MeetingHours,MeetingVenue,Switches
-#from ietf.idtracker.models import IRTF, IETFWG, WGSecretary, WGChair
 from ietf.idtracker.models import IRTF, IETFWG, WGSecretary, WGChair, SessionRequestActivities,IRTFChair
 from ietf.ietfauth.models import UserMap
 from ietf.meeting.forms import MeetingSession
 from ietf.meeting import scheduling
 import datetime, re
-def format_hour_val(index):
-    if index == "3":
-        return "2.5 hour";
-    else:
-        return index+" hour";
 
 def show_html_materials(request, meeting_num=None):
     proceeding = get_object_or_404(Proceeding, meeting_num=meeting_num)
@@ -108,7 +102,6 @@ def show_schedule(request):
     group_ids_owned += [ chair['group_acronym'] for chair in WGChair.objects.filter(person=tag).values('group_acronym') ]
     group_ids_owned += [ irtfchair['irtf'] for irtfchair in IRTFChair.objects.filter(person=tag).values('irtf') ]
     group_ids_owned += [ secretary['group_acronym'] for secretary in WGSecretary.objects.filter(person=tag).values('group_acronym') ]
-    #scheduled_irtf = IRTF.objects.filter(irtfchair__person=tag, irtf_id__in=scheduled_group_ids )
 
     # Get currently scheduled work groups where the user is the chair or secretary
     scheduled_groups = IETFWG.objects.filter( Q(group_acronym__in=scheduled_group_ids) & Q(group_acronym__in=group_ids_owned) & Q(status=1)).select_related().order_by('acronym.acronym')
@@ -127,7 +120,7 @@ def show_schedule(request):
 
     unscheduled_irtf = IRTF.objects.filter(irtfchair__person=tag ).exclude(irtf_id__in=scheduled_group_ids)
 
-    return render("meeting/schedule.html", {'meeting_num': meeting_num, 'unscheduled_groups':unscheduled_groups, 'scheduled_groups':scheduled_groups, 'scheduled_irtf': scheduled_irtf, 'unscheduled_irtf': unscheduled_irtf}, context_instance=RequestContext(request))
+    return render("meeting/schedule.html", {'meeting_num': meeting_num, 'unscheduled_groups':unscheduled_groups, 'scheduled_groups':scheduled_groups, 'scheduled_irtf': scheduled_irtf, 'unscheduled_irtf': unscheduled_irtf,'first_screen':1}, context_instance=RequestContext(request))
 
 def schedule_group(request, meeting_num=None, group_id=None):
 
@@ -152,7 +145,7 @@ def schedule_group(request, meeting_num=None, group_id=None):
         if meetingform.is_valid():
             session_id = request.POST.get('session_id')
             if session_id == 'new':
-                meeting_session = WgMeetingSession(group_acronym_id = int(request.POST.get('group_acronym_id')), meeting=Meeting.objects.get(meeting_num=meeting_num), requested_date = datetime.datetime.now(), requested_by = person, status_id = 1, approval_ad = 0 )
+                meeting_session = WgMeetingSession(group_acronym_id = int(request.POST.get('group_acronym_id')), meeting=Meeting.objects.get(meeting_num=meeting_num), requested_date = datetime.datetime.now(), requested_by = person, status_id = 1, ts_status_id=0, approval_ad = 0 )
             else:
                 meeting_session = get_object_or_404(WgMeetingSession, session_id=session_id)
             num_session = int(request.POST.get('num_session'))
@@ -160,7 +153,7 @@ def schedule_group(request, meeting_num=None, group_id=None):
             if 'third_session' in request.POST:
                 num_session = num_session + 1
                 meeting_session.length_session3 = MeetingHours(hour_id=request.POST.get('length_session3', ''))
-
+                meeting_session.ts_status_id=2
             meeting_session.num_session = num_session
             meeting_session.length_session1 = MeetingHours(hour_id=request.POST.get('length_session1', ''))
             meeting_session.length_session2 = MeetingHours(hour_id=request.POST.get('length_session2', ''))
@@ -194,6 +187,9 @@ def schedule_group(request, meeting_num=None, group_id=None):
     elif 'edit' in request.POST:
         try:
             session_data = WgMeetingSession.objects.filter(meeting=meeting_num, group_acronym_id=group_id).values()[0]
+            session_data['length_session1'] = session_data['length_session1_id']
+            session_data['length_session2'] = session_data['length_session2_id']
+            session_data['length_session3'] = session_data['length_session3_id']
             meetingform = MeetingSession(session_data)
             return render("meeting/schedule_group.html", {'meeting_num': meeting_num, 'group': group, 'meetingform': meetingform, 'last_session': scheduling.last_group_session(meeting_num, group_id)}, context_instance=RequestContext(request) )
 
@@ -202,7 +198,6 @@ def schedule_group(request, meeting_num=None, group_id=None):
 
     elif 'confirm' in request.POST:
         meeting_session = request.session.get('meeting_session', False)
-        #return render ("meeting/test.html",{'message':meeting_session.session_id});
         if meeting_session:
             if meeting_session.session_id:
                 request_type='Updated'

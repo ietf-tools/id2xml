@@ -11,7 +11,7 @@
 {% block content %}
 
 <h2><center>IETF Meeting Session Request Tool</center></h2>
-
+<blockquote>
 <h3>IETF {{meeting_num}}: Confirmation</h3>
 <hr/>
 
@@ -53,15 +53,17 @@
 <br/>
 <form method="post">
 {% if session.length_session3 %}
+  {% ifequal session.ts_status_id 2 %}
 <b>Note: Your request for a third session must be approved by an area director before being submitted to agenda@ietf.org.</b> 
 <input name="confirm" type="submit" value="Submit your request to the IETF Agenda and the Transport Area Directors for third session approval">
+  {% endifequal %}
 {% else %}
 <input name="confirm" type="submit" value="Submit your request to the IETF Agenda">
 {% endif %}
 </form>
 <br/>
-<form action="../../request">
-<input type="submit" value="User's First Screen">
-</form>
-
 {% endblock %}
+{% block local_footer %}
+{% include "meeting/local_footer.html" %}
+{% endblock %}
+</blockquote>

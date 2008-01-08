@@ -32,7 +32,7 @@
 <ul>
 {% if scheduled_groups %}
 {% for group in scheduled_groups %}
-<li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> - {{group.meeting_session.status.status}}</li>
+<li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> - {% if group.meeting_session.ts_status %}First Two Session: {{group.meeting_session.status.status}}, Third Session: {{group.meeting_session.ts_status.status}}{% else %} {{group.meeting_session.status.status}}{% endif %}</li>
 {% endfor %}
 {% else %}
 <i>NONE</i>
@@ -40,14 +40,9 @@
 </ul>
 </li>
 </p><p>
-<hr>
-<li> <a href="http://www.ietf.org/instructions/session_request_tool_instruction.html" target="_blank">Instructions</a>.</li>
-<li> <a href="https://datatracker.ietf.org/cgi-bin/wg/wg_proceedings.cgi">IETF Meeting Materials Management Tool</a>.</li>
-<li> <a href="https://datatracker.ietf.org/cgi-bin/wg/password_manager.cgi">Change my login information</a>.</li>
-
-<li>If you require assistance in using this tool, or wish to report a bug, then please send a message to <a href="mailto:ietf-action@ietf.org">ietf-action@ietf.org</a>.</li>
-<li>To submit your request via email, please send your request to <a href="mailto:agenda@ietf.org">agenda@ietf.org</a>.</li>
-
-</blockquote>
 </p>
 {% endblock %}
+{% block local_footer %}
+{% include "meeting/local_footer.html" %}
+{% endblock %}
+</blockquote>

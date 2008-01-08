@@ -303,7 +303,7 @@ class WgMeetingSession(models.Model, ResolveAcronym):
     number_attendee = models.IntegerField(null=True, blank=True)
     approval_ad = models.IntegerField(null=True, blank=True)
     status = models.ForeignKey(SessionStatus, db_column='status_id',blank=True)
-    ts_status_id = models.IntegerField(null=True, blank=True)
+    ts_status = models.ForeignKey(SessionStatus, db_column='ts_status_id',blank=True)
     requested_date = models.DateField(null=True, blank=True)
     approved_date = models.DateField(null=True, blank=True)
     requested_by = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True, db_column='requested_by')

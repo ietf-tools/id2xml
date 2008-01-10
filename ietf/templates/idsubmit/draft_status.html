@@ -1,0 +1,124 @@
+{% extends "idsubmit/base.html" %}
+{% block maincontent %}
+
+<!-- Body content starts-->
+
+<div align="left">
+<center>
+<table border="0" vspace="0">
+<tr valign="top">
+<td height="550" >
+
+<p>
+    <font face="Arial" size="4"><strong>Status</strong></font>
+</p>
+<p>
+    <font face="Arial" size="3">
+    <strong>Draft Status: {{ status_msg }}</font> </strong>
+</p>
+<p>An email with a submmiter verification key and URL has been sent to the submitter. However, verification has not yet been received. Upon receipt of verification (clicking the link in the email), this status page will be shown with updated status information.
+</p>
+<p>
+<table border="0" width="650" id="metadatadraft">
+<tr bgcolor="#ddddff">
+  <td width="110"><font face="Arial" size="2">Document:</font></td>
+  <td>
+    <a href="{{ staging_url }}/{{ object.filename }}-{{ object.revision }}.txt">{{ object.filename }}</a>
+    <a href="/idsubmit/viewfirsttwo/{{ submission_id }}">[View First Two Pages]</a><br>
+</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td width="110"><font face="Arial" size="2">Version:</font></td>
+  <td>{{ object.revision }} </td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">Submission Date:</font></td>
+  <td>{{ object.submission_date }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">Title:</font></td>
+  <td>{{ object.title }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">WG ID:</font></td><td>
+    {{ object.group.name }}
+  </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">File Size:</font></td>
+    <td>{{ object.filesize }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Creation Date:</font></td>
+    <td>{{ object.creation_date }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td colspan="2">Author(s) Information:</td>
+</tr>
+{% for author in authors %}
+<tr bgcolor="#ddddff">
+    <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
+    <td>{{ author.first_name }} {{ author.last_name }} ({{ author.email_address }})</td>
+</tr>
+{% endfor %}
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Pages:</font></td>
+    <td>{{ object.txt_page_count }}</td>
+</tr>
+<tr bgcolor="#ddddff" valign="top">
+    <td><font face="Arial" size="2">Abstract:</font></td>
+    <td>
+        {{ object.abstract|escape|linebreaks }}
+    </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Comment:</font></td>
+    <td> {{ object.comment_to_sec|escape|linebreaks }} </td>
+</tr>
+</table>
+</p>
+
+<br>
+<p>
+<font face="Arial" size="2">Submitter Information.</font>
+<table border="0" width="650">
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Given Name:</font></td>
+    <td> {{ object.submitter }} </td>
+</tr>
+
+<tr bgcolor="#ddddff">
+    <td width="100"><font face="Arial" size="2">Family Name:</font></td>
+    <td> {{ object.submitter.last_name }} </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Email Address:</font></td>
+    <td> 
+        {% for email_info in object.submitter.email %}
+            {% if forloop.last %}
+                {{ email_info }}
+            {% endif %}
+        {% endfor %}
+    </td>
+</tr>
+</table>
+</p>
+
+{% ifnotequal object.status_id -1 %}
+     {% ifnotequal object.status_id -4 %}
+<form action="cancel_draft" method="post">
+<input type="hidden" name="submission_id" value="{{ submission_id }}">
+<input type="hidden" name="cancel" value="1">
+Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
+</form>
+     {% endifnotequal %}
+{% endifnotequal %}
+
+</td>
+</tr>                    
+</table>
+</center>
+</div>
+
+<!-- Body content ends-->
+{% endblock %}

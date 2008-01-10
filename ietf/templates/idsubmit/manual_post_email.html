@@ -1,0 +1,27 @@
+
+
+Manual Posting Requested for following Internet-Draft:
+
+I-D Submission Tool URL: http://datatracker.ietf.org/idsubmit/status/{{ meta_data.submission_id }}
+
+
+
+Filename:          {{ meta_data.filename }}
+Version:           {{ meta_data.revision }}
+Staging URL:       http://localhost/tempids/{{ meta_data.filename }}
+Title:             {{ meta_data.title }}
+Creation_date:     {{ meta_data.creation_date }}
+WG ID:             {{ meta_data.group }}
+Number_of_pages:   {{ meta_data.pages }}
+Abstract:
+{{ meta_data.abstract }}
+
+Submitter: {{ meta_data.lname }} {{ meta_data.fname }} ( {{ meta_data.submitter_email }} )
+comment to the secretariat: {{ meta_data.comment_to_sec }}
+
+Author(s):
+{% for author in meta_data.authors %}
+    {{ author.author_last_name }} {{ author.author_first_name }} {{ author.author_email }}
+{% endfor %}
+
+----------------------------------

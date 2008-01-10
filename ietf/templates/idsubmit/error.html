@@ -1,0 +1,14 @@
+{% extends "idsubmit/base.html" %}
+{% block maincontent %}
+Hello World! I am Error<br>
+
+{% ifequal date_check_err_msg "first_second" %}
+The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts) is Monday, {{ first_cut_off }} at 9 AM (ET). You will not be able to submit a new document after this time until Monday, {{ ietf_monday }}, at midnight
+{% endifequal %}
+
+{% ifequal date_check_err_msg "second_ietf" %}
+The cut off time for the I-D submission was 9 AM (ET), {{ second_cut_off }}.<br>The I-D submission tool will be reopened at midnight, {{ ietf_monday }}
+{% endifequal %}
+
+{{ error_msg }}
+{% endblock %}

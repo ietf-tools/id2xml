@@ -6,8 +6,6 @@ from datetime import timedelta
 from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IDAuthor, PersonOrOrgInfo
 from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SUBMISSION_ENV
 
-# To do list
-# idnits result [Ss]ummary[\s:\s]?\s?\d\s?errors,\s\d\swarnings re
 
 from django.conf import settings
 
@@ -66,9 +64,8 @@ class DraftParser:
 
     def check_idnits(self, file_path):
         #Check IDNITS
-        # idnits result [Ss]ummary[\s:\s]?\s?\d\s?errors,\s\d\swarnings re
         path_idnits = os.path.join(settings.BASE_DIR, "idsubmit", "idnits")
-        child = os.popen("%s %s" % (path_idnits, file_path))
+        child = os.popen("%s --nitcount %s" % (path_idnits, file_path))
         idnits_message = child.read()
         err = child.close()
         # error page print
@@ -77,10 +74,8 @@ class DraftParser:
             self.idnits_failed = True
         self.idnits_message = idnits_message
         # if no error
-        result = re.search('[Ss]ummary[\s:\s]?\s?(\d)\s?error[s]?,\s(\d)\swarning[s]?', idnits_message)
+        result = re.search('[Ss]ummary: (\d+) error.+\(\*\*\).+(\d+) [Ww]arning.+\(==\)', idnits_message)
         try:
-            # print result.group(1).strip()
-            # print result.group(2).strip()
             return {'error':int(result.group(1).strip()), 'warning':int(result.group(2).strip())}
         except AttributeError:
             return "Error in the idnits check "

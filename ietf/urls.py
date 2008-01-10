@@ -50,6 +50,7 @@ urlpatterns = patterns('',
       (r'^ipr/', include('ietf.ipr.urls')),
       (r'^meeting/', include('ietf.meeting.urls')),
       (r'^accounts/', include('ietf.ietfauth.urls')),
+      (r'^idsubmit/', include('ietf.idsubmit.urls')),
 
       (r'^$', 'ietf.redirects.views.redirect'),
 

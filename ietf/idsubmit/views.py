@@ -112,7 +112,7 @@ def file_upload(request):
                         return render("idsubmit/error.html", {'error_msg':err_msg})
 
                 # revision check
-                if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0):
+                if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100):
                     return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103]})
 
                 id = IdSubmissionDetail.objects.filter(filename=dp.filename, revision=dp.revision, status_id__range=(-2, 50))

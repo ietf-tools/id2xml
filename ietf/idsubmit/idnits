@@ -24,7 +24,7 @@
 #
 #  -----------------------------------------------------------------
 
-version="2.04.01";
+version="2.05.00";
 progdate="";
 export LC_ALL=C
 program=${0##*/}
@@ -35,6 +35,8 @@ today=$(date +"%Y-%m-%d")
 statusdir=$HOME/.idnits
 statusfile=$statusdir/rfc-status
 wordlist=$statusdir/rfc-wordlist
+obslist=$statusdir/rfcs-obsoleted
+updlist=$statusdir/rfcs-updated
 
 # ----------------------------------------------------------------------
 # Utilities
@@ -47,6 +49,10 @@ function die() { echo "$program: Error: $*" >&2; exit 1; }
 # ----------------------------------------------------------------------
 # Message
 function msg() { [ "$optsilent" ] || echo $* >&2; }
+
+# ----------------------------------------------------------------------
+# Note
+function note() { [ "$optverbose" ] && echo $* >&2; }
 
 # ----------------------------------------------------------------------
 # Find an executable
@@ -95,8 +101,10 @@ BEGIN				{
 				{ gsub(/[ \t]+$/, ""); }
 				{ pagelength++; }
 
-tolower($0) ~ / *expires.*20[0-9][0-9]/		{ if (FNR < 58 ) expiration = 1; }
-tolower($0) ~ / *expiration.*20[0-9][0-9]/	{ if (FNR < 58 ) expiration = 1; }
+tolower($0) ~ / *expire on.*20[0-9][0-9]/	{ if (FNR <= 58 ) expiration = 1; }
+tolower($0) ~ / *expires.*20[0-9][0-9]/		{ if (FNR <= 58 ) expiration = 1; }
+tolower($0) ~ / *expiration.*20[0-9][0-9]/	{ if (FNR <= 58 ) expiration = 1; }
+/FORMFEED[ \t]*\[Page/				{ missing_nroff_postprocessing ++; }
 /\[?[Pp]age [0-9ivx]+\]?[ \t\f]*$/	{
 				    match($0, /[Pp]age [0-9ivx]+/);
 				    num = substr($0, RSTART+5, RLENGTH-5);
@@ -181,6 +189,7 @@ END				{
 				  printf "-+- Longestpage: %d -+-\n", longestpage;
 				  printf "-+- Formfeedcount: %d -+-\n", ffcount;
 				  printf "-+- Expiration: %s -+-\n", expiration;
+				  printf "-+- NoNroffPostproc: %s -+-\n", missing_nroff_postprocessing;
 				}
 ' $1
 }
@@ -219,6 +228,10 @@ BEGIN {
     if (columns < 73) bpcols = columns; else bpcols = 73;
 
     indentation = 8;
+    errmark  = "**";
+    warnmark = "==";
+    infomark = "--";
+    notemark = "  ";
 
     for (i in argv) {
 	# Deprecated
@@ -270,6 +283,10 @@ BEGIN {
 	}
 	if (argv[i] == "--checklistwarn") {
 	    option_checklistwarn++;
+	    argv[i] = "";
+	}
+	if (argv[i] == "--submitcheck") {
+	    option_submitcheck++;
 	    argv[i] = "";
 	}
 	if (argv[i] == "--status") {
@@ -328,8 +345,19 @@ BEGIN {
 
     # establish the format we expect references to have, for later use
     has_refs = 0;
-    one_ref_format =	"(([0-9A-Z-]|I-?D.)[0-9A-Za-z-]*( [0-9A-Z-]+)?|(IEEE|ieee)[A-Za-z0-9.-]+)"
+    one_ref_format =	"(([0-9A-Z-]|I-?D.)[0-9A-Za-z-]*( [0-9A-Z-]+)?|(IEEE|ieee)[A-Za-z0-9.-]+)";
     reference_format =	"\\["  one_ref_format  "(, ?"  one_ref_format  ")*\\]";
+    abnf_rule_format =  "^ +([A-Za-z0-9-]+ *=|;).*";
+
+    # read obsoleted RFC information from file
+    if (obslist) {
+	while ( getline < obslist > 0 ) {
+	    oldrfc = $1; $1 = "";
+	    obsoleted[oldrfc] = $0;
+	}
+    } else {
+	    obsoleted[""] = "";
+    }
 
     # read the rfc status information from file
     if (statusfile) {
@@ -355,7 +383,7 @@ BEGIN {
     status2code["historic"] = "H";
 
     code2status["O"] = "Obsolete";
-    code2status["U"] = "Unknown";
+    code2status["U"] = "Unknown state";
     code2status["E"] = "Experimental";
     code2status["I"] = "Informational";
     code2status["B"] = "Best Current Practice";
@@ -373,6 +401,8 @@ BEGIN {
     warncodes["S"] = "E I P U H P D";
 
     has[""];		# make sure this exists as a global variable here
+    seen_ref[""];
+    miss_ref[""];
 
     # ------------------------------------------------------------------
     #   3978 and 3979 section texts
@@ -576,6 +606,13 @@ BEGIN {
     bp["1id_guidelines_p4a"] = "The list of Internet-Draft Shadow Directories can be accessed at:? " \
 			"http:// *www.ietf.org/ *shadow.html ?\\.?$";
 
+    bad[" MUST not "]	= "Using lowercase 'not' together with uppercase 'MUST' is not an " \
+			  "accepted usage according to RFC 2119.  Please use 'MUST NOT' " \
+			  "(if that is what you mean)."
+
+    bad[" MAY NOT "]	= "The expression 'MAY NOT', while looking like RFC 2119 requirements " \
+			  "text, is not defined in RFC 2119, and should not be used.  Consider " \
+			  "using 'MUST NOT' instead (if that is what you mean)."
 
 }
 
@@ -597,6 +634,7 @@ function usage() {
 "	--debug		Debug output, especially of boilerplate matching\n" \
 "	--year NNNN	Expect the given year in the boilerplate\n" \
 "	--checklistwarn	Only warn (no errors) for ID-Checklist volations\n" \
+"	--submitcheck	Only output errors and warnings related to 1id-guidelines\n" \
 "	--status doctype Assume the given intended document type\n" \
 ""
 }
@@ -696,7 +734,7 @@ function rindex(str, find,	start, pos, incr, i) {
 #   to postprocess to add indentation anyway, and this should be a lot
 #   quicker for short texts.
 #
-function fold(str, indent, cols,        width, pos) {
+function fold(str, indent, cols,        width, pos, lpos, npos) {
     pos = 1;
 
     #print "str:        ", str;
@@ -708,6 +746,8 @@ function fold(str, indent, cols,        width, pos) {
     while (pos+width-1 < length(str)) {
 	frag = substr(str, pos, width);
 	lpos = rindex(frag, " ");
+	npos = index(frag, "\n");
+	if (npos && npos < lpos) lpos = npos;
 	if (!lpos) {
 	    frag = substr(str, pos+width);
 	    lpos = index(frag, " ");
@@ -777,8 +817,8 @@ function expandname(name) {
 #
 function showalmost(name, orig) {
     p2 = almost_boilerplate[name];
-    p2 = fold(p2, "    ",  bpcols);
-    p2 = sprintf ("    \"%s\")\n\n", p2)
+    p2 = fold(p2, "      ",  bpcols);
+    p2 = sprintf ("     \"%s\")\n\n", p2)
     if (orig) p2 = markdiff(orig, p2);
     printf(p2)
 }
@@ -802,13 +842,13 @@ function showsection(name, suppress) {
 	# - also say "year" instead of "[0-9]"
 	gsub(/\[0-9\]/, "<year>", p);
 
-	if (suppress < 2) announce("  " expandname(name) " text:");
-	p1 = fold(p, "    ", bpcols);
-	p1 = sprintf("    \"%s\"", p1);
+	if (suppress < 2) note( expandname(name) " text:");
+	p1 = fold(p, "      ", bpcols);
+	p1 = sprintf("     \"%s\"", p1);
 	printf(p1)
 
 	if (name in almost_boilerplate && suppress == 0) {
-	    announce( "\n    ... text found in draft:");
+	    note( "\n\n     ... text found in draft:");
 	    showalmost(name, p1)
 	    print ""
 	} else {
@@ -878,7 +918,7 @@ function oldandnewerr(old, new) {
 
 function update_references(this, pos) {
     if (!match(this, /\[Page/)) {
-	if ( match(this, "(^|[\\]A-Za-z0-9 \t.()])" reference_format "\\)?([) \t,;:.[]|$)") ) {
+	if ( match(this, "(^|[\\]A-Za-z0-9 \t.()])" reference_format "\\)?([) \t,;:.?[]|$)") ) {
 
 	    line[pos] = this
 	    if (in_refs && this ~ "^ *([0-9.]+ *)?" reference_format) {
@@ -944,6 +984,8 @@ function announce(str) {
 ###    print ""
     print ""
     print fold("  " str, "  ", columns);
+    print "  " substr("----------------------------------------------------------------------------", 1, columns-2);
+    print ""
 }
 
 
@@ -955,7 +997,7 @@ function note(str) {
     if (option_pass1) {
         printf("%s(%d): %s.\n", FILENAME, FNR, str);
     } else {
-        print fold("    " str, "    ", columns);
+        print fold("  " notemark " " str, "     ", columns);
     }
 }
 
@@ -964,7 +1006,7 @@ function nnote(str) {
 	if (option_pass1) {
 	    printf("%s(%d): %s.\n", FILENAME, FNR, str);
 	} else {
-	    print fold("    " str, "    ", columns);
+	    print fold("  " notemark " " str, "     ", columns);
 	}
     }
 }
@@ -974,10 +1016,27 @@ function nnnote(str) {
 	if (option_pass1) {
 	    printf("%s(%d): %s.\n", FILENAME, FNR, str);
 	} else {
-	    print fold("    " str, "    ", columns);
+	    print fold("  " notemark " " str, "     ", columns);
 	}
     }
 }
+
+# ----------------------------------------------------------------------
+#   comment()
+#
+
+function comment(str, indented) {
+    if (option_warn) {
+        print fold("  " infomark " " str, "     ", columns);
+	if (indented) {
+	    print fold("     (A line matching the expected section header was found, but with an unexpected indentation:", "    ", columns);
+	    print fold("     '" indented "' )", "    ", columns);
+	}
+	print "";
+	comments++;
+    }
+}
+
 
 # ----------------------------------------------------------------------
 #   warn()
@@ -985,11 +1044,12 @@ function nnnote(str) {
 
 function warn(str, indented) {
     if (option_warn) {
-        print fold("  - " str, "    ", columns);
+        print fold("  " warnmark " " str, "     ", columns);
 	if (indented) {
-	    print fold("    (A line matching the expected section header was found, but with an unexpected indentation:", "    ", columns);
-	    print fold("    '" indented "' )", "    ", columns);
+	    print fold("     (A line matching the expected section header was found, but with an unexpected indentation:", "    ", columns);
+	    print fold("     '" indented "' )", "    ", columns);
 	}
+	print "";
 	warnings++;
     }
 }
@@ -1000,11 +1060,12 @@ function warn(str, indented) {
 #
 
 function err(str, indented) {
-    print fold("  * " str, "    ", columns);
+    print fold("  " errmark " " str, "     ", columns);
     if (indented) {
-	print fold("    (A line matching the expected section header was found, but with an unexpected indentation:", "    ", columns);
-	print fold("    '" indented "' )", "    ", columns);
+	print fold("     (A line matching the expected section header was found, but with an unexpected indentation:", "    ", columns);
+	print fold("     '" indented "' )", "    ", columns);
     }
+    print "";
     errors++;
 }
 
@@ -1014,10 +1075,23 @@ function err(str, indented) {
 #
 
 function errc(str, indented) {
-    if (option_checklistwarn) {
+    if (!option_submitcheck) {
+	if (option_checklistwarn) {
+	    warn(str, indented);
+	} else {
+	    err(str, indented);
+	}
+    }
+}
+
+
+# ----------------------------------------------------------------------
+#   warnc()
+#
+
+function warnc(str, indented) {
+    if (!option_submitcheck) {
 	warn(str, indented);
-    } else {
-	err(str, indented);
     }
 }
 
@@ -1036,12 +1110,19 @@ function errg(str, indented) {
 
 
 # ----------------------------------------------------------------------
-#   get_status(draft)
+#   get_state(draft)
 #
 
 function get_state(draft, state,	count) {
     for (key in state) delete state[key];
     statefile = statusdir "/" draft ".state"
+## Not sure that this fallback handling is necessary.  Keeping it commented out for now.
+#    if ( ( getline < statefile ) < 0 ) {
+#	close(statefile)
+#	note("... Trying to download missing state file for " draft " ...")
+#	command = "idnits --download '" draft " state' http://tools.ietf.org/draft/" draft "/state " statusdir "/" draft ".state 'Doc-tag: " draft "'"
+#	while (	(command | getline) > 0) print $0;
+#    }
     while ( getline < statefile > 0 ) {
 	if ($1 ~ /^Doc-/) {
 	   count++;
@@ -1052,7 +1133,7 @@ function get_state(draft, state,	count) {
 	   state[key] = value
 	}
     }
-    if (!count) warn("No information found for " draft " - is the name correct?");
+    if (!count) comment("No information found for " draft " - is the name correct?");
     return count
 }
 
@@ -1061,28 +1142,40 @@ function get_state(draft, state,	count) {
 # check_downref(tag)
 #
 
-function referr(msg, num, tag) {
+function referr(msg, num, tag,		info, numstr) {
     numstr = sprintf("%d", num);
+    if (numstr in obsoleted) {
+	info = obsoleted[numstr];
+	gsub(" ", ", RFC ", info);
+	info = " (Obsoleted by " substr(info, 3) ")";
+    }
+
     if (tag ~ numstr) {
-	errc(sprintf("%s: RFC %4d", msg, num, tag));	
+	errc(sprintf("%s: RFC %4d%s", msg, num, info));
     } else {
-	errc(sprintf("%s: RFC %4d (ref. '%s')", msg, num, tag));
+	errc(sprintf("%s: RFC %4d (ref. '%s')%s", msg, num, tag, info));
     } 
 }
 
-function refwarn(msg, num, tag) {
+function refcomment(msg, num, tag,	info, numstr) {
     numstr = sprintf("%d", num);
+    if (numstr in obsoleted) {
+	info = obsoleted[numstr];
+	gsub(" ", ", RFC ", info);
+	info = " (Obsoleted by " substr(info, 3) ")";
+    }
+
     if (tag ~ numstr) {
-	warn(sprintf("%s: RFC %4d", msg, num, tag));	
+	comment(sprintf("%s: RFC %4d%s", msg, num, info));	
     } else {
-	warn(sprintf("%s: RFC %4d (ref. '%s')", msg, num, tag));
+	comment(sprintf("%s: RFC %4d (ref. '%s')%s", msg, num, tag, info));
     } 
 }
 
 function get_rfcnum(ref,	num) {
     if (match(ref, /(RFC|rfc)[0-9][0-9]+/)){
 	num = substr(ref, RSTART+3, RLENGTH-3) + 0;
-    } else if (match(ref, /(RFC|rfc) [0-9][0-9]+/)) {
+    } else if (match(ref, /(RFC|rfc)[ -][0-9][0-9]+/)) {
 	num = substr(ref, RSTART+4, RLENGTH-4) + 0;	
     } else if (match(ref, /(Request [Ff]or Comments) [0-9][0-9]+/)) {
 	num = substr(ref, RSTART+21, RLENGTH-21) + 0;	
@@ -1124,7 +1217,7 @@ function get_draftcode(draftname, state,	code) {
     return code;
 }
 
-function check_downref(tag, warnlist,		rfcnum, draftname, code, status) {
+function check_downref(tag, warnlist,		rfcnum, draftname, code, status, doc) {
 
     if (tag in ref_text) ref = ref_text[tag]; else ref = tag;
     gsub(/  +/, " ", ref);
@@ -1133,21 +1226,32 @@ function check_downref(tag, warnlist,		rfcnum, draftname, code, status) {
 	note("Reference text: " ref)
     }
 
-    if (ref ~ /(RFC|rfc|Request [Ff]or Comments)( \([^\)]*\))? ?[0-9][0-9]+/) {	
-	rfcnum = get_rfcnum(ref);
-    } else if (ref ~ /[, ([](draft-|I-D\.)/) {
+    if (ref ~ /[, ([](draft-|I-D\.)/) {
 	draftname = get_draftname(ref);
 	draftrev  = get_draftrev(ref);
+	doc = draftname;
 	get_state(draftname, state);
 	## Refactoring needed.  We probably need a check_reference() rather than check_downref(),
 	## with the published and current-version checks below being done as part of the general
 	## reference checking, rather than inside the downref check.
 	if ("rfcnum" in state) {
-	    warn(sprintf("Outdated reference: %s has been published as RFC %s", draftname, state["rfcnum"]));
+	    warnc(sprintf("Outdated reference: %s has been published as RFC %s", draftname, state["rfcnum"]));
 	} else if (draftrev && ("rev" in state) && (draftrev != state["rev"])) {
-	    warn(sprintf("Outdated reference: A later version (-%s) exists of %s-%s", state["rev"], draftname, draftrev))
+	    if (draftrev+0 < state["rev"]+0) {
+		warnc(sprintf("Outdated reference: A later version (-%s) exists of %s-%s", state["rev"], draftname, draftrev))
+	    } else {
+		comment(sprintf("Unexpected draft version: The latest known version of  %s is -%s, but you're referring to -%s", draftname, state["rev"], draftrev))
+	    }
 	}
+    } else if (ref ~ /(RFC|rfc|Request [Ff]or Comments)( \([^\)]*\)|-)? ?[0-9][0-9]+/) {	
+	rfcnum = get_rfcnum(ref);
+	doc = "RFC" rfcnum;
+    } 
+    if (doc && doc in seen_ref && !(seen_ref[doc] in miss_ref) ) {
+	comment(sprintf("Duplicate reference: %s, mentioned in '%s', was also mentioned in '%s'.", doc, tag, seen_ref[doc]));
     }
+    seen_ref[doc] = tag;
+
     if (rfcnum) code = substr(rfcstatus, rfcnum, 1);
     if (draftname) code = get_draftcode(draftname, state);
     if (rfcnum && code == "O") {
@@ -1156,7 +1260,7 @@ function check_downref(tag, warnlist,		rfcnum, draftname, code, status) {
 	} else if (!(tag in ref_def)) {
 	    referr("Obsolete undefined reference", rfcnum, tag);
 	} else {
-	    refwarn("Obsolete informational reference (is this intentional?)", rfcnum, tag);
+	    refcomment("Obsolete informational reference (is this intentional?)", rfcnum, tag);
 	}
     } else {
 	if (tag in ref_norm) {
@@ -1171,34 +1275,36 @@ function check_downref(tag, warnlist,		rfcnum, draftname, code, status) {
 			    errc(sprintf("Downref: Normative reference to an %s draft: %s (ref. '%s')", code2status[code], draftname, tag));
 			}
 		    } else {
-			warn(sprintf("Possible downref: Normative reference to a draft: ref. '%s'", tag));
 			if (state["deststatus"] == "None") {
-			    note("(No intended status found in state file of " draftname ")");
+			    statmsg = " (No intended status found in state file of " draftname ")";
+			} else {
+			    statmsg = "";
 			}
+			comment(sprintf("Possible downref: Normative reference to a draft: ref. '%s' %s", tag, statmsg));
 		    }
 		} else {
-		    warn(sprintf("Possible downref: Non-RFC (?) normative reference: ref. '%s'", tag));
+		    comment(sprintf("Possible downref: Non-RFC (?) normative reference: ref. '%s'", tag));
 		}
 	    }
 	} else if (!(tag in ref_def)) {
 	    if (rfcnum) {
 		if (code in warnlist) {
-		    refwarn(sprintf("Possible downref: Undefined reference to an %s RFC", code2status[code]), rfcnum, tag);
+		    refcomment(sprintf("Possible downref: Undefined reference to an %s RFC", code2status[code]), rfcnum, tag);
 		}
 	    } else if ("U" in warnlist) {
 		if (ref ~ /[, ([](draft-|I-D\.)/) {
 		    if (code) {
 			if (code in warnlist) {
-			    warn(sprintf("Possible downref: Undefined reference to an %s draft: %s (ref. '%s')", code2status[code], draftname, tag));
+			    warnc(sprintf("Possible downref: Undefined reference to an %s draft: %s (ref. '%s')", code2status[code], draftname, tag));
 			}
 		    } else {
-			warn(sprintf("Possible downref: Undefined reference to a draft: ref. '%s'", tag));
+			warnc(sprintf("Possible downref: Undefined reference to a draft: ref. '%s'", tag));
 			if (state["deststatus"] == "None") {
 			    note("(No intended status found in state file of " draftname ")");
 			}
 		    }
 	        } else {
-		    warn(sprintf("Possible downref: Undefined Non-RFC (?) reference : ref. '%s'", tag));
+		    comment(sprintf("Possible downref: Undefined Non-RFC (?) reference : ref. '%s'", tag));
 		}
 	    }
 	} 	
@@ -1223,8 +1329,13 @@ function report(filename) {
     if (got_input) {
         is_rfc = (filename ~ /[Rr][Ff][Cc][0-9]+\.txt$/);
 
+	if (option_submitcheck) {
+	    printf("\n  Showing Errors (" errmark "), Warnings (" warnmark "), and Comments (" infomark ").\n")
+	    print("  Errors MUST be fixed before draft submission.");
+	}
+
 	announce("Checking boilerplate required by RFC 3978 and 3979, updated by RFC 4748:")
-	warncount = warnings;  errcount = errors;
+	warncount = warnings;  errcount = errors; commentcount = comments;
 
 	if ( (has["rfc3667_5_1"]  ||
 	      has["rfc3978_5_1_a"] ||
@@ -1312,7 +1423,7 @@ function report(filename) {
 					err("The document uses RFC 3667 boilerplate or RFC 3978-like " \
 					     "boilerplate instead of verbatim RFC 3978 boilerplate.  After 6 May 2005, " \
 					     "submission of drafts without verbatim RFC 3978 boilerplate is not " \
-					     "accepted.\n");
+					     "accepted.");
 
 					note("The following non-3978 patterns matched text found in the document.  That text should be removed or replaced:\n")
 					if (has["rfc3667_3_claim"]) showsection("rfc3667_3_claim", 2)
@@ -1350,11 +1461,11 @@ function report(filename) {
 	    err("Cannot find any IPR, Copyright or other required boilerplate in this document.");
 	}
 
-	if (warncount == warnings && errcount == errors) note("No issues found here.");
+	if (warncount == warnings && errcount == errors && commentcount == comments) note("No issues found here.");
 
 	if ( !is_rfc ) {
 	    announce("Checking nits according to http://www.ietf.org/ietf/1id-guidelines.txt:");
-	    warncount = warnings; errcount = errors;
+	    warncount = warnings;  errcount = errors; commentcount = comments;
 
 	    if (! has_id_indication) {
 		errg("Missing document type: Expected \"INTERNET-DRAFT\" in the upper left hand corner of the first page");
@@ -1426,113 +1537,118 @@ function report(filename) {
 	    }
 
 	    if ( maxpagelength > 58 ) {
-		warn(sprintf("The page length should not exceed 58 lines per page, " \
+		warnc(sprintf("The page length should not exceed 58 lines per page, " \
 			     "but there was %d longer page%s, the longest (page %d) being %d lines", longpagecount, (longpagecount==1?"":"s"), longestpage, maxpagelength));
 	    }
 	    if ( pagecount > formfeedcount+1 ) {
-		warn(sprintf("It seems as if not all pages are separated by form feeds - " \
+		warnc(sprintf("It seems as if not all pages are separated by form feeds - " \
 			     "found %d form feeds but %d page%s", formfeedcount, pagecount, (pagecount==1?"":"s")));
 	    }
-
-	    if (warncount == warnings && errcount == errors) note("No issues found here.");
-	}
-
-	announce("Checking nits according to http://www.ietf.org/ID-Checklist.html:")
-	warncount = warnings;  errcount = errors;
-
-	if (!has_abstract)	{ err("The document seems to lack an Abstract section.", indented_abstract); }
-	if (!has_intro)	{ errc("The document seems to lack an Introduction section.", indented_intro); }
-	if (!has_security)	{ errc("The document seems to lack a Security Considerations section.", indented_security); }
-	if (!has_iana)	{ errc("The document seems to lack an IANA Considerations section.  "	\
-			       "(See Section 2.2 of http://www.ietf.org/ID-Checklist.html for how "	\
-			       "to handle the case where you have no actions for IANA.)", indented_iana); }
-	if (!has_addr)	{ errc("The document seems to lack an Authors\047 Addresses Section."); }
-	if (has_refs && ! has_splitrefs)	{
-				errc("The document seems to lack separate sections for Informative/Normative References.  " \
-				    "All references will be assumed normative when checking for downward references.");
-	}
-
-	if (option_list_matches) {
-	    print fold("  Boilerplate matches:", "  ", columns)
-	    for ( n in has ) {
-		if (n) note(sprintf("Found", n, "on line", has[n]))
+	    if ( missing_nroff_postprocessing ) {
+		comment(sprintf("Found %d instances of the string 'FORMFEED[Page...' -- is this a case of missing nroff postprocessing?", missing_nroff_postprocessing))
 	    }
-	    print "";
+
+	    if (warncount == warnings && errcount == errors && commentcount == comments) note("No issues found here.");
 	}
 
-	if (spacing > 50) {
-	    errc(sprintf("There %s %d instance%s of weird spacing in the document.  " \
-			      "Is it really formatted ragged-right, rather than justified?", \
-			      (spacing==1?"is":"are"), spacing, (spacing==1?"":"s") ));
-	}
+	if (option_submitcheck) {
+	    announce("Running in submission checking mode -- *not* checking nits according to http://www.ietf.org/ID-Checklist.html.")
+	} else {
+	    announce("Checking nits according to http://www.ietf.org/ID-Checklist.html:")
+	    warncount = warnings;  errcount = errors; commentcount = comments;
 
-	if (longlines) {
-	    errc(sprintf("There %s %d instance%s of too long lines in the document, " \
-			     "the longest one being %d character%s in excess of 72.", \
-			      (longlines==1?"is":"are"), longlines, (longlines==1?"":"s"), \
-			      excesslength, ((excesslength > 1) ? "s" : "")));
-	}
-
-	if (controlchars) {
-	    errc(sprintf("There %s %d instance%s of lines with control characters in the document.", \
-			      (controlchars==1?"is":"are"), controlchars, (controlchars==1?"":"s") ));
-	}
-
-	if (badfqdns) {
-	    errc(sprintf("There %s %d instance%s of lines with " \
-			      "non-RFC2606-compliant FQDNs in the document.", \
-			      (controlchars==1?"is":"are"), badfqdns, (badfqdns==1?"":"s") ));
-	}
-
-	if (badipv4addr) {
-	    errc(sprintf("There %s %d instance%s of lines with " \
-			      "non-RFC3330-compliant IPv4 addresses in the document.  " \
-			      "If these are example addresses, they should be changed.", \
-			      (controlchars==1?"is":"are"), badipv4addr, (badipv4addr==1?"":"s") ));
-	}
-	if (privipv4addr) {
-	    warn(sprintf("There %s %d instance%s of lines with " \
-			      "private range IPv4 addresses in the document.  " \
-			      "If these are generic example addresses, they should be changed "	\
-			      "to use the 192.0.2.x range defined in RFC 3330.", \
-			      (controlchars==1?"is":"are"), privipv4addr, (privipv4addr==1?"":"s") ));
-	}
-
-	if (badipv6addr) {
-	    errc(sprintf("There %s %d instance%s of lines with " \
-			      "non-RFC3849-compliant IPv6 addresses in the document.  " \
-			      "If these are example addresses, they should be changed.", \
-			      (controlchars==1?"is":"are"), badipv6addr, (badipv6addr==1?"":"s") ));
-	}
-
-	if ( keywords && !has["rfc2119_p2"] && !has["rfc2119_p2a"]) {
-	    # Check whether there is a reference to RFC 2119 at all
-	    for (reftag in ref_text) {
-		if (ref_text[reftag] ~ /RFC[- ]?2119/) found_2119_ref = ref_def[reftag];
+	    if (!has_abstract)	{ err("The document seems to lack an Abstract section.", indented_abstract); }
+	    if (!has_intro)	{ errc("The document seems to lack an Introduction section.", indented_intro); }
+	    if (!has_security)	{ errc("The document seems to lack a Security Considerations section.", indented_security); }
+	    if (!has_iana)	{ errc("The document seems to lack an IANA Considerations section.  "	\
+				   "(See Section 2.2 of http://www.ietf.org/ID-Checklist.html for how "	\
+				   "to handle the case when there are no actions for IANA.)", indented_iana); }
+	    if (!has_addr)	{ errc("The document seems to lack an Authors\047 Addresses Section."); }
+	    if (has_refs && ! has_splitrefs)	{
+				    errc("The document seems to lack separate sections for Informative/Normative References.  " \
+					"All references will be assumed normative when checking for downward references.");
 	    }
-	    if ( ! found_2119_ref ) {
-		sectionerr("rfc2119_p2" , "both a reference to RFC 2119 and the recommended RFC 2119 boilerplate, even if it appears to use RFC 2119 keywords", option_checklistwarn)
-		if ( option_verbose <= 1) {
-		    for (i=1; i<=5; i++) {
-			if (i in rfc2119line) {
-			    fnr = rfc2119line[i]
-			    printf("    RFC 2119 keyword, line %d: '...%s...'\n", fnr, line[fnr]);
+
+	    if (option_list_matches) {
+		print fold("  Boilerplate matches:", "  ", columns)
+		for ( n in has ) {
+		    if (n) note(sprintf("Found", n, "on line", has[n]))
+		}
+		print "";
+	    }
+
+	    if (spacing > 50) {
+		errc(sprintf("There %s %d instance%s of weird spacing in the document.  " \
+				  "Is it really formatted ragged-right, rather than justified?", \
+				  (spacing==1?"is":"are"), spacing, (spacing==1?"":"s") ));
+	    }
+
+	    if (longlines) {
+		errc(sprintf("There %s %d instance%s of too long lines in the document, " \
+				 "the longest one being %d character%s in excess of 72.", \
+				  (longlines==1?"is":"are"), longlines, (longlines==1?"":"s"), \
+				  excesslength, ((excesslength > 1) ? "s" : "")));
+	    }
+
+	    if (controlchars) {
+		errc(sprintf("There %s %d instance%s of lines with control characters in the document.", \
+				  (controlchars==1?"is":"are"), controlchars, (controlchars==1?"":"s") ));
+	    }
+
+	    if (badfqdns) {
+		errc(sprintf("There %s %d instance%s of lines with " \
+				  "non-RFC2606-compliant FQDNs in the document.", \
+				  (controlchars==1?"is":"are"), badfqdns, (badfqdns==1?"":"s") ));
+	    }
+
+	    if (badipv4addr) {
+		warnc(sprintf("There %s %d instance%s of lines with " \
+				  "non-RFC3330-compliant IPv4 addresses in the document.  " \
+				  "If these are example addresses, they should be changed.", \
+				  (controlchars==1?"is":"are"), badipv4addr, (badipv4addr==1?"":"s") ));
+	    }
+	    if (privipv4addr) {
+		warnc(sprintf("There %s %d instance%s of lines with " \
+				  "private range IPv4 addresses in the document.  " \
+				  "If these are generic example addresses, they should be changed "	\
+				  "to use the 192.0.2.x range defined in RFC 3330.", \
+				  (controlchars==1?"is":"are"), privipv4addr, (privipv4addr==1?"":"s") ));
+	    }
+
+	    if (badipv6addr) {
+		errc(sprintf("There %s %d instance%s of lines with " \
+				  "non-RFC3849-compliant IPv6 addresses in the document.  " \
+				  "If these are example addresses, they should be changed.", \
+				  (controlchars==1?"is":"are"), badipv6addr, (badipv6addr==1?"":"s") ));
+	    }
+
+	    if ( keywords && !has["rfc2119_p2"] && !has["rfc2119_p2a"] ) {
+		# Check whether there is a reference to RFC 2119 at all
+		for (reftag in ref_text) {
+		    if (ref_text[reftag] ~ /RFC[- ]?2119/) found_2119_ref = ref_def[reftag];
+		}
+		if ( ! found_2119_ref ) {
+		    sectionerr("rfc2119_p2" , "both a reference to RFC 2119 and the recommended RFC 2119 boilerplate, even if it appears to use RFC 2119 keywords", option_checklistwarn)
+		    if ( option_verbose <= 1) {
+			for (i=1; i<=5; i++) {
+			    if (i in rfc2119line) {
+				fnr = rfc2119line[i]
+				printf("     RFC 2119 keyword, line %d: '...%s...'\n", fnr, line[fnr]);
+			    }
 			}
+			if (keywords > 5)
+			    note(sprintf("(%d more instance%s...)",keywords-5, (keywords-5==1?"":"s")));
 		    }
-		    if (keywords > 5)
-			note(sprintf("(%d more instance%s...)",keywords-5, (keywords-5==1?"":"s")));
 		}
 	    }
-	}
-	if (warncount == warnings && errcount == errors) note("No issues found here.");
+	    if (warncount == warnings && errcount == errors && commentcount == comments) note("No issues found here.");
 
 
-	# --------------------------------------------------------------
-	# Warnings
+	    # --------------------------------------------------------------
+	    # Warnings
 
-	{
 	    announce("Miscellaneous warnings:")
-	    warncount = warnings; errcount = errors;
+	    warncount = warnings;  errcount = errors; commentcount = comments;
 	    warnshere = warnings;
 
 	    checkmultibp("rfc3978_5_1");
@@ -1582,21 +1698,21 @@ function report(filename) {
 #
 
 	    if (hyphens && !is_rfc) {
-		warn(sprintf("There %s %d instance%s of lines with hyphenated line breaks in the document.", \
+		warnc(sprintf("There %s %d instance%s of lines with hyphenated line breaks in the document.", \
 			     (hyphens==1?"is":"are"), hyphens, (hyphens==1?"":"s")));
 	    }
 
-	    if ( misspelled_toc )	{ warn("The \"Table of Contents\" section title seems to be misspelled."); }
+	    if ( misspelled_toc )	{ warnc("The \"Table of Contents\" section title seems to be misspelled."); }
 
-	    if ( misspelled_addr ) { warn("The \"Author\047s Address\" (or \"Authors\047 Addresses\") section title is misspelled."); }
+	    if ( misspelled_addr ) { warnc("The \"Author\047s Address\" (or \"Authors\047 Addresses\") section title is misspelled."); }
 
 	    if (!option_verbose && spacing) {
 		for (i=1; i<=5; i++) {
 		    if (i in sp_line)
-			warn(sprintf("Line %d has weird spacing: \047...%s...\047", linenum[i], extract[i]));
+			warnc(sprintf("Line %d has weird spacing: \047...%s...\047", linenum[i], extract[i]));
 		}
 		if (spacing > 5)
-		    warn(sprintf("(%d more instance%s...)",spacing-5, (spacing-5==1?"":"s")));
+		    warnc(sprintf("(%d more instance%s...)",spacing-5, (spacing-5==1?"":"s")));
 	    }
 
 	    if ( keywords && !has["rfc2119_p2"] && !has["rfc2119_p2a"] && found_2119_ref ) {
@@ -1613,17 +1729,30 @@ function report(filename) {
 
 	    if ( !keywords ) {
 		if (has["rfc2119_p2"] || has["rfc2119_p2a"] ) {
-		    warn("The document doesn't use any RFC 2119 keywords, yet seems to have RFC 2119 boilerplate text.")
+		    warnc("The document doesn't use any RFC 2119 keywords, yet seems to have RFC 2119 boilerplate text.")
 		} else if (almost_boilerplate["rfc2119_p2"] || almost_boilerplate["rfc2119_p2a"] ) {
-		    warn("The document doesn't use any RFC 2119 keywords, yet has text resembling RFC 2119 boilerplate text.")
+		    warnc("The document doesn't use any RFC 2119 keywords, yet has text resembling RFC 2119 boilerplate text.")
 		}
 	    }
 
-	    if (warncount == warnings && errcount == errors) note("No issues found here.");
+	    for (combo in rfc2119undefined) {
+		comment("The exact meaning of the all-uppercase expression '" combo \
+		"' is not defined in RFC 2119.  If it is intended as a requirements " \
+		"expression, it should be rewritten using one of the combinations " \
+		"defined in RFC 2119; otherwise it should not be all-uppercase.")
+	    }
+
+	    for (pattern in found_bad) {
+		para = found_bad[pattern]
+		warn(bad[pattern] "\n\n     Found '" strip(pattern) "' in this paragraph:\n\n    " para)
+	    }
+
+
+	    if (warncount == warnings && errcount == errors && commentcount == comments) note("No issues found here.");
 
 
 #	    announce("Experimental warnings:")
-	    warncount = warnings; errcount = errors;
+	    warncount = warnings;  errcount = errors; commentcount = comments;
 	    warnshere = warnings;
 
 	    if ( ! intended_status in status2code ) {
@@ -1636,20 +1765,26 @@ function report(filename) {
 	    split(warncodes[intended_code], warnlist);
 	    for (i in warnlist) warnlist[warnlist[i]];
 
+	    std_codes["B"];std_codes["P"];std_codes["D"];std_codes["S"];
+	    if (intended_code in std_codes) {
+		note("(See RFC 3967 for information about using normative references to lower-maturity documents in RFCs)\n")
+	    }
+
 	    for ( i = 1; i <= ref_use_count; i++ ) {
 		tag = ref_use_list[i]
 		if (! (tag in ref_def)) {
 		    is_numeric = tag ~ /^[0-9]+$/
 		    if ((is_numeric && has_numeric_refs) || (!is_numeric && has_symbolic_refs)) {
-			warn(sprintf("Missing Reference: '%s' is mentioned on line %s, but not defined", tag, ref_use[tag]))
-			if (option_verbose) printf "    '%s...'\n\n", strip(substr(line[ref_use[tag]],1,70));
+			warnc(sprintf("Missing Reference: '%s' is mentioned on line %s, but not defined", tag, ref_use[tag])	\
+				(option_verbose ? sprintf("\n'%s...'", strip(substr(line[ref_use[tag]],1,68))) : ""));
+			miss_ref[tag];
 			check_downref(tag, warnlist);
 		    } else if (has_numeric_refs || has_symbolic_refs) {
-			warn(sprintf("Looks like a reference, but probably isn't: '%s' on line %s (?)", tag, ref_use[tag]))
-			if (option_verbose) printf "    '%s...'\n\n", strip(substr(line[ref_use[tag]],1,70));
+			comment(sprintf("Looks like a reference, but probably isn't: '%s' on line %s", tag, ref_use[tag])	\
+				(option_verbose ? sprintf("\n'%s...'", strip(substr(line[ref_use[tag]],1,68))) : ""));
 		    } else {
-			warn(sprintf("Missing reference section?: '%s' on line %s looks like a reference", tag, ref_use[tag]))
-			if (option_verbose) printf "    '%s...'\n\n", strip(substr(line[ref_use[tag]],1,70));
+			comment(sprintf("Missing reference section? '%s' on line %s looks like a reference", tag, ref_use[tag])	\
+				(option_verbose ? sprintf("\n'%s...'", strip(substr(line[ref_use[tag]],1,68))) : ""));
 		    }
 
 		}
@@ -1658,8 +1793,8 @@ function report(filename) {
 	    for ( i = 1; i <= ref_def_count; i++ ) {
 		tag = ref_def_list[i];
 		if (! (tag in ref_use)) {
-		    warn(sprintf("Unused Reference: '%s' is defined on line %s, but not referenced", tag, ref_def[tag]));
-		    if (option_verbose) printf "    '%s...'\n\n", strip(substr(line[ref_def[tag]],1,70));
+		    warnc(sprintf("Unused Reference: '%s' is defined on line %s, but no explicit reference was found in the text", tag, ref_def[tag])	\
+			(option_verbose ? sprintf("\n'%s...'", strip(substr(line[ref_def[tag]],1,68))) : ""));
 		}
 	    }
 
@@ -1667,22 +1802,21 @@ function report(filename) {
 		tag = ref_def_list[i];
 		check_downref(tag, warnlist);
 	    }
-	    if (warncount == warnings && errcount == errors) note("No issues found here.");
+	    if (warncount == warnings && errcount == errors && commentcount == comments) note("No issues found here.");
 	}
 
 	# --------------------------------------------------------------
 	# Summary
 
-	if (errors == 0 && warnings == 0) {
+	if (errors == 0 && warnings == 0 && comments == 0) {
 	    print "";
 	    note("No nits found.");
 	} else {
 	    print "";
-	    note(sprintf("Summary: %d error%s, %d warning%s", errors, (errors==1?"":"s"), warnings, (warnings==1?"":"s")));
-###	    note(sprintf("Summary: %d nit%s, %d warning%s", errors, (errors==1?"":"s"), warnings, (warnings==1?"":"s")));
+	    note(sprintf("Summary: %d error%s (%s), %d warning%s (%s), %d comment%s (%s).", errors, (errors==1?"":"s"), errmark, warnings, (warnings==1?"":"s"), warnmark, comments, (comments==1?"":"s"), infomark));
 	    if (! option_verbose) {
 	        print "";
-		note("Run idnits with the --verbose option for more detailed information.");
+		note("Run idnits with the --verbose option for more detailed information about the items above.");
 	    }
 	}
     }
@@ -1781,16 +1915,39 @@ function checkline() {
     }
 
     # RFC 2119 language    
-    if ( match($0, /[ \t](MUST|MUST NOT|REQUIRED|SHALL|SHALL NOT|SHOULD|SHOULD NOT|RECOMMENDED|MAY|OPTIONAL)[ \t\.,]/ ) )	{
+    if ( match($0, /[ \t](MUST|REQUIRED|SHALL|SHOULD|RECOMMENDED|MAY|OPTIONAL)[ \t\.,]/ ) ) {
 	keywords++;
 	rfc2119line[keywords] = FNR;
 	rstart = RSTART-16;
-	rlength = 40;
+	rlength = 38;
 	if (rstart+rlength > length($0)) rstart = length($0) - rlength +1;
 	if (rstart < 1) rstart = 1;
 	if ( ! (FNR in line) ) line[FNR] = substr($0, rstart, rlength);
 	if (option_verbose > 1 && option_pass1) {
 	    printf("%s(%d): RFC 2119 keyword: %s.\n", FILENAME, FNR, $0);
+	}
+
+	# Keywords:
+	#
+	#	MUST		MUST NOT
+	#	SHALL		SHALL NOT
+	#	SHOULD		SHOULD NOT
+	#	RECOMMENDED	NOT RECOMMENDED
+	#	REQUIRED
+	#	MAY
+	#	OPTIONAL
+
+	# Find uppercase words before or after our keywords, and check if the combination is defined
+	l = $0
+	sub(/\t/, " ", l)
+	notkwds["MAY NOT"]; notkwds["NOT REQUIRED"]; notkwds["NOT OPTIONAL"]; 
+	for (combo in notkwds) {
+	    if (l ~ combo) {
+		rfc2119undefined[combo]
+		if (option_verbose > 1 && option_pass1) {
+		    printf("%s(%d): Undefined keyword combination: '%s'.\n", FILENAME, FNR, combo)
+		}
+	    }
 	}
     }
 
@@ -1851,18 +2008,23 @@ function checkline() {
     }
 
     # ID-Checklist section 3.6 B: Example numeric IPv6 addresses
-    if ( has_intro && !in_refs && match($0, /[ \t][0-9A-Fa-f]+:[0-9A-Fa-f]+(:[0-9A-Fa-f]*)+/)) {
-	IPv6addr = substr($0, RSTART+1, RLENGTH-1)
+    if ( has_intro && !in_refs && match($0, /[ \t][0-9A-Fa-f]+:[0-9A-Fa-f]+(:[0-9A-Fa-f]*)+(EUI64)?/)) {
+	if (IPv6addr ~ /.+EUI64/) {
+	    IPv6addr = substr($0, RSTART+1, RLENGTH-6) "0"
+	} else {
+	    IPv6addr = substr($0, RSTART+1, RLENGTH-1)
+	}
 	addrstart = RSTART+1
 
 	# We have to match either 8 parts separated by colons or fewer parts with one embedded '::' or fewer parts ending in '::':
-	if (IPv6addr !~ /^2001:[Dd][Bb]8(:[0-9A-Fa-f]*)+$/ \
+	if (IPv6addr !~ /^2001:0?[Dd][Bb]8(:[0-9A-Fa-f]*)+$/			\
+	    && IPv6addr !~ /^[Ff][CcDd][0-9A-Fa-f]?[0-9A-Fa-f]?(:[0-9A-Fa-f]*)+$/	\
 	    && (   IPv6addr ~ /^[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+:[0-9A-Fa-f]+$/ \
 		|| IPv6addr ~ /([0-9A-Fa-f]+:)([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?:$/ \
 		|| IPv6addr ~ /([0-9A-Fa-f]+:)([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?([0-9A-Fa-f]+:)?(:[0-9A-Fa-f]+)(:[0-9A-Fa-f]+)?(:[0-9A-Fa-f]+)?(:[0-9A-Fa-f]+)?(:[0-9A-Fa-f]+)?(:[0-9A-Fa-f]+)?$/ )) {
 	    if (option_verbose && option_pass1) {
 		printf("%s(%d): Found possible IPv6 address '%s' in position %d; this doesn't match " \
-			"RFC3848's suggested 2001:DB8::/32 address range.\n", \
+			"RFC3849's suggested 2001:DB8::/32 address range or RFC4193's Unique Local Address range FC00::/7.\n", \
 			FILENAME, FNR, IPv6addr, addrstart)
 		if (option_verbose > 1 && option_pass1) {
 		    printf("  --> %s\n", $0);
@@ -1871,6 +2033,16 @@ function checkline() {
 	    }
 	    badipv6addr++;
 	}
+    }
+}
+
+
+function check_para(para) {
+    # Checking various things that need to be checked after assembling a full paragraph;
+    # in particular, word combinations can't be reliably checked line-by-line as they
+    # may be split across a line break.
+    for (pattern in bad) {
+	if (para ~ pattern) found_bad[pattern] = para;
     }
 }
 
@@ -1914,6 +2086,9 @@ function checkline() {
 /-\+- Longpagecount: [0-9]+ -\+-/ { longpagecount = $3+0; next  }
 /-\+- Formfeedcount: [0-9]+ -\+-/ { formfeedcount = $3+0; next  }
 /-\+- Expiration: [0-9]+ -\+-/    { has_expiration = $3+0; next  }
+/-\+- NoNroffPostproc: [0-9]+ -\+-/ { missing_nroff_postprocessing = $3+0; next  }
+
+
 
 # Check for required sections
 # Nawk doesn't understand IGNORECASE = 0, so we have to explicitly convert.
@@ -1959,10 +2134,14 @@ normalized ~ /^ +([0-9.]+ )? ? ? ? ? ?security$/			{   indented_security = $0; }
 normalized ~ /^(appendix )?([0-9a-z.]+ )? ? ? ? ? ?iana considerations?[ \t]*.*/	{   has_iana = 1; }
 normalized ~ /^ +([0-9a-z.]+ )? ? ? ? ? ?iana considerations?[ \t]*.*/{   indented_iana = $0; }
 
-normalized ~ /^[0-9.]+ +/					{   in_refs = 0; sections[$1] = substr($0, length($1)); } # New section.  If we were in a reference section, we've now left it.
+								# New section.  If we were in a reference section, we've now left it.
+normalized ~ /^[0-9.]+ +/					{   in_refs = 0; in_abnf = 0; sections[$1] = substr($0, length($1)); }
 
 normalized ~ /^appendix/					{   if (has_refs) has_appendix = 1; in_refs = 0; nnnote("Appendix start: " $0); }
 normalized ~ /^ +appendix/					{   if (has_refs) indented_appendix = $0; }
+
+normalized ~ /(^| )abnf([ .]|$)/				{   abnf_mentioned = 1; }
+normalized ~ abnf_rule_format					{   in_abnf++; }
 
 normalized ~ /^([0-9]+[.]?0? )? ? ? ? ? ?references$/			{   if (has_intro || has_security || has_iana) { has_refs = 1; in_refs = 1; in_normref = 1; }}
 normalized ~ /^ +([0-9]+[.]?0? )? ? ? ? ? ?references$/			{   if (has_intro || has_security || has_iana) { indented_refs = $0; }}
@@ -1979,7 +2158,7 @@ normalized ~ /^[0-9a-z.]* *((author|editor)(\047s|s\047) +(and +)?)+address(es)?
 normalized ~ /^[0-9a-z.]* *author information$/			{   has_addr = 1; }
 normalized ~ /^[0-9a-z.]* *(author|editor)(\047s|s\047) contact information$/	{   has_addr = 1; }
 normalized ~ /^[0-9A-Z.]* *contact information$/		{   has_addr = 1; }
-
+normalized ~ /^[0-9A-Z.]* *(author|editor)s?:$/			{   has_addr = 1; }
 
 
 # RFC 3978 / 2026 compliance
@@ -2188,7 +2367,7 @@ $0 ~ reference_format						{
 									}
 								        update_references(reftext, refpos);
 								    } else {
-								        update_references($0, FNR)
+									if (!abnf_mentioned || $0 !~ abnf_rule_format ) update_references($0, FNR);
 								    } 
 								}
 /\[[0-9A-Z-]+- *$/						{
@@ -2200,7 +2379,22 @@ $0 ~ reference_format						{
 									update_references(incomplete_ref_line strip($0), incomplete_ref_pos)
 								    }
 								}
-								
+
+{
+    text = strip($0);
+    if ( text == "") {
+	if (para) check_para(para);
+	para = "";
+    } else {
+	if (para ~ /-$/) {
+	    para = para text;
+	} else {
+	    para = para " " text;
+	}
+    }
+}
+
+
 
 END {
 
@@ -2214,7 +2408,7 @@ END {
 }
 EOF
 
-    $AWK -v statusdir="$statusdir" -v statusfile="$statusfile" -f $program $*
+    $AWK -v statusdir="$statusdir" -v statusfile="$statusfile" -v obslist="$obslist" -f $program $*
     errors=$?
     if [ ! "$optkeep" = "1" ]; then
 	rm -f $program
@@ -2236,6 +2430,7 @@ Usage: idnits [options] filename
 	--year NNNN	Expect the given year in the boilerplate (instead
 			of the current year)
 	--checklistwarn	Only warn (no errors) for ID-Checklist volations
+	--submitcheck	Only output errors and warnings related to 1id-guidelines
 	--status doctype Assume the given intended document type
 
 'idnits' looks for violations of Section 2.1 and 2.2 of the
@@ -2312,25 +2507,27 @@ download() (
 	if [ "$filedate" = "$today" ]; then
 	    true
 	else
-	    msg "" 
+	    note "" 
 	    if [ -f "$file" ]; then
-		msg -e "(The $name file is not from today.\n Attempting to download a newer one..."
+		note -e "(The $name file is not from today.\n Attempting to download a newer one..."
 	    else
-		msg -e "(No $name file. Attempting to download it..."
+		note -e "(No $name file. Attempting to download it..."
 	    fi
-	    #if $WGET $WARG $url > $tempfile; then
-		#if grep -qs "$test" $tempfile; then
-		#    msg " - Success fetching $name file.)"
-		#    tr -d "\r" < $tempfile > $file.date
-		#    if ! cmp -s $file.date $file; then mv $file.date $file; touch -r $tempfile $file; else rm $file.date; fi; touch $file.date; 
-		#else
-		#    msg " - The downloaded file seems to be corrupt, proceeding with outdated information.)"
-		#    touch $file.date
-		#fi
-	    #else
-		#msg " - Failure fetching the file, proceeding without it.)"
-		#touch $file.date
-	    #fi
+	    if $WGET $WARG $url > $tempfile; then
+		if grep -qsE "$test" $tempfile; then
+		    note " - Success fetching $name file.)"
+		    tr -d "\r" < $tempfile > $file.date
+		    if ! cmp -s $file.date $file; then mv $file.date $file; touch -r $tempfile $file; else rm $file.date; fi; touch $file.date; 
+		else
+		    [ "$optverbose" ] || echo "(Attempted to download $name..."
+		    echo " - The downloaded file seems to be corrupt, proceeding with outdated information.)"
+		    touch $file.date
+		fi
+	    else
+		[ "$optverbose" ] || echo "(Attempted to download $name..."
+	        echo " - Failure fetching the file, proceeding without it.)"
+		touch $file.date
+	    fi
 	fi
     fi	
 )
@@ -2340,6 +2537,11 @@ while [ $# -gt 0 ]; do
     case "$1" in
 	--checklistwarn)
 	    options="$options $1"
+	    ;;
+	--download)
+	    shift
+	    download "$@"
+	    exit
 	    ;;
 	--help)
 	    helpmsg
@@ -2360,6 +2562,9 @@ while [ $# -gt 0 ]; do
 	    ;;
 	--spellcheck)
 	    optspellcheck=1
+	    ;;
+	--submitcheck)
+	    options="$options $1"
 	    ;;
 	--verbose)
 	    optverbose="$optverbose $1"
@@ -2404,8 +2609,9 @@ fi
 
 [ -d $statusdir ] || mkdir $statusdir || die "Could not create directory to hold auxiliary files: '$statusdir'"
 
-download "RFC Status" http://tools.ietf.org/tools/idnits/idnits-rfc-status $statusfile "^UUOUUUUUUOOUUUUOUUUUUUUUUUUUUUUUUUIUUUUUUUUUUUUUUUUUUUUUUUUUOUUU\$"
+download "RFC Status" http://tools.ietf.org/tools/idnits/idnits-rfc-status $statusfile "^UUOUUUUUUOOUUUUOUUUUUUUUUUUUUUUUUUIUUUUUUUUUUUUUUUUUUUUUUUUUOUUU(\r)?\$"
 download "RFC Words" http://tools.ietf.org/tools/idspell/ietf-words.wl $wordlist "^personal_ws-1.1 en "
+download "RFCs Obsoleted" http://tools.ietf.org/rfc/meta/rfcs-obsoleted.txt $obslist "3 10"
 
 export CHECKNITS COLUMNS
 
@@ -2418,14 +2624,19 @@ else
 	echo ""
 	echo "$file:"
 
+	if [ ! -f "$file" ]; then
+	    die "No such file: $file"
+	fi
+
 	if [ -n "$optverbose" ]; then
 	    # run a first pass without stripping, to get correct line
 	    # numbers in the verbose reports
 	    (CHECKNITS="$optverbose --pass1" checknits $file)
 	fi
 
-	draftrefs=$(tr -c "a-z0-9-" "[\n*]" < $file | tr -s "\n" | sed -e :a -e '/-$/N; s/-\n/-/; ta' | grep "^draft-[a-z0-9-]*" | sort | uniq )
+	draftrefs=$(tr -c "A-Za-z0-9-" "[\n*]" < $file | tr -s "\n" | sed -e :a -e '/draft-[a-z0-9-]+-$/N; s/-\n/-/; ta' | grep "^draft-[a-z0-9-]*" | sort | uniq )
 	for ref in $draftrefs; do
+	    ref="${ref//}"
 	    name=${ref%-[0-9][0-9]}
 	    if [ ! "$name" = "draft" ]; then
 	        download "$name state" http://tools.ietf.org/draft/$name/state $statusdir/$name.state "Doc-tag: $name"

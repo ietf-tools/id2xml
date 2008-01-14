@@ -95,9 +95,9 @@
     <tr bgcolor="#ddddff">
     <td>
         <font face="Arial" size="2">{{ field.label_tag }}</font>
-        {% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors }}</font>{% endif %}
     </td>
-    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}</td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors }}</font>{% endif %}
+</td>
     
 {% endfor %}
 
@@ -166,7 +166,7 @@
 </center>
 </div>
 
-<form action="/idsubmit/cancel/{{object.submission_id}}" method="get" name="aform">
+<form action="/idsubmit/cancel/{{object.submission_id}}" method="get" name="cform">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form>
 

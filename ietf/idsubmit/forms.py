@@ -48,6 +48,19 @@ class SubmitterForm(forms.Form):
             submission.creation_date = date(c[0],c[1],c[2]) 
             submission.abstract = param['abstract']
             submission.txt_page_count = param['pages']
+            cnt = 0
+            if param['authors']:
+                TempIdAuthors.objects.filter(submission=submission).delete()
+                for author in param['authors']:
+                    cnt += 1
+                    tempidauthors = TempIdAuthors(
+                        first_name=author['author_first_name'],
+                        last_name = author['author_last_name'],
+                        email_address = author['author_email'],
+                        author_order = cnt,
+                        submission = submission,
+                    )
+                    tempidauthors.save()
         else:
             #Checking valid submitter
             if  TempIdAuthors.objects.filter(submission=submission,email_address=self.clean_data['submitter_email']):

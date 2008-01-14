@@ -75,7 +75,6 @@ def file_upload(request):
                     return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"})
 
                 current_date = date.today()
-                # current_date = date(2007, 11, 30)
                 current_hour = int(time.strftime("%H", time.localtime()))
                 first_cut_off_date = IdDates.objects.get(id=1).id_date 
                 second_cut_off_date = IdDates.objects.get(id=2).id_date 
@@ -176,7 +175,6 @@ def draft_status(request, submission_id_or_name):
     elif re.compile('^(draft-.+)').findall(submission_id_or_name) :
         # if submission name
         subm_name = re.sub('(-\d\d\.?(txt)?|/)$', '', submission_id_or_name)
-        #return render("idsubmit/error.html",{'error_msg':subm_name})
         submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name).order_by('-submission_id') 
 
         if submissions.count() > 0 :
@@ -194,6 +192,15 @@ def draft_status(request, submission_id_or_name):
         meta_error = 0
     if submission.status_id > 0 and submission.status_id < 100 :
         can_be_canceled = 1
+        if submission.status_id == 2: #display validate.html
+            meta_data_errors = {}
+            return render("idsubmit/validate.html",{'meta_data'        : submission,
+                               'submission_id'    : submission.submission_id,
+                               'authors_info'     : TempIdAuthors.objects.filter(submission__exact=submission.submission_id).order_by('author_order'),
+                               'submitter_form'   : SubmitterForm(),
+                               'staging_url'      : settings.STAGING_URL,           
+                               'meta_data_errors' : meta_data_errors,
+                          })
     else:
         can_be_canceled = 0
     return render(
@@ -201,7 +208,7 @@ def draft_status(request, submission_id_or_name):
         {
             'object': submission,
             'authors': TempIdAuthors.objects.filter(
-                    submission__exact=submission.submission_id),
+                    submission__exact=submission.submission_id).order_by('author_order'),
             'status_msg': STATUS_CODE[submission.status_id],
             'staging_url':settings.STAGING_URL,
             'meta_error': meta_error,
@@ -217,7 +224,8 @@ def manual_post(request):
     param['authors'] = []
     cnt = 0
     for email in authors_email:
-        param['authors'].append( {'author_email': email,
+        if email:
+            param['authors'].append( {'author_email': email,
                                   'author_first_name': authors_first_name[cnt],
                                   'author_last_name': authors_last_name[cnt]} )
         cnt = cnt + 1
@@ -555,6 +563,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             group_acronym = "Independent Submission"
         else :
             group_acronym = subm.group.name
+            #removed cc'ing WG email address by request
             #cc_email.append(IETFWG.objects.get(group_acronym=subm.group).email_address)
 
         subm.comment_to_sec = subm.comment_to_sec and "\nComment:\n%s" % subm.comment_to_sec or ""

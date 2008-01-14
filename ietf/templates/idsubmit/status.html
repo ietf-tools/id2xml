@@ -113,7 +113,7 @@
 </p>
 
 {% if can_be_canceled %}
-<form action="/idsubmit/cancel/{{submission_id}}" method="get" name="aform">
+<form action="/idsubmit/cancel/{{object.submission_id}}" method="get" name="aform">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form>
 {% endif %}

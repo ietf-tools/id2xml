@@ -4,8 +4,6 @@
 {% load idsubmitTags %}
 
 <!-- Body content starts-->
-{{ test_data }}
-
 <div align="left">
 <center>
 <table border="0" vspace="0">
@@ -137,10 +135,7 @@
 </center>
 </div>
 
-<form action="." method="get" name="aform">
-<input type="hidden" name="submission_id" value="{{ submission_id }}">
-<input type="hidden" name="cancel" value="1">
-<input type="hidden" name="redirect" value="1">
+<form action="/idsubmit/cancel/{{submission_id}}" method="get" name="aform">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form> 
 

@@ -1,95 +1,128 @@
 {% extends "idsubmit/base.html" %}
 {% block maincontent %}
-{% if debug_mode %}
-<hr>
-Following message is displayed only in DEBUG mode
-{{ msg }}
-<hr>
-{% endif %}
-                     <!-- InstanceBeginEditable name="Body text" -->
-                     <form action="adjust.cgi" method="post" enctype="multipart/form-data">
-<p>
-<font face="Arial" size="3">
-<strong>Draft Status: {{ submission_q.status_id }}</font> </strong>
-</p>
-Submission ID: {{ submission_q.submission_id }} 
-</font>
-{% ifequal submission_q.status_id 206 %}
-<font face="Arial" size="2">
-<b>Meta-data errors:</b>
-{{ submission_q.warning_message }}
-{% include "idsubmit/sec_note.html" %}
-</font>
-{% endifequal %}
-                                            
-<table border="0" width="650">
-<tr bgcolor="#ddddff">
-<td width="110"><font face="Arial" size="2">Document:</font></td>
-<td><a href=<a href="{{ staging_url }}/{{ submission_q.filename }}-{{ submission_q.revision }}.txt">{{ submission_q.filename }}</a> <a href="/idsubmit/viewfirsttwo/{{ submission_q.submission_id }}">[View First Two Pages]</a><br></td>
-</tr>
-<tr bgcolor="#ffaaaa">
-<td ><font face="Arial" size="2">Version:</font></td>
-<td >{{ submission_q.revision }}</td>
-</tr>
-<tr bgcolor="#ddddff">
-<td width="110"><font face="Arial" size="2">Submission Date:</font></td><td>{% now "F j, Y" %}</td>
-</font>
-</tr>
-<td><font face="Arial" size="2">Title:</font></td>
-<td>{{ submission_q.title }}</td></font>    </tr>
-<tr bgcolor="#ddddff">
-<td><font face="Arial" size="2">WG ID:</font></td><td>
-{% ifequal submission_q.group.acronym "none" %}
-Independent Submission
-{% else %}
-{{ submission_q.group }}
-{% endifequal %}
-</td></font>
-</tr>
-<tr bgcolor="#ddddff">
-<td><font face="Arial" size="2">File Size:</font></td><td>{{ submission_q.filesize }}</td></font>
-</tr>
-<tr bgcolor="#ffaaaa">
-<td><font face="Arial" size="2">Creation Date:</font></td>
-<td>{{ submission_q.creation_date }}
-</td></font>
-</tr>
 
-<tr bgcolor="#ddddff"><td colspan="2">Author(s) Information:</td></tr>
-{% for author in authors_q %}
-<tr bgcolor="#ddddff"><td>&nbsp; &nbsp; Author {{ author.author_order }}:</td> <td>{{ author.first_name }} {{ author.last_name }} ({{ author.email_address }})</td></tr>
+<!-- Body content starts-->
+
+<div align="left">
+<center>
+<table border="0" vspace="0">
+<tr valign="top">
+<td height="550" >
+
+<p>
+    <font face="Arial" size="4"><strong>Status</strong></font>
+</p>
+<p>
+    <font face="Arial" size="3">
+    <strong>Draft Status: {{ status_msg }}</font> </strong>
+</p>
+{% ifequal object.status_id 4 %}
+<p>An email with a submmiter verification key and URL has been sent to the submitter. However, verification has not yet been received. Upon receipt of verification (clicking the link in the email), this status page will be shown with updated status information.
+</p>
+{% endifequal %}
+<p>
+<table border="0" width="650" id="metadatadraft">
+<tr bgcolor="#ddddff">
+  <td width="110"><font face="Arial" size="2">Document:</font></td>
+  <td>
+    <a href="{{ staging_url }}/{{ object.filename }}-{{ object.revision }}.txt">{{ object.filename }}</a>
+    <a href="/idsubmit/viewfirsttwo/{{object.submission_id}}">[View First Two Pages]</a><br>
+</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td width="110"><font face="Arial" size="2">Version:</font></td>
+  <td>{{ object.revision }} </td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">Submission Date:</font></td>
+  <td>{{ object.submission_date }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">Title:</font></td>
+  <td>{{ object.title }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">WG ID:</font></td><td>
+    {{ object.group.name }}
+  </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">File Size:</font></td>
+    <td>{{ object.filesize }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Creation Date:</font></td>
+    <td>{{ object.creation_date }}</td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td colspan="2">Author(s) Information:</td>
+</tr>
+{% for author in authors %}
+<tr bgcolor="#ddddff">
+    <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
+    <td>{{ author.first_name }} {{ author.last_name }} ({{ author.email_address }})</td>
+</tr>
 {% endfor %}
 <tr bgcolor="#ddddff">
-<td><font face="Arial" size="2">Pages:</font></td>
- <td>{{ submission_q.txt_page_count }}</td></font>    </tr>
-    <tr bgcolor="#ddddff" valign="top">
-<td><font face="Arial" size="2">Abstract:</font></td>
-<td>
-<pre>
-{{ submission_q.abstract|escape }}
-</pre>
-</td>
-</font>
+    <td><font face="Arial" size="2">Pages:</font></td>
+    <td>{{ object.txt_page_count }}</td>
 </tr>
-                    </tr>
-                    <tr bgcolor="#ddddff">
-                      <td><font face="Arial" size="2">Comment:</font></td><td><pre></pre></td>
-                    </tr>
+<tr bgcolor="#ddddff" valign="top">
+    <td><font face="Arial" size="2">Abstract:</font></td>
+    <td>
+        {{ object.abstract|escape|linebreaks }}
+    </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Comment:</font></td>
+    <td> {{ object.comment_to_sec|escape|linebreaks }} </td>
+</tr>
+{% if meta_error %}
+<form action="/idsubmit/adjust/{{object.submission_id}}" method="get">
+<tr>
+<td colspan="2">
+    <input type="submit" value="Adjust Meta-Data" />
+    <font face="Arial" size="2">(Leads to manual post by the Secretariat)</font>
+</td>
+</tr>
+</form>
+{% endif %}
+</table>
+</p>
 
-                  </table>
-                  </p>
-                  <br>
 <br>
-                  <table border=0>
-                    <tr>
-                                                                                  <td><input type="submit" value="Adjust Meta-Data" name="adjust"> <font face="Arial" size="2">(Leads to manual post by the Secretariat)</font></td>
-                                                                                </tr>
-                      <tr>
-                        <input  name="submission_id" type="hidden"  value="2261">
-                      </tr>
-                  </table>
-                </form>
-                    
-                  <!-- InstanceEndEditable -->    
+<p>
+<font face="Arial" size="2">Submitter Information.</font>
+<table border="0" width="650">
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Given Name:</font></td>
+    <td> {{ object.submitter.first_name }} </td>
+</tr>
 
+<tr bgcolor="#ddddff">
+    <td width="100"><font face="Arial" size="2">Family Name:</font></td>
+    <td> {{ object.submitter.last_name }} </td>
+</tr>
+<tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Email Address:</font></td>
+    <td> 
+        {{ object.submitter.email.1 }}
+    </td>
+</tr>
+</table>
+</p>
+
+{% if can_be_canceled %}
+<form action="/idsubmit/cancel/{{submission_id}}" method="get" name="aform">
+Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
+</form>
+{% endif %}
+
+</td>
+</tr>                    
+</table>
+</center>
+</div>
+
+<!-- Body content ends-->
 {% endblock %}

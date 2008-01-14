@@ -154,6 +154,7 @@ class DraftParser:
                 self._set_meta_data_errors('title', '<li>Can not find title</li>')
                 return self.not_found
             else:
+                title = re.sub('\n\s+',' ',title)
                 return title.strip()
 
     def _get_page_without_separator(self):
@@ -199,7 +200,8 @@ class DraftParser:
                 creation_date = self.not_found
         if creation_date == self.not_found:
             self._set_meta_data_errors('creation_date', '<li>Can not find creation date</li>')
-            creation_date = date(2000, 1, 1)
+            creation_date = None
+            #creation_date = date(2000, 1, 1)
         return creation_date
 
     def check_creation_date(self, chk_date):
@@ -214,12 +216,10 @@ class DraftParser:
             return False
 
     def get_authors_info(self):
-        authors_section1 = re.compile('\n[0-9]{0,2}\.?\s*([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n{2}((\s{2,}.+\n+)+)\w+')
-        authors_section2 = re.compile('\n[0-9]{0,2}\.?\s*([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n{2}((\s*.+\n+)+)\w+')
-
+        authors_section1 = re.compile('\n[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n+((\s{2,}.+\n+)+)\w+')
+        authors_section2 = re.compile('\n[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n+((\s*.+\n+)+)\w+')
         for authors_re in [authors_section1, authors_section2]:
             searched_author = authors_re.search(self.content)
-
             if searched_author:
                 try:
                     authors_info = '\n\n' + searched_author.group(3).strip()
@@ -319,8 +319,9 @@ class DraftParser:
     def get_meta_data_fields(self):
         # meta data check routine
         self.get_authors_info()
-        if not self.check_creation_date(self.get_creation_date()):
-            self._set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
+        if self.get_creation_date():
+            if not self.check_creation_date(self.get_creation_date()):
+                self._set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
         # error message here
         expected_revision = self.get_expected_revision()
         if not self.check_revision(expected_revision):

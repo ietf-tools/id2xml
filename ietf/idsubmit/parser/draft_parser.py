@@ -254,7 +254,6 @@ class DraftParser:
             author_detailInfo['submission_id'] = submission_id
 
             author_info = self._get_name_by_email(mail)
-            author_info = False
             if author_info:
                 author_detailInfo['first_name'] = author_info.first_name
                 author_detailInfo['last_name']  = author_info.last_name

@@ -115,37 +115,6 @@ class IdSubmissionAuthors(models.Model):
     class Admin:
 	pass
 
-class IdSubmissionEnv(models.Model):
-    max_live = models.IntegerField(null=True, blank=True)
-    staging_path = models.CharField(blank=True, maxlength=255) # obsolete
-    max_interval = models.IntegerField(null=True, blank=True)
-    current_manual_proc_date = models.IntegerField(null=True, blank=True)
-    init_rev_approved_msg = models.TextField(blank=True)
-    submitter_auth_msg = models.TextField(blank=True)
-    id_action_announcement = models.TextField(blank=True)
-    target_path_web = models.CharField(blank=True, maxlength=255)
-    target_path_ftp = models.CharField(blank=True, maxlength=255)
-    side_bar_html = models.TextField(blank=True)
-    # staging_url = models.CharField(blank=True, maxlength=255) # obsolete
-    top_bar_html = models.TextField(blank=True)
-    bottom_bar_html = models.TextField(blank=True)
-    id_approval_request_msg = models.TextField(blank=True)
-    emerg_auto_response = models.IntegerField(null=True, blank=True)
-    max_same_draft_name = models.IntegerField(null=True, blank=True)
-    max_same_draft_size = models.IntegerField(null=True, blank=True)
-    max_same_submitter = models.IntegerField(null=True, blank=True)
-    max_same_submitter_size = models.IntegerField(null=True, blank=True)
-    max_same_wg_draft = models.IntegerField(null=True, blank=True)
-    max_same_wg_draft_size = models.IntegerField(null=True, blank=True)
-    max_daily_submission = models.IntegerField(null=True, blank=True)
-    max_daily_submission_size = models.IntegerField(null=True, blank=True)
-    class Meta:
-        db_table = 'id_submission_env'
-        verbose_name="I-D Submission Tool Environment Variables"
-        verbose_name_plural="I-D Submission Tool Environment Variables"
-    class Admin:
-        pass
-
 class IdApprovedDetail(models.Model):
     filename = models.CharField(blank=True, maxlength=255)
     approved_status = models.IntegerField(null=True, blank=True)
@@ -174,17 +143,4 @@ class TempIdAuthors(models.Model):
         super(TempIdAuthors, self).save(*args,**kwargs)
     class Meta:
         db_table = 'temp_id_authors'
-
-class AnnouncementTemplate (models.Model) :
-    short_desc = models.TextField(null=True, )
-    announcement_text = models.TextField(null=True, )
-    init_rev_approved_msg = models.TextField(null=True, )
-    submitter_auth_msg = models.TextField(null=True, )
-    id_action_announcement = models.TextField(blank=True)
-    id_approval_request_msg = models.TextField(blank=True)
-
-    class Meta:
-        db_table = "announcement_template"
-
-    class Admin: pass
 

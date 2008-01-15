@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 MSG_BODY_SCHEDULED_ANNOUNCEMENT = """New version (-##revision##) has been submitted for ##filename##-##revision##.txt.
-http://www.ietf.org/internet-drafts/%(filename)s-%(revision)s.txt
+http://www.ietf.org/internet-drafts/##filename##-##revision##.txt
 ##msg##
 
 IETF Secretariat.

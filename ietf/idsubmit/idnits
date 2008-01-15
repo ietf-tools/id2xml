@@ -24,7 +24,7 @@
 #
 #  -----------------------------------------------------------------
 
-version="2.05.00";
+version="2.05.03";
 progdate="";
 export LC_ALL=C
 program=${0##*/}
@@ -86,6 +86,16 @@ WGET=$(lookfor wget $WGET wget curl lynx)
 [ ${WGET##*/} = lynx ] && WARG="-connect_timeout=5 -dump"
 
 SPELL=$(lookfor "" aspell)
+
+# ----------------------------------------------------------------------
+# Convert DOS (^M^J) and MAC (^M) line ending to Unix (^J)
+# ----------------------------------------------------------------------
+fixnl() {
+  $AWK '
+BEGIN	{ RS = "\r"; }
+	{ sub(/^\n/, ""); print; }
+  ' "$1"
+}
 
 # ----------------------------------------------------------------------
 # Strip headers and footers, end-of-line whitespace and \r (CR)
@@ -2500,6 +2510,7 @@ yes * Disclaimer of IPR validity per RFC 3979 Section 5
 download() (
     name="$1"; url=$2; file=$3; test="$4"
 
+    cd $statusdir
     if [ "$file" ]; then
 	filedate=$($FDATE $file.date 2>/dev/null) 
 	tempfile=$(tmpfile)
@@ -2609,7 +2620,7 @@ fi
 
 [ -d $statusdir ] || mkdir $statusdir || die "Could not create directory to hold auxiliary files: '$statusdir'"
 
-download "RFC Status" http://tools.ietf.org/tools/idnits/idnits-rfc-status $statusfile "^UUOUUUUUUOOUUUUOUUUUUUUUUUUUUUUUUUIUUUUUUUUUUUUUUUUUUUUUUUUUOUUU(\r)?\$"
+download "RFC Status" http://tools.ietf.org/tools/idnits/idnits-rfc-status $statusfile "^UUOUUUUUUOOUUUUOUUUUUUUUUUUUUUUUUUIUUUUUUUUUUUUUUUUUUUUUUUUUOUUU\$"
 download "RFC Words" http://tools.ietf.org/tools/idspell/ietf-words.wl $wordlist "^personal_ws-1.1 en "
 download "RFCs Obsoleted" http://tools.ietf.org/rfc/meta/rfcs-obsoleted.txt $obslist "3 10"
 
@@ -2618,7 +2629,7 @@ export CHECKNITS COLUMNS
 if [ -z "$files" ]; then
     CHECKNITS=$options
     echo "Reading input from pipe.  Skipping some checks." > /dev/stdout
-    strip | checknits
+    fixnl | strip | checknits
 else
     for file in $files; do
 	echo ""
@@ -2634,9 +2645,9 @@ else
 	    (CHECKNITS="$optverbose --pass1" checknits $file)
 	fi
 
-	draftrefs=$(tr -c "A-Za-z0-9-" "[\n*]" < $file | tr -s "\n" | sed -e :a -e '/draft-[a-z0-9-]+-$/N; s/-\n/-/; ta' | grep "^draft-[a-z0-9-]*" | sort | uniq )
+	draftrefs=$(tr -c "A-Za-z0-9+-" "[\n*]" < $file | tr -s "\n" | sed -e :a -e '/draft-[a-z0-9+-]+-$/N; s/-\n/-/; ta' | grep "^draft-[a-z0-9+-]*" | sort | uniq )
 	for ref in $draftrefs; do
-	    ref="${ref//}"
+	    ref=$(echo $ref | tr -d "\r")
 	    name=${ref%-[0-9][0-9]}
 	    if [ ! "$name" = "draft" ]; then
 	        download "$name state" http://tools.ietf.org/draft/$name/state $statusdir/$name.state "Doc-tag: $name"
@@ -2646,15 +2657,15 @@ else
 	CHECKNITS="$options --filename $file"
 	stripped=/tmp/idnits-$$-stripped-`basename $file`
 	if [ "$optkeep" = "1" ]; then
-	    strip $file | tee $stripped | checknits
+	    fixnl $file | strip | tee $stripped | checknits
 	elif [ "$optshowtext" = "1" ]; then
-	    strip $file | tee $stripped | checknits
+	    fixnl $file | strip | tee $stripped | checknits
 	    echo "--------------------------------------------------------------------------------"
 	    echo ""
 	    cat $stripped | sed -r -e 's/^-\+- .* -\+-$//' -e '/./=' | sed '/./N; s/\n/	/' # Note: literal tab in sed regex
 	    rm -f $stripped
 	else
-	    strip $file | checknits
+	    fixnl $file | strip | checknits
 	fi
 
  	if [ "$wordlist" -a "$SPELL" -a "$optspellcheck" ]; then

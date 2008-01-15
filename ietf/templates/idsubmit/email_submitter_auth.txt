@@ -1,4 +1,4 @@
 Please follow the link below to complete your I-D submission.
 
-https://datatracker.ietf.org/idsubmit/verify/{{submission_id}}/{{auth_key}}/
+http://{{url}}/idsubmit/verify/{{submission_id}}/{{auth_key}}/
 

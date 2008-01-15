@@ -22,12 +22,15 @@
            </td></tr>
            <tr bgcolor="#ddddff"><td>
          <font face="Arial" size="4"><strong>Upload a draft</strong></font>
-         <form action="." method="post" enctype="multipart/form-data">
-           <table width="600" border="0">
-{{ form.as_p }}
+           <form action="." method="post" enctype="multipart/form-data">
+           <table width="600">
+         <tr><td>.txt format:<font color="red">*</font></td><td>{{form.txt_file}}</td></tr>
+         <tr><td>.xml format:</td><td>{{form.xml_file}}</td></tr>
+         <tr><td>.pdf format:</td><td>{{form.pdf_file}}</td></tr>
+         <tr><td>.ps format:</td><td>{{form.ps_file}}</td></tr>
            </table>
-* Required
-         <p> 
+<font color="red">* Required</font>         
+<p> 
            <input type="submit" value="Upload" name="upload">
          </p>
          </form>

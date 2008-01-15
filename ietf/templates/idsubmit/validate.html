@@ -24,7 +24,6 @@
 
     <a href="/idsubmit/displayidnits/{{ submission_id }}">(View IDNITS Results)</a>
 </p>
-
 {% ifnotequal meta_data.status_id 2 %}
     <b>Meta-data errors:</b>
     {{ meta_data.warning_message }}
@@ -38,8 +37,13 @@
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'filename' %}">
   <td width="110"><font face="Arial" size="2">Document:</font></td>
   <td>
-    <a href="{{ staging_url }}/{{ meta_data.filename }}-{{ meta_data.revision }}.txt">{{ meta_data.filename }}</a>
-    <a href="/idsubmit/viewfirsttwo/{{ submission_id }}">[View First Two Pages]</a><br>
+    {% for file_type in file_type_list %}
+    <a href="{{ staging_url }}/{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}">{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}</a>
+    {% ifequal file_type ".txt" %}
+    <a href="/idsubmit/viewfirsttwo/{{ submission_id }}">[View First Two Pages]</a>
+    {% endifequal %}
+    <br>
+    {% endfor %}
 </td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'revision' %}">

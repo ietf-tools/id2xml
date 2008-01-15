@@ -20,13 +20,13 @@
 <input type="hidden" name="redirect" value="1" />
 <p>
     <strong>Document</strong>: 
-    <a href="{{ staging_url }}/{{ object.filename }}-{{ object.revision }}.txt">
-        {{ object.filename }}
-        <input type="hidden" name="filename" value="{{ object.filename }}">
-    </a>
-    <a href="/idsubmit/viewfirsttwo/{{ object.submission_id }}">
-        [View First Two Pages]
-    </a>
+    {% for file_type in file_type_list %}
+    <a href="{{ staging_url }}/{{ object.filename }}-{{ object.revision }}{{file_type}}">{{ object.filename }}-{{ object.revision }}{{file_type}}</a>
+    {% ifequal file_type ".txt" %}
+    <a href="/idsubmit/viewfirsttwo/{{ object.submission_id }}">[View First Two Pages]</a>
+    {% endifequal %}
+    <br>
+    {% endfor %}
     <table border="0">
         <tr>
             <td><font face="Arial" size="2">Submission Date:</font></td>

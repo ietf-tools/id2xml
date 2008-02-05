@@ -1,0 +1,147 @@
+{% extends "idsubmit/base.html" %}
+{% block maincontent %}
+
+{% load idsubmitTags %}
+
+<!-- Body content starts-->
+<div align="left">
+<center>
+<table border="0" vspace="0">
+<tr valign="top">
+<td height="550" >
+<form action="/idsubmit/adjust/{{ submission_id }}" method="get" name="adj_form">
+<p>
+    <font face="Arial" size="4">
+        <strong>Check Page</strong>
+    </font>
+</p>
+<p>
+    {% if idnits_result %}
+        Your draft has not been verified to meet IDNITS requirements
+    {% else %}
+        Your draft has been verified to meet IDNITS requirements.
+    {% endif %}
+
+    <a href="/idsubmit/displayidnits/{{ submission_id }}">(View IDNITS Results)</a>
+</p>
+{% ifnotequal meta_data.status_id 2 %}
+    <b>Meta-data errors:</b>
+    {{ meta_data.warning_message }}
+    {% include "idsubmit/sec_note.html" %}
+{% endifnotequal %}
+
+<p><strong>Meta-Data from the Draft.</strong></p>
+<b></b>
+</font>
+<table border="0" width="650" id="metadatadraft">
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'filename' %}">
+  <td width="110"><font face="Arial" size="2">Document:</font></td>
+  <td>
+    {% for file_type in file_type_list %}
+    <a href="{{ staging_url }}/{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}">{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}</a>
+    {% ifequal file_type ".txt" %}
+    <a href="/idsubmit/viewfirsttwo/{{ submission_id }}">[View First Two Pages]</a>
+    {% endifequal %}
+    <br>
+    {% endfor %}
+</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'revision' %}">
+  <td width="110"><font face="Arial" size="2">Version:</font></td>
+  <td>{{ meta_data.revision }} </td>
+</tr>
+<tr bgcolor="#ddddff">
+  <td><font face="Arial" size="2">Submission Date:</font></td>
+  <td>{% now "Y-m-j" %}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'title' %}">
+  <td><font face="Arial" size="2">Title:</font></td>
+  <td>{{ meta_data.title }}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'group' %}">
+  <td><font face="Arial" size="2">WG ID:</font></td><td>
+    {{ meta_data.group.name }}
+  </td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'filesize' %}">
+    <td><font face="Arial" size="2">File Size:</font></td>
+    <td>{{ meta_data.filesize }}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'creation_date' %}">
+    <td><font face="Arial" size="2">Creation Date:</font></td>
+    <td>{{ meta_data.creation_date }}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'authors' %}">
+    <td colspan="2">Author(s) Information:</td>
+</tr>
+{% for author in authors_info %}
+    <tr bgcolor="#ddddff">
+        <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
+        <td>{{ author.first_name }} {{ author.last_name }} ({{ author.email_address }})</td>
+    </tr>
+{% endfor %}
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'pages' %}">
+    <td><font face="Arial" size="2">Pages:</font></td>
+    <td>{{ meta_data.txt_page_count }}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'abstract' %}" valign="top">
+    <td><font face="Arial" size="2">Abstract:</font></td>
+    <td>
+        {{ meta_data.abstract|escape|linebreaks }}
+    </td>
+</tr>
+<tr>
+<td colspan="2">
+    <input type="submit" value="Adjust Meta-Data" />
+    <font face="Arial" size="2">(Leads to manual post by the Secretariat)</font>
+</td>
+</tr>
+</form>
+</td>
+</tr>
+{% ifnotequal meta_data.status_id 2 %}
+    </table>
+{% else %}
+    <tr><td colspan="2"><hr></td></tr>
+    <tr><td colspan="2"><h3>Please edit the following meta-data before proceeding to Auto-Post</h3></td></tr>
+    </table>
+    <font face="Arial" size="2">Submitter Information.</font><br>
+    <form action="/idsubmit/auto_post/" method="get" name="ap_form">
+    <input name="submission_id" type="hidden" value="{{ submission_id }}">
+    <table border="0" width="650">
+    <tr><td colspan="2">
+       If you are one of the authors of this document, then please click the button with your name on it to automatically fill in the submitter information as requested below.  Otherwise, please manually enter your information.<br>
+       {% for author in authors_info %}
+           <input type="button" name="ab{{ forloop.counter }}" value="{{ author.first_name|slice:":1" }}. {{ author.last_name }}" onClick="document.ap_form.lname.value='{{ author.last_name }}';document.ap_form.fname.value='{{ author.first_name }}';document.ap_form.submitter_email.value='{{ author.email_address }}';"> 
+       {% endfor %}
+    </td></tr>
+
+{% for field in submitter_form %}
+
+    <tr bgcolor="#ddddff">
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+        {% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors }}</font>{% endif %}
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}</td>
+    </tr>
+    
+{% endfor %}
+
+    </table>
+    <input type="submit" value="Post Now">
+    </form>
+    <!-- InstanceEndEditable -->              
+    </td>
+    </tr>
+    </table>
+{% endifnotequal %}
+</center>
+</div>
+
+<form action="/idsubmit/cancel/{{submission_id}}" method="get" name="aform">
+Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
+</form> 
+
+<!-- Body content ends-->
+{% endblock %}

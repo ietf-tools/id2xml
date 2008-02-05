@@ -1,0 +1,4 @@
+Please follow the link below to complete your I-D submission.
+
+http://{{url}}/idsubmit/verify/{{submission_id}}/{{auth_key}}/
+

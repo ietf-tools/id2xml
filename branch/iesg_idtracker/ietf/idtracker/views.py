@@ -14,6 +14,15 @@ from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
 import re
 
+def get_tracker_mode(request):
+    mode = "IETF"
+    if request.user.is_authenticated():
+        try:
+            mode = request.user.groups.all()[0]
+        except IndexError:
+            mode = "IETF"
+    return mode
+
 # Override default form field mappings
 # group_acronym: CharField(max_length=10)
 # note: CharField(max_length=100)
@@ -27,6 +36,7 @@ def myfields(f):
     return f.formfield()
 
 def search(request):
+    mode = get_tracker_mode(request)
     # for compatability with old tracker form, which has
     #  "all substates" = 6.
     args = request.GET.copy()
@@ -119,6 +129,7 @@ def search(request):
 	'form': form,
 	'matches': matches,
 	'searching': searching,
+        'mode': mode,
       }, context_instance=RequestContext(request))
 
 # proof of concept, orphaned for now

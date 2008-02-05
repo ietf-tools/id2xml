@@ -26,7 +26,14 @@
 
 </head>
 <body link="blue" vlink="blue">
-
+{% if user.is_authenticated %}
+<span style="float: right; font-size: 80%;">Logged in as {{ user }}
+  |
+ <a href="/accounts/logout/">Log Out</a></span>
+{% else %}
+<span style="float: right; font-size: 80%;">
+<a href="/accounts/login/?next=/idtracker/">Log In</a></span>
+{% endif %}
 {% block idcontent %}
 {% endblock %}
 

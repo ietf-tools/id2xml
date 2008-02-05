@@ -19,16 +19,17 @@
       return true;
    }
    </script>
-
+{% ifequal server_mode "development" %}
+<font color="red">{{ mode }} Mode</font>
+{% endifequal %}
 <form action="." method="GET" name="search_form">
 
 <center>
 {% if searching %}
 {% else %}
    <img src="/images/ietflogo2e.gif" border="0" height="137" width="280"><br>
-   <h1>IETF I-D TRACKER</h1>
+   <h1>{{mode}} I-D TRACKER</h1>
 {% endif %}
-
 <table cellpadding="1" cellspacing="0" border="0">
 <tr bgcolor="silver">
 <th colspan="2">I-D - Search Criteria</th>

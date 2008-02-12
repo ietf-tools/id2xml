@@ -536,7 +536,9 @@ class IDInternal(models.Model):
     def comments(self):
 	# would filter by rfc_flag but the database is broken. (see
 	# trac ticket #96) so this risks collisions.
-	return self.documentcomment_set.all().order_by('-comment_date','-comment_time','-id')
+	return self.documentcomment_set.all().order_by('-date','-time','-id')
+	# keywords, comment_date and comment_time could not be resolved in mlee's dev env 
+        #return self.documentcomment_set.all().order_by('-comment_date','-comment_time','-id')
     def ballot_set(self):
 	return IDInternal.objects.filter(ballot=self.ballot_id).order_by('-primary_flag')
     def ballot_primary(self):

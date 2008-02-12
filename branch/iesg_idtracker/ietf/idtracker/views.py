@@ -8,17 +8,21 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin
 from ietf.idtracker.forms import IDSearch, EmailFeedback
 from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
 import re
 
+LoginObj = None
 def get_tracker_mode(request):
+    global LoginObj
     mode = "IETF"
     if request.user.is_authenticated():
         try:
             mode = request.user.groups.all()[0]
+            person = request.user.get_profile().person
+            LoginObj = IESGLogin.objects.get(person=person)
         except IndexError:
             mode = "IETF"
     return mode
@@ -37,9 +41,25 @@ def myfields(f):
 
 def search(request):
     mode = get_tracker_mode(request)
+    global LoginObj 
+    default_search = LoginObj.default_search
     # for compatability with old tracker form, which has
     #  "all substates" = 6.
     args = request.GET.copy()
+    # For Non-Public mode, display menu button on top of the first screen
+    if args.get('display_menu',''):
+        menu = [key for key in args.keys()]
+        menu_item = menu[1]
+        return render_to_response('idtracker/%s.html' % menu_item,{'menu':menu_item},
+            context_instance=RequestContext(request))
+    # Switch Default Search option for IESG
+    if args.get('switch_default_search'):
+        if default_search:
+            default_search = 0
+        else:
+            default_search = 1
+        LoginObj.default_search=default_search
+        LoginObj.save()
     if args.get('sub_state_id', '') == '6':
 	args['sub_state_id'] = ''
     # "job_owner" of "0" means "All/Any"
@@ -50,6 +70,8 @@ def search(request):
     form = IDSearch(args)
     # if there's a post, do the search and supply results to the template
     searching = False
+    if default_search:
+        args['search_job_owner'] = LoginObj.id
     # filename, rfc_number, group searches are seperate because
     # they can't be represented as simple searches in the data model.
     qdict = { 
@@ -66,6 +88,7 @@ def search(request):
 		q_objs.append(Q(**{qdict[k]: args[k]}))
     if form.is_valid() == False:
 	searching = False
+    print searching
     if searching:
         group = args.get('search_group_acronym', '')
 	if group != '':
@@ -130,6 +153,7 @@ def search(request):
 	'matches': matches,
 	'searching': searching,
         'mode': mode,
+        'default_search': default_search,
       }, context_instance=RequestContext(request))
 
 # proof of concept, orphaned for now

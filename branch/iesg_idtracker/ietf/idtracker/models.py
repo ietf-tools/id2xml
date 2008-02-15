@@ -494,7 +494,7 @@ class IDInternal(models.Model):
     note = models.TextField(blank=True)
     status_date = models.DateField(null=True)
     email_display = models.CharField(blank=True, maxlength=50)
-    agenda = models.IntegerField(null=True, blank=True)
+    agenda = models.BooleanField(null=True, blank=True)
     cur_state = models.ForeignKey(IDState, db_column='cur_state', related_name='docs')
     prev_state = models.ForeignKey(IDState, db_column='prev_state', related_name='docs_prev')
     assigned_to = models.CharField(blank=True, maxlength=25)
@@ -986,4 +986,14 @@ class DocumentWrapper(object):
     primary_flag = 1
     def __init__(self, document):
 	self.document = document
+
+class TelechatDates(models.Model):
+    date1 = models.DateField(null=True, blank=True)
+    date2 = models.DateField(null=True, blank=True)
+    date3 = models.DateField(null=True, blank=True)
+    date4 = models.DateField(null=True, blank=True)
+    class Meta:
+        db_table = 'telechat_dates'
+    class Admin:
+        pass
 

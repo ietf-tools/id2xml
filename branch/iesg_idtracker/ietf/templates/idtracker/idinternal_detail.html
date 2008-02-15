@@ -26,16 +26,18 @@
 		{% endif %}
               </th>
             </tr>
-
+            {% ifnotequal mode 'IETF' %}
+            <form action="." method="post">
+            {% endifnotequal %}
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   {{ object.document.doctype }} Name:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
 		  {{ object.document.displayname_with_link }}
 		  {% ifequal object.document.doctype "Draft" %}
 		    {% ifnotequal object.document.status.status "Active" %}
@@ -78,20 +80,24 @@
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   IESG Discussion:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
 		  {% if object.ballot.ballot_issued %}
-                  <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">IESG evaluation record</a>
-                  [<a href="/idtracker/help/evaluation/">What
-                  they mean</a>]
-                  [<a href="/idtracker/help/ballot/">How they are
-                  recorded</a>]
-		  {% else %}
+                    {% ifequal mode 'IETF' %}
+                    <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">IESG evaluation record</a>
+                    [<a href="/idtracker/help/evaluation/">What
+                    they mean</a>]
+                    [<a href="/idtracker/help/ballot/">How they are
+                    recorded</a>]
+		    {% else %}
+                    <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">[Open Web Ballot]</a>
+                    {% endifequal %}
+                  {% else %}
 		  No IESG evaluation record
 		  {% endif %}
                 </div>
@@ -100,13 +106,13 @@
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Version:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   {{ object.document.revision }}
                 </div>
               </td>
@@ -114,41 +120,50 @@
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Intended Status:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
                   {{ object.document.intended_status }}
+                  {% else %}
+                  {{ idform.intended_status }}
+                  {% endifequal %}
                 </div>
               </td>
             </tr>
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   On Next Agenda?
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
                   {{ object.agenda|yesno:"Yes,No" }}
+                  {% else %}
+                  {{ idform.agenda }} on 
+                  {{idform.telechat_date}}
+                  {% endifequal %}
                 </div>
               </td>
             </tr>
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Current State:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   <a href="/idtracker/help/state/{{ object.cur_state_id }}/">
                   {{ object.cur_state }}</a>
 		  {% if object.cur_sub_state %}
@@ -172,50 +187,97 @@
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Responsible AD:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
                   {{ object.job_owner }}
+                  {% else %}
+                  {{idform.job_owner}}
+                  {% endifequal %}
                 </div>
               </td>
             </tr>
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Status Date:
                 </div>
               </td>
 
               <td bgcolor="white">
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
                   {% firstof object.status_date "&nbsp;" %}
+                  {% else %}
+                  {{idform.status_date}}
+                  {% endifequal %}
                 </div>
               </td>
             </tr>
 
             <tr bgcolor="white">
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
                   Note:
                 </div>
               </td>
 
               <td>
-                <div class="largefont3">
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
 		  {# |unformat_textarea #}
                   {% firstof object.note &nbsp; %}
+                  {% else %}
+                  {{idform.note}}
+                  {% endifequal %}
                 </div>
               </td>
             </tr>
-
+            {% ifnotequal mode 'IETF' %}
             <tr bgcolor="white">
-              <td width="20%">&nbsp;</td>
+              <td>
+                <div class="largefont{{fontsize}}">
+                  Comment:
+                </div>
+              </td>
 
+              <td>
+                <div class="largefont{{fontsize}}">
+                {{idform.comment}}
+                {{idform.public_flag}} Public
+                </div>
+              </td>
+            </tr>
+            <tr bgcolor="white">
+              <td>
+                <div class="largefont{{fontsize}}">
+                  State or Version Change<br>Notice To:
+                </div>
+              </td>
+
+              <td>
+                <div class="largefont{{fontsize}}">
+                {{idform.state_change_notice_to}}<b>comma must exists between email addresses</b>
+                </div>
+              </td>
+            </tr>
+            {% endifnotequal %}
+            <tr bgcolor="white">
+              <td width="20%">
+              {% ifnotequal mode 'IETF' %}
+              <input type="submit" value="Update">
+              <input type="reset" value="RESET">
+              </form>
+              {% else %}
+              &nbsp;
+              {% endifnotequal %}
+              </td>
               <td>
                 <table cellpadding="1" cellspacing="1" border="0">
                   <tr>

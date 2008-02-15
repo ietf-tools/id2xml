@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin
-from ietf.idtracker.forms import IDSearch, EmailFeedback
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates
+from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail
 from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
 import re
@@ -157,29 +157,43 @@ def search(request):
       }, context_instance=RequestContext(request))
 
 # proof of concept, orphaned for now
-def edit_idinternal(request, id=None):
-    #draft = InternetDraft.objects.get(pk=id)
-    draft = get_object_or_404(InternetDraft.objects, pk=id)
-    IDEntryForm = forms.models.form_for_instance(draft)
-    # todo: POST handling for idform
-    idform = IDEntryForm()
-    idinternal = draft.idinternal
+def edit_idinternal(request, idinternal=None):
+    mode = get_tracker_mode(request)
+    ##draft = InternetDraft.objects.get(pk=id)
+    #draft = get_object_or_404(InternetDraft.objects, pk=id)
+    #IDEntryForm = forms.models.form_for_instance(object.draft)
+    ## todo: POST handling for idform
     if idinternal:
-	EntryForm = forms.models.form_for_instance(idinternal)
+	#EntryForm = forms.models.form_for_instance(idinternal)
 	if request.method == 'POST':
-	    form = EntryForm(request.POST)
-	    if form.is_valid():
-		form.save()
-		return HttpResponseRedirect("/")	# really want here
+	    #form = EntryForm(request.POST)
+	    idform = IDDetail(request.POST)
+	    if idform.is_valid():
+		idform.save(idinternal)
+		return HttpResponseRedirect(".")	# really want here
 	else:
-	    form = EntryForm()
+            idform = IDDetail({
+                'intended_status':idinternal.draft.intended_status.intended_status_id,
+                'agenda': idinternal.agenda,
+                'telechat_date': idinternal.telechat_date,
+                'job_owner': idinternal.job_owner.id,
+                'status_date': idinternal.status_date,
+                'note': idinternal.note,
+                'public_flag': True,
+                'state_change_notice_to': idinternal.state_change_notice_to,
+                 })
+	    #form = EntryForm()
     else:
-	form = None
-
-    return render_to_response('idtracker/idtracker_edit.html', {
-	'form': form,
+	idform = None
+    if mode == 'IETF':
+        fontsize = 3
+    else:
+        fontsize = 4
+    return render_to_response('idtracker/idinternal_detail.html', {
+        'object': idinternal,
 	'idform': idform,
-	'draft': draft,
+        'mode': mode,
+        'fontsize':fontsize,
       }, context_instance=RequestContext(request))
 
 def state_desc(request, state, is_substate=0):
@@ -239,11 +253,13 @@ def redirect_id(request, object_id):
 # calling sequence similar to object_detail, but we have different
 # 404 handling: if the draft exists, render a not-found template.
 def view_id(request, queryset, slug, slug_field):
+    mode = get_tracker_mode(request)
     try:
 	object = IDInternal.objects.get(draft__filename=slug, rfc_flag=0)
     except IDInternal.DoesNotExist:
 	draft = get_object_or_404(InternetDraft, filename=slug)
 	return render_to_response('idtracker/idinternal_notfound.html', {'draft': draft}, context_instance=RequestContext(request))
+    return edit_idinternal(request,object)
     return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
 
 def view_rfc(request, object_id):

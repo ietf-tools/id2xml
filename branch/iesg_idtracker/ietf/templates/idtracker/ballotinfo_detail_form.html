@@ -1,0 +1,296 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% extends "idtracker/base.html" %}
+{% load ietf_filters %}
+
+{% block title %}-- Ballot for {{ draft.document.filename }}{% endblock %}
+
+{% block idcontent %}
+
+<!--
+When the one line is too long without line-break(\n, \r\n, ), in most A-Grade browser,
+firefox, ie5,6,7, the <pre> tag does not handle properly, the horizontal scrollbar
+appears. so add this style.
+-->
+<style>
+pre.comment, pre.discuss
+{
+       white-space: pre-wrap;       /* css-3 */
+       white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+       white-space: -pre-wrap;      /* Opera 4-6 */
+       white-space: -o-pre-wrap;    /* Opera 7 */
+       word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+</style>
+
+
+<font color="red">[IN IESG DISCUSSION <b>*discuss*</b>]</font>
+
+{% for i in ballot.drafts.all %}
+       <h3><a href="/idtracker/{{i.document.filename}}/">{{i.document.filename}}</a></h3>
+{% endfor %}
+  <b>Responsible AD: {{LoginObj}}</b><br><br>
+<a href="#discuss">[View Discusses and Comments]</a>
+<a href="#writeup">[View Writeup]</a>
+
+<!-- error message begin -->
+{{error_message}}
+<!-- error message begin -->
+
+
+<!-- form: create ballot begin -->
+{% if not LoginObj.user_level %}
+<form action="" method="POST" name="form1">
+       <input type="hidden" name="command" value="print_ballot">
+       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
+       <input type="hidden" name="filename" value="{{draft.document.filename}}">
+       <input type="submit" value="Create {{draft.document.filename}}.bal">
+</form>
+{% endif %}
+<!-- form: create ballot end -->
+
+<hr />
+
+<!-- form: (un)defer ballot begin -->
+<form action="" method="POST" name="form1">
+       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
+       <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
+{% if ballot.defer %}
+       <input type="hidden" name="command" value="undefer_ballot">
+       <input type="submit" value="UnDefer Ballot">
+
+{% else %}
+       <input type="hidden" name="loginid" value="{{LoginObj.id}}">
+
+       <input type="hidden" name="command" value="defer_ballot">
+       <input type="submit" value="Defer Ballot">
+{% endif %}
+</form>
+<!-- form: (un)defer ballot end -->
+
+
+<form action="" method="POST" name="search_form">
+       <input type="hidden" name="loginid" value="{{LoginObj.id}}">
+       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
+       <input type="hidden" name="command" value="update_ballot">
+       <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
+
+       <table border="1">
+   <thead>
+               <th width="150">&nbsp;</th>
+               <th width="100">Yes</th>
+               <th width="100">No-Objection</th>
+               <th width="100">Discuss</th>
+               <th width="100">Abstain</th>
+               <th width="100">Recuse</th>
+       </thead>
+
+<!-- current iesg postions list begin -->
+{% for curpos in ballot.active_positions %}
+       {% ifequal LoginObj.id curpos.ad.id %}
+       <tr bgcolor="yellow">
+               <td>{{curpos.ad}}</td>
+
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="yes_col"
+                       {% if curpos.pos.yes %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value ="no_col"
+                       {% if curpos.pos.noobj %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="discuss"
+                       {% ifequal curpos.pos.discuss 1 %} checked {% endifequal %} />
+                       {% ifequal curpos.pos.discuss -1 %}
+                               <font color=blue><b>Cleared</b></font>
+                       {% endifequal %}
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="abstain"
+                       {% if curpos.pos.abstain %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="recuse"
+                       {% if curpos.pos.recuse %} checked {% endif %} />
+               </td>
+       {% else %}
+       <tr>
+               <td>{{curpos.ad}}</td>
+               <td align="center">
+{% if curpos.pos.yes %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if curpos.pos.noobj %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if curpos.pos.discuss %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if curpos.pos.abstain %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if curpos.pos.recuse %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+       {% endifequal %}
+       </tr>
+{% endfor %}
+<!-- current iesg postions list end -->
+
+       <tr>
+               <td colspan="6"><br><br></td>
+       </tr>
+
+<!-- ex iesg postions list begin -->
+{% for position in ballot.positions.all|dictsort:"ad.last_name" %}
+       {% if ballot.an_sent or not position.ad.is_current_ad %}
+       {% ifequal LoginObj.id positions.ad.id %}
+       <tr bgcolor="yellow">
+               <td>{{curpos.ad}}</td>
+
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="yes_col"
+                       {% if position.yes %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value ="no_col"
+                       {% if position.noobj %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="discuss"
+                       {% ifequal position.discuss 1 %} checked {% endifequal %} />
+                       {% ifequal position.discuss -1 %}
+                               <font color=blue><b>Cleared</b></font>
+                       {% endifequal %}
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="abstain"
+                       {% if position.abstain %} checked {% endif %} />
+               </td>
+               <td align="center"><input type="radio" name="yes_no_abstain_col" value="recuse"
+                       {% if position.recuse %} checked {% endif %} />
+               </td>
+       {% else %}
+       <tr>
+               <td>{{position.ad}}</td>
+               <td align="center">
+{% if position.yes %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if position.noobj %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if position.discuss %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if position.abstain %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+               <td align="center">
+{% if position.recuse %}<font color=red><b>X</b></font>{% else %}&nbsp;{% endif %}
+               </td>
+       {% endifequal %}
+       </tr>
+
+       {% endif %}
+{% endfor %}
+<!-- ex iesg postions list end -->
+
+   <tr>
+               <td colspan="6" align="center">
+                       <table>
+                       <tr>
+                               <td>
+                                       <input type="button" value="Clear my evaluation"
+                                               onClick="
+document.search_form.yes_no_abstain_col[0].checked=0;
+document.search_form.yes_no_abstain_col[1].checked=0;
+document.search_form.yes_no_abstain_col[2].checked=0;
+document.search_form.yes_no_abstain_col[3].checked=0;
+document.search_form.submit();
+return true;
+                                               "
+                                       />
+                                       <input type="submit" value="Save My evaluation" name="vote" /><br>
+                                       <input type="submit" value="Add/Edit My Comment"
+                                               name="edit_comment" />
+                                       <input type="submit" value="Add/Edit My Discuss"
+                                               name="edit_discuss" />
+                       </form>
+                               </td>
+                       </tr>
+                       <form action="" method="POST" name="form_post">
+                               <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
+                               <input type="hidden" name="command" value="send_ballot_comment_to_iesg" />
+                               <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />
+                               <input type="hidden" name="filename" value="{{draft.document.filename}}" />
+                       <tr>
+                               <td>
+                                       <input type="submit" value="Email DISCUSS and COMMENT text to IESG list" />
+                               </td>
+                       </tr>
+                       </form>
+                       </table>
+               </td>
+       </tr>
+</table>
+<h2><a name="discuss">Discusses and Comments</a> </h2>
+
+{% for position in ballot.positions.all|dictsort:"ad.last_name" %}
+       {% ifequal position.discuss 1 %}
+               <b>{{ position.ad }}:</b>
+               <br />
+               {% for item in ballot.discusses.all %}
+                       {% ifequal position.ad item.ad %}
+
+                               <b>Discuss</b>:
+                               <br />
+                               <b>[{{ item.date }}]</b><pre class="discuss">{{ item.text|fill:"80"|escape }}</pre>
+                               <br /><br />
+
+                       {% endifequal %}
+               {% endfor %}
+       {% endifequal %}
+       
+       {% for item in ballot.comments.all %}
+               {% ifequal position.ad item.ad %}
+                       {% ifnotequal position.discuss 1 %}
+                               <b>{{ position.ad }}:</b>
+
+                       {% endifnotequal %}
+                       
+                       <b>Comment</b>:
+                       <br />
+                       <b>[{{ item.date }}]</b><pre class="discuss">{{ item.text|fill:"80"|escape }}</pre>
+
+               {% endifequal %}
+       {% endfor %}
+{% endfor %}
+
+
+
+
+
+
+<hr />
+
+<h2><a name="writeup">IESG Write Up</a></h2>
+{{ballot.an_sent_text}}
+<hr />
+<pre>{{ballot.ballot_writeup|fill:"80"|escape}}</pre>
+<br>
+
+<br><br><br>
+{{draft}}
+<form action="/idtracker/" method="GET" name="form1">
+       <input type="hidden" name="command" value="view_id">
+       <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
+       <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}">
+       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
+       <input type="submit" value="Back to I-D">
+       </form>
+
+
+<!-- new footer begin -->
+<hr />
+<A HREF="https://www.ietf.org/IESG/internal/agenda.html">[Telechat Agenda (Web)]</a>
+<br />
+<A HREF="https://www.ietf.org/IESG/internal/agenda.txt">[Telechat Agenda (Text)]</a>
+<br />
+<A HREF="https://www.ietf.org/IESG/internal/agenda_pack.txt">[Telechat Agenda Package (Text)]</a>
+<br />
+<span style="font-style: italic;">This page produced by the <A HREF="mailto:iesg-secretary@ietf.org">IETF Secretariat</a> for the <A HREF="mailto:iesg\@ietf.org">IESG</A></i>
+<br />
+<!-- new footer end -->
+
+{% endblock %}
+

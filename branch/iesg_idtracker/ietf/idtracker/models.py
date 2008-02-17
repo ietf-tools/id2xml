@@ -3,6 +3,7 @@
 from django.db import models
 from ietf.utils import FKAsOneToOne
 from django.test import TestCase
+from django.core.exceptions import ObjectDoesNotExist
 import datetime,time
 
 class Acronym(models.Model):
@@ -451,6 +452,15 @@ class BallotInfo(models.Model):   # Added by Michael Lee
     def remarks(self):
         remarks = list(self.discusses.all()) + list(self.comments.all())
         return remarks
+    def get_primary_draft (self) :
+        try :
+            return self.drafts.get(primary_flag=True)
+        except ObjectDoesNotExist :
+            if self.drafts.count() > 0 :
+                return self.drafts.all()[0]
+            else :
+                return None
+
     def active_positions(self):
         '''Returns a list of dicts, with AD and Position tuples'''
 	active_iesg = IESGLogin.active_iesg()
@@ -502,8 +512,8 @@ class IDInternal(models.Model):
     job_owner = models.ForeignKey(IESGLogin, db_column='job_owner', related_name='documents')
     event_date = models.DateField(null=True)
     area_acronym = models.ForeignKey(Area)
-    cur_sub_state = models.ForeignKey(IDSubState, related_name='docs', null=True, blank=True)
-    prev_sub_state = models.ForeignKey(IDSubState, related_name='docs_prev', null=True, blank=True)
+    cur_sub_state = models.ForeignKey(IDSubState, db_column='cur_sub_state_id', related_name='docs', null=True, blank=True)
+    prev_sub_state = models.ForeignKey(IDSubState, db_column='prev_sub_state_id', related_name='docs_prev', null=True, blank=True)
     returning_item = models.IntegerField(null=True, blank=True)
     telechat_date = models.DateField(null=True, blank=True)
     via_rfc_editor = models.IntegerField(null=True, blank=True)
@@ -539,6 +549,26 @@ class IDInternal(models.Model):
 	return self.documentcomment_set.all().order_by('-date','-time','-id')
 	# keywords, comment_date and comment_time could not be resolved in mlee's dev env 
         #return self.documentcomment_set.all().order_by('-comment_date','-comment_time','-id')
+    def add_comment(self, comment_text,is_new_state,LoginObj=None,public_flag=True,ballot=None):
+        if is_new_state:
+            result_state = self.cur_state
+            origin_state = self.prev_state
+        else:
+            result_state = self.cur_state
+            origin_state = self.cur_state
+        document_comment = DocumentComment(
+            document=self,
+            rfc_flag=self.rfc_flag,
+            public_flag=public_flag,
+            version=self.draft.revision,
+            created_by=LoginObj,
+            comment_text=comment_text,
+            result_state=result_state,
+            origin_state=origin_state,        
+            ballot=ballot,
+        )
+        document_comment.save()
+        return document_comment.id 
     def ballot_set(self):
 	return IDInternal.objects.filter(ballot=self.ballot_id).order_by('-primary_flag')
     def ballot_primary(self):
@@ -564,8 +594,8 @@ class DocumentComment(models.Model):
     document = models.ForeignKey(IDInternal)
     rfc_flag = models.IntegerField(null=True, blank=True)
     public_flag = models.IntegerField()
-    date = models.DateField(db_column='comment_date')
-    time = models.CharField(db_column='comment_time', maxlength=20)
+    date = models.DateField(db_column='comment_date', auto_now_add=True)
+    time = models.TimeField(db_column='comment_time', maxlength=20, auto_now_add=True)
     version = models.CharField(blank=True, maxlength=3)
     comment_text = models.TextField(blank=True)
     created_by = models.ForeignKey(IESGLogin, db_column='created_by', null=True)
@@ -603,6 +633,18 @@ class Position(models.Model):
     recuse = models.IntegerField()
     def __str__(self):
 	return "Position for %s on %s" % ( self.ad, self.ballot )
+    def get_active_position (self) :
+        if self.yes :
+            return self._meta.get_field("yes").column
+        elif self.noobj :
+            return self._meta.get_field("noobj").column
+        elif self.abstain :
+            return self._meta.get_field("abstain").column
+        elif self.discuss == 1 :
+            return self._meta.get_field("discuss").column
+        elif self.recuse :
+            return self._meta.get_field("recuse").column        
+        return None
     def abstain_ind(self):
         if self.recuse:
             return 'R'

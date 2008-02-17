@@ -154,6 +154,40 @@
                 </div>
               </td>
             </tr>
+            {% ifnotequal mode 'IETF' %}
+            <tr bgcolor="white">
+              <td>
+                <div class="largefont{{fontsize}}">
+                  Previous State:
+                </div>
+              </td>
+
+              <td>
+                <div class="largefont{{fontsize}}">
+                  <a href="/idtracker/help/state/{{ object.prev_state_id }}/">
+                  {{ object.prev_state }}</a>
+                  {% if object.prev_sub_state %}
+                  ::
+                  <a href="/idtracker/help/substate/{{ object.prev_sub_state_id }}/">
+                  {{ object.prev_sub_state }}
+                  </a>
+                  {% endif %}
+                  {% if object.rfc_flag %}
+                  {% else %}
+                  {% ifequal object.cur_state.state "RFC Ed Queue" %}
+                  <a href="http://www.rfc-editor.org/queue.html#{{ object.document.filename }}">
+                  [RFC Editor State]</a>
+                  {% endifequal %}
+                  {% endif %}
+                </div>
+                {% ifequal mode 'IETF' %}
+                <a href="/idtracker/help/state/">
+                [Show States Table]</a>
+                {% endifequal %}
+              </td>
+            </tr>
+            {% endifnotequal %}
+
 
             <tr bgcolor="white">
               <td>
@@ -180,11 +214,35 @@
 		  {% endifequal %}
 		  {% endif %}
                 </div>
+                {% ifequal mode 'IETF' %}
                 <a href="/idtracker/help/state/">
                 [Show States Table]</a> 
+                {% endifequal %}
               </td>
             </tr>
+            {% ifnotequal mode 'IETF' %}
+            <tr bgcolor="white">
+              <td>
+                <div class="largefont{{fontsize}}">
+                  Next State:
+                </div>
+              </td>
 
+              <td>
+                <div class="largefont{{fontsize}}">
+                {{ idform.next_state }} with sub state in {{ idform.next_sub_state }}
+                <a href="/idtracker/help/state/">
+                Show States Table</a>
+                </div>
+                or <br>
+                {% for state in next_state_object %}
+                  <input type="submit" value="{{ state.next_state.state }}" name="next_state_button">
+                {% endfor %}<br>
+                or <br>
+                <input type="submit" value="Back to Previous State" name="back_to_previous">
+              </td>
+            </tr>
+            {% endifnotequal %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">

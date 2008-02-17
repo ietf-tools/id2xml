@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django import newforms as forms
-from models import IESGLogin, IDStatus, Area, IDState, IDSubState, IDIntendedStatus,TelechatDates, InternetDraft
+from models import IESGLogin, IDStatus, Area, IDState, IDSubState, IDIntendedStatus,TelechatDates, InternetDraft, IDState, IDSubState
 
 class IDSearch(forms.Form):
     search_job_owner = forms.ChoiceField(choices=(), required=False)
@@ -32,8 +32,9 @@ class IDDetail(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(attrs={'rows':10, 'cols':72,}), required=False)
     public_flag = forms.BooleanField()
     state_change_notice_to = forms.CharField(widget=forms.TextInput(attrs={'size': 55, 'maxlength': 255}), required=False)
-
-    def save(self,idinternal):
+    next_state = forms.ModelChoiceField(IDState.objects.all(), required=False, empty_label="---Select Next State") 
+    next_sub_state = forms.ModelChoiceField(IDSubState.objects.all(), required=False, empty_label="---Select Sub State") 
+    def save(self,idinternal,request,LoginObj=None, ballot=None):
         import datetime
         internet_draft = idinternal.draft 
         internet_draft.intended_status = self.clean_data['intended_status']
@@ -45,6 +46,26 @@ class IDDetail(forms.Form):
         idinternal.status_date = self.clean_data['status_date']
         idinternal.note = self.clean_data['note']
         idinternal.state_change_notice_to = self.clean_data['state_change_notice_to']
+        if self.clean_data['next_state']:
+            idinternal.prev_sub_state = idinternal.cur_sub_state
+            idinternal.cur_sub_state = self.clean_data['next_sub_state']
+            idinternal.prev_state = idinternal.cur_state
+            idinternal.cur_state = self.clean_data['next_state']
+        elif self.clean_data['next_sub_state']:
+            idinternal.prev_sub_state = idinternal.cur_sub_state
+            idinternal.cur_sub_state = self.clean_data['next_sub_state']
+            idinternal.prev_state = idinternal.cur_state
+        if "next_state_button" in request.POST:
+            idinternal.prev_sub_state = idinternal.cur_sub_state
+            idinternal.cur_sub_state = None 
+            idinternal.prev_state = idinternal.cur_state
+            idinternal.cur_state = IDState.objects.get(state= request.POST['next_state_button'])
+        if 'back_to_previous' in request.POST:
+            idinternal.cur_state, idinternal.prev_state = idinternal.prev_state, idinternal.cur_state
+            idinternal.cur_sub_state, idinternal.prev_sub_state = \
+                idinternal.prev_sub_state, idinternal.cur_sub_state
+        if self.clean_data['comment']:
+            idinternal.add_comment(self.clean_data['comment'],False,LoginObj,self.clean_data['public_flag'],ballot)
         idinternal.save()
         
 class EmailFeedback(forms.Form):

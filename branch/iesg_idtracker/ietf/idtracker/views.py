@@ -6,13 +6,15 @@ from django import newforms as forms
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
+from django.db import connection
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, DocumentComment, BallotInfo, Position
 from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail
 from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
-import re
+import re, datetime
 
 LoginObj = None
 def get_tracker_mode(request):
@@ -88,7 +90,7 @@ def search(request):
 		q_objs.append(Q(**{qdict[k]: args[k]}))
     if form.is_valid() == False:
 	searching = False
-    print searching
+    #print searching
     if searching:
         group = args.get('search_group_acronym', '')
 	if group != '':
@@ -159,17 +161,25 @@ def search(request):
 # proof of concept, orphaned for now
 def edit_idinternal(request, idinternal=None):
     mode = get_tracker_mode(request)
+    global LoginObj
     ##draft = InternetDraft.objects.get(pk=id)
     #draft = get_object_or_404(InternetDraft.objects, pk=id)
     #IDEntryForm = forms.models.form_for_instance(object.draft)
     ## todo: POST handling for idform
     if idinternal:
 	#EntryForm = forms.models.form_for_instance(idinternal)
-	if request.method == 'POST':
+        try:
+            next_state_object = IDNextState.objects.filter(cur_state=idinternal.cur_state)
+	except IDNextState.DoesNotExist:
+            next_state_object = []
+        if request.method == 'POST':
 	    #form = EntryForm(request.POST)
 	    idform = IDDetail(request.POST)
+            if "next_state_button" in request.POST:
+                next_state_id = IDState.objects.get(state= request.POST['next_state_button']).document_state_id
+                print next_state_id
 	    if idform.is_valid():
-		idform.save(idinternal)
+		idform.save(idinternal,request,LoginObj)
 		return HttpResponseRedirect(".")	# really want here
 	else:
             idform = IDDetail({
@@ -191,6 +201,7 @@ def edit_idinternal(request, idinternal=None):
         fontsize = 4
     return render_to_response('idtracker/idinternal_detail.html', {
         'object': idinternal,
+        'next_state_object': next_state_object,
 	'idform': idform,
         'mode': mode,
         'fontsize':fontsize,
@@ -283,4 +294,435 @@ def view_comment(*args, **kwargs):
     return object_detail(*args, **kwargs)
 
 def view_ballot(*args, **kwargs):
-    return object_detail(*args, **kwargs)
+    request = args[0]
+    mode = get_tracker_mode(request)
+    object_id = kwargs['object_id']
+    if mode == 'IETF':
+        return object_detail(*args, **kwargs)
+    else:
+        return ballot(request,object_id) 
+def ballot_comment (request, object_id, **kwargs) :
+    __method = None
+    if kwargs.has_key("method") :
+        __method = kwargs.get("method", None)
+        if __method not in ("POST", "GET", "DELETE", "PUT", ) :
+            __method = "GET"
+    else :
+        __method = request.method
+
+    if kwargs.has_key("data") :
+        __argument = kwargs["data"]
+    else :
+        if __method != "GET" :
+            __argument = request.POST.copy()
+        else :
+            __argument = request.GET.copy()
+
+    if __method == "GET" :
+        try :
+            __ad_id = int(__argument.get("ad_id", "").strip())
+        except :
+            raise Http404
+        else :
+            LoginObj = IESGLogin.objects.get(id=__ad_id)
+
+        # get ballot
+        ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+
+        draft = ballot.get_primary_draft()
+        if not draft :
+            raise Http404
+
+        if __argument.has_key("edit_discuss") and __argument.get("edit_discuss", "no") == "yes" :
+            __is_discuss_or_comment = "discuss"
+        else :
+            __is_discuss_or_comment = "comment"
+
+        if __is_discuss_or_comment == "discuss" :
+            __discuss_comment0 = getattr(ballot, "discusses")
+        else :
+            __discuss_comment0 = getattr(ballot, "comments")
+
+        try :
+            __discuss_comment = __discuss_comment0.get(ad=LoginObj)
+        except :
+            __discuss_comment = {
+                "date" : datetime.datetime.now().strftime("%Y-%m-%d"),
+                "revision" : draft.document().revision,
+            }
+
+        return render_to_response(
+            "idtracker/ballot_comment_edit.html",
+            {
+                "argument": __argument,
+                "draft": draft,
+                "LoginObj": LoginObj,
+                "ballot": ballot,
+                "discuss_comment" : __discuss_comment,
+                "is_discuss_or_comment" : __is_discuss_or_comment,
+            }, context_instance=RequestContext(request)
+        )
+
+def ballot (request, object_id) :
+    if request.method == "POST" :
+        """
+        To follow up the previous legacy perl script, idtracker.cgi,
+        every internel command was implemented as 'do_XXX' function.
+
+        If request method is 'POST' and there is 'comment' query exists,
+        run it 'do_XX' command.
+        """
+        __command = request.POST.copy().get("command", "").strip()
+        __func = globals().get("do_ballot_%s" % __command, None)
+        if __func :
+            return __func(request, object_id)
+
+    return view_ballot_iesg(request, object_id)
+
+def view_ballot_iesg(request, object_id, extra_context=dict()) :
+    # get ballot
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+
+    if request.GET.copy().get("txt", "") :
+        return render_to_response(
+            "idtracker/ballotinfo_detail.html",
+            {
+                "object": ballot,
+            }, context_instance=RequestContext(request)
+        )
+
+    # get primary draft
+    draft = ballot.get_primary_draft()
+    if not draft :
+        raise Http404
+
+    mode = get_tracker_mode(request)
+    global LoginObj
+
+    # is deferred?
+    if ballot.defer is True : # check defer date
+        if ballot.defer_date >= datetime.datetime.now() :
+            # set ballot.defer to False
+            ballot.defer = False
+            ballot.save()
+
+    __context = {
+        "LoginObj" : LoginObj,
+        "ballot" : ballot,
+        "draft" : draft,
+    }
+    __context.update(extra_context)
+
+    return render_to_response(
+        "idtracker/ballotinfo_detail_form.html",
+        __context, context_instance=RequestContext(request)
+    )
+
+def get_position_label (selected_value) :
+    if selected_value == "yes_col" :
+        return "Yes"
+    elif selected_value == "no_col" :
+        return "No Objection"
+    elif selected_value == "abstain" :
+        return "Abstain"
+    elif selected_value == "discus" :
+        return "Discuss"
+    elif selected_value == "recuse" :
+        return "Recuse"
+
+    return "Undefined"
+
+def __do_ballot_update_single_ballot (request, object_id) :
+    __argument = request.POST.copy()
+
+    try :
+        __loginid = int(__argument.get("loginid", "").strip())
+    except :
+        raise Http404
+    else :
+        LoginObj = IESGLogin.objects.get(id=__loginid)
+
+    __selected_position = __argument.get("yes_no_abstain_col", None)
+
+    # get position of this loginid
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+    try :
+        position = ballot.positions.get(ad=42)
+    except ObjectDoesNotExist :
+        position = None
+
+    __discuss = False
+    try :
+        __discuss = ballot.positions.get(ad=42).discuss
+    except :
+        pass
+    else :
+        if __discuss == 1 :
+            __discuss = -1
+
+    if __selected_position == "discuss" :
+        __discuss = 1
+
+    # update single ballot
+    # if in discuss, set it discuss
+    __new_position = get_position_label(__selected_position)
+
+    if position : # set it 'undefined'
+        __old_position = get_position_label(position.get_active_position())
+
+        position.yes=(__selected_position == "yes_col") and 1 or 0
+        position.noobj=(__selected_position == "no_col") and 1 or 0
+        position.abstain=(__selected_position == "abstain") and 1 or 0
+        position.discuss=__discuss
+        position.recuse=(__selected_position == "recuse") and 1 or 0
+
+        position.save()
+
+        __comment_text = "[Ballot Position Update] Position for %(ad)s has been changed to %(new_position)s from %(old_position)s" % {
+            "ad": position.ad,
+            "new_position" : __new_position,
+            "old_position" : __old_position,
+        }
+    elif __new_position != "Undefined" : # insert new position
+        position = Position(
+            ballot=ballot,
+            ad=LoginObj,
+            yes=(__selected_position == "yes_col") and 1 or 0,
+            noobj=(__selected_position == "no_col") and 1 or 0,
+            abstain=(__selected_position == "abstain") and 1 or 0,
+            approve=0,
+            discuss=__discuss,
+            recuse=(__selected_position == "recuse") and 1 or 0,
+        )
+        position.save()
+
+        __comment_text = """Ballot Position Update] New position, %(new_position)s, has been recorded""" % {"new_position" : __new_position, }
+
+    for draft in ballot.drafts.all() :
+        if draft.rfc_flag == 1 :
+            version = "RFC"
+        else :
+            version = draft.draft.revision
+
+        DocumentComment(
+            document =          draft,
+            public_flag =       1,
+            date =              datetime.datetime.now(),
+            time =              datetime.datetime.now(),
+            version =           version,
+            comment_text =      __comment_text,
+        ).save()
+
+    # update ballot discuss
+    __ballot_discuss = ballot.discusses.get(ad=LoginObj)
+    __ballot_discuss.active = 0
+
+    # update event date in IdInternal
+    for draft in ballot.drafts.all() :
+        draft.event_date = datetime.datetime.now()
+        draft.save()
+
+    return True
+
+def do_ballot_update_ballot (request, object_id) :
+    __argument = request.POST.copy()
+
+    try :
+        __loginid = int(__argument.get("loginid", "").strip())
+    except :
+        raise Http404
+    else :
+        LoginObj = IESGLogin.objects.get(id=__loginid)
+
+    __context = dict()
+    try :
+        __do_ballot_update_single_ballot(request, object_id)
+    except :
+        __context["error_message"] = """<h2>There is a fatal error occured while processing your request</h2>"""
+
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+
+    __discuss = 0
+    try :
+        __discuss = ballot.positions.get(ad=LoginObj).discuss
+    except :
+        pass
+
+    # if in discuss,
+    if __discuss :
+        if __argument.has_key("edit_discuss") or __argument.has_key("edit_comment") :
+            # get primary draft.
+
+            draft = ballot.get_primary_draft()
+            if not draft :
+                raise Http404
+
+            __kwargs = {
+                "filename" : draft.document().filename,
+                "ad_id" : str(__loginid),
+            }
+
+            if __argument.get("edit_discuss", None) :
+                __kwargs.update(
+                    (
+                        ("edit_discuss", "yes"),
+                    )
+                )
+
+            return ballot_comment(
+                request,
+                object_id,
+                method="GET",
+                data=__kwargs,
+            )
+    else : # if not in discuss,
+        if __argument.has_key("edit_discuss") :
+            __context["error_message"] = """
+<font color="red"><h2>Please mark 'Discuss' first to Add/Edit your discuss note</h2></font>"""
+
+    return view_ballot_iesg(request, object_id, extra_context=__context)
+
+def do_ballot_send_ballot_comment_to_iesg (request, object_id) :
+    __argument = request.POST.copy()
+
+    try :
+        __loginid = int(__argument.get("loginid", "").strip())
+    except :
+        raise Http404
+    else :
+        LoginObj = IESGLogin.objects.get(id=__loginid)
+
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+
+    __discuss = ballot.positions.get(ad=LoginObj).discuss
+    try :
+        __ballot_discuss = ballot.discusses.get(ad=LoginObj)
+    except :
+        __ballot_discuss = None
+
+    try :
+        __ballot_comment = ballot.comments.get(ad=LoginObj)
+    except :
+        __ballot_comment = None
+
+    __is_discuss_or_comment = None
+    if __discuss and __ballot_discuss and __ballot_discuss.text :
+        __is_discuss_or_comment = "discuss"
+    elif __ballot_comment and __ballot_comment.text :
+        __is_discuss_or_comment = "comment"
+
+    if __is_discuss_or_comment == "discuss" :
+        __subject = ""
+        __text = __ballot_discuss.text
+    else :
+        __subject = ""
+        __text = __ballot_comment.text
+
+    draft = ballot.get_primary_draft()
+    if not draft :
+        raise Http404
+
+    if __is_discuss_or_comment == "comment" :
+        if __ballot_discuss.text :
+            __subject += "DISCUSS and "
+        __subject += "COMMENT: "
+    else :
+        __subject += "DISCUSS: "
+
+    __subject += draft.document().filename
+
+    return render_to_response(
+        "idtracker/ballot_comment_send_to_iesg.html",
+        {
+            "argument" : __argument,
+            "LoginObj": LoginObj,
+            "is_discuss_or_comment": __is_discuss_or_comment,
+            "draft": draft,
+            "ballot": ballot,
+
+            "subject" : __subject,
+            "discuss": __ballot_discuss,
+            "text": __text,
+        }, context_instance=RequestContext(request)
+    )
+
+def do_ballot_do_send_ballot_comment (request, object_id) :
+    __argument = request.POST.copy()
+
+    try :
+        __loginid = int(__argument.get("loginid", "").strip())
+    except :
+        raise Http404
+    else :
+        LoginObj = IESGLogin.objects.get(id=__loginid)
+
+    __cc_val = __argument.get("cc_val", "").strip()
+    __extra_cc = __argument.get("extra_cc", "").strip()
+    __filename=__argument.get("filename", "").strip()
+    __subject = __argument.get("subject", "").strip()
+
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+    draft = ballot.get_primary_draft()
+    if not draft :
+        raise Http404
+
+    __cc_val = [i.strip() for i in __cc_val.split(",") if i.strip()]
+    if __extra_cc == "on" : # get 'state_change_notice_to' address list.
+        __cc_val.extend([i.strip() for i in draft.state_change_notice_to.split(",") if i.strip()])
+
+    __discuss = ballot.positions.get(ad=LoginObj).discuss
+    try :
+        __ballot_discuss = ballot.discusses.get(ad=LoginObj)
+    except :
+        __ballot_discuss = None
+
+    try :
+        __ballot_comment = ballot.comments.get(ad=LoginObj)
+    except :
+        __ballot_comment = None
+
+    __message = str()
+    if __discuss and __ballot_discuss and __ballot_discuss.text :
+        __message += """Discuss:
+%s
+
+""" % __ballot_discuss.text
+
+    if __ballot_comment and __ballot_comment.text :
+        __message += """Comment:
+%s
+
+""" % __ballot_comment.text
+
+    if settings.SERVER_MODE != "development" : # just print message
+        return render_to_response(
+            "idtracker/ballot_do_ballot_do_send_ballot_comment.html",
+            {
+                "cc_val" : len(__cc_val) > 0 and ", ".join(__cc_val) or "",
+                "argument" : __argument,
+                "LoginObj": LoginObj,
+                "draft": draft,
+                "ballot": ballot,
+                "message": __message,
+            }, context_instance=RequestContext(request)
+        )
+    else : # send mail directly.
+       send_mail_text(
+            request,
+            "iesg@ietf.org",
+            LoginObj.person.email(),
+            __subject,
+            __message,
+            cc=__cc_val,
+        )
+
+    return render_to_response(
+       "idtracker/ballot_send_ballot_comment_done.html",
+       {
+           "argument" : __argument,
+           "LoginObj": LoginObj,
+           "draft": draft,
+           "ballot": ballot,
+       }, context_instance=RequestContext(request)
+    )
+

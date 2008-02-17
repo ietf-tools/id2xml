@@ -1,0 +1,26 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% extends "idtracker/base.html" %}
+{% load ietf_filters %}
+
+{% block title %}-- Ballot for {{ draft.document.filename }}{% endblock %}
+
+{% block idcontent %}
+
+<h2>Discuss/Comment text was sent</h2>
+
+<!-- back buttons begin -->
+<form action="/idtracker/{{draft.document.filename}}" method="GET">
+       <input type="submit" value="Back to I-D" />
+</form>
+<form action="" method="GET">
+       <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
+       <input type="hidden" name="command" value="open_ballot" />
+       <input type="hidden" name="dTag" value="{{draft.draft.id_document_tag}}" />
+       <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}" />
+       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />
+       <input type="submit" value="Back to Ballot" />
+</form>
+<!-- back buttons end -->
+
+{% endblock %}
+

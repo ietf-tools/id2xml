@@ -694,27 +694,27 @@ def do_ballot_do_send_ballot_comment (request, object_id) :
 
 """ % __ballot_comment.text
 
-    if settings.SERVER_MODE != "development" : # just print message
-        return render_to_response(
-            "idtracker/ballot_do_ballot_do_send_ballot_comment.html",
-            {
-                "cc_val" : len(__cc_val) > 0 and ", ".join(__cc_val) or "",
-                "argument" : __argument,
-                "LoginObj": LoginObj,
-                "draft": draft,
-                "ballot": ballot,
-                "message": __message,
-            }, context_instance=RequestContext(request)
-        )
-    else : # send mail directly.
-       send_mail_text(
-            request,
-            "iesg@ietf.org",
-            LoginObj.person.email(),
-            __subject,
-            __message,
-            cc=__cc_val,
-        )
+    #if settings.SERVER_MODE != "development" : # just print message
+    #    return render_to_response(
+    #        "idtracker/ballot_do_ballot_do_send_ballot_comment.html",
+    #        {
+    #            "cc_val" : len(__cc_val) > 0 and ", ".join(__cc_val) or "",
+    #            "argument" : __argument,
+    #            "LoginObj": LoginObj,
+    #            "draft": draft,
+    #            "ballot": ballot,
+    #            "message": __message,
+    #        }, context_instance=RequestContext(request)
+    #    )
+    #else : # send mail directly.
+    send_mail_text(
+        request,
+        "iesg@ietf.org",
+        LoginObj.person.email(),
+        __subject,
+        __message,
+        cc=__cc_val,
+    )
 
     return render_to_response(
        "idtracker/ballot_send_ballot_comment_done.html",

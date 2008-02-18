@@ -6,12 +6,11 @@ from django import newforms as forms
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 from django.db.models import Q
-from django.db import connection
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, DocumentComment, BallotInfo, Position
-from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position
+from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail, BallotSearch
 from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
 import re, datetime
@@ -22,7 +21,7 @@ def get_tracker_mode(request):
     mode = "IETF"
     if request.user.is_authenticated():
         try:
-            mode = request.user.groups.all()[0]
+            mode = request.user.groups.all()[0].name
             person = request.user.get_profile().person
             LoginObj = IESGLogin.objects.get(person=person)
         except IndexError:
@@ -149,9 +148,10 @@ def search(request):
 		matches = list(matches) + [DocumentWrapper(rfc) for rfc in rfcmatches]
     else:
 	matches = None
-
+    ballot_search_form = BallotSearch()
     return render_to_response('idtracker/idtracker_search.html', {
 	'form': form,
+        'ballot_search_form': ballot_search_form,
 	'matches': matches,
 	'searching': searching,
         'mode': mode,
@@ -301,6 +301,7 @@ def view_ballot(*args, **kwargs):
         return object_detail(*args, **kwargs)
     else:
         return ballot(request,object_id) 
+
 def ballot_comment (request, object_id, **kwargs) :
     __method = None
     if kwargs.has_key("method") :
@@ -318,21 +319,20 @@ def ballot_comment (request, object_id, **kwargs) :
         else :
             __argument = request.GET.copy()
 
+    try :
+        __ad_id = int(__argument.get("ad_id", "").strip())
+    except :
+        raise Http404
+    else :
+        LoginObj = IESGLogin.objects.get(id=__ad_id)
+
+    # get ballot
+    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+    draft = ballot.get_primary_draft()
+    if not draft :
+        raise Http404
+
     if __method == "GET" :
-        try :
-            __ad_id = int(__argument.get("ad_id", "").strip())
-        except :
-            raise Http404
-        else :
-            LoginObj = IESGLogin.objects.get(id=__ad_id)
-
-        # get ballot
-        ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
-
-        draft = ballot.get_primary_draft()
-        if not draft :
-            raise Http404
-
         if __argument.has_key("edit_discuss") and __argument.get("edit_discuss", "no") == "yes" :
             __is_discuss_or_comment = "discuss"
         else :
@@ -362,6 +362,60 @@ def ballot_comment (request, object_id, **kwargs) :
                 "is_discuss_or_comment" : __is_discuss_or_comment,
             }, context_instance=RequestContext(request)
         )
+    elif __method == "POST" :
+        __comment_text = __argument.get("comment_text")
+        __result_list = __argument.get("result_list")
+        __ad_id = __argument.get("ad_id")
+        __category = __argument.get("category")
+        __rfc_flag = __argument.get("rfc_flag")
+
+        if draft.rfc_flag == 1 :
+            __revision = "RFC %s" % draft.draft.id_document_tag
+        else :
+            __revision = draft.draft.revision
+
+        if __category == "comment" :
+            __comment_type = 2
+        else :
+            __comment_type = 1
+
+        if __category == "discuss" :
+            __discuss_comment0 = getattr(ballot, "discusses")
+        else :
+            __discuss_comment0 = getattr(ballot, "comments")
+
+        try :
+            __discuss_comment = __discuss_comment0.get(ad=LoginObj)
+        except : # insert new
+            ballot.discusses.create(
+                ad=LoginObj,
+                date=datetime.datetime.now(),
+                revision=__revision,
+                active=1,
+                text=__comment_text,
+            )
+        else : # update
+            __discuss_comment.date = datetime.datetime.now()
+            __discuss_comment.revision = __revision
+            __discuss_comment.text = __comment_text
+            __discuss_comment.active = 1
+            __discuss_comment.save()
+
+        # add comment
+        draft.add_comment(
+            __comment_text,
+            False,
+            LoginObj=LoginObj,
+            public_flag=True,
+            ballot=ballot.ballot,
+        )
+
+        # update event_date of IDInternal.
+        draft.event_date = datetime.datetime.now()
+        draft.save()
+
+        # open ballot
+        return view_ballot_iesg(request, object_id)
 
 def ballot (request, object_id) :
     if request.method == "POST" :
@@ -504,15 +558,13 @@ def __do_ballot_update_single_ballot (request, object_id) :
         else :
             version = draft.draft.revision
 
-        DocumentComment(
-            document =          draft,
-            public_flag =       1,
-            date =              datetime.datetime.now(),
-            time =              datetime.datetime.now(),
-            version =           version,
-            comment_text =      __comment_text,
-        ).save()
-
+        draft.add_comment(
+            __comment_text, 
+            False,
+            LoginObj=LoginObj,
+            public_flag=True,
+            ballot=ballot.ballot,
+        )
     # update ballot discuss
     __ballot_discuss = ballot.discusses.get(ad=LoginObj)
     __ballot_discuss.active = 0
@@ -523,6 +575,8 @@ def __do_ballot_update_single_ballot (request, object_id) :
         draft.save()
 
     return True
+
+do_ballot_update_ballot_comment_db = ballot_comment
 
 def do_ballot_update_ballot (request, object_id) :
     __argument = request.POST.copy()
@@ -550,7 +604,7 @@ def do_ballot_update_ballot (request, object_id) :
 
     # if in discuss,
     if __discuss :
-        if __argument.has_key("edit_discuss") or __argument.has_key("edit_comment") :
+        if (__discuss == 1 and __argument.has_key("vote")) or __argument.has_key("edit_discuss") or __argument.has_key("edit_comment") :
             # get primary draft.
 
             draft = ballot.get_primary_draft()
@@ -694,19 +748,6 @@ def do_ballot_do_send_ballot_comment (request, object_id) :
 
 """ % __ballot_comment.text
 
-    #if settings.SERVER_MODE != "development" : # just print message
-    #    return render_to_response(
-    #        "idtracker/ballot_do_ballot_do_send_ballot_comment.html",
-    #        {
-    #            "cc_val" : len(__cc_val) > 0 and ", ".join(__cc_val) or "",
-    #            "argument" : __argument,
-    #            "LoginObj": LoginObj,
-    #            "draft": draft,
-    #            "ballot": ballot,
-    #            "message": __message,
-    #        }, context_instance=RequestContext(request)
-    #    )
-    #else : # send mail directly.
     send_mail_text(
         request,
         "iesg@ietf.org",

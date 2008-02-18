@@ -28,7 +28,8 @@
 {% else %}
    {% ifequal mode "IETF" %}
    <img src="/images/ietflogo2e.gif" border="0" height="137" width="280"><br>
-   {% else %}
+   {% endifequal %}
+   {% ifequal mode "Secretariat" %}
 <form action="." method="GET" name="buttons">
 <input type="hidden" name="display_menu" value="1">
 <input type="submit" value="Documents that are on some Agenda" name="agenda_docs">
@@ -82,23 +83,21 @@ state</b>: {{ form.sub_state_id }}</label> </td>
 </TR>
 </table>
 </form>
-<!--- following if statement should be fixed with:
 {% ifequal mode "IESG" %}
-{% endifequal %}
---->
-{% ifnotequal mode "IETF" %}
 <HR>
 <form action="." method="GET" name="ballot_search_form">
 <table cellpadding="1" cellspacing="0" border="0" width="640">
 <TR BGCOLOR="silver"><Th colspan="2">Ballot - Search Criteria</Th></TR>
-<Tr><Td><b>Telechat date:</b> <select name="telechat_date"><option value="any">Any future telechat</option><option value="all">All telechat</option><option value="2008-01-10">2008-01-10</option><option value="2008-01-24">2008-01-24</option><option value="2008-02-07">2008-02-07</option><option value="2008-02-21">2008-02-21</option>
-</select></td>
-<td><b>My position:</b> <select name="my_position"><option value="">--All/Any</option><option value="no_record">No record</option><option value="yes_col">Yes</option><option value="no_col">No objection</option><option value="discuss">Discuss</option><option value="abstain">Abstain</option><option value="recuse">Recuse</option>
-</select></td></tr>
-<Tr BGCOLOR="silver"><td colspan="2" align="center"><input type="submit" value="  Display Ballots  "></td></tr>
+<Tr><Td><b>Telechat date:</b> 
+{{ ballot_search_form.telechat_date }}
+</td>
+<td><b>My position:</b> 
+{{ ballot_search_form.position }}
+</td></tr>
+<Tr BGCOLOR="silver"><td colspan="2" align="center"><input type="submit" value="  Display Ballots  " name="ballot_search"></td></tr>
 </table>
 </form>
-{% endifnotequal %}
+{% endifequal %}
 <HR>
 Document States: <a href="/images/state_diagram.gif">State Diagram</a> and 
 <a href="/idtracker/help/state/">State Explanations</a>
@@ -118,11 +117,7 @@ Document States: <a href="/images/state_diagram.gif">State Diagram</a> and
 {% if matches or searching %}
    {% include "idtracker/main_menu_button_snippet.html" %}
 {% endif %}
-<!--- following if statement should be fixed with:
 {% ifequal mode "IESG" %}
-{% endifequal %}
---->
-{% ifnotequal mode "IETF" %}
 <hr>
 <form action="." method="GET">
 <input type="submit" value="{% if default_search %}Disable{% else %}Enable{% endif %} Default Search" name="switch_default_search">
@@ -134,6 +129,6 @@ Document States: <a href="/images/state_diagram.gif">State Diagram</a> and
 <p>
 <A HREF="https://www.ietf.org/IESG/internal/agenda_pack.txt">[Telechat Agenda Package (Text)]</a> 
 <p>
-{% endifnotequal %}
+{% endifequal %}
 
 {% endblock %}

@@ -2,7 +2,29 @@
 
 from django import newforms as forms
 from models import IESGLogin, IDStatus, Area, IDState, IDSubState, IDIntendedStatus,TelechatDates, InternetDraft, IDState, IDSubState
-
+TELECHAT_DATE_CHOICES = (
+    (TelechatDates.objects.get(id=1).date1,TelechatDates.objects.get(id=1).date1),
+    (TelechatDates.objects.get(id=1).date2,TelechatDates.objects.get(id=1).date2),
+    (TelechatDates.objects.get(id=1).date3,TelechatDates.objects.get(id=1).date3),
+    (TelechatDates.objects.get(id=1).date4,TelechatDates.objects.get(id=1).date4),
+)
+TELECHAT_DATE_BALLOT_SEARCH_CHOICES = (
+    ('any', 'Any future telechat'),
+    ('all', 'All telechat'),
+    (TelechatDates.objects.get(id=1).date1,TelechatDates.objects.get(id=1).date1),
+    (TelechatDates.objects.get(id=1).date2,TelechatDates.objects.get(id=1).date2),
+    (TelechatDates.objects.get(id=1).date3,TelechatDates.objects.get(id=1).date3),
+    (TelechatDates.objects.get(id=1).date4,TelechatDates.objects.get(id=1).date4),
+)
+POSITION_CHOICES = (
+    ('','--All/Any'),
+    ('no_record','No Record'),
+    ('yes_col','Yes'),
+    ('no_col','No Objection'),
+    ('discuss','Discuss'),
+    ('abstain','Abstain'),
+    ('recuse','Recuse'),
+) 
 class IDSearch(forms.Form):
     search_job_owner = forms.ChoiceField(choices=(), required=False)
     search_group_acronym = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'maxlength': 10}), required=False)
@@ -17,15 +39,14 @@ class IDSearch(forms.Form):
 	self.fields['search_job_owner'].choices = [('', '--All/Any')] + [(ad.id, "%s, %s" % (ad.last_name, ad.first_name)) for ad in IESGLogin.objects.filter(user_level=1).order_by('last_name')] + [('-99', '------------------')] + [(ad.id, "%s, %s" % (ad.last_name, ad.first_name)) for ad in IESGLogin.objects.filter(user_level=2).order_by('last_name')]
 	self.fields['sub_state_id'].choices = [('', '--All Substates'), ('0', 'None')] + [(state.sub_state_id, state.sub_state) for state in IDSubState.objects.all()]
 
+class BallotSearch(forms.Form):
+    telechat_date = forms.ChoiceField(choices=TELECHAT_DATE_BALLOT_SEARCH_CHOICES)
+    position = forms.ChoiceField(choices=POSITION_CHOICES)
+
 class IDDetail(forms.Form):
     intended_status = forms.ModelChoiceField(IDIntendedStatus.objects.all())
     agenda = forms.BooleanField(required=False)
-    telechat_date = forms.ChoiceField(choices=(
-        (TelechatDates.objects.get(id=1).date1,TelechatDates.objects.get(id=1).date1),
-        (TelechatDates.objects.get(id=1).date2,TelechatDates.objects.get(id=1).date2),
-        (TelechatDates.objects.get(id=1).date3,TelechatDates.objects.get(id=1).date3),
-        (TelechatDates.objects.get(id=1).date4,TelechatDates.objects.get(id=1).date4),
-        ))
+    telechat_date = forms.ChoiceField(choices=TELECHAT_DATE_CHOICES,required=False)
     job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level=1).order_by('last_name'))
     status_date = forms.DateField(widget=forms.TextInput(attrs={'size': 15, 'maxlength': 60}), required=False)
     note = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':72,}), required=False)

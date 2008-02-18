@@ -270,15 +270,9 @@ return true;
 <br>
 
 <br><br><br>
-{{draft}}
-<form action="/idtracker/" method="GET" name="form1">
-       <input type="hidden" name="command" value="view_id">
-       <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
-       <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}">
-       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
-       <input type="submit" value="Back to I-D">
-       </form>
-
+<form action="/idtracker/{{draft.document.filename}}" method="GET">
+       <input type="submit" value="Back to I-D" />
+</form>
 
 <!-- new footer begin -->
 <hr />

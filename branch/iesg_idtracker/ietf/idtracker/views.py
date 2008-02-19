@@ -307,28 +307,28 @@ def view_ballot(*args, **kwargs):
         return ballot(request,object_id) 
 
 def ballot_comment (request, object_id, **kwargs) :
-    __method = None
+    method = None
     if kwargs.has_key("method") :
-        __method = kwargs.get("method", None)
-        if __method not in ("POST", "GET", "DELETE", "PUT", ) :
-            __method = "GET"
+        method = kwargs.get("method", None)
+        if method not in ("POST", "GET", "DELETE", "PUT", ) :
+            method = "GET"
     else :
-        __method = request.method
+        method = request.method
 
     if kwargs.has_key("data") :
-        __argument = kwargs["data"]
+        argument = kwargs["data"]
     else :
-        if __method != "GET" :
-            __argument = request.POST.copy()
+        if method != "GET" :
+            argument = request.POST.copy()
         else :
-            __argument = request.GET.copy()
+            argument = request.GET.copy()
 
     try :
-        __ad_id = int(__argument.get("ad_id", "").strip())
+        ad_id = int(argument.get("ad_id", "").strip())
     except :
         raise Http404
     else :
-        LoginObj = IESGLogin.objects.get(id=__ad_id)
+        LoginObj = IESGLogin.objects.get(id=ad_id)
 
     # get ballot
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
@@ -336,21 +336,21 @@ def ballot_comment (request, object_id, **kwargs) :
     if not draft :
         raise Http404
 
-    if __method == "GET" :
-        if __argument.has_key("edit_discuss") and __argument.get("edit_discuss", "no") == "yes" :
-            __is_discuss_or_comment = "discuss"
+    if method == "GET" :
+        if argument.has_key("edit_discuss") and argument.get("edit_discuss", "no") == "yes" :
+            is_discuss_or_comment = "discuss"
         else :
-            __is_discuss_or_comment = "comment"
+            is_discuss_or_comment = "comment"
 
-        if __is_discuss_or_comment == "discuss" :
-            __discuss_comment0 = getattr(ballot, "discusses")
+        if is_discuss_or_comment == "discuss" :
+            discuss_comment0 = getattr(ballot, "discusses")
         else :
-            __discuss_comment0 = getattr(ballot, "comments")
+            discuss_comment0 = getattr(ballot, "comments")
 
         try :
-            __discuss_comment = __discuss_comment0.get(ad=LoginObj)
+            discuss_comment = discuss_comment0.get(ad=LoginObj)
         except :
-            __discuss_comment = {
+            discuss_comment = {
                 "date" : datetime.datetime.now().strftime("%Y-%m-%d"),
                 "revision" : draft.document().revision,
             }
@@ -358,56 +358,56 @@ def ballot_comment (request, object_id, **kwargs) :
         return render_to_response(
             "idtracker/ballot_comment_edit.html",
             {
-                "argument": __argument,
+                "argument": argument,
                 "draft": draft,
                 "LoginObj": LoginObj,
                 "ballot": ballot,
-                "discuss_comment" : __discuss_comment,
-                "is_discuss_or_comment" : __is_discuss_or_comment,
+                "discuss_comment" : discuss_comment,
+                "is_discuss_or_comment" : is_discuss_or_comment,
             }, context_instance=RequestContext(request)
         )
-    elif __method == "POST" :
-        __comment_text = __argument.get("comment_text")
-        __result_list = __argument.get("result_list")
-        __ad_id = __argument.get("ad_id")
-        __category = __argument.get("category")
-        __rfc_flag = __argument.get("rfc_flag")
+    elif method == "POST" :
+        comment_text = argument.get("comment_text")
+        result_list = argument.get("result_list")
+        ad_id = argument.get("ad_id")
+        category = argument.get("category")
+        rfc_flag = argument.get("rfc_flag")
 
         if draft.rfc_flag == 1 :
-            __revision = "RFC %s" % draft.draft.id_document_tag
+            revision = "RFC %s" % draft.draft.id_document_tag
         else :
-            __revision = draft.draft.revision
+            revision = draft.draft.revision
 
-        if __category == "comment" :
-            __comment_type = 2
+        if category == "comment" :
+            comment_type = 2
         else :
-            __comment_type = 1
+            comment_type = 1
 
-        if __category == "discuss" :
-            __discuss_comment0 = getattr(ballot, "discusses")
+        if category == "discuss" :
+            discuss_comment0 = getattr(ballot, "discusses")
         else :
-            __discuss_comment0 = getattr(ballot, "comments")
+            discuss_comment0 = getattr(ballot, "comments")
 
         try :
-            __discuss_comment = __discuss_comment0.get(ad=LoginObj)
+            discuss_comment = discuss_comment0.get(ad=LoginObj)
         except : # insert new
             ballot.discusses.create(
                 ad=LoginObj,
                 date=datetime.datetime.now(),
-                revision=__revision,
+                revision=revision,
                 active=1,
-                text=__comment_text,
+                text=comment_text,
             )
         else : # update
-            __discuss_comment.date = datetime.datetime.now()
-            __discuss_comment.revision = __revision
-            __discuss_comment.text = __comment_text
-            __discuss_comment.active = 1
-            __discuss_comment.save()
+            discuss_comment.date = datetime.datetime.now()
+            discuss_comment.revision = revision
+            discuss_comment.text = comment_text
+            discuss_comment.active = 1
+            discuss_comment.save()
 
         # add comment
         draft.add_comment(
-            __comment_text,
+            comment_text,
             False,
             LoginObj=LoginObj,
             public_flag=True,
@@ -430,10 +430,10 @@ def ballot (request, object_id) :
         If request method is 'POST' and there is 'comment' query exists,
         run it 'do_XX' command.
         """
-        __command = request.POST.copy().get("command", "").strip()
-        __func = globals().get("do_ballot_%s" % __command, None)
-        if __func :
-            return __func(request, object_id)
+        command = request.POST.copy().get("command", "").strip()
+        func = globals().get("do_ballot_%s" % command, None)
+        if func :
+            return func(request, object_id)
 
     return view_ballot_iesg(request, object_id)
 
@@ -464,16 +464,16 @@ def view_ballot_iesg(request, object_id, extra_context=dict()) :
             ballot.defer = False
             ballot.save()
 
-    __context = {
+    context = {
         "LoginObj" : LoginObj,
         "ballot" : ballot,
         "draft" : draft,
     }
-    __context.update(extra_context)
+    context.update(extra_context)
 
     return render_to_response(
         "idtracker/ballotinfo_detail_form.html",
-        __context, context_instance=RequestContext(request)
+        context, context_instance=RequestContext(request)
     )
 
 def get_position_label (selected_value) :
@@ -483,24 +483,24 @@ def get_position_label (selected_value) :
         return "No Objection"
     elif selected_value == "abstain" :
         return "Abstain"
-    elif selected_value == "discus" :
+    elif selected_value == "discuss" :
         return "Discuss"
     elif selected_value == "recuse" :
         return "Recuse"
 
     return "Undefined"
 
-def __do_ballot_update_single_ballot (request, object_id) :
-    __argument = request.POST.copy()
+def do_ballot_update_single_ballot (request, object_id) :
+    argument = request.POST.copy()
 
     try :
-        __loginid = int(__argument.get("loginid", "").strip())
+        loginid = int(argument.get("loginid", "").strip())
     except :
         raise Http404
     else :
-        LoginObj = IESGLogin.objects.get(id=__loginid)
+        LoginObj = IESGLogin.objects.get(id=loginid)
 
-    __selected_position = __argument.get("yes_no_abstain_col", None)
+    selected_position = argument.get("yes_no_abstain_col", None)
 
     # get position of this loginid
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
@@ -509,52 +509,52 @@ def __do_ballot_update_single_ballot (request, object_id) :
     except ObjectDoesNotExist :
         position = None
 
-    __discuss = False
+    discuss = False
     try :
-        __discuss = ballot.positions.get(ad=42).discuss
+        discuss = ballot.positions.get(ad=42).discuss
     except :
         pass
     else :
-        if __discuss == 1 :
-            __discuss = -1
+        if discuss == 1 :
+            discuss = -1
 
-    if __selected_position == "discuss" :
-        __discuss = 1
+    if selected_position == "discuss" :
+        discuss = 1
 
     # update single ballot
     # if in discuss, set it discuss
-    __new_position = get_position_label(__selected_position)
+    new_position = get_position_label(selected_position)
 
     if position : # set it 'undefined'
-        __old_position = get_position_label(position.get_active_position())
+        old_position = get_position_label(position.get_active_position())
 
-        position.yes=(__selected_position == "yes_col") and 1 or 0
-        position.noobj=(__selected_position == "no_col") and 1 or 0
-        position.abstain=(__selected_position == "abstain") and 1 or 0
-        position.discuss=__discuss
-        position.recuse=(__selected_position == "recuse") and 1 or 0
+        position.yes=(selected_position == "yes_col") and 1 or 0
+        position.noobj=(selected_position == "no_col") and 1 or 0
+        position.abstain=(selected_position == "abstain") and 1 or 0
+        position.discuss=discuss
+        position.recuse=(selected_position == "recuse") and 1 or 0
 
         position.save()
 
-        __comment_text = "[Ballot Position Update] Position for %(ad)s has been changed to %(new_position)s from %(old_position)s" % {
+        comment_text = "[Ballot Position Update] Position for %(ad)s has been changed to %(new_position)s from %(old_position)s" % {
             "ad": position.ad,
-            "new_position" : __new_position,
-            "old_position" : __old_position,
+            "new_position" : new_position,
+            "old_position" : old_position,
         }
-    elif __new_position != "Undefined" : # insert new position
+    elif new_position != "Undefined" : # insert new position
         position = Position(
             ballot=ballot,
             ad=LoginObj,
-            yes=(__selected_position == "yes_col") and 1 or 0,
-            noobj=(__selected_position == "no_col") and 1 or 0,
-            abstain=(__selected_position == "abstain") and 1 or 0,
+            yes=(selected_position == "yes_col") and 1 or 0,
+            noobj=(selected_position == "no_col") and 1 or 0,
+            abstain=(selected_position == "abstain") and 1 or 0,
             approve=0,
-            discuss=__discuss,
-            recuse=(__selected_position == "recuse") and 1 or 0,
+            discuss=discuss,
+            recuse=(selected_position == "recuse") and 1 or 0,
         )
         position.save()
 
-        __comment_text = """Ballot Position Update] New position, %(new_position)s, has been recorded""" % {"new_position" : __new_position, }
+        comment_text = """Ballot Position Update] New position, %(new_position)s, has been recorded""" % {"new_position" : new_position, }
 
     for draft in ballot.drafts.all() :
         if draft.rfc_flag == 1 :
@@ -563,15 +563,15 @@ def __do_ballot_update_single_ballot (request, object_id) :
             version = draft.draft.revision
 
         draft.add_comment(
-            __comment_text, 
+            comment_text, 
             False,
             LoginObj=LoginObj,
             public_flag=True,
             ballot=ballot.ballot,
         )
     # update ballot discuss
-    __ballot_discuss = ballot.discusses.get(ad=LoginObj)
-    __ballot_discuss.active = 0
+    ballot_discuss = ballot.discusses.get(ad=LoginObj)
+    ballot_discuss.active = 0
 
     # update event date in IdInternal
     for draft in ballot.drafts.all() :
@@ -583,45 +583,45 @@ def __do_ballot_update_single_ballot (request, object_id) :
 do_ballot_update_ballot_comment_db = ballot_comment
 
 def do_ballot_update_ballot (request, object_id) :
-    __argument = request.POST.copy()
+    argument = request.POST.copy()
 
     try :
-        __loginid = int(__argument.get("loginid", "").strip())
+        loginid = int(argument.get("loginid", "").strip())
     except :
         raise Http404
     else :
-        LoginObj = IESGLogin.objects.get(id=__loginid)
+        LoginObj = IESGLogin.objects.get(id=loginid)
 
-    __context = dict()
+    context = dict()
     try :
-        __do_ballot_update_single_ballot(request, object_id)
+        do_ballot_update_single_ballot(request, object_id)
     except :
-        __context["error_message"] = """<h2>There is a fatal error occured while processing your request</h2>"""
+        context["error_message"] = """<h2>There is a fatal error occured while processing your request</h2>"""
 
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
 
-    __discuss = 0
+    discuss = 0
     try :
-        __discuss = ballot.positions.get(ad=LoginObj).discuss
+        discuss = ballot.positions.get(ad=LoginObj).discuss
     except :
         pass
 
     # if in discuss,
-    if __discuss :
-        if (__discuss == 1 and __argument.has_key("vote")) or __argument.has_key("edit_discuss") or __argument.has_key("edit_comment") :
+    if discuss :
+        if (discuss == 1 and argument.has_key("vote")) or argument.has_key("edit_discuss") or argument.has_key("edit_comment") :
             # get primary draft.
 
             draft = ballot.get_primary_draft()
             if not draft :
                 raise Http404
 
-            __kwargs = {
+            kwargs = {
                 "filename" : draft.document().filename,
-                "ad_id" : str(__loginid),
+                "ad_id" : str(loginid),
             }
 
-            if __argument.get("edit_discuss", None) :
-                __kwargs.update(
+            if argument.get("edit_discuss", None) :
+                kwargs.update(
                     (
                         ("edit_discuss", "yes"),
                     )
@@ -631,140 +631,140 @@ def do_ballot_update_ballot (request, object_id) :
                 request,
                 object_id,
                 method="GET",
-                data=__kwargs,
+                data=kwargs,
             )
     else : # if not in discuss,
-        if __argument.has_key("edit_discuss") :
-            __context["error_message"] = """
+        if argument.has_key("edit_discuss") :
+            context["error_message"] = """
 <font color="red"><h2>Please mark 'Discuss' first to Add/Edit your discuss note</h2></font>"""
 
-    return view_ballot_iesg(request, object_id, extra_context=__context)
+    return view_ballot_iesg(request, object_id, extra_context=context)
 
 def do_ballot_send_ballot_comment_to_iesg (request, object_id) :
-    __argument = request.POST.copy()
+    argument = request.POST.copy()
 
     try :
-        __loginid = int(__argument.get("loginid", "").strip())
+        loginid = int(argument.get("loginid", "").strip())
     except :
         raise Http404
     else :
-        LoginObj = IESGLogin.objects.get(id=__loginid)
+        LoginObj = IESGLogin.objects.get(id=loginid)
 
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
 
-    __discuss = ballot.positions.get(ad=LoginObj).discuss
+    discuss = ballot.positions.get(ad=LoginObj).discuss
     try :
-        __ballot_discuss = ballot.discusses.get(ad=LoginObj)
+        ballot_discuss = ballot.discusses.get(ad=LoginObj)
     except :
-        __ballot_discuss = None
+        ballot_discuss = None
 
     try :
-        __ballot_comment = ballot.comments.get(ad=LoginObj)
+        ballot_comment = ballot.comments.get(ad=LoginObj)
     except :
-        __ballot_comment = None
+        ballot_comment = None
 
-    __is_discuss_or_comment = None
-    if __discuss and __ballot_discuss and __ballot_discuss.text :
-        __is_discuss_or_comment = "discuss"
-    elif __ballot_comment and __ballot_comment.text :
-        __is_discuss_or_comment = "comment"
+    is_discuss_or_comment = None
+    if discuss and ballot_discuss and ballot_discuss.text :
+        is_discuss_or_comment = "discuss"
+    elif ballot_comment and ballot_comment.text :
+        is_discuss_or_comment = "comment"
 
-    if __is_discuss_or_comment == "discuss" :
-        __subject = ""
-        __text = __ballot_discuss.text
+    if is_discuss_or_comment == "discuss" :
+        subject = ""
+        text = ballot_discuss.text
     else :
-        __subject = ""
-        __text = __ballot_comment.text
+        subject = ""
+        text = ballot_comment.text
 
     draft = ballot.get_primary_draft()
     if not draft :
         raise Http404
 
-    if __is_discuss_or_comment == "comment" :
-        if __ballot_discuss.text :
-            __subject += "DISCUSS and "
-        __subject += "COMMENT: "
+    if is_discuss_or_comment == "comment" :
+        if ballot_discuss.text :
+            subject += "DISCUSS and "
+        subject += "COMMENT: "
     else :
-        __subject += "DISCUSS: "
+        subject += "DISCUSS: "
 
-    __subject += draft.document().filename
+    subject += draft.document().filename
 
     return render_to_response(
         "idtracker/ballot_comment_send_to_iesg.html",
         {
-            "argument" : __argument,
+            "argument" : argument,
             "LoginObj": LoginObj,
-            "is_discuss_or_comment": __is_discuss_or_comment,
+            "is_discuss_or_comment": is_discuss_or_comment,
             "draft": draft,
             "ballot": ballot,
 
-            "subject" : __subject,
-            "discuss": __ballot_discuss,
-            "text": __text,
+            "subject" : subject,
+            "discuss": ballot_discuss,
+            "text": text,
         }, context_instance=RequestContext(request)
     )
 
 def do_ballot_do_send_ballot_comment (request, object_id) :
-    __argument = request.POST.copy()
+    argument = request.POST.copy()
 
     try :
-        __loginid = int(__argument.get("loginid", "").strip())
+        loginid = int(argument.get("loginid", "").strip())
     except :
         raise Http404
     else :
-        LoginObj = IESGLogin.objects.get(id=__loginid)
+        LoginObj = IESGLogin.objects.get(id=loginid)
 
-    __cc_val = __argument.get("cc_val", "").strip()
-    __extra_cc = __argument.get("extra_cc", "").strip()
-    __filename=__argument.get("filename", "").strip()
-    __subject = __argument.get("subject", "").strip()
+    cc_val = argument.get("cc_val", "").strip()
+    extra_cc = argument.get("extra_cc", "").strip()
+    filename=argument.get("filename", "").strip()
+    subject = argument.get("subject", "").strip()
 
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
     draft = ballot.get_primary_draft()
     if not draft :
         raise Http404
 
-    __cc_val = [i.strip() for i in __cc_val.split(",") if i.strip()]
-    if __extra_cc == "on" : # get 'state_change_notice_to' address list.
-        __cc_val.extend([i.strip() for i in draft.state_change_notice_to.split(",") if i.strip()])
+    cc_val = [i.strip() for i in cc_val.split(",") if i.strip()]
+    if extra_cc == "on" : # get 'state_change_notice_to' address list.
+        cc_val.extend([i.strip() for i in draft.state_change_notice_to.split(",") if i.strip()])
 
-    __discuss = ballot.positions.get(ad=LoginObj).discuss
+    discuss = ballot.positions.get(ad=LoginObj).discuss
     try :
-        __ballot_discuss = ballot.discusses.get(ad=LoginObj)
+        ballot_discuss = ballot.discusses.get(ad=LoginObj)
     except :
-        __ballot_discuss = None
+        ballot_discuss = None
 
     try :
-        __ballot_comment = ballot.comments.get(ad=LoginObj)
+        ballot_comment = ballot.comments.get(ad=LoginObj)
     except :
-        __ballot_comment = None
+        ballot_comment = None
 
-    __message = str()
-    if __discuss and __ballot_discuss and __ballot_discuss.text :
-        __message += """Discuss:
+    message = str()
+    if discuss and ballot_discuss and ballot_discuss.text :
+        message += """Discuss:
 %s
 
-""" % __ballot_discuss.text
+""" % ballot_discuss.text
 
-    if __ballot_comment and __ballot_comment.text :
-        __message += """Comment:
+    if ballot_comment and ballot_comment.text :
+        message += """Comment:
 %s
 
-""" % __ballot_comment.text
+""" % ballot_comment.text
 
     send_mail_text(
         request,
         "iesg@ietf.org",
         LoginObj.person.email(),
-        __subject,
-        __message,
-        cc=__cc_val,
+        subject,
+        message,
+        cc=cc_val,
     )
 
     return render_to_response(
        "idtracker/ballot_send_ballot_comment_done.html",
        {
-           "argument" : __argument,
+           "argument" : argument,
            "LoginObj": LoginObj,
            "draft": draft,
            "ballot": ballot,

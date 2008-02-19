@@ -42,8 +42,11 @@ def myfields(f):
 
 def search(request):
     mode = get_tracker_mode(request)
-    global LoginObj 
-    default_search = LoginObj.default_search
+    if mode == 'IETF':
+        default_search = False
+    else:
+        global LoginObj 
+        default_search = LoginObj.default_search
     # for compatability with old tracker form, which has
     #  "all substates" = 6.
     args = request.GET.copy()
@@ -71,8 +74,6 @@ def search(request):
     form = IDSearch(args)
     # if there's a post, do the search and supply results to the template
     searching = False
-    if default_search:
-        args['search_job_owner'] = LoginObj.id
     # filename, rfc_number, group searches are seperate because
     # they can't be represented as simple searches in the data model.
     qdict = { 
@@ -146,6 +147,9 @@ def search(request):
 		q_objs = [Q(**{qdict[k]: args[k]}) for k in qdict.keys() if args.get(k, '') != '']
 		rfcmatches = Rfc.objects.filter(*q_objs).exclude(rfc_number__in=in_tracker)
 		matches = list(matches) + [DocumentWrapper(rfc) for rfc in rfcmatches]
+    elif default_search:
+        matches = IDInternal.objects.all().filter(job_owner=LoginObj.id)
+        matches = matches.order_by('cur_state', 'cur_sub_state', '-primary_flag')
     else:
 	matches = None
     ballot_search_form = BallotSearch()
@@ -416,7 +420,7 @@ def ballot_comment (request, object_id, **kwargs) :
 
         # open ballot
         return view_ballot_iesg(request, object_id)
-
+# this function needs to be rewritten not to use any legacy method
 def ballot (request, object_id) :
     if request.method == "POST" :
         """

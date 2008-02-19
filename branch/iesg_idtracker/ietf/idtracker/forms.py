@@ -68,23 +68,13 @@ class IDDetail(forms.Form):
         idinternal.note = self.clean_data['note']
         idinternal.state_change_notice_to = self.clean_data['state_change_notice_to']
         if self.clean_data['next_state']:
-            idinternal.prev_sub_state = idinternal.cur_sub_state
-            idinternal.cur_sub_state = self.clean_data['next_sub_state']
-            idinternal.prev_state = idinternal.cur_state
-            idinternal.cur_state = self.clean_data['next_state']
+            idinternal.change_state(self.clean_data['next_state'], self.clean_data['next_sub_state'],LoginObj)
         elif self.clean_data['next_sub_state']:
-            idinternal.prev_sub_state = idinternal.cur_sub_state
-            idinternal.cur_sub_state = self.clean_data['next_sub_state']
-            idinternal.prev_state = idinternal.cur_state
-        if "next_state_button" in request.POST:
-            idinternal.prev_sub_state = idinternal.cur_sub_state
-            idinternal.cur_sub_state = None 
-            idinternal.prev_state = idinternal.cur_state
-            idinternal.cur_state = IDState.objects.get(state= request.POST['next_state_button'])
-        if 'back_to_previous' in request.POST:
-            idinternal.cur_state, idinternal.prev_state = idinternal.prev_state, idinternal.cur_state
-            idinternal.cur_sub_state, idinternal.prev_sub_state = \
-                idinternal.prev_sub_state, idinternal.cur_sub_state
+            idinternal.change_state(idinternal.cur_state, self.clean_data['next_sub_state'],LoginObj,change_sub_only=True)
+        elif "next_state_button" in request.POST:
+            idinternal.change_state(IDState.objects.get(state= request.POST['next_state_button']), None, LoginObj)
+        elif 'back_to_previous' in request.POST:
+            idinternal.change_state(idinternal.prev_state, idinternal.prev_sub_state,LoginObj)
         if self.clean_data['comment']:
             idinternal.add_comment(self.clean_data['comment'],False,LoginObj,self.clean_data['public_flag'],ballot)
         idinternal.save()

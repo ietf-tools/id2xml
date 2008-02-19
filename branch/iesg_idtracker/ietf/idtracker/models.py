@@ -580,6 +580,29 @@ class IDInternal(models.Model):
 	    return "%s :: %s" % ( self.cur_state, self.cur_sub_state )
 	else:
 	    return self.cur_state
+    def change_state(self,new_cur_state,new_cur_sub_state,LoginObj,change_sub_only=False):
+        stage_changed = False
+        if not self.cur_state == new_cur_state:
+            self.prev_state = self.cur_state
+            self.cur_state = new_cur_state
+            state_changed = True
+        if not self.cur_sub_state == new_cur_sub_state:
+            self.prev_sub_state = self.cur_sub_state
+            self.cur_sub_state = new_cur_sub_state
+            state_changed = True
+            if change_sub_only:
+                self.prev_state = self.cur_state
+        if state_changed:
+            if self.cur_sub_state_id > 0:
+                new_state = "%s :: %s" % ( self.cur_state, self.cur_sub_state )
+            else:
+                new_state = self.cur_state
+            if self.prev_sub_state_id > 0:
+                prev_state = "%s :: %s" % ( self.prev_state, self.prev_sub_state )
+            else:
+                prev_state = self.prev_state
+            self.add_comment("State Changes to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (new_state,prev_state,LoginObj.person),True,LoginObj)
+        return state_changed
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'

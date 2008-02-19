@@ -51,18 +51,12 @@ pre.comment, pre.discuss
 <hr />
 
 <!-- form: (un)defer ballot begin -->
-<form action="" method="POST" name="form1">
-       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
-       <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
+<form action="." method="Post" name="form1">
 {% if ballot.defer %}
-       <input type="hidden" name="command" value="undefer_ballot">
-       <input type="submit" value="UnDefer Ballot">
+       <input type="submit" value="UnDefer Ballot" name="UndeferBallot">
 
 {% else %}
-       <input type="hidden" name="loginid" value="{{LoginObj.id}}">
-
-       <input type="hidden" name="command" value="defer_ballot">
-       <input type="submit" value="Defer Ballot">
+       <input type="submit" value="Defer Ballot" name="DeferBallot">
 {% endif %}
 </form>
 <!-- form: (un)defer ballot end -->

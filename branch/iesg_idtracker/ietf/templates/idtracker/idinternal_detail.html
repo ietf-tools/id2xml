@@ -87,19 +87,22 @@
 
               <td>
                 <div class="largefont{{fontsize}}">
-		  {% if object.ballot.ballot_issued %}
-                    {% ifequal mode 'IETF' %}
+                  {% ifequal mode 'IETF' %}
+		    {% if object.ballot.ballot_issued %}
                     <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">IESG evaluation record</a>
                     [<a href="/idtracker/help/evaluation/">What
                     they mean</a>]
                     [<a href="/idtracker/help/ballot/">How they are
                     recorded</a>]
 		    {% else %}
-                    <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">[Open Web Ballot]</a>
-                    {% endifequal %}
+		    No IESG evaluation record
+                    {% endif %}
                   {% else %}
-		  No IESG evaluation record
-		  {% endif %}
+		    {% if object.ballot.ballot_issued %}
+                    <a href="{% url ietf.idtracker.views.view_ballot object.ballot_id %}">[Open Web Ballot]</a>
+                    {% endif %}
+                    <a href="{% url ietf.idtracker.views.view_ballot_writeup object.ballot_id %}">{% if ballot_writeup  %}[Ballot Write-ups]{% else %}[Preapare for Last Call]{% endif %}</a>
+		  {% endifequal %}
                 </div>
               </td>
             </tr>
@@ -135,7 +138,25 @@
                 </div>
               </td>
             </tr>
+{% ifequal object.document.group_acronym "none" %}
+            <tr bgcolor="white">
+              <td>
+                <div class="largefont{{fontsize}}">
+                  Area:
+                </div>
+              </td>
 
+              <td>
+                <div class="largefont{{fontsize}}">
+                  {% ifequal mode 'IETF' %}
+                  {{ object.area_acronym }}
+                  {% else %}
+                  {{ idform.area }}
+                  {% endifequal %}
+                </div>
+              </td>
+            </tr>
+{% endifequal %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
@@ -339,10 +360,24 @@
               <td>
                 <table cellpadding="1" cellspacing="1" border="0">
                   <tr>
+                  {% ifnotequal mode 'IETF' %}
+                    <td>
+                      <form action="." method="GET">
+                        <input type="submit" value="Add a document to this ballot">
+                      </form>
+                    </td>
+                  {% if not object.primary_flag %}
+                    <td>
+                      <form action="." method="GET">
+                        <input type="submit" value="Separate from Ballot Set">
+                      </form>
+                    </td>
+                  {% endif %}
+                  {% endifnotequal %}
+
                     <td>
                       <form action="{% url ietf.idtracker.views.search %}" method="GET">
-			<input type="submit" value=
-			"Main Menu">
+			<input type="submit" value="Main Menu">
                       </form>
                     </td>
                   </tr>
@@ -376,13 +411,15 @@
 	<th>Comment</th>
       </tr>
 
-{% for comment in object.public_comments %}
+{% for comment in object.all_comments %}
+  {% if comment.public_flag %}
       <tr bgcolor="{% cycle #CFE1CC,#7DC189 %}">
 	<td>{{ comment.date }}</td>
 
 	<td align="center">{{ comment.version }}</td>
 
-	<td><font color="blue">[{{ comment.get_username }}]</font>
+	<td>
+<font color="blue">[{% ifnotequal mode 'IETF' %}public-{% endifnotequal %}{{ comment.get_username }}]</font>
 {% if comment.ballot %}
 	  <font color="red">[IN IESG DISCUSSION
 	    <b>*{{ comment.get_ballot_display }}*</b>]</font>
@@ -397,7 +434,49 @@
 	    <input type="submit" value="View Detail">
 	  </td>
 	</form>
+{% ifequal comment.get_username user.username %}
+        <form action="." method="GET">
+           <td>
+            <input type="hidden" name="objectid" value="{{ comment.id }}">
+            <input type="submit" value="Toggle Private/Public" name="toggle_public_flag">
+          </td> 
+        </form>
+{% endifequal %}
       </tr>
+  {% else %}
+    {% ifnotequal mode 'IETF' %}
+      <tr bgcolor="{% cycle #CFE1CC,#7DC189 %}">
+        <td>{{ comment.date }}</td>
+
+        <td align="center">{{ comment.version }}</td>
+
+        <td>
+<font color="red">[private-{{ comment.get_username }}]</font>
+{% if comment.ballot %}
+          <font color="red">[IN IESG DISCUSSION
+            <b>*{{ comment.get_ballot_display }}*</b>]</font>
+{% endif %} {{ comment.comment_text|format_textarea|truncatewords_html:"25" }}</td>
+
+        <!-- this form element technically belongs inside the <td>
+             but that actually changes the visible spacing in most
+             browsers, so we let layout concerns make us write
+             invalid HTML. -->
+        <form action="{{ comment.get_absolute_url }}" method="GET">
+          <td>
+            <input type="submit" value="View Detail">
+          </td>
+        </form>
+{% ifequal comment.get_username user.username %}
+        <form action="." method="GET">
+           <td>
+            <input type="hidden" name="objectid" value="{{ comment.id }}">
+            <input type="submit" value="Toggle Private/Public" name="toggle_public_flag">
+          </td> 
+        </form>
+{% endifequal %}
+      </tr>
+    {% endifnotequal %}
+  {% endif %}
 {% endfor %} 
     </table>
     <br>

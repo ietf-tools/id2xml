@@ -511,7 +511,7 @@ class IDInternal(models.Model):
     mark_by = models.ForeignKey(IESGLogin, db_column='mark_by', related_name='marked')
     job_owner = models.ForeignKey(IESGLogin, db_column='job_owner', related_name='documents')
     event_date = models.DateField(null=True)
-    area_acronym = models.ForeignKey(Area)
+    area_acronym = models.ForeignKey(Area, db_column='area_acronym_id')
     cur_sub_state = models.ForeignKey(IDSubState, db_column='cur_sub_state_id', related_name='docs', null=True, blank=True)
     prev_sub_state = models.ForeignKey(IDSubState, db_column='prev_sub_state_id', related_name='docs_prev', null=True, blank=True)
     returning_item = models.IntegerField(null=True, blank=True)
@@ -543,6 +543,8 @@ class IDInternal(models.Model):
 	    return self.draft
     def public_comments(self):
 	return self.comments().filter(public_flag=1)
+    def all_comments(self):
+	return self.comments()
     def comments(self):
 	# would filter by rfc_flag but the database is broken. (see
 	# trac ticket #96) so this risks collisions.
@@ -580,29 +582,21 @@ class IDInternal(models.Model):
 	    return "%s :: %s" % ( self.cur_state, self.cur_sub_state )
 	else:
 	    return self.cur_state
-    def change_state(self,new_cur_state,new_cur_sub_state,LoginObj,change_sub_only=False):
-        stage_changed = False
-        if not self.cur_state == new_cur_state:
-            self.prev_state = self.cur_state
-            self.cur_state = new_cur_state
-            state_changed = True
-        if not self.cur_sub_state == new_cur_sub_state:
-            self.prev_sub_state = self.cur_sub_state
-            self.cur_sub_state = new_cur_sub_state
-            state_changed = True
-            if change_sub_only:
-                self.prev_state = self.cur_state
-        if state_changed:
-            if self.cur_sub_state_id > 0:
-                new_state = "%s :: %s" % ( self.cur_state, self.cur_sub_state )
+    def change_state (self,new_cur_state,new_cur_sub_state,LoginObj):
+        for doc in self.ballot_set():
+            if not doc.cur_sub_state_id: # this will change the value 0 to NULL
+                doc.cur_sub_state = None
+            doc.prev_state = doc.cur_state
+            doc.cur_state = new_cur_state
+            doc.prev_sub_state = doc.cur_sub_state
+            doc.cur_sub_state = new_cur_sub_state
+            doc.save()
+            new_state = doc.docstate()
+            if doc.prev_sub_state_id > 0:
+                prev_state = "%s :: %s" % ( doc.prev_state, doc.prev_sub_state )
             else:
-                new_state = self.cur_state
-            if self.prev_sub_state_id > 0:
-                prev_state = "%s :: %s" % ( self.prev_state, self.prev_sub_state )
-            else:
-                prev_state = self.prev_state
-            self.add_comment("State Changes to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (new_state,prev_state,LoginObj.person),True,LoginObj)
-        return state_changed
+                prev_state = doc.prev_state
+            doc.add_comment("State Changes to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (new_state,prev_state,LoginObj.person),True,LoginObj)
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'
@@ -616,7 +610,7 @@ class DocumentComment(models.Model):
     )
     document = models.ForeignKey(IDInternal)
     rfc_flag = models.IntegerField(null=True, blank=True)
-    public_flag = models.IntegerField()
+    public_flag = models.BooleanField()
     date = models.DateField(db_column='comment_date', auto_now_add=True)
     time = models.TimeField(db_column='comment_time', maxlength=20, auto_now_add=True)
     version = models.CharField(blank=True, maxlength=3)
@@ -642,6 +636,11 @@ class DocumentComment(models.Model):
 	    return self.created_by.login_name
 	else:
 	    return "system"
+    def toggle_public_flag(self):
+        if self.public_flag:
+            self.public_flag = False 
+        else:
+            self.public_flag = True
     class Meta:
         db_table = 'document_comments'
 

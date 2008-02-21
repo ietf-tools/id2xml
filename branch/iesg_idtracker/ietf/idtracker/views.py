@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position, DocumentComment
 from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail, BallotSearch
 from ietf.utils.mail import send_mail_text
 from ietf.utils import normalize_draftname
@@ -162,31 +162,32 @@ def search(request):
         'default_search': default_search,
       }, context_instance=RequestContext(request))
 
-# proof of concept, orphaned for now
 def edit_idinternal(request, idinternal=None):
     mode = get_tracker_mode(request)
     global LoginObj
-    ##draft = InternetDraft.objects.get(pk=id)
-    #draft = get_object_or_404(InternetDraft.objects, pk=id)
-    #IDEntryForm = forms.models.form_for_instance(object.draft)
-    ## todo: POST handling for idform
     if idinternal:
-	#EntryForm = forms.models.form_for_instance(idinternal)
         try:
             next_state_object = IDNextState.objects.filter(cur_state=idinternal.cur_state)
 	except IDNextState.DoesNotExist:
             next_state_object = []
         if request.method == 'POST':
-	    #form = EntryForm(request.POST)
 	    idform = IDDetail(request.POST)
             if "next_state_button" in request.POST:
                 next_state_id = IDState.objects.get(state= request.POST['next_state_button']).document_state_id
-                print next_state_id
 	    if idform.is_valid():
-		idform.save(idinternal,request,LoginObj)
-		return HttpResponseRedirect(".")	# really want here
+		(update_notify_to, comment_text) = idform.save(idinternal,request,LoginObj)
+                if update_notify_to:
+                    email_text = """Please DO NOT reply to this email
+
+I-D: %s
+ID Tracker URL: https://datatracker.ietf.org%s
+%s
+""" % (idinternal.draft,idinternal.get_absolute_url(),comment_text)
+             # following line is commented for dev. Need to uncomment when deployed 
+                    #send_mail_text(request,update_notify_to,("DraftTracker Mail System","iesg-secretary@ietf.org"),"%s updated by %s" % (idinternal.draft,LoginObj), email_text)
+		return HttpResponseRedirect(".")
 	else:
-            idform = IDDetail({
+            idinternal_dict = {
                 'intended_status':idinternal.draft.intended_status.intended_status_id,
                 'agenda': idinternal.agenda,
                 'telechat_date': idinternal.telechat_date,
@@ -195,20 +196,28 @@ def edit_idinternal(request, idinternal=None):
                 'note': idinternal.note,
                 'public_flag': True,
                 'state_change_notice_to': idinternal.state_change_notice_to,
-                 })
-	    #form = EntryForm()
+                 }
+            if idinternal.draft.group.acronym_id == 1027 and idinternal.primary_flag:
+                idinternal_dict['area'] = idinternal.area_acronym_id
+            idform = IDDetail(idinternal_dict)
     else:
 	idform = None
     if mode == 'IETF':
         fontsize = 3
     else:
         fontsize = 4
+    if idinternal.cur_state_id < 15:
+        ballot_writeup = False
+    else:
+        ballot_writeup = True
+
     return render_to_response('idtracker/idinternal_detail.html', {
         'object': idinternal,
         'next_state_object': next_state_object,
 	'idform': idform,
         'mode': mode,
         'fontsize':fontsize,
+        'ballot_writeup': ballot_writeup,
       }, context_instance=RequestContext(request))
 
 def state_desc(request, state, is_substate=0):
@@ -274,8 +283,14 @@ def view_id(request, queryset, slug, slug_field):
     except IDInternal.DoesNotExist:
 	draft = get_object_or_404(InternetDraft, filename=slug)
 	return render_to_response('idtracker/idinternal_notfound.html', {'draft': draft}, context_instance=RequestContext(request))
+    args = request.GET.copy()
+    if args.get('toggle_public_flag'):
+        id = args.get('objectid')
+        comment = DocumentComment.objects.get(id=id)
+        comment.toggle_public_flag()
+        comment.save()
+        return HttpResponseRedirect(".") 
     return edit_idinternal(request,object)
-    return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
 
 def view_rfc(request, object_id):
     '''A replacement for the object_detail generic view for this
@@ -305,6 +320,9 @@ def view_ballot(*args, **kwargs):
         return object_detail(*args, **kwargs)
     else:
         return ballot(request,object_id) 
+
+def view_ballot_writeup(*args, **kwargs):
+    return object_detail(*args, **kwargs)
 
 def ballot_comment (request, object_id, **kwargs) :
     method = None

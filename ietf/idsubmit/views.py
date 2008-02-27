@@ -27,8 +27,12 @@ from ietf.idsubmit.parser.draft_parser import DraftParser
 # author's information from the passed I-D content
 
 def file_upload(request):
- 
-    form = None
+    current_date = date.today()
+    current_hour = int(time.strftime("%H", time.localtime()))
+    first_cut_off_date = IdDates.objects.get(id=1).id_date
+    second_cut_off_date = IdDates.objects.get(id=2).id_date
+    ietf_monday_date = IdDates.objects.get(id=3).id_date
+    id_date_var = { 'first_cut_off_date' : first_cut_off_date, 'second_cut_off_date' : second_cut_off_date, 'ietf_monday' : ietf_monday_date}
     if request.POST:
 
         post_data = request.POST.copy()
@@ -40,6 +44,10 @@ def file_upload(request):
                 return render("idsubmit/error.html", {'error_msg':STATUS_CODE[101]}, context_instance=RequestContext(request))
 
             dp = DraftParser(form.get_content('txt_file'))
+            if ((current_date == first_cut_off_date and current_hour > 9) or (current_date > first_cut_off_date and current_date < second_cut_off_date)) and dp.revision == '00':
+                id_date_var['form'] = IDUploadForm()
+                id_date_var['cutoff_msg'] = "first_second"
+                return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
             dp.set_remote_ip(request.META.get('REMOTE_ADDR'))
             threshold_msg = dp.check_dos_threshold()
             if threshold_msg:
@@ -77,35 +85,10 @@ def file_upload(request):
                 except AttributeError:
                     return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"}, context_instance=RequestContext(request))
 
-                current_date = date.today()
-                current_hour = int(time.strftime("%H", time.localtime()))
-                first_cut_off_date = IdDates.objects.get(id=1).id_date 
-                second_cut_off_date = IdDates.objects.get(id=2).id_date 
-                ietf_monday_date = IdDates.objects.get(id=3).id_date 
-                id_date_var = { 'first_cut_off_date' : first_cut_off_date, 'second_cut_off_date' : second_cut_off_date, 'ietf_monday' : ietf_monday_date}
-
-                if (current_date >= first_cut_off_date and current_date < second_cut_off_date):
-                    if (current_date == first_cut_off_date and current_hour < 9):
-                        id_date_var['date_check_err_msg'] = "first_second"
-                        return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
-                    else: # No more 00 submission
-                        id_date_var['form'] = IDUploadForm()
-                        id_date_var['cutoff_msg'] = "first_second"
-                        return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
-                elif current_date >= second_cut_off_date and current_date < ietf_monday_date:
-                    if (current_date == second_cut_off_date and current_hour < 9):
-                        id_date_var['form'] = IDUploadForm()
-                        id_date_var['cutoff_msg'] = "second_ietf"
-                        return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
-                    else: #complete shut down of tool
-                        id_date_var['date_check_err_msg'] = "second_ietf"
-                        return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
-
-                #if dp.get_group_id(dp.get_wg_id()).acronym_id == 1027:
-                #    return render("idsubmit/error.html", {'error_msg':'Invalid WG ID, %s' % dp.get_wg_id()}, context_instance=RequestContext(request))
                 # revision check
                 if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100).exclude(submission_id=submission_id):
-                    return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103]}, context_instance=RequestContext(request))
+                    error_msg = '%s<br>\n<a href="/idsubmit/status/%s">[View Status of existing submission]</a>' % (STATUS_CODE[103], dp.filename)
+                    return render("idsubmit/error.html", {'error_msg':error_msg}, context_instance=RequestContext(request))
 
                 id = IdSubmissionDetail.objects.filter(filename=dp.filename, revision=dp.revision, status_id__range=(-2, 50)).exclude(submission_id=submission_id)
                 if id.count() > 0:
@@ -132,6 +115,22 @@ def file_upload(request):
             return render("idsubmit/error.html", {'error_msg':'This is not valid data' + str(form.errors) }, context_instance=RequestContext(request))
             form = IDUploadForm()
     else:
+        if (current_date >= first_cut_off_date and current_date < second_cut_off_date):
+            if (current_date == first_cut_off_date and current_hour < 9):
+                id_date_var['date_check_err_msg'] = "first_second"
+                return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
+            else: # No more 00 submission
+                id_date_var['form'] = IDUploadForm()
+                id_date_var['cutoff_msg'] = "first_second"
+                return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
+        elif current_date >= second_cut_off_date and current_date < ietf_monday_date:
+            if (current_date == second_cut_off_date and current_hour < 9):
+                id_date_var['form'] = IDUploadForm()
+                id_date_var['cutoff_msg'] = "second_ietf"
+                return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
+            else: #complete shut down of tool
+                id_date_var['date_check_err_msg'] = "second_ietf"
+                return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
         form = IDUploadForm()
     return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
 
@@ -169,12 +168,12 @@ def draft_status(request, submission_id_or_name):
     elif re.compile('^(draft-.+)').findall(submission_id_or_name) :
         # if submission name
         subm_name = re.sub('(-\d\d\.?(txt)?|/)$', '', submission_id_or_name)
-        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name).order_by('-submission_id') 
+        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=0, status_id__lt=100).order_by('-submission_id') 
 
         if submissions.count() > 0 :
             submission = submissions[0]
         else:
-            return render("idsubmit/error.html",{'error_msg':"Unknown filename"}, context_instance=RequestContext(request))
+            return render("idsubmit/error.html",{'error_msg':"No valid history found for %s" % subm_name}, context_instance=RequestContext(request))
     else:
         return render("idsubmit/error.html",{'error_msg':"Unknown request"}, context_instance=RequestContext(request))
 

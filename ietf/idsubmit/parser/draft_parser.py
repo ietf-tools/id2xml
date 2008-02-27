@@ -55,12 +55,12 @@ class DraftParser:
             self.filename = filename_re.group(2)
         except AttributeError:
             self.filename = self.not_found
-            self._set_meta_data_errors('filename', '<li>Can not find filename</li>')
+            self._set_meta_data_errors('filename', '<li>Could not find filename</li>')
         try:
             self.revision = filename_re.group(3)
         except AttributeError:
             self.revision = self.not_found
-            self._set_meta_data_errors('revision', '<li>Can not find version</li>')
+            self._set_meta_data_errors('revision', '<li>Could not find version</li>')
 
     def check_idnits(self, file_path):
         #Check IDNITS
@@ -199,7 +199,7 @@ class DraftParser:
             else:
                 creation_date = self.not_found
         if creation_date == self.not_found:
-            self._set_meta_data_errors('creation_date', '<li>Can not find creation date</li>')
+            self._set_meta_data_errors('creation_date', '<li>Creation Date field is empty or the creation date is not in a proper format.</li>')
             creation_date = None
             #creation_date = date(2000, 1, 1)
         return creation_date
@@ -225,12 +225,12 @@ class DraftParser:
                     authors_info = '\n\n' + searched_author.group(3).strip()
                 except AttributeError:
                     authors_info = self.not_found
-                    self._set_meta_data_errors('authors', '<li>Can not find author information</li>')
+                    self._set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
                 return authors_info
             else:
                 authors_info = self.not_found
         if authors_info == self.not_found:
-            self._set_meta_data_errors('authors', '<li>Can not find author information</li>')
+            self._set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
         return authors_info
 
     def _get_name_by_email(self, email):

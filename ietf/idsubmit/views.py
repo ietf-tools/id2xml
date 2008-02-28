@@ -55,23 +55,24 @@ def file_upload(request):
 
             for file_name, file_info in request.FILES.items():
                 if re.match(r'^[a-z0-9-\.]+$', dp.filename):
-                    if file_info['filename'][-4:].lower() not in form.file_names.values():
-                        return render("idsubmit/error.html", {'error_msg':'not allowed file format'}, context_instance=RequestContext(request))
+                    file_ext = ".%s" % file_info['filename'].split('.')[1]
+                    if file_ext.lower() not in form.file_names.values():
+                        return render("idsubmit/error.html", {'error_msg':'not allowed file format - %s' % file_ext.lower()}, context_instance=RequestContext(request))
                 else:
                     err_msg = "Filename contains non alpha-numeric character"
                     return render("idsubmit/error.html", {'error_msg':err_msg}, context_instance=RequestContext(request))
             if dp.status_id:
-                file_type = form.save(dp.filename, dp.revision)
-                file_path = settings.STAGING_PATH+dp.filename+'-'+dp.revision+'.txt'
-                print file_path
-                dp.set_file_type(form.file_ext_list)
+                if dp.status_id < 100 or dp.status_id >= 200:
+                    form.save(dp.filename, dp.revision)
+                    dp.set_file_type(form.file_ext_list)
+                file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
 
                 idnits_msg = dp.check_idnits(file_path)
                 if type(idnits_msg).__name__=='dict':
                     if idnits_msg['error'] > 0:
                         idnits_result = True
                         dp.status_id = 203
-                        dp._set_meta_data_errors('idnits', "<li>This document has " + str(idnits_msg['error']) + " idnits error(s)</li>")
+                        dp.set_meta_data_errors('idnits', "<li>This document has " + str(idnits_msg['error']) + " idnits error(s)</li>")
                     else:
                         idnits_result = False
                 else:
@@ -87,12 +88,14 @@ def file_upload(request):
 
                 # revision check
                 if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100).exclude(submission_id=submission_id):
-                    error_msg = '%s<br>\n<a href="/idsubmit/status/%s">[View Status of existing submission]</a>' % (STATUS_CODE[103], dp.filename)
-                    return render("idsubmit/error.html", {'error_msg':error_msg}, context_instance=RequestContext(request))
-
-                id = IdSubmissionDetail.objects.filter(filename=dp.filename, revision=dp.revision, status_id__range=(-2, 50)).exclude(submission_id=submission_id)
-                if id.count() > 0:
-                    return render("idsubmit/error.html", {'error_msg':'this document is already in the phase of processing'}, context_instance=RequestContext(request))
+                    list = IdSubmissionDetail.objects.get(submission_id=submission_id)
+                    list.status_id=103
+                    list.save()
+                    return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103], 'filename':dp.filename}, context_instance=RequestContext(request))
+                # this is duplicate revision checking
+                #id = IdSubmissionDetail.objects.filter(filename=dp.filename, revision=dp.revision, status_id__range=(-2, 50)).exclude(submission_id=submission_id)
+                #if id.count() > 0:
+                #    return render("idsubmit/error.html", {'error_msg':'this document is already in the phase of processing'}, context_instance=RequestContext(request))
 
                 authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission_id)
                 for author_dict in authors_info:
@@ -168,7 +171,7 @@ def draft_status(request, submission_id_or_name):
     elif re.compile('^(draft-.+)').findall(submission_id_or_name) :
         # if submission name
         subm_name = re.sub('(-\d\d\.?(txt)?|/)$', '', submission_id_or_name)
-        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=0, status_id__lt=100).order_by('-submission_id') 
+        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=-2, status_id__lt=100).order_by('-submission_id') 
 
         if submissions.count() > 0 :
             submission = submissions[0]
@@ -304,7 +307,8 @@ def sync_docs (request, submission) :
 
     # remove files.
     try :
-        [os.remove(i) for i in glob.glob("%s/%s-%s.*" % (settings.STAGING_PATH,submission.filename,submission.revision))]
+        [os.remove(i) for i in glob.glob("%s-%s.*" % (os.path.join(settings.STAGING_PATH,submission.filename), submission.revision))]
+
     except :
         pass
 
@@ -648,26 +652,26 @@ def cancel_draft (request, submission_id) :
     submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
     if submission.status_id < 0 or submission.status_id > 100:
         return render("idsubmit/error.html", {'error_msg':'This document is not in valid state and cannot be canceled'}, context_instance=RequestContext(request))
-    # rename the submitted document to new name with canceled tag.
+    # delete the document(s)
     path_orig_sub = os.path.join(
         settings.STAGING_PATH,
         "%s-%s" % (submission.filename, submission.revision, ),
     )
-    path_orig = os.path.join(
-        settings.STAGING_PATH,
-        "%s-%s.txt" % (submission.filename, submission.revision, ),
-    )
-    path_cancelled = os.path.join(
-        settings.STAGING_PATH,
-        "%s-%s-%s-cancelled.txt" % (submission.filename, submission.revision, submission.submission_id, ),
-    )
-    os.rename(path_orig, path_cancelled)
+    #path_orig = os.path.join(
+    #    settings.STAGING_PATH,
+    #    "%s-%s.txt" % (submission.filename, submission.revision, ),
+    #)
+    #path_cancelled = os.path.join(
+    #    settings.STAGING_PATH,
+    #    "%s-%s-%s-cancelled.txt" % (submission.filename, submission.revision, submission.submission_id, ),
+    #)
+    #os.rename(path_orig, path_cancelled)
 
     # remove all sub document.
     for i in glob.glob("%s*" % path_orig_sub) :
         os.remove(i)
     # to notify 'cancel' to the submitter and authors.
-    print submission.status_id
+    #print submission.status_id
     if submission.status_id > 0 and submission.status_id < 100 :
         to_email = [i.email_address for i in TempIdAuthors.objects.filter(submission=submission) if i.email_address.strip()]
         kwargs = submission.__dict__.copy()

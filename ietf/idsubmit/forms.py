@@ -12,6 +12,7 @@ from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo, 
 from models import TempIdAuthors
 from datetime import datetime,date
 import time
+import os
 from django import newforms as forms
 from django.conf import settings
 
@@ -87,8 +88,7 @@ class IDUploadForm(forms.Form):
     pdf_file = forms.Field(widget=forms.FileInput, required=False, label='.pdf format')
     ps_file = forms.Field(widget=forms.FileInput, required=False, label='.ps format')
 
-    file_names = {'txt_file':'.txt', 'xml_file':'.xml', 
-                   'pdf_file':'.pdf', 'ps_file':'.ps'}
+    file_names = {'txt_file':'.txt', 'xml_file':'.xml', 'pdf_file':'.pdf', 'ps_file':'.ps'}
     file_ext_list = []
 
     def get_content(self, txt_file):
@@ -97,33 +97,17 @@ class IDUploadForm(forms.Form):
 
     def save(self, filename, revision):
         self.file_ext_list = []
+        print self.file_names.items()
         for file_name, file_ext in self.file_names.items():
             try:
                 content = self.clean_data[file_name]['content']
                 # content = self.cleaned_data[file_name].content # this is for current version
             # except AttributeError: # this is for current version
             except TypeError:
-                break
-
-            save_file = open(settings.STAGING_PATH + filename + '-' + revision + file_ext,'w')
+                continue
+            file_path = "%s-%s%s" % (os.path.join(settings.STAGING_PATH,filename), revision, file_ext)
+            save_file = open(file_path,'w')
             save_file.write(content)
             save_file.close()
             self.file_ext_list.append( file_ext )
-
-        """
-        file_content = self.clean_data['txt_file']['content']
-        output_id = open(settings.STAGING_PATH+filename+'-'+revision+'.txt','w')
-        output_id.write(file_content)
-        output_id.close()
-        """
-        for extra_type in [{'file_type':'xml_file','file_ext':'.xml'}, {'file_type':'pdf_file','file_ext':'.pdf'},{'file_type':'ps_file','file_ext':'.ps'}]:
-            file_type=extra_type['file_type']
-            file_ext=extra_type['file_ext']
-            if self.clean_data[file_type]:
-                extra_file_content = self.clean_data[file_type]['content']
-                extra_output_id = open(settings.STAGING_PATH+filename+'-'+revision+file_ext,'w')
-                extra_output_id.write(extra_file_content)
-                extra_output_id.close()
-                self.file_ext_list.append( file_ext )
-        return settings.STAGING_PATH+filename+'-'+revision+'.txt'
 

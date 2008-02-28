@@ -45,7 +45,7 @@ class DraftParser:
     def set_remote_ip(self, ip):
         self.remote_ip = ip
 
-    def _set_meta_data_errors(self, key, err_msg):
+    def set_meta_data_errors(self, key, err_msg):
         self.meta_data_errors[key] = True
         self.meta_data_errors_msg.append(err_msg)
 
@@ -55,12 +55,12 @@ class DraftParser:
             self.filename = filename_re.group(2)
         except AttributeError:
             self.filename = self.not_found
-            self._set_meta_data_errors('filename', '<li>Could not find filename</li>')
+            self.set_meta_data_errors('filename', '<li>Could not find filename</li>')
         try:
             self.revision = filename_re.group(3)
         except AttributeError:
             self.revision = self.not_found
-            self._set_meta_data_errors('revision', '<li>Could not find version</li>')
+            self.set_meta_data_errors('revision', '<li>Could not find version</li>')
 
     def check_idnits(self, file_path):
         #Check IDNITS
@@ -146,12 +146,12 @@ class DraftParser:
             title = self.not_found
 
         if title == self.not_found:
-            self._set_meta_data_errors('title', '<li>Can not find title</li>')
+            self.set_meta_data_errors('title', '<li>Can not find title</li>')
             return title
         else:
             # this routine is added because the max length is 255
             if (len(title.strip()) > 255):
-                self._set_meta_data_errors('title', '<li>Can not find title</li>')
+                self.set_meta_data_errors('title', '<li>Can not find title</li>')
                 return self.not_found
             else:
                 title = re.sub('\n\s+',' ',title)
@@ -171,7 +171,7 @@ class DraftParser:
             abstract = abstract_re.sub('\n', abstract)
         except AttributeError:
             abstract = self.not_found
-            self._set_meta_data_errors('abstract', '<li>Can not find abstract</li>')
+            self.set_meta_data_errors('abstract', '<li>Can not find abstract</li>')
         return abstract.strip()
 
     def get_creation_date(self):
@@ -199,7 +199,7 @@ class DraftParser:
             else:
                 creation_date = self.not_found
         if creation_date == self.not_found:
-            self._set_meta_data_errors('creation_date', '<li>Creation Date field is empty or the creation date is not in a proper format.</li>')
+            self.set_meta_data_errors('creation_date', '<li>Creation Date field is empty or the creation date is not in a proper format.</li>')
             creation_date = None
             #creation_date = date(2000, 1, 1)
         return creation_date
@@ -218,19 +218,26 @@ class DraftParser:
     def get_authors_info(self):
         authors_section1 = re.compile('\n[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n+((\s{2,}.+\n+)+)\w+')
         authors_section2 = re.compile('\n[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\n+((\s*.+\n+)+)\w+')
+        address_not_found = True 
         for authors_re in [authors_section1, authors_section2]:
             searched_author = authors_re.search(self.content)
             if searched_author:
                 try:
                     authors_info = '\n\n' + searched_author.group(3).strip()
+                    authors_info = authors_info.replace('ietf-ipr@ietf.org','')
+                    mail_srch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+                    mail_rst = mail_srch.findall(authors_info)
+                    if address_not_found and mail_rst:
+                        address_not_found = False
                 except AttributeError:
                     authors_info = self.not_found
-                    self._set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
-                return authors_info
+                    self.set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
+                if not address_not_found:
+                    return authors_info
             else:
                 authors_info = self.not_found
-        if authors_info == self.not_found:
-            self._set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
+        if authors_info == self.not_found or address_not_found:
+            self.set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
         return authors_info
 
     def _get_name_by_email(self, email):
@@ -287,7 +294,7 @@ class DraftParser:
                 wg_id = self.not_found
         except IndexError, extradata:
             wg_id = self.not_found
-            self._set_meta_data_errors('group', '<li>Can not find working group id</li>')
+            self.set_meta_data_errors('group', '<li>Can not find working group id</li>')
         return wg_id
 
     def set_file_type(self, type_list):
@@ -300,7 +307,7 @@ class DraftParser:
         try:
             two_pages = self.pages[0] + self.pages[1]
         except IndexError, extradata:
-            self._set_meta_data_errors('two_pages', '<li>Can not find first two pages</li>')
+            self.set_meta_data_errors('two_pages', '<li>Can not find first two pages</li>')
             two_pages = self.not_found
         return two_pages
 
@@ -320,12 +327,12 @@ class DraftParser:
         self.get_authors_info()
         if self.get_creation_date():
             if not self.check_creation_date(self.get_creation_date()):
-                self._set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
+                self.set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
         # error message here
         expected_revision = self.get_expected_revision()
         if not self.check_revision(expected_revision):
             err_msg = "<li>" + STATUS_CODE[201] + "(Version %s is expected)</li>" % expected_revision
-            self._set_meta_data_errors('revision', err_msg)
+            self.set_meta_data_errors('revision', err_msg)
 
 
         if len(self.meta_data_errors_msg) > 0:

@@ -92,6 +92,9 @@ class IdSubmissionDetail(models.Model):
     idnits_failed = models.BooleanField(default=0)
     submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag")
 
+    def get_absolute_url(self):
+        return "/idsubmit/status/%s" % self.filename
+
     def save(self,*args,**kwargs):
 	self.last_updated_date = datetime.date.today()
 	# self.creation_date = datetime.date.today()

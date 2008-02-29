@@ -2,13 +2,13 @@
 
 Manual Posting Requested for following Internet-Draft:
 
-I-D Submission Tool URL: http://datatracker.ietf.org/idsubmit/status/{{ meta_data.submission_id }}
+I-D Submission Tool URL: {{ tracker_url }}
 
 
 
 Filename:          {{ meta_data.filename }}
 Version:           {{ meta_data.revision }}
-Staging URL:       http://localhost/tempids/{{ meta_data.filename }}
+Staging URL:       {{ file_url }}
 Title:             {{ meta_data.title }}
 Creation_date:     {{ meta_data.creation_date }}
 WG ID:             {{ meta_data.group }}

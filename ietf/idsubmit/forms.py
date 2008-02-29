@@ -97,7 +97,6 @@ class IDUploadForm(forms.Form):
 
     def save(self, filename, revision):
         self.file_ext_list = []
-        print self.file_names.items()
         for file_name, file_ext in self.file_names.items():
             try:
                 content = self.clean_data[file_name]['content']

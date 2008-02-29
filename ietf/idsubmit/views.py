@@ -3,7 +3,7 @@
 import re, os, glob, time
 from datetime import datetime, date
 
-from django.shortcuts import render_to_response as render, get_object_or_404
+from django.shortcuts import render_to_response as render, get_object_or_404, get_list_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db import connection
@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist as ExceptionDoesNotExist
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.views.generic.list_detail import object_detail
+from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates
 from ietf.idtracker.models import Acronym, IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
@@ -21,6 +22,7 @@ from ietf.utils.mail import send_mail
 from ietf.idsubmit.announcements import ID_ACTION_ANNOUNCEMENT, MSG_BODY_SCHEDULED_ANNOUNCEMENT
 from django.core.mail import BadHeaderError
 from ietf.idsubmit.parser.draft_parser import DraftParser
+from django.contrib.sites.models import Site
 
 # function parse_meta_data
 # This function extract filename, revision, abstract, title, and
@@ -163,15 +165,22 @@ def adjust_form(request, submission_id_or_name):
                                                  'staging_url':settings.STAGING_URL,
                                                  'file_type_list':file_type_list,
                                                  'meta_data_errors':meta_data_errors})
-def draft_status(request, submission_id_or_name):
-
+def draft_status(request, submission_id_or_name=None):
     submission = None
-    if re.compile("^\d+$").findall(submission_id_or_name) : # if submission_id
+    if 'passed_filename' in request.GET: # Search Result
+        passed_filename = request.GET['passed_filename']
+        id_list = IdSubmissionDetail.objects.filter(filename=passed_filename, status_id__gt =  -3, status_id__lt = 100).order_by('-submission_id')
+        if not id_list.count():
+            return render("idsubmit/error.html",{'error_msg':"No valid history found for %s" % passed_filename}, context_instance=RequestContext(request))
+        submission = id_list[0]
+    elif not submission_id_or_name:
+        return direct_to_template(request,'idsubmit/draft_search.html')
+    elif re.compile("^\d+$").findall(submission_id_or_name) : # if submission_id
         submission = get_object_or_404(IdSubmissionDetail, pk=submission_id_or_name)
     elif re.compile('^(draft-.+)').findall(submission_id_or_name) :
         # if submission name
         subm_name = re.sub('(-\d\d\.?(txt)?|/)$', '', submission_id_or_name)
-        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=-2, status_id__lt=100).order_by('-submission_id') 
+        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=-3, status_id__lt=100).order_by('-submission_id') 
 
         if submissions.count() > 0 :
             submission = submissions[0]
@@ -239,7 +248,7 @@ def manual_post(request):
         try:
             submission = IdSubmissionDetail.objects.get(submission_id=param['submission_id'])
         except IdSubmissionDetail.DoesNotExist:
-            return False
+            return render("idsubmit/error.html",{'error_msg':"Submission can not be found."}, context_instance=RequestContext(request))
         submission.status_id=5
         if submitter.save(submission, param):
             cc_list = list();
@@ -247,8 +256,7 @@ def manual_post(request):
                 cc_list.append(author_info.email_address)
             try:
                 send_mail(request,[param['submitter_email']],from_email,subject,
-                  "idsubmit/email_manual_post.txt",{'meta_data':param, 'cc':cc_list},
-                  cc_list
+                  "idsubmit/email_manual_post.txt",{'meta_data':param, 'cc':cc_list, 'file_url': os.path.join(settings.STAGING_URL,"%s-%s.txt" % (param['filename'], param['revision'])), 'tracker_url': "http://%s%s" % (Site.objects.get_current().domain, submission.get_absolute_url())}, cc_list
                 )
             except BadHeaderError:
                 return render("idsubmit/error.html",{'error_msg':"Invalid header found."}, context_instance=RequestContext(request))
@@ -650,7 +658,7 @@ def cancel_draft (request, submission_id) :
 
     # get submission
     submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
-    if submission.status_id < 0 or submission.status_id > 100:
+    if submission.status_id < 0:
         return render("idsubmit/error.html", {'error_msg':'This document is not in valid state and cannot be canceled'}, context_instance=RequestContext(request))
     # delete the document(s)
     path_orig_sub = os.path.join(

@@ -153,12 +153,30 @@ class InternetDraft(models.Model):
     def save(self):
         self.id_document_key = self.title.upper()
         super(InternetDraft, self).save()
+    def get_draft(self):
+        return self
     def displayname(self):
 	return "%s-%s.txt" % ( self.filename, self.revision_display() )
     def doclink(self):
 	return "http://www.ietf.org/internet-drafts/%s" % ( self.displayname() )
+    def get_ballot_id_str(self):
+        if self.idinternal:
+            return str(self.idinternal.ballot_id)
+        else:
+            return None
     def group_acronym(self):
 	return self.group.acronym
+    def group_acronym_display(self):
+        return self.group.acronym
+    def group_acronym_id_display(self):
+        return self.group.acronym_id
+    def get_area(self):
+        if self.group.acronym_id == 1027:
+            return Area.objects.get(pk=1008)
+        else:
+            return AreaGroup.objects.get(group=IETFWG.objects.get(pk=self.group.acronym_id)).area
+    def is_expired(self):
+        return self.status.status_id == 2
     def __str__(self):
         return self.filename
     def idstate(self):
@@ -356,6 +374,8 @@ class Rfc(models.Model):
 	self.rfc_name_key = self.title.upper()
 	self.last_modified_date = datetime.date.today()
 	super(Rfc, self).save()
+    def get_draft(self): # For adding into IDInternal 
+        return InternetDraft.objects.get(pk=self.rfc_number)
     def displayname(self):
         return "%s.txt" % ( self.filename() )
     def filename(self):
@@ -364,6 +384,19 @@ class Rfc(models.Model):
 	return "RFC"
     def revision_display(self):
 	return "RFC"
+    def group_acronym_id_display(self):
+        if self.group_acronym == 'none' or self.group_acronym == '':
+            return 1027
+        else:
+            return Acronym.objects.get(acronym=self.group_acronym).acronym_id
+    def get_area(self):
+        if not self.area_acronym:
+            return Area.objects.get(pk=1008)
+        elif Area.objects.filter(area_acronym=self.area_acronym,status=1).count():
+            return Area.objects.get(area_acronym=self.area_acronym)
+        else:
+            return Area.objects.get(pk=1008)
+        
     def doclink(self):
 	return "http://www.ietf.org/rfc/%s" % ( self.displayname() )
     def doctype(self):
@@ -436,13 +469,13 @@ class BallotInfo(models.Model):   # Added by Michael Lee
     active = models.BooleanField()
     an_sent = models.BooleanField()
     an_sent_date = models.DateField(null=True, blank=True)
-    an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent') 
+    an_sent_by = models.ForeignKey(IESGLogin, null=True, db_column='an_sent_by', related_name='ansent') 
     defer = models.BooleanField(null=True, blank=True)
-    defer_by = models.ForeignKey(IESGLogin, db_column='defer_by', related_name='deferred')
+    defer_by = models.ForeignKey(IESGLogin, null=True,db_column='defer_by', related_name='deferred')
     defer_date = models.DateField(null=True, blank=True)
-    approval_text = models.TextField(blank=True)
-    last_call_text = models.TextField(blank=True)
-    ballot_writeup = models.TextField(blank=True)
+    approval_text = models.TextField(blank=True, null=True)
+    last_call_text = models.TextField(blank=True, null=True)
+    ballot_writeup = models.TextField(blank=True, null=True)
     ballot_issued = models.IntegerField(null=True, blank=True)
     def __str__(self):
 	try:
@@ -498,7 +531,7 @@ class IDInternal(models.Model):
     rfc_flag = models.IntegerField(null=True)
     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
     primary_flag = models.IntegerField(blank=True, null=True)
-    group_flag = models.IntegerField(blank=True)
+    group_flag = models.IntegerField(null=True, blank=True)
     token_name = models.CharField(blank=True, maxlength=25)
     token_email = models.CharField(blank=True, maxlength=255)
     note = models.TextField(blank=True)
@@ -510,7 +543,7 @@ class IDInternal(models.Model):
     assigned_to = models.CharField(blank=True, maxlength=25)
     mark_by = models.ForeignKey(IESGLogin, db_column='mark_by', related_name='marked')
     job_owner = models.ForeignKey(IESGLogin, db_column='job_owner', related_name='documents')
-    event_date = models.DateField(null=True)
+    event_date = models.DateField(null=True, auto_now=True, auto_now_add=True)
     area_acronym = models.ForeignKey(Area, db_column='area_acronym_id')
     cur_sub_state = models.ForeignKey(IDSubState, db_column='cur_sub_state_id', related_name='docs', null=True, blank=True)
     prev_sub_state = models.ForeignKey(IDSubState, db_column='prev_sub_state_id', related_name='docs_prev', null=True, blank=True)
@@ -562,7 +595,7 @@ class IDInternal(models.Model):
             document=self,
             rfc_flag=self.rfc_flag,
             public_flag=public_flag,
-            version=self.draft.revision,
+            version=self.document().revision_display(),
             created_by=LoginObj,
             comment_text=comment_text,
             result_state=result_state,

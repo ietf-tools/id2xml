@@ -2,7 +2,13 @@
 {% load myifchanged %}
 	<tr bgcolor="#{% myifchanged match.ballot_id %}{% cycle F8D6F8,E2AFE2 as ballotcolor %}{% else %}{% if match.synthetic %}{% cycle ballotcolor %}{% else %}{% cyclevalue ballotcolor %}{% endif %}{% endmyifchanged %}">
 	{% if match.synthetic %}
-	<td>&nbsp;</td>
+          {% ifequal mode 'IETF' %}
+	<td>
+          &nbsp;
+        </td>
+          {% else %}
+        <form method="GET" action="{% url ietf.idtracker.views.view_id match.document.filename %}"><td><input type="submit" value="ADD"></td></form>
+          {% endifequal %}
 	{% else %}
         <!-- this form element technically belongs inside the <td>
              but that actually changes the visible spacing in most

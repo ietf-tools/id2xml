@@ -3,10 +3,10 @@
 
 {% load ietf_filters %}     
 
-{% block title %}-- {{ object.document.filename }}{% endblock %}
+{% block title %}-- {{ docObj.filename }}{% endblock %}
 
 {% block head %}
-<link rel="alternate" type="application/atom+xml" href="/feed/comments/{{ object.document.filename }}/">
+<link rel="alternate" type="application/atom+xml" href="/feed/comments/{{ docObj.filename }}/">
 {% endblock %}
 
 {% block idcontent %}
@@ -17,7 +17,16 @@
             <tr bgcolor="BEBEBE" align="center">
               <th colspan="2">
                 <div class="largefont">
+               {% if adding %}
+                  Add Draft 
+               {% else %}
                   Detail Info
+               {% endif %}
+               {% if resurrection_needed %}
+                 <br><br>
+                 <font color="red">*** EXPIRED ***</font><br>
+                 <form method="GET" action="{% url ietf.idtracker.views.resurrect_id docObj.filename %}">You can't process and expired I-D {% if object.resurrect_requested_by %}Resurrection was requested by {{ object.resurrect_requested_by }} {% else %}<input type="submit" value="resurrect it first">{% endif %}</form>
+               {% endif %}
                 </div>
 		{% if object.ballot_others.count %}
 		<div align="right">
@@ -27,17 +36,21 @@
               </th>
             </tr>
             {% ifnotequal mode 'IETF' %}
-            <form action="." method="post">
+            <form action="{% url ietf.idtracker.views.view_id docObj.filename %}" method="post">
+              {% if ballot_id %}
+              <input type="hidden" name="ballot_id" value="{{ballot_id}}">
+              {% endif %}
             {% endifnotequal %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
-                  {{ object.document.doctype }} Name:
+                  {{ docObj.doctype }} Name:
                 </div>
               </td>
 
               <td>
                 <div class="largefont{{fontsize}}">
+                {% if not adding %}
 		  {{ object.document.displayname_with_link }}
 		  {% ifequal object.document.doctype "Draft" %}
 		    {% ifnotequal object.document.status.status "Active" %}
@@ -74,14 +87,17 @@
 		      {{ replaces.filename }}{% if replaces.idinternal %}</a>{% endif %}{% if not forloop.last %},{% endif %}
 		    {% endfor %}
 		  {% endif %}
+               {% else %}
+                   {{ docObj.filename }}
+               {% endif %}
                 </div>
               </td>
             </tr>
-
+{% if not adding %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
-                  IESG Discussion:
+                  IESG Discussion: {{ mode }}
                 </div>
               </td>
 
@@ -106,7 +122,7 @@
                 </div>
               </td>
             </tr>
-
+{% endif %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
@@ -116,7 +132,7 @@
 
               <td>
                 <div class="largefont{{fontsize}}">
-                  {{ object.document.revision }}
+                  {{ docObj.revision }}
                 </div>
               </td>
             </tr>
@@ -131,14 +147,14 @@
               <td>
                 <div class="largefont{{fontsize}}">
                   {% ifequal mode 'IETF' %}
-                  {{ object.document.intended_status }}
+                  {{ docObj.intended_status }}
                   {% else %}
                   {{ idform.intended_status }}
                   {% endifequal %}
                 </div>
               </td>
             </tr>
-{% ifequal object.document.group_acronym "none" %}
+{% ifequal docObj.group_acronym "none" %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
@@ -175,6 +191,7 @@
                 </div>
               </td>
             </tr>
+{% if not adding %}
             {% ifnotequal mode 'IETF' %}
             <tr bgcolor="white">
               <td>
@@ -196,7 +213,7 @@
                   {% if object.rfc_flag %}
                   {% else %}
                   {% ifequal object.cur_state.state "RFC Ed Queue" %}
-                  <a href="http://www.rfc-editor.org/queue.html#{{ object.document.filename }}">
+                  <a href="http://www.rfc-editor.org/queue.html#{{ docObj.filename }}">
                   [RFC Editor State]</a>
                   {% endifequal %}
                   {% endif %}
@@ -208,7 +225,7 @@
               </td>
             </tr>
             {% endifnotequal %}
-
+{% endif %}
 
             <tr bgcolor="white">
               <td>
@@ -219,6 +236,7 @@
 
               <td>
                 <div class="largefont{{fontsize}}">
+               {% if not adding %}
                   <a href="/idtracker/help/state/{{ object.cur_state_id }}/">
                   {{ object.cur_state }}</a>
 		  {% if object.cur_sub_state %}
@@ -230,10 +248,13 @@
 		  {% if object.rfc_flag %}
 		  {% else %}
 		  {% ifequal object.cur_state.state "RFC Ed Queue" %}
-		  <a href="http://www.rfc-editor.org/queue.html#{{ object.document.filename }}">
+		  <a href="http://www.rfc-editor.org/queue.html#{{ docObj.filename }}">
                   [RFC Editor State]</a>
 		  {% endifequal %}
 		  {% endif %}
+               {% else %}
+                {{ idform.next_state }} with sub state in {{ idform.next_sub_state }}
+               {% endif %}
                 </div>
                 {% ifequal mode 'IETF' %}
                 <a href="/idtracker/help/state/">
@@ -241,6 +262,7 @@
                 {% endifequal %}
               </td>
             </tr>
+{% if not adding %}
             {% ifnotequal mode 'IETF' %}
             <tr bgcolor="white">
               <td>
@@ -264,6 +286,7 @@
               </td>
             </tr>
             {% endifnotequal %}
+{% endif %}
             <tr bgcolor="white">
               <td>
                 <div class="largefont{{fontsize}}">
@@ -350,7 +373,7 @@
             <tr bgcolor="white">
               <td width="20%">
               {% ifnotequal mode 'IETF' %}
-              <input type="submit" value="Update">
+              <input type="submit" value="{% if adding %}Submit{% else %}Update{% endif %}"{% if resurrection_needed %} OnClick="alert('You can not process an expired I-D');return false;"{% endif %}>
               <input type="reset" value="RESET">
               </form>
               {% else %}
@@ -358,18 +381,19 @@
               {% endifnotequal %}
               </td>
               <td>
+              {% if not adding %}
                 <table cellpadding="1" cellspacing="1" border="0">
                   <tr>
                   {% ifnotequal mode 'IETF' %}
                     <td>
-                      <form action="." method="GET">
-                        <input type="submit" value="Add a document to this ballot">
+                      <form action="{% url ietf.idtracker.views.search %}" method="GET"><input type="hidden" name="ballot_id" value="{{ object.ballot_id }}">
+                        <input type="submit" value="Add a document to this ballot"{% if resurrection_needed %} OnClick="alert('You can not process an expired I-D');return false;"{% endif %}>
                       </form>
                     </td>
                   {% if not object.primary_flag %}
                     <td>
-                      <form action="." method="GET">
-                        <input type="submit" value="Separate from Ballot Set">
+                      <form action="{% url ietf.idtracker.views.view_id docObj.filename %}" method="GET">
+                        <input type="submit" value="Separate from Ballot Set" name="separate_ballot"{% if resurrection_needed %} OnClick="alert('You can not process an expired I-D');return false;"{% endif %}>
                       </form>
                     </td>
                   {% endif %}
@@ -382,6 +406,7 @@
                     </td>
                   </tr>
                 </table>
+              {% endif %}
               </td>
             </tr>
           </table>
@@ -399,8 +424,8 @@
     </tr>
     </table>
     {% endif %}
-
-    <h3>Comment Log <span style="font-size: 80%">[<a href="/feed/comments/{{ object.document.filename }}/">atom feed</a>]</span></h3>
+{% if not adding %}
+    <h3>Comment Log <span style="font-size: 80%">[<a href="/feed/comments/{{ docObj.filename }}/">atom feed</a>]</span></h3>
 
     <table cellpadding="1" cellspacing="1" border="0">
       <tr bgcolor="#7DC189">
@@ -480,7 +505,7 @@
 {% endfor %} 
     </table>
     <br>
-     
+{% endif %}
 
     <form action="{% url ietf.idtracker.views.search %}" method="GET">
       <input type="submit" value="Main Menu">

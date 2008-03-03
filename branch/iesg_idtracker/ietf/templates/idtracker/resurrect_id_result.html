@@ -1,0 +1,24 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% extends "idtracker/base.html" %}
+
+{% load ietf_filters %}
+
+{% block title %}RESURRECT{% endblock %}
+
+{% block idcontent %}
+<div class="largefont">
+A notification has been sent to the Secretariat to resurrect:<br><br>{{ draft.filename }}<br><br>
+</div>
+
+
+</table>
+{% include "idtracker/main_menu_button_snippet.html" %}
+<hr>
+<A HREF="https://www.ietf.org/IESG/internal/agenda.html">[Telechat Agenda (Web)]</a>
+<p>
+<A HREF="https://www.ietf.org/IESG/internal/agenda.txt">[Telechat Agenda (Text)]</a>
+<p>
+<A HREF="https://www.ietf.org/IESG/internal/agenda_pack.txt">[Telechat Agenda Package (Text)]</a>
+<p>
+{% endblock %}
+

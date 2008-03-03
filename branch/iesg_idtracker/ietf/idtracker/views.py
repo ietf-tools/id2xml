@@ -1,6 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 # Create your views here.
+from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 from django import newforms as forms
 from django.template import RequestContext
@@ -9,9 +10,9 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position, DocumentComment
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position, DocumentComment,IDAuthor, Area, AreaGroup, IESGComment, IESGDiscuss
 from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail, BallotSearch
-from ietf.utils.mail import send_mail_text
+from ietf.utils.mail import send_mail_text, send_mail
 from ietf.utils import normalize_draftname
 import re, datetime
 
@@ -105,6 +106,20 @@ def search(request):
 	    draftlist = [draft['id_document_tag'] for draft in InternetDraft.objects.all().filter(rfc_number=rfc_number).values('id_document_tag')]
 	    q_objs.append(Q(draft__in=draftlist)&Q(rfc_flag=0)|Q(draft=rfc_number)&Q(rfc_flag=1))
         filename = args.get('search_filename', '')
+        if args.has_key('add_button'): # redirecting to add id
+            if filename:
+                draftObj =  InternetDraft.objects.all().filter(filename__icontains=filename).order_by('filename')
+                rfc_flag=0
+            elif rfc_number:
+                draftObj =  Rfc.objects.all().filter(rfc_number=rfc_number)
+                rfc_flag=1
+            if draftObj:
+                if args.has_key('ballot_id'):
+                    ballot_id = args.get('ballot_id')
+                else:
+                    ballot_id = None
+                return add_id(request,draftObj,ballot_id,rfc_flag)
+
 	if filename != '':
 	    q_objs.append(Q(draft__filename__icontains=filename,rfc_flag=0))
 	status = args.get('search_status_id', '')
@@ -152,6 +167,10 @@ def search(request):
         matches = matches.order_by('cur_state', 'cur_sub_state', '-primary_flag')
     else:
 	matches = None
+    if  args.has_key('ballot_id') and mode in ['IESG','Secretariat']:
+        adding_ballot_to = IDInternal.objects.get(ballot=args.get('ballot_id'), primary_flag=1)
+    else:
+        adding_ballot_to = False
     ballot_search_form = BallotSearch()
     return render_to_response('idtracker/idtracker_search.html', {
 	'form': form,
@@ -159,13 +178,80 @@ def search(request):
 	'matches': matches,
 	'searching': searching,
         'mode': mode,
+        'adding_ballot_to': adding_ballot_to,
         'default_search': default_search,
       }, context_instance=RequestContext(request))
 
-def edit_idinternal(request, idinternal=None):
+def edit_idinternal(request, idinternal=None,adding=False,ballot_id=None,separate_ballot=False,rfc_flag=0):
     mode = get_tracker_mode(request)
     global LoginObj
     if idinternal:
+        if adding==False and ballot_id: #Merging documents
+            ballotObj, crated = BallotInfo.objects.get_or_create(ballot = ballot_id, active = False, an_sent = False)
+            idinternal.ballot = ballotObj
+            idinternal.primary_flag = 0
+            idinternal.job_owner = ballotObj.get_primary_draft().job_owner
+            idinternal.prev_state = idinternal.cur_state
+            idinternal.cur_state = ballotObj.get_primary_draft().cur_state
+            idinternal.cur_sub_state = ballotObj.get_primary_draft().cur_sub_state
+            idinternal.save()
+            idinternal.add_comment("Merged with %s by %s" % (ballotObj.get_primary_draft(),LoginObj.person),False,LoginObj)
+            return HttpResponseRedirect(idinternal.get_absolute_url())
+        if separate_ballot: # Separate Ballot
+            old_ballotObj = idinternal.ballot
+            new_ballot_id = BallotInfo.objects.all().order_by("-ballot")[0].ballot + 1
+            new_ballotObj = BallotInfo.objects.create(
+                ballot = new_ballot_id,
+                active = old_ballotObj.active,
+                an_sent = old_ballotObj.an_sent,
+                an_sent_date = old_ballotObj.an_sent_date,
+                an_sent_by = old_ballotObj.an_sent_by,
+                defer = old_ballotObj.defer,
+                defer_date = old_ballotObj.defer_date,
+                approval_text = old_ballotObj.approval_text, # need to be regen
+                last_call_text = old_ballotObj.last_call_text, # need to be regen
+                ballot_writeup = old_ballotObj.ballot_writeup,
+                ballot_issued = old_ballotObj.ballot_issued
+            ) 
+            idinternal.ballot = new_ballotObj
+            idinternal.primary_flag=1
+            idinternal.save()
+            #to be moved to a function
+            #copy_ballot(old_ballotObj,idinternal.ballot)
+            #copying positions
+            for position in Position.objects.filter(ballot=old_ballotObj):
+                print new_ballotObj.ballot
+                new_position = Position.objects.create(
+                    ballot=new_ballotObj,
+                    ad = position.ad,
+                    yes = position.yes,
+                    noobj = position.noobj,
+                    abstain = position.abstain,
+                    approve = position.approve,
+                    discuss = position.discuss,
+                    recuse = position.recuse
+                )
+            #copying ballot comments
+            for iesg_comment in IESGComment.objects.filter(ballot=old_ballotObj):
+                new_iesg_comment = IESGComment.objects.create(
+                    ballot = new_ballotObj,
+                    ad = iesg_comment.ad,
+                    date = iesg_comment.date,
+                    revision = iesg_comment.revision,
+                    active = iesg_comment.active,
+                    text = iesg_comment.text
+                )
+            #copying ballot comments
+            for iesg_comment in IESGDiscuss.objects.filter(ballot=old_ballotObj):
+                new_iesg_comment = IESGDiscuss.objects.create(
+                    ballot = new_ballotObj,
+                    ad = iesg_comment.ad,
+                    date = iesg_comment.date,
+                    revision = iesg_comment.revision,
+                    active = iesg_comment.active,
+                    text = iesg_comment.text
+                )
+            return HttpResponseRedirect(idinternal.get_absolute_url()) 
         try:
             next_state_object = IDNextState.objects.filter(cur_state=idinternal.cur_state)
 	except IDNextState.DoesNotExist:
@@ -175,7 +261,7 @@ def edit_idinternal(request, idinternal=None):
             if "next_state_button" in request.POST:
                 next_state_id = IDState.objects.get(state= request.POST['next_state_button']).document_state_id
 	    if idform.is_valid():
-		(update_notify_to, comment_text) = idform.save(idinternal,request,LoginObj)
+		(update_notify_to, comment_text) = idform.save(idinternal,request,LoginObj,adding=adding,ballot_id=ballot_id)
                 if update_notify_to:
                     email_text = """Please DO NOT reply to this email
 
@@ -186,6 +272,8 @@ ID Tracker URL: https://datatracker.ietf.org%s
              # following line is commented for dev. Need to uncomment when deployed 
                     #send_mail_text(request,update_notify_to,("DraftTracker Mail System","iesg-secretary@ietf.org"),"%s updated by %s" % (idinternal.draft,LoginObj), email_text)
 		return HttpResponseRedirect(".")
+            else:
+                print idform.error()
 	else:
             idinternal_dict = {
                 'intended_status':idinternal.draft.intended_status.intended_status_id,
@@ -199,6 +287,14 @@ ID Tracker URL: https://datatracker.ietf.org%s
                  }
             if idinternal.draft.group.acronym_id == 1027 and idinternal.primary_flag:
                 idinternal_dict['area'] = idinternal.area_acronym_id
+            if adding:
+                idinternal_dict['next_state'] = idinternal.cur_state_id
+                if rfc_flag:
+                    docObj = Rfc.objects.get(pk=idinternal.draft.id_document_tag)
+                else:
+                    docObj = idinternal.draft
+            else: 
+                docObj = idinternal.document()
             idform = IDDetail(idinternal_dict)
     else:
 	idform = None
@@ -210,7 +306,10 @@ ID Tracker URL: https://datatracker.ietf.org%s
         ballot_writeup = False
     else:
         ballot_writeup = True
-
+    if mode != 'IETF' and rfc_flag==0 and idinternal.draft.is_expired():
+        resurrection_needed = True
+    else:
+        resurrection_needed = False
     return render_to_response('idtracker/idinternal_detail.html', {
         'object': idinternal,
         'next_state_object': next_state_object,
@@ -218,6 +317,10 @@ ID Tracker URL: https://datatracker.ietf.org%s
         'mode': mode,
         'fontsize':fontsize,
         'ballot_writeup': ballot_writeup,
+        'adding': adding,
+        'docObj': docObj,
+        'ballot_id': ballot_id,
+        'resurrection_needed': resurrection_needed 
       }, context_instance=RequestContext(request))
 
 def state_desc(request, state, is_substate=0):
@@ -274,15 +377,80 @@ def redirect_id(request, object_id):
     doc = get_object_or_404(InternetDraft, id_document_tag=object_id)
     return HttpResponsePermanentRedirect(reverse(view_id, args=[doc.filename]))
 
+def resurrect_id(request, queryset=None, slug=None, slug_field=None):
+    mode = get_tracker_mode(request)
+    global LoginObj
+    draft = get_object_or_404(InternetDraft, filename=slug)
+    if draft.idinternal:
+        draft.idinternal.resurrect_requested_by = LoginObj
+        draft.idinternal.save()
+    #print render_to_string('idtracker/request_resurrect_email.txt', {'draft': draft, 'requested_by':LoginObj},  context_instance=RequestContext(request))
+    # following line is commented for dev. Need to uncomment when deployed
+    #send_mail(request, ('I-D Administrator', 'internet-drafts@ietf.org'), LoginObj.person.email(), 'I-D Resurrection Request', 'idtracker/request_resurrect_email.txt', {'draft': draft, 'requested_by': LoginObj})
+
+    return render_to_response('idtracker/resurrect_id_result.html', {'draft': draft}, context_instance=RequestContext(request))
+
 # calling sequence similar to object_detail, but we have different
 # 404 handling: if the draft exists, render a not-found template.
-def view_id(request, queryset, slug, slug_field):
+def view_id(request, queryset=None, slug=None, slug_field=None, rfc_flag=0):
     mode = get_tracker_mode(request)
+    global LoginObj
+    if 'ballot_id' in request.GET:
+        ballot_id = request.GET['ballot_id']
+        primary_flag = 0
+    elif 'ballot_id' in request.POST:
+        ballot_id = request.POST['ballot_id']
+        primary_flag = 0
+    else:
+        ballot_id = None
+        primary_flag = 1
+    if 'separate_ballot' in request.GET:
+        separate_ballot=True
+    else:
+        separate_ballot=False
     try:
-	object = IDInternal.objects.get(draft__filename=slug, rfc_flag=0)
-    except IDInternal.DoesNotExist:
-	draft = get_object_or_404(InternetDraft, filename=slug)
-	return render_to_response('idtracker/idinternal_notfound.html', {'draft': draft}, context_instance=RequestContext(request))
+        if rfc_flag:
+	    object = IDInternal.objects.get(pk=slug, rfc_flag=rfc_flag)
+	else:
+            object = IDInternal.objects.get(draft__filename=slug, rfc_flag=rfc_flag)
+    except IDInternal.DoesNotExist: 
+        if rfc_flag:
+	    docObj = get_object_or_404(Rfc, rfc_number=slug)
+        else:
+	    docObj = get_object_or_404(InternetDraft, filename=slug)
+        if mode == 'IESG' or mode == 'Secretariat':
+            if 'ballot_id' in request.GET:
+                ballot_id = request.GET['ballot_id']
+                primary_flag = 0
+            elif 'ballot_id' in request.POST:
+                ballot_id = request.POST['ballot_id']
+                primary_flag = 0
+            else:
+                ballot_id = None
+                primary_flag = 1
+            notice_list = []
+            if docObj.group_acronym_id_display() == 1027:
+                notice_list = [person.email() for person in IDAuthor.objects.filter(document=docObj)]
+                #area_acronym = Area.objects.get(area_acronym=1008)
+            else:
+               notice_list.append("%s-chairs@tools.ietf.org" % docObj.group_acronym_display()) 
+               notice_list.append("%s@tools.ietf.org" % docObj.filename) 
+               #area_acronym = AreaGroup.objects.get(group=docObj.group).area
+            new_object = IDInternal(
+                draft = docObj.get_draft(),
+                rfc_flag = rfc_flag, 
+                primary_flag = primary_flag,
+                group_flag = docObj.group_acronym_id_display(),
+                job_owner =  LoginObj,
+                mark_by =  LoginObj,
+                area_acronym = docObj.get_area(),
+                cur_state = IDState.objects.get(document_state_id=10),
+                prev_state = IDState.objects.get(document_state_id=10),
+                state_change_notice_to = ','.join(notice_list)
+            )
+            return edit_idinternal(request,new_object,adding=True,ballot_id=ballot_id,rfc_flag=rfc_flag)
+        else:
+	    return render_to_response('idtracker/idinternal_notfound.html', {'draft': docObj}, context_instance=RequestContext(request))
     args = request.GET.copy()
     if args.get('toggle_public_flag'):
         id = args.get('objectid')
@@ -290,8 +458,20 @@ def view_id(request, queryset, slug, slug_field):
         comment.toggle_public_flag()
         comment.save()
         return HttpResponseRedirect(".") 
-    return edit_idinternal(request,object)
+    return edit_idinternal(request,object,ballot_id=ballot_id,separate_ballot=separate_ballot,rfc_flag=rfc_flag)
 
+def add_id (request, draftObj, ballot_id=None,rfc_flag=0):
+    mode = get_tracker_mode(request)
+    global LoginObj
+    if draftObj.count() == 1: # Go directly to ADD ID page
+        if rfc_flag:
+            matching_slug = draftObj[0].rfc_number
+        else:
+            matching_slug = draftObj[0].filename
+        return view_id (request,slug=matching_slug,rfc_flag=rfc_flag)
+    else: #Display document list
+        return render_to_response('idtracker/adding_doc_list.html', {'object': draftObj,'ballot_id':ballot_id}, context_instance=RequestContext(request))
+    return HttpResponseRedirect("/idtracker/") 
 def view_rfc(request, object_id):
     '''A replacement for the object_detail generic view for this
     specific case to work around the following problem:
@@ -303,8 +483,9 @@ def view_rfc(request, object_id):
     attempted and an exception raised if there is no match.
     This view gets the appropriate row from IDInternal and
     calls the template with the necessary context.'''
-    object = get_object_or_404(IDInternal, pk=object_id, rfc_flag=1)
-    return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
+    return view_id(request, queryset=None, slug=object_id, rfc_flag=1)
+    #object = get_object_or_404(IDInternal, pk=object_id, rfc_flag=1)
+    #return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
 
 # Wrappers around object_detail to give permalink a handle.
 # The named-URLs feature in django 0.97 will eliminate the

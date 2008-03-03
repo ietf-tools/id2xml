@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django import newforms as forms
-from models import IESGLogin, IDStatus, Area, IDState, IDSubState, IDIntendedStatus,TelechatDates, InternetDraft, IDState, IDSubState
+from models import IESGLogin, IDStatus, Area, IDState, IDSubState, IDIntendedStatus,TelechatDates, InternetDraft, IDState, IDSubState,BallotInfo
 
 TELECHAT_DATE_CHOICES = (
     (TelechatDates.objects.get(id=1).date1,TelechatDates.objects.get(id=1).date1),
@@ -49,7 +49,8 @@ class IDDetail(forms.Form):
     area = forms.ModelChoiceField(Area.objects.filter(status=Area.ACTIVE), required=False)
     agenda = forms.BooleanField(required=False)
     telechat_date = forms.ChoiceField(choices=TELECHAT_DATE_CHOICES,required=False)
-    job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level=1).order_by('last_name'))
+    #job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level=1).order_by('last_name'))
+    job_owner = forms.ChoiceField(choices=(), required=False)
     status_date = forms.DateField(widget=forms.TextInput(attrs={'size': 15, 'maxlength': 60}), required=False)
     note = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':72,}), required=False)
     comment = forms.CharField(widget=forms.Textarea(attrs={'rows':10, 'cols':72,}), required=False)
@@ -57,11 +58,14 @@ class IDDetail(forms.Form):
     state_change_notice_to = forms.CharField(widget=forms.TextInput(attrs={'size': 55, 'maxlength': 255}), required=False)
     next_state = forms.ModelChoiceField(IDState.objects.all(), required=False, empty_label="---Select Next State") 
     next_sub_state = forms.ModelChoiceField(IDSubState.objects.all(), required=False, empty_label="---Select Sub State") 
-    def save(self,idinternal,request,LoginObj=None, ballot=None):
+    def __init__(self, *args, **kwargs):
+        super(IDDetail, self).__init__(*args, **kwargs)
+        self.fields['job_owner'].choices = [(ad.id, "%s, %s" % (ad.last_name, ad.first_name)) for ad in IESGLogin.objects.filter(user_level=1).order_by('last_name')] + [('-99', '------------------')] + [(ad.id, "%s, %s" % (ad.last_name, ad.first_name)) for ad in IESGLogin.objects.filter(user_level=2).order_by('last_name')]
+    def save(self,idinternal,request,LoginObj=None, ballot=None, adding=False, ballot_id=None):
         import datetime
         all_comments = []
         update_notify_to = ""
-        if not idinternal.job_owner == LoginObj:
+        if not idinternal.job_owner == LoginObj.id:
             update_notify_to = idinternal.job_owner.person.emailaddress_set.get(priority=1).address
         internet_draft = idinternal.draft 
         if not internet_draft.intended_status == self.clean_data['intended_status']:
@@ -83,9 +87,10 @@ class IDDetail(forms.Form):
         elif idinternal.agenda and idinternal.telechat_date != new_telechat_date:
             all_comments.append("Telechat date was changed to <b>%s</b> from %s" % (new_telechat_date, idinternal.telechat_date))
         idinternal.telechat_date = new_telechat_date 
-        if not idinternal.job_owner == self.clean_data['job_owner']:
-            all_comments.append("Responsible AD has been changed to <b>%s</b> from %s" % (self.clean_data['job_owner'],idinternal.job_owner))
-            idinternal.job_owner = self.clean_data['job_owner']
+        job_owner = IESGLogin.objects.get(pk=self.clean_data['job_owner'])
+        if not idinternal.job_owner == job_owner:
+            all_comments.append("Responsible AD has been changed to <b>%s</b> from %s" % (job_owner,idinternal.job_owner))
+            idinternal.job_owner = job_owner
         if not idinternal.status_date == self.clean_data['status_date']:
             all_comments.append("Status date has been changed to <b>%s</b> from %s" % (self.clean_data['status_date'],idinternal.status_date))
             idinternal.status_date = self.clean_data['status_date']
@@ -95,7 +100,25 @@ class IDDetail(forms.Form):
         if not idinternal.state_change_notice_to == self.clean_data['state_change_notice_to']:
             all_comments.append("State change notice field has been changed to <b>%s</b> from %s" % (self.clean_data['state_change_notice_to'],idinternal.state_change_notice_to))
             idinternal.state_change_notice_to = self.clean_data['state_change_notice_to']
-        idinternal.save()
+        # When a new document gets added, a new ballot is being created
+        if adding:
+            if ballot_id:
+                ballotObj, crated = BallotInfo.objects.get_or_create(ballot = ballot_id, active = False, an_sent = False)
+            else:
+                new_ballot_id = BallotInfo.objects.all().order_by("-ballot")[0].ballot + 1
+                ballotObj = BallotInfo.objects.create(ballot = new_ballot_id, active = False, an_sent = False)
+        
+            idinternal.ballot = ballotObj
+            idinternal.cur_state = self.clean_data['next_state']
+            idinternal.cur_sub_state = self.clean_data['next_sub_state']
+            idinternal.save()
+            idinternal.add_comment("Draft Added by %s in state %s" % (LoginObj.person, idinternal.docstate()),False,LoginObj)
+        else:
+            idinternal.save()
+        if self.clean_data['comment']:
+            idinternal.add_comment(self.clean_data['comment'],False,LoginObj,self.clean_data['public_flag'],ballot)
+        if adding:
+            return False, False
         orig_state = idinternal.docstate()
         if self.clean_data['next_state']:
             idinternal.change_state(self.clean_data['next_state'], self.clean_data['next_sub_state'],LoginObj)
@@ -105,8 +128,6 @@ class IDDetail(forms.Form):
             idinternal.change_state(IDState.objects.get(state= request.POST['next_state_button']), None, LoginObj)
         elif 'back_to_previous' in request.POST:
             idinternal.change_state(idinternal.prev_state, idinternal.prev_sub_state,LoginObj)
-        if self.clean_data['comment']:
-            idinternal.add_comment(self.clean_data['comment'],False,LoginObj,self.clean_data['public_flag'],ballot)
         result_state = idinternal.docstate()
         if all_comments or (update_notify_to and orig_state != result_state):
             if all_comments:

@@ -98,6 +98,7 @@ class MailingList(models.Model):
     approved_date = models.DateField(null=True, blank=True)
     reason_to_delete = models.TextField(blank=True)
     domain_name = models.CharField(maxlength=10)
+    require_tmda = models.IntegerField("Require TMDA", default=0, choices=YESNO_CHOICES)
     def __str__(self):
 	return self.mlist_name
     def save(self, *args, **kwargs):
@@ -127,7 +128,7 @@ class NonWgMailingList(models.Model):
     list_url = models.CharField("List URL", maxlength=255)
     admin = models.TextField("Administrator(s)' Email Address(es)", blank=True)
     purpose = models.TextField(blank=True)
-    area = models.ForeignKey(Area, db_column='area_acronym_id')
+    area = models.ForeignKey(Area, db_column='area_acronym_id', null=True)
     subscribe_url = models.CharField("Subscribe URL", blank=True, maxlength=255)
     subscribe_other = models.TextField("Subscribe Other", blank=True)
     # Can be 0, 1, -1, or what looks like a person_or_org_tag, positive or neg.

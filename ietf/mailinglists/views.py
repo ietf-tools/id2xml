@@ -2,7 +2,7 @@
 
 from forms import NonWgStep1, ListReqStep1, PickApprover, DeletionPickApprover, UrlMultiWidget, Preview, ListReqAuthorized, ListReqClose, MultiEmailField, AdminRequestor, ApprovalComment, ListApprover
 from models import NonWgMailingList, MailingList, Domain
-from ietf.idtracker.models import Area, PersonOrOrgInfo, AreaDirector, WGChair
+from ietf.idtracker.models import Area, PersonOrOrgInfo, AreaDirector, WGChair, Role
 from django import newforms as forms
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -11,6 +11,12 @@ from django.contrib.sites.models import Site
 from ietf.contrib import wizard, form_decorator
 from ietf.utils.mail import send_mail_subj
 from datetime import datetime
+
+def get_approvers_from_area (area_id) :
+    if not area_id :
+        return [ad.person_id for ad in Role.objects.filter(role_name__in=("IETF", "IAB", ))]
+    else :
+        return [ad.person_id for ad in Area.objects.get(area_acronym=area_id).areadirector_set.all()]
 
 def formchoice(form, field):
     if not(form.is_valid()):
@@ -34,6 +40,7 @@ nonwg_fields = {
     'ds_name': None,
     'ds_email': None,
     'msg_to_ad': None,
+    'area': forms.ModelChoiceField(Area.objects.filter(status=1), required=False, empty_label='none'),
     #'admin': MultiEmailField(label='List Administrator(s)', widget=forms.Textarea(attrs={'rows': 3, 'cols': 50})),
 }
 
@@ -51,11 +58,7 @@ nonwg_widgets = {
     'subscribe_other': forms.Textarea(attrs = {'rows': 3, 'cols': 50}),
 }
 
-nonwg_querysets = {
-    'area': Area.objects.filter(status=1)
-}
-
-nonwg_callback = form_decorator(fields=nonwg_fields, widgets=nonwg_widgets, attrs=nonwg_attrs, querysets=nonwg_querysets)
+nonwg_callback = form_decorator(fields=nonwg_fields, widgets=nonwg_widgets, attrs=nonwg_attrs)
 
 def gen_approval(approvers, parent):
     class BoundApproval(parent):
@@ -94,16 +97,24 @@ class NonWgWizard(wizard.Wizard):
 #    def failed_hash(self, request, step):
 #	raise NotImplementedError("step %d hash failed" % step)
     def process_step(self, request, form, step):
+
 	form.full_clean()
+
 	if step == 0:
 	    self.clean_forms = [ form ]
 	    if form.clean_data['add_edit'] == 'add':
 		self.form_list.append(forms.form_for_model(NonWgMailingList, formfield_callback=nonwg_callback))
 	    elif form.clean_data['add_edit'] == 'edit':
-		self.form_list.append(forms.form_for_instance(NonWgMailingList.objects.get(pk=form.clean_data['list_id']), formfield_callback=nonwg_callback))
+                list = NonWgMailingList.objects.get(pk=form.clean_data['list_id'])
+                f = forms.form_for_instance(list, formfield_callback=nonwg_callback)
+                # form_decorator's method of copying the initial data
+                # from form_for_instance() to the ModelChoiceField doesn't
+                # work, so we set it explicitly here.
+                f.base_fields['area'].initial = list.area_id
+                self.form_list.append(f)
 	    elif form.clean_data['add_edit'] == 'delete':
 		list = NonWgMailingList.objects.get(pk=form.clean_data['list_id_delete'])
-		self.form_list.append(gen_approval([ad.person_id for ad in list.area.areadirector_set.all()], DeletionPickApprover))
+		self.form_list.append(gen_approval(get_approvers_from_area(list.area is None or list.area_id), DeletionPickApprover))
 		self.form_list.append(Preview)
 	else:
 	    self.clean_forms.append(form)
@@ -111,7 +122,7 @@ class NonWgWizard(wizard.Wizard):
 	    form0 = self.clean_forms[0]
 	    add_edit = form0.clean_data['add_edit']
 	    if add_edit == 'add' or add_edit == 'edit':
-		self.form_list.append(gen_approval([ad.person_id for ad in Area.objects.get(area_acronym=form.clean_data['area']).areadirector_set.all()], PickApprover))
+		self.form_list.append(gen_approval(get_approvers_from_area(form.clean_data['area']), PickApprover))
 		self.form_list.append(Preview)
         super(NonWgWizard, self).process_step(request, form, step)
     def done(self, request, form_list):
@@ -167,6 +178,7 @@ list_widgets = {
     'post_who': forms.Select(choices=(('1', 'List members only'), ('0', 'Open'))),
     'post_admin': forms.Select(choices=(('0', 'No'), ('1', 'Yes'))),
     'archive_private': forms.Select(choices=(('0', 'No'), ('1', 'Yes'))),
+    'require_tmda': forms.Select(choices=(('0', 'No'), ('1', 'Yes'))),
     'domain_name': forms.HiddenInput(),
 }
 

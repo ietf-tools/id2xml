@@ -220,3 +220,5 @@ class MultiEmailField(forms.CharField):
 
 class ApprovalComment(forms.Form):
     add_comment = forms.CharField(label="Approver's comments to the requestor (will be emailed to the requestor)", widget=forms.Textarea(attrs={'cols':41, 'rows': 4}))
+
+

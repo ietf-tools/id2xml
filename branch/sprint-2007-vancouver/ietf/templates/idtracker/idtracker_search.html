@@ -1,11 +1,10 @@
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% extends "base.html" %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}{% extends "base.html" %}
 
 {% block title %}IETF I-D Tracker{% endblock %}
 
 {% block content %}
 
-<script language="javascript">
+<script type="text/javascript" language="javascript">
 function clear_fields() {
    document.search_form.search_job_owner.selectedIndex = 0;
    document.search_form.search_status_id.selectedIndex = 0;
@@ -24,38 +23,38 @@ function clear_fields() {
 <form action="." method="get" name="search_form">
 <table class="top">
 <tr>
-	<th><label for="id_search_job_owner">Responsible AD:</label></td>
+	<th><label for="id_search_job_owner">Responsible AD:</label></th>
 	<td>{{ form.search_job_owner }} </td>
 </tr>
 <tr>
-	<th><label for="id_search_group_acronym">WG Acronym:</label></td>
+	<th><label for="id_search_group_acronym">WG Acronym:</label></th>
 	<td>{{ form.search_group_acronym }} </td>
 </tr>
 <tr>
-	<th><label for="id_search_area_acronym">Area Acronym:</label></td>
+	<th><label for="id_search_area_acronym">Area Acronym:</label></th>
 	<td>{{ form.search_area_acronym }} </td>
 </tr>
 <tr>
-	<th><label for="id_search_status_id">Status:</label></td>
+	<th><label for="id_search_status_id">Status:</label></th>
 	<td>{{ form.search_status_id }} </td>      
 </tr>
 <tr>
-	<th><a href="/idtracker/help/state/">Current State:</a></td>
+	<th><a href="/idtracker/help/state/">Current State:</a></th>
 	<td>{{ form.search_cur_state }}{{ form.sub_state_id }} </td>
 </tr>
 <tr>
-	<th><label for="id_search_filename">Draft Name:</label></td>
+	<th><label for="id_search_filename">Draft Name:</label></th>
 	<td>{{ form.search_filename }}  </td>
 </tr>
 <tr>
-	<th><label for="id_search_rfcnumber">RFC Number:</label></td>
+	<th><label for="id_search_rfcnumber">RFC Number:</label></th>
 	<td>{{ form.search_rfcnumber }} </td>
 </tr>
 <tr>
 	<td/>
 	<td class="buttons">
-	<input type="button" value="Reset Form" onClick="clear_fields()">
-	<input type="submit" value="Search I-Ds">
+	<input type="button" value="Reset Form" onClick="clear_fields()"/>
+	<input type="submit" value="Search I-Ds"/>
 	</td>
 </tr>
 </table>

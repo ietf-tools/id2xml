@@ -1,12 +1,11 @@
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% extends "base.html" %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}{% extends "base.html" %}
 
 {% load ietf_filters %}     
 
 {% block title %}-- {{ object.document.filename }}{% endblock %}
 
 {% block head %}
-<link rel="alternate" type="application/atom+xml" href="/feed/comments/{{ object.document.filename }}/">
+<link rel="alternate" type="application/atom+xml" href="/feed/comments/{{ object.document.filename }}/"/>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +22,7 @@
     <tr>
       <th>
 	  {{ object.document.doctype }} Name:
-      </td>
+      </th>
 
       <td>
 	  {{ object.document.displayname_with_link }}
@@ -66,7 +65,7 @@
     <tr>
       <th>
 	  Version:
-      </td>
+      </th>
 
       <td>
 	  {{ object.document.revision }}
@@ -76,7 +75,7 @@
     <tr>
       <th>
 	  Intended Status:
-      </td>
+      </th>
 
       <td>
 	  {{ object.document.intended_status }}
@@ -86,7 +85,7 @@
     <tr>
       <th>
 	  On Next Agenda?
-      </td>
+      </th>
 
       <td>
 	  {{ object.agenda|yesno:"Yes,No" }}
@@ -96,7 +95,7 @@
     <tr>
       <th>
 	  IESG Discussion:
-      </td>
+      </th>
 
       <td>
 	  {% if object.ballot.ballot_issued %}
@@ -112,7 +111,7 @@
     <tr>
       <th>
 	  Current State:
-      </td>
+      </th>
 
       <td>
 	  <a href="/idtracker/help/state/{{ object.cur_state_id }}/">
@@ -138,7 +137,7 @@
     <tr>
       <th>
 	  Responsible AD:
-      </td>
+      </th>
 
       <td>
 	  {{ object.job_owner }}
@@ -148,7 +147,7 @@
     <tr>
       <th>
 	  Status Date:
-      </td>
+      </th>
 
       <td>
 	  {% firstof object.status_date "&nbsp;" %}
@@ -158,7 +157,7 @@
     <tr>
       <th>
 	  Note:
-      </td>
+      </th>
 
       <td>
 	  {# |unformat_textarea #}

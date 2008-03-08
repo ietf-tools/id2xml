@@ -1,5 +1,4 @@
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% extends "base.html" %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}{% extends "base.html" %}
 
 {% load ietf_filters %}
 
@@ -11,20 +10,20 @@
 
    <table class="top">
 
-   <tr><th>Date:</td><td>{{ object.date }}, {{ object.time }}</td></tr>
-   <tr><th>Document:</td><td>{{ object.document.document.filename }}</td></tr>
-   <tr><th>Version:</td><td>{{ object.version }}</td></tr>
-   <tr><th>Commented by:</td><td>{{ object.get_author }}</td></tr>
+   <tr><th>Date:</th><td>{{ object.date }}, {{ object.time }}</td></tr>
+   <tr><th>Document:</th><td>{{ object.document.document.filename }}</td></tr>
+   <tr><th>Version:</th><td>{{ object.version }}</td></tr>
+   <tr><th>Commented by:</th><td>{{ object.get_author }}</td></tr>
    
 {% if object.origin_state %}
-   <tr><th>State before Comment:</td><td>{{ object.origin_state }}</td></tr>
+   <tr><th>State before Comment:</th><td>{{ object.origin_state }}</td></tr>
 {% endif %}
 
 {% if object.result_state %}
-   <tr><th>State after Comment:</td><td>{{ object.result_state }}</td></tr>
+   <tr><th>State after Comment:</th><td>{{ object.result_state }}</td></tr>
 {% endif %}
 
-   <tr><th>Comment:</td><td>
+   <tr><th>Comment:</th><td>
    
 {% if object.ballot %}
 	<span class="{{ object.get_ballot_display }}">[IESG Evaluation {{ object.get_ballot_display|upper }}] </span>

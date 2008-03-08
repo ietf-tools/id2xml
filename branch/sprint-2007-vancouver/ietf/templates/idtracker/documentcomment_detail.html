@@ -23,13 +23,15 @@
    <tr><th>State after Comment:</th><td>{{ object.result_state }}</td></tr>
 {% endif %}
 
-   <tr><th>Comment:</th><td>
+   <tr><th>Comment (flowed):</th><td>
    
 {% if object.ballot %}
 	<span class="{{ object.get_ballot_display }}">[IESG Evaluation {{ object.get_ballot_display|upper }}] </span>
 {% endif %}
    
    {{ object.comment_text|removetags:"b br" }}</td></tr>
+   <tr><th>Comment (fixed):</th><td>
+   <pre>{{ object.comment_text|removetags:"b br"|fill:80 }}</pre></td></tr>
    </table>
    
    <form action="."><p><input type="button" value="Back" onClick="history.go(-1)"/></p></form>

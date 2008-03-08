@@ -32,6 +32,6 @@
    {{ object.comment_text|removetags:"b br" }}</td></tr>
    </table>
    
-   <p><a href="history.go(-1)">Back</a></p>
+   <form action="."><p><input type="button" value="Back" onClick="history.go(-1)"/></p></form>
    
 {% endblock %}

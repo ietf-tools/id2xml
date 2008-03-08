@@ -33,6 +33,7 @@ DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@' + IETF_DOMAIN +
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_ENGINE='sqlite3'
 DATABASE_NAME = 'ietf'         # Or path to database file if using sqlite3.
 DATABASE_USER = 'django'       # Not used with sqlite3.
 #DATABASE_PASSWORD = 'playing' # Not used with sqlite3.
@@ -137,7 +138,7 @@ INSTALLED_APPS = (
     'ietf.my',
     'ietf.proceedings',
     'ietf.redirects',
-#    'ietf.wgcharter',
+    'ietf.wgcharter',
 )
 
 INTERNAL_IPS = (

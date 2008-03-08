@@ -4,6 +4,7 @@ import datetime
 import tempfile, os
 
 from ietf.wgcharter.models import WGCharterInfo, CharterVersion
+from ietf.idtracker.models import IETFWG 
 
 from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
@@ -20,7 +21,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 # define to be the diff command
-diff_command = "htmlwdiff"
+#diff_command = "htmlwdiff"
+diff_command="diff"
 
 
 def add_charter_version(wg, state, charter_text, submitter) :
@@ -142,6 +144,23 @@ class DiffForm(forms.Form):
         self.fields['diffWidget'].choices = choices
 
 
+def get_role(person_id, wgname):
+    """Get the role that this person is in"""
+    try:
+        group = IETFWG.objects.get(group_acronym__acronym=wgname)
+    except IETFWG.DoesNotExist:
+        return 'other'
+    
+    ads = [ad.person_id for ad in group.area.area.areadirector_set.all()]
+    if person_id in ads:
+        return 'ad'
+
+    wgchairs = [ch.person_id for ch in group.wgchair_set.all()]
+    if person_id in wgchairs:
+        return 'chair'
+    
+    return 'other'
+
 
 @login_required
 def draft(request, wgname, version):
@@ -150,7 +169,11 @@ def draft(request, wgname, version):
     diffForm = DiffForm(wgci=wgci)
     charters = wgci.charterversion_set.all().order_by('-version_id')
     default_diff=int(version)-1
-    role = 'sec' ; #sec, ad, chair, other
+
+    role = get_role(request.user.get_profile().person.person_or_org_tag, wgname);
+    # Use this for testing
+    # role='sec'   
+
     charter = find_charter_version(wgname, version)
     if (charter.version_id != charters[0].version_id):
         role='other'

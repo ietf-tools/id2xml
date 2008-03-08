@@ -37,7 +37,7 @@
 	    {% ifequal object.document.group_acronym "none" %}
 	      (Individual submission)
 	    {% else %}
-	      ({{ object.document.group_acronym|upper }} WG submission)
+	      (<a href="/idtracker/?search_group_acronym={{ object.document.group_acronym }}">{{ object.document.group_acronym|upper }}</a> WG submission)
 	    {% endifequal %}
 	  {% endif %}
 	  {% ifequal object.document.status.status "Replaced" %}

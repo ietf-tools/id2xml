@@ -111,6 +111,7 @@ body {
 	margin-right: 0em;
 	margin-right: 1em;
 	width: 11em;
+	min-width: 148px;
 }
 
 #leftmenu ul li { 

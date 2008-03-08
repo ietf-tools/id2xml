@@ -26,7 +26,9 @@ diff_command="diff"
 
 
 def add_charter_version(wg, state, charter_text, submitter) :
-    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, creation_date = datetime.datetime.now(tz=None))
+    charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, 
+                           creation_date = datetime.datetime.now(tz=None),
+                           submitter=submitter)
     charter.save()
     return charter
     
@@ -79,7 +81,8 @@ def add(request, wgname):
 	if form.is_valid():
 	    data = form.clean_data
 	    text = data['text']
-            charter_version = add_charter_version(wgci, state='draft', charter_text=text, submitter="Unknown")
+            charter_version = add_charter_version(wgci, state='draft', charter_text=text, 
+                                                  submitter=request.user.get_profile().person)
             id = charter_version.version_id
 	    return HttpResponseRedirect('/wgcharter/%s/%d/status'%(wgname,id))
     else:
@@ -148,6 +151,7 @@ def get_role(user, wgname):
     """Get the role that this person is in"""
 
     person_id = user.get_profile().person.person_or_org_tag
+
     try:
         group = IETFWG.objects.get(group_acronym__acronym=wgname)
     except IETFWG.DoesNotExist:

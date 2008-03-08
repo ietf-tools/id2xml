@@ -5,7 +5,6 @@
 # http://code.djangoproject.com/wiki/SplitSettings
 
 import os
-
 import syslog
 syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 

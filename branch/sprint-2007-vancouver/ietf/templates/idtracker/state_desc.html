@@ -4,6 +4,6 @@
 <h3>{{ state.state }}</h3>
 {{ state.description|escape }}
 <center><form action=".">
-<input type="button" value="close" onClick="window.close();"/>
+<input type="button" value="Back" onClick="history.go(-1);"/>
 </form></center>
 {% endblock%}

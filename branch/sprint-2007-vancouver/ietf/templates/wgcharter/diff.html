@@ -1,7 +1,7 @@
-<!-- need to add  { % extends "base.html" % } -->
+{% extends "base.html" %}
 
 
-{% block title %}Diff for {{wgname}} {% endblock %}
+{% block title %}Diff for {{wgname|upper}} {% endblock %}
 <P>
 {% block content %}
 

@@ -1,11 +1,8 @@
-<!-- need to add  { % extends "base.html" % } -->
-
+{% extends "base.html" %}
 
 {% block title %}<H4>Charter Draft for {{wgname}} ({{charter.creation_date}})</H4> {% endblock %}
 
 {% block content %}
-
-<p> remove-this log: {{log}} </p> 
 
 <B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR>
 <B>State: </B> {{ charter.state }}
@@ -21,7 +18,7 @@
 <form action="" method="post">
 {% ifequal role "sec" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
 {% ifequal role "ad" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
-{% ifequal role "chair" %} <input type="subgmit" name="adReview" value="Request AD Review" />{% endifequal %}
+{% ifequal role "chair" %} <input type="submit" name="adReview" value="Request AD Review" />{% endifequal %}
 
 {% ifequal role "sec" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}
 {% ifequal role "ad" %}<input type="submit" name="iesgProposedReview" value="Request IESG Proposed Review" />{% endifequal %}

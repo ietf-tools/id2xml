@@ -1,15 +1,19 @@
-<!-- need to add  { % extends "base.html" % } -->
+{% extends "base.html" %}
 
-
-{% block title %}All Charters for {{wgname}} {% endblock %}
+{% block title %} Charters for {{ wgname }} {% endblock %}
 
 {% block content %}
 
+<h1 class="first"> Charters for {{wgname|upper }} </h1>
+
 <P>
-{% for charter in charterList %}
-<A HREF="/wgcharter/{{wgname}}/{{charter.version_id}}/">
-{{ charter.creation_date }} by ({{ charter.submitter }}) state={{charter.state}}
-</A>
+{% for charter in charterList reversed %}
+<a HREF="/wgcharter/{{wgname}}/{{charter.version_id}}/">{{charter.creation_date}}</a>
+{{charter.state}}
+ {% ifnotequal charter.submitter "" %}
+[{{ charter.submitter }}]
+ {% endifnotequal %}
+
 <BR>
 {% endfor %}
 {% endblock %}

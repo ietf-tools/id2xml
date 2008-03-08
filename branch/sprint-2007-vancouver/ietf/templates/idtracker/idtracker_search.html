@@ -62,7 +62,7 @@ function clear_fields() {
 
 {% if form.errors %}
 <p class="error">
-Please fix the following error{{ errors|pluralize }} and retry your search:
+Please fix the following error{{ form.errors|pluralize }} and retry your search:
 {{ form.errors }}
 </p>
 {% endif %}

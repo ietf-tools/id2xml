@@ -9,9 +9,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views.generic.list_detail import object_detail
 from ietf.idtracker.models import Acronym, IETFWG, InternetDraft, Rfc
-from ietf.idindex.forms import IDIndexSearchForm
+from ietf.idindex.forms import IDIndexSearchForm, days_to_expire
 from ietf.idindex.models import alphabet, orgs, orgs_dict
 from ietf.utils import orl, flattenl, normalize_draftname
+
 
 import datetime
 
@@ -112,43 +113,33 @@ def within_helper(args, param, days):
 
 def search(request):
     args = request.GET.copy()
-    if args.has_key('filename'):
-	args['filename'] = normalize_draftname(args['filename'])
-    # days_to_expire  occurs a couple of times below - it is a magic number that's supposed to be days until drafts expire
-    days_to_expire = 183
-    if args.get('exp_before_date',''):
-        args['exp_before_date'] = datetime.datetime.strptime(args['exp_before_date'],'%Y-%m-%d') - datetime.timedelta(days_to_expire) 
-    if args.get('exp_after_date',''):
-        args['exp_after_date'] = datetime.datetime.strptime(args['exp_after_date'],'%Y-%m-%d') - datetime.timedelta(days_to_expire) 
-    # also need to object to badly formed dates here
-    form = IDIndexSearchForm()
+    form = IDIndexSearchForm(args)
     t = loader.get_template('idindex/search.html')
-    # if there's a query, do the search and supply results to the template
-    searching = False
-    qdict = { 'filename': 'filename__icontains',
-	      'id_tracker_state_id': 'idinternal__cur_state',
-	      'wg_id': 'group',
-	      'status_id': 'status',
-	      'last_name': 'authors__person__last_name__icontains',
-	      'first_name': 'authors__person__first_name__icontains',
-              'sub_before_date': 'revision_date__lte',
-	      'sub_after_date': 'revision_date__gte',
-              'exp_before_date': 'revision_date__lte',
-	      'exp_after_date': 'revision_date__gte',
-	    }
-    for key in qdict.keys() + ['other_group', 'sub_within_date', 'exp_within_date']:
-	if key in args:
-	    searching = True
+    if form.is_valid() == False:
+	searching = False
+    else:
+	searching = False
+	qdict = { 'filename': 'filename__icontains',
+		  'id_tracker_state_id': 'idinternal__cur_state',
+		  'wg_id': 'group',
+		  'status_id': 'status',
+		  'last_name': 'authors__person__last_name__icontains',
+		  'first_name': 'authors__person__first_name__icontains',
+		  'sub_before_date': 'revision_date__lte',
+		  'sub_after_date': 'revision_date__gte',
+		  'exp_before_date': 'revision_date__lte',
+		  'exp_after_date': 'revision_date__gte',
+		}
+	for key in qdict.keys() + ['other_group', 'sub_within_date', 'exp_within_date']:
+	    if key in args:
+		searching = True
     if searching:
-	# '0' and '-1' are flag values for "any"
-	# in the original .cgi search page.
-	# They are compared as strings because the
-	# query dict is always strings.
-	q_objs = [Q(**{qdict[k]: args[k]})
+
+	q_objs = [Q(**{qdict[k]: form.clean_data[k]})
 		for k in qdict.keys()
-		if args.get(k, '') != '' and
-		   args[k] != '0' and
-		   args[k] != '-1']
+                if form.clean_data.get(k,'') != '' and
+		   form.clean_data.get(k) is not None ]
+
 	try:
 	    other = orgs_dict[args['other_group']]
 	    q_objs += [orl(

@@ -54,7 +54,17 @@
 <tr><td colspan="2" align="center"><br><input type="submit" value=" Search "></td></tr>
 </table>
 </td></tr></table>
+</form>
+
 </center>
+
+{% if form.errors %}
+<p class="error">
+Please fix the following error{{ form.errors|pluralize }} and retry your search:
+{{ form.errors }}
+</p>
+{% endif %}
+
 {% endif %}
 
 {% endblock %}

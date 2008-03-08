@@ -144,13 +144,20 @@ class DiffForm(forms.Form):
         self.fields['diffWidget'].choices = choices
 
 
-def get_role(person_id, wgname):
+def get_role(user, wgname):
     """Get the role that this person is in"""
+
+    person_id = user.get_profile().person.person_or_org_tag
     try:
         group = IETFWG.objects.get(group_acronym__acronym=wgname)
     except IETFWG.DoesNotExist:
         return 'other'
     
+    grs = [gr.name for gr in user.groups.all()]
+    for grn in grs:
+        if grn=="Secretariat":
+            return 'sec'
+
     ads = [ad.person_id for ad in group.area.area.areadirector_set.all()]
     if person_id in ads:
         return 'ad'
@@ -159,6 +166,7 @@ def get_role(person_id, wgname):
     if person_id in wgchairs:
         return 'chair'
     
+
     return 'other'
 
 
@@ -170,7 +178,7 @@ def draft(request, wgname, version):
     charters = wgci.charterversion_set.all().order_by('-version_id')
     default_diff=int(version)-1
 
-    role = get_role(request.user.get_profile().person.person_or_org_tag, wgname);
+    role = get_role(request.user, wgname);
     # Use this for testing
     # role='sec'   
 

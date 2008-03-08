@@ -16,19 +16,17 @@
 		</tr>
 		
 		<tr>
-			<th/>
-			<th>I-D</th>
-			<th>Vers</th>
+			<th>Document</th>
+			<th>Version</th>
 			<th>Intended Status</th>
 			<th>Responsible AD</th>
-			<th>Status Date</th>
-			<th>Modified (EST)</th>
+			<th>Modified</th>
 		</tr>
 		
 		{# Same sort algorithm as I-D tracker #}
 		{% regroup group.list by primary_flag as primaries %}
 		{% for pgroup in primaries %}
-			{% for match in pgroup.list|dictsort:"document.filename" %}
+			{% for match in pgroup.list|dictsort:"event_date" %}
 				{% include "idtracker/search_result_row.html" %}
 			{% endfor %}
 		{% endfor %}

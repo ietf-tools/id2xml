@@ -1,5 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+from django.conf import settings
 from django.db import models
 from ietf.utils import FKAsOneToOne
 from django.test import TestCase
@@ -155,7 +156,7 @@ class InternetDraft(models.Model):
     def displayname(self):
 	return "%s-%s.txt" % ( self.filename, self.revision_display() )
     def doclink(self):
-	return "http://www.ietf.org/internet-drafts/%s" % ( self.displayname() )
+	return "http://" + settings.TOOLS_SERVER + "/html/%s" % ( self.displayname() )
     def group_acronym(self):
 	return self.group.acronym
     def __str__(self):
@@ -176,10 +177,7 @@ class InternetDraft(models.Model):
     def filename_with_link(self, text=None):
 	if text is None:
 	    text=self.filename
-	if self.status.status != 'Active':
-	    return text
-	else:
-	    return '<a href="%s">%s</a>' % ( self.doclink(), text )
+	return '<a href="%s">%s</a>' % ( self.doclink(), text )
     def displayname_with_link(self):
 	return self.filename_with_link(self.displayname())
     class Meta:
@@ -364,7 +362,7 @@ class Rfc(models.Model):
     def revision_display(self):
 	return "RFC"
     def doclink(self):
-	return "http://www.ietf.org/rfc/%s" % ( self.displayname() )
+	return "http://" + settings.TOOLS_SERVER + "/html/%s" % ( self.displayname() )
     def doctype(self):
 	return "RFC"
     def filename_with_link(self):

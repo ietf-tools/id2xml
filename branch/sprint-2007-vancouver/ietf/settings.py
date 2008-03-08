@@ -14,16 +14,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# Domain name of the IETF
+IETF_DOMAIN = 'ietf.org'
+
 ADMINS = (
-    ('IETF Django Developers', 'django-project@ietf.org'),
+    ('IETF Django Developers', 'django-project@' + IETF_DOMAIN),
     ('GMail Tracker Archive', 'ietf.tracker.archive+errors@gmail.com'),
 )
 
+# Server name of the tools server
+TOOLS_SERVER = 'tools.' + IETF_DOMAIN
+
 # Override this in the settings_local.py file:
-SERVER_EMAIL = 'Django Server<django@tools.ietf.org>'
+SERVER_EMAIL = 'Django Server <django@' + TOOLS_SERVER + '>'
 
-
-DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@ietf.org>'
+DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@' + IETF_DOMAIN + '>'
 
 MANAGERS = ADMINS
 

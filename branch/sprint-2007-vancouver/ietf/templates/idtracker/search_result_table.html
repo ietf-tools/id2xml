@@ -26,7 +26,7 @@
 		{# Same sort algorithm as I-D tracker #}
 		{% regroup group.list by primary_flag as primaries %}
 		{% for pgroup in primaries %}
-			{% for match in pgroup.list|dictsort:"event_date" %}
+			{% for match in pgroup.list|dictsortreversed:"event_date" %}
 				{% include "idtracker/search_result_row.html" %}
 			{% endfor %}
 		{% endfor %}

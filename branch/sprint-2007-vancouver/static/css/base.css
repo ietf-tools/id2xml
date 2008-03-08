@@ -102,6 +102,13 @@ body {
 	font-weight: bold;
 }
 
+#content .replaced {
+	text-decoration: line-through;
+}
+
+#content .active {
+	text-decoration: none;
+}
 
 #leftmenu {
 	float: left;

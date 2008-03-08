@@ -2,7 +2,8 @@
 
 {% load myifchanged %}
 	{# we can't do alternating row colors with CSS alone #}
-	<tr bgcolor="#{% myifchanged match.ballot_id %}{% cycle F8D6F8,E2AFE2 as ballotcolor %}{% else %}{% if match.synthetic %}{% cycle ballotcolor %}{% else %}{% cyclevalue ballotcolor %}{% endif %}{% endmyifchanged %}">
+	<tr 
+	bgcolor="#{% myifchanged match.ballot_id %}{% cycle F8D6F8,E2AFE2 as ballotcolor %}{% else %}{% if match.synthetic %}{% cycle ballotcolor %}{% else %}{% cyclevalue ballotcolor %}{% endif %}{% endmyifchanged %}">
 
 
 <!--
@@ -18,28 +19,30 @@
 	    {% if not match.primary_flag %}{% endif %}
 -->
 	    <a href="{% url ietf.idtracker.views.view_id match.document.filename %}">
-	    {{ match.document.filename }}
+	    {{ match.document.displayname }}
 	    </a>
 		
 	    {% ifequal match.document.status.status "Replaced" %}
 	      <p class="replace">Replaced by
-	      {% if match.document.replaced_by.idinternal %}
+<!--	      {% if match.document.replaced_by.idinternal %}
 		<a href="{% url ietf.idtracker.views.search %}?search_filename={{ match.document.replaced_by.filename }}">
 	      {% endif %}
-	      {{ match.document.replaced_by.filename_with_link }}
-	      {% if match.document.replaced_by.idinternal %}
+-->	      {{ match.document.replaced_by.displayname_with_link }}
+<!--	      {% if match.document.replaced_by.idinternal %}
 		</a>
-	      {% endif %}</p>
+	      {% endif %}
+-->	      </p>
 	    {% endifequal %}
 	    
 	    {% if match.document.replaces_set.count %}
 	      <p class="replace">Replaces
 	      {% for replaces in match.document.replaces_set.all %}
-		{% if replaces.idinternal %}
+<!--		{% if replaces.idinternal %}
 		  <a href="{% url ietf.idtracker.views.search %}?search_filename={{ replaces.filename }}">
 		{% endif %}
-		{{ replaces.filename_with_link }}{% if replaces.idinternal %}</a>{% endif %}{% if not forloop.last %}</p><p class="replace">{% endif %}
-	      {% endfor %}</p>
+-->		{{ replaces.displayname_with_link }}
+<!--		{% if replaces.idinternal %}</a>{% endif %}{% if not forloop.last %}</p><p class="replace">{% endif %}
+-->	      {% endfor %}</p>
 	    {% endif %}
         </td>
 

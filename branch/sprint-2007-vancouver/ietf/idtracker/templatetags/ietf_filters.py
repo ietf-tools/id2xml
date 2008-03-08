@@ -169,6 +169,11 @@ def allononeline(text):
     """Simply removes CRs, LFs, leading and trailing whitespace from the given string."""
     return text.replace("\r", "").replace("\n", "").strip()
 
+@register.filter(name='allononelinew')
+def allononelinew(text):
+    """Map runs of whitespace to a single space and strip leading and trailing whitespace from the given string."""
+    return re.sub("[\r\n\t ]+", " ", text).strip()
+
 @register.filter(name='rfcspace')
 def rfcspace(string):
     """

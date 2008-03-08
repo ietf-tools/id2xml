@@ -114,13 +114,12 @@
       </th>
 
       <td>
-	  <a href="/idtracker/help/state/{{ object.cur_state_id }}/">
+	  <a title="{{ object.cur_state.description|escape|allononelinew }}" href="/idtracker/help/state/{{ object.cur_state_id }}/">
 	  {{ object.cur_state }}</a>
 	  {% if object.cur_sub_state %}
 	  ::
-	  <a href="/idtracker/help/substate/{{ object.cur_sub_state_id }}/">
-	  {{ object.cur_sub_state }}
-	  </a>
+	  <a title="{{ object.cur_sub_state.description|escape|allononelinew }}" href="/idtracker/help/substate/{{ object.cur_sub_state_id }}/">
+	  {{ object.cur_sub_state }}</a>
 	  {% endif %}
 	  {% if object.rfc_flag %}
 	  {% else %}

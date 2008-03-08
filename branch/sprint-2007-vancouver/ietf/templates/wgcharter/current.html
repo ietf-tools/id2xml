@@ -12,8 +12,11 @@
 </pre>
 <P>
 Last edited {{charter.creation_date}} by {{charter.submitter}}
+{% else %}
+<p> No aproved charter for this working group </p>
 {%endif%}
 
 <p>
-<a HREF="{{lastdraft.version_id}}/">Last draft</a> <a HREF="all/">All Drafts</a> <a HREF="add/">New Draft</a>
+<a HREF="{{lastdraft.version_id}}/">Last draft</a> <a HREF="all/">All Drafts</a>
+<a HREF="add/">Create New Draft</a>
 {% endblock %}

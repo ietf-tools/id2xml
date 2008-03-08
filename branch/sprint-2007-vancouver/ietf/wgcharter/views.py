@@ -21,8 +21,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 # define to be the diff command
-#diff_command = "htmlwdiff"
-diff_command="diff"
+diff_command = "htmlwdiff"
+#diff_command="diff"
 
 
 def add_charter_version(wg, state, charter_text, submitter) :
@@ -65,12 +65,14 @@ def current(request, wgname):
     if (len(approved_list)>0):
         charter=approved_list[0]
         
-    return render_to_response('wgcharter/current.html',{'wgname':wgname,'charter':charter,'lastdraft':charter_list[0]})
+    return render_to_response('wgcharter/current.html',
+                              {'wgname':wgname,'charter':charter,'lastdraft':charter_list[0]})
     
 
 
 class AddForm(forms.Form):
     text = forms.CharField(required=True)
+
 
 @login_required
 def add(request, wgname):
@@ -84,29 +86,23 @@ def add(request, wgname):
             charter_version = add_charter_version(wgci, state='draft', charter_text=text, 
                                                   submitter=request.user.get_profile().person)
             id = charter_version.version_id
-	    return HttpResponseRedirect('/wgcharter/%s/%d/status'%(wgname,id))
+	    return HttpResponseRedirect('/wgcharter/%s/%d/'%(wgname,id))
     else:
 	form = AddForm()
-    return render_to_response('wgcharter/add.html', {'form': form})
+    return render_to_response('wgcharter/add.html', {'form': form,'wgname':wgname})
 
 
-def list(request, wgname):
+def list_groups(request):
+    groups = IETFWG.objects.all().select_related()
+    return render_to_response('wgcharter/groups.html', {'groups':groups})
+
+
+def all(request, wgname):
     wgci = find_wgcharter_info(wgname)
     charters = wgci.charterversion_set.all()
     
     return render_to_response('wgcharter/all.html', {'wgname':wgname,'charterList': charters})
 
-
-def diff1(request, wgname, version):
-     if request.method == 'POST':
-        data = request.POST
-        diff_from = int(data['diffWidget'])
-        logging.error("Diff from %d"%diff_from)
-     else:
-         raise Exception("This page must be called with POST")
-               
-     return diff(request, wgname, diff_from, version)
-    
 
 def diff(request, wgname, version1, version2):
     v1 = find_charter_version(wgname, version1)
@@ -136,17 +132,6 @@ def diff(request, wgname, version1, version2):
                                                      'diff':diff})
 
 
-class DiffForm(forms.Form):
-    diffWidget = forms.ChoiceField(required=False)
-    def __init__(self,wgci=None,*args,**kwargs):
-	super(DiffForm, self).__init__(*args, **kwargs)
-        charters = wgci.charterversion_set.all()
-        choices=[]
-        for i in charters:
-            choices.append(("%d"%i.version_id,"%s"%i.creation_date))
-        self.fields['diffWidget'].choices = choices
-
-
 def get_role(user, wgname):
     """Get the role that this person is in"""
 
@@ -169,13 +154,29 @@ def get_role(user, wgname):
     wgchairs = [ch.person_id for ch in group.wgchair_set.all()]
     if person_id in wgchairs:
         return 'chair'
-    
 
     return 'other'
 
 
+
+class DiffForm(forms.Form):
+    diffWidget = forms.ChoiceField(required=False)
+    def __init__(self,wgci=None,*args,**kwargs):
+	super(DiffForm, self).__init__(*args, **kwargs)
+        charters = wgci.charterversion_set.all()
+        choices=[]
+        for i in charters:
+            choices.append(("%d"%i.version_id,"%s"%i.creation_date))
+        self.fields['diffWidget'].choices = choices
+
+
 @login_required
-def draft(request, wgname, version):
+def charter(request, wgname, version):
+    if request.method == 'POST':
+        data = request.POST
+        diff_from = int(data['diffWidget'])
+        return HttpResponseRedirect('/wgcharter/%s/%d/%d/'%(wgname,diff_from,version))
+
     test = ''
     wgci = find_wgcharter_info(wgname)
     diffForm = DiffForm(wgci=wgci)
@@ -221,12 +222,11 @@ def draft(request, wgname, version):
 	    test += 'dead'
             charter.state='dead'
             charter.save()
-    return render_to_response('wgcharter/draft.html', {'diffForm':diffForm,'wgname':wgname,'charter': charter,'role':role,'log':test})
-
-
-def draft_status(request, wgname, version):
-    html = "<html><body>Status Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
-    return HttpResponse(html)
+    return render_to_response('wgcharter/charter.html', 
+                              {'diffForm':diffForm,
+                               'wgname':wgname,'charter': charter,
+                               'role':role,
+                               'log':test})
 
 
 # Test code

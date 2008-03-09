@@ -4,7 +4,8 @@ import datetime
 import tempfile, os
 
 from ietf.wgcharter.models import WGCharterInfo, CharterVersion
-from ietf.idtracker.models import IETFWG,Area
+
+from ietf.idtracker.models import IETFWG, Area
 
 from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
@@ -23,7 +24,6 @@ from django.core.exceptions import ObjectDoesNotExist
 # define to be the diff command
 diff_command = "htmlwdiff"
 #diff_command="diff"
-
 
 def get_role(user, wgname):
     """Get the role that this person is in"""
@@ -187,19 +187,17 @@ class DiffForm(forms.Form):
             choices.append(("%d"%i.version_id,"%s"%i.creation_date))
         self.fields['diffWidget'].choices = choices
 
-
-@login_required
 def charter(request, wgname, version):
     test = ''
     wgci = find_wgcharter_info(wgname)
     diffForm = DiffForm(wgci=wgci)
     charters = wgci.charterversion_set.all().order_by('-version_id')
     default_diff=int(version)-1
-
-    role = get_role(request.user, wgname);
-    # Use this for testing
-    # role='sec'   
-
+    
+    if(request.user.is_authenticated()):
+        role = get_role(request.user, wgname)
+    else:
+        role = 'other'
     charter = find_charter_version(wgname, version)
     if (charter.version_id != charters[0].version_id):
         role='other'
@@ -241,12 +239,17 @@ def charter(request, wgname, version):
 	    test += 'dead'
             charter.state='dead'
             charter.save()
+
     return render_to_response('wgcharter/charter.html', 
                               {'diffForm':diffForm,
                                'wgname':wgname,'charter': charter,
                                'role':role,
                                'log':test})
 
+
+def draft_status(request, wgname, version):
+    html = "<html><body>Status Drafts View, WG=%s, version=%s</body></html>" % (wgname, version)
+    return HttpResponse(html)
 
 # Test code
 def fake_wg(request, wgname):
@@ -260,7 +263,8 @@ def fake_wg(request, wgname):
     wgci.save()
     for i in range(0,5):
         charter_text = "This is fake charter text, wg=%s version=%d" % (wgname, i)
-        add_charter_version(wgci, 'draft', charter_text, "test_submitter")
+        add_charter_version(wgci, 'draft', charter_text, 
+                            submitter=request.user.get_profile().person)
     wgci.save()
     html = "<html><body>Faking up WG, WG=%s</body></html>" % wgname
     return HttpResponse(html)

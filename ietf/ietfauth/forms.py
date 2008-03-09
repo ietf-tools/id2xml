@@ -33,3 +33,8 @@ class PWForm(forms.Form):
     def clean_repeat(self):
 	if self.clean_data['password'] != self.clean_data['repeat']:
 	    raise forms.ValidationError, 'Passwords do not match'
+
+# Field lengths from PersonOrOrgInfo
+class FirstLastForm(forms.Form):
+    first = forms.CharField(label='First Name', max_length=20, widget = forms.TextInput(attrs = {'size': 20}))
+    last = forms.CharField(label='Last Name', max_length=50, widget = forms.TextInput(attrs = {'size': 50}))

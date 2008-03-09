@@ -1,5 +1,6 @@
 
 from ietf.ietfauth.models import UserMap
+from ietf.ietfauth.auth import set_password
 from django.contrib.auth.models import User
 from django.template import defaultfilters
 
@@ -49,7 +50,9 @@ def create_user(user, email, person, pw=None, cryptpw=None):
 	    u.last_name = person.last_name
 	    u.save()
 	# make sure that the UserMap gets created
-	umap, created = UserMap.objects.get_or_create(user = u, person = person)
+	umap, created = UserMap.objects.get_or_create(user = u)
+	umap.person = person
+	umap.save()
 	raise UserAlreadyExists("Already in system as %s when adding %s (%s)" % ( u.username, user, email ), u)
     else:
 	if cryptpw:
@@ -58,10 +61,12 @@ def create_user(user, email, person, pw=None, cryptpw=None):
 	    password = '!' # no hash
 	u = User(username = user, email = email, password = password, first_name = person.first_name, last_name = person.last_name )
 	if pw:
-	    u.set_password(pw)
+	    set_password(u, pw)
 	#print "Saving user: username='%s', email='%s'" % ( u.username, u.email )
 	u.save()
-    umap, created = UserMap.objects.get_or_create(user = u, person = person)
+    umap, created = UserMap.objects.get_or_create(user = u)
+    umap.person = person
+    umap.save()
     # get_or_create saves umap for us.
 
     return u

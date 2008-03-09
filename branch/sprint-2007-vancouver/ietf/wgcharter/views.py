@@ -118,22 +118,27 @@ def add(request, wgname):
     return render_to_response('wgcharter/add.html', {'form': form,'wgname':wgname})
 
 
+def argrp_cmp(a, b):
+    return cmp(a[0], b[0])
+    
 def list_groups(request):
     #groups = IETFWG.objects.all().select_related()
     areas = Area.objects.all().select_related()
-    
-    argroups={}
-    for ar in areas:
-         if ar.status.status == "Active":
-             grlist=[]
 
-             groups=ar.areagroup.all().select_related()
-             for gr in groups:
-                 grlist.append(gr.group.group_acronym.acronym)
-                 
-             argroups[ar.area_acronym.acronym]=grlist
-    
-    return render_to_response('wgcharter/groups.html', {'argroups':argroups})
+    argroups=[]
+
+    for ar in areas:
+        if ar.status.status == "Active":
+            grlist=[]
+            
+            groups=ar.areagroup.all().select_related()
+            for gr in groups:
+                if gr.group.status.status == "Active" and gr.group.group_type.type == "WG":
+                    grlist.append(gr.group.group_acronym.acronym)
+            argrp = [ar.area_acronym.name, sorted(grlist)]
+            argroups.append(argrp)
+            
+    return render_to_response('wgcharter/groups.html', {'argroups':sorted(argroups, argrp_cmp)})
 
 
 def all(request, wgname):

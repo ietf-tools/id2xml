@@ -1,14 +1,14 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 from django import newforms as forms
 from django.conf import settings
-import sha
+import hmac, sha
 import time
 
 class EmailForm(forms.Form):
     email = forms.EmailField()
 
 def email_hash(email, timestamp):
-    return sha.new("%d%s%s" % (timestamp, email, settings.SECRET_KEY)).hexdigest()
+    return hmac.new(settings.SECRET_KEY, "%d%s" % (timestamp, email), sha).hexdigest()
 
 class ChallengeForm(forms.Form):
     email = forms.EmailField()

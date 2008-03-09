@@ -114,6 +114,10 @@ body {
 	text-decoration: none;
 }
 
+#content a.active {
+	text-decoration: underline;
+}
+
 #leftmenu {
 	float: left;
 	background-color: #313163;

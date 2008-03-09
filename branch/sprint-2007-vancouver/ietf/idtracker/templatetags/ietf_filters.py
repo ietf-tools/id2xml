@@ -253,11 +253,22 @@ def wrap_long_lines(text):
     text = re.sub(" *\r\n", "\n", text) # get rid of DOS line endings
     text = re.sub(" *\r", "\n", text)   # get rid of MAC line endings
     text = re.sub("( *\n){3,}", "\n\n", text) # get rid of excessive vertical whitespace
-    # wrap long lines without messing up formatting of OK paragraphs
-    while re.search("([^\n]{72,}?) +", text):
-        text = re.sub("([^\n]{72,}?) +([^\n ]*)(\n|$)", "\g<1>\n\g<2> ", text, 1)
-    text = text.strip() + "\n"
-    return text
+    lines = text.split("\n")
+    filled = []
+    wrapped = False
+    for line in lines:
+        if wrapped and line.strip() != "":
+            line = filled[-1] + " " + line
+            filled = filled[:-1]
+        else:
+            wrapped = False
+        while (len(line) > 80) and (" " in line[:80]):
+            wrapped = True
+            breakpoint = line.rfind(" ",0,79)
+            filled += [ line[:breakpoint] ]
+            line = line[breakpoint+1:]
+        filled += [ line ]
+    return "\n".join(filled)
 
 def _test():
     import doctest

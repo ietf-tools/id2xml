@@ -267,7 +267,7 @@ def wrap_long_lines(text):
             breakpoint = line.rfind(" ",0,79)
             filled += [ line[:breakpoint] ]
             line = line[breakpoint+1:]
-        filled += [ line ]
+        filled += [ line.rstrip() ]
     return "\n".join(filled)
 
 def _test():

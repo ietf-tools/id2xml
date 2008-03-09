@@ -24,7 +24,7 @@ body {
 	font-size: 1.15em;
 }
 
-#content table, td, th {
+#content table, #content td, #content th {
 	padding: 0em;
 	margin: 0em;
 	vertical-align: top;
@@ -43,7 +43,7 @@ body {
 	padding-left: 1.5em;
 }
 
-#content th, td {
+#content th, #content td {
 	text-align: left;
 	padding-top: 0.25em;
 	padding-bottom: 0.25em;
@@ -82,7 +82,7 @@ body {
 	border-width: 0.1em;
 }
 
-#content td.state, th.state {
+#content td.state, #content th.state {
 	white-space: nowrap;
 }
 

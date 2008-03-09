@@ -179,14 +179,9 @@
   </table>
 
     {% if object.ballot_others.count %}
-    <h1>Actions</h1>
-    <table>
-    <tr><td>
+    <h1>Ballot Set</h1>
     {% regroup object.ballot_set by docstate as grouped %}
     {% include "idtracker/search_result_table.html" %}
-    </td>
-    </tr>
-    </table>
     {% endif %}
 
     <h1>Comment Log [<a href="/feed/comments/{{ object.document.filename }}/">atom feed</a>]</h1>

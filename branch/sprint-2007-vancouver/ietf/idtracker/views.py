@@ -119,6 +119,7 @@ def search(request):
 	'form': form,
 	'matches': matches,
 	'searching': searching,
+	'spacing': True
       }, context_instance=RequestContext(request))
 
 # proof of concept, orphaned for now
@@ -209,7 +210,7 @@ def view_id(request, queryset, slug, slug_field):
     except IDInternal.DoesNotExist:
 	draft = get_object_or_404(InternetDraft, filename=slug)
 	return render_to_response('idtracker/idinternal_notfound.html', {'draft': draft}, context_instance=RequestContext(request))
-    return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
+    return render_to_response('idtracker/idinternal_detail.html', {'object': object, 'spacing': False}, context_instance=RequestContext(request))
 
 def view_rfc(request, object_id):
     '''A replacement for the object_detail generic view for this
@@ -223,7 +224,7 @@ def view_rfc(request, object_id):
     This view gets the appropriate row from IDInternal and
     calls the template with the necessary context.'''
     object = get_object_or_404(IDInternal, pk=object_id, rfc_flag=1)
-    return render_to_response('idtracker/idinternal_detail.html', {'object': object}, context_instance=RequestContext(request))
+    return render_to_response('idtracker/idinternal_detail.html', {'object': object, 'spacing': False}, context_instance=RequestContext(request))
 
 # Wrappers around object_detail to give permalink a handle.
 # The named-URLs feature in django 0.97 will eliminate the

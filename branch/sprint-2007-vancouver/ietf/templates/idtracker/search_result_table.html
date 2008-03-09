@@ -6,7 +6,7 @@
 {% load ietf_filters %}     
 
 		<tr>
-		<th class="state" colspan="7">
+		<th {% if spacing %} class="state" {% endif %} colspan="7">
 			State:
 			<a title="{{ group.list.0.cur_state.description|escape|allononelinew }}" href="/idtracker/help/state/{{ group.list.0.cur_state_id }}/">{{ group.list.0.cur_state }}</a>
 			{% if group.list.0.cur_sub_state %}

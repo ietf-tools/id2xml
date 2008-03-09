@@ -8,7 +8,7 @@
 
 <P>
 {% for charter in charterList reversed %}
-<a HREF="/wgcharter/{{wgname}}/{{charter.version_id}}/">{{charter.creation_date}}</a>
+<a HREF="/wgcharter/{{wgname}}/{{charter.version_id}}/">{{charter.creation_date_time}}</a>
 {{charter.state}}
  {% ifnotequal charter.submitter 'None' %}
 [{{ charter.submitter }}]

@@ -53,7 +53,7 @@ def get_role(user, wgname):
 
 def add_charter_version(wg, state, charter_text, submitter) :
     charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, 
-                           creation_date = datetime.datetime.now(tz=None),
+                           creation_date_time = datetime.datetime.now(tz=None),
                            submitter=submitter)
     charter.save()
     return charter
@@ -82,17 +82,37 @@ def find_charter_version (wgname, version):
 
 
 def current(request, wgname):
-    wgci = find_wgcharter_info(wgname)
+    """Get the current status of this group"""
+    try:
+        wgci = find_wgcharter_info(wgname)
+    except Exception:
+        # First check to see if this group should exist
+        try:
+            group = IETFWG.objects.get(group_acronym__acronym=wgname)
+        except IETFWG.DoesNotExist:
+            # OK, it totally doesn't exist
+            html="<html><body>Working group %s does not exist</body></html>"%wgname
+            return HttpResponse(html)
+
+        """ It exists, there's just no charter object. EKR thinks this is
+        a fatal inconsistency. Cullen thinks we should just fake it up.
+        Cullen won this round """
+        wgci = WGCharterInfo(wg_acronym=wgname)
+        wgci.save()
+        
     charter_list = wgci.charterversion_set.order_by('-version_id')
 
-    # Need to fix state once states work    
     approved_list=charter_list.filter(state='approved')
     charter=None
+    lastdraft=None
+    if(len(charter_list)>0):
+        lastdraft=charter_list[0]
+    
     if (len(approved_list)>0):
         charter=approved_list[0]
         
     return render_to_response('wgcharter/current.html',
-                              {'wgname':wgname,'charter':charter,'lastdraft':charter_list[0]})
+                              {'wgname':wgname,'charter':charter,'lastdraft':lastdraft})
     
 
 
@@ -189,7 +209,7 @@ class DiffForm(forms.Form):
         charters = wgci.charterversion_set.all()
         choices=[]
         for i in charters:
-            choices.append(("%d"%i.version_id,"%s"%i.creation_date))
+            choices.insert(0,("%d"%i.version_id,"%s"%i.creation_date_time))
         self.fields['diffWidget'].choices = choices
 
 def charter(request, wgname, version):
@@ -262,9 +282,8 @@ def fake_wg(request, wgname):
     if len(wgci_list)!=0 :
         raise Exception("Object already exists")
     
-    wgci = WGCharterInfo(approved_charter_version_id=1,
-                         recent_charter_version_id=2,
-                         wg_acronym=wgname)
+    wgci = WGCharterInfo(wg_acronym=wgname)
+
     wgci.save()
     for i in range(0,5):
         charter_text = "This is fake charter text, wg=%s version=%d" % (wgname, i)

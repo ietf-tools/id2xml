@@ -8,6 +8,6 @@ urlpatterns = patterns('',
         (r'^(?P<wgname>[a-z0-9]+)/(?P<version1>\d+)/(?P<version2>\d+)/$',views.diff),
         (r'^(?P<wgname>[a-z0-9]+)/(?P<version>\d+)/$',views.charter),
         (r'^$',views.list_groups),
-        #(r'^(?P<wgname>[a-z0-9]+)/fake/$',views.fake_wg),
+        (r'^(?P<wgname>[a-z0-9]+)/fake/$',views.fake_wg),
 )
 

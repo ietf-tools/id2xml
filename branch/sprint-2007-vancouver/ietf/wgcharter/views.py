@@ -25,6 +25,32 @@ diff_command = "htmlwdiff"
 #diff_command="diff"
 
 
+def get_role(user, wgname):
+    """Get the role that this person is in"""
+
+    person_id = user.get_profile().person.person_or_org_tag
+
+    try:
+        group = IETFWG.objects.get(group_acronym__acronym=wgname)
+    except IETFWG.DoesNotExist:
+        return 'other'
+    
+    grs = [gr.name for gr in user.groups.all()]
+    for grn in grs:
+        if grn=="Secretariat":
+            return 'sec'
+
+    ads = [ad.person_id for ad in group.area.area.areadirector_set.all()]
+    if person_id in ads:
+        return 'ad'
+
+    wgchairs = [ch.person_id for ch in group.wgchair_set.all()]
+    if person_id in wgchairs:
+        return 'chair'
+
+    return 'other'
+
+
 def add_charter_version(wg, state, charter_text, submitter) :
     charter=CharterVersion(state=state, text=charter_text, wg_charter_info=wg, 
                            creation_date = datetime.datetime.now(tz=None),
@@ -104,6 +130,8 @@ def all(request, wgname):
     return render_to_response('wgcharter/all.html', {'wgname':wgname,'charterList': charters})
 
 
+
+
 def diff(request, wgname, version1, version2):
     v1 = find_charter_version(wgname, version1)
     v2 = find_charter_version(wgname, version2)
@@ -132,30 +160,7 @@ def diff(request, wgname, version1, version2):
                                                      'diff':diff})
 
 
-def get_role(user, wgname):
-    """Get the role that this person is in"""
 
-    person_id = user.get_profile().person.person_or_org_tag
-
-    try:
-        group = IETFWG.objects.get(group_acronym__acronym=wgname)
-    except IETFWG.DoesNotExist:
-        return 'other'
-    
-    grs = [gr.name for gr in user.groups.all()]
-    for grn in grs:
-        if grn=="Secretariat":
-            return 'sec'
-
-    ads = [ad.person_id for ad in group.area.area.areadirector_set.all()]
-    if person_id in ads:
-        return 'ad'
-
-    wgchairs = [ch.person_id for ch in group.wgchair_set.all()]
-    if person_id in wgchairs:
-        return 'chair'
-
-    return 'other'
 
 
 
@@ -172,11 +177,6 @@ class DiffForm(forms.Form):
 
 @login_required
 def charter(request, wgname, version):
-    if request.method == 'POST':
-        data = request.POST
-        diff_from = int(data['diffWidget'])
-        return HttpResponseRedirect('/wgcharter/%s/%d/%d/'%(wgname,diff_from,version))
-
     test = ''
     wgci = find_wgcharter_info(wgname)
     diffForm = DiffForm(wgci=wgci)
@@ -200,6 +200,12 @@ def charter(request, wgname, version):
 	    role = 'other'
 	    test += 'person-not-found'
 	data = request.POST
+
+        if ( data.has_key('diffWidget') ):
+            data = request.POST
+            diff_from = int(data['diffWidget'])
+            return HttpResponseRedirect('/wgcharter/%s/%d/%s/'%(wgname,diff_from,version))
+
 	if ( data.has_key('adReview')  and ( role=='sec' or role=='ad' or role=='chair' )):
 	    test += 'adReview'
 	    charter.state='ad'
@@ -235,7 +241,9 @@ def fake_wg(request, wgname):
     if len(wgci_list)!=0 :
         raise Exception("Object already exists")
     
-    wgci = WGCharterInfo(approved_charter_version_id=1,recent_charter_version_id=2,wg_acronym=wgname)
+    wgci = WGCharterInfo(approved_charter_version_id=1,
+                         recent_charter_version_id=2,
+                         wg_acronym=wgname)
     wgci.save()
     for i in range(0,5):
         charter_text = "This is fake charter text, wg=%s version=%d" % (wgname, i)

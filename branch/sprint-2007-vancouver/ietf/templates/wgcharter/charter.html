@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}<H4>Charter Draft for {{wgname}} ({{charter.creation_date}})</H4> {% endblock %}
+{% block title %}Charter Draft for {{wgname}} ({{charter.creation_date}}) {% endblock %}
 
 {% block content %}
 
 <B>Created: </B> {{ charter.creation_date }} by {{ charter.submitter }} <BR>
 <B>State: </B> {{ charter.state }}
 
-<form method="post" action="diff/">
+<form method="post" action="">
 <table>{{ diffForm.as_table }}</table><input type="submit" name="diff" />
 </form>
 

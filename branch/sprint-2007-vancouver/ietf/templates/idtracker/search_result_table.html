@@ -3,13 +3,14 @@
 	<table>
 
 {% for group in grouped %}
+{% load ietf_filters %}     
 
 		<tr>
 		<th class="state" colspan="7">
 			State:
-			<a href="/idtracker/help/state/{{ group.list.0.cur_state_id }}/">{{ group.list.0.cur_state }}</a>
+			<a title="{{ group.list.0.cur_state.description|escape|allononelinew }}" href="/idtracker/help/state/{{ group.list.0.cur_state_id }}/">{{ group.list.0.cur_state }}</a>
 			{% if group.list.0.cur_sub_state %}
-				:: <a href="/idtracker/help/substate/{{ group.list.0.cur_sub_state_id }}/">
+				:: <a title="{{ group.list.0.cur_sub_state.description|escape|allononelinew }}" href="/idtracker/help/substate/{{ group.list.0.cur_sub_state_id }}/">
 				{{ group.list.0.cur_sub_state }}</a>
 			{% endif %}
 		</th>

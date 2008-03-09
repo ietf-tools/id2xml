@@ -4,7 +4,7 @@ import datetime
 import tempfile, os
 
 from ietf.wgcharter.models import WGCharterInfo, CharterVersion
-from ietf.idtracker.models import IETFWG 
+from ietf.idtracker.models import IETFWG,Area
 
 from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
@@ -119,8 +119,21 @@ def add(request, wgname):
 
 
 def list_groups(request):
-    groups = IETFWG.objects.all().select_related()
-    return render_to_response('wgcharter/groups.html', {'groups':groups})
+    #groups = IETFWG.objects.all().select_related()
+    areas = Area.objects.all().select_related()
+    
+    argroups={}
+    for ar in areas:
+         if ar.status.status == "Active":
+             grlist=[]
+
+             groups=ar.areagroup.all().select_related()
+             for gr in groups:
+                 grlist.append(gr.group.group_acronym.acronym)
+                 
+             argroups[ar.area_acronym.acronym]=grlist
+    
+    return render_to_response('wgcharter/groups.html', {'argroups':argroups})
 
 
 def all(request, wgname):

@@ -6,9 +6,13 @@
 
 <h1 class="first"> All working groups</h1>
 
-{% for group in groups  %}
-{{ group.group_acronym.acronym }}
-</vr>
+{% for value in argroups.items  %}
+   <h3> {{ value.0|upper }} </h3>
+   <p>
+   {% for group in value.1 %}
+     <a href="{{group}}">{{ group|upper }}</a>
+   {% endfor %}
+   </p>
 {% endfor %}
 
 {% endblock %}

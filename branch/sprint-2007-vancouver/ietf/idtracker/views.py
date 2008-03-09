@@ -77,6 +77,23 @@ def search(request):
 	    q_objs.append(Q(draft__status=status,rfc_flag=0))
 	matches = IDInternal.objects.all().filter(*q_objs)
 	matches = matches.order_by('cur_state', 'cur_sub_state', 'ballot_id', '-primary_flag')
+        # sort by date in reverse
+        # first build docstate groups, within which we sort
+        # in each docstate group, we build ballot id groups, which we sort
+        m1 = []                 # list of: docstate, list of: event date; ballot id; list of: ms for the ballot id
+        for m in matches:
+            if m1 and m1[-1][0] == m.docstate():
+                if m1[-1][1] and m1[-1][1][0][1] == m.ballot_id:
+                    m1[-1][1][0][2].append(m)
+                else:
+                    m1[-1][1].append((m.event_date, m.ballot_id, [m]))
+            else:
+                m1.append((m.docstate(), [(m.event_date, m.ballot_id, [m])]))
+        matches = []
+        for ms in m1: ms[1].sort(reverse=True)
+        for ms in m1:
+            for mt in ms[1]:
+                matches.extend(mt[2])
 	#
 	# Now search by I-D exists, if there could be any results.
 	# If searching by job owner, current state or substate, there

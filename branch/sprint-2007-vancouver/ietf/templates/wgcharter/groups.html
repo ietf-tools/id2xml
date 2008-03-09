@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}All Working Groups{% endblock %}
+
+{% block content %}
+
+<h1 class="first"> All working groups</h1>
+
+{% for group in groups  %}
+{{ group.group_acronym.acronym }}
+</vr>
+{% endfor %}
+
+{% endblock %}

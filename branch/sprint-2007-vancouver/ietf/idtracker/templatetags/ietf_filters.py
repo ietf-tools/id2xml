@@ -244,6 +244,21 @@ def truncatemore(text, arg):
         words.append(format % link)
     return ' '.join(words)
 
+@register.filter(name="wrap_long_lines")
+def wrap_long_lines(text):
+    """Wraps long lines without loosing the formatting and indentation
+       of short lines"""
+    if type(text) != type(""):
+        return text
+    text = re.sub(" *\r\n", "\n", text) # get rid of DOS line endings
+    text = re.sub(" *\r", "\n", text)   # get rid of MAC line endings
+    text = re.sub("( *\n){3,}", "\n\n", text) # get rid of excessive vertical whitespace
+    # wrap long lines without messing up formatting of OK paragraphs
+    while re.search("([^\n]{72,}?) +", text):
+        text = re.sub("([^\n]{72,}?) +([^\n ]*)(\n|$)", "\g<1>\n\g<2> ", text, 1)
+    text = text.strip() + "\n"
+    return text
+
 def _test():
     import doctest
     doctest.testmod()

@@ -35,5 +35,12 @@
 {% ifequal role "ad" %}<input type="submit" name="dead" value="Entombl" />{% endifequal %}
 </form>
 
+{% ifequal role 'other' %}
+<form method="GET" action="/accounts/login">
+<input type="hidden" name="next" value="/wgcharter/{{wgname}}/{{charter.version_id}}"/>
+<input type="submit" value="Log in to edit"/>
+</form>
+{% endifequal %}
+
 {% endblock %}
 

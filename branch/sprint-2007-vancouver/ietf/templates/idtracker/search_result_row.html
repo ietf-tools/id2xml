@@ -6,18 +6,8 @@
 	bgcolor="#{% myifchanged match.ballot_id %}{% cycle F8D6F8,E2AFE2 as ballotcolor %}{% else %}{% if match.synthetic %}{% cycle ballotcolor %}{% else %}{% cyclevalue ballotcolor %}{% endif %}{% endmyifchanged %}">
 
 
-<!--
-	{% if match.synthetic %}
-		<td/>
-	{% else %}
-		<td><a href="{% url ietf.idtracker.views.view_id match.document.filename %}">Detail</a></td>
-	{% endif %}
--->		
-	<td>
+	<td {% if not match.primary_flag %} class="nonprimary" {% endif %} >
 
-<!--	    {# XXX need some magic to handle ballot sets here #}
-	    {% if not match.primary_flag %}{% endif %}
--->
 	    <a href="{% url ietf.idtracker.views.view_id match.document.filename %}">
 	    {{ match.document.displayname }}
 	    </a>

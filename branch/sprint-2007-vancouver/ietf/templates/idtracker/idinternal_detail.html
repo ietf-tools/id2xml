@@ -45,18 +45,18 @@
 	    {% if object.document.replaced_by.idinternal %}
 	      <a href="{{ object.document.replaced_by.idinternal.get_absolute_url }}">
 	    {% endif %}
-	    {{ object.document.replaced_by.filename }}
+	    {{ object.document.replaced_by.displayname_with_link }}
 	    {% if object.document.replaced_by.idinternal %}
 	      </a>
 	    {% endif %}
 	  {% endifequal %}
 	  {% if object.document.replaces_set.count %}
-	    Replaces
+	    <br>Replaces
 	    {% for replaces in object.document.replaces_set.all %}
 	      {% if replaces.idinternal %}
 		<a href="{{ replaces.idinternal.get_absolute_url }}">
 	      {% endif %}
-	      {{ replaces.filename }}{% if replaces.idinternal %}</a>{% endif %}{% if not forloop.last %},{% endif %}
+	      {{ replaces.displayname_with_link }}{% if replaces.idinternal %}</a>{% endif %}{% if not forloop.last %},{% endif %}
 	    {% endfor %}
 	  {% endif %}
       </td>
@@ -193,7 +193,7 @@
 
     <table>
       <tr>
-	<th>Vers</th>
+	<th>Version</th>
 	<th>Action</th>
 	<th>Who</th>
 	<th>Date</th>
@@ -208,7 +208,7 @@
 		<span class="{{ comment.get_ballot_display }}">[IESG Evaluation {{ comment.get_ballot_display|upper }}] </span>
 	{% endif %}
 
-	{{ comment.comment_text|removetags:"b br"|truncatewords_html:"50" }}
+	{{ comment.comment_text|removetags:"b br"|truncatewords_html:"20" }}
 	[<a href="{{ comment.get_absolute_url }}">more</a>]
 	</td>
 

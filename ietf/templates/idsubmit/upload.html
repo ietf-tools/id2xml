@@ -24,10 +24,15 @@
          <font face="Arial" size="4"><strong>Upload a draft</strong></font>
            <form action="." method="post" enctype="multipart/form-data">
            <table width="600">
-         <tr><td>.txt format:<font color="red">*</font></td><td>{{form.txt_file}}</td></tr>
-         <tr><td>.xml format:</td><td>{{form.xml_file}}</td></tr>
-         <tr><td>.pdf format:</td><td>{{form.pdf_file}}</td></tr>
-         <tr><td>.ps format:</td><td>{{form.ps_file}}</td></tr>
+{% for field in form %}
+    <tr>
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %}
+    </td>
+    </tr>
+{% endfor %}
            </table>
 <font color="red">* Required</font>         
 <p> 

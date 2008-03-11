@@ -43,14 +43,14 @@ STATUS_CODE = {
 }
 
 SUBMISSION_ENV = {
-    'max_same_draft_name'       : '5',
-    'max_same_draft_size'       : '20',
-    'max_same_submitter'        : '5',
-    'max_same_submitter_size'   : '20', 
-    'max_same_wg_draft'         : '5',
-    'max_same_wg_draft_size'    : '10',
-    'max_daily_submission'      : '10',
-    'max_daily_submission_size' : '50'
+    'max_same_draft_name'       : 50,
+    'max_same_draft_size'       : 20,
+    'max_same_submitter'        : 500,
+    'max_same_submitter_size'   : 20, 
+    'max_same_wg_draft'         : 50,
+    'max_same_wg_draft_size'    : 10,
+    'max_daily_submission'      : 500,
+    'max_daily_submission_size' : 50
 }
 
 class IdDates(models.Model):
@@ -94,7 +94,13 @@ class IdSubmissionDetail(models.Model):
 
     def get_absolute_url(self):
         return "/idsubmit/status/%s" % self.filename
-
+    def set_file_type(self, type_list):
+        self.file_type = ','.join(type_list)
+    def get_file_type_list(self):
+        if self.file_type:
+            return self.file_type.split(',')
+        else:
+            return None
     def save(self,*args,**kwargs):
 	self.last_updated_date = datetime.date.today()
 	# self.creation_date = datetime.date.today()
@@ -107,16 +113,6 @@ class IdSubmissionDetail(models.Model):
 
     class Meta:
         db_table = 'id_submission_detail'
-
-class IdSubmissionAuthors(models.Model):
-    submission = models.ForeignKey(IdSubmissionDetail)
-    submitter = models.ForeignKey(PersonOrOrgInfo, db_column='submitter_tag', raw_id_admin=True)
-    def __str__(self):
-	return "%s" % self.submitter
-    class Meta:
-        db_table = 'id_submission_authors'
-    class Admin:
-	pass
 
 class IdApprovedDetail(models.Model):
     filename = models.CharField(blank=True, maxlength=255)

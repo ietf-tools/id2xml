@@ -2,26 +2,26 @@
 
 Manual Posting Requested for following Internet-Draft:
 
-I-D Submission Tool URL: {{ tracker_url }}
+I-D Submission Tool URL: http://{{ tracker_url }}
 
 
 
-Filename:          {{ meta_data.filename }}
-Version:           {{ meta_data.revision }}
+Filename:          {{ submission.filename }}
+Version:           {{ submission.revision }}
 Staging URL:       {{ file_url }}
-Title:             {{ meta_data.title }}
-Creation_date:     {{ meta_data.creation_date }}
-WG ID:             {{ meta_data.group }}
-Number_of_pages:   {{ meta_data.pages }}
+Title:             {{ submission.title }}
+Creation_date:     {{ submission.creation_date }}
+WG ID:             {{ submission.group }}
+Number_of_pages:   {{ submission.txt_page_count }}
 Abstract:
-{{ meta_data.abstract }}
+{{ submission.abstract }}
 
-Submitter: {{ meta_data.lname }} {{ meta_data.fname }} ( {{ meta_data.submitter_email }} )
-comment to the secretariat: {{ meta_data.comment_to_sec }}
+Submitter: {{ submission.submitter.email }} 
+comment to the secretariat: {{ submission.comment_to_sec }}
 
 Author(s):
-{% for author in meta_data.authors %}
-    {{ author.author_last_name }} {{ author.author_first_name }} {{ author.author_email }}
+{% for author in authors_list %}
+    {{ author.last_name }} {{ author.first_name }} {{ author.email_address }}
 {% endfor %}
 
 ----------------------------------

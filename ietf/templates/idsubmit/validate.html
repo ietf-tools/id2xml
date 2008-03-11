@@ -9,7 +9,8 @@
 <table border="0" vspace="0">
 <tr valign="top">
 <td height="550" >
-<form action="/idsubmit/adjust/{{ submission_id }}" method="get" name="adj_form">
+<form action="{% url ietf.idsubmit.views.adjust_form submission.submission_id %}" method="post" name="adj_form">
+<input type="hidden" name="from_validation" value="yes">
 <p>
     <font face="Arial" size="4">
         <strong>Check Page</strong>
@@ -22,11 +23,13 @@
         Your draft has been verified to meet IDNITS requirements.
     {% endif %}
 
-    <a href="/idsubmit/displayidnits/{{ submission_id }}">(View IDNITS Results)</a>
+    <a href="/idsubmit/displayidnits/{{ submission.submission_id }}">(View IDNITS Results)</a>
 </p>
-{% ifnotequal meta_data.status_id 2 %}
+{% ifnotequal submission.status_id 2 %}
     <b>Meta-data errors:</b>
-    {{ meta_data.warning_message }}
+    <ul>
+    {{ submission.warning_message }}
+    </ul>
     {% include "idsubmit/sec_note.html" %}
 {% endifnotequal %}
 
@@ -38,9 +41,9 @@
   <td width="110"><font face="Arial" size="2">Document:</font></td>
   <td>
     {% for file_type in file_type_list %}
-    <a href="{{ staging_url }}/{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}">{{ meta_data.filename }}-{{ meta_data.revision }}{{file_type}}</a>
+    <a href="{{ staging_url }}/{{ submission.filename }}-{{ submission.revision }}{{file_type}}">{{ submission.filename }}-{{ submission.revision }}{{file_type}}</a>
     {% ifequal file_type ".txt" %}
-    <a href="/idsubmit/viewfirsttwo/{{ submission_id }}">[View First Two Pages]</a>
+    <a href="/idsubmit/viewfirsttwo/{{ submission.submission_id }}">[View First Two Pages]</a>
     {% endifequal %}
     <br>
     {% endfor %}
@@ -48,7 +51,7 @@
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'revision' %}">
   <td width="110"><font face="Arial" size="2">Version:</font></td>
-  <td>{{ meta_data.revision }} </td>
+  <td>{{ submission.revision }} </td>
 </tr>
 <tr bgcolor="#ddddff">
   <td><font face="Arial" size="2">Submission Date:</font></td>
@@ -56,20 +59,20 @@
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'title' %}">
   <td><font face="Arial" size="2">Title:</font></td>
-  <td>{{ meta_data.title }}</td>
+  <td>{{ submission.title }}</td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'group' %}">
   <td><font face="Arial" size="2">WG ID:</font></td><td>
-    {{ meta_data.group.name }}
+    {{ submission.group.name }}
   </td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'filesize' %}">
     <td><font face="Arial" size="2">File Size:</font></td>
-    <td>{{ meta_data.filesize }}</td>
+    <td>{{ submission.filesize }}</td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'creation_date' %}">
     <td><font face="Arial" size="2">Creation Date:</font></td>
-    <td>{{ meta_data.creation_date }}</td>
+    <td>{{ submission.creation_date }}</td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'authors' %}">
     <td colspan="2">Author(s) Information:</td>
@@ -82,12 +85,12 @@
 {% endfor %}
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'pages' %}">
     <td><font face="Arial" size="2">Pages:</font></td>
-    <td>{{ meta_data.txt_page_count }}</td>
+    <td>{{ submission.txt_page_count }}</td>
 </tr>
 <tr bgcolor="{% get_bgColor_Code meta_data_errors 'abstract' %}" valign="top">
     <td><font face="Arial" size="2">Abstract:</font></td>
     <td>
-        {{ meta_data.abstract|escape|linebreaks }}
+        {{ submission.abstract|escape|linebreaks }}
     </td>
 </tr>
 <tr>
@@ -99,15 +102,14 @@
 </form>
 </td>
 </tr>
-{% ifnotequal meta_data.status_id 2 %}
+{% ifnotequal submission.status_id 2 %}
     </table>
 {% else %}
     <tr><td colspan="2"><hr></td></tr>
     <tr><td colspan="2"><h3>Please edit the following meta-data before proceeding to Auto-Post</h3></td></tr>
     </table>
     <font face="Arial" size="2">Submitter Information.</font><br>
-    <form action="/idsubmit/auto_post/" method="get" name="ap_form">
-    <input name="submission_id" type="hidden" value="{{ submission_id }}">
+    <form action="{% url ietf.idsubmit.views.trigger_auto_post submission.submission_id %}" method="post" name="ap_form">
     <table border="0" width="650">
     <tr><td colspan="2">
        If you are one of the authors of this document, then please click the button with your name on it to automatically fill in the submitter information as requested below.  Otherwise, please manually enter your information.<br>
@@ -121,9 +123,8 @@
     <tr bgcolor="#ddddff">
     <td>
         <font face="Arial" size="2">{{ field.label_tag }}</font>
-        {% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors }}</font>{% endif %}
     </td>
-    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}</td>
+    <td>{{ field }}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %}</td>
     </tr>
     
 {% endfor %}
@@ -139,7 +140,7 @@
 </center>
 </div>
 
-<form action="/idsubmit/cancel/{{submission_id}}" method="get" name="aform">
+<form action="{% url ietf.idsubmit.views.cancel_draft submission.submission_id %}" method="get" name="aform">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form> 
 

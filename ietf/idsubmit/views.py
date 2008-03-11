@@ -16,17 +16,14 @@ from django.conf import settings
 from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates
 from ietf.idtracker.models import Acronym, IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
-from ietf.idsubmit.forms import IDUploadForm, SubmitterForm
+from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm
 from ietf.idsubmit.models import STATUS_CODE, SUBMISSION_ENV
 from ietf.utils.mail import send_mail
-from ietf.idsubmit.announcements import ID_ACTION_ANNOUNCEMENT, MSG_BODY_SCHEDULED_ANNOUNCEMENT
 from django.core.mail import BadHeaderError
 from ietf.idsubmit.parser.draft_parser import DraftParser
 from django.contrib.sites.models import Site
-
-# function parse_meta_data
-# This function extract filename, revision, abstract, title, and
-# author's information from the passed I-D content
+from ietf.utils import normalize_draftname
+import subprocess
 
 def file_upload(request):
     current_date = date.today()
@@ -35,6 +32,7 @@ def file_upload(request):
     second_cut_off_date = IdDates.objects.get(id=2).id_date
     ietf_monday_date = IdDates.objects.get(id=3).id_date
     id_date_var = { 'first_cut_off_date' : first_cut_off_date, 'second_cut_off_date' : second_cut_off_date, 'ietf_monday' : ietf_monday_date}
+    submission = None
     if request.POST:
 
         post_data = request.POST.copy()
@@ -54,71 +52,62 @@ def file_upload(request):
             threshold_msg = dp.check_dos_threshold()
             if threshold_msg:
                 return render("idsubmit/error.html", {'error_msg':threshold_msg}, context_instance=RequestContext(request))
-
-            for file_name, file_info in request.FILES.items():
-                if re.match(r'^[a-z0-9-\.]+$', dp.filename):
-                    file_ext = ".%s" % file_info['filename'].split('.')[1]
-                    if file_ext.lower() not in form.file_names.values():
-                        return render("idsubmit/error.html", {'error_msg':'not allowed file format - %s' % file_ext.lower()}, context_instance=RequestContext(request))
-                else:
-                    err_msg = "Filename contains non alpha-numeric character"
-                    return render("idsubmit/error.html", {'error_msg':err_msg}, context_instance=RequestContext(request))
-            if dp.status_id:
-                if dp.status_id < 100 or dp.status_id >= 200:
-                    form.save(dp.filename, dp.revision)
-                    dp.set_file_type(form.file_ext_list)
-                file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
-
-                idnits_msg = dp.check_idnits(file_path)
-                if type(idnits_msg).__name__=='dict':
-                    if idnits_msg['error'] > 0:
-                        idnits_result = True
-                        dp.status_id = 203
-                        dp.set_meta_data_errors('idnits', "<li>This document has " + str(idnits_msg['error']) + " idnits error(s)</li>")
-                    else:
-                        idnits_result = False
+            meta_data = dp.get_meta_data_fields()
+            submission = IdSubmissionDetail(**meta_data)
+            try:
+                submission.save()
+            except:
+                return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"}, context_instance=RequestContext(request))
+            # Display critical error message
+            if submission.status_id >= 100 and submission.status_id < 200:
+                return render("idsubmit/error.html",{'error_msg':STATUS_CODE[submission.status_id]}, context_instance=RequestContext(request))
+            # Checking existing submission
+            if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100).exclude(submission_id=submission.submission_id).count():
+                submission.status_id = 103
+                submission.save()
+                return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103],'filename':submission.filename}, context_instance=RequestContext(request))
+            # All the critical errors are checked. It's ok to save the file now
+            form.save(submission.filename, submission.revision)
+            submission.set_file_type(form.file_ext_list)
+            # filename validation
+            if not re.match(r'^[a-z0-9-\.]+$', dp.filename):
+                submission.warning_message = "%s\n%s" % (submission.warning_message, STATUS_CODE[202])
+                submission.status_id = 202
+            file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
+            #idnits checking
+            #print "before checking idnits..."
+            idnits_msg = dp.check_idnits(file_path)
+            #print "after checking idnits..."
+            if type(idnits_msg).__name__=='dict':
+                if idnits_msg['error'] > 0:
+                    idnits_result = True
+                    submission.status_id = 203
+                    submission.idnits_message = idnits_msg['message']
+                    submission.warning_message = "%s\n%s" % ("<li>This document has " + str(idnits_msg['error']) + " idnits error(s)</li>", submission.warning_message)
                 else:
                     idnits_result = False
-
-                meta_data = dp.get_meta_data_fields()
-
-                list = IdSubmissionDetail(**meta_data)
+            else:
+                idnits_result = False
+            submission.save()
+            authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission.submission_id)
+            for author_dict in authors_info:
+                author = TempIdAuthors(**author_dict)
                 try:
-                    submission_id=list.save()
-                except AttributeError:
-                    return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"}, context_instance=RequestContext(request))
+                    author.save()
+                except :
+                    return  render("idsubmit/error.html", {'error_msg':"Authors Data Saving Error"}, context_instance=RequestContext(request))
 
-                # revision check
-                if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100).exclude(submission_id=submission_id):
-                    list = IdSubmissionDetail.objects.get(submission_id=submission_id)
-                    list.status_id=103
-                    list.save()
-                    return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103], 'filename':dp.filename}, context_instance=RequestContext(request))
-                # this is duplicate revision checking
-                #id = IdSubmissionDetail.objects.filter(filename=dp.filename, revision=dp.revision, status_id__range=(-2, 50)).exclude(submission_id=submission_id)
-                #if id.count() > 0:
-                #    return render("idsubmit/error.html", {'error_msg':'this document is already in the phase of processing'}, context_instance=RequestContext(request))
-
-                authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission_id)
-                for author_dict in authors_info:
-                    author = TempIdAuthors(**author_dict)
-                    try:
-                        author.save()
-                    except AttributeError:
-                        return  render("idsubmit/error.html", {'error_msg':"Authors Data Saving Error"}, context_instance=RequestContext(request))
-            file_type_list = meta_data['file_type'].split(',') 
-            return render("idsubmit/validate.html",{'meta_data'        : meta_data,
-                                                    'meta_data_errors' : dp.meta_data_errors,
-                                                    'submission_id'    : submission_id,
-                                                    'authors_info'     : authors_info,
-                                                    'submitter_form'   : SubmitterForm(),
-                                                    'idnits_result'   : idnits_result,
-                                                    'file_type_list'  : file_type_list,
-                                                    'staging_url'      : settings.STAGING_URL,
-                                                    }, context_instance=RequestContext(request))
+            return render("idsubmit/validate.html",
+                {'submission'        : submission, 
+                 'meta_data_errors' : dp.meta_data_errors,
+                 'authors_info'     : authors_info,
+                 'submitter_form'   : SubmitterForm(),
+                 'idnits_result'   : idnits_result,
+                 'file_type_list'  : submission.get_file_type_list(),
+                 'staging_url'      : settings.STAGING_URL,
+                }, context_instance=RequestContext(request))
         else:
-            return render("idsubmit/error.html", {'error_msg':'This is not valid data' + str(form.errors) }, context_instance=RequestContext(request))
-            form = IDUploadForm()
+            return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
     else:
         if (current_date >= first_cut_off_date and current_date < second_cut_off_date):
             if (current_date == first_cut_off_date and current_hour < 9):
@@ -139,48 +128,95 @@ def file_upload(request):
         form = IDUploadForm()
     return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
 
-def adjust_form(request, submission_id_or_name):
-    submission = IdSubmissionDetail.objects.get(submission_id=submission_id_or_name)
-    warning_list = ['title', 'abstract', 'author', 'revision', 'filename', 'version', 'creation', 'group']
-    meta_data_errors = {}
-    for warning in warning_list:
-        if re.search(warning, submission.warning_message.lower()):
-            meta_data_errors[warning] = True
-            print warning
-        else:
-            print warning + ' : No Match'
-    args = request.GET.copy()
-    if submission.submitter:
-        args['fname'] = submission.submitter.first_name
-        args['lname'] = submission.submitter.last_name
-        args['submitter_email'] = \
-            submission.submitter.emailaddress_set.get(priority=1).address
+def adjust_form(request, submission_id,queryset):
+    submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
+    if submission.status_id < 0 or (submission.status_id >= 100 and submission.status_id < 200):
+        return render("idsubmit/error.html",{'error_msg':"No valid history found for submission id %s" % submission_id}, context_instance=RequestContext(request))
+    args = request.POST.copy()
+    if args.get('from_validation'):
+        args['submission_id'] = submission_id
+        args['title'] = submission.title
+        args['revision']=submission.revision
+        args['creation_date']=submission.creation_date
+        args['txt_page_count']=submission.txt_page_count
+        args['abstract']=submission.abstract
+        args['comment_to_sec']=submission.comment_to_sec
+        if submission.submitter:
+            args['fname'] = submission.submitter.first_name
+            args['lname'] = submission.submitter.last_name
+            args['submitter_email'] = \
+                submission.submitter.emailaddress_set.get(priority=1).address
     file_type_list = submission.file_type.split(',')
-    return object_detail(request, queryset=IdSubmissionDetail.objects.all(),
-                                  object_id=submission_id_or_name,
-                                  template_name="idsubmit/adjust.html",
-                                  template_object_name='object',
-                                  extra_context={'authors': TempIdAuthors.objects.filter(submission__exact=submission_id_or_name),
-                                                 'submitter_form': SubmitterForm(args),
-                                                 'staging_url':settings.STAGING_URL,
-                                                 'file_type_list':file_type_list,
-                                                 'meta_data_errors':meta_data_errors})
-def draft_status(request, submission_id_or_name=None):
+    # process temp authors
+    form = AdjustForm(args)
+    authors_first_name = request.POST.getlist('author_first_name')
+    authors_last_name  = request.POST.getlist('author_last_name')
+    authors_email      = request.POST.getlist('author_email')
+    if authors_email:
+        TempIdAuthors.objects.filter(submission=submission).delete()
+        authors = []
+        cnt = 0 
+        for email in authors_email:
+            if email:
+                tempidauthors = TempIdAuthors(
+                    first_name=authors_first_name[cnt],
+                    last_name = authors_last_name[cnt],
+                    email_address = email,
+                    author_order = cnt+1,
+                    submission = submission,
+                )
+                tempidauthors.save()
+            cnt = cnt + 1
+    if form.is_valid(): # Proceed to manual post request process
+        submission.status_id=5
+        if form.save(submission, param=args):
+            from_email = 'ID Submission Tool <idsubmission@ietf.org>'
+            subject = 'Manual Posting Requested for %s-%s' % (submission.filename, submission.revision)
+            cc_list = list()
+            authors_list = TempIdAuthors.objects.filter(submission=submission).exclude(email_address=args['submitter_email'])
+            for author_info in authors_list:
+                cc_list.append(author_info.email_address)
+            try:
+                send_mail(request,[args['submitter_email']],
+                    from_email,subject,
+                    "idsubmit/email_manual_post.txt",
+                    {'submission':submission,
+                     'authors_list':TempIdAuthors.objects.filter(submission=submission),
+                     'file_url': os.path.join(settings.STAGING_URL,"%s-%s.txt" % (submission.filename, submission.revision)),
+                     'tracker_url': "%s%s" % (request.META['HTTP_HOST'], submission.get_absolute_url())}, cc_list
+                )
+            except BadHeaderError:
+                return render("idsubmit/error.html",{'error_msg':"Invalid header found."}, context_instance=RequestContext(request))
+            return HttpResponseRedirect(submission.get_absolute_url())
+        else:
+            return render("idsubmit/error.html",{'error_msg':"Error occurred while processing Manual Post request."}, context_instance=RequestContext(request))
+
+    else: # redisplay the form
+        return render ("idsubmit/adjust.html",{'form':form,
+            'submission':submission,
+            'submission_id':submission_id,
+            'authors':TempIdAuthors.objects.filter(submission__exact=submission_id).order_by('author_order'),
+            'staging_url':settings.STAGING_URL,
+            'file_type_list':file_type_list,
+            }, context_instance=RequestContext(request))
+def draft_status(request, queryset, slug=None):
     submission = None
     if 'passed_filename' in request.GET: # Search Result
         passed_filename = request.GET['passed_filename']
-        id_list = IdSubmissionDetail.objects.filter(filename=passed_filename, status_id__gt =  -3, status_id__lt = 100).order_by('-submission_id')
+        id_list = queryset.filter(filename=passed_filename, status_id__gt =  -3, status_id__lt = 100).order_by('-submission_id')
         if not id_list.count():
             return render("idsubmit/error.html",{'error_msg':"No valid history found for %s" % passed_filename}, context_instance=RequestContext(request))
         submission = id_list[0]
-    elif not submission_id_or_name:
+    elif not slug:
         return direct_to_template(request,'idsubmit/draft_search.html')
-    elif re.compile("^\d+$").findall(submission_id_or_name) : # if submission_id
-        submission = get_object_or_404(IdSubmissionDetail, pk=submission_id_or_name)
-    elif re.compile('^(draft-.+)').findall(submission_id_or_name) :
+    elif re.compile("^\d+$").findall(slug) : # if submission_id
+        submission = get_object_or_404(IdSubmissionDetail, pk=slug)
+        if submission.status_id < -2 or submission.status_id >= 100:
+            return render("idsubmit/error.html",{'error_msg':"No valid history found for submission id %s" % slug}, context_instance=RequestContext(request))
+    elif re.compile('^(draft-.+)').findall(slug) :
         # if submission name
-        subm_name = re.sub('(-\d\d\.?(txt)?|/)$', '', submission_id_or_name)
-        submissions = IdSubmissionDetail.objects.filter(filename__exact=subm_name,status_id__gt=-3, status_id__lt=100).order_by('-submission_id') 
+        subm_name = normalize_draftname(slug)
+        submissions = queryset.filter(filename__exact=subm_name,status_id__gt=-3, status_id__lt=100).order_by('-submission_id') 
 
         if submissions.count() > 0 :
             submission = submissions[0]
@@ -189,8 +225,6 @@ def draft_status(request, submission_id_or_name=None):
     else:
         return render("idsubmit/error.html",{'error_msg':"Unknown request"}, context_instance=RequestContext(request))
 
-    if submission is None :
-        return render("idsubmit/error.html",{'error_msg':"This submission is not found"}, context_instance=RequestContext(request))
     if submission.status_id > 200:
         meta_error = 1
     else:
@@ -199,20 +233,16 @@ def draft_status(request, submission_id_or_name=None):
         can_be_canceled = 1
         if submission.status_id == 2: #display validate.html
             meta_data_errors = {}
-            return render("idsubmit/validate.html",{'meta_data'        : submission,
-                               'submission_id'    : submission.submission_id,
-                               'authors_info'     : TempIdAuthors.objects.filter(submission__exact=submission.submission_id).order_by('author_order'),
-                               'submitter_form'   : SubmitterForm(),
-                               'staging_url'      : settings.STAGING_URL,           
-                               'meta_data_errors' : meta_data_errors,
-                          }, context_instance=RequestContext(request))
+            return render("idsubmit/validate.html",
+                {'submission'        : submission,
+                 'authors_info'     : TempIdAuthors.objects.filter(submission__exact=submission.submission_id).order_by('author_order'),
+                 'submitter_form'   : SubmitterForm({'lname':'','fname':'','submitter_email':''}),
+                 'staging_url'      : settings.STAGING_URL,           
+                 'meta_data_errors' : meta_data_errors,
+                 'file_type_list'  : submission.file_type.split(',')
+                }, context_instance=RequestContext(request))
     else:
         can_be_canceled = 0
-    file_type_list = submission.file_type.split(',')
-    if settings.SERVER_MODE == "production":
-        doc_url = "http://www.ietf.org/internet-drafts"
-    else:
-        doc_url = settings.STAGING_URL
     return render(
         "idsubmit/status.html",
         {
@@ -220,151 +250,107 @@ def draft_status(request, submission_id_or_name=None):
             'authors': TempIdAuthors.objects.filter(
                     submission__exact=submission.submission_id).order_by('author_order'),
             'status_msg': STATUS_CODE[submission.status_id],
-            'staging_url':doc_url,
+            'staging_url':settings.STAGING_URL,
             'meta_error': meta_error,
-            'file_type_list':file_type_list,
-            'can_be_canceled': can_be_canceled
+            'file_type_list':submission.get_file_type_list(),
+            'can_be_canceled': can_be_canceled,
+            'posted': submission.status_id == -1 or submission.status_id == -2,
         }, context_instance=RequestContext(request)
     )
 
-def manual_post(request):
-    param = request.POST.copy()
-    param['filename'] = IdSubmissionDetail.objects.get(submission_id=param['submission_id']).filename
-    authors_first_name = request.POST.getlist('author_first_name')
-    authors_last_name  = request.POST.getlist('author_last_name')
-    authors_email      = request.POST.getlist('author_email')
-    param['authors'] = []
-    cnt = 0
-    for email in authors_email:
-        if email:
-            param['authors'].append( {'author_email': email,
-                                  'author_first_name': authors_first_name[cnt],
-                                  'author_last_name': authors_last_name[cnt]} )
-        cnt = cnt + 1
-    subject = 'Manual Posting Requested for ' + param['filename'] + '-' + param['revision']
-    from_email = 'ID Submission Tool <idsubmission@ietf.org>'
-    submitter = SubmitterForm(param)
-    if submitter.is_bound and submitter.is_valid():
-        try:
-            submission = IdSubmissionDetail.objects.get(submission_id=param['submission_id'])
-        except IdSubmissionDetail.DoesNotExist:
-            return render("idsubmit/error.html",{'error_msg':"Submission can not be found."}, context_instance=RequestContext(request))
-        submission.status_id=5
-        if submitter.save(submission, param):
-            cc_list = list();
-            for author_info in TempIdAuthors.objects.filter(submission=submission).exclude(email_address=param['submitter_email']):
-                cc_list.append(author_info.email_address)
-            try:
-                send_mail(request,[param['submitter_email']],from_email,subject,
-                  "idsubmit/email_manual_post.txt",{'meta_data':param, 'cc':cc_list, 'file_url': os.path.join(settings.STAGING_URL,"%s-%s.txt" % (param['filename'], param['revision'])), 'tracker_url': "http://%s%s" % (Site.objects.get_current().domain, submission.get_absolute_url())}, cc_list
-                )
-            except BadHeaderError:
-                return render("idsubmit/error.html",{'error_msg':"Invalid header found."}, context_instance=RequestContext(request))
-            return HttpResponseRedirect('/idsubmit/status/' + param['submission_id'])
-        else:
-            return render("idsubmit/error.html",{'error_msg':"The submitter information is not properly saved"}, context_instance=RequestContext(request))
-
-def trigger_auto_post(request):
-    args = request.GET.copy()
-    if args.has_key('submission_id'):
-        submission_id = args['submission_id']
-    else:
-        render("idsubmit/error.html",{'error_msg':"submission_id is not found"}, context_instance=RequestContext(request))
-    if args.has_key('fname') and len(args['fname']):
-        fname = ['fname']
-    else:
-        return render("idsubmit/error.html",{'error_msg':"Submitter's First Name is not found"}, context_instance=RequestContext(request))
-    if args.has_key('lname') and len(args['lname']): lname = args['lname']
-    else: return render("idsubmit/error.html",{'error_msg':"Submitter's Last Name is not found"}, context_instance=RequestContext(request))
-    if args.has_key('submitter_email') and len(args['submitter_email']): submitter_email = args['submitter_email']
-    else: return render("idsubmit/error.html",{'error_msg':"Submitter's Email Address is not found"}, context_instance=RequestContext(request))
+def trigger_auto_post(request,submission_id,queryset):
+    args = request.POST.copy()
+    submission = get_object_or_404(IdSubmissionDetail,pk=submission_id)
     msg = ''
-
-    try:
-        submission = IdSubmissionDetail.objects.get(submission_id=submission_id)
-    except IdSubmissionDetail.DoesNotExist:
-        return render("idsubmit/error.html",{'error_msg':"There is a problem to get the Submitter's information"}, context_instance=RequestContext(request))
-
     submitterForm = SubmitterForm(args)
     if submitterForm.is_bound and submitterForm.is_valid():
         submitter = submitterForm.save(submission)
         if submission.status_id > 0 and submission.status_id < 100:
-            send_mail(request, [submitter_email], \
+            send_mail(request, [submitter.email()], \
                     "IETF I-D Submission Tool <idsubmission@ietf.org>", \
                     "I-D Submitter Authentication for %s" % submission.filename, \
                     "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key,'url':request.META['HTTP_HOST']})            
-        return HttpResponseRedirect('/idsubmit/status/' + args['submission_id'])
-
+        return HttpResponseRedirect(submission.get_absolute_url())
+    else:
+        meta_data_errors = {}
+        return render("idsubmit/validate.html",
+            {'submission'        : submission,
+             'authors_info'     : TempIdAuthors.objects.filter(submission__exact=submission.submission_id).order_by('author_order'),
+             'submitter_form'   : SubmitterForm(args),
+             'staging_url'      : settings.STAGING_URL,
+             'meta_data_errors' : meta_data_errors,
+             'file_type_list'  : submission.file_type.split(','),
+            }, context_instance=RequestContext(request))
 def sync_docs (request, submission) :
     # sync docs with remote server.
-    command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --target_path_web=%(target_path_web)s --target_path_ftp=%(target_path_ftp)s --revision=%(revision)s --filename=%(filename)s --is_development=%(is_development)s" % {
+    command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --revision=%(revision)s --filename=%(filename)s" % {
         "filename" : submission.filename,
         "revision": submission.revision,
         "staging_path" : settings.STAGING_PATH,
-        "target_path_web" : settings.TARGET_PATH_WEB,
-        "target_path_ftp" : settings.TARGET_PATH_FTP,
         "BASE_DIR" : settings.BASE_DIR,
-        "is_development" : (settings.SERVER_MODE == "production") and "0" or "1",
-
     }
-    if settings.SERVER_MODE == "production" :
-        try :
-            os.system(command)
-        except OSError:
-            return False
-
-    # remove files.
     try :
-        [os.remove(i) for i in glob.glob("%s-%s.*" % (os.path.join(settings.STAGING_PATH,submission.filename), submission.revision))]
-
-    except :
-        pass
-
-    return True
+        p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stderr = p.stderr
+        if stderr:
+            errmsg = []
+            for msg in stderr.readlines():
+                if not 'is not a tty' in msg and not msg in errmsg:
+                    errmsg.append(msg)
+            if errmsg:
+                errmsg_html = '<br>\n'.join(errmsg)
+                return False, errmsg_html
+        #os.system(command)
+    except:
+        return False, "<li>Failed to copy document to web server</li>"
+    return True, None
 
 
 def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
-
-    subm = get_object_or_404(IdSubmissionDetail, pk=submission_id)
-
+    submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
     now = datetime.now()
-
-    if subm.auth_key != auth_key : # check 'auth_key'
+    if submission.auth_key != auth_key : # check 'auth_key'
         return render("idsubmit/error.html",{'error_msg':"Auth key is invalid"}, context_instance=RequestContext(request))
-
-    if subm.status_id not in (4, 11, ) :
+    if submission.status_id not in (4, 11, ) :
         # return status value 107, "Error - Draft is not in an appropriate
         # status for the requested page"
         return render("idsubmit/error.html",{'error_msg':STATUS_CODE[107]}, context_instance=RequestContext(request))
 
-    if subm.sub_email_priority is None :
-        subm.sub_email_priority = 1
+    if submission.sub_email_priority is None :
+        submission.sub_email_priority = 1
 
     approved_status = None
-    if subm.filename is not None :
-        try :
-            approved_status = IdApprovedDetail.objects.get(filename=subm.filename).approved_status
-        except ExceptionDoesNotExist :
-            pass
+    try :
+        approved_status = IdApprovedDetail.objects.get(filename=submission.filename).approved_status
+    except ExceptionDoesNotExist :
+        pass
 
-    if approved_status == 1 or subm.revision != "00" or subm.group_id == 1027 :
+    if approved_status == 1 or submission.revision != "00" or submission.group_id == 1027 :
+
+        # Copy Document(s) to production servers:
+        try :
+            (result, msg) = sync_docs(request, submission)
+            if not result:
+                return render("idsubmit/error.html",{'error_msg':msg}, context_instance=RequestContext(request))
+        except OSError :
+            return render("idsubmit/error.html",{'error_msg':"There was a problem occurred while posting the document to the public server"}, context_instance=RequestContext(request))
         # populate table
 
-        if subm.revision == "00" :
+        if submission.revision == "00" :
             # if the draft file alreay existed, error will be occured.
-            if InternetDraft.objects.filter(filename__exact=subm.filename).count() > 0 :
+            if InternetDraft.objects.filter(filename__exact=submission.filename).count() > 0 :
                 return render("idsubmit/error.html",{'error_msg':"00 revision of this document already exists"}, context_instance=RequestContext(request))
 
             internet_draft = InternetDraft(
-                title=subm.title,
-                id_document_key=subm.title.upper(),
-                group=subm.group,
-                filename=subm.filename,
-                revision=subm.revision,
-                revision_date=subm.submission_date,
-                file_type=subm.file_type,
-                txt_page_count=subm.txt_page_count,
-                abstract=subm.abstract,
+                title=submission.title,
+                id_document_key=submission.title.upper(),
+                group=submission.group,
+                filename=submission.filename,
+                revision=submission.revision,
+                revision_date=submission.submission_date,
+                file_type=submission.file_type,
+                txt_page_count=submission.txt_page_count,
+                abstract=submission.abstract,
                 status_id=1,
                 intended_status_id=8,
                 start_date=now,
@@ -374,56 +360,54 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             )
 
             internet_draft.save()
-        # get the id_document_tag what was just created for the new
-        # recorde
         else : # Existing version; update the existing record using new values
             try :
-                internet_draft = InternetDraft.objects.get(filename=subm.filename)
+                internet_draft = InternetDraft.objects.get(filename=submission.filename)
             except ExceptionDoesNotExist :
                 return render("idsubmit/error.html",{'error_msg':"The previous submission of this document cannot be found"}, context_instance=RequestContext(request))
             else :
                 try :
                     IDAuthor.objects.filter(document=internet_draft).delete()
                     EmailAddress.objects.filter(priority=internet_draft.id_document_tag).delete()
-                    kwargs = subm.__dict__.copy()
-                    kwargs.update({"revision_date" : subm.submission_date, "last_modified_date" : now })
-                    internet_draft.title=subm.title
-                    internet_draft.revision=subm.revision
-                    internet_draft.revision_date=subm.submission_date
-                    internet_draft.file_type=subm.file_type
-                    internet_draft.txt_page_count=subm.txt_page_count
-                    internet_draft.abstract=subm.abstract
+                    kwargs = submission.__dict__.copy()
+                    kwargs.update({"revision_date" : submission.submission_date, "last_modified_date" : now })
+                    internet_draft.title=submission.title
+                    internet_draft.revision=submission.revision
+                    internet_draft.revision_date=submission.submission_date
+                    internet_draft.file_type=submission.file_type
+                    internet_draft.txt_page_count=submission.txt_page_count
+                    internet_draft.abstract=submission.abstract
                     internet_draft.last_modified_date=now
                     internet_draft.save()
                 except :
                     return render("idsubmit/error.html",{'error_msg':"There was a problem updating the Internet-Drafts database"}, context_instance=RequestContext(request))
 
         authors_names = list()
-        for author_info in TempIdAuthors.objects.filter(submission=subm) :
+        for author_info in TempIdAuthors.objects.filter(submission=submission) :
             email_address = EmailAddress.objects.filter(address=author_info.email_address)
             if email_address.count() > 0 :
-                person_or_org_tag = email_address[0].person_or_org
+                person_or_org = email_address[0].person_or_org
             else :
-                person_or_org_tag = PersonOrOrgInfo(
+                person_or_org = PersonOrOrgInfo(
                     first_name=author_info.first_name,
                     last_name=author_info.last_name,
                     date_modified=now,
                 )
-                person_or_org_tag.save()
+                person_or_org.save()
 
                 EmailAddress(
-                    person_or_org=person_or_org_tag,
+                    person_or_org=person_or_org,
                     type="Primary",
                     priority=1
                 ).save()
 
             IDAuthor(
                 document=internet_draft,
-                person=person_or_org_tag,
+                person=person_or_org,
             ).save()
 
             EmailAddress(
-                person_or_org=person_or_org_tag,
+                person_or_org=person_or_org,
                 type="I-D",
                 priority=internet_draft.id_document_tag
             ).save()
@@ -431,32 +415,26 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             # gathering author's names
             authors_names.append("%s. %s" % (author_info.first_name, author_info.last_name))
 
-        subm.status_id = 7
+        submission.status_id = 7
+        submission.save()
 
-        #################################################
         # Schedule I-D Announcement:
-        # <Please read auto_post.cgi, sub schedule_id_announcement>
         cc_val = ""
         wgMail = str()
         # if group_acronym_id is 'Individual Submissions'
-        if subm.group_id != 1027 :
-            #subm.group.name
-            cc_val = IETFWG.objects.get(pk=subm.group_id).email_address
-            wgMail = "\nThis draft is a work item of the %(group_name)s Working Group of the IETF.\n" % {"group_name" : subm.group.name}
-        ann = ID_ACTION_ANNOUNCEMENT
-        body = ann.replace("^^^", "\t"
-        ).replace("##id_document_name##", subm.title
-        ).replace("##authors##",    ", ".join(authors_names)
-        ).replace("##filename##",       subm.filename
-        ).replace("##revision##",       subm.revision
-        ).replace("##txt_page_count##", str(subm.txt_page_count)
-        ).replace("##revision_date##",  str(subm.submission_date)
-        ).replace("##current_date##",   now.strftime("%F")
-        ).replace("##current_time##",   now.strftime("%T")
-        ).replace("##abstract##",       subm.abstract
-        ).replace("##wgMail##",     wgMail
-        )
-
+        if submission.group_id != 1027 :
+            #submission.group.name
+            try:
+                cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
+            except:
+                cc_val = ''
+            wgMail = "\nThis draft is a work item of the %(group_name)s Working Group of the IETF.\n" % {"group_name" : submission.group.name}
+        body = render_to_string("idsubmit/i-d_action.txt",
+            {'submission':submission,
+             'authors':", ".join(authors_names),
+             'current_date':now.strftime("%F"), 
+             'current_time':now.strftime("%T"),
+             'wgMail':wgMail}, context_instance=RequestContext(request))
         scheduled_announcement = ScheduledAnnouncement(
             mail_sent =    False,
             scheduled_by =     "IDST",
@@ -464,7 +442,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             to_be_sent_time =  "00:00",
             scheduled_date =   now,
             scheduled_time =   now,
-            subject =      "I-D Action:%s-%s.txt" % (subm.filename,subm.revision),
+            subject =      "I-D Action:%s-%s.txt" % (submission.filename,submission.revision),
             to_val =       "i-d-announce@ietf.org",
             from_val =     "Internet-Drafts@ietf.org",
             cc_val =       cc_val,
@@ -472,14 +450,11 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             content_type =     "Multipart/Mixed; Boundary=\"NextPart\"",
         ).save()
 
-        subm.status_id = 8
-
-        temp_id_document_tag = InternetDraft.objects.get(filename=subm.filename).id_document_tag
+        submission.status_id = 8
+        submission.save()
+        temp_id_document_tag = InternetDraft.objects.get(filename=submission.filename).id_document_tag
         if IDInternal.objects.filter(draft=temp_id_document_tag).filter(rfc_flag=0).extra(where=["cur_state < 100", ]) :
-            #################################################
             # Schedule New Version Notification:
-            # <Please read auto_post.cgi, sub
-            # schedule_new_version_notification>
 
             # Add comment to ID Tracker
             document_comments = DocumentComment(
@@ -488,7 +463,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                 public_flag =  1,
                 date = now,
                 time = now,
-                version =      subm.revision,
+                version =      submission.revision,
                 comment_text = "New version available",
             ).save()
 
@@ -502,7 +477,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                     public_flag =  1,
                     date = now,
                     time = now,
-                    version =      subm.revision,
+                    version =      submission.revision,
                     comment_text = msg,
                 ).save()
 
@@ -510,86 +485,52 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                 id_internal.prev_sub_state_id = 5
                 id_internal.save()
 
-            kwargs = subm.__dict__.copy()
+            kwargs = submission.__dict__.copy()
             kwargs.update({"temp_id_document_tag" : temp_id_document_tag, })
 
-            new_version_notify = MSG_BODY_SCHEDULED_ANNOUNCEMENT
-            body = new_version_notify.replace("##filename##", subm.filename
-            ).replace("##revision##", subm.revision
-            ).replace("##msg##", msg 
-            )
             send_to = list()
             send_to.append(id_internal.state_change_notice_to)
 
-            #needs to be improved without using cursor object
-            cursor = connection.cursor()
-            # Django model does not handle the complex join query well, so use this.
-            cursor.execute("select email_address from email_addresses a, id_internal b, iesg_login c where b.id_document_tag=%(temp_id_document_tag)s and rfc_flag=0 and b.job_owner=c.id and c.person_or_org_tag = a.person_or_org_tag and a.email_priority=1" % kwargs)
-            __email_address = cursor.fetchone()
-            if __email_address is not None and __email_address[0] not in send_to :
-                send_to.append(__email_address[0])
-
-            cursor.execute("select email_address from email_addresses a, ballots b, id_internal c,iesg_login d where c.id_document_tag=%(temp_id_document_tag)s and c.ballot_id=b.ballot_id and b.ad_id=d.id and d.person_or_org_tag=a.person_or_org_tag and a.email_priority=1 and b.discuss =1 and d.user_level=1" % kwargs)
-
-            while True :
-                __email_address = cursor.fetchone()
-                if __email_address is None :
-                    break
-                if __email_address[0] in send_to :
-                    continue
-
-                send_to.append(__email_address[0])
-
+            email_address = id_internal.job_owner.person.emailaddress_set.get(priority=1, type='INET').address
+            if email_address not in send_to:
+                send_to.append(email_address)
+            discuss_positions = id_internal.ballot.positions.filter(ad__user_level = 1, discuss = 1)
+            for p in discuss_positions:
+                email_address = p.ad.person.emailaddress_set.get(priority=1, type='INET').address
+                if email_address not in send_to:
+                    send_to.append(email_address)
             scheduled_announcement = ScheduledAnnouncement(
                 mail_sent = False,
-                scheduled_by =     "IDST",
+                scheduled_by = "IDST",
                 to_be_sent_date =  now,
                 to_be_sent_time =  "00:00",
                 scheduled_date =   now,
                 scheduled_time =   now,
-                subject =      "New Version Notification - %(filename)s-%(revision)s.txt" % kwargs,
-                to_val =       ",".join([str(eb) for eb in send_to if eb is not None]),
-                from_val =     "Internet-Drafts@ietf.org",
-                cc_val =       cc_val,
-                body =         body,
+                subject = "New Version Notification - %(filename)s-%(revision)s.txt" % kwargs,
+                to_val =  ",".join([str(eb) for eb in send_to if eb is not None]),
+                from_val = "Internet-Drafts@ietf.org",
+                cc_val =  cc_val,
+                body =  render_to_string("idsubmit/new_version_notify.txt",{'submission':submission,'msg':msg}, context_instance=RequestContext(request)),
             ).save()
 
-            subm.status_id = 9
-
-        #################################################
-        # Copy Document(s) to production servers:
-        # <Please read auto_post.cgi, sub sync_docs>
-        try :
-            sync_docs(request, subm)
-        except OSError :
-            return render("idsubmit/error.html",{'error_msg':"There was a problem occurred while posting the document to the public server"}, context_instance=RequestContext(request))
-
-        subm.status_id = -1
+            submission.status_id = 9
+            submission.save()
 
         # Notify All Authors:
         # <Please read auto_post.cgi, sub notify_all_authors>
 
         cc_email = list()
-        if subm.group_id == 1027 :
+        if submission.group_id == 1027 :
             group_acronym = "Independent Submission"
         else :
-            group_acronym = subm.group.name
+            group_acronym = submission.group.name
             #removed cc'ing WG email address by request
-            #cc_email.append(IETFWG.objects.get(group_acronym=subm.group).email_address)
+            #cc_email.append(IETFWG.objects.get(group_acronym=submission.group).email_address)
 
-        subm.comment_to_sec = subm.comment_to_sec and "\nComment:\n%s" % subm.comment_to_sec or ""
+        submission.comment_to_sec = submission.comment_to_sec and "\nComment:\n%s" % submission.comment_to_sec or ""
 
-        try :
-            (submitter_name, submitter_email, ) = subm.submitter.email()
-        except :
-            # for debuggin in development mode.
-            if settings.SERVER_MODE == "production" :
-                raise
-            else :
-                submitter_name = ""
-                submitter_email = ""
-
-        for author_info in TempIdAuthors.objects.filter(submission=subm).exclude(email_address=submitter_email) :
+        (submitter_name, submitter_email, ) = submission.submitter.email()
+        for author_info in TempIdAuthors.objects.filter(submission=submission).exclude(email_address=submitter_email) :
             if not author_info.email_address.strip() and submitter_email == author_info.email_address :
                 continue
 
@@ -601,61 +542,49 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             request,
             to_email,
             "IETF I-D Submission Tool <idsubmission@ietf.org>",
-            "New Version Notification for %s-%s" % (subm.filename,subm.revision),
-            "idsubmit/email_posted_notice.txt", {'subm':subm, 'submitter_nam':submitter_name},
+            "New Version Notification for %s-%s" % (submission.filename,submission.revision),
+            "idsubmit/email_posted_notice.txt", {'subm':submission, 'submitter_name':submitter_name},
             cc_email
         )
-        subm.save()
-
+        submission.status_id = -1
+        submission.save()
+        # remove files.
+        try :
+            [os.remove(i) for i in glob.glob("%s-%s.*" % (os.path.join(settings.STAGING_PATH,submission.filename), submission.revision))]
+        except :
+            pass
+        # redirect to wg chairs/secretariat tool if the document was just approved and posted
         if from_wg_or_sec == "wg" :
-            return HttpResponsePermanentRedirect("https://datatracker.ietf.org/cgi-bin/wg/wg_init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (subm.submission_id, ))
+            return HttpResponsePermanentRedirect("http://%s/cgi-bin/wg/wg_init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (request.META['HTTP_HOST'], submission.submission_id, ))
         elif from_wg_or_sec == "sec" :
-            return HttpResponsePermanentRedirect("https://datatracker.ietf.org/cgi-bin/secretariat/init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (subm.submission_id, ))
-        else : # redirect to /idsubmit/status/<filename>
-            return HttpResponsePermanentRedirect("/idsubmit/status/%s" % (subm.filename, ))
+            return HttpResponsePermanentRedirect("http://%s/cgi-bin/secretariat/init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (request.META['HTTP_HOST'], submission.submission_id, ))
+        else : # redirect to Status Page 
+            return HttpResponsePermanentRedirect(submission.get_absolute_url())
 
     else :
-        # set the status_id to 10
-        subm.status_id = 10
+        submission.status_id = 10
 
         # get submitter's name and email address
-        (submitter_name, submitter_email) = subm.submitter.email()
+        (submitter_name, submitter_email) = submission.submitter.email()
 
-        # get acronym from acronym where acronym_id=group_acronym_id
-        # get id_approval_request_msg from announcement_template
-        #id_approval_request_msg = announcement_template.id_approval_request_msg.replace("##submitter_name##", submitter_name).replace("##submitter_email##", submitter_email).replace("##filename##", subm.filename)
-        # send a message to '<acronym>-chairs@tools.ietf.org' from 'IETF
-        # I-D Submission Tool <idst-developers@ietf.org>,
-        # subject:Initial Version Approval Request or <filename>
-        toaddr = "%s-chairs@tools.ietf.org" % (str(subm.group), )
+        toaddr = "%s-chairs@tools.ietf.org" % (str(submission.group), )
         send_mail(
             request,
             [toaddr],
             "IETF I-D Submission Tool <idst-developers@ietf.org>",
-            "Initial Version Approval Request or %s" % (subm.filename, ),
-            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':subm.filename} 
+            "Initial Version Approval Request for %s" % (submission.filename, ),
+            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename, 'tracker_url':request.META['HTTP_HOST']} 
         )
 
-        subm.save()
+        submission.save()
 
         # redirect the page to /idsubmit/status/<submission_id>
-        return HttpResponsePermanentRedirect("/idsubmit/status/%d" % (subm.submission_id, ))
+        return HttpResponsePermanentRedirect(submission.get_absolute_url())
 
-MSG_CANCEL = """This message is to notify you that submission of an Internet-Draft, %(filename)s-%(revision)s, has just been cancelled by a user whose computer has an IP address of %(remote_ip)s.
-
-The IETF Secretariat.
-"""
 SUBJECT_CANCEL = "Submission of %(filename)s-%(revision)s has been Cancelled"
 FROM_EMAIL_CANCEL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
 
 def cancel_draft (request, submission_id) :
-    """
-    This view was ported from the cancel routine in
-    'ietf/branch/legacy/idsubmit/status.cgi'.
-
-    NOTE: The below commented parts will be removed after all the codes is verified.
-    """
-
     # get submission
     submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
     if submission.status_id < 0:
@@ -679,7 +608,6 @@ def cancel_draft (request, submission_id) :
     for i in glob.glob("%s*" % path_orig_sub) :
         os.remove(i)
     # to notify 'cancel' to the submitter and authors.
-    #print submission.status_id
     if submission.status_id > 0 and submission.status_id < 100 :
         to_email = [i.email_address for i in TempIdAuthors.objects.filter(submission=submission) if i.email_address.strip()]
         kwargs = submission.__dict__.copy()
@@ -704,11 +632,10 @@ def cancel_draft (request, submission_id) :
         "idsubmit/status.html",
         {
             'object': submission,
-            'authors': TempIdAuthors.objects.filter(
-                    submission__exact=submission.submission_id),
+            'authors': TempIdAuthors.objects.filter(submission__exact=submission.submission_id),
             'status_msg': STATUS_CODE[submission.status_id],
             'file_type_list':file_type_list,
-            'staging_url':settings.STAGING_URL
+            'staging_url':settings.STAGING_URL,
         }, context_instance=RequestContext(request)
     )
 

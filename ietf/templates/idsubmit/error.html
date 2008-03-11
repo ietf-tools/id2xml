@@ -14,7 +14,7 @@ The cut off time for the I-D submission was 9 AM (ET), {{ second_cut_off }}.<br>
 
 <i>{{ error_msg }}<br>
 {% if filename %}
-<a href="/idsubmit/status/{{filename}}">[View Status of existing submission]</a>
+<a href="{% url ietf.idsubmit.views.draft_status filename %}">[View Status of existing submission]</a>
 {% else %}
 Please go back to <a href="/idsubmit/upload/">Upload Page</a> and re-submit your draft.
 {% endif %}

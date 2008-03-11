@@ -4,7 +4,7 @@ Filename:	 {{subm.filename}}
 Revision:	 {{subm.revision}}
 Title:		 {{subm.title}}
 Creation_date:	 {{subm.creation_date}}
-WG ID:		 {{subm.group_name}}
+WG ID:		 {{subm.group.name}}
 Number_of_pages: {{subm.txt_page_count}}
 
 Abstract:

@@ -64,7 +64,7 @@ class IdDates(models.Model):
 class IdSubmissionDetail(models.Model):
     submission_id = models.AutoField(primary_key=True)
     # temp_id_document_tag = models.IntegerField(editable=False)	# obsolete
-    status_id = models.PositiveSmallIntegerField(default=0)
+    status_id = models.IntegerField(default=0)
     last_updated_date = models.DateField(blank=True)
     last_updated_time = models.CharField(maxlength=100,blank=True)
     title = models.CharField(maxlength=255, db_column='id_document_name')

@@ -79,10 +79,10 @@ def file_upload(request):
             idnits_msg = dp.check_idnits(file_path)
             #print "after checking idnits..."
             if type(idnits_msg).__name__=='dict':
+                submission.idnits_message = idnits_msg['message']
                 if idnits_msg['error'] > 0:
                     idnits_result = True
                     submission.status_id = 203
-                    submission.idnits_message = idnits_msg['message']
                     submission.warning_message = "%s\n%s" % ("<li>This document has " + str(idnits_msg['error']) + " idnits error(s)</li>", submission.warning_message)
                 else:
                     idnits_result = False

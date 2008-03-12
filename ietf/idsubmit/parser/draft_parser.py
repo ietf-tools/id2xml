@@ -105,18 +105,18 @@ class DraftParser:
         # error page print
         if err:
             self.idnits_failed = True
-            return "Checking idnits failed: %s " % err
+            return "Checking idnits failed: Cannot locate idnits script"
         self.idnits_message = idnits_message
         # if no error
         result = re.search('[Ss]ummary: (\d+) error.+\(\*\*\).+(\d+) [Ww]arning.+\(==\)', idnits_message)
         try:
             return {'error':int(result.group(1).strip()), 'warning':int(result.group(2).strip()), 'message': idnits_message}
         except AttributeError:
-            return "Error in the idnits check "
             self.idnits_failed = True
+            return "Checking idnits failed: Cannot locate idnits script"
         except ValueError:
-            return "Error in the idnits check "
             self.idnits_failed = True
+            return "Checking idnits failed: Cannot locate idnits script"
         
     def check_revision(self, expected_revision):
         if self.revision == expected_revision:

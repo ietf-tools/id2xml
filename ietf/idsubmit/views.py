@@ -87,7 +87,7 @@ def file_upload(request):
                 else:
                     idnits_result = False
             else:
-                idnits_result = False
+                return render("idsubmit/error.html", {'error_msg':idnits_msg}, context_instance=RequestContext(request))
             submission.save()
             authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission.submission_id)
             for author_dict in authors_info:

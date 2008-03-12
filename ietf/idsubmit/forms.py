@@ -60,7 +60,7 @@ class SubmitterForm(forms.Form):
         submission.save()
         return person_or_org
 class AdjustForm(forms.Form):
-    #submission_id = forms.CharField(required=True, widget=forms.HiddenInput(attrs={'type':'hidden'}))
+    submission_id = forms.CharField(required=True, widget=forms.HiddenInput(attrs={'type':'hidden'}))
     title = forms.CharField(required=True, label='Title : ', max_length="255", widget=forms.TextInput(attrs={'size':65}))
     revision = forms.CharField(required=True, label='Version : ', max_length="3", widget=forms.TextInput(attrs={'size':3}))
     creation_date = forms.CharField(required=True, label='Creation Date : ', max_length="25", widget=forms.TextInput(attrs={'size':25}))
@@ -71,6 +71,10 @@ class AdjustForm(forms.Form):
     submitter_email = forms.EmailField(required=True, label='Email Address:', max_length="50")
     comment_to_sec = forms.CharField(required=False, label='Comment to the Secretariat: ', widget=forms.Textarea(attrs={'rows':4, 'cols':72,}))
 
+    def clean_revision(self):
+        expected_revision = IdSubmissionDetail.objects.get(pk=self.clean_data['submission_id']).invalid_version
+        if not expected_revision == int(self.clean_data['revision']):
+            raise forms.ValidationError, "%s(Version %s is expected)" % (STATUS_CODE[201], str(expected_revision).zfill(2))
     def clean_creation_date(self):
         cdate = self.clean_data['creation_date'].split('-')
         if not check_creation_date(date(int(cdate[0]),int(cdate[1]),int(cdate[2]))):

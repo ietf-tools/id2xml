@@ -32,7 +32,7 @@ class DraftParser:
     idnits_message = None
     remote_ip = None
     status_id = 0
-    invalid_version = False
+    invalid_version = 0 
     idnits_failed = False
 
     content = ""
@@ -409,6 +409,7 @@ class DraftParser:
                 self.set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
         # error message here
         expected_revision = self.get_expected_revision()
+        self.invalid_version = int(expected_revision)
         if not self.check_revision(expected_revision):
             err_msg = "<li>" + STATUS_CODE[201] + "(Version %s is expected)</li>" % expected_revision
             self.set_meta_data_errors('revision', err_msg)

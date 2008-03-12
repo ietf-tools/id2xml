@@ -88,7 +88,7 @@ class IdSubmissionDetail(models.Model):
     man_posted_by = models.CharField(blank=True, maxlength=255)
     first_two_pages = models.TextField(blank=True)
     sub_email_priority = models.IntegerField(null=True, blank=True)
-    invalid_version = models.BooleanField(default=0)
+    invalid_version = models.IntegerField(default=0)
     idnits_failed = models.BooleanField(default=0)
     submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag")
 

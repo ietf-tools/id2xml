@@ -3,7 +3,7 @@ from datetime import datetime
 from datetime import date
 from datetime import timedelta
 
-from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IDAuthor, PersonOrOrgInfo
+from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IDAuthor, PersonOrOrgInfo, IETFWG
 from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SUBMISSION_ENV
 
 
@@ -372,8 +372,9 @@ class DraftParser:
             else:
                 wg_id = self.not_found
         except IndexError, extradata:
-            wg_id = self.not_found
-            self.set_meta_data_errors('group', '<li>Can not find working group id</li>')
+            wg_id = None
+            #wg_id = self.not_found
+            #self.set_meta_data_errors('group', '<li>Can not find working group id</li>')
         return wg_id
 
     #def set_file_type(self, type_list):
@@ -390,16 +391,24 @@ class DraftParser:
             two_pages = self.not_found
         return two_pages
 
-    def get_group_id(self, wg_id):
-        if wg_id == self.not_found:
+    def get_group_id(self):
+        wg_id = self.get_wg_id()
+        if not wg_id: 
+            return None, None
+        elif wg_id == self.not_found:
             # Individual Document 1027
             group_id = Acronym.objects.get(acronym_id=1027)
         else:
             try:
-                group_id = Acronym.objects.get(acronym=self.get_wg_id())
+                ac = Acronym.objects.get(acronym=self.get_wg_id())
+                if IETFWG.objects.filter(group_acronym=ac,status__status_id=1,group_type__group_type_id=1).count():
+                    return ac, None
+                else:
+                    return None, wg_id
             except Acronym.DoesNotExist:
-                group_id = Acronym.objects.get(acronym_id=1027)
-        return group_id
+                return None, wg_id
+                #group_id = Acronym.objects.get(acronym_id=1027)
+        return group_id, None
 
     def get_meta_data_fields(self):
         # meta data check routine
@@ -429,7 +438,7 @@ class DraftParser:
            'filename': self.filename,
            'revision': self.revision,
            'title': title,
-           'group': self.get_group_id(self.get_wg_id()),
+           #'group': self.get_group_id(),
            'creation_date': self.get_creation_date(),
            #'file_type': self.get_file_type(),
            'abstract': abstract,
@@ -475,8 +484,8 @@ class DraftParser:
         cur_same_submitter_size = sum([d.filesize for d in cur_same_submitter])
         if (cur_same_submitter_size >= max_same_submitter_size):
 	    return "<li> A same submitter cannot submit more than %d I-Ds a day. </li>" % max_same_submitter_size
-
-        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=self.get_group_id(self.get_wg_id()), submission_date__exact=today).exclude(group=1027)
+        (group_id, err) = self.get_group_id()
+        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=1027)
         cur_same_wg_draft_count = cur_same_wg_draft.count()
         if (cur_same_wg_draft_count >= SUBMISSION_ENV['max_same_wg_draft']):
 	    return "<li> A same working group I-Ds cannot be submitted more than %d times a day. </li>" % SUBMISSION_ENV['max_same_wg_draft']

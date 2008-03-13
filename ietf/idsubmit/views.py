@@ -59,6 +59,14 @@ def file_upload(request):
             except:
                 return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"}, context_instance=RequestContext(request))
             # Display critical error message
+            (ietfgroup,invalid_group) = dp.get_group_id()
+            print "group: %s" % ietfgroup
+            if invalid_group:
+                return render("idsubmit/error.html",{'error_msg':'Invalid WG: %s' % invalid_group}, context_instance=RequestContext(request))
+            if not ietfgroup:
+                return render("idsubmit/error.html",{'error_msg':'Failed to determine IETF WG from filename, %s' % submission.filename}, context_instance=RequestContext(request))
+            submission.group = ietfgroup
+            submission.save()
             if submission.status_id >= 100 and submission.status_id < 200:
                 return render("idsubmit/error.html",{'error_msg':STATUS_CODE[submission.status_id]}, context_instance=RequestContext(request))
             # Checking existing submission

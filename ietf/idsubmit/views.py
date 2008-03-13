@@ -60,7 +60,6 @@ def file_upload(request):
                 return  render("idsubmit/error.html", {'error_msg':"Data Saving Error"}, context_instance=RequestContext(request))
             # Display critical error message
             (ietfgroup,invalid_group) = dp.get_group_id()
-            print "group: %s" % ietfgroup
             if invalid_group:
                 return render("idsubmit/error.html",{'error_msg':'Invalid WG: %s' % invalid_group}, context_instance=RequestContext(request))
             if not ietfgroup:

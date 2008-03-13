@@ -118,20 +118,13 @@ class DraftParser:
             self.idnits_failed = True
             return "Checking idnits failed: Cannot locate idnits script"
         
-    def check_revision(self, expected_revision):
-        if self.revision == expected_revision:
-            return True
-        else:
-            self.invalid_version = True
-            return False
-
     def get_expected_revision(self):
         try:
             id_query = InternetDraft.objects.get(filename=self.filename)
         except InternetDraft.DoesNotExist:
             expected_revision = '00'
         else:
-            if id_query.status == 2 and not id_query.expired_tombstone:
+            if id_query.status.status_id == 2 and id_query.expired_tombstone == 0:
                 expected_revision = id_query.revision
             else:
                 expected_revision = self.increase_revision(id_query.revision) 
@@ -419,7 +412,7 @@ class DraftParser:
         # error message here
         expected_revision = self.get_expected_revision()
         self.invalid_version = int(expected_revision)
-        if not self.check_revision(expected_revision):
+        if not self.revision == expected_revision:
             err_msg = "<li>" + STATUS_CODE[201] + "(Version %s is expected)</li>" % expected_revision
             self.set_meta_data_errors('revision', err_msg)
         title = self.get_title()

@@ -76,10 +76,6 @@ def file_upload(request):
             # All the critical errors are checked. It's ok to save the file now
             form.save(submission.filename, submission.revision)
             submission.set_file_type(form.file_ext_list)
-            # filename validation
-            if not re.match(r'^[a-z0-9-\.]+$', dp.filename):
-                submission.warning_message = "%s\n%s" % (submission.warning_message, STATUS_CODE[202])
-                submission.status_id = 202
             file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
             #idnits checking
             #print "before checking idnits..."

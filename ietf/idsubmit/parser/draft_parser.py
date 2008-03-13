@@ -427,6 +427,8 @@ class DraftParser:
             self.filename = self.not_found
             self.revision = 'NA'
             self.status_id = 111
+        elif not re.match(r'^[a-z0-9-\.]+$', self.filename):
+            self.status_id = 112
         meta_data_fields = {
            'filename': self.filename,
            'revision': self.revision,

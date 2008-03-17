@@ -145,8 +145,11 @@ class IDUploadForm(forms.Form):
             except TypeError:
                 continue
             file_path = "%s-%s%s" % (os.path.join(settings.STAGING_PATH,filename), revision, file_ext)
-            save_file = open(file_path,'w')
-            save_file.write(content)
-            save_file.close()
-            self.file_ext_list.append( file_ext )
-
+            try:
+                save_file = open(file_path,'w')
+                save_file.write(content)
+                save_file.close()
+                self.file_ext_list.append( file_ext )
+            except IOError:
+                return False
+        return True

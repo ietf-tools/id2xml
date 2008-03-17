@@ -29,6 +29,21 @@ parse_options ()
 			--filename=*)
 				filename=`echo "$arg" | sed -e 's/^[^=]*=//'`
 			;;
+                        --ssh_key_path=*)
+                                ssh_key_path=`echo "$arg" | sed -e 's/^[^=]*=//'`
+                        ;;
+                        --remote_web1=*)
+                                remote_web1=`echo "$arg" | sed -e 's/^[^=]*=//'`
+                        ;;
+                        --remote_ftp1=*)
+                                remote_ftp1=`echo "$arg" | sed -e 's/^[^=]*=//'`
+                        ;;
+                        --remote_web2=*)
+                                remote_web2=`echo "$arg" | sed -e 's/^[^=]*=//'`
+                        ;;
+                        --remote_ftp2=*)
+                                remote_ftp2=`echo "$arg" | sed -e 's/^[^=]*=//'`
+                        ;;
 			--local_path=*)
 				local_path=`echo "$arg" | sed -e 's/^[^=]*=//'`
 			;;
@@ -40,17 +55,13 @@ parse_options ()
 EXEC_SCP="/usr/bin/scp -P 65321"
 #EXEC_SCP=/usr/bin/scp # When a special port is not needed
 EXEC_CP=cp
-SSH_KEY_PATH="/home/mlee/.ssh/id_dsa"
-REMOTE_WEB1_PATH="leemich@usa.ultrawhb.com:web-path"
-#REMOTE_WEB2_PATH="leemich@usa.ultrawhb.com:web-path"
-REMOTE_FTP1_PATH="leemich@usa.ultrawhb.com:ftp-path"
-#REMOTE_FTP2_PATH="leemich@usa.ultrawhb.com:ftp-path"
 # End Edit Section
 
 staging_path=""
 local_path=""
 revision=""
 filename=""
+ssh_key_path=""
 
 # BEGIN
 parse_options $*
@@ -66,24 +77,26 @@ fi
 if [ -z $filename ];then
 	usage "filename"; exit;
 fi
-
+if [ -z $ssh_key_path ];then
+        usage "ssh_key_path"; exit;
+fi
 if [ $local_path ];then
 	$EXEC_CP $staging_path/$filename-$revision.*  $local_path/
 fi
-if [ $REMOTE_WEB1_PATH ];then
-	$EXEC_SCP -p -i $SSH_KEY_PATH $staging_path/$filename-$revision.* \
-		$REMOTE_WEB1_PATH
+if [ $remote_web1 ];then
+	$EXEC_SCP -p -i $ssh_key_path $staging_path/$filename-$revision.* \
+		$remote_web1
 fi
-if [ $REMOTE_WEB2_PATH ];then
-$EXEC_SCP -p -i $SSH_KEY_PATH $staging_path/$filename-$revision.* \
-	$REMOTE_WEB2_PATH
+if [ $remote_web2 ];then
+$EXEC_SCP -p -i $ssh_key_path $staging_path/$filename-$revision.* \
+	$remote_web2
 fi
-if [ $REMOTE_FTP1_PATH ];then
-$EXEC_SCP -p -i $SSH_KEY_PATH $staging_path/$filename-$revision.* \
-	$REMOTE_FTP1_PATH
+if [ $remote_ftp1 ];then
+$EXEC_SCP -p -i $ssh_key_path $staging_path/$filename-$revision.* \
+	$remote_ftp1
 fi
-if [ $REMOTE_FTP2_PATH ];then
-$EXEC_SCP -p -i $SSH_KEY_PATH $staging_path/$filename-$revision.* \
-	$REMOTE_FTP2_PATH
+if [ $remote_ftp2 ];then
+$EXEC_SCP -p -i $ssh_key_path $staging_path/$filename-$revision.* \
+	$remote_ftp2
 fi
 # END

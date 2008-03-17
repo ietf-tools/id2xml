@@ -74,7 +74,8 @@ def file_upload(request):
                 submission.save()
                 return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103],'filename':submission.filename}, context_instance=RequestContext(request))
             # All the critical errors are checked. It's ok to save the file now
-            form.save(submission.filename, submission.revision)
+            if not form.save(submission.filename, submission.revision):
+                return render("idsubmit/error.html", {'error_msg':'There was an error on saving documents'}, context_instance=RequestContext(request))
             submission.set_file_type(form.file_ext_list)
             file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
             #idnits checking
@@ -286,12 +287,16 @@ def trigger_auto_post(request,submission_id,queryset):
             }, context_instance=RequestContext(request))
 def sync_docs (request, submission) :
     # sync docs with remote server.
-    command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --revision=%(revision)s --filename=%(filename)s" % {
+    command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --revision=%(revision)s --filename=%(filename)s --ssh_key_path=%(ssh_key_path)s --remote_web1=%(remote_web1)s --remote_ftp1=%(remote_ftp1)s" % {
         "filename" : submission.filename,
         "revision": submission.revision,
         "staging_path" : settings.STAGING_PATH,
         "BASE_DIR" : settings.BASE_DIR,
+        "ssh_key_path" : settings.SSH_KEY_PATH,
+        "remote_web1" : settings.TARGET_PATH_WEB1,
+        "remote_ftp1" : settings.TARGET_PATH_FTP1,
     }
+    # need add options for extra web2 and ftp2 path
     try :
         p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stderr = p.stderr

@@ -5,7 +5,6 @@ from ietf.idtracker.models import Acronym, PersonOrOrgInfo, IRTF, AreaGroup, Are
 import datetime
 import random
 #from ietf.utils import log
-
 STATUS_CODE = {
     0   : 'Ready To Post',
     1   : 'Uploaded',
@@ -43,17 +42,6 @@ STATUS_CODE = {
     206 : 'Incorrect Meta Data'
 }
 
-SUBMISSION_ENV = {
-    'max_same_draft_name'       : 50,
-    'max_same_draft_size'       : 20,
-    'max_same_submitter'        : 500,
-    'max_same_submitter_size'   : 20, 
-    'max_same_wg_draft'         : 50,
-    'max_same_wg_draft_size'    : 10,
-    'max_daily_submission'      : 500,
-    'max_daily_submission_size' : 50
-}
-
 class IdDates(models.Model):
     id = models.IntegerField(primary_key=True)
     id_date = models.DateField(null=True, blank=True)
@@ -61,6 +49,23 @@ class IdDates(models.Model):
     f_name = models.CharField(blank=True, maxlength=765)
     class Meta:
         db_table = 'id_dates'
+
+class SubmissionEnv(models.Model):
+    max_live = models.IntegerField()
+    max_interval = models.IntegerField()
+    current_manual_proc_date = models.IntegerField()
+    max_same_draft_name = models.IntegerField()
+    max_same_draft_size = models.IntegerField()
+    max_same_submitter = models.IntegerField()
+    max_same_submitter_size = models.IntegerField()
+    max_same_wg_draft = models.IntegerField()
+    max_same_wg_draft_size = models.IntegerField()
+    max_daily_submission = models.IntegerField()
+    max_daily_submission_size = models.IntegerField()
+    class Meta:
+        db_table = 'id_submission_env'
+    class Admin:
+        pass
 
 class IdSubmissionDetail(models.Model):
     submission_id = models.AutoField(primary_key=True)

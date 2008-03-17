@@ -17,7 +17,7 @@ from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates
 from ietf.idtracker.models import Acronym, IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm
-from ietf.idsubmit.models import STATUS_CODE, SUBMISSION_ENV
+from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail
 from django.core.mail import BadHeaderError
 from ietf.idsubmit.parser.draft_parser import DraftParser

@@ -4,7 +4,7 @@ from datetime import date
 from datetime import timedelta
 
 from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IDAuthor, PersonOrOrgInfo, IETFWG
-from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SUBMISSION_ENV
+from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SubmissionEnv
 
 
 from django.conf import settings
@@ -454,17 +454,18 @@ class DraftParser:
     def check_dos_threshold(self):
         import datetime
         today = datetime.date.today()
-        max_same_draft_size = SUBMISSION_ENV['max_same_draft_size'] * 1000000;
-        max_same_submitter_size = SUBMISSION_ENV['max_same_submitter_size'] * 1000000;
-        max_same_wg_draft_size = SUBMISSION_ENV['max_same_wg_draft_size'] * 1000000;
-        max_daily_submission_size = SUBMISSION_ENV['max_daily_submission_size'] * 1000000;
+        subenv = SubmissionEnv.objects.all()[0]
+        max_same_draft_size = subenv.max_same_draft_size * 1000000;
+        max_same_submitter_size = subenv.max_same_submitter_size * 1000000;
+        max_same_wg_draft_size = subenv.max_same_wg_draft_size * 1000000;
+        max_daily_submission_size = subenv.max_daily_submission_size * 1000000;
 
         cur_same_draft = IdSubmissionDetail.objects.filter(filename__exact=self.filename,
     	        					   revision__exact=self.revision,
          						   submission_date__exact=today)
         cur_same_draft_count = cur_same_draft.count()
-        if (cur_same_draft_count >= SUBMISSION_ENV['max_same_draft_name']):
-            return "<li> A same I-D cannot be submitted more than %d times a day. </li>" % SUBMISSION_ENV['max_same_draft_name']
+        if (cur_same_draft_count >= subenv.max_same_draft_name):
+            return "<li> A same I-D cannot be submitted more than %d times a day. </li>" % subenv.max_same_draft_name
 
         cur_same_draft_size = sum([d.filesize for d in cur_same_draft])
         if (cur_same_draft_size >= max_same_draft_size):
@@ -473,8 +474,8 @@ class DraftParser:
         cur_same_submitter = IdSubmissionDetail.objects.filter(remote_ip__exact=self.remote_ip,
 							       submission_date__exact=today)
         cur_same_submitter_count = cur_same_submitter.count()
-        if (cur_same_submitter_count >= SUBMISSION_ENV['max_same_submitter']):
-	    return "<li> The same submitter cannot submit more than %d I-Ds a day. </li>" % SUBMISSION_ENV['max_same_submitter']
+        if (cur_same_submitter_count >= subenv.max_same_submitter):
+	    return "<li> The same submitter cannot submit more than %d I-Ds a day. </li>" % subenv.max_same_submitter
 
         cur_same_submitter_size = sum([d.filesize for d in cur_same_submitter])
         if (cur_same_submitter_size >= max_same_submitter_size):
@@ -482,8 +483,8 @@ class DraftParser:
         (group_id, err) = self.get_group_id()
         cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=1027)
         cur_same_wg_draft_count = cur_same_wg_draft.count()
-        if (cur_same_wg_draft_count >= SUBMISSION_ENV['max_same_wg_draft']):
-	    return "<li> A same working group I-Ds cannot be submitted more than %d times a day. </li>" % SUBMISSION_ENV['max_same_wg_draft']
+        if (cur_same_wg_draft_count >= subenv.max_same_wg_draft):
+	    return "<li> A same working group I-Ds cannot be submitted more than %d times a day. </li>" % subenv.max_same_wg_draft
 
         cur_same_wg_draft_size = sum([d.filesize for d in cur_same_wg_draft])
         if (cur_same_wg_draft_size >= max_same_wg_draft_size):
@@ -491,7 +492,7 @@ class DraftParser:
 
         cur_daily = IdSubmissionDetail.objects.filter(submission_date__exact=today)
         cur_daily_count = cur_daily.count()
-        if (cur_daily_count >= SUBMISSION_ENV['max_daily_submission']):
+        if (cur_daily_count >= subenv.max_daily_submission):
 	    return "<li> The total number of today's submission has reached the maximum number of submission per day. </li>"
 
         cur_daily_size = sum([d.filesize for d in cur_daily])

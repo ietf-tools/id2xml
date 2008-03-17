@@ -400,8 +400,9 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
                 EmailAddress(
                     person_or_org=person_or_org,
-                    type="Primary",
-                    priority=1
+                    type="INET",
+                    priority=1,
+                    address=author_info.email_address,
                 ).save()
 
             IDAuthor(
@@ -412,7 +413,8 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             EmailAddress(
                 person_or_org=person_or_org,
                 type="I-D",
-                priority=internet_draft.id_document_tag
+                priority=internet_draft.id_document_tag,
+                address=author_info.email_address,
             ).save()
 
             # gathering author's names

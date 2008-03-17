@@ -40,7 +40,7 @@ parse_options ()
 EXEC_SCP="/usr/bin/scp -P 65321"
 #EXEC_SCP=/usr/bin/scp # When a special port is not needed
 EXEC_CP=cp
-SSH_KEY_PATH="/home/mle/.ssh/id_dsa"
+SSH_KEY_PATH="/home/mlee/.ssh/id_dsa"
 REMOTE_WEB1_PATH="leemich@usa.ultrawhb.com:web-path"
 #REMOTE_WEB2_PATH="leemich@usa.ultrawhb.com:web-path"
 REMOTE_FTP1_PATH="leemich@usa.ultrawhb.com:ftp-path"

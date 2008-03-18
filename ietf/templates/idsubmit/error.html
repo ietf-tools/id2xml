@@ -13,10 +13,12 @@ The cut off time for the I-D submission was 9 AM (ET), {{ second_cut_off }}.<br>
 {% endifequal %}
 
 <i>{{ error_msg }}<br>
-{% if filename %}
+{% if not critical_error %}
+  {% if filename %}
 <a href="{% url ietf.idsubmit.views.draft_status filename %}">[View Status of existing submission]</a>
-{% else %}
+  {% else %}
 Please go back to <a href="/idsubmit/upload/">Upload Page</a> and re-submit your draft.
+  {% endif %}
 {% endif %}
 <br></i>
                   <!-- InstanceEndEditable -->    

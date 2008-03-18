@@ -25,7 +25,40 @@ from django.contrib.sites.models import Site
 from ietf.utils import normalize_draftname
 import subprocess
 
+def check_setting(request):
+    error_str = []
+    try:
+        checking = settings.TARGET_PATH_FTP1
+    except:
+        error_str.append("Not Found: Remote path to FTP server 1, TARGET_PATH_FTP1")
+    try:
+        checking = settings.TARGET_PATH_WEB1
+    except:
+        error_str.append("Not Found: Remote WEB server 1, TARGET_PATH_WEB1")
+    try:
+        checking = settings.SSH_KEY_PATH
+    except:
+        error_str.append("Not Found: Path to ssh key, SSH_KEY_PATH")
+    try:
+        checking = settings.STAGING_PATH
+    except:
+        error_str.append("Not Found: Path to staging location, STAGING_PATH")
+    try:
+        checking = settings.STAGING_URL
+    except:
+        error_str.append("Not Found: URL of staging location, STAGING_URL")
+    if error_str:
+        if settings.SERVER_MODE == 'production':
+            error_msg = "Application has not been set up properly. Please use the email address below to report this problem"
+        else:
+            error_msg = '<br>'.join(error_str)
+        return error_msg
+    return False
+
 def file_upload(request):
+    error_msg = check_setting(request)
+    if error_msg:
+        return render("idsubmit/error.html", {'error_msg':error_msg, 'critical_error':True}, context_instance=RequestContext(request))
     current_date = date.today()
     current_hour = int(time.strftime("%H", time.localtime()))
     first_cut_off_date = IdDates.objects.get(id=1).id_date

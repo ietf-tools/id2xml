@@ -248,7 +248,7 @@ def draft_status(request, queryset, slug=None):
         return direct_to_template(request,'idsubmit/draft_search.html')
     elif re.compile("^\d+$").findall(slug) : # if submission_id
         submission = get_object_or_404(IdSubmissionDetail, pk=slug)
-        if submission.status_id < -2 or submission.status_id >= 100:
+        if submission.status_id < 200 and submission.status_id >= 100:
             return render("idsubmit/error.html",{'error_msg':"No valid history found for submission id %s" % slug}, context_instance=RequestContext(request))
     elif re.compile('^(draft-.+)').findall(slug) :
         # if submission name
@@ -329,7 +329,15 @@ def sync_docs (request, submission) :
         "remote_web1" : settings.TARGET_PATH_WEB1,
         "remote_ftp1" : settings.TARGET_PATH_FTP1,
     }
-    # need add options for extra web2 and ftp2 path
+    # add options for extra web2 and ftp2 path
+    try:
+        command += " --remote_web2=%s" % settings.TARGET_PATH_WEB2
+    except:
+        pass
+    try:
+        command += " --remote_ftp2=%s" % settings.TARGET_PATH_FTP2
+    except:
+        pass
     try :
         p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stderr = p.stderr

@@ -99,7 +99,7 @@ class IdSubmissionDetail(models.Model):
     submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag")
 
     def get_absolute_url(self):
-        return "/idsubmit/status/%s" % self.filename
+        return "/idsubmit/status/%d" % self.submission_id
     def set_file_type(self, type_list):
         self.file_type = ','.join(type_list)
     def get_file_type_list(self):

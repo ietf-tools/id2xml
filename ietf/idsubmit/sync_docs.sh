@@ -52,8 +52,8 @@ parse_options ()
 	done
 }
 # Edit followings for each local environment
-EXEC_SCP="/usr/bin/scp -P 65321"
-#EXEC_SCP=/usr/bin/scp # When a special port is not needed
+#EXEC_SCP="/usr/bin/scp -P 65321" # When a specail port is needed
+EXEC_SCP=/usr/bin/scp # When a special port is not needed
 EXEC_CP=cp
 # End Edit Section
 

@@ -101,9 +101,6 @@ class DraftParser:
     def check_idnits(self, file_path):
         #Check IDNITS
         path_idnits = os.path.join(settings.BASE_DIR, "idsubmit", "idnits")
-        child = os.popen("%s --checklistwarn %s" % (path_idnits, file_path))
-        idnits_message = child.read()
-        err = child.close()
         command = "%s --checklistwarn %s" % (path_idnits, file_path)
         p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         err = p.stderr.readlines()

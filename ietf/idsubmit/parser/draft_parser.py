@@ -8,6 +8,8 @@ from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SubmissionEnv
 
 
 from django.conf import settings
+import subprocess
+
 def check_creation_date(chk_date):
     if chk_date == 'Not Found':
         return False
@@ -102,18 +104,22 @@ class DraftParser:
         child = os.popen("%s --checklistwarn %s" % (path_idnits, file_path))
         idnits_message = child.read()
         err = child.close()
+        command = "%s --checklistwarn %s" % (path_idnits, file_path)
+        p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        err = p.stderr.readlines()
+        idnits_message = ''.join(p.stdout.readlines())
         # error page print
         if err:
             self.idnits_failed = True
-            return "Checking idnits failed: Cannot locate idnits script"
+            return "Checking idnits failed:<br>%s" % '<br>'.join(err)
         self.idnits_message = idnits_message
         # if no error
         result = re.search('[Ss]ummary: (\d+) error.+\(\*\*\).+(\d+) [Ww]arning.+\(==\)', idnits_message)
         try:
             return {'error':int(result.group(1).strip()), 'warning':int(result.group(2).strip()), 'message': idnits_message}
-        except AttributeError:
-            self.idnits_failed = True
-            return "Checking idnits failed: Cannot locate idnits script"
+        except AttributeError: #No Nits Found
+            self.idnits_failed = False 
+            return {'error':0, 'message':idnits_message}
         except ValueError:
             self.idnits_failed = True
             return "Checking idnits failed: Cannot locate idnits script"

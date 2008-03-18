@@ -265,8 +265,8 @@ class DraftParser:
         return creation_date
 
     def get_authors_info(self):
-        authors_section1 = re.compile('\n {,5}[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s{2,}.+\n+)+)\w+')
-        authors_section2 = re.compile('\n {,5}[0-9]{0,2}\.?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s*.+\n+)+)\w+')
+        authors_section1 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s{2,}.+\n+)+)\w+')
+        authors_section2 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s*.+\n+)+)\w+')
         if self.page_num > 7:
             # get last 7 pages
             temp_content = '\n'.join(self.pages[-7:len(self.pages)])

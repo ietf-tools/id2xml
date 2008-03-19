@@ -21,6 +21,7 @@ class UserMap(models.Model):
     # admin edit_inline interface.
     person = models.ForeignKey(PersonOrOrgInfo, edit_inline=models.STACKED, num_in_admin=1, max_num_in_admin=1, unique=True, null=True)
     email_htdigest = models.CharField(maxlength=32, blank=True, null=True)
+    rfced_htdigest = models.CharField(maxlength=32, blank=True, null=True)
     def __str__(self):
 	return "Mapping django user %s to IETF person %s" % ( self.user, self.person )
 

@@ -82,4 +82,5 @@ def set_password( user, password, realm=None ):
     user.save()
     ( userprof, created ) = UserMap.objects.get_or_create( user=user )
     userprof.email_htdigest = htdigest( user.email, password, realm )
+    userprof.rfced_htdigest = htdigest( user.email, password, 'RFC Editor' )
     userprof.save()

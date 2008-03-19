@@ -21,7 +21,7 @@ def compat_check_password(user, raw_password):
         is_correct = ( salt + hsh == crypt.crypt(raw_password, salt) )
 	if is_correct:
 	    # upgrade to htdigest
-	    set_password(raw_password)
+	    set_password(user, raw_password)
 	return is_correct
     if algo == 'htdigest':
 	# Check username hash.
@@ -40,23 +40,20 @@ def compat_check_password(user, raw_password):
     is_correct = user.check_password(raw_password)
     if is_correct:
 	# upgrade to htdigest
-	set_password(raw_password)
+	set_password(user, raw_password)
     return is_correct
 
 # Based on http://www.djangosnippets.org/snippets/74/
 #  but modified to use compat_check_password for all users.
 class EmailBackend(ModelBackend):
     def authenticate(self, username=None, password=None):
-	print "in EmailBackend"
 	try:
 	    if email_re.search(username):
                 user = User.objects.get(email__iexact=username)
 	    else:
 		user = User.objects.get(username__iexact=username)
 	except User.DoesNotExist:
-	    print "got no user looking up %s" % username
 	    return None
-	print "got user %s" % user
 	if compat_check_password(user, password):
 	    return user
         return None

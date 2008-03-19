@@ -214,6 +214,8 @@ class DraftParser:
             abstract = abstract_m.group(1)
             abstract_re = re.compile('\n\w.+\n(.*\n)+')
             abstract = abstract_re.sub('',abstract)
+            abstract_re = re.compile('\n.*Table of Contents\s*\n+(.*\n)+')
+            abstract = abstract_re.sub('',abstract)
             #abstract = abstract.replace('\f','')
             #abstract_re = re.compile(' {3,}')
             #abstract = abstract_re.sub('', abstract)
@@ -236,23 +238,25 @@ class DraftParser:
         #                 'november', 'december' ]
         creation_re1 = re.compile('\s{3,}\w+\s[0-9]{1,2}\,?\s[0-9]{4}')
         creation_re2 = re.compile('\s{3,}[0-9]{1,2}\,?\s\w+\s[0-9]{4}')
-        search_patterns = [creation_re1, creation_re2]
+        creation_re3 = re.compile('\s{3,}[0-9]{1,2}-\w+-[0-9]{4}')
+        search_patterns = [creation_re1, creation_re2, creation_re3]
         for creation_re in search_patterns:
             searched_date = creation_re.search(self.pages[0])
             if searched_date:
                 try:
                     cdate = searched_date.group(0).strip()
+                    cdate = cdate.replace('-',' ')
                     cdate_array = cdate.replace(',', '').split(' ')
                     if cdate_array[0][0:3].strip().lower() in _MONTH_NAMES:
                         month = _MONTH_NAMES.index(cdate_array[0][0:3].strip().lower()) + 1
                         return date(int(cdate_array[2]), month, int(cdate_array[1]))
                     else:
                         try:
-                            month = _MONTH_NAMES.index(cdate_array[1].strip().lower()) + 1
+                            month = _MONTH_NAMES.index(cdate_array[1][0:3].strip().lower()) + 1
                             return date(int(cdate_array[2]), month, int(cdate_array[0]))
                         except ValueError:
                             try:
-                                month = _MONTH_NAMES.index(cdate_array[0].strip().lower()) + 1
+                                month = _MONTH_NAMES.index(cdate_array[0][0:3].strip().lower()) + 1
                                 return date(int(cdate_array[2]), month, int(cdate_array[0]))
                             except :
                                 creation_date = self.not_found

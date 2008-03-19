@@ -101,14 +101,16 @@ class DraftParser:
     def check_idnits(self, file_path):
         #Check IDNITS
         path_idnits = os.path.join(settings.BASE_DIR, "idsubmit", "idnits")
-        command = "%s --checklistwarn %s" % (path_idnits, file_path)
-        p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        err = p.stderr.readlines()
-        idnits_message = ''.join(p.stdout.readlines())
-        # error page print
+        child = os.popen("%s --checklistwarn %s" % (path_idnits, file_path))
+        idnits_message = child.read()
+        err = child.close()
+        #command = "%s --checklistwarn %s" % (path_idnits, file_path)
+        #p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #err = p.stderr.readlines()
+        #idnits_message = ''.join(p.stdout.readlines())
         if err:
             self.idnits_failed = True
-            return "Checking idnits failed:<br>%s" % '<br>'.join(err)
+            return "Checking idnits failed:"
         self.idnits_message = idnits_message
         # if no error
         result = re.search('[Ss]ummary: (\d+) error.+\(\*\*\).+(\d+) [Ww]arning.+\(==\)', idnits_message)

@@ -36,6 +36,7 @@ def password_return(request):
     form = ChallengeForm(request.REQUEST)
     if form.is_valid():
 	email = form.clean_data['email']
+	method = request.method
 	try:
 	    # Is there a django user?
 	    user = User.objects.get(email__iexact=email)
@@ -59,20 +60,23 @@ def password_return(request):
 		person = None
 	if person is None:
 	    # If there's no IETF person, try creating one.
-	    if request.method == 'POST':
+	    if method == 'POST':
 		flform = FirstLastForm(request.POST)
 		if flform.is_valid():
 		    person = PersonOrOrgInfo( first_name=flform.clean_data['first'], last_name=flform.clean_data['last'], created_by='SelfSvc' )
 		    person.save()
 		    person.emailaddress_set.create( type='INET', priority=1, address=email, comment='Created with SelfService' )
 		    # fall through to "if user or person"
+		    # hack:
+		    # pretend to the fall-through form that we used GET.
+		    method = 'GET'
 	    else:
 		flform = FirstLastForm()
 		return render_to_response('registration/new_person_form.html', {'form': form, 'flform': flform},
 			context_instance=RequestContext(request))
 	if user or person:
 	    # form to get a password, either for reset or new user
-	    if request.method == 'POST':
+	    if method == 'POST':
 		pwform = PWForm(request.POST)
 		if pwform.is_valid():
 		    pw = pwform.clean_data['password']

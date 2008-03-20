@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
-from ietf.idtracker.models import Acronym, PersonOrOrgInfo, IRTF, AreaGroup, Area, IETFWG
+from ietf.idtracker.models import Acronym, PersonOrOrgInfo, Area
 import datetime
 import random
 #from ietf.utils import log

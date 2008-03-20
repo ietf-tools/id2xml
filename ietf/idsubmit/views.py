@@ -3,25 +3,22 @@
 import re, os, glob, time
 from datetime import datetime, date
 
-from django.shortcuts import render_to_response as render, get_object_or_404, get_list_or_404
+from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist as ExceptionDoesNotExist
 from django.http import HttpResponseRedirect
-from django.http import HttpResponse, HttpResponsePermanentRedirect
-from django.views.generic.list_detail import object_detail
+from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates
-from ietf.idtracker.models import Acronym, IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
+from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm
 from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail
 from django.core.mail import BadHeaderError
 from ietf.idsubmit.parser.draft_parser import DraftParser
-from django.contrib.sites.models import Site
 from ietf.utils import normalize_draftname
 import subprocess
 

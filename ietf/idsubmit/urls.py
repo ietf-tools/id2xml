@@ -2,7 +2,7 @@
 
 from django.conf.urls.defaults import patterns
 from ietf.idsubmit import views
-from ietf.idsubmit.models import IdSubmissionDetail, TempIdAuthors
+from ietf.idsubmit.models import IdSubmissionDetail
 
 queryset_idsubmit = IdSubmissionDetail.objects.all()
 idsubmit_dict = {

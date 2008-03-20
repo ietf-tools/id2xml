@@ -5,12 +5,10 @@ from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_list
-from django.http import HttpResponsePermanentRedirect, Http404, HttpResponseRedirect
-from django.db import connection
+from django.http import HttpResponsePermanentRedirect, Http404, HttpResponseRedirect, HttpResponseServerError
 from django.db.models import Q
 from ietf.proceedings.models import WgMeetingSession, Proceeding, MeetingTime, NonSession, IESGHistory, SessionConflict, Meeting, MeetingHours,MeetingVenue,Switches
 from ietf.idtracker.models import IRTF, IETFWG, WGSecretary, WGChair, SessionRequestActivities,IRTFChair
-from ietf.ietfauth.models import UserMap
 from ietf.meeting.forms import MeetingSession
 from ietf.meeting import scheduling
 import datetime, re

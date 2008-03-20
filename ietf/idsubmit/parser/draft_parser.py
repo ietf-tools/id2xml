@@ -1,14 +1,13 @@
 import re, os
-from datetime import datetime
 from datetime import date
 from datetime import timedelta
 
-from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IDAuthor, PersonOrOrgInfo, IETFWG
+from ietf.idtracker.models import Acronym, InternetDraft, EmailAddress, IETFWG
 from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SubmissionEnv
 
 
 from django.conf import settings
-import subprocess
+#import subprocess
 
 def check_creation_date(chk_date):
     if chk_date == 'Not Found':

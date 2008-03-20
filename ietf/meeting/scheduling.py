@@ -3,8 +3,6 @@
 from ietf.proceedings.models import WgMeetingSession, SessionConflict, Meeting
 from ietf.idtracker.models import NotMeetingGroups, SessionRequestActivities
 from ietf.utils.mail import send_mail
-import datetime,time
-from ietf import settings
 
 # Send a request for new session request of update request
 def send_request_email(request_type,group,request,meeting_num,person):

@@ -3,15 +3,10 @@
 
 # from django.utils.encoding import force_unicode # this is for current version
 # from django.utils.translation import ugettext # this is for current version
-from django.utils.datastructures import MultiValueDict
-from django.newforms.fields import Field, EMPTY_VALUES
-from django.newforms.widgets import FileInput
-from django.newforms.util import ErrorList, ValidationError, flatatt
 from models import IdSubmissionDetail, STATUS_CODE
 from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo, WGChair
 from models import TempIdAuthors
 from datetime import datetime,date
-import time
 import os
 from django import newforms as forms
 from django.conf import settings

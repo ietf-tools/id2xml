@@ -1,6 +1,5 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-import re
 from django import newforms as forms
 from ietf.idtracker.models import Acronym, IETFWG
 from ietf.proceedings.models import MeetingHours

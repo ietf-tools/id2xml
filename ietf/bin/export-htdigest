@@ -9,9 +9,12 @@ for u in User.objects.all():
 	continue
     # Note: not everyone needs the username one.
     # Old IESG members and some liaison users do.
-    # Too much work for now.
+    # Too much work for now to skip the ones that
+    # don't need it.
     print "%s:IETF:%s" % ( u.username, hsh )
     try:
-	print "%s:IETF:%s" % ( u.email, u.get_profile().email_htdigest )
+	htdigest = u.get_profile().email_htdigest
+	if htdigest != '':
+	    print "%s:IETF:%s" % ( u.email, htdigest )
     except ObjectDoesNotExist:
 	pass

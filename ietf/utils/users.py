@@ -8,6 +8,12 @@ class UserAlreadyExists(Exception):
     pass
 
 def create_user(user, email, person, pw=None, cryptpw=None):
+    try:
+	umap = UserMap.objects.get(person = person)
+	u = umap.user
+	raise UserAlreadyExists("Already in system as %s when adding %s (%s)" % ( u.username, user, email ), u)
+    except UserMap.DoesNotExist:
+	pass
     if user is None or '@' in user:
 	# slugify to remove non-ASCII; slugify uses hyphens but
 	# user schema says underscore.

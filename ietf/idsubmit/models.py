@@ -49,6 +49,8 @@ class IdDates(models.Model):
     f_name = models.CharField(blank=True, maxlength=765)
     class Meta:
         db_table = 'id_dates'
+    class Admin:
+        pass
 
 class SubmissionEnv(models.Model):
     max_live = models.IntegerField()
@@ -62,6 +64,7 @@ class SubmissionEnv(models.Model):
     max_same_wg_draft_size = models.IntegerField()
     max_daily_submission = models.IntegerField()
     max_daily_submission_size = models.IntegerField()
+    cut_off_time = models.IntegerField()
     class Meta:
         db_table = 'id_submission_env'
     class Admin:

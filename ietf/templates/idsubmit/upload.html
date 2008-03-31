@@ -6,11 +6,11 @@
             <!-- InstanceBeginEditable name="Body text" -->
          <font face="Arial" size="2">
           {% ifequal cutoff_msg "first_second" %}
-         <b>The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts) was Monday, {{ first_cut_off }} at 9 AM (ET). You will not be able to submit a new document until Monday,  {{ ietf_monday }}, at midnight.<br>You can still submit a version -01 or higher Internet-Draft until 9 AM (ET), {{ second_cut_off }}.</b>
+         <b>The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts) was Monday, {{ first_cut_off_date }} at {{cut_off_time}}:00 (PT). You will not be able to submit a new document until Monday,  {{ ietf_monday }}, at midnight.<br>You can still submit a version -01 or higher Internet-Draft until {{cut_off_time}}:00 (PT), {{ second_cut_off_date }}.</b>
           {% endifequal %}
 
           {% ifequal cutoff_msg "second_ietf" %}
-         <b>The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts) was Monday, {{ first_cut_off }} at 9 AM (ET). You will not be able to submit a new document until Monday,  {{ ietf_monday }}, at midnight.<br>The I-D submission tool will be shut down at 9 AM (ET) today, and reopened at midnight (ET), {{ ietf_monday }}</b>
+         <b>The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts) was Monday, {{ first_cut_off_date }} at {{cut_off_time}}:00 (PT). You will not be able to submit a new document until Monday,  {{ ietf_monday }}, at midnight.<br>The I-D submission tool will be shut down at {{cut_off_time}}:00 (PT) today, and reopened at midnight (PT), {{ ietf_monday }}</b>
           {% endifequal %}
 
          <p>This page is used to submit IETF Internet-Drafts to the Internet-Draft repository. The list of current Internet-Drafts can be accessed at <a href="http://www.ietf.org/ietf/1id-abstracts.txt">http://www.ietf.org/ietf/1id-abstracts.txt</a></p>

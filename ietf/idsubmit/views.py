@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-import re, os, glob, time
-from datetime import datetime, date
+import re, os, glob
+from datetime import datetime, date, time
 
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
-from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates
+from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates, SubmissionEnv
 from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm
@@ -57,11 +57,16 @@ def file_upload(request):
     if error_msg:
         return render("idsubmit/error.html", {'error_msg':error_msg, 'critical_error':True}, context_instance=RequestContext(request))
     current_date = date.today()
-    current_hour = int(time.strftime("%H", time.localtime()))
+    current_hour = 10
+    now = datetime.now()
+    subenv = SubmissionEnv.objects.all()[0]
+    cut_off_time = time(subenv.cut_off_time,0,0)
     first_cut_off_date = IdDates.objects.get(id=1).id_date
+    first_cut_off_time=datetime.combine(first_cut_off_date, cut_off_time)
     second_cut_off_date = IdDates.objects.get(id=2).id_date
+    second_cut_off_time=datetime.combine(second_cut_off_date, cut_off_time)
     ietf_monday_date = IdDates.objects.get(id=3).id_date
-    id_date_var = { 'first_cut_off_date' : first_cut_off_date, 'second_cut_off_date' : second_cut_off_date, 'ietf_monday' : ietf_monday_date}
+    id_date_var = { 'first_cut_off_date' : first_cut_off_date, 'second_cut_off_date' : second_cut_off_date, 'ietf_monday' : ietf_monday_date, 'cut_off_time': subenv.cut_off_time}
     submission = None
     if request.POST:
 
@@ -74,9 +79,10 @@ def file_upload(request):
                 return render("idsubmit/error.html", {'error_msg':STATUS_CODE[101]}, context_instance=RequestContext(request))
 
             dp = DraftParser(form.get_content('txt_file'))
-            if ((current_date == first_cut_off_date and current_hour > 9) or (current_date > first_cut_off_date and current_date < second_cut_off_date)) and dp.revision == '00':
+            if now >= first_cut_off_time and now < second_cut_off_time and dp.revision == '00':
                 id_date_var['form'] = IDUploadForm()
                 id_date_var['cutoff_msg'] = "first_second"
+                id_date_var['cut_off_time'] = subenv.cut_off_time
                 return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
             dp.set_remote_ip(request.META.get('REMOTE_ADDR'))
             threshold_msg = dp.check_dos_threshold()
@@ -143,22 +149,17 @@ def file_upload(request):
         else:
             return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
     else:
-        if (current_date >= first_cut_off_date and current_date < second_cut_off_date):
-            if (current_date == first_cut_off_date and current_hour < 9):
-                id_date_var['date_check_err_msg'] = "first_second"
-                return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
-            else: # No more 00 submission
-                id_date_var['form'] = IDUploadForm()
-                id_date_var['cutoff_msg'] = "first_second"
-                return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
-        elif current_date >= second_cut_off_date and current_date < ietf_monday_date:
-            if (current_date == second_cut_off_date and current_hour < 9):
-                id_date_var['form'] = IDUploadForm()
+        if now >= first_cut_off_time and now < second_cut_off_time:
+        # No more 00 submission
+            id_date_var['form'] = IDUploadForm()
+            id_date_var['cutoff_msg'] = "first_second"
+            if now.date() == second_cut_off_date:
                 id_date_var['cutoff_msg'] = "second_ietf"
-                return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
-            else: #complete shut down of tool
-                id_date_var['date_check_err_msg'] = "second_ietf"
-                return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
+            return render ("idsubmit/upload.html", id_date_var, context_instance=RequestContext(request))
+        elif now >= second_cut_off_time and now.date() < ietf_monday_date: 
+        #complete shut down of tool
+            id_date_var['date_check_err_msg'] = "second_ietf"
+            return render("idsubmit/error.html", id_date_var, context_instance=RequestContext(request))
         form = IDUploadForm()
     return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
 

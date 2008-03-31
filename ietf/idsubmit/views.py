@@ -56,8 +56,6 @@ def file_upload(request):
     error_msg = check_setting(request)
     if error_msg:
         return render("idsubmit/error.html", {'error_msg':error_msg, 'critical_error':True}, context_instance=RequestContext(request))
-    current_date = date.today()
-    current_hour = 10
     now = datetime.now()
     subenv = SubmissionEnv.objects.all()[0]
     cut_off_time = time(subenv.cut_off_time,0,0)

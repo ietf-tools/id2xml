@@ -437,6 +437,8 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                     first_name=author_info.first_name,
                     last_name=author_info.last_name,
                     date_modified=now,
+                    modified_by="IDST",
+                    created_by="IDST",
                 )
                 person_or_org.save()
 

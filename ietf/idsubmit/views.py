@@ -428,7 +428,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                     return render("idsubmit/error.html",{'error_msg':"There was a problem updating the Internet-Drafts database"}, context_instance=RequestContext(request))
 
         authors_names = list()
-        for author_info in TempIdAuthors.objects.filter(submission=submission) :
+        for author_info in TempIdAuthors.objects.filter(submission=submission).order_by("author_order") :
             email_address = EmailAddress.objects.filter(address=author_info.email_address)
             if email_address.count() > 0 :
                 person_or_org = email_address[0].person_or_org
@@ -462,8 +462,11 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             ).save()
 
             # gathering author's names
-            authors_names.append("%s. %s" % (author_info.first_name, author_info.last_name))
-
+            authors_names.append("%s. %s" % (author_info.first_name[0].upper(), author_info.last_name))
+        if len(authors_names) > 2:
+            authors = "%s, et al." % authors_names[0]
+        else:
+            authors = ", ".join(authors_names) 
         submission.status_id = 7
         submission.save()
 
@@ -480,7 +483,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             wgMail = "\nThis draft is a work item of the %(group_name)s Working Group of the IETF.\n" % {"group_name" : submission.group.name}
         body = render_to_string("idsubmit/i-d_action.txt",
             {'submission':submission,
-             'authors':", ".join(authors_names),
+             'authors': authors,
              'current_date':now.strftime("%F"), 
              'current_time':now.strftime("%T"),
              'wgMail':wgMail}, context_instance=RequestContext(request))

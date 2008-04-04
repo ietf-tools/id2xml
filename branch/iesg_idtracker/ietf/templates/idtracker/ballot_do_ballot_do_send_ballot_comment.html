@@ -20,9 +20,8 @@ Subject: {{argument.subject}}
 <form action="/idtracker/{{draft.document.filename}}" method="GET">
        <input type="submit" value="Back to I-D" />
 </form>
-<form action="" method="GET">
+<form action="/idtracker/ballot/{{ballot.ballot}}/" method="GET">
        <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
-       <input type="hidden" name="command" value="open_ballot" />
        <input type="hidden" name="dTag" value="{{draft.draft.id_document_tag}}" />
        <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}" />
        <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />

@@ -27,12 +27,11 @@
 </h3>
 
 Last Edited Date: {{discuss_comment.date}} <br>
-<form action="" method="POST" name="f">
+<form action="/idtracker/ballot_comment/" method="POST" name="f">
 <input type="hidden" name="loginid" value="{{LoginObj.id}}">
 <input type="hidden" name="ad_id" value="{{LoginObj.id}}">
 <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
 <input type="hidden" name="revision" value="{{discuss_comment.revision}}">
-<input type="hidden" name="command" value="update_ballot_comment_db">
 <input type="hidden" name="category" value="{{is_discuss_or_comment}}">
 <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
 <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}">
@@ -55,9 +54,13 @@ function check_text(text,d_or_c) {
 }
 </Script>
 <center>
+{% if argument.result_list %}
 <form action="" method="POST" name="form1">
+       <input type="hidden" name="command" value="to_update_discuss_comment">
+{% else %}
+<form action="/idtracker/ballot/{{ballot.ballot}}/" method="GET" name="form1">
+{% endif %}
        <input type="hidden" name="loginid" value="{{LoginObj.id}}">
-       <input type="hidden" name="command" value="{% if argument.result_list %}to_update_discuss_comment{% else %}open_ballot{% endif %}">
        <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
        <input type="hidden" name="telechat_date" value="{{argument.telechat_date}}">
        <input type="hidden" name="my_position" value="{{argument.my_position}}">

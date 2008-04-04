@@ -8,9 +8,8 @@
 
 {% if not is_discuss_or_comment %}
 <i>There is nothing to send</i>
-<form action="" method="POST">
+<form action="/idtracker/ballot/{{ballot.ballot}}/" method="GET">
        <input type="hidden" name="loginid" value="{{LoginObj.id}}">
-       <input type="hidden" name="command" value="open_ballot">
        <input type="hidden" name="dTag" value="{{draft.draft.id_document_tag}}">
        <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}">
        <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
@@ -21,7 +20,7 @@
 
 <h3>Email DISCUSS and COMMENT text to IESG list</h3>
 <table cellpadding="1" cellspacing="0" border="0">
-<form action="" method="POST" name="form_post" >
+<form action="/idtracker/send_ballot_comment/{{ballot.ballot}}/" method="POST" name="form_post" >
        <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
        <input type="hidden" name="command" value="do_send_ballot_comment" />
        <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />
@@ -64,9 +63,8 @@
 <form action="/idtracker/{{draft.document.filename}}" method="GET">
        <input type="submit" value="Back to I-D" />
 </form>
-<form action="" method="GET">
+<form action="/idtracker/ballot/{{ballot.ballot}}/" method="GET">
        <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
-       <input type="hidden" name="command" value="open_ballot" />
        <input type="hidden" name="dTag" value="{{draft.draft.id_document_tag}}" />
        <input type="hidden" name="rfc_flag" value="{{draft.rfc_flag}}" />
        <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />

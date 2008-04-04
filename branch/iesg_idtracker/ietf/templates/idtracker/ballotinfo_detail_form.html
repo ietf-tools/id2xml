@@ -39,9 +39,7 @@ pre.comment, pre.discuss
 
 <!-- form: create ballot begin -->
 {% if not LoginObj.user_level %}
-<form action="" method="POST" name="form1">
-       <input type="hidden" name="command" value="print_ballot">
-       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
+<form action="/idtracker/ballot/{{ballot.ballot}}/?print" method="POST" name="form1">
        <input type="hidden" name="filename" value="{{draft.document.filename}}">
        <input type="submit" value="Create {{draft.document.filename}}.bal">
 </form>
@@ -61,11 +59,8 @@ pre.comment, pre.discuss
 </form>
 <!-- form: (un)defer ballot end -->
 
-
-<form action="" method="POST" name="search_form">
+<form action="/idtracker/ballot/{{ballot.ballot}}/" method="POST" name="search_form">
        <input type="hidden" name="loginid" value="{{LoginObj.id}}">
-       <input type="hidden" name="ballot_id" value="{{ballot.ballot}}">
-       <input type="hidden" name="command" value="update_ballot">
        <input type="hidden" name="id_document_tag" value="{{draft.draft.id_document_tag}}">
 
        <table border="1">
@@ -202,9 +197,8 @@ return true;
                        </form>
                                </td>
                        </tr>
-                       <form action="" method="POST" name="form_post">
+                       <form action="/idtracker/send_ballot_comment_to_iesg/{{ballot.ballot}}" method="POST" name="form_post">
                                <input type="hidden" name="loginid" value="{{LoginObj.id}}" />
-                               <input type="hidden" name="command" value="send_ballot_comment_to_iesg" />
                                <input type="hidden" name="ballot_id" value="{{ballot.ballot}}" />
                                <input type="hidden" name="filename" value="{{draft.document.filename}}" />
                        <tr>

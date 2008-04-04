@@ -4,7 +4,25 @@ from django.db import models
 from ietf.utils import FKAsOneToOne
 from django.test import TestCase
 from django.core.exceptions import ObjectDoesNotExist
-import datetime,time
+import datetime,time, re
+
+RE_AGENDA_CAT_HEADING = re.compile("(\d)(.*)\n(\d\.\d)(.*)\n(\d\.\d\.\d)(.*)")
+class AgendaCat (models.Model) :
+    class Meta:
+        db_table = 'agenda_cat'
+
+    class Admin:
+        pass
+
+    id = models.AutoField(primary_key=True, db_column="agenda_cat_id", )
+    value = models.CharField(maxlength=100, db_column="agenda_cat_value", )
+
+    def __unicode__ (self) :
+        b = RE_AGENDA_CAT_HEADING.match(self.value).groups()
+        return u"%s %s/%s/%s" % (b[4], b[1], b[3], b[5], )
+
+    __str__ = __unicode__
+
 
 class Acronym(models.Model):
     acronym_id = models.AutoField(primary_key=True)

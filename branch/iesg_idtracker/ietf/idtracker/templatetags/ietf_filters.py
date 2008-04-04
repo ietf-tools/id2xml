@@ -213,6 +213,22 @@ def inpast(date):
 	return date < datetime.datetime.now()
     return True
 
+@register.filter(name='count_position')
+def count_position(ballot, my_position=None) :
+    if my_position :
+        return ballot.positions.filter(**{my_position: 1}).count()
+    else : # not recorded
+        return ballot.positions.exclude(
+            **{
+                "yes" : 1,
+                "noobj" : 1,
+                "discuss" : 1,
+                "abstain" : 1,
+                "recuse" : 1,
+            }
+        ).count()
+
+
 def _test():
     import doctest
     doctest.testmod()

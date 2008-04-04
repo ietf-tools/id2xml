@@ -2,7 +2,7 @@
 
 # Create your views here.
 from django.template.loader import render_to_string
-from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
 from django import newforms as forms
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list_detail import object_detail, object_list
-from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position, DocumentComment,IDAuthor, Area, AreaGroup, IESGComment, IESGDiscuss
+from ietf.idtracker.models import InternetDraft, IDInternal, IDState, IDSubState, Rfc, DocumentWrapper, IESGLogin, TelechatDates, IDNextState, BallotInfo, Position, DocumentComment,IDAuthor, Area, AreaGroup, IESGComment, IESGDiscuss, AgendaCat
 from ietf.idtracker.forms import IDSearch, EmailFeedback, IDDetail, BallotSearch
 from ietf.utils.mail import send_mail_text, send_mail
 from ietf.utils import normalize_draftname
@@ -496,14 +496,16 @@ def view_comment(*args, **kwargs):
 def view_ballot(*args, **kwargs):
     request = args[0]
     mode = get_tracker_mode(request)
-    object_id = kwargs['object_id']
+    #object_id = kwargs['object_id']
+    object_id = kwargs.get('object_id', None)
     if mode == 'IETF':
         return object_detail(*args, **kwargs)
     else:
         return ballot(request,object_id) 
 
 def view_ballot_writeup(*args, **kwargs):
-    return object_detail(*args, **kwargs)
+    #return object_detail(*args, **kwargs)
+    return ballot(request,object_id)
 
 def ballot_comment (request, object_id, **kwargs) :
     method = None
@@ -619,24 +621,364 @@ def ballot_comment (request, object_id, **kwargs) :
 
         # open ballot
         return view_ballot_iesg(request, object_id)
+
+def get_ballot_lists_from_idinternal (loginobj, agenda_cat, telechat_date, for_rfc, my_position) :
+    queryset = list()
+    if my_position and my_position != "no_record" :
+        kwargs = dict()
+        kwargs.__setitem__("positions__%s" % my_position, 1)
+        queryset.append(Q(**kwargs))
+        queryset.append(Q(positions__ad=loginobj))
+        if for_rfc :
+            queryset.append(Q(drafts__draft__rfc_number__isnull=False))
+            queryset.append(Q(drafts__rfc_flag=1))
+        else :
+            queryset.append(Q(drafts__rfc_flag=0))
+            queryset.append(Q(drafts__draft__isnull=False))
+    else :
+        if for_rfc :
+            queryset.append(Q(drafts__rfc_flag=1))
+            queryset.append(Q(drafts__draft__rfc_number__isnull=False))
+        else :
+            queryset.append(Q(drafts__rfc_flag=0))
+            queryset.append(Q(drafts__draft__isnull=False))
+
+    queryset.extend([
+        Q(positions__ad=loginobj),
+        Q(drafts__cur_state__state__lt=27),
+        Q(drafts__agenda=1),
+        Q(drafts__primary_flag=1)
+    ])
+
+    if telechat_date :
+        queryset.append(Q(drafts_telechat_date=telechat_date))
+
+    if agenda_cat.id < 7 :
+        if for_rfc :
+            intended_status_id = (1,2,3,7, )
+        else :
+            intended_status_id = (1,2,6,7, )
+
+        queryset.append(Q(drafts__draft__intended_status__in=intended_status_id))
+    else :
+        if for_rfc :
+            intended_status_id = (4,5, )
+            queryset.append(Q(drafts__draft__intended_status__in=intended_status_id))
+        else :
+            intended_status_id = (3,4,5, )
+            queryset.append(Q(drafts__draft__intended_status__in=intended_status_id))
+
+            if agenda_cat.id < 13 and agenda_cat.id > 9 :
+                queryset.append(Q(drafts__via_rfc_editor=0))
+            elif agenda_cat.id > 12 :
+                queryset.append(Q(drafts__via_rfc_editor=1))
+
+    digg_in_rfc = False
+    if agenda_cat.id in (1,2,3,7,8,9, ) : #WG Submission
+        if for_rfc :
+            digg_in_rfc = True
+            # rfcs.group_acronym == 'none'
+        else :
+            queryset.append(Q(drafts__draft__group=1027))
+    else :
+        if for_rfc :
+            digg_in_rfc = True
+            # rfcs.group_acronym == 'none'
+            pass
+        else :
+            queryset.append(Q(drafts__draft__group=1027))
+
+    if agenda_cat.id in (3,6,9,12,15, ) :
+        queryset.append(
+            Q(drafts__cur_state__state__lt=16) | Q(drafts__cur_state__state__gt=21)
+        )
+    else :
+        queryset.append(Q(drafts__cur_state__state__gte=16))
+        queryset.append(Q(drafts__cur_state__state__lte=21))
+
+    result = list()
+    if BallotInfo.objects.filter(*queryset).count() > 0 :
+        if digg_in_rfc :
+            for i in BallotInfo.objects.filter(*queryset) :
+                for j in i.drafts.filter(rfc_flag=1) :
+                    if Rfc.objects.get(pk=j.draft_id).group_acronym == "none" :
+                        result.apend(i)
+        else :
+            result = BallotInfo.objects.filter(*queryset)
+
+    r = list()
+    for ballot in result :
+        r.extend([ballot.positions.get(ad=loginobj), ])
+
+    return r
+
+def search_ballot (request) :
+    mode = get_tracker_mode(request)
+    global LoginObj
+
+    telechat_date = request.GET.get("telechat_date", "").strip()
+    my_position = request.GET.get("position", "").strip()
+    my_position_inner = get_position_by_column(my_position)
+
+    label_my_position = ""
+    if my_position == "no_record" :
+        label_my_position = "No Record"
+    elif my_position :
+        label_my_position = get_position_label(my_position)
+
+    list_ballot = dict()
+
+    if telechat_date == "all" :
+        heading = label_my_position and "Ballots with %s" % get_position_label(my_position).upper() or "Position list"
+        if label_my_position and my_position != "no_record" :
+            kwargs = dict()
+            kwargs.__setitem__(my_position_inner, 1)
+            positions = Position.objects.filter(
+                Q(**kwargs),
+                Q(ballot__positions__ad=LoginObj),
+                Q(ballot__drafts__primary_flag=1),
+                Q(ad=LoginObj),
+            )
+        else :
+            positions = Position.objects.filter(
+                Q(ballot__drafts__primary_flag=1),
+            )
+
+        # get ballot list
+        for i in AgendaCat.objects.all().order_by("id") :
+
+            # for not rfc
+            __l = get_ballot_lists_from_idinternal(
+                LoginObj,
+                i,
+                "",
+                False,
+                get_position_by_column(my_position),
+            )
+
+            if len(__l) > 0 :
+                list_ballot.setdefault(heading, dict())
+                list_ballot[heading].setdefault(str(i), list())
+                list_ballot[heading][str(i)].extend(__l)
+
+            # for rfc
+            __l = get_ballot_lists_from_idinternal(
+                LoginObj,
+                i,
+                "",
+                True,
+                get_position_by_column(my_position),
+            )
+ 
+            if len(__l) > 0 :
+                list_ballot.setdefault(heading, dict())
+                list_ballot[heading].setdefault(str(i), list())
+                list_ballot[heading][str(i)].extend(__l)
+    else :
+        if telechat_date == "any" :
+            telechat_dates = (
+                TelechatDates.objects.all()[0].date1,
+                TelechatDates.objects.all()[0].date2,
+                TelechatDates.objects.all()[0].date3,
+                TelechatDates.objects.all()[0].date4,
+            )
+        else :
+            telechat_dates = (telechat_date, )
+
+        positions = list()
+        heading0 = label_my_position and "Ballots with %s" % get_position_label(my_position).upper() or "Position list"
+        for telechat_date in telechat_dates :
+            heading = "%s for %s for %s telechat" % (
+                heading0, str(LoginObj), telechat_date,
+            )
+            if label_my_position and my_position != "no_record" :
+                kwargs = dict()
+                kwargs.__setitem__(my_position_inner, 1)
+                positions.extend(
+                    Position.objects.filter(
+                        Q(**kwargs),
+                        Q(ballot__drafts__telechat_date=telechat_date),
+                        Q(ballot__drafts__primary_flag=1),
+                    )
+                )
+            else :
+                positions.extend(
+                    Position.objects.filter(
+                        Q(ballot__drafts__telechat_date=telechat_date),
+                        Q(ballot__drafts__primary_flag=1),
+                    )
+                )
+
+            # get ballot list
+            for i in AgendaCat.objects.all().order_by("id") :
+                # for not rfc
+                __l = get_ballot_lists_from_idinternal(
+                    LoginObj,
+                    i,
+                    "",
+                    False,
+                    get_position_by_column(my_position),
+                )
+
+                if len(__l) > 0 :
+                    list_ballot.setdefault(heading, dict())
+                    list_ballot[heading].setdefault(str(i), list())
+                    list_ballot[heading][str(i)].extend(__l)
+
+                # for rfc
+                __l = get_ballot_lists_from_idinternal(
+                    LoginObj,
+                    i,
+                    "",
+                    True,
+                    get_position_by_column(my_position),
+                )
+     
+                if len(__l) > 0 :
+                    list_ballot.setdefault(heading, dict())
+                    list_ballot[heading].setdefault(str(i), list())
+                    list_ballot[heading][str(i)].extend(__l)
+
+    return render_to_response(
+        "idtracker/ballot_search_result.html",
+        {
+            "list_ballot": list_ballot,
+            "LoginObj" : LoginObj,
+            "positions" : positions,
+            "request" : request,
+        }
+    )
+
+def position (request, object_id=None) :
+    mode = get_tracker_mode(request)
+    global LoginObj
+
+    if request.method == "POST" and object_id is None : # update multiple positions.
+        error_message = None
+        # update position
+        for k, v in request.POST.copy().items() :
+            if not re.compile("^\d+$").findall(k) :
+                continue
+
+            try :
+                update_single_ballot(LoginObj, k, v)
+            except :
+                error_message = """<h2>There is a fatal error occured while processing your request</h2>"""
+                break
+
+
+        # print discuss list
+        queries = Q()
+        telechat_date = request.POST.get("telechat_date", "")
+        if telechat_date in ("all", "any", ) :
+            o = TelechatDates.objects.all()[0]
+            for d in (o.date1, o.date2, o.date3, o.date4, ) :
+                queries = queries | Q(drafts__telechat_date=d)
+        else :
+            queries = queries | Q(drafts__telechat_date=telechat_date)
+
+        ballots = BallotInfo.objects.filter(
+            Q(positions__ad=LoginObj),
+            Q(drafts__primary_flag=1),
+            queries,
+        )
+
+        # make 'result_list'
+        result_list = list()
+        for ballot in ballots :
+            # $id_document_tag-$rfc_flag-$ballot_id
+            result_list.append(
+                "%s-%s-%s" % (
+                    ballot.get_primary_draft().draft.id_document_tag,
+                    ballot.get_primary_draft().rfc_flag,
+                    ballot.ballot,
+                )
+            )
+
+        return render_to_response(
+            "idtracker/ballot_update_all_positions.html",
+            {
+                "error_message": error_message,
+                "argument": request.POST,
+                "ballots": ballots,
+                "LoginObj": LoginObj,
+                "result_list": ",".join(result_list),
+            },
+            context_instance=RequestContext(request)
+        )
+
+
 # this function needs to be rewritten not to use any legacy method
 def ballot (request, object_id) :
+    mode = get_tracker_mode(request)
+    global LoginObj
+
+    if mode == 'IETF':
+        return object_detail(*args, **kwargs)
+
     if request.method == "POST" :
-        """
-        To follow up the previous legacy perl script, idtracker.cgi,
-        every internel command was implemented as 'do_XXX' function.
+        argument = request.POST.copy()
 
-        If request method is 'POST' and there is 'comment' query exists,
-        run it 'do_XX' command.
-        """
-        command = request.POST.copy().get("command", "").strip()
-        func = globals().get("do_ballot_%s" % command, None)
-        if func :
-            return func(request, object_id)
+        extra_context = dict()
+        try :
+            update_single_ballot(
+                LoginObj,
+                object_id,
+                argument.get("yes_no_abstain_col", None)
+            )
+        except :
+            extra_context["error_message"] = """<h2>There is a fatal error occured while processing your request</h2>"""
 
-    return view_ballot_iesg(request, object_id)
+        ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
+
+        discuss = 0
+        try :
+            discuss = ballot.positions.get(ad=LoginObj).discuss
+        except :
+            pass
+        # if in discuss,
+        if discuss :
+            if (discuss == 1 and argument.has_key("vote")) or argument.has_key("edit_discuss") or argument.has_key("edit_comment") :
+                # get primary draft.
+
+                draft = ballot.get_primary_draft()
+                if not draft :
+                    raise Http404
+
+                kwargs = {
+                    "filename" : draft.document().filename,
+                    "ad_id" : str(loginid),
+                }
+
+                if argument.get("edit_discuss", None) :
+                    kwargs.update(
+                        (
+                            ("edit_discuss", "yes"),
+                        )
+                    )
+
+                return ballot_comment(
+                    request,
+                    object_id,
+                    method="GET",
+                    data=kwargs,
+                )
+        else : # if not in discuss,
+            if argument.has_key("edit_discuss") :
+                extra_context["error_message"] = """
+    <font color="red"><h2>Please mark 'Discuss' first to Add/Edit your discuss note</h2></font>"""
+
+
+    if request.GET.get("print", None) :
+        # print ballot text
+        pass
+    else :
+        return view_ballot_iesg(request, object_id, extra_context)
 
 def view_ballot_iesg(request, object_id, extra_context=dict()) :
+    mode = get_tracker_mode(request)
+    global LoginObj
+
     # get ballot
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
 
@@ -653,8 +995,8 @@ def view_ballot_iesg(request, object_id, extra_context=dict()) :
     if not draft :
         raise Http404
 
-    mode = get_tracker_mode(request)
-    global LoginObj
+    #mode = get_tracker_mode(request)
+    #global LoginObj
 
     # is deferred?
     if ballot.defer is True : # check defer date
@@ -672,7 +1014,8 @@ def view_ballot_iesg(request, object_id, extra_context=dict()) :
 
     return render_to_response(
         "idtracker/ballotinfo_detail_form.html",
-        context, context_instance=RequestContext(request)
+        context, 
+        context_instance=RequestContext(request)
     )
 
 def get_position_label (selected_value) :
@@ -689,18 +1032,30 @@ def get_position_label (selected_value) :
 
     return "Undefined"
 
-def do_ballot_update_single_ballot (request, object_id) :
-    argument = request.POST.copy()
+#def do_ballot_update_single_ballot (request, object_id) :
+#    argument = request.POST.copy()
+#
+#    try :
+#        loginid = int(argument.get("loginid", "").strip())
+#    except :
+#        raise Http404
+#    else :
+#        LoginObj = IESGLogin.objects.get(id=loginid)
 
-    try :
-        loginid = int(argument.get("loginid", "").strip())
-    except :
-        raise Http404
-    else :
-        LoginObj = IESGLogin.objects.get(id=loginid)
-
-    selected_position = argument.get("yes_no_abstain_col", None)
-
+#    selected_position = argument.get("yes_no_abstain_col", None)
+def get_position_by_column (selected_value) :
+    if selected_value == "yes_col" :
+        return "yes"
+    elif selected_value == "no_col" :
+        return "noobj"
+    elif selected_value == "abstain" :
+        return "abstain"
+    elif selected_value == "discuss" :
+        return "discuss"
+    elif selected_value == "recuse" :
+        return "recuse"
+    return None
+def update_single_ballot (LoginObj, object_id, value):
     # get position of this loginid
     ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
     try :
@@ -717,21 +1072,21 @@ def do_ballot_update_single_ballot (request, object_id) :
         if discuss == 1 :
             discuss = -1
 
-    if selected_position == "discuss" :
+    if value == "discuss" :
+    #if selected_position == "discuss" :
         discuss = 1
 
     # update single ballot
     # if in discuss, set it discuss
-    new_position = get_position_label(selected_position)
+    new_position = get_position_label(value)
 
     if position : # set it 'undefined'
         old_position = get_position_label(position.get_active_position())
-
-        position.yes=(selected_position == "yes_col") and 1 or 0
-        position.noobj=(selected_position == "no_col") and 1 or 0
-        position.abstain=(selected_position == "abstain") and 1 or 0
+        position.yes=(value == "yes_col") and 1 or 0
+        position.noobj=(value == "no_col") and 1 or 0
+        position.abstain=(value == "abstain") and 1 or 0
         position.discuss=discuss
-        position.recuse=(selected_position == "recuse") and 1 or 0
+        position.recuse=(value == "recuse") and 1 or 0
 
         position.save()
 
@@ -744,12 +1099,12 @@ def do_ballot_update_single_ballot (request, object_id) :
         position = Position(
             ballot=ballot,
             ad=LoginObj,
-            yes=(selected_position == "yes_col") and 1 or 0,
-            noobj=(selected_position == "no_col") and 1 or 0,
-            abstain=(selected_position == "abstain") and 1 or 0,
+            yes=(value == "yes_col") and 1 or 0,
+            noobj=(value == "no_col") and 1 or 0,
+            abstain=(value == "abstain") and 1 or 0,
             approve=0,
             discuss=discuss,
-            recuse=(selected_position == "recuse") and 1 or 0,
+            recuse=(value == "recuse") and 1 or 0,
         )
         position.save()
 
@@ -769,8 +1124,12 @@ def do_ballot_update_single_ballot (request, object_id) :
             ballot=ballot.ballot,
         )
     # update ballot discuss
-    ballot_discuss = ballot.discusses.get(ad=LoginObj)
-    ballot_discuss.active = 0
+    try :
+        # update ballot discuss
+        ballot_discuss = ballot.discusses.get(ad=LoginObj)
+        ballot_discuss.active = 0
+    except :
+        pass
 
     # update event date in IdInternal
     for draft in ballot.drafts.all() :
@@ -781,65 +1140,7 @@ def do_ballot_update_single_ballot (request, object_id) :
 
 do_ballot_update_ballot_comment_db = ballot_comment
 
-def do_ballot_update_ballot (request, object_id) :
-    argument = request.POST.copy()
-
-    try :
-        loginid = int(argument.get("loginid", "").strip())
-    except :
-        raise Http404
-    else :
-        LoginObj = IESGLogin.objects.get(id=loginid)
-
-    context = dict()
-    try :
-        do_ballot_update_single_ballot(request, object_id)
-    except :
-        context["error_message"] = """<h2>There is a fatal error occured while processing your request</h2>"""
-
-    ballot = get_object_or_404(BallotInfo.objects, pk=object_id)
-
-    discuss = 0
-    try :
-        discuss = ballot.positions.get(ad=LoginObj).discuss
-    except :
-        pass
-
-    # if in discuss,
-    if discuss :
-        if (discuss == 1 and argument.has_key("vote")) or argument.has_key("edit_discuss") or argument.has_key("edit_comment") :
-            # get primary draft.
-
-            draft = ballot.get_primary_draft()
-            if not draft :
-                raise Http404
-
-            kwargs = {
-                "filename" : draft.document().filename,
-                "ad_id" : str(loginid),
-            }
-
-            if argument.get("edit_discuss", None) :
-                kwargs.update(
-                    (
-                        ("edit_discuss", "yes"),
-                    )
-                )
-
-            return ballot_comment(
-                request,
-                object_id,
-                method="GET",
-                data=kwargs,
-            )
-    else : # if not in discuss,
-        if argument.has_key("edit_discuss") :
-            context["error_message"] = """
-<font color="red"><h2>Please mark 'Discuss' first to Add/Edit your discuss note</h2></font>"""
-
-    return view_ballot_iesg(request, object_id, extra_context=context)
-
-def do_ballot_send_ballot_comment_to_iesg (request, object_id) :
+def send_ballot_comment_to_iesg (request, object_id) :
     argument = request.POST.copy()
 
     try :
@@ -903,7 +1204,7 @@ def do_ballot_send_ballot_comment_to_iesg (request, object_id) :
         }, context_instance=RequestContext(request)
     )
 
-def do_ballot_do_send_ballot_comment (request, object_id) :
+def send_ballot_comment (request, object_id) :
     argument = request.POST.copy()
 
     try :

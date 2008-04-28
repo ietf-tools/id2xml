@@ -69,6 +69,9 @@ urlpatterns = patterns('',
 
      # ekr, fluffy, wgcharter tool
      (r'^wgcharter/', include('ietf.wgcharter.urls')),                       
+     
+     # Uncomment this for pre-approval tool for initial Internet-Drafts
+     #(r'^wg/', include('ietf.wg.urls')),                       
 )
 
 if settings.SERVER_MODE in ('development', 'test'):

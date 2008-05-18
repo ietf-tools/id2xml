@@ -8,14 +8,12 @@ queryset_idsubmit = IdSubmissionDetail.objects.all()
 idsubmit_dict = {
     'queryset': queryset_idsubmit,
 }
-urlpatterns = patterns('django.views.generic.list_detail',
-        (r'^viewfirsttwo/(?P<object_id>\d+)/$', 'object_detail', { 'queryset': queryset_idsubmit, 'template_name':"idsubmit/first_two_pages.html" }),
-        (r'^displayidnits/(?P<object_id>\d+)/$', 'object_detail', { 'queryset': queryset_idsubmit, 'template_name':"idsubmit/idnits.html" }),
-)
-urlpatterns += patterns('',
+urlpatterns = patterns('',
+     (r'^viewfirsttwo/(?P<object_id>\d+)/$', views.firsttwo, { 'queryset': queryset_idsubmit, 'template_name':"idsubmit/first_two_pages.html" }),
+     (r'^displayidnits/(?P<object_id>\d+)/$', views.idnits, { 'queryset': queryset_idsubmit, 'template_name':"idsubmit/idnits.html" }),
      (r'^$', views.file_upload),
      (r'^upload/$', views.file_upload),
-     (r'^auto_post/(?P<submission_id>\d+)/$', views.trigger_auto_post, idsubmit_dict),
+     (r'^auto_post/(?P<submission_id>\d+)/$', views.trigger_auto_post),
      (r'^adjust/(?P<submission_id>\d+)/$', views.adjust_form, idsubmit_dict),
      (r'^cancel/(?P<submission_id>\d+)/$', views.cancel_draft),
      (r'^status/(?P<slug>[^/]+)/$', views.draft_status, idsubmit_dict),

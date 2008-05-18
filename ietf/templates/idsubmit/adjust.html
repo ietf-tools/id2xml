@@ -19,7 +19,7 @@
 <input type="hidden" name="redirect" value="1" />
 <p>
     <strong>Document</strong>: 
-    {% for file_type in file_type_list %}
+    {% for file_type in submission.get_file_type_list %}
     <a href="{{ staging_url }}/{{ submission.filename }}-{{ submission.revision }}{{file_type}}">{{ submission.filename }}-{{ submission.revision }}{{file_type}}</a>
     {% ifequal file_type ".txt" %}
     <a href="/idsubmit/viewfirsttwo/{{ submission.submission_id }}">[View First Two Pages]</a>
@@ -69,7 +69,7 @@
     <td><font face="Arial" size="2">Submitter:</font></td>
     <td>
             If you are one of the authors, then please click a button by your name to automatically fill in the submitter's information as requested below.  Otherwise, Please manually enter your information.<br>
-            {% for author in authors %}
+            {% for author in submission.authors.all %}
             <input type="button" name="ab{{ forloop.counter }}" value="{{ author.first_name|slice:":1" }}. {{ author.last_name }}" onClick="document.aform.lname.value='{{ author.last_name }}';document.aform.fname.value='{{ author.first_name }}';document.aform.submitter_email.value='{{ author.email_address }}';" />
             {% endfor %}
     </td>
@@ -93,7 +93,7 @@
              <font face="Arial" size="2"><strong>Email</strong></font>
          </td>
     </tr>
-    {% for author in authors %}
+    {% for author in submission.authors.all %}
     <tr bgcolor="#ddddff">
         <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
         <td>
@@ -110,13 +110,13 @@
 {% if forloop.last %}
 
     <tr bgcolor="#ddddff">
-        <td>&nbsp; &nbsp; Author <script>var idx={{ forloop.counter }}; document.write(idx+1); </script>:</td>
+        <td>&nbsp; &nbsp; Author {{ forloop.counter|add:"1" }}:</td>
         <td> <input name="author_first_name" type="text" size="15" value="" /> </td>
         <td> <input name="author_last_name" type="text" size="15" value="" /> </td>
         <td> <input name="author_email" type="text" size="35" value="" /> </td>
     </tr>
     <tr bgcolor="#ddddff">
-        <td>&nbsp; &nbsp; Author <script>var idx={{ forloop.counter }}; document.write(idx+2); </script>:</td>
+        <td>&nbsp; &nbsp; Author {{ forloop.counter|add:"2" }}:</td>
         <td> <input name="author_first_name" type="text" size="15" value="" /> </td>
         <td> <input name="author_last_name" type="text" size="15" value="" /> </td>
         <td> <input name="author_email" type="text" size="35" value="" /> </td>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import re, os
 from datetime import date
 from datetime import timedelta
@@ -10,7 +12,7 @@ from django.conf import settings
 #import subprocess
 
 def check_creation_date(chk_date):
-    if chk_date == 'Not Found':
+    if chk_date is None:
         return False
     today = date.today()
     pre_3_day = timedelta(days=-3)
@@ -20,7 +22,7 @@ def check_creation_date(chk_date):
     else:
         return False
 
-class DraftParser:
+class DraftParser(object):
 
     not_found = "Not Found"
     meta_data_errors = {}
@@ -45,9 +47,9 @@ class DraftParser:
         self.page_num = len(self.pages)
         self.content = ''.join(self.pages)
         #self.title = self.get_title()
-        self.set_filename_revision()
         self.meta_data_errors_msg = []
-        self.meta_data_errors.clear()
+        self.meta_data_errors = {}
+        self.set_filename_revision()
         self.status_id = 1
 
     #def delete_extra_ld_blank(self,cont,heading):
@@ -74,7 +76,7 @@ class DraftParser:
     def set_remote_ip(self, ip):
         self.remote_ip = ip
 
-    def set_meta_data_errors(self, key, err_msg):
+    def add_meta_data_error(self, key, err_msg):
         self.meta_data_errors[key] = True
         self.meta_data_errors_msg.append(err_msg)
 
@@ -90,17 +92,17 @@ class DraftParser:
                     return True
                 except AttributeError:
                     self.revision = self.not_found
-                    self.set_meta_data_errors('revision', '<li>Could not find version</li>')
+                    self.add_meta_data_error('revision', 'Could not find version')
             except AttributeError:
                 self.filename = self.not_found
                 self.revision = self.not_found
-                self.set_meta_data_errors('filename', '<li>Could not find filename</li>')
-                self.set_meta_data_errors('revision', '<li>Could not find version</li>')
+                self.add_meta_data_error('filename', 'Could not find filename')
+                self.add_meta_data_error('revision', 'Could not find version')
 
     def check_idnits(self, file_path):
         #Check IDNITS
         path_idnits = os.path.join(settings.BASE_DIR, "idsubmit", "idnits")
-        child = os.popen("%s --checklistwarn %s" % (path_idnits, file_path))
+        child = os.popen("%s --submitcheck %s" % (path_idnits, file_path))
         idnits_message = child.read()
         err = child.close()
         #command = "%s --checklistwarn %s" % (path_idnits, file_path)
@@ -124,27 +126,12 @@ class DraftParser:
         
     def get_expected_revision(self):
         try:
-            id_query = InternetDraft.objects.get(filename=self.filename)
+            id = InternetDraft.objects.get(filename=self.filename)
         except InternetDraft.DoesNotExist:
             expected_revision = '00'
         else:
-            if id_query.status.status_id == 2 and id_query.expired_tombstone == 0:
-                expected_revision = id_query.revision
-            else:
-                expected_revision = self.increase_revision(id_query.revision) 
+	    expected_revision = '%02d' % ( id.current_revision() + 1 )
         return expected_revision
-
-    def increase_revision (self, revision):
-        new_revision = int(revision) + 1
-        return str(new_revision).zfill(2)
-
-    def decrease_revision (self, revision):
-        new_revision = int(revision)
-        if new_revision == 0:
-           return "00"
-        else:
-           new_revision = new_revision - 1
-           return str(new_revision).zfill(2)
 
     def _get_content_by_pages(self, content):
         # page_re = re.compile('\n.+\[?[Pp]age [0-9ivx]+\]?[ \t\f]*\n.+\n{1,}.+\n')
@@ -184,12 +171,12 @@ class DraftParser:
                 title = self.not_found
 
         if title == self.not_found:
-            self.set_meta_data_errors('title', '<li>Could not find title</li>')
+            self.add_meta_data_error('title', 'Could not find title')
             return title
         else:
             # this routine is added because the max length is 255
             if (len(title.strip()) > 255):
-                self.set_meta_data_errors('title', '<li>Title has more than 255 characters</li>')
+                self.add_meta_data_error('title', 'Title has more than 255 characters')
                 return self.not_found
             else:
                 title = re.sub('\n\s+',' ',title)
@@ -224,50 +211,34 @@ class DraftParser:
             abstract = abstract_re.sub('\n\n',abstract)
         except AttributeError:
             abstract = self.not_found
-            self.set_meta_data_errors('abstract', '<li>Could not find abstract</li>')
+            self.add_meta_data_error('abstract', 'Could not find abstract')
         return abstract.strip()
 
     def get_creation_date(self):
-        # \s{2,}[A-Z]{1}\w+\s[0-9]{1,2}\,\s[0-9]{4}
         _MONTH_NAMES = [ 'jan', 'feb', 'mar', 'apr', 'may',
                          'jun', 'jul', 'aug', 'sep', 'oct',
                          'nov', 'dec' ]
-        #_MONTH_NAMES = [ 'january', 'february', 'march', 'april', 'may',
-        #                 'june', 'july', 'august', 'september', 'october',
-        #                 'november', 'december' ]
-        creation_re1 = re.compile('\s{3,}\w+\s[0-9]{1,2}\,?\s[0-9]{4}')
-        creation_re2 = re.compile('\s{3,}[0-9]{1,2}\,?\s\w+\s[0-9]{4}')
-        creation_re3 = re.compile('\s{3,}[0-9]{1,2}-\w+-[0-9]{4}')
-        search_patterns = [creation_re1, creation_re2, creation_re3]
-        for creation_re in search_patterns:
-            searched_date = creation_re.search(self.pages[0])
-            if searched_date:
-                try:
-                    cdate = searched_date.group(0).strip()
-                    cdate = cdate.replace('-',' ')
-                    cdate_array = cdate.replace(',', '').split(' ')
-                    if cdate_array[0][0:3].strip().lower() in _MONTH_NAMES:
-                        month = _MONTH_NAMES.index(cdate_array[0][0:3].strip().lower()) + 1
-                        return date(int(cdate_array[2]), month, int(cdate_array[1]))
-                    else:
-                        try:
-                            month = _MONTH_NAMES.index(cdate_array[1][0:3].strip().lower()) + 1
-                            return date(int(cdate_array[2]), month, int(cdate_array[0]))
-                        except ValueError:
-                            try:
-                                month = _MONTH_NAMES.index(cdate_array[0][0:3].strip().lower()) + 1
-                                return date(int(cdate_array[2]), month, int(cdate_array[0]))
-                            except :
-                                creation_date = self.not_found
-                except AttributeError:
-                    creation_date = self.not_found
-            else:
-                creation_date = self.not_found
-        if creation_date == self.not_found:
-            self.set_meta_data_errors('creation_date', '<li>Creation Date field is empty or the creation date is not in a proper format.</li>')
-            creation_date = None
-            #creation_date = date(2000, 1, 1)
-        return creation_date
+	date_res = [ r'\s{3,}(?P<month>\w+)\s+(?P<day>\d{1,2}),?\s+(?P<year>\d{4})',
+		     r'\s{3,}(?P<day>\d{1,2}),?\s+(?P<month>\w+)\s+(?P<year>\d{4})',
+		     r'\s{3,}(?P<day>\d{1,2})-(?P<month>\w+)-(?P<year>\d{4})',
+		     # 'October 2008' - default day to today's.
+		     r'\s{3,}(?P<month>\w+)\s+(?P<year>\d{4})', ]
+
+        for regexp in date_res:
+            match = re.search(regexp, self.pages[0])
+            if match:
+		md = match.groupdict()
+		mon = md['month'][0:3].lower()
+		day = int( md.get( 'day', date.today().day ) )
+		year = int( md['year'] )
+		try:
+		    month = _MONTH_NAMES.index( mon ) + 1
+		    return date(year, month, day)
+		except ValueError:
+		    # mon abbreviation not in _MONTH_NAMES
+		    # or month or day out of range
+		    pass
+	return None
 
     def get_authors_info(self):
         authors_section1 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s{2,}.+\n+)+)\w+')
@@ -294,13 +265,13 @@ class DraftParser:
                         address_not_found = False
                 except AttributeError:
                     authors_info = self.not_found
-                    self.set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
+                    self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
                 if not address_not_found:
                     return authors_info
             else:
                 authors_info = self.not_found
         if authors_info == self.not_found or address_not_found:
-            self.set_meta_data_errors('authors', "<li>The I-D Submission tool could not find the authors' information</li>")
+            self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
         return authors_info
 
     def _get_name_by_email(self, email):
@@ -375,7 +346,7 @@ class DraftParser:
         except IndexError, extradata:
             wg_id = None
             #wg_id = self.not_found
-            #self.set_meta_data_errors('group', '<li>Can not find working group id</li>')
+            #self.add_meta_data_error('group', 'Can not find working group id')
         return wg_id
 
     #def set_file_type(self, type_list):
@@ -388,7 +359,7 @@ class DraftParser:
         try:
             two_pages = self.pages[0] + self.pages[1]
         except IndexError, extradata:
-            self.set_meta_data_errors('two_pages', '<li>Can not find first two pages</li>')
+            self.add_meta_data_error('two_pages', 'Can not find first two pages')
             two_pages = self.not_found
         return two_pages
 
@@ -416,13 +387,15 @@ class DraftParser:
         self.get_authors_info()
         if self.get_creation_date():
             if not check_creation_date(self.get_creation_date()):
-                self.set_meta_data_errors('creation_date', '<li>' + STATUS_CODE[204] + '</li>')
+                self.add_meta_data_error('creation_date', STATUS_CODE[204] )
+	else:
+	   self.add_meta_data_error('creation_date', 'Creation Date field is empty or the creation date is not in a proper format.')
         # error message here
         expected_revision = self.get_expected_revision()
         self.invalid_version = int(expected_revision)
         if not self.revision == expected_revision:
-            err_msg = "<li>" + STATUS_CODE[201] + "(Version %s is expected)</li>" % expected_revision
-            self.set_meta_data_errors('revision', err_msg)
+            err_msg = STATUS_CODE[201] + " (Version %s is expected)" % expected_revision
+            self.add_meta_data_error('revision', err_msg)
         title = self.get_title()
         abstract = self.get_abstract()
         if len(self.meta_data_errors_msg) > 0:
@@ -460,8 +433,7 @@ class DraftParser:
         return meta_data_fields
 
     def check_dos_threshold(self):
-        import datetime
-        today = datetime.date.today()
+        today = date.today()
         subenv = SubmissionEnv.objects.all()[0]
         max_same_draft_size = subenv.max_same_draft_size * 1000000;
         max_same_submitter_size = subenv.max_same_submitter_size * 1000000;
@@ -473,37 +445,44 @@ class DraftParser:
          						   submission_date__exact=today)
         cur_same_draft_count = cur_same_draft.count()
         if (cur_same_draft_count >= subenv.max_same_draft_name):
-            return "<li> A same I-D cannot be submitted more than %d times a day. </li>" % subenv.max_same_draft_name
+            return "A same I-D cannot be submitted more than %d times a day." % subenv.max_same_draft_name
 
         cur_same_draft_size = sum([d.filesize for d in cur_same_draft])
         if (cur_same_draft_size >= max_same_draft_size):
-	    return "<li> A same I-D submission cannot exceed more than %d MByte a day. </li>" % max_same_draft_size
+	    return "A same I-D submission cannot exceed more than %d MByte a day." % max_same_draft_size
 
         cur_same_submitter = IdSubmissionDetail.objects.filter(remote_ip__exact=self.remote_ip,
 							       submission_date__exact=today)
         cur_same_submitter_count = cur_same_submitter.count()
         if (cur_same_submitter_count >= subenv.max_same_submitter):
-	    return "<li> The same submitter cannot submit more than %d I-Ds a day. </li>" % subenv.max_same_submitter
+	    return "The same submitter cannot submit more than %d I-Ds a day." % subenv.max_same_submitter
 
         cur_same_submitter_size = sum([d.filesize for d in cur_same_submitter])
         if (cur_same_submitter_size >= max_same_submitter_size):
-	    return "<li> A same submitter cannot submit more than %d I-Ds a day. </li>" % max_same_submitter_size
+	    return "The same submitter cannot submit more than %d bytes of I-Ds a day." % max_same_submitter_size
         (group_id, err) = self.get_group_id()
         cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=1027)
         cur_same_wg_draft_count = cur_same_wg_draft.count()
         if (cur_same_wg_draft_count >= subenv.max_same_wg_draft):
-	    return "<li> A same working group I-Ds cannot be submitted more than %d times a day. </li>" % subenv.max_same_wg_draft
+	    return "A same working group I-Ds cannot be submitted more than %d times a day." % subenv.max_same_wg_draft
 
         cur_same_wg_draft_size = sum([d.filesize for d in cur_same_wg_draft])
         if (cur_same_wg_draft_size >= max_same_wg_draft_size):
-	    return "<li> Total size of same working group I-Ds cannot exceed %d MByte a day. </li>" % max_same_wg_draft_size
+	    return "Total size of same working group I-Ds cannot exceed %d MByte a day." % max_same_wg_draft_size
 
         cur_daily = IdSubmissionDetail.objects.filter(submission_date__exact=today)
         cur_daily_count = cur_daily.count()
         if (cur_daily_count >= subenv.max_daily_submission):
-	    return "<li> The total number of today's submission has reached the maximum number of submission per day. </li>"
+	    return "The total number of today's submission has reached the maximum number of submission per day."
 
         cur_daily_size = sum([d.filesize for d in cur_daily])
         if (cur_daily_size >= max_daily_submission_size):
-	    return "<li> The total size of today's submission has reached the maximum size of submission per day. </li>"
+	    return "The total size of today's submission has reached the maximum size of submission per day."
         return False
+
+if __name__ == "__main__":
+    import sys
+    f = open( sys.argv[1] )
+    dp = DraftParser( f.read() )
+    print dp.get_creation_date()
+    print dp.get_expected_revision()

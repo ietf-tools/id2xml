@@ -44,40 +44,56 @@ STATUS_CODE = {
 
 class IdDates(models.Model):
     id = models.IntegerField(primary_key=True)
-    id_date = models.DateField(null=True, blank=True)
-    date_name = models.CharField(blank=True, maxlength=765)
-    f_name = models.CharField(blank=True, maxlength=765)
+    id_date = models.DateField()
+    date_name = models.CharField(maxlength=255)
+    f_name = models.CharField(blank=True, maxlength=255)
+    def __str__(self):
+	return self.date_name
     class Meta:
         db_table = 'id_dates'
+	verbose_name = 'I-D Submission Date'
     class Admin:
-        pass
+	list_display = ('date_name', 'id_date')
+	pass
 
 class SubmissionEnv(models.Model):
-    max_live = models.IntegerField()
-    max_interval = models.IntegerField()
-    current_manual_proc_date = models.IntegerField()
-    max_same_draft_name = models.IntegerField()
-    max_same_draft_size = models.IntegerField()
-    max_same_submitter = models.IntegerField()
-    max_same_submitter_size = models.IntegerField()
-    max_same_wg_draft = models.IntegerField()
-    max_same_wg_draft_size = models.IntegerField()
-    max_daily_submission = models.IntegerField()
-    max_daily_submission_size = models.IntegerField()
-    cut_off_time = models.IntegerField()
+    #max_live = models.IntegerField(help_text='Not used by the code')
+    #max_interval = models.IntegerField(help_text='Not used by the code')
+    current_manual_proc_date = models.IntegerField(help_text='Business days for manual submission')
+    max_same_draft_name = models.IntegerField(help_text='Max versions/day permitted for drafts with the same draft name')
+    max_same_draft_size = models.IntegerField(help_text='Max MB/day permitted for drafts with the same draft name')
+    max_same_submitter = models.IntegerField(help_text='Max versions/day permitted for drafts with the same submitter')
+    max_same_submitter_size = models.IntegerField(help_text='Max MB/day permitted for drafts with the same submitter')
+    max_same_wg_draft = models.IntegerField(help_text='Max versions/day permitted for WGN drafts with the same WG ID')
+    max_same_wg_draft_size = models.IntegerField(help_text='Max MB/day permitted for WGN drafts with the same WG ID')
+    max_daily_submission = models.IntegerField(help_text='Max versions/day permitted via the tool')
+    max_daily_submission_size = models.IntegerField(help_text='Max MB/day permitted via the tool')
+    cut_off_time = models.TimeField(help_text='Time of day for submission cutoffs')
+    cut_off_warn_days = models.IntegerField(help_text='Days before cutoff to display warning message')
+    def __str__(self):
+	if self.id == 1:
+	    return "I-D Submission Tool Configuration"
+	else:
+	    return "Should not add -- only edit"
+    def save(self):
+	if not self.id:
+	    return # Can't create a new submission environment via admin -- edit the one that's there
+	else:
+	    super(SubmissionEnv, self).save()
     class Meta:
         db_table = 'id_submission_env'
+	verbose_name = 'I-D Submission Environment'
     class Admin:
         pass
 
 class IdSubmissionDetail(models.Model):
     submission_id = models.AutoField(primary_key=True)
     # temp_id_document_tag = models.IntegerField(editable=False)	# obsolete
-    status_id = models.IntegerField(default=0)
+    status_id = models.IntegerField(default=0, choices=STATUS_CODE.items())
     last_updated_date = models.DateField(blank=True)
     last_updated_time = models.CharField(maxlength=100,blank=True)
     title = models.CharField(maxlength=255, db_column='id_document_name')
-    group = models.ForeignKey(Acronym, db_column='group_acronym_id')
+    group = models.ForeignKey(Acronym, db_column='group_acronym_id', raw_id_admin=True)
     filename = models.CharField(maxlength=255) # in real mode , unique=True)
     creation_date = models.DateField(null=True, blank=True)
     submission_date = models.DateField(default=datetime.date.today)
@@ -91,7 +107,7 @@ class IdSubmissionDetail(models.Model):
     txt_page_count = models.IntegerField()
     error_message = models.CharField(blank=True, maxlength=255)
     warning_message = models.TextField(blank=True)
-    wg_submission = models.IntegerField(null=True, blank=True)
+    wg_submission = models.BooleanField(default=0)
     filesize = models.IntegerField(null=True, blank=True)
     man_posted_date = models.DateField(null=True, blank=True)
     man_posted_by = models.CharField(blank=True, maxlength=255)
@@ -99,10 +115,10 @@ class IdSubmissionDetail(models.Model):
     sub_email_priority = models.IntegerField(null=True, blank=True)
     invalid_version = models.IntegerField(default=0)
     idnits_failed = models.BooleanField(default=0)
-    submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag")
+    submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag", raw_id_admin=True)
 
     def get_absolute_url(self):
-        return "/idsubmit/status/%d" % self.submission_id
+        return "/idsubmit/status/%d/" % self.submission_id
     def set_file_type(self, type_list):
         self.file_type = ','.join(type_list)
     def get_file_type_list(self):
@@ -112,43 +128,60 @@ class IdSubmissionDetail(models.Model):
             return None
     def save(self,*args,**kwargs):
 	self.last_updated_date = datetime.date.today()
-	# self.creation_date = datetime.date.today()
 	self.last_updated_time = datetime.datetime.now().time()
-        # self.submitter = PersonOrOrgInfo()
-        self.auth_key = ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(35)])
-
+	if self.submission_id is None:
+	    self.auth_key = ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(35)])
 	super(IdSubmissionDetail, self).save(*args,**kwargs)
         return self.submission_id
 
+    def __str__(self):
+	return 'Submission of %s-%s' % ( self.filename, self.revision )
+
     class Meta:
         db_table = 'id_submission_detail'
+	verbose_name = 'I-D Submission Record'
+    class Admin:
+	date_hierarchy = 'submission_date'
+	list_filter = [ 'status_id' ]
+	list_display = ('filename', 'revision', 'submission_date', 'status_id')
+	search_fields = ['filename']
 
 class IdApprovedDetail(models.Model):
-    filename = models.CharField(blank=True, maxlength=255)
+    filename = models.CharField(blank=True, maxlength=255, unique=True)
     approved_status = models.IntegerField(null=True, blank=True)
     approved_person = models.ForeignKey(PersonOrOrgInfo, db_column='approved_person_tag', raw_id_admin=True)
     approved_date = models.DateField(null=True, blank=True)
-    recorded_by = models.IntegerField(null=True, blank=True)
+    recorded_by = models.ForeignKey(PersonOrOrgInfo, db_column='recorded_by', raw_id_admin=True, related_name='idsubmission_recorded')
     def __str__(self):
 	return "I-D %s pre-approval" % self.filename
     class Meta:
         db_table = 'id_approved_detail'
+	verbose_name = 'Pre-approved -00 I-D'
     class Admin:
 	pass
 
 class TempIdAuthors(models.Model):
     #id_document_tag = models.IntegerField(editable=False) 	# obsolete
-    first_name = models.CharField(blank=True, maxlength=255)
-    last_name = models.CharField(blank=True, maxlength=255)
-    email_address = models.CharField(blank=True, maxlength=255)
-    last_modified_date = models.DateField(null=True, blank=True)
-    last_modified_time = models.CharField(blank=True, maxlength=100)
-    author_order = models.IntegerField(default=0)
-    submission = models.ForeignKey(IdSubmissionDetail)
+    first_name = models.CharField(maxlength=255, core=True)
+    last_name = models.CharField(maxlength=255, core=True)
+    email_address = models.EmailField() # maxlength=255
+    last_modified_date = models.DateField(editable=False)
+    last_modified_time = models.CharField(editable=False, maxlength=100)
+    author_order = models.IntegerField(editable=False, default=0)
+    submission = models.ForeignKey(IdSubmissionDetail, edit_inline=models.TABULAR, related_name="authors", editable=False)
     def save(self,*args,**kwargs):
         self.last_modified_date = datetime.date.today()
         self.last_modified_time = datetime.datetime.now().time()
         super(TempIdAuthors, self).save(*args,**kwargs)
+    def email(self):
+	return ( "%s %s" % ( self.first_name, self.last_name ), self.email_address )
+    def __str__(self):
+	return "%s %s authors %s" % ( self.first_name, self.last_name, self.submission )
     class Meta:
         db_table = 'temp_id_authors'
-
+	unique_together = (("submission", "author_order"),)
+	# This makes no sense when accessing the table directly.
+	# However, all accesses will be via the related manager
+	# from an IdSubmissionDetail, so it'll already be filtered
+	# down to a submission.
+	ordering = ("author_order",)

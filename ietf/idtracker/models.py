@@ -166,11 +166,13 @@ class InternetDraft(models.Model):
 	    return idinternal.docstate()
 	else:
 	    return "I-D Exists"
-    def revision_display(self):
+    def current_revision(self):
 	r = int(self.revision)
 	if self.status.status != 'Active' and not self.expired_tombstone:
 	   r = max(r - 1, 0)
-	return "%02d" % r
+	return r
+    def revision_display(self):
+	return "%02d" % self.current_revision()
     def doctype(self):
 	return "Draft"
     def filename_with_link(self, text=None):

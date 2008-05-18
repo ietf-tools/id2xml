@@ -1,8 +1,6 @@
 {% extends "idsubmit/base.html" %}
 {% block maincontent %}
 
-<!-- Body content starts-->
-
 <div align="left">
 <center>
 <table border="0" vspace="0">
@@ -14,7 +12,7 @@
 </p>
 <p>
     <font face="Arial" size="3">
-    <strong>Draft Status: {{ status_msg }}</font> </strong>
+    <strong>Draft Status: {{ object.get_status_id_display }}</font> </strong>
 </p>
 {% ifequal object.status_id 4 %}
 <p>An email with a submmiter verification key and URL has been sent to the submitter. However, verification has not yet been received. Upon receipt of verification (clicking the link in the email), this status page will be shown with updated status information.
@@ -25,10 +23,10 @@
 <tr bgcolor="#ddddff">
   <td width="110"><font face="Arial" size="2">Document:</font></td>
   <td>
-    {% for file_type in file_type_list %}
+    {% for file_type in object.get_file_type_list %}
     <a href="{% if posted %}http://www.ietf.org/internet-drafts{% else %}{{ staging_url }}{% endif %}/{{ object.filename }}-{{ object.revision }}{{file_type}}">{{ object.filename }}-{{ object.revision }}{{file_type}}</a>
     {% ifequal file_type ".txt" %}
-    <a href="/idsubmit/viewfirsttwo/{{ object.submission_id }}">[View First Two Pages]</a>
+    <a href="{% url ietf.idsubmit.views.firsttwo object.submission_id %}">[View First Two Pages]</a>
     {% endifequal %}
     <br>
     {% endfor %}
@@ -62,7 +60,7 @@
 <tr bgcolor="#ddddff">
     <td colspan="2">Author(s) Information:</td>
 </tr>
-{% for author in authors %}
+{% for author in object.authors.all %}
 <tr bgcolor="#ddddff">
     <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
     <td>{{ author.first_name }} {{ author.last_name }} ({{ author.email_address }})</td>
@@ -78,12 +76,14 @@
         {{ object.abstract|escape|linebreaks }}
     </td>
 </tr>
+{% if object.comment_to_sec %}
 <tr bgcolor="#ddddff">
     <td><font face="Arial" size="2">Comment:</font></td>
     <td> {{ object.comment_to_sec|escape|linebreaks }} </td>
 </tr>
+{% endif %}
 {% if meta_error %}
-<form action="/idsubmit/adjust/{{object.submission_id}}" method="get">
+<form action="{% url ietf.idsubmit.views.adjust_form object.submission_id %}" method="get">
 <tr>
 <td colspan="2">
     <input type="submit" value="Adjust Meta-Data" />
@@ -97,7 +97,7 @@
 
 <br>
 <p>
-<font face="Arial" size="2">Submitter Information.</font>
+<font face="Arial" size="2">Submitter Information</font>
 <table border="0" width="650">
 <tr bgcolor="#ddddff">
     <td><font face="Arial" size="2">Given Name:</font></td>
@@ -118,7 +118,7 @@
 </p>
 
 {% if can_be_canceled %}
-<form action="/idsubmit/cancel/{{object.submission_id}}" method="get" name="aform">
+<form action="{% url ietf.idsubmit.views.cancel_draft object.submission_id %}" method="get">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form>
 {% endif %}
@@ -129,5 +129,4 @@ Cancel this submission: <input type="submit" value="Cancel" onClick="return wind
 </center>
 </div>
 
-<!-- Body content ends-->
 {% endblock %}

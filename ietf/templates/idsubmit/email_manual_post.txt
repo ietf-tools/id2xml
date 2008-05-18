@@ -20,7 +20,7 @@ Submitter: {{ submission.submitter.email }}
 comment to the secretariat: {{ submission.comment_to_sec }}
 
 Author(s):
-{% for author in authors_list %}
+{% for author in submission.authors.all %}
     {{ author.last_name }} {{ author.first_name }} {{ author.email_address }}
 {% endfor %}
 

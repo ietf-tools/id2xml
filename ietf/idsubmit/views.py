@@ -73,8 +73,8 @@ def file_upload(request):
     second_cut_off_time = datetime.combine(second_cut_off_date, cut_off_time)
     ietf_monday_date = IdDates.objects.get(id=3).id_date
     context = { 'first_cut_off_time': first_cut_off_time,
-		    'second_cut_off_time': second_cut_off_time,
-		    'ietf_monday': datetime.combine(ietf_monday_date, time(0,0,0)) }
+                'second_cut_off_time': second_cut_off_time,
+                'ietf_monday': datetime.combine(ietf_monday_date, time(0,0,0)) }
     submission = None
     if request.POST:
 
@@ -88,7 +88,7 @@ def file_upload(request):
 
             dp = DraftParser(form.get_content('txt_file'))
             if now >= first_cut_off_time and now < second_cut_off_time and dp.revision == '00':
-		#XXX revise for updated warning message format
+                #XXX revise for updated warning message format
                 context['form'] = IDUploadForm()
                 context['cutoff_msg'] = "first_second"
                 context['cut_off_time'] = subenv.cut_off_time
@@ -137,8 +137,8 @@ def file_upload(request):
             authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission.submission_id)
             for author_dict in authors_info:
 
-		#XXX submission.authors.create(...)
-		# without the submission_id
+                #XXX submission.authors.create(...)
+                # without the submission_id
                 author = TempIdAuthors(**author_dict)
                 try:
                     author.save()
@@ -156,18 +156,18 @@ def file_upload(request):
             return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
     else:
         if now.date() >= first_cut_off_warning and now < first_cut_off_time:
-	    # Warn of upcoming -00 deadline
+            # Warn of upcoming -00 deadline
             context['cutoff_msg'] = "first_warning"
         elif now >= first_cut_off_time and now < second_cut_off_time:
-	    # No more -00 submission
+            # No more -00 submission
             context['cutoff_msg'] = "first_second"
             if now.date() == second_cut_off_date:
                 context['cutoff_msg'] = "second_ietf"
         elif now >= second_cut_off_time and now.date() < ietf_monday_date: 
-	    # complete shut down of tool
+            # complete shut down of tool
             context['date_check_err_msg'] = "second_ietf"
             return render("idsubmit/error.html", context, context_instance=RequestContext(request))
-	context['form'] = IDUploadForm()
+        context['form'] = IDUploadForm()
     return render ("idsubmit/upload.html", context, context_instance=RequestContext(request))
 
 def adjust_form(request, submission_id):
@@ -194,12 +194,12 @@ def adjust_form(request, submission_id):
     authors_last_name  = request.POST.getlist('author_last_name')
     authors_email      = request.POST.getlist('author_email')
     if authors_email:
-	submission.authors.all().delete()
+        submission.authors.all().delete()
         authors = []
         cnt = 0 
         for email in authors_email:
-	    #XXX if there's a missing email, this will throw off the
-	    #XXX matching of names with email addresses
+            #XXX if there's a missing email, this will throw off the
+            #XXX matching of names with email addresses
             if email:
                 submission.authors.create(
                     first_name=authors_first_name[cnt],
@@ -219,7 +219,7 @@ def adjust_form(request, submission_id):
             for author_info in authors_list:
                 cc_list.append(author_info.email_address)
             try:
-		# XXX to: internet-drafts@ietf.org
+                # XXX to: internet-drafts@ietf.org
                 send_mail(request,[args['submitter_email']],
                     from_email,subject,
                     "idsubmit/email_manual_post.txt",
@@ -367,7 +367,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
     try :
         approved_status = IdApprovedDetail.objects.get(filename=submission.filename).approved_status
     except IdApprovedDetail.DoesNotExist :
-	approved_status = None
+        approved_status = None
 
     if approved_status == 1 or submission.revision != "00" or submission.group_id == 1027 :
 
@@ -424,8 +424,8 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
         authors_names = list()
         for author_info in submission.authors() :
-	    # XXX see user creator to see how to do this
-	    # person = PersonOrOrgInfo.objects.filter(email__address=...).distinct()
+            # XXX see user creator to see how to do this
+            # person = PersonOrOrgInfo.objects.filter(email__address=...).distinct()
             email_address = EmailAddress.objects.filter(address=author_info.email_address)
             if email_address.count() > 0 :
                 person_or_org = email_address[0].person_or_org
@@ -438,7 +438,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                     created_by="IDST",
                 )
 
-		person_or_org.emailaddress_set.create(
+                person_or_org.emailaddress_set.create(
                     type="INET",
                     priority=1,
                     address=author_info.email_address,
@@ -447,7 +447,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             IDAuthor.objects.create(
                 document=internet_draft,
                 person=person_or_org,
-		author_order=author_info.author_order,
+                author_order=author_info.author_order,
             )
 
             person_or_org.emailaddress_set.create(
@@ -500,8 +500,8 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
         submission.status_id = 8
         submission.save()
-	id_internal = internet_draft.idinternal
-	if id_internal and id_internal.cur_state_id < 100:
+        id_internal = internet_draft.idinternal
+        if id_internal and id_internal.cur_state_id < 100:
             # Schedule New Version Notification:
 
             # Add comment to ID Tracker
@@ -516,7 +516,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             )
 
             msg = ""
-	    #XXX hardcoded "5"
+            #XXX hardcoded "5"
             if id_internal.cur_sub_state_id == 5:
                 msg = "Sub state has been changed to AD Follow up from New Id Needed"
                 DocumentComment.objects.create(
@@ -530,7 +530,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                 )
 
                 id_internal.prev_sub_state = id_internal.cur_sub_state
-	        #XXX hardcoded "2"
+                #XXX hardcoded "2"
                 id_internal.cur_sub_state_id = 2
                 id_internal.save()
 
@@ -566,7 +566,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         # <Please read auto_post.cgi, sub notify_all_authors>
 
         cc_email = list()
-	#XXX there must be a better way to do this than hardcoding 1027
+        #XXX there must be a better way to do this than hardcoding 1027
         if submission.group_id == 1027 :
             group_acronym = "Independent Submission"
         else :
@@ -590,7 +590,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             "New Version Notification for %s-%s" % (submission.filename,submission.revision),
             "idsubmit/email_posted_notice.txt", {'subm':submission, 'submitter_name':submitter_name},
             cc_email,
-	    toUser=True
+            toUser=True
         )
         submission.status_id = -1
         submission.save()
@@ -660,10 +660,10 @@ def cancel_draft (request, submission_id):
             request,
             to_email,
             FROM_EMAIL_CANCEL,
-	    "idsubmit/email_cancel_subject.txt",
+            "idsubmit/email_cancel_subject.txt",
             "idsubmit/email_cancel.txt",{ 'submission': submission,
                 'remote_ip' : request.META.get("REMOTE_ADDR") },
-	    toUser=True
+            toUser=True
         )
     # if everything is OK, change the status_id to -4
     submission.status_id = -4

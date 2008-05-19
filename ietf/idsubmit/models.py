@@ -48,13 +48,12 @@ class IdDates(models.Model):
     date_name = models.CharField(maxlength=255)
     f_name = models.CharField(blank=True, maxlength=255)
     def __str__(self):
-	return self.date_name
+        return self.date_name
     class Meta:
         db_table = 'id_dates'
-	verbose_name = 'I-D Submission Date'
+        verbose_name = 'I-D Submission Date'
     class Admin:
-	list_display = ('date_name', 'id_date')
-	pass
+        list_display = ('date_name', 'id_date')
 
 class SubmissionEnv(models.Model):
     #max_live = models.IntegerField(help_text='Not used by the code')
@@ -71,24 +70,24 @@ class SubmissionEnv(models.Model):
     cut_off_time = models.TimeField(help_text='Time of day for submission cutoffs')
     cut_off_warn_days = models.IntegerField(help_text='Days before cutoff to display warning message')
     def __str__(self):
-	if self.id == 1:
-	    return "I-D Submission Tool Configuration"
-	else:
-	    return "Should not add -- only edit"
+        if self.id == 1:
+            return "I-D Submission Tool Configuration"
+        else:
+            return "Should not add -- only edit"
     def save(self):
-	if not self.id:
-	    return # Can't create a new submission environment via admin -- edit the one that's there
-	else:
-	    super(SubmissionEnv, self).save()
+        if not self.id:
+            return # Can't create a new submission environment via admin -- edit the one that's there
+        else:
+            super(SubmissionEnv, self).save()
     class Meta:
         db_table = 'id_submission_env'
-	verbose_name = 'I-D Submission Environment'
+        verbose_name = 'I-D Submission Environment'
     class Admin:
         pass
 
 class IdSubmissionDetail(models.Model):
     submission_id = models.AutoField(primary_key=True)
-    # temp_id_document_tag = models.IntegerField(editable=False)	# obsolete
+    # temp_id_document_tag = models.IntegerField(editable=False)        # obsolete
     status_id = models.IntegerField(default=0, choices=STATUS_CODE.items())
     last_updated_date = models.DateField(blank=True)
     last_updated_time = models.CharField(maxlength=100,blank=True)
@@ -127,24 +126,24 @@ class IdSubmissionDetail(models.Model):
         else:
             return None
     def save(self,*args,**kwargs):
-	self.last_updated_date = datetime.date.today()
-	self.last_updated_time = datetime.datetime.now().time()
-	if self.submission_id is None:
-	    self.auth_key = ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(35)])
-	super(IdSubmissionDetail, self).save(*args,**kwargs)
+        self.last_updated_date = datetime.date.today()
+        self.last_updated_time = datetime.datetime.now().time()
+        if self.submission_id is None:
+            self.auth_key = ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(35)])
+        super(IdSubmissionDetail, self).save(*args,**kwargs)
         return self.submission_id
 
     def __str__(self):
-	return 'Submission of %s-%s' % ( self.filename, self.revision )
+        return 'Submission of %s-%s' % ( self.filename, self.revision )
 
     class Meta:
         db_table = 'id_submission_detail'
-	verbose_name = 'I-D Submission Record'
+        verbose_name = 'I-D Submission Record'
     class Admin:
-	date_hierarchy = 'submission_date'
-	list_filter = [ 'status_id' ]
-	list_display = ('filename', 'revision', 'submission_date', 'status_id')
-	search_fields = ['filename']
+        date_hierarchy = 'submission_date'
+        list_filter = [ 'status_id' ]
+        list_display = ('filename', 'revision', 'submission_date', 'status_id')
+        search_fields = ['filename']
 
 class IdApprovedDetail(models.Model):
     filename = models.CharField(blank=True, maxlength=255, unique=True)
@@ -153,15 +152,15 @@ class IdApprovedDetail(models.Model):
     approved_date = models.DateField(null=True, blank=True)
     recorded_by = models.ForeignKey(PersonOrOrgInfo, db_column='recorded_by', raw_id_admin=True, related_name='idsubmission_recorded')
     def __str__(self):
-	return "I-D %s pre-approval" % self.filename
+        return "I-D %s pre-approval" % self.filename
     class Meta:
         db_table = 'id_approved_detail'
-	verbose_name = 'Pre-approved -00 I-D'
+        verbose_name = 'Pre-approved -00 I-D'
     class Admin:
-	pass
+        pass
 
 class TempIdAuthors(models.Model):
-    #id_document_tag = models.IntegerField(editable=False) 	# obsolete
+    #id_document_tag = models.IntegerField(editable=False)      # obsolete
     first_name = models.CharField(maxlength=255, core=True)
     last_name = models.CharField(maxlength=255, core=True)
     email_address = models.EmailField() # maxlength=255
@@ -174,14 +173,14 @@ class TempIdAuthors(models.Model):
         self.last_modified_time = datetime.datetime.now().time()
         super(TempIdAuthors, self).save(*args,**kwargs)
     def email(self):
-	return ( "%s %s" % ( self.first_name, self.last_name ), self.email_address )
+        return ( "%s %s" % ( self.first_name, self.last_name ), self.email_address )
     def __str__(self):
-	return "%s %s authors %s" % ( self.first_name, self.last_name, self.submission )
+        return "%s %s authors %s" % ( self.first_name, self.last_name, self.submission )
     class Meta:
         db_table = 'temp_id_authors'
-	unique_together = (("submission", "author_order"),)
-	# This makes no sense when accessing the table directly.
-	# However, all accesses will be via the related manager
-	# from an IdSubmissionDetail, so it'll already be filtered
-	# down to a submission.
-	ordering = ("author_order",)
+        unique_together = (("submission", "author_order"),)
+        # This makes no sense when accessing the table directly.
+        # However, all accesses will be via the related manager
+        # from an IdSubmissionDetail, so it'll already be filtered
+        # down to a submission.
+        ordering = ("author_order",)

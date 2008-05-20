@@ -343,9 +343,7 @@ class DraftParser(object):
 
     def get_group_id(self):
         wg_id = self.get_wg_id()
-        if not wg_id: 
-            return None, None
-        elif wg_id is None:
+        if wg_id is None:
             # Individual Document 1027
             group_id = Acronym.objects.get(acronym_id=1027)
         else:

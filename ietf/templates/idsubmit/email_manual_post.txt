@@ -16,7 +16,7 @@ Number_of_pages:   {{ submission.txt_page_count }}
 Abstract:
 {{ submission.abstract }}
 
-Submitter: {{ submission.submitter.email }} 
+Submitter: {{ submission.submitter }} <{{ submission.submitter.email.1 }}>
 comment to the secretariat: {{ submission.comment_to_sec }}
 
 Author(s):

@@ -24,7 +24,6 @@ def check_creation_date(chk_date):
 
 class DraftParser(object):
 
-    not_found = "Not Found"
     meta_data_errors = {}
     meta_data_errors_msg = []
     filesize = 0
@@ -36,12 +35,12 @@ class DraftParser(object):
     remote_ip = None
     status_id = 0
     invalid_version = 0 
-    idnits_failed = False
+    idnits_failed = True
 
     content = ""
     
-    def __init__(self, cont):
-        self.set_content(cont)
+    def __init__(self, content):
+        self.set_content(content)
         self.filesize = len(self.content)
         self.pages = self._get_content_by_pages(self.content)
         self.page_num = len(self.pages)
@@ -62,16 +61,8 @@ class DraftParser(object):
     #        pass
     #    return cont
  
-    def set_content(self, cont):
-        new_line = re.compile('\r\n')
-        self.content = new_line.sub( '\n', cont)
-        extra_ld_blank_m = re.search(r'\n( +)Abstract\s*\n',self.content)
-        try:
-            extra_ld_blank = extra_ld_blank_m.group(1)
-            extra_ld_blank_re = re.compile('\n%s' % extra_ld_blank)
-            self.content = extra_ld_blank_re.sub('\n',self.content)
-        except AttributeError:
-            pass 
+    def set_content(self, content):
+        self.content = content.replace('\r\n', '\n')
 
     def set_remote_ip(self, ip):
         self.remote_ip = ip
@@ -81,23 +72,16 @@ class DraftParser(object):
         self.meta_data_errors_msg.append(err_msg)
 
     def set_filename_revision(self):
-        filename_section1 = re.search('\n {3,}<?((draft-.+)-(\d\d)).*\n',self.pages[0])
-        filename_section2 = re.search('((draft-.+)-(\d\d)\.txt)',self.pages[0])
-        for filename_re in [filename_section1, filename_section2]:
-            #filename_re = re.search('\n {3,}<?((draft-.+)-(\d\d)).*\n',self.pages[0])
-            try:
-                self.filename = filename_re.group(2)
-                try:
-                    self.revision = filename_re.group(3)
-                    return True
-                except AttributeError:
-                    self.revision = self.not_found
-                    self.add_meta_data_error('revision', 'Could not find version')
-            except AttributeError:
-                self.filename = self.not_found
-                self.revision = self.not_found
-                self.add_meta_data_error('filename', 'Could not find filename')
-                self.add_meta_data_error('revision', 'Could not find version')
+        filename_form1 = re.search('^ {3,}<?(draft-.+)-(\d\d).*$',self.pages[0], re.M)
+        filename_form2 = re.search('(draft-.+)-(\d\d)\.txt',self.pages[0])
+        for m in [filename_form1, filename_form2]:
+            if m:
+                (self.filename, self.revision) = m.groups()
+                return
+        self.filename = None
+        self.add_meta_data_error('filename', 'Could not find filename')
+        self.revision = None
+        self.add_meta_data_error('revision', 'Could not find version')
 
     def check_idnits(self, file_path):
         #Check IDNITS
@@ -166,18 +150,18 @@ class DraftParser(object):
                     title = filename_re.sub('',title)
                     break 
                 except IndexError, extradata:
-                    title = self.not_found
+                    title = None
             except AttributeError:
-                title = self.not_found
+                title = None
 
-        if title == self.not_found:
+        if title is None:
             self.add_meta_data_error('title', 'Could not find title')
             return title
         else:
             # this routine is added because the max length is 255
             if (len(title.strip()) > 255):
                 self.add_meta_data_error('title', 'Title has more than 255 characters')
-                return self.not_found
+                return None
             else:
                 title = re.sub('\n\s+',' ',title)
                 return title.strip()
@@ -195,9 +179,9 @@ class DraftParser(object):
         #deleting blank spaces from blank lines
         lead_blank_re = re.compile('\n {1,}\n')
         temp_content = lead_blank_re.sub('\n\n',temp_content)
-        abstract_m = re.search('\nAbstract *\n+((\s{2,}.+\n+)+)',temp_content)
-        try:
-            abstract = abstract_m.group(1)
+        m = re.search('\nAbstract *\n+((\s{2,}.+\n+)+)',temp_content)
+        if m:
+            abstract = m.group(1)
             abstract_re = re.compile('\n\w.+\n(.*\n)+')
             abstract = abstract_re.sub('',abstract)
             abstract_re = re.compile('\n.*Table of Contents\s*\n+(.*\n)+')
@@ -209,10 +193,11 @@ class DraftParser(object):
             #abstract = abstract_re.sub('\n', abstract)
             abstract_re = re.compile('(\n *){3,}')
             abstract = abstract_re.sub('\n\n',abstract)
-        except AttributeError:
-            abstract = self.not_found
+            abstract = abstract.strip()
+        else:
             self.add_meta_data_error('abstract', 'Could not find abstract')
-        return abstract.strip()
+            abstract = None
+        return abstract
 
     def get_creation_date(self):
         _MONTH_NAMES = [ 'jan', 'feb', 'mar', 'apr', 'may',
@@ -238,6 +223,7 @@ class DraftParser(object):
 		    # mon abbreviation not in _MONTH_NAMES
 		    # or month or day out of range
 		    pass
+        self.add_meta_data_error('creation_date', 'Creation Date field is empty or the creation date is not in a proper format.')
 	return None
 
     def get_authors_info(self):
@@ -264,13 +250,13 @@ class DraftParser(object):
                     if address_not_found and mail_rst:
                         address_not_found = False
                 except AttributeError:
-                    authors_info = self.not_found
+                    authors_info = None
                     self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
                 if not address_not_found:
                     return authors_info
             else:
-                authors_info = self.not_found
-        if authors_info == self.not_found or address_not_found:
+                authors_info = None
+        if authors_info is None or address_not_found:
             self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
         return authors_info
 
@@ -334,40 +320,32 @@ class DraftParser(object):
         return name_line
 
     def get_wg_id(self):
-        wg_lists = self.filename.split('-')
+        wg_bits = self.filename.split('-')
         try:
-            if wg_lists[1] == 'ietf':
-                if wg_lists[2] == 'krb' and wg_lists[3] == 'wg':
-                    wg_id = wg_lists[2] + '-' + wg_lists[3]
+            if wg_bits[1] == 'ietf':
+                if wg_bits[2] == 'krb' and wg_bits[3] == 'wg':
+                    wg_id = wg_bits[2] + '-' + wg_bits[3]
                 else:
-                    wg_id = wg_lists[2]
+                    wg_id = wg_bits[2]
             else:
-                wg_id = self.not_found
-        except IndexError, extradata:
+                wg_id = None
+        except IndexError:
             wg_id = None
-            #wg_id = self.not_found
-            #self.add_meta_data_error('group', 'Can not find working group id')
         return wg_id
-
-    #def set_file_type(self, type_list):
-    #    self.file_type_list = type_list
-
-    #def get_file_type(self):
-    #    return ','.join(self.file_type_list)
     
     def get_first_two_pages(self):
         try:
             two_pages = self.pages[0] + self.pages[1]
-        except IndexError, extradata:
+        except IndexError:
             self.add_meta_data_error('two_pages', 'Can not find first two pages')
-            two_pages = self.not_found
+            two_pages = None
         return two_pages
 
     def get_group_id(self):
         wg_id = self.get_wg_id()
         if not wg_id: 
             return None, None
-        elif wg_id == self.not_found:
+        elif wg_id is None:
             # Individual Document 1027
             group_id = Acronym.objects.get(acronym_id=1027)
         else:
@@ -388,9 +366,6 @@ class DraftParser(object):
         if self.get_creation_date():
             if not check_creation_date(self.get_creation_date()):
                 self.add_meta_data_error('creation_date', STATUS_CODE[204] )
-	else:
-	   self.add_meta_data_error('creation_date', 'Creation Date field is empty or the creation date is not in a proper format.')
-        # error message here
         expected_revision = self.get_expected_revision()
         self.invalid_version = int(expected_revision)
         if not self.revision == expected_revision:
@@ -400,12 +375,12 @@ class DraftParser(object):
         abstract = self.get_abstract()
         if len(self.meta_data_errors_msg) > 0:
             self.status_id = 206
-            warning_message = '\n'.join(self.meta_data_errors_msg) 
+            warning_message = '<li>' + '</li>\n<li>'.join(self.meta_data_errors_msg) + '</li>'
         else:
             self.status_id = 2
             warning_message = ""
-        if not self.filename or self.filename == self.not_found:
-            self.filename = self.not_found
+        if not self.filename or self.filename is None:
+            self.filename = None
             self.revision = 'NA'
             self.status_id = 111
         elif not re.match(r'^[a-z0-9-\.]+$', self.filename):
@@ -486,3 +461,6 @@ if __name__ == "__main__":
     dp = DraftParser( f.read() )
     print dp.get_creation_date()
     print dp.get_expected_revision()
+    print dp.filename
+    print dp.revision
+    print dp.get_meta_data_fields()

@@ -8,8 +8,7 @@
 <table border="0" vspace="0">
 <tr valign="top">
 <td height="550" >
-<form action="{% url ietf.idsubmit.views.adjust_form submission.submission_id %}" method="post" name="adj_form">
-<input type="hidden" name="from_validation" value="yes">
+<form action="{% url ietf.idsubmit.views.adjust_form submission.submission_id %}" method="get" name="adj_form">
 <p>
     <font face="Arial" size="4">
         <strong>Check Page</strong>
@@ -112,7 +111,7 @@
     <tr><td colspan="2">
        If you are one of the authors of this document, then please click the button with your name on it to automatically fill in the submitter information as requested below.  Otherwise, please manually enter your information.<br>
        {% for author in submission.authors.all %}
-           <input type="button" name="ab{{ forloop.counter }}" value="{{ author.first_name.1 }}. {{ author.last_name }}" onClick="document.ap_form.lname.value='{{ author.last_name }}';document.ap_form.fname.value='{{ author.first_name }}';document.ap_form.submitter_email.value='{{ author.email_address }}';"> 
+           <input type="button" name="ab{{ forloop.counter }}" value="{{ author.first_name.0 }}. {{ author.last_name }}" onClick="document.ap_form.lname.value='{{ author.last_name }}';document.ap_form.fname.value='{{ author.first_name }}';document.ap_form.submitter_email.value='{{ author.email_address }}';"> 
        {% endfor %}
     </td></tr>
 

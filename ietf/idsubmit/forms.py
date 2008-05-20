@@ -126,18 +126,15 @@ class IDUploadForm(forms.Form):
             #            return render("idsubmit/error.html", {'error_msg':'not allowed file format - %s' % file_ext.lower()}, context_instance=RequestContext(request))
             #    else:
             #        err_msg = "Filename contains non alpha-numeric character"
-    def get_content(self, txt_file):
-        return self.clean_data[txt_file]['content']
-        # return self.cleaned_data[txt_file].content # this is for current version
+    def get_content(self, file_type):
+        return self.clean_data[file_type]['content']
 
     def save(self, filename, revision):
         self.file_ext_list = []
         for file_name, file_ext in self.file_names.items():
-            try:
+            if self.clean_data[file_name]:
                 content = self.clean_data[file_name]['content']
-                # content = self.cleaned_data[file_name].content # this is for current version
-            # except AttributeError: # this is for current version
-            except TypeError:
+            else:
                 continue
             file_path = "%s-%s%s" % (os.path.join(settings.STAGING_PATH,filename), revision, file_ext)
             try:
@@ -146,5 +143,6 @@ class IDUploadForm(forms.Form):
                 save_file.close()
                 self.file_ext_list.append( file_ext )
             except IOError:
+                #XXX hiding this makes this error hard to debug
                 return False
         return True

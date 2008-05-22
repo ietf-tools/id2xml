@@ -118,6 +118,7 @@ class IDIntendedStatus(models.Model):
         pass
 
 class InternetDraft(models.Model):
+    DAYS_TO_EXPIRE=185
     id_document_tag = models.AutoField(primary_key=True)
     title = models.CharField(maxlength=255, db_column='id_document_name')
     id_document_key = models.CharField(maxlength=255, editable=False)
@@ -188,6 +189,25 @@ class InternetDraft(models.Model):
 	if text is None:
 	    text=self.filename
 	return '<a href="%s">%s</a>' % ( self.doclink(), text )
+    def expiration(self):
+        return self.revision_date + datetime.timedelta(self.DAYS_TO_EXPIRE)
+    def can_expire(self):
+        # Copying the logic from expire-ids-1 without thinking
+        # much about it.
+        if self.review_by_rfc_editor:
+            return False
+        idinternal = self.idinternal
+        if idinternal:
+            cur_state_id = idinternal.cur_state_id
+            # 42 is "AD is Watching"; this matches what's in the
+            # expire-ids-1 perl script.
+            # A better way might be to add a column to the table
+            # saying whether or not a document is prevented from
+            # expiring.
+            if cur_state_id < 42:
+                return False
+        return True
+
     class Meta:
         db_table = "internet_drafts"
     class Admin:

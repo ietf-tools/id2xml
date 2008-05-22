@@ -59,6 +59,4 @@ class IDIndexSearchForm(forms.Form):
 	return fastforward_to_expiry(self.clean_data.get('exp_before_date'))
 
     def clean_exp_after_date(self):
-        print "DOING STUFF TO AFTER DATE"
 	return fastforward_to_expiry(self.clean_data.get('exp_after_date'))
-	

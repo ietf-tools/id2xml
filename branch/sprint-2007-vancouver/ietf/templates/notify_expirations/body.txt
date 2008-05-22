@@ -2,4 +2,5 @@ The following draft will expire soon:
 
 Filename: {{draft.filename}}
 Title:    {{draft.title}}
-Expires:  {{expiration}}
+State:    {{draft.idstate}}
+Expires:  {{expiration}} (in {{expiration|timeuntil}})

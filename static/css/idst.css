@@ -53,3 +53,8 @@ a:hover {
   }
 a.noline:link, a.noline:visited, a.noline:hover {border-style:none;}
 
+div.cutoff {
+  border: inset blue;
+  background-color: #ddddff;
+  font-weight: bold;
+}

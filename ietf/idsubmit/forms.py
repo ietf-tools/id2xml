@@ -3,9 +3,8 @@
 
 # from django.utils.encoding import force_unicode # this is for current version
 # from django.utils.translation import ugettext # this is for current version
-from models import IdSubmissionDetail, STATUS_CODE
-from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo, WGChair
-from models import TempIdAuthors
+from models import STATUS_CODE
+from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo
 from datetime import datetime,date
 import os
 from django import newforms as forms
@@ -55,10 +54,19 @@ class SubmitterForm(forms.Form):
         if submitter_email_object:
             person_or_org = submitter_email_object[0].person_or_org
         else:
-            person_or_org = PersonOrOrgInfo(first_name=self.clean_data['fname'], last_name=self.clean_data['lname'], date_modified=datetime.now(), modified_by="IDST", created_by="IDST")
-            person_or_org.save()
-            newEmail = EmailAddress(person_or_org=person_or_org, type="INET", priority=1, address=submitter_email_address)
-            newEmail.save()
+            person_or_org = PersonOrOrgInfo.objects.create(
+                first_name=self.clean_data['fname'],
+                last_name=self.clean_data['lname'],
+                date_modified=datetime.now(),
+                modified_by="IDST",
+                created_by="IDST"
+            )
+
+            person_or_org.emailaddress_set.create(
+                type="INET",
+                priority=1,
+                address=submitter_email_address
+            )
 
         submission.submitter = person_or_org
         submission.sub_email_priority = target_priority

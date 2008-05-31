@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 import re, os, glob
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, time, timedelta
 
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
@@ -11,13 +11,12 @@ from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from django.views.generic.list_detail import object_detail
-from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates, SubmissionEnv
-from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
+from models import IdSubmissionDetail, IdApprovedDetail, IdDates, SubmissionEnv
+from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
 from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail, send_mail_subj
-from django.core.mail import BadHeaderError
 from ietf.idsubmit.parser.draft_parser import DraftParser
 from ietf.utils import normalize_draftname
 import subprocess
@@ -409,7 +408,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             if internet_draft is None:
                 return render("idsubmit/error.html",{'error_msg':"The previous submission of this document cannot be found"}, context_instance=RequestContext(request))
             try :
-                IDAuthor.objects.filter(document=internet_draft).delete()
+                internet_draft.authors.all().delete()
                 EmailAddress.objects.filter(priority=internet_draft.id_document_tag).delete()
                 internet_draft.title=submission.title
                 internet_draft.revision=submission.revision
@@ -425,10 +424,10 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
         authors_names = []
         for author_info in submission.authors.all():
-            # XXX see user creator to see how to do this
-            # person = PersonOrOrgInfo.objects.filter(email__address=...).distinct()
             email_address = EmailAddress.objects.filter(address=author_info.email_address)
             if email_address.count() > 0 :
+                # XXX What if there are multiple people?
+                # This picks an arbitrary one.
                 person_or_org = email_address[0].person_or_org
             else :
                 person_or_org = PersonOrOrgInfo.objects.create(
@@ -445,8 +444,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                     address=author_info.email_address,
                 )
 
-            IDAuthor.objects.create(
-                document=internet_draft,
+            internet_draft.authors.create(
                 person=person_or_org,
                 author_order=author_info.author_order,
             )
@@ -455,6 +453,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
                 type="I-D",
                 priority=internet_draft.id_document_tag,
                 address=author_info.email_address,
+                comment=internet_draft.filename,
             )
 
             # gathering author's names
@@ -500,12 +499,11 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         id_internal = internet_draft.idinternal
         if id_internal and id_internal.cur_state_id < 100:
             # Add comment to ID Tracker
-            DocumentComment.objects.create(
-                document_id = internet_draft,
+            internet_draft.documentcomment_set.create(
                 rfc_flag = 0,
                 public_flag = 1,
                 date = now,
-                time = now,
+                time = str(now.time()), # sigh
                 version = submission.revision,
                 comment_text = "New version available",
             )
@@ -514,12 +512,12 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             #XXX hardcoded "5"
             if id_internal.cur_sub_state_id == 5:
                 msg = "Sub state has been changed to AD Follow up from New Id Needed"
-                DocumentComment.objects.create(
+                internet_draft.documentcomment_set.create(
                     document_id =  internet_draft,
                     rfc_flag = 0,
                     public_flag = 1,
                     date = now,
-                    time = now,
+                    time = str(now.time()), # sigh
                     version = submission.revision,
                     comment_text = msg,
                 )

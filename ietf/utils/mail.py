@@ -117,9 +117,9 @@ def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=N
     msg = MIMEText(txt)
     if isinstance(frm, tuple):
 	frm = formataddr(frm)
-    if isinstance(to, list) or isinstance(to, tuple):
+    if isinstance(to, list) or isinstance(to, tuple) or isinstance(to, set):
         to = ", ".join([isinstance(addr, tuple) and formataddr(addr) or addr for addr in to])
-    if isinstance(cc, list) or isinstance(cc, tuple):
+    if isinstance(cc, list) or isinstance(cc, tuple) or isinstance(cc, set):
         cc = ", ".join([isinstance(addr, tuple) and formataddr(addr) or addr for addr in cc])
     if frm:
 	msg['From'] = frm

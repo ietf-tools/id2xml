@@ -6,6 +6,7 @@ from django.test import TestCase
 import datetime,time
 
 class Acronym(models.Model):
+    NONE=1027
     acronym_id = models.AutoField(primary_key=True)
     acronym = models.CharField(maxlength=12)
     name = models.CharField(maxlength=100)

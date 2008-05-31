@@ -22,6 +22,8 @@ from ietf.idsubmit.parser.draft_parser import DraftParser
 from ietf.utils import normalize_draftname
 import subprocess
 
+FROM_EMAIL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
+
 # Wrappers around generic view to get a handle for {% url %}
 def firsttwo(*args, **kwargs):
     return object_detail(*args, **kwargs)
@@ -130,16 +132,9 @@ def file_upload(request):
             else:
                 return render("idsubmit/error.html", {'error_msg':idnits_msg}, context_instance=RequestContext(request))
             submission.save()
-            authors_info = dp.get_author_detailInfo(dp.get_authors_info(),submission.submission_id)
-            for author_dict in authors_info:
-
-                #XXX submission.authors.create(...)
-                # without the submission_id
-                author = TempIdAuthors(**author_dict)
-                try:
-                    author.save()
-                except :
-                    return  render("idsubmit/error.html", {'error_msg':"Authors Data Saving Error"}, context_instance=RequestContext(request))
+            authors = dp.get_author_list(dp.get_authors_info())
+            for author in authors:
+                submission.authors.create(**author)
 
             return render("idsubmit/validate.html",
                 {'submission'        : submission, 
@@ -191,31 +186,36 @@ def adjust_form(request, submission_id):
                         author_order = cnt+1,
                     )
                 cnt = cnt + 1
-        args = request.POST
-        form = AdjustForm(args)
-        if form.is_valid(): # Proceed to manual post request process
+        form = AdjustForm(request.POST)
+        form.submission = submission
+        submitter_form = SubmitterForm(request.POST)
+        if form.is_valid() and submitter_form.is_valid(): # Proceed to manual post request process
             submission.status_id=5
-            #XXX shouldn't form.save set submission.status_id?
-            if form.save(submission, param=args):
-                #XXX hardcoded from
-                from_email = 'ID Submission Tool <idsubmission@ietf.org>'
-                #XXX hardcoded subject
-                subject = 'Manual Posting Requested for %s-%s' % (submission.filename, submission.revision)
-                cc_list = [author.email() for author in submission.authors.all()]
-                # XXX make sure submitter is also on cc list
-                send_mail(request,'internet-drafts@ietf.org',
-                    from_email,subject,
-                    "idsubmit/email_manual_post.txt",
-                    {'submission':submission,
-                     'file_url': os.path.join(settings.STAGING_URL,"%s-%s.txt" % (submission.filename, submission.revision)),
-                     'tracker_url': "%s%s" % (request.META['HTTP_HOST'], submission.get_absolute_url())}, cc_list
-                )
-                return HttpResponseRedirect(submission.get_absolute_url())
-            else:
-                return render("idsubmit/error.html",{'error_msg':"Error occurred while processing Manual Post request."}, context_instance=RequestContext(request))
+            submitter_form.save(submission)
+            form.save()
+            cc_list = set([author.email() for author in submission.authors.all()])
+            cc_list.add( submission.submitter_email() )
+            send_mail_subj(request,'internet-drafts@ietf.org',
+                FROM_EMAIL, "idsubmit/email_manual_post_subject.txt",
+                "idsubmit/email_manual_post.txt",
+                {'submission':submission,
+                 'file_url': os.path.join(settings.STAGING_URL,"%s-%s.txt" % (submission.filename, submission.revision)),
+                 'tracker_url': "%s%s" % (request.META['HTTP_HOST'], submission.get_absolute_url())}, cc_list
+            )
+            return HttpResponseRedirect(submission.get_absolute_url())
     else:
-        form = AdjustForm( initial=submission.__dict__ )
-    return render ("idsubmit/adjust.html",{'form':form,
+        # Supply validation errors, e.g., expected version
+        form = AdjustForm( submission.__dict__ )
+        submitter = None
+        if submission.submitter:
+            submitter = {
+                    'fname': submission.submitter.first_name,
+                    'lname': submission.submitter.last_name,
+                    'submitter_email': submission.submitter_email()[1],
+                }
+        submitter_form = SubmitterForm( submitter )
+    return render("idsubmit/adjust.html",{'form':form,
+        'submitter_form':submitter_form,
         'submission':submission,
         'staging_url':settings.STAGING_URL,
         }, context_instance=RequestContext(request))
@@ -233,7 +233,7 @@ def draft_status(request, queryset, slug=None):
     elif re.match('draft-', slug):
         # if submission name
         subm_name = normalize_draftname(slug)
-        submissions = queryset.filter(filename__exact=subm_name,status_id__gt=-3, status_id__lt=100).order_by('-submission_id') 
+        submissions = queryset.filter(filename=subm_name).order_by('-submission_id') 
 
         if submissions.count() > 0:
             submission = submissions[0]
@@ -248,6 +248,7 @@ def draft_status(request, queryset, slug=None):
         meta_error = 0
     if submission.status_id > 0 and submission.status_id < 100 :
         can_be_canceled = 1
+        # Note: this tool never sets status_id to 2.
         if submission.status_id == 2: #display validate.html
             meta_data_errors = {}
             return render("idsubmit/validate.html",
@@ -279,7 +280,7 @@ def trigger_auto_post(request,submission_id):
         submitter = submitterForm.save(submission)
         if submission.status_id > 0 and submission.status_id < 100:
             send_mail(request, [submitter.email()], \
-                    "IETF I-D Submission Tool <idsubmission@ietf.org>", \
+                    FROM_EMAIL, \
                     "I-D Submitter Authentication for %s" % submission.filename, \
                     "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key,'url':request.META['HTTP_HOST']}, toUser=True)            
         return HttpResponseRedirect(submission.get_absolute_url())
@@ -564,7 +565,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         send_mail(
             request,
             to_email,
-            "IETF I-D Submission Tool <idsubmission@ietf.org>",
+            FROM_EMAIL,
             "New Version Notification for %s-%s" % (submission.filename,submission.revision),
             "idsubmit/email_posted_notice.txt", {'subm':submission, 'submitter_name':submitter_name},
             cc_email,
@@ -595,7 +596,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         send_mail(
             request,
             [toaddr],
-            "IETF I-D Submission Tool <idst-developers@ietf.org>",
+            FROM_EMAIL,
             "Initial Version Approval Request for %s" % (submission.filename, ),
             "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename, 'tracker_url':request.META['HTTP_HOST']} 
         )
@@ -604,8 +605,6 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
         # redirect the page to /idsubmit/status/<submission_id>
         return HttpResponsePermanentRedirect(submission.get_absolute_url())
-
-FROM_EMAIL_CANCEL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
 
 def cancel_draft (request, submission_id):
     # get submission
@@ -641,7 +640,7 @@ def cancel_draft (request, submission_id):
         send_mail_subj(
             request,
             to_email,
-            FROM_EMAIL_CANCEL,
+            FROM_EMAIL,
             "idsubmit/email_cancel_subject.txt",
             "idsubmit/email_cancel.txt",{ 'submission': submission,
                 'remote_ip' : request.META.get("REMOTE_ADDR") },

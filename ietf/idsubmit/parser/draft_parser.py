@@ -11,13 +11,14 @@ from ietf.idsubmit.models import IdSubmissionDetail, STATUS_CODE, SubmissionEnv
 from django.conf import settings
 #import subprocess
 
+# This is used in validation in the AdjustForm, so cannot be part of the
+# parser class.
 def check_creation_date(chk_date):
     if chk_date is None:
         return False
     today = date.today()
-    pre_3_day = timedelta(days=-3)
-    pos_3_day = timedelta(days=3)
-    if today + pre_3_day < chk_date < today + pos_3_day:
+    three_days = timedelta(days=3)
+    if today - three_days < chk_date < today + three_days:
         return True
     else:
         return False
@@ -36,7 +37,6 @@ class DraftParser(object):
     status_id = 0
     invalid_version = 0 
     idnits_failed = True
-
     content = ""
     
     def __init__(self, content):
@@ -121,15 +121,18 @@ class DraftParser(object):
         # page_re = re.compile('\n.+\[?[Pp]age [0-9ivx]+\]?[ \t\f]*\n.+\n{1,}.+\n')
         # window version \n.+\[?[Pp]age [0-9ivx]+\]?[ \t\f]*\r\n.+\r\n{1,}(Internet-Draft.+\r\n)* v0.1
         # window version \n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\r\n.+(\r\n){1,}Internet-Draft.+\s(\d\d\d\d)\r\n v0.2
-        page_re_list = []
-        page_re_list.append(re.compile('\n.+\[?[Pp]age [0-9ivx]+\]\s*\n+\s*\f\s*\n*.+\n+'))
-        page_re_list.append(re.compile('\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*[Ii]{1}\w+[-\s]?[Dd]{1}\w+.+\s[0-9]{4}\n'))
-        page_re_list.append(re.compile('\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*.+\s[0-9]{4}\n'))
+        page_res = ['\n.+\[?[Pp]age [0-9ivx]+\]\s*\n+\s*\f\s*\n*.+\n+',
+                    '\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*[Ii]{1}\w+[-\s]?[Dd]{1}\w+.+\s[0-9]{4}\n',
+                    '\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*.+\s[0-9]{4}\n',
+                    ]
 
-        for page_re in page_re_list:
-            pages = page_re.split(content)
+        for regexp in page_res:
+            pages = re.split(regexp, content)
             if len(pages) > 4:
                 return pages
+
+        # one page is better than no pages
+        return [ content ]
 
     #def _get_header(self):
     #    headers_re = re.compile('\n\s{3,}<{0,1}draft-.+\n')
@@ -137,69 +140,88 @@ class DraftParser(object):
 
     def get_title(self):
         page = self.pages[0]
-        lead_blank_re = re.compile('\n +')
-        page = lead_blank_re.sub('\n',page)
-        title_section1 = re.search('\s*[0-9]{4}\)*\s*\n{2,}((\s*.+\n){2,5})\n+\s*Status of', page)
-        title_section2 = re.search('\n{2,}((.+\n)+<{0,1}draft-.+\n)', page)
+        # Strip all leading spaces
+        lws = re.compile('^ +', re.M)
+        page = re.sub(lws,'',page)
+        title = None
+        #
+        # Possible title locations:
+        # 1. between a date in the header and a status of this memo section
+        # 2. after 2 or more blank lines, followed by the draft filename
+        title_res = [ '\s*[0-9]{4}\)*\s*\n{2,}((\s*.+\n){2,5})\n+\s*Status of',
+                      '\n{2,}((.+\n)+<{0,1}draft-.+\n)',
+                      ]
         
-        for title_re in [title_section1,title_section2]:
-            try:
-                title = title_re.group(1)
-                try:
-                    filename_re = re.compile('\n*<{0,1}draft-.+\n')
-                    title = filename_re.sub('',title)
-                    break 
-                except IndexError, extradata:
-                    title = None
-            except AttributeError:
-                title = None
+        for regexp in title_res:
+            m = re.search( regexp, page )
+            if m:
+                title = m.group(1)
+                break 
 
         if title is None:
             self.add_meta_data_error('title', 'Could not find title')
             return title
+        subs = [('\n*<?draft-.+\n', ''), # I-D filename
+                ('\s*\n\s*', ' '), # line split -> single space
+                ('\s\s+', ' '), # multiple spaces -> single space
+                ('(http|https|ftp)://.*', ''), # strip URLs
+                ]
+        for sub in subs:
+            title = re.sub(sub[0], sub[1], title)
+        title = title.strip()
+        # this routine is added because the max length is 255
+        if (len(title.strip()) > 255):
+            self.add_meta_data_error('title', 'Title has more than 255 characters')
+            return None
         else:
-            # this routine is added because the max length is 255
-            if (len(title.strip()) > 255):
-                self.add_meta_data_error('title', 'Title has more than 255 characters')
-                return None
-            else:
-                title = re.sub('\n\s+',' ',title)
-                return title.strip()
+            return title
 
     def _get_page_without_separator(self):
         headers_re = re.compile('\n.+expires.+[a-zA-Z]+.+[1920]+\d\d\s*[\[]page.+[\]]\n.+\nInternet[-| ]Draft.+[a-zA-Z]+ \d\d\d\d\n',re.I)
         return headers_re.sub('', self.content)
 
     def get_abstract(self):
-        if self.page_num > 4:
-            temp_content = '\n'.join(self.pages[0:4])
-        else:
-            temp_content = self.content
+        temp_content = '\n'.join(self.pages[0:4])
         #temp_content = self.delete_extra_ld_blank(temp_content,'Abstract')
         #deleting blank spaces from blank lines
-        lead_blank_re = re.compile('\n {1,}\n')
-        temp_content = lead_blank_re.sub('\n\n',temp_content)
-        m = re.search('\nAbstract *\n+((\s{2,}.+\n+)+)',temp_content)
+        temp_content = re.sub('\n *\n','\n\n',temp_content)
+        #
+        # This assumes that the body of the abstract is indented.
+        m = re.search('\n\s*Abstract\s*\n+((\s{2,}.+\n+)+)',temp_content)
         if m:
             abstract = m.group(1)
-            abstract_re = re.compile('\n\w.+\n(.*\n)+')
-            abstract = abstract_re.sub('',abstract)
-            abstract_re = re.compile('\n.*Table of Contents\s*\n+(.*\n)+')
-            abstract = abstract_re.sub('',abstract)
+            # Delete anything that's not indented.
+            # I don't think this could match anything because the initial
+            # re only matches indented content.
+            orig = abstract
+            abstract = re.sub('\n\w.+\n(.*\n)+', '',abstract)
+            assert( orig == abstract )
+            #
+            # Delete a trailing table of contents.
+            abstract = re.sub('\n.*Table of Contents\s*\n+(.*\n)+','',abstract)
+            #
+            # (Don't) delete form feeds
             #abstract = abstract.replace('\f','')
-            #abstract_re = re.compile(' {3,}')
-            #abstract = abstract_re.sub('', abstract)
-            #abstract_re = re.compile('\n{2,}(?![A-Z])')
-            #abstract = abstract_re.sub('\n', abstract)
-            abstract_re = re.compile('(\n *){3,}')
-            abstract = abstract_re.sub('\n\n',abstract)
+            #
+            # ???
+            #abstract = re.sub('\n{2,}(?![A-Z])','\n', abstract)
+            #
+            # Turn 3 or more blank lines into one.
+            abstract = re.sub('(\n *){3,}','\n\n',abstract)
             abstract = abstract.strip()
+            #
+            # Assume that there aren't any diagrams or other need to
+            # retain spacing in abstracts.
+            lws = re.compile('^ *', re.M)
+            abstract = re.sub(lws, '', abstract)
         else:
             self.add_meta_data_error('abstract', 'Could not find abstract')
             abstract = None
         return abstract
 
     def get_creation_date(self):
+        if hasattr(self, 'creation_date'):
+            return self.creation_date
         _MONTH_NAMES = [ 'jan', 'feb', 'mar', 'apr', 'may',
                          'jun', 'jul', 'aug', 'sep', 'oct',
                          'nov', 'dec' ]
@@ -218,13 +240,15 @@ class DraftParser(object):
 		year = int( md['year'] )
 		try:
 		    month = _MONTH_NAMES.index( mon ) + 1
-		    return date(year, month, day)
+		    self.creation_date = date(year, month, day)
+                    return self.creation_date
 		except ValueError:
 		    # mon abbreviation not in _MONTH_NAMES
 		    # or month or day out of range
 		    pass
         self.add_meta_data_error('creation_date', 'Creation Date field is empty or the creation date is not in a proper format.')
-	return None
+	self.creation_date = None
+        return self.creation_date
 
     def get_authors_info(self):
         authors_section1 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s{2,}.+\n+)+)\w+')
@@ -251,32 +275,47 @@ class DraftParser(object):
                         address_not_found = False
                 except AttributeError:
                     authors_info = None
-                    self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
+                    self.add_meta_data_error('authors', "Could not find the authors' information")
                 if not address_not_found:
                     return authors_info
             else:
                 authors_info = None
         if authors_info is None or address_not_found:
-            self.add_meta_data_error('authors', "The I-D Submission tool could not find the authors' information")
+            self.add_meta_data_error('authors', "Could not find the authors' information")
         return authors_info
 
-    def _get_name_by_email(self, email):
+    #XXX This should be factored out into a utility function, since
+    #XXX it's needed for submitter too, and is needed in other parts
+    #XXX of the system.  In an ideal world, there should only be
+    #XXX one; unfortunately, the tools tend to create multiple people
+    #XXX for the same person, and manual adjustment can result in
+    #XXX multiple people with the same email address.
+    def _get_person_by_email(self, email):
         person_or_org = EmailAddress.objects.filter(address__exact=email)
         if person_or_org: 
             return person_or_org[0].person_or_org
         else:
             return None
 
-    def get_author_detailInfo(self, authors_info, submission_id):
+    def get_author_list(self, authors_info):
         authors_list = []
+        if authors_info is None:
+            return authors_list
+        # It's unclear what this does.
         one_word_re = re.compile(r'\n\s*[a-zA-Z]+\s*\n')
         authors_info = one_word_re.sub('\n',authors_info)
+        # This appears to not accomplish anything.
         lead_blank_re = re.compile('\n {1,}\n')
         authors_info = lead_blank_re.sub('\n\n',authors_info)
         # Delete Contributors section
+        #XXX test: what exactly does this delete?  Looks like it could
+        #          delete the whole section if the string "ontributor"
+        #          appears at the beginning
         contributor_re = re.compile('ontributor.*\n(.*\n*)+')
         authors_info = contributor_re.sub('',authors_info)
-        # Delete Extra Emails
+        # Delete Extra Emails, e.g.,
+        # Foo Bar
+        # Email: foo@one.example.com, foo_bar@two.example.net
         ex_email_re = re.compile('[;,] *[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
         authors_info = ex_email_re.sub('',authors_info)
         mail_srch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
@@ -290,12 +329,13 @@ class DraftParser(object):
         mail_list = []
         for mail in mail_rst:
             if mail in mail_list:
+                # XXX This assumes that there is no corresponding entry in
+                #     name_rst, since author_order does not go up.
                 continue
             mail_list.append(mail)
-            author_detailInfo = {'submission_id':'','first_name':'','last_name':'','email_address':'','author_order':''}
-            author_detailInfo['submission_id'] = submission_id
+            author_detailInfo = {'first_name':'','last_name':'','email_address':'','author_order':''}
 
-            author_info = self._get_name_by_email(mail)
+            author_info = self._get_person_by_email(mail)
             if author_info:
                 author_detailInfo['first_name'] = author_info.first_name
                 author_detailInfo['last_name']  = author_info.last_name
@@ -303,8 +343,10 @@ class DraftParser(object):
                 try: 
                     name = name_rst[author_order].split(' ')
                     author_detailInfo['first_name'] = name[0]
-                    author_detailInfo['last_name']  = name[len(name)-1]
-                except:
+                    author_detailInfo['last_name']  = name[-1]
+                except IndexError:
+                    # Perhaps the name_rst list is out of sync with the
+                    # mail_rst one, and we ran out.
                     pass
             author_detailInfo['email_address'] = mail
             author_order += 1
@@ -344,18 +386,16 @@ class DraftParser(object):
     def get_group_id(self):
         wg_id = self.get_wg_id()
         if wg_id is None:
-            # Individual Document 1027
-            group_id = Acronym.objects.get(acronym_id=1027)
+            group_id = Acronym.objects.get(acronym_id=Acronym.NONE)
         else:
             try:
-                ac = Acronym.objects.get(acronym=self.get_wg_id())
+                ac = Acronym.objects.get(acronym=wg_id)
                 if IETFWG.objects.filter(group_acronym=ac,status__status_id=1,group_type__group_type_id=1).count():
                     return ac, None
                 else:
                     return None, wg_id
             except Acronym.DoesNotExist:
                 return None, wg_id
-                #group_id = Acronym.objects.get(acronym_id=1027)
         return group_id, None
 
     def get_meta_data_fields(self):
@@ -389,7 +429,6 @@ class DraftParser(object):
            'title': title,
            #'group': self.get_group_id(),
            'creation_date': self.get_creation_date(),
-           #'file_type': self.get_file_type(),
            'abstract': abstract,
            'filesize': self.filesize,
            'remote_ip': self.remote_ip,
@@ -434,7 +473,7 @@ class DraftParser(object):
         if (cur_same_submitter_size >= max_same_submitter_size):
 	    return "The same submitter cannot submit more than %d bytes of I-Ds a day." % max_same_submitter_size
         (group_id, err) = self.get_group_id()
-        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=1027)
+        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=Acronym.NONE)
         cur_same_wg_draft_count = cur_same_wg_draft.count()
         if (cur_same_wg_draft_count >= subenv.max_same_wg_draft):
 	    return "A same working group I-Ds cannot be submitted more than %d times a day." % subenv.max_same_wg_draft
@@ -462,3 +501,5 @@ if __name__ == "__main__":
     print dp.filename
     print dp.revision
     print dp.get_meta_data_fields()
+    print dp.get_authors_info()
+    print dp.get_author_list( dp.get_authors_info() )

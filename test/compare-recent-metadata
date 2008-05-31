@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# Copyright 2008 the IETF Trust.  All rights reserved.
+#
+# Test the metadata extractor.
+from ietf.idtracker.models import InternetDraft
+from ietf.idsubmit.models import IdSubmissionDetail
+from ietf.idsubmit.parser.draft_parser import DraftParser
+import os, sys, re
+
+#ID_REPOSITORY="/Users/fenner/Public/drafts"
+#ID_REPOSITORY="/home/mirror/drafts"
+ID_REPOSITORY="/home/repository/internet-drafts"
+
+def compare(what, py, perl, id):
+    if py != perl:
+        print "%s differs:" % what
+        begin = re.compile("^", re.M)
+        if py is None:
+            py = "<extraction failed>"
+        print re.sub(begin, "Python: ", str(py))
+        print re.sub(begin, "Perl  : ", str(perl))
+        if id:
+            print re.sub(begin, "I-D   : ", str(id))
+
+def parse_and_compare(file, submission, id):
+    try:
+        f = open( os.path.join( ID_REPOSITORY, file ) )
+    except IOError, e:
+        #print e
+        return
+
+    dp = DraftParser( f.read() )
+    metadata = dp.get_meta_data_fields()
+    authors = dp.get_author_list( dp.get_authors_info() )
+    print "Comparing %s (%s):" % ( file, submission.get_status_id_display() )
+    compare('Title', metadata['title'], submission.title, id and id.title or None)
+    compare('Abstract', metadata['abstract'], submission.abstract, id and id.abstract or None)
+    pyauthors = ", ".join(["%s %s <%s>" % (a['first_name'], a['last_name'], a['email_address']) for a in authors])
+    perlauthors = ", ".join(["%s %s <%s>" % (a.first_name, a.last_name, a.email_address) for a in submission.authors.all()])
+    if id:
+        idauthors = ", ".join(["%s <%s>" % (a.person, a.email()) for a in id.authors.all()])
+    compare('Author list', pyauthors, perlauthors, id and idauthors or None)
+    compare('Filename', metadata['filename'], submission.filename, None)
+    compare('Revision', metadata['revision'], submission.revision, None)
+    compare('Creation Date', metadata['creation_date'], submission.creation_date, None)
+    compare('Page count', metadata['txt_page_count'], submission.txt_page_count, None)
+
+# pick a set of submissions to test
+submissions = IdSubmissionDetail.objects.all().order_by('-submission_id')[:100]
+for s in submissions:
+    try:
+        id = InternetDraft.objects.get( filename=s.filename )
+    except InternetDraft.DoesNotExist:
+        id = None
+    parse_and_compare('%s-%s.txt' % (s.filename, s.revision), s, id)

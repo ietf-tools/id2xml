@@ -61,10 +61,11 @@
     <td>
         <font face="Arial" size="2">{{ field.label_tag }}</font>
     </td>
-    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %} 
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}{% ifequal field.name "abstract" %}<br>{% endifequal %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %} 
     </td>
     </tr>
-    {% ifequal field.label 'Abstract : ' %}
+{% ifequal field.name "abstract" %}
+{# Insert the submitter stuff after the abstract field to match the original look and feel. #}
     <tr bgcolor="#ddddff">
     <td><font face="Arial" size="2">Submitter:</font></td>
     <td>
@@ -74,7 +75,16 @@
             {% endfor %}
     </td>
     </tr>
-    {% endifequal %}
+{% for field in submitter_form %}
+    <tr bgcolor="#ddddff">
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %} 
+    </td>
+    </tr>
+{% endfor %}
+{% endifequal %}
 {% endfor %}
 </table>
 <hr>

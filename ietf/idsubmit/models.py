@@ -1,10 +1,12 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
-from ietf.idtracker.models import Acronym, PersonOrOrgInfo
+from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair
 import datetime
 import random
-#from ietf.utils import log
+
+# Only some of these status codes can be stored in the database.
+# Some are completely unused; some are used but never stored.
 STATUS_CODE = {
     0   : 'Ready To Post',
     1   : 'Uploaded',
@@ -116,6 +118,15 @@ class IdSubmissionDetail(models.Model):
     idnits_failed = models.BooleanField(default=0)
     submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag", raw_id_admin=True)
 
+    def submitter_email(self):
+        # I don't like knowing this detail, but it's better than
+        # scattering it.
+        print self.submitter.person_or_org_tag
+        print self.sub_email_priority
+        if self.sub_email_priority == 1:
+            return self.submitter.email()
+        else:
+            return self.submitter.email(priority=self.sub_email_priority, type='I-D')
     def get_absolute_url(self):
         return "/idsubmit/status/%d/" % self.submission_id
     def set_file_type(self, type_list):
@@ -125,6 +136,22 @@ class IdSubmissionDetail(models.Model):
             return self.file_type.split(',')
         else:
             return None
+    def valid_submitter(self, submitter_email):
+        # The submitter is one of the authors.
+        if self.authors.filter(email_address=submitter_email).count():
+            return True
+
+        # The submitter is one of the previous authors.
+        if self.revision != '00' and \
+           self.submitter.emailaddress_set.filter(priority = self.sub_email_priority, type='I-D').count():
+            return True
+
+        # The submitter is a WG chair.
+        if WGChair.objects.filter(group_acronym=self.group, person=self.submitter):
+            return True
+
+        return False
+
     def save(self,*args,**kwargs):
         self.last_updated_date = datetime.date.today()
         self.last_updated_time = datetime.datetime.now().time()

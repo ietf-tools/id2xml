@@ -90,6 +90,7 @@
 <hr>
 <p>
 <font face="Arial" size="2">Authors</font>
+<p>[Clear all fields in a row to delete it]</p>
 <table border="0" width="700">
     <tr bgcolor="#ddddff">
          <td align="center">&nbsp;</td>
@@ -103,36 +104,22 @@
              <font face="Arial" size="2"><strong>Email</strong></font>
          </td>
     </tr>
-    {% for author in submission.authors.all %}
+    {% for form in author_forms %}
     <tr bgcolor="#ddddff">
-        <td>&nbsp; &nbsp; Author {{ author.author_order }}:</td>
+        <td>&nbsp; &nbsp; Author {{ forloop.counter }}:</td>
         <td>
-            <input name="author_first_name" type="text" size="15" value="{{ author.first_name }}" />
+            {{ form.first_name }}
         </td>
         <td>
-            <input name="author_last_name" type="text" size="15" value="{{ author.last_name }}" />
+            {{ form.last_name }}
         </td>
         <td>
-            <input name="author_email" type="text" size="35" value="{{ author.email_address }}" />
+            {{ form.email_address }}
+            {% if form.email_address.errors %}<font face="Arial" size="2" color="red">{{ form.email_address.errors.as_text }}</font>{% endif %} 
+            {% if form.non_field_errors %}<font face="Arial" size="2" color="red">{{ form.non_field_errors.as_text }}</font>{% endif %} 
         </td>
     </tr>
 
-{% if forloop.last %}
-
-    <tr bgcolor="#ddddff">
-        <td>&nbsp; &nbsp; Author {{ forloop.counter|add:"1" }}:</td>
-        <td> <input name="author_first_name" type="text" size="15" value="" /> </td>
-        <td> <input name="author_last_name" type="text" size="15" value="" /> </td>
-        <td> <input name="author_email" type="text" size="35" value="" /> </td>
-    </tr>
-    <tr bgcolor="#ddddff">
-        <td>&nbsp; &nbsp; Author {{ forloop.counter|add:"2" }}:</td>
-        <td> <input name="author_first_name" type="text" size="15" value="" /> </td>
-        <td> <input name="author_last_name" type="text" size="15" value="" /> </td>
-        <td> <input name="author_email" type="text" size="35" value="" /> </td>
-    </tr>
-
-{% endif %}
 {% endfor %}
     </table>
 </p>

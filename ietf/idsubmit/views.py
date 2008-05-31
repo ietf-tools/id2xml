@@ -14,7 +14,7 @@ from django.views.generic.list_detail import object_detail
 from models import IdSubmissionDetail, TempIdAuthors, IdApprovedDetail, IdDates, SubmissionEnv
 from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, IDAuthor, IDInternal, DocumentComment, PersonOrOrgInfo
 from ietf.announcements.models import ScheduledAnnouncement
-from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm
+from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
 from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail, send_mail_subj
 from django.core.mail import BadHeaderError
@@ -166,32 +166,39 @@ def adjust_form(request, submission_id):
     if submission.status_id < 0 or (submission.status_id >= 100 and submission.status_id < 200):
         return render("idsubmit/error.html",{'error_msg':"No active submission found for submission id %s" % submission_id}, context_instance=RequestContext(request))
     if request.method == 'POST':
-        # XXX replace this with a set of author forms
-        # process temp authors
-        authors_first_name = request.POST.getlist('author_first_name')
-        authors_last_name  = request.POST.getlist('author_last_name')
-        authors_email      = request.POST.getlist('author_email')
-        if authors_email:
-            submission.authors.all().delete()
-            authors = []
-            cnt = 0 
-            for email in authors_email:
-                #XXX if there's a missing email, this will throw off the
-                #XXX matching of names with email addresses
-                if email:
-                    submission.authors.create(
-                        first_name=authors_first_name[cnt],
-                        last_name = authors_last_name[cnt],
-                        email_address = email,
-                        author_order = cnt+1,
-                    )
-                cnt = cnt + 1
+        author_forms = []
+        author_form_num = 1
+        all_authors_valid = True
+        while request.POST.has_key('a%d-first_name' % (author_form_num)):
+            f = AuthorForm( request.POST, prefix='a%d' % author_form_num )
+            author_form_num += 1
+            if f.is_valid() == False:
+                all_authors_valid = False
+            author_forms.append(f)
         form = AdjustForm(request.POST)
         form.submission = submission
         submitter_form = SubmitterForm(request.POST)
-        if form.is_valid() and submitter_form.is_valid(): # Proceed to manual post request process
-            submission.status_id=5
+
+        if form.is_valid() and submitter_form.is_valid() and all_authors_valid: # Proceed to manual post request process
+            # Delete and recreate the authors list.
+            submission.authors.all().delete()
+            cnt = 1
+            for aform in author_forms:
+                # Delete this author (or empty additional author)
+                if aform.clean_data['email_address'] == '':
+                    continue
+                submission.authors.create(
+                    first_name= aform.clean_data['first_name'],
+                    last_name = aform.clean_data['last_name'],
+                    email_address = aform.clean_data['email_address'],
+                    author_order = cnt,
+                )
+                cnt = cnt + 1
             submitter_form.save(submission)
+            #XXX submitter_form sets status to 4 or 205.
+            # We override that here since it's really manual
+            # post requested.
+            submission.status_id=5
             form.save()
             cc_list = set([author.email() for author in submission.authors.all()])
             cc_list.add( submission.submitter_email() )
@@ -214,8 +221,18 @@ def adjust_form(request, submission_id):
                     'submitter_email': submission.submitter_email()[1],
                 }
         submitter_form = SubmitterForm( submitter )
+        author_forms = []
+        anum = 1
+        for author in list(submission.authors.all()) + [None, None]:
+            if author:
+                initial = author.__dict__
+            else:
+                initial = None
+            author_forms.append( AuthorForm( initial=initial, prefix='a%d' % anum ) )
+            anum += 1
     return render("idsubmit/adjust.html",{'form':form,
         'submitter_form':submitter_form,
+        'author_forms':author_forms,
         'submission':submission,
         'staging_url':settings.STAGING_URL,
         }, context_instance=RequestContext(request))
@@ -272,13 +289,14 @@ def draft_status(request, queryset, slug=None):
     )
 
 def trigger_auto_post(request,submission_id):
-    args = request.POST.copy()
     submission = get_object_or_404(IdSubmissionDetail,pk=submission_id)
     msg = ''
-    submitterForm = SubmitterForm(args)
+    submitterForm = SubmitterForm(request.POST)
     if submitterForm.is_valid():
         submitter = submitterForm.save(submission)
         if submission.status_id > 0 and submission.status_id < 100:
+            #XXX submitter.email() goes to the primary address,
+            #XXX which is not necessarily the one that we are using
             send_mail(request, [submitter.email()], \
                     FROM_EMAIL, \
                     "I-D Submitter Authentication for %s" % submission.filename, \
@@ -288,7 +306,7 @@ def trigger_auto_post(request,submission_id):
         meta_data_errors = {}
         return render("idsubmit/validate.html",
             {'submission'        : submission,
-             'submitter_form'   : SubmitterForm(args),
+             'submitter_form'   : submitterForm,
              'staging_url'      : settings.STAGING_URL,
              'meta_data_errors' : meta_data_errors,
              'file_type_list'  : submission.file_type.split(','),
@@ -450,10 +468,10 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
 
         # Schedule I-D Announcement:
         cc_val = ""
-	try:
-	    cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
-	except IETFWG.DoesNotExist:
-	    pass
+        try:
+            cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
+        except IETFWG.DoesNotExist:
+            pass
         subject = render_to_string("idsubmit/i-d_action-subject.txt",
             {'submission':submission,
              'authors': authors},

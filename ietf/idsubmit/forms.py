@@ -16,20 +16,25 @@ class AuthorForm(forms.Form):
     """An Internet Draft Author, to put into TempIdAuthors."""
     first_name = forms.CharField(required=False, label='Given Name', max_length=20)
     last_name = forms.CharField(required=False, label='Family Name', max_length=30)
-    email = forms.EmailField(required=False, label='Email Address', max_length=255)
+    email_address = forms.EmailField(required=False, label='Email Address', max_length=255)
     # Either all are required, or none are, to delete (think core=True in admin)
     def clean(self):
-        if self.clean_data['first_name'] + self.clean_data['last_name'] + self.clean_data['email'] == '':
+        # If any keys are missing, then field validation failed, so
+        # we can't add anything.
+        for field in ['first_name', 'last_name', 'email_address']:
+            if not self.clean_data.has_key( field ):
+                return self.clean_data
+        if self.clean_data['first_name'] + self.clean_data['last_name'] + self.clean_data['email_address'] == '':
             # Empty, so valid.
             return self.clean_data
-        if self.clean_data['first_name'] != '' and self.clean_data['last_name'] != '' and self.clean_data['email'] != '':
+        if self.clean_data['first_name'] != '' and self.clean_data['last_name'] != '' and self.clean_data['email_address'] != '':
             # All supplied, so valid.
             return self.clean_data
         if self.clean_data['first_name'] == '':
             raise forms.ValidationError('Given Name is required')
         if self.clean_data['last_name'] == '':
             raise forms.ValidationError('Family Name is required')
-        if self.clean_data['email'] == '':
+        if self.clean_data['email_address'] == '':
             raise forms.ValidationError('Email Address is required')
         raise forms.ValidationError('Neither valid nor invalid?')
 

@@ -9,7 +9,7 @@ The pre-meeting cutoff date for new documents (i.e., version -00 Internet-Drafts
 {% endifequal %}
 
 {% ifequal date_check_err_msg "second_ietf" %}
-The cut off time for the I-D submission was {{ first_cut_off_time|date:"P (T)"}}, {{ second_cut_off_time|date:"l, Y-m-d" }}.<br>The I-D submission tool will be reopened at midnight, {{ ietf_monday|date:"Y-m-d" }}
+The cut off time for the I-D submission was {{ first_cut_off_time|date:"P (T)"}}, {{ second_cut_off_time|date:"l, Y-m-d" }}.<br>The I-D submission tool will be reopened at midnight, {{ ietf_monday|date:"l, Y-m-d" }}
 {% endifequal %}
 
 <i>{{ error_msg }}<br>

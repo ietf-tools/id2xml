@@ -195,6 +195,32 @@ class InternetDraft(models.Model):
         #date_hierarchy = 'revision_date'
         #list_filter = ['revision_date']
 
+class RolodexManager(models.Manager):
+    def create_person(self, first_name, last_name, created_by, email_address, middle_initial=''):
+        person = self.create(
+            first_name=first_name,
+            middle_initial=middle_initial,
+            last_name=last_name,
+            modified_by=created_by,
+            created_by=created_by
+        )
+        person.emailaddress_set.create(
+            type="INET",
+            priority=1,
+            address=email_address,
+        )
+        return person
+
+    def get_or_create_person(self, first_name, last_name, created_by, email_address, middle_initial=''):
+        email_addresses = EmailAddress.objects.filter(address=email_address).order_by('person_or_org')
+        if email_addresses.count() > 0:
+            # There should not be multiple people, but given the state of the
+            # database, it's possible.  We order by person_or_org in the
+            # query and return the first one to ensure a deterministic result.
+            return email_addresses[0].person_or_org
+        else:
+            return self.create_person(first_name, last_name, created_by, email_address, middle_initial)
+
 class PersonOrOrgInfo(models.Model):
     person_or_org_tag = models.AutoField(primary_key=True)
     record_type = models.CharField(blank=True, maxlength=8)
@@ -211,6 +237,7 @@ class PersonOrOrgInfo(models.Model):
     date_created = models.DateField(auto_now_add=True)
     created_by = models.CharField(blank=True, maxlength=8)
     address_type = models.CharField(blank=True, maxlength=4)
+    objects = RolodexManager()
     def save(self):
         self.first_name_key = self.first_name.upper()
         self.middle_initial_key = self.middle_initial.upper()
@@ -563,8 +590,8 @@ class DocumentComment(models.Model):
 	(2, 'comment'),
     )
     document = models.ForeignKey(IDInternal)
-    rfc_flag = models.IntegerField(null=True, blank=True)
-    public_flag = models.IntegerField()
+    rfc_flag = models.IntegerField(default=0)
+    public_flag = models.IntegerField(default=1)
     date = models.DateField(db_column='comment_date')
     time = models.CharField(db_column='comment_time', maxlength=20)
     version = models.CharField(blank=True, maxlength=3)
@@ -573,6 +600,13 @@ class DocumentComment(models.Model):
     result_state = models.ForeignKey(IDState, db_column='result_state', null=True, related_name="comments_leading_to_state")
     origin_state = models.ForeignKey(IDState, db_column='origin_state', null=True, related_name="comments_coming_from_state")
     ballot = models.IntegerField(null=True, choices=BALLOT_CHOICES)
+    def save(self):
+        now = datetime.datetime.now()
+        if self.date is None:
+            self.date = now.date()
+        if self.time is None:
+            self.time = str(now.time())
+	super(DocumentComment, self).save()
     def get_absolute_url(self):
 	# use self.document.rfc_flag, since
 	# self.rfc_flag is not always set properly.

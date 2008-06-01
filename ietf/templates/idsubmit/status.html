@@ -24,7 +24,7 @@
   <td width="110"><font face="Arial" size="2">Document:</font></td>
   <td>
     {% for file_type in object.get_file_type_list %}
-    <a href="{% if posted %}http://www.ietf.org/internet-drafts{% else %}{{ staging_url }}{% endif %}/{{ object.filename }}-{{ object.revision }}{{file_type}}">{{ object.filename }}-{{ object.revision }}{{file_type}}</a>
+    <a href="{% if object.posted %}http://www.ietf.org/internet-drafts{% else %}{{ staging_url }}{% endif %}/{{ object.filename }}-{{ object.revision }}{{file_type}}">{{ object.filename }}-{{ object.revision }}{{file_type}}</a>
     {% ifequal file_type ".txt" %}
     <a href="{% url ietf.idsubmit.views.firsttwo object.submission_id %}">[View First Two Pages]</a>
     {% endifequal %}
@@ -82,7 +82,7 @@
     <td> {{ object.comment_to_sec|escape|linebreaks }} </td>
 </tr>
 {% endif %}
-{% if meta_error %}
+{% if object.meta_error %}
 <form action="{% url ietf.idsubmit.views.adjust_form object.submission_id %}" method="get">
 <tr>
 <td colspan="2">
@@ -111,20 +111,20 @@
 <tr bgcolor="#ddddff">
     <td><font face="Arial" size="2">Email Address:</font></td>
     <td> 
-        {{ object.submitter.email.1 }}
+        {{ object.submitter_email.1 }}
     </td>
 </tr>
 </table>
 </p>
 
-{% if can_be_canceled %}
+{% if object.can_be_cancelled %}
 <form action="{% url ietf.idsubmit.views.cancel_draft object.submission_id %}" method="get">
 Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
 </form>
 {% endif %}
 
 </td>
-</tr>                    
+</tr>
 </table>
 </center>
 </div>

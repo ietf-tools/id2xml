@@ -10,9 +10,10 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
+from django.db.models import Q
 from django.views.generic.list_detail import object_detail
 from models import IdSubmissionDetail, IdApprovedDetail, IdDates, SubmissionEnv
-from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, PersonOrOrgInfo
+from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, PersonOrOrgInfo, Acronym
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
 from ietf.idsubmit.models import STATUS_CODE
@@ -249,7 +250,10 @@ def draft_status(request, queryset, slug=None):
     elif re.match('draft-', slug):
         # if submission name
         subm_name = normalize_draftname(slug)
-        submissions = queryset.filter(filename=subm_name).order_by('-submission_id') 
+        # Find a submission with:
+        # (status_id > 0 and status_id < 100) or (status_id > 200)
+        # which is in-progress or has a correctable meta-data error
+        submissions = queryset.filter((Q(status_id__gt=0) & Q(status_id__lt=100)) | Q(status_id__gt=200), filename=subm_name).order_by('-submission_id') 
 
         if submissions.count() > 0:
             submission = submissions[0]
@@ -258,12 +262,7 @@ def draft_status(request, queryset, slug=None):
     else:
         return render("idsubmit/error.html",{'error_msg':"Unknown request"}, context_instance=RequestContext(request))
 
-    if submission.status_id > 200:
-        meta_error = 1
-    else:
-        meta_error = 0
     if submission.status_id > 0 and submission.status_id < 100 :
-        can_be_canceled = 1
         # Note: this tool never sets status_id to 2.
         if submission.status_id == 2: #display validate.html
             meta_data_errors = {}
@@ -274,16 +273,11 @@ def draft_status(request, queryset, slug=None):
                  'meta_data_errors' : meta_data_errors,
                  'file_type_list'  : submission.file_type.split(',')
                 }, context_instance=RequestContext(request))
-    else:
-        can_be_canceled = 0
     return render(
         "idsubmit/status.html",
         {
             'object': submission,
             'staging_url': settings.STAGING_URL,
-            'meta_error': meta_error,
-            'can_be_canceled': can_be_canceled,
-            'posted': submission.status_id == -1 or submission.status_id == -2,
         }, context_instance=RequestContext(request)
     )
 
@@ -292,11 +286,9 @@ def trigger_auto_post(request,submission_id):
     msg = ''
     submitterForm = SubmitterForm(request.POST)
     if submitterForm.is_valid():
-        submitter = submitterForm.save(submission)
+        submitterForm.save(submission)
         if submission.status_id > 0 and submission.status_id < 100:
-            #XXX submitter.email() goes to the primary address,
-            #XXX which is not necessarily the one that we are using
-            send_mail(request, [submitter.email()], \
+            send_mail(request, [submission.submitter_email()], \
                     FROM_EMAIL, \
                     "I-D Submitter Authentication for %s" % submission.filename, \
                     "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key,'url':request.META['HTTP_HOST']}, toUser=True)            
@@ -308,7 +300,6 @@ def trigger_auto_post(request,submission_id):
              'submitter_form'   : submitterForm,
              'staging_url'      : settings.STAGING_URL,
              'meta_data_errors' : meta_data_errors,
-             'file_type_list'  : submission.file_type.split(','),
             }, context_instance=RequestContext(request))
 
 def sync_docs(request, submission) :
@@ -366,7 +357,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
     except IdApprovedDetail.DoesNotExist :
         approved_status = None
 
-    if approved_status == 1 or submission.revision != "00" or submission.group_id == 1027 :
+    if approved_status == 1 or submission.revision != "00" or submission.group_id == Acronym.NONE :
 
         # Copy Document(s) to production servers:
         try :
@@ -407,42 +398,25 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         else : # Existing version; update the existing record using new values
             if internet_draft is None:
                 return render("idsubmit/error.html",{'error_msg':"The previous submission of this document cannot be found"}, context_instance=RequestContext(request))
-            try :
-                internet_draft.authors.all().delete()
-                EmailAddress.objects.filter(priority=internet_draft.id_document_tag).delete()
-                internet_draft.title=submission.title
-                internet_draft.revision=submission.revision
-                internet_draft.revision_date=submission.submission_date
-                internet_draft.file_type=submission.file_type
-                internet_draft.txt_page_count=submission.txt_page_count
-                internet_draft.abstract=submission.abstract
-                internet_draft.last_modified_date=now
-                internet_draft.save()
-            except :
-                #XXX hiding exception again
-                return render("idsubmit/error.html",{'error_msg':"There was a problem updating the Internet-Drafts database"}, context_instance=RequestContext(request))
+            internet_draft.authors.all().delete()
+            EmailAddress.objects.filter(priority=internet_draft.id_document_tag, type='I-D').delete()
+            internet_draft.title=submission.title
+            internet_draft.revision=submission.revision
+            internet_draft.revision_date=submission.submission_date
+            internet_draft.file_type=submission.file_type
+            internet_draft.txt_page_count=submission.txt_page_count
+            internet_draft.abstract=submission.abstract
+            internet_draft.last_modified_date=now
+            internet_draft.save()
 
         authors_names = []
         for author_info in submission.authors.all():
-            email_address = EmailAddress.objects.filter(address=author_info.email_address)
-            if email_address.count() > 0 :
-                # XXX What if there are multiple people?
-                # This picks an arbitrary one.
-                person_or_org = email_address[0].person_or_org
-            else :
-                person_or_org = PersonOrOrgInfo.objects.create(
-                    first_name=author_info.first_name,
-                    last_name=author_info.last_name,
-                    date_modified=now,
-                    modified_by="IDST",
-                    created_by="IDST",
-                )
-
-                person_or_org.emailaddress_set.create(
-                    type="INET",
-                    priority=1,
-                    address=author_info.email_address,
-                )
+            person_or_org = PersonOrOrgInfo.objects.get_or_create_person(
+                first_name=author_info.first_name,
+                last_name=author_info.last_name,
+                created_by="IDST",
+                email_address=author_info.email_address,
+            )
 
             internet_draft.authors.create(
                 person=person_or_org,
@@ -501,9 +475,6 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             # Add comment to ID Tracker
             internet_draft.documentcomment_set.create(
                 rfc_flag = 0,
-                public_flag = 1,
-                date = now,
-                time = str(now.time()), # sigh
                 version = submission.revision,
                 comment_text = "New version available",
             )
@@ -513,11 +484,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             if id_internal.cur_sub_state_id == 5:
                 msg = "Sub state has been changed to AD Follow up from New Id Needed"
                 internet_draft.documentcomment_set.create(
-                    document_id =  internet_draft,
                     rfc_flag = 0,
-                    public_flag = 1,
-                    date = now,
-                    time = str(now.time()), # sigh
                     version = submission.revision,
                     comment_text = msg,
                 )
@@ -561,8 +528,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         # <Please read auto_post.cgi, sub notify_all_authors>
 
         cc_email = []
-        #XXX there must be a better way to do this than hardcoding 1027
-        if submission.group_id == 1027 :
+        if submission.group_id == Acronym.NONE :
             group_acronym = "Independent Submission"
         else :
             group_acronym = submission.group.name
@@ -626,7 +592,7 @@ def cancel_draft (request, submission_id):
     # get submission
     submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
     if submission.status_id < 0:
-        return render("idsubmit/error.html", {'error_msg':'This document is not in valid state and cannot be canceled'}, context_instance=RequestContext(request))
+        return render("idsubmit/error.html", {'error_msg':'This document is not in valid state and cannot be canceled', 'filename':submission.filename}, context_instance=RequestContext(request))
     # delete the document(s)
     path_orig_sub = os.path.join(
         settings.STAGING_PATH,

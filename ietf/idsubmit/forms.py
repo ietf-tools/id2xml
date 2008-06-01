@@ -43,39 +43,48 @@ class SubmitterForm(forms.Form):
     submitter_email = forms.EmailField(required=True, label='Email Address:', max_length=255)
     def save(self, submission):
         submitter_email_address = self.clean_data['submitter_email']
-        if submission.revision == '00':
+        person = PersonOrOrgInfo.objects.get_or_create_person(
+            first_name=self.clean_data['fname'],
+            last_name=self.clean_data['lname'],
+            created_by="IDST",
+            email_address=submitter_email_address,
+        )
+
+        # The priority can either be:
+        # - An I-D tag, because this is the address used for that I-D
+        # - A small integer (e.g., 1), because this address is not on
+        #   file (yet?), either because I'm a new author or because
+        #   this is a new document.
+        # We make sure that the address that the submitter provided
+        # matches; it's easy to accidentally use a different address
+        # than the submitter identified themselves as which results
+        # in very confusing behavior (e.g., "I said I was foo@example.com
+        # but it sent the confirmation email to bar@example.net")
+        email = None
+        try:
+            email = person.emailaddress_set.get(type='INET', address=submitter_email_address)
+        except EmailAddress.DoesNotExist:
+            pass
+        draft = InternetDraft.objects.get(filename=submission.filename)
+        try:
+            email = person.emailaddress_set.get(type='I-D', priority=draft.id_document_tag, address=submitter_email_address)
+        except EmailAddress.DoesNotExist:
+            pass
+
+        if email:
+            target_priority = email.priority
+        else:
+            # Default to priority=1, which we assume exists for every user.
+            log( 'Could not find priority for person %d email %s' % ( person.person_or_org_tag, submitter_email_address ) )
             target_priority = 1
-        else:
-            draft = InternetDraft.objects.get(filename=submission.filename)
-            target_priority = draft.id_document_tag
-        #Get submitter tag
-        submitter_email_object = EmailAddress.objects.filter(address=submitter_email_address)
 
-        if submitter_email_object:
-            person_or_org = submitter_email_object[0].person_or_org
-        else:
-            person_or_org = PersonOrOrgInfo.objects.create(
-                first_name=self.clean_data['fname'],
-                last_name=self.clean_data['lname'],
-                date_modified=datetime.now(),
-                modified_by="IDST",
-                created_by="IDST"
-            )
-
-            person_or_org.emailaddress_set.create(
-                type="INET",
-                priority=1,
-                address=submitter_email_address
-            )
-
-        submission.submitter = person_or_org
+        submission.submitter = person
         submission.sub_email_priority = target_priority
         if submission.valid_submitter(submitter_email_address):
             submission.status_id = 4
         else:
             submission.status_id = 205
         submission.save()
-        return person_or_org
 
 class AdjustForm(forms.Form):
     title = forms.CharField(required=True, label='Title : ', max_length="255", widget=forms.TextInput(attrs={'size':65}))

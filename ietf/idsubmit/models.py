@@ -118,15 +118,22 @@ class IdSubmissionDetail(models.Model):
     idnits_failed = models.BooleanField(default=0)
     submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag", raw_id_admin=True)
 
+    def posted(self):
+        return self.status_id in ( -1, -2 )
+    def can_be_cancelled(self):
+        return self.status_id > 0 and self.status_id < 100
+    def meta_error(self):
+        return self.status_id > 200
     def submitter_email(self):
         # I don't like knowing this detail, but it's better than
-        # scattering it.
-        print self.submitter.person_or_org_tag
-        print self.sub_email_priority
-        if self.sub_email_priority == 1:
-            return self.submitter.email()
+        # scattering it.  The email_priority can be a small integer
+        # if it's one of the known INET addresses for a person;
+        # otherwise it's an I-D identifier.
+        if self.sub_email_priority < 50:
+            type = 'INET'
         else:
-            return self.submitter.email(priority=self.sub_email_priority, type='I-D')
+            type = 'I-D'
+        return self.submitter.email(priority=self.sub_email_priority, type=type)
     def get_absolute_url(self):
         return "/idsubmit/status/%d/" % self.submission_id
     def set_file_type(self, type_list):

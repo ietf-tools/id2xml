@@ -9,5 +9,6 @@ then
 fi
 
 # Compare recent metadata
+export DJANGO_SETTINGS_MODULE=ietf.settings
 export PYTHONPATH=`dirname $PWD`
 ./compare-recent-metadata

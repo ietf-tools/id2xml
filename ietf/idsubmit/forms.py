@@ -5,11 +5,11 @@
 # from django.utils.translation import ugettext # this is for current version
 from models import STATUS_CODE
 from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo
-from datetime import datetime,date
 import os
 from django import newforms as forms
 from django.conf import settings
 from ietf.idsubmit.parser.draft_parser import check_creation_date
+from ietf.utils import log
 
 class AuthorForm(forms.Form):
     """An Internet Draft Author, to put into TempIdAuthors."""

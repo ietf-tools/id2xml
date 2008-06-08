@@ -195,6 +195,11 @@ class DraftParser(object):
             # re only matches indented content.
             orig = abstract
             abstract = re.sub('\n\w.+\n(.*\n)+', '',abstract)
+	    if orig != abstract:
+		print "XXX Orig:"
+		print orig
+		print "XXX Abstract:"
+		print abstract
             assert( orig == abstract )
             #
             # Delete a trailing table of contents.

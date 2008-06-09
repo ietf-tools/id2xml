@@ -3,9 +3,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
-from ietf.idsubmit.approval_forms import PreauthzForm
+from ietf.idsubmit.approval_forms import PreauthzForm, PickApprover, DRAFT_WG_RE
 from ietf.idtracker.models import PersonOrOrgInfo, IETFWG
-import string, re
+from ietf.utils.mail import send_mail_subj
+from views import FROM_EMAIL
+from models import IdApprovedDetail, IdSubmissionDetail
+import string, re, datetime
 
 
 """\
@@ -41,9 +44,38 @@ def is_secretariat(user):
     else:
         return False
 
-def approve_draft(filename, approver, person):
-    """Add an approval for the filename draft"""
-    # FIXME: Do database access here
+def approve_draft(request, filename, approver, person):
+    """Add or update an approval for the filename draft"""
+    try:
+        a = IdApprovedDetail.objects.get(filename=filename)
+    except IdApprovedDetail.DoesNotExist:
+        a = IdApprovedDetail(filename=filename)
+    a.approved_status = 1
+    a.approved_person = person
+    a.approved_date = datetime.date.today()
+    a.recorded_py = approver
+    a.save()
+
+    # Find a submission object for this filename whose status is 10
+    # ('Initial Version Approval Requested')
+    try:
+        submission = IdSubmissionDetail.objects.get(filename=filename,
+                                status_id=10)
+    except IdSubmissionDetail.DoesNotExist:
+        submission = None
+    if submission:
+        submission.status = 11
+        submission.save()
+        send_mail_subj(request, [ submission.submitter_email() ],
+                        FROM_EMAIL, "idsubmit/email_initial_version_subject.txt",
+                        "idsubmit/email_initial_version.txt",
+                        {'submission':submission,
+                         'approver':person})
+        # XXX
+        # try:
+        #    submission.approved()
+        # except IdSubmissionDetail.ApprovalError e:
+        #    fail( ..., e[?])
     return render_to_response('idsubmit/approval_success.html', {'draft':filename})
 
 def approval2(request):
@@ -56,7 +88,7 @@ def approval(request, draft):
     user = PersonOrOrgInfo.objects.from_django( request.user )
     if user is None:
         return fail(None, None, "Can't find your IETF user from your django user")
-    print draft
+    pending_submissions = IdSubmissionDetail.objects.filter( status_id = 10 ).order_by( '-submission_date' )
     if request.method == 'POST' or draft:
         if request.method == 'POST':
             data = request.POST
@@ -65,19 +97,17 @@ def approval(request, draft):
         form = PreauthzForm(data)
         if form.is_valid():
             filename = form.clean_data['draft']
-            # FIXME: krb-wg
-            m = re.search('(?<=draft-ietf-)[a-z0-9]+', filename)
-            if not m:
-                return fail(form, user, 'Invalid working group name')
+            # form validation has ensured that this will match
+            m = re.search(DRAFT_WG_RE, filename)
             wg = m.group()
             approvers = group_approvers(wg)
             if not user in approvers:
                 if is_secretariat(request.user):
                     if request.POST.has_key('approver'):
-                        approver_form = PickApprover(request.POST, approvers=approvers)
+                        approver_form = PickApprover(approvers, request.POST)
                         if approver_form.is_valid():
                             approver = PersonOrOrgInfo.objects.get(pk=approver_form.clean_data['approver'])
-                            return approve_draft(filename, user, approver)
+                            return approve_draft(request, filename, user, approver)
                     else:
                         approver_form = PickApprover(approvers=approvers)
                     return render_to_response('idsubmit/approval_pick.html',
@@ -85,11 +115,12 @@ def approval(request, draft):
                                                   'approver_form':approver_form})
                 return fail(form, user, 'You are not an approver for this WG')
             else:
-                return approve_draft(filename, user, user)
+                return approve_draft(request, filename, user, user)
     else:
         form = PreauthzForm(initial={'draft':'draft-ietf-'})
     return render_to_response('idsubmit/approval.html', {'form':form, 
-                                                         'user':user})
+                                                         'user':user,
+                                                         'pending_submissions':pending_submissions})
 
 def fail(form, user, message=""):
     """This view sends a form with an embedded error message"""

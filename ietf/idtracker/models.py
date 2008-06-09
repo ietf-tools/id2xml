@@ -221,6 +221,16 @@ class RolodexManager(models.Manager):
         else:
             return self.create_person(first_name, last_name, created_by, email_address, middle_initial)
 
+    def from_django(self, user):
+        """Given a django user, return the IETF user.  This is a
+        replacement for request.user.get_profile().person, so that
+        you don't have to handle the profile object not existing
+        in every case."""
+        try:
+            return self.get(usermap__user=user)
+        except PersonOrOrgInfo.DoesNotExist:
+            return None
+
 class PersonOrOrgInfo(models.Model):
     person_or_org_tag = models.AutoField(primary_key=True)
     record_type = models.CharField(blank=True, maxlength=8)

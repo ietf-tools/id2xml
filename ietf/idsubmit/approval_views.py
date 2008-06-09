@@ -2,13 +2,12 @@
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from django.http import HttpResponse
 from ietf.idsubmit.approval_forms import PreauthzForm, PickApprover, DRAFT_WG_RE
 from ietf.idtracker.models import PersonOrOrgInfo, IETFWG
 from ietf.utils.mail import send_mail_subj
 from views import FROM_EMAIL
 from models import IdApprovedDetail, IdSubmissionDetail
-import string, re, datetime
+import re, datetime
 
 
 """\

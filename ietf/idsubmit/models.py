@@ -1,11 +1,14 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
+from django.template.loader import render_to_string
 from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair, InternetDraft, IETFWG, EmailAddress
-from utils import sync_docs
+from ietf.announcements.models import ScheduledAnnouncement
+from utils import sync_docs, FROM_EMAIL
 import datetime
 import random
 from django.conf import settings
+import glob, os
 
 # Only some of these status codes can be stored in the database.
 # Some are completely unused; some are used but never stored.
@@ -176,6 +179,7 @@ class IdSubmissionDetail(models.Model):
         doing manual posting."""
 
         submission = self
+        now = datetime.datetime.now()
 
         # Copy Document(s) to production servers:
         try :

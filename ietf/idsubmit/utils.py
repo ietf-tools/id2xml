@@ -3,6 +3,8 @@
 import subprocess
 from django.conf import settings
 
+FROM_EMAIL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
+
 def sync_docs(submission) :
     # sync docs with remote server.
     command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --revision=%(revision)s --filename=%(filename)s --ssh_key_path=%(ssh_key_path)s --remote_web1=%(remote_web1)s --remote_ftp1=%(remote_ftp1)s" % {

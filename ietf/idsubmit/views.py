@@ -5,7 +5,6 @@ from datetime import datetime, time, timedelta
 
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect
 from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
@@ -13,15 +12,13 @@ from django.conf import settings
 from django.db.models import Q
 from django.views.generic.list_detail import object_detail
 from models import IdSubmissionDetail, IdApprovedDetail, IdDates, SubmissionEnv
-from ietf.idtracker.models import EmailAddress, PersonOrOrgInfo, Acronym
-from ietf.announcements.models import ScheduledAnnouncement
+from ietf.idtracker.models import Acronym
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
 from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail, send_mail_subj
 from ietf.idsubmit.parser.draft_parser import DraftParser
 from ietf.utils import normalize_draftname
-
-FROM_EMAIL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
+from utils import FROM_EMAIL
 
 # Wrappers around generic view to get a handle for {% url %}
 def firsttwo(*args, **kwargs):

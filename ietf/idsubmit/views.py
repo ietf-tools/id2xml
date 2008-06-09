@@ -13,14 +13,13 @@ from django.conf import settings
 from django.db.models import Q
 from django.views.generic.list_detail import object_detail
 from models import IdSubmissionDetail, IdApprovedDetail, IdDates, SubmissionEnv
-from ietf.idtracker.models import IETFWG, InternetDraft, EmailAddress, PersonOrOrgInfo, Acronym
+from ietf.idtracker.models import EmailAddress, PersonOrOrgInfo, Acronym
 from ietf.announcements.models import ScheduledAnnouncement
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
 from ietf.idsubmit.models import STATUS_CODE
 from ietf.utils.mail import send_mail, send_mail_subj
 from ietf.idsubmit.parser.draft_parser import DraftParser
 from ietf.utils import normalize_draftname
-import subprocess
 
 FROM_EMAIL = "IETF I-D Submission Tool <idsubmission@ietf.org>"
 
@@ -302,43 +301,6 @@ def trigger_auto_post(request,submission_id):
              'meta_data_errors' : meta_data_errors,
             }, context_instance=RequestContext(request))
 
-def sync_docs(request, submission) :
-    # sync docs with remote server.
-    command = "sh %(BASE_DIR)s/idsubmit/sync_docs.sh --staging_path=%(staging_path)s --revision=%(revision)s --filename=%(filename)s --ssh_key_path=%(ssh_key_path)s --remote_web1=%(remote_web1)s --remote_ftp1=%(remote_ftp1)s" % {
-        "filename" : submission.filename,
-        "revision": submission.revision,
-        "staging_path" : settings.STAGING_PATH,
-        "BASE_DIR" : settings.BASE_DIR,
-        "ssh_key_path" : settings.SSH_KEY_PATH,
-        "remote_web1" : settings.TARGET_PATH_WEB1,
-        "remote_ftp1" : settings.TARGET_PATH_FTP1,
-    }
-    # add options for extra web2 and ftp2 path
-    try:
-        command += " --remote_web2=%s" % settings.TARGET_PATH_WEB2
-    except:
-        pass
-    try:
-        command += " --remote_ftp2=%s" % settings.TARGET_PATH_FTP2
-    except:
-        pass
-    try :
-        p = subprocess.Popen([command], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stderr = p.stderr
-        if stderr:
-            errmsg = []
-            for msg in stderr.readlines():
-                if not 'is not a tty' in msg and not msg in errmsg:
-                    errmsg.append(msg)
-            if errmsg:
-                errmsg_html = '<br>\n'.join(errmsg)
-                return False, errmsg_html
-        #os.system(command)
-    except:
-        return False, "<li>Failed to copy document to web server</li>"
-    return True, None
-
-
 def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
     submission = get_object_or_404(IdSubmissionDetail, pk=submission_id)
     now = datetime.now()
@@ -358,215 +320,12 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         approved_status = None
 
     if approved_status == 1 or submission.revision != "00" or submission.group_id == Acronym.NONE :
-
-        # Copy Document(s) to production servers:
-        try :
-            (result, msg) = sync_docs(request, submission)
-            if not result:
-                return render("idsubmit/error.html",{'error_msg':msg}, context_instance=RequestContext(request))
-        except OSError :
-            return render("idsubmit/error.html",{'error_msg':"There was a problem occurred while posting the document to the public server"}, context_instance=RequestContext(request))
-        # populate table
-
         try:
-            internet_draft = InternetDraft.objects.get(filename=submission.filename)
-        except InternetDraft.DoesNotExist:
-            internet_draft = None
+            submission.approved()
+        except IdSubmissionDetail.ApprovalError, e:
+            return render("idsubmit/error.html",{'error_msg':e}, context_instance=RequestContext(request))
 
-        if submission.revision == "00" :
-            # if the draft file alreay existed, error will be occured.
-            if internet_draft:
-                return render("idsubmit/error.html",{'error_msg':"00 revision of this document already exists"}, context_instance=RequestContext(request))
-
-            internet_draft = InternetDraft.objects.create(
-                title=submission.title,
-                group=submission.group,
-                filename=submission.filename,
-                revision=submission.revision,
-                revision_date=submission.submission_date,
-                file_type=submission.file_type,
-                txt_page_count=submission.txt_page_count,
-                abstract=submission.abstract,
-                status_id=1,
-                intended_status_id=8,
-                start_date=now,
-                last_modified_date=now,
-                review_by_rfc_editor=False,
-                expired_tombstone=False,
-            )
-
-        else : # Existing version; update the existing record using new values
-            if internet_draft is None:
-                return render("idsubmit/error.html",{'error_msg':"The previous submission of this document cannot be found"}, context_instance=RequestContext(request))
-            internet_draft.authors.all().delete()
-            EmailAddress.objects.filter(priority=internet_draft.id_document_tag, type='I-D').delete()
-            internet_draft.title=submission.title
-            internet_draft.revision=submission.revision
-            internet_draft.revision_date=submission.submission_date
-            internet_draft.file_type=submission.file_type
-            internet_draft.txt_page_count=submission.txt_page_count
-            internet_draft.abstract=submission.abstract
-            internet_draft.last_modified_date=now
-            internet_draft.save()
-
-        authors_names = []
-        for author_info in submission.authors.all():
-            person_or_org = PersonOrOrgInfo.objects.get_or_create_person(
-                first_name=author_info.first_name,
-                last_name=author_info.last_name,
-                created_by="IDST",
-                email_address=author_info.email_address,
-            )
-
-            internet_draft.authors.create(
-                person=person_or_org,
-                author_order=author_info.author_order,
-            )
-
-            person_or_org.emailaddress_set.create(
-                type="I-D",
-                priority=internet_draft.id_document_tag,
-                address=author_info.email_address,
-                comment=internet_draft.filename,
-            )
-
-            # gathering author's names
-            authors_names.append("%s. %s" % (author_info.first_name[0].upper(), author_info.last_name))
-        if len(authors_names) > 2:
-            authors = "%s, et al." % authors_names[0]
-        else:
-            authors = ", ".join(authors_names) 
-        submission.status_id = 7
-        submission.save()
-
-        # Schedule I-D Announcement:
-        cc_val = ""
-        try:
-            cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
-        except IETFWG.DoesNotExist:
-            pass
-        subject = render_to_string("idsubmit/i-d_action-subject.txt",
-            {'submission':submission,
-             'authors': authors},
-            context_instance=RequestContext(request)).strip()
-        body = render_to_string("idsubmit/i-d_action.txt",
-            {'submission':submission,
-             'authors': authors},
-            context_instance=RequestContext(request))
-        ScheduledAnnouncement.objects.create(
-            mail_sent =    False,
-            scheduled_by =     "IDST",
-            to_be_sent_date =  now,
-            to_be_sent_time =  "00:00",
-            scheduled_date =   now,
-            scheduled_time =   str(now.time()),     # sigh
-            subject =      subject,
-            to_val =       "i-d-announce@ietf.org",
-            from_val =     "Internet-Drafts@ietf.org",
-            cc_val =       cc_val,
-            body =         body,
-            content_type =     "Multipart/Mixed; Boundary=\"NextPart\"",
-        )
-
-        submission.status_id = 8
-        submission.save()
-        id_internal = internet_draft.idinternal
-        if id_internal and id_internal.cur_state_id < 100:
-            # Add comment to ID Tracker
-            internet_draft.documentcomment_set.create(
-                rfc_flag = 0,
-                version = submission.revision,
-                comment_text = "New version available",
-            )
-
-            msg = ""
-            #XXX hardcoded "5"
-            if id_internal.cur_sub_state_id == 5:
-                msg = "Sub state has been changed to AD Follow up from New Id Needed"
-                internet_draft.documentcomment_set.create(
-                    rfc_flag = 0,
-                    version = submission.revision,
-                    comment_text = msg,
-                )
-
-                id_internal.prev_sub_state = id_internal.cur_sub_state
-                #XXX hardcoded "2"
-                id_internal.cur_sub_state_id = 2
-                id_internal.save()
-
-            send_to = []
-            send_to.append(id_internal.state_change_notice_to)
-
-            email_address = id_internal.job_owner.person.email()[1]
-            if email_address not in send_to:
-                send_to.append(email_address)
-            discuss_positions = id_internal.ballot.positions.filter(discuss = 1)
-            for p in discuss_positions:
-                if not p.ad.is_current_ad():
-                    continue
-                email_address = p.ad.person.email()[1]
-                if email_address not in send_to:
-                    send_to.append(email_address)
-            ScheduledAnnouncement.objects.create(
-                mail_sent = False,
-                scheduled_by = "IDST",
-                to_be_sent_date =  now,
-                to_be_sent_time =  "00:00",
-                scheduled_date =   now,
-                scheduled_time =   str(now.time()),     # sigh
-                subject = render_to_string("idsubmit/new_version_notify_subject.txt", {'submission': submission}).strip(),
-                to_val =  ",".join([str(eb) for eb in send_to if eb is not None]),
-                from_val = "Internet-Drafts@ietf.org",
-                cc_val =  cc_val,
-                body =  render_to_string("idsubmit/new_version_notify.txt",{'submission':submission,'msg':msg}, context_instance=RequestContext(request)),
-            )
-
-            submission.status_id = 9
-            submission.save()
-
-        # Notify All Authors:
-        # <Please read auto_post.cgi, sub notify_all_authors>
-
-        cc_email = []
-        if submission.group_id == Acronym.NONE :
-            group_acronym = "Independent Submission"
-        else :
-            group_acronym = submission.group.name
-            #removed cc'ing WG email address by request
-            #cc_email.append(IETFWG.objects.get(group_acronym=submission.group).email_address)
-
-        (submitter_name, submitter_email, ) = submission.submitter.email()
-        for author_info in submission.authors.all().exclude(email_address=submitter_email) :
-            if not author_info.email_address.strip() and submitter_email == author_info.email_address :
-                continue
-
-            if author_info.email_address not in cc_email :
-                cc_email.append(author_info.email_address)
-
-        to_email = submitter_email
-        send_mail(
-            request,
-            to_email,
-            FROM_EMAIL,
-            "New Version Notification for %s-%s" % (submission.filename,submission.revision),
-            "idsubmit/email_posted_notice.txt", {'subm':submission, 'submitter_name':submitter_name},
-            cc_email,
-            toUser=True
-        )
-        submission.status_id = -1
-        submission.save()
-        # remove files.
-        try :
-            [os.remove(i) for i in glob.glob("%s-%s.*" % (os.path.join(settings.STAGING_PATH,submission.filename), submission.revision))]
-        except :
-            pass
-        # redirect to wg chairs/secretariat tool if the document was just approved and posted
-        if from_wg_or_sec == "wg" :
-            return HttpResponsePermanentRedirect("http://%s/cgi-bin/wg/wg_init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (request.META['HTTP_HOST'], submission.submission_id, ))
-        elif from_wg_or_sec == "sec" :
-            return HttpResponsePermanentRedirect("http://%s/cgi-bin/secretariat/init_rev_approval.cgi?from_auto_post=1&submission_id=%s" % (request.META['HTTP_HOST'], submission.submission_id, ))
-        else : # redirect to Status Page 
-            return HttpResponsePermanentRedirect(submission.get_absolute_url())
+        return HttpResponsePermanentRedirect(submission.get_absolute_url())
 
     else :
         submission.status_id = 10

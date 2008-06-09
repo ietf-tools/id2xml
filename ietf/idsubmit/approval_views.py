@@ -71,12 +71,14 @@ def approve_draft(request, filename, approver, person):
                         "idsubmit/email_initial_version.txt",
                         {'submission':submission,
                          'approver':person})
-        # XXX
-        # try:
-        #    submission.approved()
-        # except IdSubmissionDetail.ApprovalError e:
-        #    fail( ..., e[?])
-    return render_to_response('idsubmit/approval_success.html', {'draft':filename})
+        try:
+            submission.approved()
+            submission_failed = False
+        except IdSubmissionDetail.ApprovalError, e:
+            submission_failed = e
+    return render_to_response('idsubmit/approval_success.html', {'draft':filename,
+                                            'submission':submission,
+                                            'submission_failed':submission_failed})
 
 def approval2(request):
     """ "front door" to the approval form with no prespecified draft """

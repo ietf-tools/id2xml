@@ -9,6 +9,17 @@
   <p>
     You have successfully approved draft: {{ draft }}
   </p>
+{% if submission %}
+  <p>
+{% if submission_failed %}
+    Posting of the in-progress submission, posted by {{ submission.submitter }},
+    failed: {{ submission_failed }}
+{% else %}
+    The submission, posted by {{ submission.submitter }}, has been posted.
+{% endif %}
+  </p>
+{% endif %}
+
   <p>
     <a href="{% url ietf.idsubmit.approval_views.approval2 %}">
     Approve Another</a>

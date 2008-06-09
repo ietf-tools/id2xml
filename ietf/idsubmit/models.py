@@ -1,9 +1,11 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
-from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair
+from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair, InternetDraft, IETFWG, EmailAddress
+from utils import sync_docs
 import datetime
 import random
+from django.conf import settings
 
 # Only some of these status codes can be stored in the database.
 # Some are completely unused; some are used but never stored.
@@ -158,7 +160,6 @@ class IdSubmissionDetail(models.Model):
             return True
 
         return False
-
     def save(self,*args,**kwargs):
         self.last_updated_date = datetime.date.today()
         self.last_updated_time = datetime.datetime.now().time()
@@ -166,6 +167,218 @@ class IdSubmissionDetail(models.Model):
             self.auth_key = ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(35)])
         super(IdSubmissionDetail, self).save(*args,**kwargs)
         return self.submission_id
+    class ApprovalError(Exception):
+        pass
+    def approved(self):
+        """The submission has been approved, either by the submitter
+        submitting the key when auto_post is available, by the wg chair
+        or secretariat by approving the -00, or by the secretariat when
+        doing manual posting."""
+
+        submission = self
+
+        # Copy Document(s) to production servers:
+        try :
+            (result, msg) = sync_docs(submission)
+            if not result:
+                raise self.ApprovalError(msg)
+        except OSError :
+            raise self.ApprovalError("There was a problem occurred while posting the document to the public server")
+        # populate table
+
+        try:
+            internet_draft = InternetDraft.objects.get(filename=submission.filename)
+        except InternetDraft.DoesNotExist:
+            internet_draft = None
+
+        if submission.revision == "00" :
+            # if the draft file alreay existed, error will be occured.
+            if internet_draft:
+                raise self.ApprovalError("00 revision of this document already exists")
+
+            internet_draft = InternetDraft.objects.create(
+                title=submission.title,
+                group=submission.group,
+                filename=submission.filename,
+                revision=submission.revision,
+                revision_date=submission.submission_date,
+                file_type=submission.file_type,
+                txt_page_count=submission.txt_page_count,
+                abstract=submission.abstract,
+                status_id=1,
+                intended_status_id=8,
+                start_date=now,
+                last_modified_date=now,
+                review_by_rfc_editor=False,
+                expired_tombstone=False,
+            )
+
+        else : # Existing version; update the existing record using new values
+            if internet_draft is None:
+                raise self.ApprovalError("The previous submission of this document cannot be found")
+            internet_draft.authors.all().delete()
+            EmailAddress.objects.filter(priority=internet_draft.id_document_tag, type='I-D').delete()
+            internet_draft.title=submission.title
+            internet_draft.revision=submission.revision
+            internet_draft.revision_date=submission.submission_date
+            internet_draft.file_type=submission.file_type
+            internet_draft.txt_page_count=submission.txt_page_count
+            internet_draft.abstract=submission.abstract
+            internet_draft.last_modified_date=now
+            internet_draft.save()
+
+        authors_names = []
+        for author_info in submission.authors.all():
+            person_or_org = PersonOrOrgInfo.objects.get_or_create_person(
+                first_name=author_info.first_name,
+                last_name=author_info.last_name,
+                created_by="IDST",
+                email_address=author_info.email_address,
+            )
+
+            internet_draft.authors.create(
+                person=person_or_org,
+                author_order=author_info.author_order,
+            )
+
+            person_or_org.emailaddress_set.create(
+                type="I-D",
+                priority=internet_draft.id_document_tag,
+                address=author_info.email_address,
+                comment=internet_draft.filename,
+            )
+
+            # gathering author's names
+            authors_names.append("%s. %s" % (author_info.first_name[0].upper(), author_info.last_name))
+        if len(authors_names) > 2:
+            authors = "%s, et al." % authors_names[0]
+        else:
+            authors = ", ".join(authors_names) 
+        submission.status_id = 7
+        submission.save()
+
+        #XXX much of from here on should be a helper on InternetDraft?
+
+        # Schedule I-D Announcement:
+        cc_val = ""
+        try:
+            cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
+        except IETFWG.DoesNotExist:
+            pass
+        subject = render_to_string("idsubmit/i-d_action-subject.txt",
+            {'submission':submission,
+             'authors': authors}).strip()
+        body = render_to_string("idsubmit/i-d_action.txt",
+            {'submission':submission,
+             'authors': authors}).strip()
+        ScheduledAnnouncement.objects.create(
+            mail_sent =    False,
+            scheduled_by =     "IDST",
+            to_be_sent_date =  now,
+            to_be_sent_time =  "00:00",
+            scheduled_date =   now,
+            scheduled_time =   str(now.time()),     # sigh
+            subject =      subject,
+            to_val =       "i-d-announce@ietf.org",
+            from_val =     "Internet-Drafts@ietf.org",
+            cc_val =       cc_val,
+            body =         body,
+            content_type =     "Multipart/Mixed; Boundary=\"NextPart\"",
+        )
+
+        submission.status_id = 8
+        submission.save()
+        id_internal = internet_draft.idinternal
+        if id_internal and id_internal.cur_state_id < 100:
+            # Add comment to ID Tracker
+            internet_draft.documentcomment_set.create(
+                rfc_flag = 0,
+                version = submission.revision,
+                comment_text = "New version available",
+            )
+
+            msg = ""
+            #XXX hardcoded "5"
+            if id_internal.cur_sub_state_id == 5:
+                msg = "Sub state has been changed to AD Follow up from New Id Needed"
+                internet_draft.documentcomment_set.create(
+                    rfc_flag = 0,
+                    version = submission.revision,
+                    comment_text = msg,
+                )
+
+                id_internal.prev_sub_state = id_internal.cur_sub_state
+                #XXX hardcoded "2"
+                id_internal.cur_sub_state_id = 2
+                id_internal.save()
+
+            send_to = []
+            send_to.append(id_internal.state_change_notice_to)
+
+            email_address = id_internal.job_owner.person.email()[1]
+            if email_address not in send_to:
+                send_to.append(email_address)
+            discuss_positions = id_internal.ballot.positions.filter(discuss = 1)
+            for p in discuss_positions:
+                if not p.ad.is_current_ad():
+                    continue
+                email_address = p.ad.person.email()[1]
+                if email_address not in send_to:
+                    send_to.append(email_address)
+            ScheduledAnnouncement.objects.create(
+                mail_sent = False,
+                scheduled_by = "IDST",
+                to_be_sent_date =  now,
+                to_be_sent_time =  "00:00",
+                scheduled_date =   now,
+                scheduled_time =   str(now.time()),     # sigh
+                subject = render_to_string("idsubmit/new_version_notify_subject.txt", {'submission': submission}).strip(),
+                to_val =  ",".join([str(eb) for eb in send_to if eb is not None]),
+                from_val = "Internet-Drafts@ietf.org",
+                cc_val =  cc_val,
+                body =  render_to_string("idsubmit/new_version_notify.txt",{'submission':submission,'msg':msg}),
+            )
+
+            submission.status_id = 9
+            submission.save()
+
+        # Notify All Authors:
+        # <Please read auto_post.cgi, sub notify_all_authors>
+
+        cc_email = []
+        if submission.group_id == Acronym.NONE :
+            group_acronym = "Independent Submission"
+        else :
+            group_acronym = submission.group.name
+            #removed cc'ing WG email address by request
+            #cc_email.append(IETFWG.objects.get(group_acronym=submission.group).email_address)
+
+        (submitter_name, submitter_email, ) = submission.submitter.email()
+        for author_info in submission.authors.all().exclude(email_address=submitter_email) :
+            if not author_info.email_address.strip() and submitter_email == author_info.email_address :
+                continue
+
+            if author_info.email_address not in cc_email :
+                cc_email.append(author_info.email_address)
+
+        to_email = submitter_email
+        send_mail(
+            None,
+            to_email,
+            FROM_EMAIL,
+            "New Version Notification for %s-%s" % (submission.filename,submission.revision),
+            "idsubmit/email_posted_notice.txt", {'subm':submission, 'submitter_name':submitter_name},
+            cc_email,
+            toUser=True
+        )
+        submission.status_id = -1
+        submission.save()
+        # remove files.
+        try :
+            [os.remove(i) for i in glob.glob("%s-%s.*" % (os.path.join(settings.STAGING_PATH,submission.filename), submission.revision))]
+        except :
+            pass
+
 
     def __str__(self):
         return 'Submission of %s-%s' % ( self.filename, self.revision )

@@ -9,6 +9,7 @@ import datetime
 import random
 from django.conf import settings
 import glob, os
+from ietf.utils.mail import send_mail
 
 # Only some of these status codes can be stored in the database.
 # Some are completely unused; some are used but never stored.
@@ -357,7 +358,7 @@ class IdSubmissionDetail(models.Model):
             #removed cc'ing WG email address by request
             #cc_email.append(IETFWG.objects.get(group_acronym=submission.group).email_address)
 
-        (submitter_name, submitter_email, ) = submission.submitter.email()
+        (submitter_name, submitter_email, ) = submission.submitter_email()
         for author_info in submission.authors.all().exclude(email_address=submitter_email) :
             if not author_info.email_address.strip() and submitter_email == author_info.email_address :
                 continue

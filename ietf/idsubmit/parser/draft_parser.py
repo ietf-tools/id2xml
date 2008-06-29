@@ -121,7 +121,7 @@ class DraftParser(object):
         # page_re = re.compile('\n.+\[?[Pp]age [0-9ivx]+\]?[ \t\f]*\n.+\n{1,}.+\n')
         # window version \n.+\[?[Pp]age [0-9ivx]+\]?[ \t\f]*\r\n.+\r\n{1,}(Internet-Draft.+\r\n)* v0.1
         # window version \n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\r\n.+(\r\n){1,}Internet-Draft.+\s(\d\d\d\d)\r\n v0.2
-        page_res = ['\n.+\[?[Pp]age [0-9ivx]+\]\s*\n+\s*\f\s*\n*.+\n+',
+        page_res = ['\n.+\[?[Pp]age [0-9ivx]+\]\s*\n+\s*\f?\s*\n*.+\n+',
                     '\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*[Ii]{1}\w+[-\s]?[Dd]{1}\w+.+\s[0-9]{4}\n',
                     '\n.+\[?[Pp]age [0-9ivx]+\]?[\s\t\f]*\n.*\n*.+\s[0-9]{4}\n',
                     ]

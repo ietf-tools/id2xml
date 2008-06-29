@@ -63,11 +63,6 @@ class DraftParser(object):
  
     def set_content(self, content):
         self.content = content.replace('\r\n', '\n')
-	# Trim left-hand whitespace to make things easier to parse.
-	m = re.search(r'^( +)Abstract\s*$', self.content, re.M)
-	if m:
-	    spaces = re.compile(r'^%s' % m.group(1), re.M)
-	    self.content = re.sub(spaces, '', self.content)
 
     def set_remote_ip(self, ip):
         self.remote_ip = ip
@@ -504,6 +499,7 @@ if __name__ == "__main__":
     print dp.get_expected_revision()
     print dp.filename
     print dp.revision
-    print dp.get_meta_data_fields()
-    print dp.get_authors_info()
+    #print dp.get_meta_data_fields()
+    #print dp.get_authors_info()
     print dp.get_author_list( dp.get_authors_info() )
+    print dp.get_abstract()

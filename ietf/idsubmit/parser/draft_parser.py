@@ -63,6 +63,11 @@ class DraftParser(object):
  
     def set_content(self, content):
         self.content = content.replace('\r\n', '\n')
+	# Trim left-hand whitespace to make things easier to parse.
+	m = re.search(r'^( +)Abstract\s*$', self.content, re.M)
+	if m:
+	    spaces = re.compile(r'^%s' % m.group(1), re.M)
+	    self.content = re.sub(spaces, '', self.content)
 
     def set_remote_ip(self, ip):
         self.remote_ip = ip
@@ -190,17 +195,11 @@ class DraftParser(object):
         m = re.search('\n\s*Abstract\s*\n+((\s{2,}.+\n+)+)',temp_content)
         if m:
             abstract = m.group(1)
+	    #
             # Delete anything that's not indented.
-            # I don't think this could match anything because the initial
-            # re only matches indented content.
-            orig = abstract
+	    # This eliminates following sections that were accidentally
+	    # included in the initial match.
             abstract = re.sub('\n\w.+\n(.*\n)+', '',abstract)
-	    if orig != abstract:
-		print "XXX Orig:"
-		print orig
-		print "XXX Abstract:"
-		print abstract
-            assert( orig == abstract )
             #
             # Delete a trailing table of contents.
             abstract = re.sub('\n.*Table of Contents\s*\n+(.*\n)+','',abstract)

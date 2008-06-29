@@ -320,9 +320,9 @@ class DraftParser(object):
         # Delete Extra Emails, e.g.,
         # Foo Bar
         # Email: foo@one.example.com, foo_bar@two.example.net
-        ex_email_re = re.compile('[;,] *[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+        ex_email_re = re.compile('[;,] *[\w\-][\w\+\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
         authors_info = ex_email_re.sub('',authors_info)
-        mail_srch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+        mail_srch = re.compile(r'[\w\-][\w\+\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
         name_srch = re.compile(r'\n{2,} *\w.+\n')
         #name_srch = re.compile(r'\n\s*\n\s*.+[\w|\)]\n')
         mail_rst = mail_srch.findall(authors_info)

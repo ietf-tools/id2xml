@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from models import *
+from models import IdDates, SubmissionEnv
 import datetime
 
 class CutoffTestCase(TestCase):
@@ -26,32 +26,60 @@ class CutoffTestCase(TestCase):
 	else:
 	    delta = -1
 	s.cut_off_time = ( datetime.datetime.now() + datetime.timedelta( seconds=delta ) ).time()
+	s.cut_off_warn_days = 7
 	s.save()
 
     def testTotalCutoff(self):
 	self.setUpDates( 7 )
 	r = self.c.get('/idsubmit/upload/')
-	assert r.template[0].name == 'idsubmit/error.html'
-	assert r.context[0]['date_check_err_msg'] == 'second_ietf'
+	self.assertEqual( r.template[0].name , 'idsubmit/error.html' )
+	self.assertEqual( r.context[0]['date_check_err_msg'] , 'second_ietf' )
 	self.setUpDates( 7, before=True )
 	r = self.c.get('/idsubmit/upload/')
-	assert r.template[0].name == 'idsubmit/upload.html'
-	assert r.context[0]['cutoff_msg'] == 'second_ietf'
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assertEqual( r.context[0]['cutoff_msg'] , 'second_ietf' )
 	self.setUpDates( 8, before=True )
 	r = self.c.get('/idsubmit/upload/')
-	assert r.template[0].name == 'idsubmit/upload.html'
-	assert r.context[0]['cutoff_msg'] == 'first_second'
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assertEqual( r.context[0]['cutoff_msg'] , 'first_second' )
 	self.setUpDates( 1 )
 	r = self.c.get('/idsubmit/upload/')
-	assert r.template[0].name == 'idsubmit/error.html'
-	assert r.context[0]['date_check_err_msg'] == 'second_ietf'
+	self.assertEqual( r.template[0].name , 'idsubmit/error.html' )
+	self.assertEqual( r.context[0]['date_check_err_msg'] , 'second_ietf' )
 	self.setUpDates( 0 )
 	r = self.c.get('/idsubmit/upload/')
-	assert r.template[0].name == 'idsubmit/upload.html'
-	assert not r.context[0].has_key('cutoff_msg')
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assert_( not r.context[0].has_key('cutoff_msg') )
 
+    def test00Cutoff( self ):
+	self.setUpDates( 22 )
+	r = self.c.get('/idsubmit/upload/')
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	assert not r.context[0].has_key( 'cutoff_msg' )
+	self.setUpDates( 21 )
+	r = self.c.get('/idsubmit/upload/')
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assertEqual( r.context[0]['cutoff_msg'] , 'first_warning' )
+	self.setUpDates( 14, before=True )
+	r = self.c.get('/idsubmit/upload/')
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assertEqual( r.context[0]['cutoff_msg'] , 'first_warning' )
+	self.setUpDates( 14 )
+	r = self.c.get('/idsubmit/upload/')
+	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
+	self.assertEqual( r.context[0]['cutoff_msg'] , 'first_second' )
 
-
-
-
-
+# Tests to write:
+# Submit a 1-page document
+# Submit a gzip file
+# Submit various types of abstract formatting
+# Submit a successful document all the way through
+# * Individual
+# * WG without -00 approval
+# * WG with -00 approval
+# * Document with idinternal record but no discusses
+# * Document with discusses
+# -00 preapproval tool tests:
+# * Preapproving before submission
+# * Approving an in-progress submission
+# * Approving as a user that doesn't have permission

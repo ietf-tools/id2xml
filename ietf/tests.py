@@ -23,10 +23,13 @@ from ietf.utils import log
 startup_database = settings.DATABASE_NAME  # The startup database name, before changing to test_...
 
 def run_tests(module_list, verbosity=0, extra_tests=[]):
-    module_list.append(ietf.urls)
+    # If we're testing just one module's tests, don't
+    # add the urls tests.
+    if len(module_list) > 1:
+	module_list.append(ietf.urls)
     # If we append 'ietf.tests', we get it twice, first as itself, then
     # during the search for a 'tests' module ...
-    return django.test.simple.run_tests(module_list, 0, extra_tests)
+    return django.test.simple.run_tests(module_list, verbosity, extra_tests)
 
 def normalize_html(html, fill):
     # Line ending normalization

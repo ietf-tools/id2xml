@@ -3,7 +3,6 @@
 from django.db import models
 from django.template.loader import render_to_string
 from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair, InternetDraft, IETFWG, EmailAddress
-from ietf.announcements.models import ScheduledAnnouncement
 from utils import sync_docs, FROM_EMAIL
 import datetime
 import random
@@ -270,33 +269,23 @@ class IdSubmissionDetail(models.Model):
             cc_val = IETFWG.objects.get(pk=submission.group_id).email_address
         except IETFWG.DoesNotExist:
             pass
-        subject = render_to_string("idsubmit/i-d_action-subject.txt",
+	send_mail_subj(None,
+            "i-d-announce@ietf.org",
+            "Internet-Drafts@ietf.org",
+	    "idsubmit/i-d_action-subject.txt",
+	    "idsubmit/i-d_action.txt",
             {'submission':submission,
-             'authors': authors}).strip()
-        body = render_to_string("idsubmit/i-d_action.txt",
-            {'submission':submission,
-             'authors': authors}).strip()
-        ScheduledAnnouncement.objects.create(
-            mail_sent =    False,
-            scheduled_by =     "IDST",
-            to_be_sent_date =  now,
-            to_be_sent_time =  "00:00",
-            scheduled_date =   now,
-            scheduled_time =   str(now.time()),     # sigh
-            subject =      subject,
-            to_val =       "i-d-announce@ietf.org",
-            from_val =     "Internet-Drafts@ietf.org",
-            cc_val =       cc_val,
-            body =         body,
-            content_type =     "Multipart/Mixed; Boundary=\"NextPart\"",
-        )
+             'authors': authors},
+	    sendTime=now,
+	    scheduledExtra={'scheduled_by':'IDST'},
+	    contentType="Multipart/Mixed; Boundary=\"NextPart\"")
 
         submission.status_id = 8
         submission.save()
         id_internal = internet_draft.idinternal
         if id_internal and id_internal.cur_state_id < 100:
             # Add comment to ID Tracker
-            internet_draft.documentcomment_set.create(
+            id_internal.documentcomment_set.create(
                 rfc_flag = 0,
                 version = submission.revision,
                 comment_text = "New version available",
@@ -306,7 +295,7 @@ class IdSubmissionDetail(models.Model):
             #XXX hardcoded "5"
             if id_internal.cur_sub_state_id == 5:
                 msg = "Sub state has been changed to AD Follow up from New Id Needed"
-                internet_draft.documentcomment_set.create(
+                id_internal.documentcomment_set.create(
                     rfc_flag = 0,
                     version = submission.revision,
                     comment_text = msg,
@@ -330,19 +319,15 @@ class IdSubmissionDetail(models.Model):
                 email_address = p.ad.person.email()[1]
                 if email_address not in send_to:
                     send_to.append(email_address)
-            ScheduledAnnouncement.objects.create(
-                mail_sent = False,
-                scheduled_by = "IDST",
-                to_be_sent_date =  now,
-                to_be_sent_time =  "00:00",
-                scheduled_date =   now,
-                scheduled_time =   str(now.time()),     # sigh
-                subject = render_to_string("idsubmit/new_version_notify_subject.txt", {'submission': submission}).strip(),
-                to_val =  ",".join([str(eb) for eb in send_to if eb is not None]),
-                from_val = "Internet-Drafts@ietf.org",
-                cc_val =  cc_val,
-                body =  render_to_string("idsubmit/new_version_notify.txt",{'submission':submission,'msg':msg}),
-            )
+	    send_mail_subj(None,
+		send_to,
+                "Internet-Drafts@ietf.org",
+                "idsubmit/new_version_notify_subject.txt",
+                "idsubmit/new_version_notify.txt",
+		{'submission':submission,'msg':msg},
+		cc=cc_val,
+		sendTime=now,
+		scheduledExtra={'scheduled_by':'IDST'})
 
             submission.status_id = 9
             submission.save()

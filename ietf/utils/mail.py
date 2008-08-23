@@ -10,8 +10,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from ietf.utils import log
+from ietf.announcements.models import ScheduledAnnouncement
 import sys
 import time
+import datetime
 
 def add_headers(msg):
     if not(msg.has_key('Message-ID')):
@@ -113,7 +115,29 @@ def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
     txt = render_to_string(template, context, context_instance=RequestContext(request))
     return send_mail_text(request, to, frm, subject, txt, *args, **kwargs)
 
-def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=None, bcc=None):
+def send_scheduled(msg, bcc, sendTime, scheduledExtra):
+    # Queue a message to be sent later.
+    now = datetime.datetime.now()
+    kwargs = { 'mail_sent': False,
+	       'scheduled_date': now,
+	       'scheduled_time': str( now.time() ), # sigh
+	     }
+    kwargs.update( scheduledExtra )
+    kwargs['from_val'] = msg['From']
+    kwargs['to_val'] = msg['To']
+    kwargs['cc_val'] = msg['Cc']
+    kwargs['to_be_sent_date'] = sendTime
+    kwargs['to_be_sent_time'] = str(sendTime.time())
+    kwargs['body'] = str(msg.payload())	# if we support multipart, this
+					# might be a list!
+    kwargs['content_type'] = msg.get_content_type()
+
+    ScheduledAnnouncement.objects.create(**kwargs)
+
+# This contentType handling is a little lame, since we'd rather
+# let the python MIME stuff handle this.  For now, though,
+# we keep the MIME in the template.
+def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=None, bcc=None, contentType=None, sendTime=None, scheduledExtra={}):
     msg = MIMEText(txt)
     if isinstance(frm, tuple):
 	frm = formataddr(frm)
@@ -131,6 +155,11 @@ def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=N
     if extra:
 	for k, v in extra.iteritems():
 	    msg[k] = v
+    if contentType:
+	a.set_type(contentType)
+    if sendTime:
+	send_scheduled(msg, bcc, sendTime, scheduledExtra)
+	return
     if settings.SERVER_MODE == 'production':
 	send_smtp(msg, bcc)
     elif settings.SERVER_MODE == 'test':

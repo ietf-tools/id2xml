@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
+from django.template.loader import render_to_string
 from models import IdDates, SubmissionEnv
 import datetime
+import tempfile
 
 class CutoffTestCase(TestCase):
     fixtures = [ 'testsubmit' ]
@@ -68,6 +70,36 @@ class CutoffTestCase(TestCase):
 	r = self.c.get('/idsubmit/upload/')
 	self.assertEqual( r.template[0].name , 'idsubmit/upload.html' )
 	self.assertEqual( r.context[0]['cutoff_msg'] , 'first_second' )
+
+def submit_upload( file, xmlFile=None, pdfFile=None, psFile=None, client=None ):
+    if client is None:
+        client = Client()
+    upload_args = { 'txt_file': file }
+    if xmlFile is not None:
+        upload_args['xml_file'] = xmlFile
+    if pdfFile is not None:
+        upload_args['pdf_file'] = pdfFile
+    if psFile is not None:
+        upload_args['ps_file'] = psFile
+    r = client.post('/idsubmit/upload/', upload_args)
+    file.close()
+    if xmlFile is not None:
+        xmlFile.close()
+    if pdfFile is not None:
+        pdfFile.close()
+    if psFile is not None:
+        psFile.close()
+    return r
+
+def render_to_tempfile( template, context ):
+    '''Render a template to a temporary file, and return a file object pointing
+    to the beginning of the file.  The temporary file will be deleted automatically
+    (see tempfile.TemporaryFile) and does not have a directory entry on the
+    filesystem.'''
+    f = tempfile.TemporaryFile()
+    f.write( render_to_string( template, context ) )
+    f.seek( 0 )
+    return f
 
 # Tests to write:
 # Submit a 1-page document

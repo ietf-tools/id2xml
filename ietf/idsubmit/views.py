@@ -79,10 +79,17 @@ def file_upload(request):
         post_data = request.POST.copy()
         post_data.update(request.FILES)
 
+	# A bug in the test client in 0.96 causes the 
+	# fields to be named differently than outside test.
+	for ext in IDUploadForm.file_names.keys():
+	    if post_data.get(ext) == '' and \
+	       post_data.has_key(ext + "_file"):
+		post_data[ext] = post_data[ext + "_file"]
+
         form = IDUploadForm(post_data)
         if form.is_valid():
-            if not request.FILES['txt_file']['content-type'].startswith('text'):
-                return render("idsubmit/error.html", {'error_msg':STATUS_CODE[101]}, context_instance=RequestContext(request))
+            #if not request.FILES['txt_file']['content-type'].startswith('text'):
+            #    return render("idsubmit/error.html", {'error_msg':STATUS_CODE[101]}, context_instance=RequestContext(request))
 
             dp = DraftParser(form.get_content('txt_file'))
             if now >= first_cut_off_time and now < second_cut_off_time and dp.revision == '00':

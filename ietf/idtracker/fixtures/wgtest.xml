@@ -116,6 +116,11 @@
     <field type="CharField" name="name">Silly New Operational Work</field>
     <field type="CharField" name="name_key">SILLY NEW OPERATIONAL WORK</field>
   </object>
+  <object pk="1027" model="idtracker.acronym">
+    <field type="CharField" name="acronym">none</field>
+    <field type="CharField" name="name">Individual Submissions</field>
+    <field type="CharField" name="name_key">INDIVIDUAL SUBMISSIONS</field>
+  </object>
   <object pk="1" model="idtracker.wgtype">
     <field type="CharField" name="type">WG</field>
   </object>

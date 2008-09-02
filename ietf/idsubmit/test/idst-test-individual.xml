@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<rfc category="std" ipr="full3978" docName="draft-nonymous-idst-submission-00.txt">
+
+<?rfc toc="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc sortrefs="yes"?>
+<?rfc iprnotified="no" ?>
+<?rfc strict="yes" ?>
+<?rfc rfcprocack="yes" ?>
+
+    <front>
+        <title>An Example</title>
+        <author initials='A.' surname="Nonymous" fullname='Anonymous'>
+            <organization/>
+<address>
+<email>anon@example.com</email>
+</address>
+        </author>
+        <date/>
+        <abstract><t>An example.</t></abstract>
+    </front>
+
+    <middle>
+        <section title="Requirements notation">
+            <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+            "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+            and "OPTIONAL" in this document are to be interpreted as
+            described in RFC2119.</t>
+        </section>
+
+        <section title="Security Considerations">
+        <t>None.</t>
+        </section>
+    </middle>
+
+    <back>
+    </back>
+
+</rfc>

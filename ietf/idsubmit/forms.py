@@ -65,11 +65,14 @@ class SubmitterForm(forms.Form):
             email = person.emailaddress_set.get(type='INET', address=submitter_email_address)
         except EmailAddress.DoesNotExist:
             pass
-        draft = InternetDraft.objects.get(filename=submission.filename)
-        try:
-            email = person.emailaddress_set.get(type='I-D', priority=draft.id_document_tag, address=submitter_email_address)
-        except EmailAddress.DoesNotExist:
-            pass
+	try:
+	    draft = InternetDraft.objects.get(filename=submission.filename)
+	    try:
+		email = person.emailaddress_set.get(type='I-D', priority=draft.id_document_tag, address=submitter_email_address)
+	    except EmailAddress.DoesNotExist:
+		pass
+	except InternetDraft.DoesNotExist:
+	    pass
 
         if email:
             target_priority = email.priority

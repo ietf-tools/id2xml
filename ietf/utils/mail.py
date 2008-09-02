@@ -8,12 +8,18 @@ import smtplib
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
-from django.template import RequestContext
-from ietf.utils import log
+from ietf.utils import log, MaybeRequestContext
 from ietf.announcements.models import ScheduledAnnouncement
 import sys
 import time
 import datetime
+
+test_mode=False
+outbox=[]
+
+def empty_outbox():
+    global outbox
+    outbox = []
 
 def add_headers(msg):
     if not(msg.has_key('Message-ID')):
@@ -30,8 +36,14 @@ def send_smtp(msg, bcc=None):
     The destination list will be taken from the To:/Cc: headers in the
     Message.  The From address will be used if present or will default
     to the django setting DEFAULT_FROM_EMAIL
+
+    If someone has set test_mode=True, then just append the msg to
+    the outbox.
     '''
     add_headers(msg)
+    if test_mode:
+        outbox.append(msg)
+	return
     (fname, frm) = parseaddr(msg.get('From'))
     addrlist = msg.get_all('To') + msg.get_all('Cc', [])
     if bcc:
@@ -102,7 +114,7 @@ def send_mail_subj(request, to, frm, stemplate, template, context, *args, **kwar
     Send an email message, exactly as send_mail(), but the
     subject field is a template.
     '''
-    subject = render_to_string(stemplate, context, context_instance=RequestContext(request)).replace("\n"," ").strip()
+    subject = render_to_string(stemplate, context, context_instance=MaybeRequestContext(request)).replace("\n"," ").strip()
     return send_mail(request, to, frm, subject, template, context, *args, **kwargs)
 
 def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
@@ -112,7 +124,7 @@ def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
     The body is a text/plain rendering of the template with the context.
     extra is a dict of extra headers to add.
     '''
-    txt = render_to_string(template, context, context_instance=RequestContext(request))
+    txt = render_to_string(template, context, context_instance=MaybeRequestContext(request))
     return send_mail_text(request, to, frm, subject, txt, *args, **kwargs)
 
 def send_scheduled(msg, bcc, sendTime, scheduledExtra):
@@ -125,10 +137,10 @@ def send_scheduled(msg, bcc, sendTime, scheduledExtra):
     kwargs.update( scheduledExtra )
     kwargs['from_val'] = msg['From']
     kwargs['to_val'] = msg['To']
-    kwargs['cc_val'] = msg['Cc']
+    kwargs['cc_val'] = msg['Cc'] or ''
     kwargs['to_be_sent_date'] = sendTime
     kwargs['to_be_sent_time'] = str(sendTime.time())
-    kwargs['body'] = str(msg.payload())	# if we support multipart, this
+    kwargs['body'] = str(msg.get_payload())	# if we support multipart, this
 					# might be a list!
     kwargs['content_type'] = msg.get_content_type()
 
@@ -156,7 +168,7 @@ def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=N
 	for k, v in extra.iteritems():
 	    msg[k] = v
     if contentType:
-	a.set_type(contentType)
+	msg.set_type(contentType)
     if sendTime:
 	send_scheduled(msg, bcc, sendTime, scheduledExtra)
 	return

@@ -6,7 +6,6 @@ from datetime import datetime, time, timedelta
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
-from django.http import HttpResponsePermanentRedirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from django.db.models import Q
@@ -96,7 +95,7 @@ def file_upload(request):
                 context['form'] = IDUploadForm()
                 context['cutoff_msg'] = "first_second"
                 return render ("idsubmit/upload.html", context, context_instance=RequestContext(request))
-            dp.set_remote_ip(request.META.get('REMOTE_ADDR'))
+            dp.set_remote_ip(request.META.get('REMOTE_ADDR', ''))
             threshold_msg = dp.check_dos_threshold()
             if threshold_msg:
                 return render("idsubmit/error.html", {'error_msg':threshold_msg}, context_instance=RequestContext(request))
@@ -294,7 +293,7 @@ def trigger_auto_post(request,submission_id):
             send_mail(request, [submission.submitter_email()], \
                     FROM_EMAIL, \
                     "I-D Submitter Authentication for %s" % submission.filename, \
-                    "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key,'url':request.META['HTTP_HOST']}, toUser=True)            
+                    "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key}, toUser=True)            
         return HttpResponseRedirect(submission.get_absolute_url())
     else:
         meta_data_errors = {}
@@ -329,8 +328,6 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
         except IdSubmissionDetail.ApprovalError, e:
             return render("idsubmit/error.html",{'error_msg':e}, context_instance=RequestContext(request))
 
-        return HttpResponsePermanentRedirect(submission.get_absolute_url())
-
     else :
         submission.status_id = 10
 
@@ -343,13 +340,13 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             [toaddr],
             FROM_EMAIL,
             "Initial Version Approval Request for %s" % (submission.filename, ),
-            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename, 'tracker_url':request.META['HTTP_HOST']} 
+            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename} 
         )
 
         submission.save()
 
-        # redirect the page to /idsubmit/status/<submission_id>
-        return HttpResponsePermanentRedirect(submission.get_absolute_url())
+    # redirect the page to /idsubmit/status/<submission_id>
+    return HttpResponseRedirect(submission.get_absolute_url())
 
 def cancel_draft (request, submission_id):
     # get submission

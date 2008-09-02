@@ -8,7 +8,7 @@ import datetime
 import random
 from django.conf import settings
 import glob, os
-from ietf.utils.mail import send_mail
+from ietf.utils.mail import send_mail, send_mail_subj
 
 # Only some of these status codes can be stored in the database.
 # Some are completely unused; some are used but never stored.

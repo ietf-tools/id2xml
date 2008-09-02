@@ -10,6 +10,6 @@ and you will see a notification message.
 If the document has already been approved by the other chair, then  
 the Web site will display an appropriate indication.
 
-http://{{ tracker_url }}/cgi-bin/wg/wg_init_rev_approval.cgi?command=record_approval&filename={{filename}}
+http://{{ site.domain }}/{% url ietd.idsubmit.approval_views.approval filename %}
 
 The IETF Secretariat.

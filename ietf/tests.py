@@ -18,7 +18,7 @@ from django.conf import settings
 from django.db import connection
 from django.core import management
 import ietf.urls
-from ietf.utils import log
+from ietf.utils import log, mail
 
 startup_database = settings.DATABASE_NAME  # The startup database name, before changing to test_...
 
@@ -27,6 +27,7 @@ def run_tests(module_list, verbosity=0, extra_tests=[]):
     # add the urls tests.
     if len(module_list) > 1:
 	module_list.append(ietf.urls)
+    ietf.utils.mail.test_mode=True
     # If we append 'ietf.tests', we get it twice, first as itself, then
     # during the search for a 'tests' module ...
     return django.test.simple.run_tests(module_list, verbosity, extra_tests)

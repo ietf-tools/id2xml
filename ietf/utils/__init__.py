@@ -6,6 +6,7 @@ from cache_foreign_key import FKAsOneToOne
 from templated_form import makeTemplatedForm
 from soup2text import TextSoup, soup2text
 from draft_search import normalize_draftname
+from templates import MaybeRequestContext, render
 
 makeFormattingForm = makeTemplatedForm
 

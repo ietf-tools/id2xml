@@ -32,7 +32,7 @@ class DraftParser(object):
     revision = "00"
     page_num = 0
     pages = []
-    idnits_message = None
+    idnits_message = ''
     remote_ip = None
     status_id = 0
     invalid_version = 0 
@@ -95,6 +95,7 @@ class DraftParser(object):
         #idnits_message = ''.join(p.stdout.readlines())
         if err:
             self.idnits_failed = True
+            self.idnits_message = "Failed to run %s" % path_idnits
             return "Checking idnits failed:"
         self.idnits_message = idnits_message
         # if no error
@@ -426,11 +427,10 @@ class DraftParser(object):
            'filename': self.filename,
            'revision': self.revision,
            'title': title,
-           #'group': self.get_group_id(),
+           'group': self.get_group_id()[0], # ugh what should this be
            'creation_date': self.get_creation_date(),
            'abstract': abstract,
            'filesize': self.filesize,
-           'remote_ip': self.remote_ip,
            'first_two_pages': self.get_first_two_pages(),
            'txt_page_count': self.page_num,
            'idnits_message': self.idnits_message,

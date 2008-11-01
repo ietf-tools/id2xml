@@ -1,0 +1,16 @@
+#!/bin/bash
+
+ME=`basename $0`
+TMPFILE=`mktemp /tmp/${ME}.XXXXXXXXXX` || exit 1
+
+rsync --delete -acvz megatron.ietf.org::mail /home/master-site/ftp/data/ietf-mail-archive > $TMPFILE 2>&1
+STATUS=$?
+MYSTAT="SUCCESS"
+if [ $STATUS -ne 0 ]; then
+        MYSTAT="FAILURE"
+fi
+
+/bin/mail -s "$ME $MYSTAT `hostname` `date '+%Y-%m-%d-%H:%M'`" logs < $TMPFILE
+/bin/rm -f $TMPFILE
+
+

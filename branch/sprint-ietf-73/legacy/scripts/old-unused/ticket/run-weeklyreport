@@ -1,0 +1,10 @@
+#!/bin/bash
+
+TOWHO="ietf-admin@techsquare.com,barbara.fuller@neustar.biz,Dinara.Suleymanova@neustar.biz,Jon.Lindberg@neustar.biz,rpelletier@isoc.org,Christine.Ginsburg@neustar.biz"
+DATE=`date '+%Y-%m-%d'`
+TMPFILE=/var/log/tickets/report-${DATE}
+
+/root/bin/weeklyreport > $TMPFILE
+
+/usr/bin/Mail -s "ticket-report $DATE" $TOWHO < $TMPFILE
+

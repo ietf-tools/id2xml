@@ -1,0 +1,82 @@
+#!/usr/bin/perl -w
+##########################################################################
+# Copyright © 2003 and 2002, Foretec Seminars, Inc.
+##########################################################################
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_UTIL;
+use GEN_DBUTIL;
+use IETF;
+
+init_database("ietf");
+$CONVERT_SEED = 1; # To convert date format to fit into the current database engine
+
+my $start_date = db_quote(convert_date("1/1/1980",$CONVERT_SEED));
+my $all_area = 0;
+if (defined($ARGV[0])) {
+#  die "FATAL ERROR: Unknown Switch $ARGV[0]\n" unless ($ARGV[0] eq "-all");
+  $all_area = 1 if ($ARGV[0] eq "-all");
+} 
+my $sqlStr = qq {
+select a.acronym from acronym a,groups_ietf g
+where g.group_acronym_id = a.acronym_id
+and a.acronym <> 'none'
+and g.status_id = 1
+and g.group_type_id = 1
+and g.start_date > $start_date
+};
+
+unless ($all_area) {
+  my $ga = $ARGV[0];
+  my $gid = db_select("select acronym_id from acronym where acronym='$ga'");
+  die "FATAL ERROR: UNKNOWN acronym $ga\n" unless($gid);
+#  my $gi_set = "";
+#  my @subList = db_select_multiple("select group_acronym_id from internet_drafts where last_modified_date = $CURRENT_DATE");
+#  for $array_ref (@subList) {
+#    my ($gi) = @$array_ref;
+#    $gi_set .= "$gi,";
+#  }
+#  if (my_defined($gi_set)) {
+#    chop($gi_set);
+#  } else {
+#    $gi_set = "0000";
+#  }
+#  $sqlStr .= qq {and (g.last_modified_date = $CURRENT_DATE or
+#g.group_acronym_id in ($gi_set))
+#};
+  $sqlStr .= " and g.group_acronym_id=$gid";
+}
+
+#die "$sqlStr\n";
+
+
+my @List = db_select_multiple($sqlStr);
+for $array_ref (@List) {
+  my ($acronym) = rm_tr(@$array_ref);
+  print "Processing $acronym...\n";
+  my $command = qq{sh -c "mkdir /a/www/ietf-ftp/ietf/$acronym 2>&1"};
+  unless (-e "/a/www/ietf-ftp/ietf/$acronym") {
+    system $command;
+  }
+  system "/a/ietf/scripts/support/wginfo.pl $acronym -charter -id -rfc > /tmp/$acronym-charter.txt"; 
+  my $new = (-e "/a/www/ietf/html.charters/$acronym-charter.html")?0:1;
+  $diff = `diff --ignore-matching-lines=\"Last Modified\" /a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt /tmp/$acronym-charter.txt` if (-e "/a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt");
+  if (my_defined($diff) or $new) { #Archive previous text charter
+    my $cdate = db_select("select current_date");
+    my $chour=db_select("select hour(current_time)");
+    system "mv /a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt /a/www/ietf-ftp/ietf/$acronym/$acronym-charter.$cdate.$chour.txt" if (-e "/a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt");
+    system "cp /tmp/$acronym-charter.txt /a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt";
+    chmod 0755,"/a/www/ietf-ftp/ietf/$acronym/$acronym-charter.txt","/a/www/ietf-ftp/ietf/$acronym/$acronym-charter.$cdate.$chour.txt";
+  }
+  system "/a/ietf/scripts/support/wginfotohtml.pl $acronym > /tmp/$acronym-charter.html";
+  $diff = `diff --ignore-matching-lines=\"Last Modified\" /a/www/ietf/html.charters/$acronym-charter.html /tmp/$acronym-charter.html` if (-e "/a/www/ietf/html.charters/$acronym-charter.html");
+  if (my_defined($diff) or $new) { #Archive previous text charter
+    my $cdate = db_select("select current_date");
+    my $chour=db_select("select hour(current_time)");
+    system "mv /a/www/ietf/html.charters/$acronym-charter.html /a/www/ietf/html.charters/HISTORY/$acronym-charter.$cdate.$chour.html" if (-e "/a/www/ietf/html.charters/$acronym-charter.html");
+    system "cp /tmp/$acronym-charter.html /a/www/ietf/html.charters/$acronym-charter.html";
+  }
+}
+  system "/a/ietf/scripts/support/wg_dir_html.pl";
+exit;
+

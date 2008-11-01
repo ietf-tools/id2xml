@@ -1,0 +1,220 @@
+#!/usr/local/bin/perl
+##########################################################################
+# Copyright © 2004, Foretec Seminars, Inc.
+##########################################################################
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_UTIL;
+use GEN_DBUTIL;
+use IETF;
+
+init_database("ietf");
+$DEVEL_MODE = 0; #DEPLOY set it to 0
+$current_date = db_select("select current_date");
+$current_date = $ARGV[0] if ($DEVEL_MODE);
+################ Program Variables ################
+my $c_time = get_current_time();
+my $c_date = get_current_date();
+my $current_meeting_num = db_select("select max(meeting_num) from meetings");
+my $current_meeting_num_ordered = get_number_ordered($current_meeting_num);
+my ($meeting_start_date,$meeting_city,$meeting_state,$meeting_country,$meeting_end_date) = db_select("select start_date,city,state,country,end_date from meetings where meeting_num=$current_meeting_num");
+$meeting_state = ", $meeting_state" if my_defined($meeting_state);
+################ Important Dates ##################
+my $seventh_friday = get_offset_date($meeting_start_date,"-",51,"day");
+my $sixth_friday = get_offset_date($meeting_start_date,"-",44,"day");
+my $fifth_friday = get_offset_date($meeting_start_date,"-",37,"day");
+my $fourth_friday = get_offset_date($meeting_start_date,"-",30,"day");
+my $third_friday = get_offset_date($meeting_start_date,"-",23,"day");
+my $second_friday = get_offset_date($meeting_start_date,"-",16,"day");
+my $week_after_meeting = get_offset_date($meeting_end_date,"+",7,"day");
+my $offset_schedule = 5;
+my $seventh_friday_schedule = get_offset_date($seventh_friday,"-",$offset_schedule,"day");
+my $sixth_friday_schedule = get_offset_date($sixth_friday,"-",$offset_schedule,"day");
+my $fifth_friday_schedule = get_offset_date($fifth_friday,"-",$offset_schedule,"day");
+my $fourth_friday_schedule = get_offset_date($fourth_friday,"-",$offset_schedule,"day");
+my $third_friday_schedule = get_offset_date($third_friday,"-",$offset_schedule,"day");
+my $second_friday_schedule = get_offset_date($second_friday,"-",$offset_schedule,"day");
+my $week_after_meeting_schedule = get_offset_date($week_after_meeting,"-",$offset_schedule,"day");
+my ($first_cut_off_month,$first_cut_off_day,$first_cut_off_date,$first_cut_off_year,$fmonth)=db_select("select monthname(id_date),dayofmonth(id_date),id_date,year(id_date),month(id_date) from id_dates where id=1");
+my $first_cut_off_day_name = get_day_name($first_cut_off_date);
+my ($second_cut_off_month,$second_cut_off_day,$second_cut_off_date,$second_cut_off_year,$smonth)=db_select("select monthname(id_date),dayofmonth(id_date),id_date,year(id_date),month(id_date) from id_dates where id=2");
+my $second_cut_off_day_name=get_day_name($second_cut_off_date);
+my ($ietf_monday_month,$ietf_monday_day,$ietf_monday_date,$ietf_monday_year,$imonth)=db_select("select monthname(id_date),dayofmonth(id_date),id_date, year(id_date),month(id_date) from id_dates where id=3");
+
+
+my $gmt_hour_first_cut_off = get_gmt_hour($first_cut_off_year,$fmonth,$first_cut_off_day,9);
+my $gmt_hour_second_cut_off = get_gmt_hour($second_cut_off_year,$smonth,$second_cut_off_day,9);
+my $gmt_hour_ietf_monday = get_gmt_hour($ietf_monday_year,$imonth,$ietf_monday_day,9);
+
+my ($due_month,$due_day,$due_dayname,$due_date)=db_select("select monthname(id_date),dayofmonth(id_date),dayname(id_date),id_date from id_dates where id=4");
+my $due_day_name = get_day_name($due_date);
+my ($after_ietf_monday_month,$after_ietf_monday_day,$after_ietf_monday_date)=db_select("select monthname(id_date),dayofmonth(id_date),id_date from id_dates where id=5");
+my $after_ietf_monday_day_name=get_day_name($after_ietf_monday_date);
+my ($wg_chair_list_month,$wg_chair_list_day,$wg_chair_list_date,$wg_chair_list_year,$wmonth)=db_select("select monthname(id_date),dayofmonth(id_date),id_date,year(id_date),month(id_date) from id_dates where id=6");
+my $wg_chair_list_day_name=get_day_name($wg_chair_list_date);
+my $gmt_hour_wg_chair_list = get_gmt_hour($wg_chair_list_year,$wmonth,$wg_chair_list_day,9);
+$first_cut_off_day = get_number_ordered($first_cut_off_day);
+$second_cut_off_day = get_number_ordered($second_cut_off_day);
+$ietf_monday_day = get_number_ordered($ietf_monday_day);
+$due_day = get_number_ordered($due_day);
+$after_ietf_monday_day = get_number_ordered($after_ietf_monday_day);
+$wg_chair_list_day = get_number_ordered($wg_chair_list_day);
+######### Templates ################################
+
+my $first_cut_off_reminder = qq{
+There are two (2) Internet-Draft cutoff dates for the $current_meeting_num_ordered 
+IETF Meeting in $meeting_city$meeting_state, $meeting_country:
+
+$first_cut_off_month $first_cut_off_day: Cutoff Date for Initial (i.e., version -00) 
+Internet-Draft Submissions 
+
+All initial Internet-Drafts (version -00) must be submitted by $first_cut_off_day_name, 
+$first_cut_off_month $first_cut_off_day at 9:00 AM ET ($gmt_hour_first_cut_off).The only exception is for
+version -00 WG drafts that replace existing non-WG drafts.  Such drafts
+may be submitted until the cutoff date for version -01 and higher
+drafts.
+As always, all initial submissions with a filename beginning with 
+"draft-ietf" must be approved by the appropriate WG Chair before they 
+can be processed or announced.  The Secretariat would appreciate 
+receiving WG Chair approval by $wg_chair_list_day_name, $wg_chair_list_month $wg_chair_list_day at 9:00 AM ET ($gmt_hour_wg_chair_list).
+
+$second_cut_off_month $second_cut_off_dayi ($gmt_hour_second_cut_off): Cutoff Date for Revised (i.e., version -01 and higher) 
+Internet-Draft Submissions 
+
+All revised Internet-Drafts (version -01 and higher) must be submitted 
+by $second_cut_off_day_name, $second_cut_off_month $second_cut_off_day at 9:00 AM ET ($gmt_hour_second_cut_off).
+
+Initial and revised Internet-Drafts received after their respective 
+cutoff dates will not be made available in the Internet-Drafts 
+directory or announced until on or after Monday, $ietf_monday_month $ietf_monday_day at 9:00 
+AM ET ($gmt_hour_ietf_monday), when Internet-Draft posting resumes.  Please do not wait until 
+the last minute to submit.
+
+The Secretariat encourages you to submit your Internet-Drafts via the 
+Internet-Draft Submission Tool (IDST) https://datatracker.ietf.org/idst/upload.cgi. 
+If you are unable to do so, then you may still submit your Internet-
+Drafts manually by sending them to internet-drafts\@ietf.org.  If you 
+are submitting a version -00 WG draft that replaces non-WG draft, then 
+you must submit it manually as the current IDST cannot handle 
+replacements.  Please be sure to state that one draft replaces another 
+in the cover note that accompanies your submission.  Also, please note 
+that the IDST will not accept drafts submitted after their respective 
+cutoff dates.
+
+Thank you for your understanding and cooperation. If you have any 
+questions or concerns, then please send a message to 
+internet-drafts\@ietf.org.
+
+The IETF Secretariat
+
+FYI: The Internet-Draft cutoff dates as well as other significant dates
+for the $current_meeting_num_ordered IETF Meeting can be found at http://www.ietf.org/meetings/$current_meeting_num-cutoff_dates.html.
+
+};
+my $second_cut_off_reminder = qq{
+All revised Internet-Drafts (version -01 and higher) must be submitted 
+by $second_cut_off_day_name, $second_cut_off_month $second_cut_off_day at 9:00 AM ET ($gmt_hour_second_cut_off).
+
+Revised Internet-Drafts received after the cutoff date will not be made
+available in the Internet-Drafts directory or announced until on or 
+after Monday, $ietf_monday_month $ietf_monday_day at 9:00 AM ET ($gmt_hour_ietf_monday), when Internet-Draft posting 
+resumes.  Please do not wait until the last minute to submit.
+
+The Secretariat encourages you to submit your Internet-Drafts via the Internet-Draft Submission Tool (IDST) https://datatracker.ietf.org/idst/upload.cgi. 
+If you are unable to do so, then you may still submit your Internet-Drafts manually by sending them to internet-drafts\@ietf.org.  If you are submitting a version -00 WG draft that replaces non-WG draft, then you must submit it manually as the current IDST cannot handle replacements.  Please be sure to state that one draft replaces another in the cover note that accompanies your submission.  Also, please note that the IDST will not accept drafts submitted after their respective cutoff dates.
+
+Thank you for your understanding and cooperation. If you have any 
+questions or concerns, then please send a message to 
+internet-drafts\@ietf.org.
+
+The IETF Secretariat
+
+FYI: The Internet-Draft cutoff dates as well as other significant dates
+for the $current_meeting_num_ordered IETF Meeting can be found at http://www.ietf.org/meetings/$current_meeting_num-cutoff_dates.html.
+
+};
+my $day_interval = "five (5)";
+$day_interval = "four (4)" if ($wg_chair_list_day_name eq "Tuesday");
+$day_interval = "four (3)" if ($wg_chair_list_day_name eq "Wednesday");
+my $wg_chair_list_reminder = qq{
+Dear IETF Working Group Chairs:
+
+In order to expedite the processing of the many version -00 I-Ds that 
+the Secretariat receives before an IETF meeting, we ask that you 
+please notify the Secretariat prior to the initial submission cutoff 
+date of all version -00 I-Ds that you expect to approve for posting as 
+WG documents.  Please send the filenames of your approved -00 I-Ds to 
+internet-drafts\@ietf.org, or use the Initial Version WG Draft Approval 
+Tool https://datatracker.ietf.org/cgi-bin/wg/wg_init_rev_approval.cgi 
+to pre-approve drafts.  We would appreciate receiving your list of 
+approved drafts $day_interval business days prior to the cutoff date for -00 
+submissions, or by $wg_chair_list_day_name, $wg_chair_list_month $wg_chair_list_day at 
+9:00 AM ET ($gmt_hour_wg_chair_list) for the $current_meeting_num_ordered IETF Meeting.  Please include the word "Approved 
+I-Ds" in the "Subject" field.  This procedure will help to ensure that 
+version -00 I-Ds are posted in a timely manner, allowing more time for 
+review by the public.
+
+Thank you for your cooperation in this matter.
+
+The Internet-Drafts Administrator
+
+FYI: The Internet-Draft cutoff dates as well as other significant dates
+for the $current_meeting_num_ordered IETF Meeting can be found at http://www.ietf.org/meetings/$current_meeting_num-cutoff_dates.html.
+
+};
+my $id_checklist_reminder = qq{
+Dear Working Group Chairs:
+
+In the course of your efforts, you will likely be submitting 
+Internet-Drafts to the IESG for consideration as RFCs.  Please note 
+that all Internet-Drafts offered for publication as RFCs must conform 
+to the requirements specified in the ID-Checklist 
+(http://www.ietf.org/ID-Checklist.html), or they will be returned to 
+the author(s) for revision.  Therefore, the IETF Secretariat strongly 
+recommends that you address all of the issues raised in this document 
+before submitting a request to publish an Internet-Draft to the IESG.  
+The content issues should be addressed early on in the work since they 
+are integral to the technical makeup of the Internet-Draft.
+
+Thank you in advance for your cooperation.
+
+The IETF Secretariat
+
+};
+######### Decide which template needs to be sent out ##########
+my $wgchairs_to = "Working Group Chairs <wgchairs\@ietf.org>";
+my $ids_from = "Internet-Drafts Administrator <internet-drafts\@ietf.org>";
+my $wg_chair_list_subject = "Approval to Post Version -00 Internet-Drafts for the $current_meeting_num_ordered IETF Meeting in $meeting_city$meeting_state, $meeting_country";
+my $ietf_announce_to="ietf-announce\@ietf.org";
+my $sec_from = "ietf-secretariat\@ietf.org";
+my $first_cut_off_subject="Internet-Drafts Submission Cutoff Dates for the $current_meeting_num_ordered IETF Meeting in $meeting_city$meeting_state, $meeting_country";
+my $second_cut_off_subject="Revised $first_cut_off_subject";
+my $id_checklist_subject="ID Checklist Reminder";
+if ($current_date eq $seventh_friday_schedule) {
+  schedule_reminder($wgchairs_to,"iesg\@ietf.org",$ids_from,$wg_chair_list_subject,$wg_chair_list_reminder,$seventh_friday);
+  schedule_reminder($ietf_announce_to,"",$sec_from,$first_cut_off_subject,$first_cut_off_reminder,$seventh_friday);
+} elsif ($current_date eq $sixth_friday_schedule) {
+  schedule_reminder($wgchairs_to,"iesg\@ietf.org",$ids_from,$wg_chair_list_subject,$wg_chair_list_reminder,$sixth_friday);
+  schedule_reminder($ietf_announce_to,"",$sec_from,$first_cut_off_subject,$first_cut_off_reminder,$sixth_friday);
+} elsif ($current_date eq $fifth_friday_schedule) {
+  schedule_reminder($wgchairs_to,"iesg\@ietf.org",$ids_from,$wg_chair_list_subject,$wg_chair_list_reminder,$fifth_friday);
+  schedule_reminder($ietf_announce_to,"",$sec_from,$first_cut_off_subject,$first_cut_off_reminder,$fifth_friday);
+} elsif ($current_date eq $fourth_friday_schedule) {
+  schedule_reminder($wgchairs_to,"iesg\@ietf.org",$ids_from,$wg_chair_list_subject,$wg_chair_list_reminder,$fourth_friday);
+  schedule_reminder($ietf_announce_to,"",$sec_from,$first_cut_off_subject,$first_cut_off_reminder,$fourth_friday);
+} elsif ($current_date eq $third_friday_schedule) {
+  schedule_reminder($ietf_announce_to,"wgchairs\@ietf.org",$sec_from,$first_cut_off_subject,$first_cut_off_reminder,$third_friday);
+} elsif ($current_date eq $second_friday_schedule) {
+  schedule_reminder($ietf_announce_to,"wgchairs\@ietf.org",$sec_from,$second_cut_off_subject,$second_cut_off_reminder,$second_friday);
+} elsif ($current_date eq $week_after_meeting_schedule) {
+  schedule_reminder($wgchairs_to,"iesg\@ietf.org",$sec_from,$id_checklist_subject,$id_checklist_reminder,$week_after_meeting);
+}
+  
+exit;
+
+sub schedule_reminder {
+  my ($to,$cc,$from,$subject,$message_body,$to_be_sent_date) = @_;
+  ($to,$cc,$from,$subject,$message_body,$to_be_sent_date) = db_quote($to,$cc,$from,$subject,$message_body,$to_be_sent_date);
+  db_update("insert into scheduled_announcements (to_be_sent_date,to_be_sent_time,scheduled_by,scheduled_date,scheduled_time,subject,to_val,from_val,cc_val,body,first_q) values ($to_be_sent_date,'00:00:00','Auto Reminder',current_date,current_time,$subject,$to,$from,$cc,$message_body,1)");
+}
+

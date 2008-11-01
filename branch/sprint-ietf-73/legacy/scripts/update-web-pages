@@ -1,0 +1,17 @@
+/a/ietf/scripts/update-web-pages-abstracts -mysql -idindex > /a/www/ietf-ftp/internet-drafts/1id-index.txt
+/a/ietf/scripts/update-web-pages-abstracts -mysql > /a/www/ietf-ftp/internet-drafts/1id-abstracts.txt
+/a/ietf/scripts/update-web-pages-abstracts-html /a/www/ietf-ftp/internet-drafts/1id-abstracts.txt
+/a/ietf/scripts/update-web-pages-agenda -deploy
+/a/ietf/scripts/update-web-pages-agenda-public
+/a/ietf/scripts/update-web-pages-allid -mysql > /a/www/ietf-ftp/internet-drafts/all_id.txt
+/a/ietf/scripts/update-web-pages-charters -all >/dev/null 2>/dev/null
+/a/ietf/scripts/update-web-pages-export-minutes
+/a/ietf/scripts/update-web-pages-meetingagenda
+/a/ietf/scripts/update-web-pages-nomcom > /a/www/ietf/nomcom/index.html
+/a/ietf/scripts/update-web-pages-pwg
+/a/ietf/scripts/update-web-pages-soi -deploy
+/a/ietf/scripts/update-web-pages-wgsummary -mysql > /a/www/ietf-ftp/ietf/1wg-summary.txt
+/a/ietf/scripts/update-web-pages-wgsummary -mysql -byacronym > /a/www/ietf-ftp/ietf/1wg-summary-by-acronym.txt
+/a/ietf/scripts/update-web-pages-wgdescriptions > /a/www/ietf-ftp/ietf/1wg-charters.txt
+/a/ietf/scripts/update-web-pages-wgdescriptions -byacronym > /a/www/ietf-ftp/ietf/1wg-charters-by-acronym.txt
+/a/ietf/scripts/update-web-pages-wgwebmail > /a/www/ietf/WG-WEB-Mail.html

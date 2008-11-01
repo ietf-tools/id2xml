@@ -1,0 +1,15 @@
+rsync -v \
+        --rsh "/usr/bin/ssh -i /home/ietf/.ssh/identity-new -l mirror" \
+        --archive --update --delete \
+        --links \
+        --safe-links --stats\
+        /home/master-site/htdocs/IESG/internal/IDDUMP/TOTALDUMP/ietf_db_dump.sql  mirror@stiedprweb1:/home/local/apache2/htdocs/IESG/internal/IDDUMP/TOTALDUMP/ietf_db_dump.sql
+
+rsync -v \
+        --rsh "/usr/bin/ssh -i /home/ietf/.ssh/identity-new -l mirror" \
+        --archive --update --delete \
+        --links \
+        --safe-links --stats\
+        /home/master-site/htdocs/IESG/internal/IDDUMP/TOTALDUMP/ietf_db_dump.sql mirror@chiedprweb1:/home/local/apache2/htdocs/IESG/internal/IDDUMP/TOTALDUMP/ietf_db_dump.sql
+                                                                                                           
+

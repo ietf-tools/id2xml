@@ -1,0 +1,44 @@
+#!/bin/bash
+
+WHOAMI=`basename $0`
+LOGFILE=`mktemp /tmp/${WHOAMI}.XXXXXXXXXX` || exit 1
+ERROR_FLAG=0
+SSH="ssh -i /home/ietf/.ssh/identity-new -l mirror"
+RARGS="--archive --update --delete --links --safe-links --stats"
+OTHER="--exclude proceedings --exclude mrtg/ --exclude Admin/ --exclude WebSoft/ --exclude mail-archive/ --exclude IESG/internal/ --exclude rfc/ --exclude u/"
+DEBUG="-n"
+DEBUG=""
+
+# put date for timing
+date                    > $LOGFILE 2>&1
+
+FROM="/home/master-site/htdocs/"
+TO="mirror@manatick.foretec.com:/usr/local/apache2/htdocs/"
+echo "" >> $LOGFILE 2>&1
+echo "" >> $LOGFILE 2>&1
+echo +++ rsync -v $DEBUG --rsh "$SSH" $RARGS $OTHER $FROM $TO  >> $LOGFILE 2>&1
+rsync -v $DEBUG --rsh "$SSH" $RARGS $OTHER $FROM $TO >> $LOGFILE 2>&1
+if [ $? -gt 0 ]; then
+    ERROR_FLAG=1
+fi
+
+FROM=/home/master-site/htdocs/mail-archive/areas/
+TO=mirror@manatick.foretec.com:/usr/local/apache2/htdocs/mail-archive/areas/
+echo "" >> $LOGFILE 2>&1
+echo "" >> $LOGFILE 2>&1
+echo +++ rsync -v $DEBUG --rsh "$SSH" $RARGS $FROM $TO  >> $LOGFILE 2>&1
+rsync -v $DEBUG --rsh "$SSH" $RARGS $FROM $TO >> $LOGFILE 2>&1
+if [ $? -gt 0 ]; then
+    ERROR_FLAG=1
+fi
+
+date>> $LOGFILE 2>&1
+
+if [ $ERROR_FLAG -gt 0 ];then
+    mail -s "`basename $0` `hostname` FAILURE `date '+%Y-%m-%d-%H:%M'`" logs < $LOGFILE
+else
+     mail -s "`basename $0` `hostname` SUCCESS `date '+%Y-%m-%d-%H:%M'`" logs < $LOGFILE
+fi
+
+#/bin/rm -f $LOGFILE
+

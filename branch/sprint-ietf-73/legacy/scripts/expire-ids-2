@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_DBUTIL;
+use GEN_UTIL;
+use IETF;
+
+$devel_mode = 0;
+init_database("ietf");
+
+$ARCHIVE_DIR = "/a/www/ietf/DRAFT_ARCHIVE";
+$ID_DIR = "/a/www/ietf-ftp/internet-drafts";
+$LOG_FILE = "/a/www/ietf-datatracker/logs/expire_id.log";
+
+my $c_time = get_current_time();
+my $c_date = get_current_date();
+
+open LOG, ">>$LOG_FILE";
+print LOG "[$c_time, $c_date]\n\n";
+my $sqlStr = "select id_document_tag from internet_drafts where dunn_sent_date=date_sub(current_date, interval 1 day)";
+my @List = db_select_multiple($sqlStr);
+for $array_ref (@List) {
+  my ($id_document_tag) = @$array_ref;
+  my ($filename,$revision) = db_select("select filename,revision from internet_drafts where id_document_tag = $id_document_tag");
+  unless ($devel_mode) {
+    system "mv $ID_DIR/$filename-$revision.txt $ARCHIVE_DIR/$filename-$revision.txt"  if (-e "$ID_DIR/$filename-$revision.txt");
+    system "mv $ID_DIR/$filename-$revision.ps $ARCHIVE_DIR/$filename-$revision.ps" if (-e "$ID_DIR/$filename-$revision.ps");
+    system "mv $ID_DIR/$filename-$revision.pdf $ARCHIVE_DIR/$filename-$revision.pdf"  if (-e "$ID_DIR/$filename-$revision.pdf");
+  }
+  my $new_revision = $revision + 1;
+  $new_revision = "0$new_revision" if ($new_revision < 10);
+  my $sqlStr = qq{SELECT first_name, last_name, email_address
+FROM id_authors, person_or_org_info, email_addresses
+WHERE id_authors.id_document_tag 	= $id_document_tag
+AND id_authors.person_or_org_tag = person_or_org_info.person_or_org_tag
+AND id_authors.person_or_org_tag = email_addresses.person_or_org_tag
+AND email_addresses.email_priority = 1
+};
+  my $email_list = "";
+  my $author_list = "";
+  my @List_sub = db_select_multiple($sqlStr);
+  for $array_ref_sub (@List_sub) {
+    my ($first_name,$last_name,$email_address) = @$array_ref_sub;
+    $email_list .= qq{"$first_name $last_name" <$email_address>,};
+    $author_list .= "$first_name $last_name <$email_address>,\n";
+  }
+  chop($email_list);
+  chomp($author_list);chop($author_list);
+  
+  open OUTFILE, ">$ID_DIR/$filename-$new_revision.txt\n";
+  print OUTFILE qq{
+This Internet-Draft, $filename-$revision.txt, has expired, and has been deleted 
+from the Internet-Drafts directory.  An Internet-Draft expires 185 days from 
+the date that it is posted unless it is replaced by an updated version, or the
+Secretariat has been notified that the document is under official review by the
+IESG or has been passed to the RFC Editor for review and/or publication as an 
+RFC.  This Internet-Draft was not published as an RFC.
+
+Internet-Drafts are not archival documents, and copies of Internet-Drafts that have 
+been deleted from the directory are not available.  The Secretariat does not have 
+any information regarding the future plans of the author(s) or working group, if 
+applicable, with respect to this deleted Internet-Draft.  For more information, or 
+to request a copy of the document, please contact the author(s) directly.
+
+Draft Author(s):
+$author_list
+};
+  
+  close OUTFILE;
+
+  my $update_sql = qq{
+UPDATE internet_drafts
+SET	expiration_date = CURRENT_DATE,
+	last_modified_date = CURRENT_DATE,
+	status_id = 2,
+	revision = '$new_revision'
+WHERE id_document_tag 	= $id_document_tag
+};
+  db_update($update_sql);
+  print LOG "$filename-$revision.txt ($id_document_tag) ";
+  my ($cur_state,$ballot_id) = db_select("select cur_state,ballot_id from id_internal where id_document_tag=$id_document_tag and rfc_flag=0");
+  if ($cur_state > 41) { #In ID Tracker
+    update_state($ballot_id,99,-1,0,$devel_mode,0) unless ($cur_state == 99);
+    add_document_comment(0,$id_document_tag,"Document is expired",0);
+    print LOG " - in the ID Tracker\n";
+  }else {
+    print LOG "\n";
+  }
+}
+
+print LOG "[END OF TRANSACTION]\n\n";
+close LOG;
+exit;
+

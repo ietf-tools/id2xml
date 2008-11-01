@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+
+import email
+from email.MIMEText import MIMEText
+from email.MIMEMultipart import MIMEMultipart
+import sys
+import os
+import os.path
+import re
+
+version="0.12"
+
+# ----------------------------------------------------------------------
+# Configuration variables.  Tweak to fit your system.
+tmp = "/tmp"
+idnits = "/usr/local/bin/idnits"
+
+# ----------------------------------------------------------------------
+
+# Simplified interface to os.popen3()
+def pipe(cmd, str=None):
+    from popen2 import Popen3 as Popen
+    bufsize = 4096
+    if str and len(str) > 4096:                 # XXX: Hardcoded Linux 2.4, 2.6 pipe buffer size
+        bufsize = len(str)
+    pipe = Popen(cmd, True, bufsize)
+    if str:
+        pipe.tochild.write(str)
+        pipe.tochild.close()
+    out = ""
+    while True:
+        str = pipe.fromchild.read()
+        if str:
+            out += str
+        code = pipe.poll()
+        if code > -1:
+            break
+        if len(out) >= 65536:
+            break
+    err = pipe.childerr.read()
+    return (code, out, err)
+
+# ----------------------------------------------------------------------
+
+def nitsmsg(code, nits, err):
+    if code and err:
+        nitsmsg = MIMEText("Idnits reported error %s, with the following message:\n%s\n\n%s" % (code, err, nits))
+    else:
+        if err:
+            nitsmsg = MIMEText("%s\n\n%s" % (err, nits))
+        else:
+            nitsmsg = MIMEText(nits)
+    nitsmsg.replace_header("Content-Type", nitsmsg["Content-Type"] + '; name="idnits-result.txt"')
+    return nitsmsg
+
+msg = email.message_from_file(sys.stdin)
+new = MIMEMultipart()
+for key, value in msg.items():
+    new.add_header(key, value)
+
+if msg.is_multipart():
+    for part in msg.walk():
+        if part.get_content_maintype() == 'multipart':
+            continue
+        new.attach(part)
+        if part.get_content_maintype() == 'text' and "attachment" in part.get("content-disposition", ""):
+            filename = part.get_filename()
+            if filename:
+                basename = os.path.basename(filename)
+                basename = re.sub("[^A-Za-z0-9_.-]", "_", basename) # sanitize filename
+                filename = os.path.join(tmp, basename)
+                fp = open(filename, 'wb')
+                fp.write(part.get_payload(decode=True))
+                fp.close()
+                try:
+                    code, nits, err = pipe("%s --submitcheck %s" % (idnits, filename))
+                finally:
+                    os.unlink(filename)
+            else:
+                text = part.get_payload(decode=True)
+                code, nits, err = pipe("%s --submitcheck" % (idnits), text)
+            new.attach(nitsmsg(code, nits, err))
+
+else:
+    # Not multipart
+    text = msg.get_payload(decode=True)
+    new.attach(MIMEText(text))
+    code, nits, err = pipe("%s --submitcheck" % (idnits), text)
+    new.attach(nitsmsg(code, nits, err))
+
+print str(new)

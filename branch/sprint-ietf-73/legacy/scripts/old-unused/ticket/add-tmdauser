@@ -1,0 +1,25 @@
+#!/bin/bash
+
+umask 022
+
+USERNAME=$1
+MUID=$2
+
+echo creating $USERNAME
+
+/usr/sbin/groupadd -g $MUID $USERNAME
+/usr/sbin/adduser -u $MUID -g $MUID $USERNAME
+passwd -l $USERNAME
+cd /home/$USERNAME
+tar xvzf /home/tmdauser/tmda-template.tgz
+cd ..
+chown -R $USERNAME $USERNAME
+echo now run
+echo sudo -u $USERNAME /home/tmdauser/bin/fixup $USERNAME
+# echo /home/tmdauser/bin/fixup
+
+FOO=`echo $USERNAME | sed 's/tmda//g'`
+echo  echo DELIVER=\\\"${FOO}-chairs-xx172@ietf.org\\\" \>\> /home/$USERNAME/.tmda/config
+
+
+

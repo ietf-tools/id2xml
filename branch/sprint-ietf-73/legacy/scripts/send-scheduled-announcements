@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_UTIL;
+use GEN_DBUTIL_NEW;
+use IETF;
+use CGI_UTIL;
+
+init_database("ietf");
+$dbh=get_dbh();
+my $option = $ARGV[0];
+die "USAGE: send_scheduled_announcements.pl <all | rsync | specific>\n\n" unless my_defined($option);
+die "USAGE: send_scheduled_announcements.pl <all | rsync | specific>\n\n" unless ($option =~ /all|rsync|specific/);
+my $sqlStr = get_sqlStr($option);
+open LOG,">>/a/www/ietf-datatracker/logs/scheduled_announcements_by_cron.log";
+my @List = db_select_multiple($dbh,$sqlStr);
+for my $array_ref (@List) {
+  my ($id,$subject) = @$array_ref;
+  my $c_time = get_current_time();
+  my $c_date = get_current_date();
+  my $result = send_now($id);
+  print LOG "[$c_date,$c_time]|id:$id <$subject>|$result\n";
+
+}
+close LOG;
+$dbh->disconnect();
+exit;
+
+sub get_sqlStr {
+  my $option=shift;
+  if ($option eq "all") {
+    return "select id,subject from scheduled_announcements where mail_sent=0";
+  }elsif ($option eq "rsync") {
+### return "select id,subject from scheduled_announcements where mail_sent=0 and (to_be_sent_date like '0000%' or to_be_sent_date='' or to_be_sent_date is null) and (to_be_sent_time like '00%' or to_be_sent_time='' or to_be_sent_time is NULL) and second_q = 1";
+    return "select id,subject from scheduled_announcements where mail_sent=0 and (to_be_sent_date like '0000%' or to_be_sent_date='' or to_be_sent_date is null) and (to_be_sent_time like '00%' or to_be_sent_time='' or to_be_sent_time is NULL) ";
+  } else {
+    return "select id,subject from scheduled_announcements where mail_sent=0 and (to_be_sent_date<>'0000-00-00' and to_be_sent_date<>'' and to_be_sent_date is not null) and (to_be_sent_time<>'' <> to_be_sent_time is not NULL) and to_be_sent_date <= current_date and hour(to_be_sent_time) <= hour(current_time) and minute(to_be_sent_time) <= minute(current_time)";
+  }
+}
+
+sub send_now {
+  my $id=shift;
+  my ($subject,$from_val,$to_val,$cc_val,$body,$content_type,$replyto,$bcc_val) = db_select($dbh,"select subject,from_val,to_val,cc_val,body,content_type,replyto,bcc_val from scheduled_announcements where id=$id");
+  my $extra = (my_defined($replyto))?"reply-to: $replyto^":"";
+  $extra .= (my_defined($bcc_val))?"bcc: $bcc_val^":"";
+  $body =~ s/^\.//mg;
+  if (send_mail($program_name,$current_user,$to_val,$from_val,$subject,$body,$cc_val,$extra,$content_type)) {
+    db_update($dbh,"update scheduled_announcements set mail_sent=1,actual_sent_date=current_date,actual_sent_time=current_time where id=$id");
+    return "seccess";
+  } else {
+    return "fail";
+  }
+  return "fail";
+}
+

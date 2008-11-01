@@ -1,0 +1,574 @@
+#!/usr/bin/perl
+##########################################################################
+# Copyright © 2003, Foretec Seminars, Inc.
+##########################################################################
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_UTIL;
+use GEN_DBUTIL;
+use IETF;
+
+$db_name = "ietf";
+$test_mode = 0;
+$test_mode = 1 if ($ARGV[0] eq "test");
+if ($test_mode) {
+  $db_name = "testdb";
+}
+init_database($db_name);
+
+
+$dateStr = get_current_date();
+$timeStr = get_current_time();
+$INTERNAL_DIR = "/a/www/ietf/IESG/internal";
+$EVAL_DIR = "/a/www/ietf/IESG/EVALUATIONS";
+$SOURCE_DIR = "/a/ietf/scripts/support";
+$telechat_date = db_select("select date1 from telechat_dates");
+$not_via_rfc_where = "AND via_rfc_editor = 0\n";
+$via_rfc_where = "AND via_rfc_editor = 1\n";
+$gap = "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ";
+@v_number = ("Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine");
+$table_header = qq{
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td>$gap</td>
+<td>
+};
+$table_footer = "</td></tr></table>\n";
+$html_txt = qq{<html>
+<TITLE>IESG Agenda</TITLE>
+</HEAD>
+
+<center><h1>IESG Agenda</H1></center>
+Good approximation of what will be included in the Agenda of next Telechat ($telechat_date).<br><br>
+<HR>
+<h2>1. Administrivia</h2>
+<UL>
+1.1 <a href="rollcall.txt">Roll Call</a><br>
+1.2 Bash the Agenda<br>
+1.3 Approval of the <A HREF="MINUTES.txt">Minutes</a> of the past telechat<br>
+1.4 List of Remaining <A HREF="task.txt">Action Items</a> from Last Telechat<br>
+</UL><P><P>
+};
+unlink "$INTERNAL_DIR/all_ballots.txt";
+system "touch $INTERNAL_DIR/all_ballots.txt";
+my $indexCnt = 2;
+$html_txt .= get_agenda_body("PA");
+$html_txt .= get_agenda_body("DA");
+$html_txt .= get_wg_action();
+$html_txt .= get_agenda_footer();
+my $date = db_select("select date1 from telechat_dates");
+open (OUTFILE,">$INTERNAL_DIR/agenda.html");
+print OUTFILE $html_txt;
+close(OUTFILE);
+#system "/home/mlee/bin/dos2unix.pl $INTERNAL_DIR/all_ballots.txt";
+my $summary_txt = `$SOURCE_DIR/gen_agenda_summary.pl $date`;
+open (OUTFILE2,">$INTERNAL_DIR/agenda.txt");
+print OUTFILE2 $summary_txt;
+close(OUTFILE2);
+
+#system "/a/www/ietf-datatracker/release/gen_agenda_summary.pl $date 0> $INTERNAL_DIR/agenda.txt";
+exit;
+                                                                                               
+sub gen_unassigned {
+  my $type = shift;
+  my $via_rfc_editor = shift;
+  my $wg_submission = shift;
+  my $date1 = db_select("select date1 from telechat_dates");
+  my $sqlStr = "select rfc_flag,a.id_document_tag,status_date,token_email,token_name,ballot_id,note,acronym from id_internal a, internet_drafts b, acronym c where (cur_state < 16 or cur_state > 21) and agenda=1 and
+via_rfc_editor=$via_rfc_editor and primary_flag=1 and a.id_document_tag=b.id_document_tag and a.area_acronym_id = c.acronym_id and telechat_date = '$date1' ";
+  if ($wg_submission) {
+    $sqlStr .= " AND group_acronym_id <> 1027";
+  } else {
+    $sqlStr .= " AND group_acronym_id = 1027";
+  } 
+  my $heading = "";
+  if ($type eq "PA") {
+    if ($wg_submission) {
+      $heading = "2.1.3 For Action";
+    } else {
+      $heading = "2.2.3 For Action";
+    }
+    $sqlStr .= " AND intended_status_id in (1,2,6,7)";
+  } else {
+    if ($wg_submission) {
+      $heading = "3.1.3 For Action";
+    } else {
+      if ($via_rfc_editor) {
+        $heading = "3.3.3 For Action";
+      } else {
+        $heading = "3.2.3 For Action";
+      }
+    }
+    $sqlStr .= " AND intended_status_id in (3,5,4)";
+  }
+
+  my @List = db_select_multiple($sqlStr);
+  return "" if ($#List < 0);
+  my $total_count=$#List + 1;
+  my $this_count = 0;
+  my $ret_txt = qq{
+<b>$heading</b>
+<table><tr><th> &nbsp; &nbsp; &nbsp; </th><th>Area<th>Date<th></tr>
+};
+  for $array_ref (@List) {
+    my ($rfc_flag,$id_document_tag,$status_date,$token_email,$token_name,$ballot_id,$note,$area_acronym) = @$array_ref;
+    next if ($id_document_tag == 0 or !my_defined($id_document_tag));
+    $this_count++;
+    $ret_txt .= get_one_item($rfc_flag,$id_document_tag,$status_date,$token_email,$token_name,$note,$area_acronym,$ballot_id, $total_count,$this_count)
+  }
+  $ret_txt .= qq{
+</table>
+};
+  return $ret_txt;
+}
+
+sub get_agenda_body {
+  my $group_type = shift;
+  my $heading;
+  my $id_list = "";
+  my $rfc_list = "";
+  my $pReturningItem = -1;
+  if ($group_type eq "PA") {  #generate Protocol Action list
+    $heading = qq{Protocol Actions
+</h2><blockquote>
+Reviews should focus on these questions: "Is this document a<br>
+reasonable basis on which to build the salient part of the Internet<br>
+infrastructure? If not, what changes would make it so?"
+</blockquote></h3>
+};
+    $id_list = "1,2,6,7";
+    $rfc_list = "1,2,3,7";
+  } else {  #generate Docuement Action list
+    $heading = "Document Actions";
+    $id_list = "3,5,4";
+    $rfc_list = "4,5";
+  }
+  my $html_txt = qq{<h2>${indexCnt}. $heading</H2>
+  $table_header
+  };
+
+  my $sqlStr_base = qq{select rfc_flag,id_internal.id_document_tag,status_date,
+token_email,email_display,note,acronym,ballot_id
+from id_internal, internet_drafts, acronym, telechat_dates 
+WHERE agenda = 1 and primary_flag = 1 and rfc_flag=0
+AND id_internal.id_document_tag = internet_drafts.id_document_tag
+AND internet_drafts.intended_status_id in ($id_list)
+AND id_internal.area_acronym_id = acronym.acronym_id
+AND telechat_date = date1
+AND cur_state >= 16 and cur_state <= 21
+};
+  my $sqlStr_base_rfc = qq{select rfc_flag,id_internal.id_document_tag,status_date,
+token_email,email_display,note,acronym,ballot_id
+from id_internal, rfcs, acronym, telechat_dates
+WHERE agenda = 1 and primary_flag = 1 and rfc_flag=1
+AND id_internal.id_document_tag = rfcs.rfc_number
+AND rfcs.intended_status_id in ($rfc_list)
+AND id_internal.area_acronym_id = acronym.acronym_id
+AND telechat_date = date1
+AND cur_state >= 16 and cur_state <= 21
+};
+
+  $html_txt .= get_wg_individual($sqlStr_base,$sqlStr_base_rfc,"WG",$group_type);
+  $html_txt .= get_wg_individual($sqlStr_base,$sqlStr_base_rfc,"IND",$group_type);
+  $html_txt .= $table_footer;
+  $indexCnt++;
+  return $html_txt;
+}
+
+sub get_wg_individual {
+  my $sqlStr = shift;
+  my $sqlStr_rfc = shift;
+  my $type = shift;
+  my $group_type = shift;
+  my $heading = "";
+  my $hd_num;
+  if ($type eq "IND") {
+    $hd_num = "${indexCnt}.2";
+    $heading = "$hd_num Individual Submissions";
+    $sqlStr .= "AND group_acronym_id = 1027\n";
+    $sqlStr_rfc .= "AND group_acronym = 'none'\n";
+    if ($group_type eq "DA") {
+      my $html_txt = get_via_rfc_ad($sqlStr,$sqlStr_rfc,"AD");
+      $html_txt .= gen_unassigned("DA",0);
+      $html_txt .= get_via_rfc_ad($sqlStr,$sqlStr_rfc,"RFC");
+      $html_txt .= gen_unassigned("DA",1);
+      $html_txt .= $table_footer;
+      return $html_txt;
+    }
+  } else {
+    $hd_num = "${indexCnt}.1";
+    $heading = "$hd_num WG Submissions";
+    $heading .= qq{
+</h3><blockquote>
+Reviews should focus on these questions: "Is this document a reasonable<br>
+contribution to the area of Internet engineering which it covers? If<br>
+not, what changes would make it so?"<br>
+</blockquote>
+} if ($indexCnt == 3);;
+    $sqlStr .= "AND group_acronym_id <> 1027\n";
+    $sqlStr_rfc .= "AND group_acronym <> 'none'\n";
+  }
+  $sqlStr .= $not_via_rfc_where;
+  $sqlStr_rfc .= $not_via_rfc_where;
+  my $html_txt = "<h3>$heading</h3>\n$table_header";
+  $html_txt .= get_new_returning($sqlStr,$sqlStr_rfc,"NEW",$hd_num);
+  $html_txt .= get_new_returning($sqlStr,$sqlStr_rfc,"RET",$hd_num);
+  my $wg_submission = ($type eq "IND")?0:1;
+  $html_txt .= gen_unassigned($group_type,0,$wg_submission);
+  $html_txt .= $table_footer;
+  return $html_txt;
+}
+
+sub get_via_rfc_ad {
+  my $sqlStr = shift;
+  my $sqlStr_rfc = shift;
+  my $type = shift;
+  my $hd_num;
+  my $heading = "";
+  if ($type eq "AD") {
+    $hd_num = "${indexCnt}.2";
+    $heading .= qq{<h3>$hd_num Individual Submissions Via AD
+</h3><blockquote>
+Reviews should focus on these questions: "Is this document a reasonable<br>
+contribution to the area of Internet engineering which it covers? If<br>
+not, what changes would make it so?"<br>
+</blockquote>
+};
+
+    $sqlStr .= $not_via_rfc_where;
+    $sqlStr_rfc .= $not_via_rfc_where;
+  } else {
+    $hd_num = "${indexCnt}.3";
+    $heading .= qq{<h3>$hd_num Independent Submissions Via RFC Editor
+</h3><blockquote>
+The IESG will use RFC 3932 responses: 1) The IESG has not<br>
+found any conflict between this document and IETF work; 2) The<br>
+IESG thinks that this work is related to IETF work done in WG<br>
+&lt;X&gt;, but this does not prevent publishing; 3) The IESG thinks<br>
+that publication is harmful to work in WG &lt;X&gt; and recommends<br>
+not publishing at this time; 4) The IESG thinks that this<br>
+document violates the IETF procedures for &lt;X&gt; and should<br>
+therefore not be published without IETF review and IESG<br>
+approval; 5) The IESG thinks that this document extends an<br>
+IETF protocol in a way that requires IETF review and should<br>
+therefore not be published without IETF review and IESG approval.<br>
+<br>
+The document shepherd must propose one of these responses in<br>
+the Data Tracker note and supply complete text in the IESG<br>
+Note portion of the write-up. The Area Director ballot positions<br>
+indicate consensus with the response proposed by the<br>
+document shepherd.<br>
+<br>
+Other matters may be recorded in comments, and the comments will<br>
+be passed on to the RFC Editor as community review of the document.
+</blockquote>
+};
+    $sqlStr .= $via_rfc_where;
+    $sqlStr_rfc .= $via_rfc_where;
+  }
+  my $html_txt = "$heading</h3>\n$table_header";
+  $html_txt .= get_new_returning($sqlStr,$sqlStr_rfc,"NEW",$hd_num);
+  $html_txt .= get_new_returning($sqlStr,$sqlStr_rfc,"RET",$hd_num);
+  $html_txt .= $table_footer;
+  return $html_txt;
+}
+
+sub get_new_returning {
+  my $sqlStr = shift;
+  my $sqlStr_rfc = shift;
+  my $type = shift;
+  my $hd_num = shift;
+  my $heading = "";
+  if ($type eq "NEW") {
+    $heading = "${hd_num}.1 New Item";
+    $sqlStr .= "AND returning_item = 0\n";
+    $sqlStr_rfc .= "AND returning_item = 0\n";
+  } else {
+    $heading = "${hd_num}.2 Returning Item";
+    $sqlStr .= "AND returning_item = 1\n";
+    $sqlStr_rfc .= "AND returning_item = 1\n";
+  }
+  my $html_txt = "<b>$heading</b>\n";
+  $sqlStr .= "order by ballot_id,primary_flag DESC, status_date";
+  $sqlStr_rfc .= "order by ballot_id,primary_flag DESC, status_date";
+
+  my @List = db_select_multiple($sqlStr);
+  my @List_rfc = db_select_multiple($sqlStr_rfc);
+  my $total_count = $#List + $#List_rfc + 2;
+  my $this_count = 0;
+  return "$html_txt <br>&nbsp; &nbsp; &nbsp; <i>NONE</i><br>\n" if ($#List < 0 and $#List_rfc < 0);
+  $html_txt .= "<table><tr><th> &nbsp; &nbsp; &nbsp; </th><th>Area<th>Date<th></tr>\n";
+  for $array_ref (@List) {
+    $this_count++;
+    $html_txt .= get_one_item(@$array_ref,$total_count,$this_count);
+  }
+  for $array_ref (@List_rfc) {
+    $this_count++;
+    $html_txt .= get_one_item(@$array_ref,$total_count,$this_count);
+  }
+  $html_txt .= "</table>\n";
+  return $html_txt;
+}
+
+sub get_one_item {
+    my ($rfc_flag,$id_document_tag,$status_date,$token_email,$token_name,$note,$area_acronym,$ballot_id, $total_count,$this_count) = @_;
+    system "$SOURCE_DIR/gen_ballot_text.pl $ballot_id >> $INTERNAL_DIR/all_ballots.txt";
+    my $active_ballot = db_select("select active from ballot_info where ballot_id = $ballot_id");
+    my $ballot_name = db_select("select filename from internet_drafts a, id_internal b where b.ballot_id = $ballot_id and b.primary_flag = 1 and b.id_document_tag = a.id_document_tag");
+    my $ballot_button = "";
+    $ballot_button = qq {
+          <a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=open_ballot&id_document_tag=$id_document_tag">[Open Web Ballot]</a>
+} if ($active_ballot);
+                                                                                                      
+    $ballot_button = "<a href=\"http://www.ietf.org/IESG/EVALUATIONS/${ballot_name}.bal\">[Open Text Ballot]</a>" if (-e "$EVAL_DIR/${ballot_name}.bal");
+
+    my $html_txt = "";
+    if ($rfc_flag) {
+      my $sqlStr = qq{
+          Select r.rfc_name,s.status_value,r.area_acronym
+          from rfcs r, id_intended_status s
+          where r.rfc_number = $id_document_tag
+          AND r.intended_status_id = s.intended_status_id
+          };
+         ($doc_name,$statusStr,$gAcronym) = rm_tr(db_select($sqlStr));
+         $filename = "rfc${id_document_tag}.txt";
+         $filename1 = "RFC${id_document_tag}";
+         $filename2 = "http://www.ietf.org/rfc/rfc${id_document_tag}.txt";
+    } else {
+      my $sqlStr = qq{
+         Select i.id_document_name,i.filename,i.revision,s.status_value,m.acronym
+         from internet_drafts i,id_intended_status s,area_group p,acronym m
+         Where i.id_document_tag = $id_document_tag
+         AND i.intended_status_id = s.intended_status_id
+         AND i.group_acronym_id = p.group_acronym_id
+         AND p.area_acronym_id = m.acronym_id
+         };
+         ($doc_name,$filename,$revision,$statusStr,$gAcronym) = rm_tr(db_select($sqlStr));
+         next unless (my_defined($doc_name));
+         $filename1 = $filename;
+         $filename2 = "http://www.ietf.org/internet-drafts/${filename}-${revision}.txt";
+         $filename = "${filename}-${revision}.txt";
+    }
+    $status_date = convert_date($status_date,2);
+    $status_date = convert_date($status_date);
+    $status_date = "" unless ($status_date) ;
+    $area = rm_tr(uc($area_acronym));
+    if ($area eq "ADM" or $area eq "UND") {
+      $area = rm_tr(uc($area_acronym));
+      $area = "UND" unless (defined($area));
+    }
+    $filename1 =~ s/.txt//;
+    $_ = "/usr/local/etc/httpd/htdocs/IESG/EVALUATIONS/${filename1}.bal";
+    if (-e) {
+       $html_txt .= qq{<tr><td></td><td><a href="http://www.ietf.org/IESG/EVALUATIONS/${filename1}.bal">$area</a></td>}; #"
+    }
+    else {
+       $html_txt .= qq{<tr><td></td><td>$area</td>};
+    }
+    $html_txt .= qq{<td nowrap>$status_date</td>};
+          
+    my $sqlStr2 = qq{select c.id_document_tag,rfc_flag,id_document_name,filename,revision,status_value,note
+from internet_drafts a,id_intended_status b, id_internal c
+where c.ballot_id = $ballot_id and c.id_document_tag <> $id_document_tag and
+c.id_document_tag = a.id_document_tag and a.intended_status_id =
+b.intended_status_id};
+    my @List2 = db_select_multiple($sqlStr2);
+    if ($#List2 > -1) {
+      my $num_doc = $#List2 + 2;
+      $num_doc = $v_number[$num_doc];
+      $html_txt .= qq{<td>$num_doc-Document ballot: $ballot_button - $this_count of $total_count</td></tr>
+<tr><td></td><td></td><td></td>
+};
+      $ballot_button = "";
+    }                                                                                   
+    $statusStr = rm_tr($statusStr);
+    $statusStr = db_select("select status_value from rfcs a, rfc_intend_status b where a.intended_status_id=b.intended_status_id and a.rfc_number=$id_document_tag") if ($rfc_flag);
+    $html_txt .= qq{<td>$doc_name ($statusStr) - $this_count of $total_count</td></tr>
+<tr><td></td><td></td><td></td>
+<td><A HREF="${filename2}">${filename}</a> $ballot_button</td></tr>
+};
+#"
+    $one_line = "$doc_name ($statusStr)";
+    $one_line = indent_text2($one_line,5);
+    if (my_defined($note)) {
+      $html_txt .= qq{<tr><td></td><td></td><td></td>
+      <td>Note: $note</td></tr>
+};
+    }
+                                                                                             
+    if ($#List2 > -1) {
+      for $array_ref2 (@List2) {
+        my ($id_document_tag,$rfc_flag,$doc_name,$filename,$revision,$statusStr,$note) = rm_tr(@$array_ref2);
+        my $doc_url = qq{<A HREF="http://www.ietf.org/internet-drafts/${filename}-${revision}.txt">${filename}-${revision}.txt</a>};
+        if ($rfc_flag) {
+        $filename = "RFC $id_document_tag";
+        ($doc_name,$statusStr) = db_select("select rfc_name,status_value from rfcs a,
+rfc_intend_status b where a.intended_status_id=b.intended_status_id and a.rfc_number=$id_document_tag");
+        $doc_url = qq{<a href="http://www.ietf.org/rfc/rfc$id_document_tag.txt">RFC $id_document_tag</a>};
+      }
+        $html_txt .= qq{<tr><td></td><td></td><td nowrap></td>
+<td>$doc_name ($statusStr)</td></tr>
+<tr><td></td><td></td><td></td>
+<td>$doc_url  $ballot_button</td></tr>
+};
+#"
+        if (my_defined($note)) {
+          $html_txt .= qq{<tr><td></td><td></td><td></td>
+          <td>Note: $note</td></tr>
+};
+        }
+
+      }
+    }
+
+    if (my_defined($token_email)) {
+      $html_txt .= qq{<tr><td></td><td></td><td>Token:</td>
+      <td><a href="mailto:$token_email">$token_name</a></td></tr>
+};
+    }
+
+  return $html_txt;
+}
+
+sub get_wg_action {
+  my $html_txt = "<h2>${indexCnt}. Working Group Actions</h2>\n";
+  my @List = db_select_multiple("select id,pwg_status_val from pwg_cat where id
+<> 11 and id <> 21 order by id");
+  for $array_ref (@List) {
+    my ($id,$val) = rm_tr(@$array_ref);
+    my $sub_count1 = "${indexCnt}.";
+    my $sub_count2;
+    my @temp_heading = split "::",$val;
+    my $sub_heading1 = $temp_heading[0];
+    my $sub_heading2 = $temp_heading[1];
+    if ($id < 20) {
+      $sub_count1 .= "1";
+    } else {
+      $sub_count1 .= "2";
+    }
+    my $temp_id = $id % 10 - 1;
+    $sub_count2 = $sub_count1 . ".$temp_id";
+    if ($temp_id == 1) {
+      $html_txt .= "$table_header\n<h3>$sub_count1 $sub_heading1</h3>\n";
+    }
+    $html_txt .= "$table_header\n<b>$sub_count2 $sub_heading2</b><br>\n";
+    my $sqlStr = "select group_acronym_id,note,token_name,status_date from group_internal, telechat_dates where agenda=1 and pwg_cat_id = $id and telechat_date=date1";
+    $html_txt .= get_wg_action_text($sqlStr);
+    $html_txt .= $table_footer;
+    $html_txt .= $table_footer if ($id == 13 or $id == 23);
+  }
+  $indexCnt++;
+  return $html_txt;
+}
+
+sub get_wg_action_text {
+  my $sqlStr = shift;
+  my $html_txt = "";
+  my @List = db_select_multiple($sqlStr);
+  if ($#List > -1) {
+    my $total_count = $#List + 1;
+    my $this_count = 0;
+    $html_txt .= qq {$table_header
+     <table><tr><th>Area<th>Date<th></tr>
+};
+    for $array_ref (@List) {
+       my ($group_acronym_id,$note,$token_name,$status_date) = rm_tr(@$array_ref);
+       $this_count++;
+       my ($group_acronym, $group_name) = rm_tr(db_select("select acronym,name from acronym where acronym_id = $group_acronym_id"));
+   
+       my $area = uc(db_select("select a.acronym from acronym a,area_group ag where ag.group_acronym_id = $group_acronym_id and ag.area_acronym_id = a.acronym_id"));
+       #my $status_date = db_select("select last_modified_date from groups_ietf where group_acronym_id = $group_acronym_id");
+       $status_date = convert_date($status_date,2);
+       $status_date = convert_date($status_date);
+       $status_date = "" unless ($status_date) ;
+       $html_txt .= "<tr><td>$area</td><td>$status_date</td><td><a href=\"http://www.ietf.org/IESG/EVALUATIONS/${group_acronym}-charter.txt\">$group_name ($group_acronym)</a> - $this_count of $total_count</td></tr>\n";  
+       if(my_defined($token_name)) {
+         my $pTag = db_select("select person_or_org_tag from iesg_login where first_name = '$token_name' and user_level=1");
+         $pTag = 0 unless (my_defined($pTag));
+         my $email = get_email($pTag);
+         $html_txt .= "<tr><td></td><td>Token:</td><td><a href=\"mailto:$email\">$token_name</a></td></tr>\n";
+       }
+       if (my_defined($note)) {
+         $html_txt .= "<tr><td></td><td></td><td>Note: $note</td></tr>";
+       }
+    } 
+    $html_txt .= "</table>\n";
+    $html_txt .= $table_footer;
+  } else {
+    $html_txt .= "$gap $gap <i>NONE</i>\n";
+  }
+  return $html_txt;
+}
+
+sub get_agenda_footer {
+  my $wg_news_count = db_select("select count(*) from templates where template_type = 1");
+  my $iab_news_count = db_select("select count(*) from templates where template_type = 2");
+  my $m_issue_count = db_select("select count(*) from templates where template_type = 3");
+  my $iab_index = $indexCnt;
+  my $mi_index = $iab_index + 1;
+  my $news_index = $mi_index + 1;
+  my $wg_news_txt = "";
+  my $iab_news_txt = "";
+  my $m_issue_txt = "";
+  if ($wg_news_count > 0) {
+     $wg_news_txt = qq{<a href="https://datatracker.ietf.org/cgi-bin/display_news.cgi?template_type=1"><h2> $news_index. Working Group News</h2></a>}; #"
+     my $i_count = 0;
+     my @List = db_select_multiple("select template_title from templates where template_type = 1");
+     for $array_ref (@List) {
+       $i_count++;
+       my ($title) = @$array_ref;
+       $wg_news_txt .= qq{
+<b>$news_index.$i_count $title</b><br>
+};      
+     }
+  }
+  else {
+     $wg_news_txt = qq{<h2>$news_index. Working Group News</h2>};
+  }
+  if ($iab_news_count > 0) {
+     $iab_news_txt = qq{<a href="https://datatracker.ietf.org/cgi-bin/display_news.cgi?template_type=2"><h2> $iab_index. IAB News We Can Use</h2></a>}; #"
+     my $i_count = 0;
+     my @List = db_select_multiple("select template_title from templates where template_type = 2");
+     for $array_ref (@List) {
+       $i_count++;
+       my ($title) = @$array_ref;
+       $iab_news_txt .= qq{
+<b>$iab_index.$i_count $title</b><br>
+};
+     }
+
+  }
+  else {
+     $iab_news_txt = qq{<h2>$iab_index. IAB News We Can Use</h2>};
+  }
+  if ($m_issue_count > 0) {
+     $m_issue_txt = qq{<a href="https://datatracker.ietf.org/cgi-bin/display_news.cgi?template_type=3"><h2> $mi_index. Management Issues</h2></a>}; #"
+     my $i_count = 0;
+     my @List = db_select_multiple("select template_title from templates where template_type = 3");
+     for $array_ref (@List) {
+       $i_count++;
+       my ($title) = @$array_ref;
+       $m_issue_txt .= qq{
+<b>$mi_index.$i_count $title</b><br>
+};
+     }
+
+  }
+  else {
+     $m_issue_txt = qq{<h2>$mi_index. Management Issues</h2>};
+  }
+
+  return qq{
+<P><P>
+$iab_news_txt
+<p><p>
+$m_issue_txt
+<P><P>
+$wg_news_txt
+<P><P>
+<P>
+</body></html>
+};
+
+}
+

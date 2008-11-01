@@ -1,0 +1,4 @@
+#!/bin/sh
+/a/ietf/scripts/check1
+/a/ietf/scripts/check2
+/a/ietf/scripts/check3

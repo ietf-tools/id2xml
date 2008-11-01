@@ -1,0 +1,36 @@
+#!/bin/sh
+
+LOGFILE=/tmp/all.$$
+ERROR_FLAG=0
+
+# put date for timing
+date                    > $LOGFILE 2>&1
+#
+
+/home/ietf/cronstuff/db2html-update3.cron >> $LOGFILE 2>&1
+chmod -R a+rx /ftp/internet-drafts
+chmod -R a+rx /ftp/rfc
+/home/ietf/bin/rsync.ietf.stiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ftp.stiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ftp.stiedprftp1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ietf.chiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ftp.chiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ftp.chiedprftp1 > /dev/null 2>&1
+/home/ietf/bin/rsync.iesg.stiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.iesg.chiedprweb1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ietf.stiedprmman1 > /dev/null 2>&1
+/home/ietf/bin/rsync.ftp.stiedprmman1 > /dev/null 2>&1
+/home/ietf/bin/rsync.iesg.stiedprmman1 > /dev/null 2>&1
+date                    >> $LOGFILE 2>&1
+#
+if [ $ERROR_FLAG -gt 0 ];then
+    mail -s "`basename $0` `hostname` UNKNOWN `date '+%Y-%m-%d-%H:%M'`" logs < $LOGFILE
+    mail -s "`basename $0` `hostname` UNKNOWN `date '+%Y-%m-%d-%H:%M'`" michael.lee@neustar.biz < $LOGFILE
+else
+    mail -s "`basename $0` `hostname` SUCCESS `date '+%Y-%m-%d-%H:%M'`" logs < $LOGFILE
+    mail -s "`basename $0` `hostname` SUCCESS `date '+%Y-%m-%d-%H:%M'`" michael.lee@neustar.biz < $LOGFILE
+fi
+
+
+/bin/rm -f $LOGFILE
+

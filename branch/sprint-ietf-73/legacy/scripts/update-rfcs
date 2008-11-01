@@ -1,0 +1,8 @@
+rsync -a ftp.rfc-editor.org::rfcs-text-only /a/www/ietf-ftp/rfc
+# No idea why any of the following happens, but it does...
+cp /a/www/ietf-ftp/rfc/rfc-index.txt /a/www/ietf-ftp/iesg/1rfc_index.txt
+# Compensate for RFC-Editor's sloppiness here...
+cp /a/www/ietf-ftp/rfc/rfc-index.txt /a/www/ietf-ftp/rfc/rfc-index
+cp /a/www/ietf-ftp/rfc/rfc-index-latest.txt /a/www/ietf-ftp/rfc/rfc-index-latest
+cp /a/www/ietf-ftp/rfc/rfc-ref.txt.new /a/www/ietf-ftp/rfc/rfc-ref
+cp /a/www/ietf-ftp/rfc/rfc-retrieval.txt /a/www/ietf-ftp/rfc/rfc-retrieval

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+ME=`basename $0`
+TMPFILE=`mktemp /tmp/${ME}.XXXXXXXXXX` || exit 1
+
+rsync --delete -avz ftp.rfc-editor.org::rfcs /ftp/rfc > $TMPFILE 2>&1
+
+STATUS=$?
+MYSTAT="SUCCESS"
+if [ $STATUS -ne 0 ]; then
+        MYSTAT="FAILURE"
+	/bin/mail -s "$ME $MYSTAT `hostname` `date '+%Y-%m-%d-%H:%M'`" logs < $TMPFILE
+else
+	/bin/mail -s "$ME $MYSTAT `hostname` `date '+%Y-%m-%d-%H:%M'`" logs < /dev/null
+fi
+
+/bin/rm -f $TMPFILE
+
+cp -p /home/mlee/rfc/NNNN/rfc* /ftp/rfc/.
+cp -p /home/mlee/rfc/NNNN/ZNNN/rfc* /ftp/rfc/.
+cp -p /home/mlee/rfc/TXT/rfc* /ftp/rfc/.
+/home/mlee/RELEASE/create_rfc_only_number.pl
+chmod 755 /ftp/rfc/rfc*.txt

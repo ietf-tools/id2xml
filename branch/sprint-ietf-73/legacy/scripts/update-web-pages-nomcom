@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+
+use lib '/a/www/ietf-datatracker/release/';
+use GEN_UTIL;
+use GEN_DBUTIL;
+use IETF;
+init_database("ietf");
+my $web_header_bar = db_select("select info_text from general_info where info_name='web_header_bar'");
+my $c_person_or_org_tag = db_select("select person_or_org_tag from chairs_history where chair_type_id=3 and present_chair=1");
+my $c_email = get_email($c_person_or_org_tag);
+my $c_name=get_name($c_person_or_org_tag);
+my @List=db_select_multiple("select id,person_or_org_tag,start_year,end_year from chairs_history where chair_type_id=3 and start_year > 2003 order by id desc");
+my $msg_list = "";
+for my $array_ref (@List) {
+  my ($nomcom_chair_id,$person_or_org_tag,$start_year,$end_year) = @$array_ref;
+  my $c_email = get_email($person_or_org_tag);
+  my $c_name=get_name($person_or_org_tag);
+  $end_year = "Present" unless $end_year;
+  $msg_list .= "<h3>Messages from $start_year-$end_year NomCom</h3>\nCommittee Chair: <a href=\"mailto:$c_email\">$c_name</a>\n<br><br>\n";
+  my @List_msg = db_select_multiple("select announcement_id,announced_date,subject from announcements where nomcom=1 and nomcom_chair_id=$nomcom_chair_id order by announced_date, announced_time");
+  for my $array_ref2 (@List_msg) {
+    my ($announcement_id,$announced_date,$subject) = @$array_ref2;
+    my $announced_date_verbal = convert_date($announced_date,5);
+    $msg_list .= "<li><a href=\"https://datatracker.ietf.org/public/show_nomcom_message.cgi?id=$announcement_id\">$subject</a> $announced_date_verbal\n";
+  }
+}
+print qq{
+<HTML>
+<head>
+<TITLE> IAB/IESG Nominating Committee </TITLE>
+</head>
+<!-- begin new headers and page layout -->
+<body bgcolor="#ffffff" > 
+$web_header_bar
+<H1><center>IAB/IESG Nominating Committee</center></H1>
+
+Committee Chair: <a href="mailto:$c_email">$c_name</a>
+<hr>
+$msg_list
+<h3>Messages from 2003-2004 NomCom</h3>
+Committee Chair: <A HREF="mailto:richdr\@microsoft.com">Rich Draves</A>
+<br><br>
+<li><a href="msg08-25-2003.txt">IETF Nominations Committee Chair Announcement</a> August 25, 2003
+<LI><a href="msg09.22.txt">NomCom call for volunteers</a> September 22, 2003
+<LI><A HREF="select-announce_03.txt">Selection of the Nominations Committee</A>
+<LI><A HREF="msg10.06.txt">NomCom Volunteer List</a> October 06, 2004
+
+<LI><A HREF="msg1010.txt">NomCom Selection</a> October 10, 2003
+<LI><A HREF="msg10.17.txt">Call for Nominees</a> October 17, 2003 
+<LI><A HREF="msg10.24.txt">NomCom members</a> October 24, 2003
+<LI><A HREF="msg11.07.txt">NomCom at IETF</a> November 07, 2003
+<LI><A HREF="msg11.14.txt">NomCom News</a> November 14, 2003
+<LI><A HREF="msg11.26.txt">Reminder - nominations to replace Randy Bush</a> November 26, 2003
+
+<LI><A HREF="msg12.01.txt">Randy Bush replacement schedule</a> December 01, 2003 
+<LI><A HREF="msg01.14.txt">Randy Bush replacement</a> January 14, 2004 
+<LI><A HREF="msg02.13.txt">NomCom results</a> February 13, 2004
+<LI><A HREF="msg09.28.txt">Call for Security AD nominations</a> September 28, 2004
+<LI><A HREF="msg11.07.04.txt">Steve Bellovin replacement</a> November  07, 2004 
+ 
+
+<h3>Messages from 2002-2003 NomCom</h3>
+
+Committee Chair: <A HREF="mailto:PRoberts\@MEGISTO.com">Phil Roberts</A>
+<br><br>
+<LI><A HREF="msg19765.html">First Call for Volunteers</A> July 30, 2002
+<LI><A HREF="select-announce.txt">Selection of the Nominations Committee</A>
+<LI><A HREF="msg0918.txt">Announcement of the Nominations Committee</A> September 18, 2002
+
+<LI><A HREF="msg10.21.txt">Announcement of IESG and IAB Nominations Requests</A> October 21, 2002
+
+<LI><A HREF="msg11.05.txt">Announcement of IESG and IAB Nominations Requests</A> November 5, 2002
+
+<LI><A HREF="msg11.12.txt">Announcement of IESG and IAB Nominations Requests</A> November 12, 2002
+<LI><a href="msg02.27.txt">IETF Nomcom Announcement</a> February 27, 2003
+, 2003
+<LI><a href="msg06.11.txt">Announcement of IESG and IAB Nominations Request</a> June 11, 2003
+<LI><a href="msg07.15.txt">Nomcom result announcement</a> July 15, 2003
+
+<h3>Historical Information</h3>
+
+<li><a href="http://www.ietf.org/nomcom_chair.html">IAB/IESG Nominating Committee Chairs (by year)</a>
+
+<li><a href="http://www.ietf.org/NomCom.html">IAB/IESG Nominating Committee Members (by year)</a>
+
+<h3>References</h3>
+
+
+<LI><A HREF="/rfc/rfc2026.txt">The Internet Standards Process (RFC 2026)</A>
+<LI><A HREF="/rfc/rfc3777.txt">IAB and IESG Selection, Confirmation, and Recall Process: Operation of the Nominating and Recall Committees (RFC 3777) (Also BCP10)</A>
+<LI><A HREF="/rfc/rfc3797.txt">Publicly Verifiable Nominations Committee (NomCom) Random Selection (RFC 3797)</A>
+
+</BODY>
+</HTML>
+
+};
+exit;
+

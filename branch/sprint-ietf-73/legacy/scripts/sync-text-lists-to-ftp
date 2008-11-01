@@ -1,0 +1,2 @@
+#
+rsync -a --delete /a/www/ietf-mail-archive/text/ /a/www/ietf-ftp/ietf-mail-archive

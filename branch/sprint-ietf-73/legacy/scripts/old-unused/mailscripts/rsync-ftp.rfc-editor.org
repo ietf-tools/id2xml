@@ -1,0 +1,17 @@
+#!/bin/bash
+
+ME=`basename $0`
+TMPFILE=`mktemp /tmp/${ME}.XXXXXXXXXX` || exit 1
+
+rsync -avz ftp.rfc-editor.org::rfcs-text-only /usr/local/ftp/data/rfc > $TMPFILE 2>&1
+
+STATUS=$?
+MYSTAT="SUCCESS"
+if [ $STATUS -ne 0 ]; then
+        MYSTAT="FAILURE"
+fi
+
+/bin/mail -s "$ME $MYSTAT `hostname` `date '+%Y-%m-%d-%H:%M'`" logs < $TMPFILE
+/bin/rm -f $TMPFILE
+
+

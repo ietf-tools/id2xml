@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+##########################################################################
+# Copyright © 2003, Foretec Seminars, Inc.
+##########################################################################
+
+use lib '/a/www/ietf-datatracker/release';
+use GEN_UTIL;
+use GEN_DBUTIL;
+use IETF;
+                                                                                  
+init_database("ietf");
+my $dateStr = get_current_date();
+my $timeStr = get_current_time();
+my $html_txt = qq{
+<html>
+<HEAD>
+<TITLE>Web-based Working Group E-mail Archvies</TITLE>
+</HEAD>
+<center>
+<body bgcolor="#ffffff" >
+<table border=0 cellpadding=0 cellspacing=0>
+<tr>
+<td><a href="/home.html"><img src="/images/header/ietflogo_sm.gif" border="0"></a></td><td><a href="/home.html"><img src="/images/header/home11.gif" border="0"></a></td>
+<td><img src="/images/header/separator.gif" border="0"></td>
+<td><a href="/html.charters/wg-dir.html"><img src="/images/header/wg11.gif" border="0"></a></td>
+<td><img src="/images/header/separator.gif" border="0"></td>
+<td><a href="/meetings/meetings.html"><img src="/images/header/meetings11.gif" border="0"></a></td>
+<td><img src="/images/header/separator.gif" border="0"></td>
+<td><a href="/proceedings/directory.html"><img src="/images/header/proceed11.gif"  border="0"></a></td>
+<td><img src="/images/header/separator.gif" border="0"></td>
+<td><a href="ID.html"><img src="/images/header/id-index11.gif" border="0"></a></td>
+<td><img src="/images/header/separator.gif" border="0"></td>
+<td><a href="/rfc.html"><img src="/images/header/rfc11.gif" border="0"></a></td>
+</tr>
+</table>
+<hr>
+<p>
+<H2>Web-based Working Group E-Mail Archives</H2></center>
+                                                                                       
+<HR>
+<b>
+These links to the Web-based working group e-mail archives are extracted from the working group charters.  Please consult the charters for more information about the mailing lists and archives of specific working groups.  Charters for active working groups are available on the <a href="http://www.ietf.org/html.charters/wg-dir.html">Active IETF Working Groups</a> Web page.  Charters for concluded working groups are available on the <a href="http://www.ietf.org/html.charters/OLD/index.html">Concluded Working Groups</a> Web page.
+</b><P><HR>
+<i>Updated $timeStr EDT, $dateStr</i><br>
+<table border="0">
+<tr><th>Acronym</th><th>Name</th></tr>
+};
+
+my @List = db_select_multiple("select email_archive,acronym,name from groups_ietf, acronym where group_acronym_id=acronym_id and email_archive is not null and email_archive <> '' and (email_archive like 'www%' or email_archive like 'http%') and acronym <> '2000' and acronym <> '822ext' order by acronym");
+for my $array_ref (@List) {
+  my ($archive,$acronym,$name) = @$array_ref;
+  $html_txt .= qq{<tr>
+<td><a href="$archive">$acronym</a></td>
+<td>$name</td>
+</tr>
+};
+}
+$html_txt .= qq{
+</table>
+<br><br><br><br><br>
+</body></html>
+};
+print $html_txt;
+exit;
+
+

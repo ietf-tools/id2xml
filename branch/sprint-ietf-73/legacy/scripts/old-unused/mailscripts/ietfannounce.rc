@@ -1,0 +1,65 @@
+#
+VERBOSE=yes
+LOGFILE=/usr/IETF/logs/ietf-ann.proclog
+LOGABSTRACT=yes
+:0
+* !FROM_DAEMON
+* (^Subject:.subscribe|^Subject:.unsubscribe)
+{
+	:0
+	! ietf-announce-request@ietf.org
+	x
+}
+
+:0
+* !FROM_DAEMON
+* !cc4less@ntime.net
+* !cstelecom.cie-signaux.fr
+* !Apparently-to:
+* !From.info-ietf@uunet.uu.net
+* !From.info-ietf
+* !From.ietf-request
+* !From.health@moneyworld.com
+* !From.key3@involved.com
+* !From.health
+* !From.cris.com
+* !From.spooknet.com
+* !From.interramp.com
+* !From.CYBERPROMO.COM
+* !From.natureplus.cpm
+* !From.kingdomt@epix.net
+* !From.fmini@altavista.digital.com
+* !From.l-e-n-members.com
+* !From.cam-news-feed
+* !From.bridges@autosex.com
+* !From.forum@doruk.com.tr
+* !From.ru-comp-dev-ietf@rutgers.edu
+* !From.2IN97
+* !From.bodiesrhot@hotmail.com
+* !From.answerme.com
+* !From.mail.com
+* !From.strutyourstuff.com
+* !From.cyberpromo.com
+* !From.emirates.net.ae
+* !From.ww872@ix.netcom.com
+* !From.marketcom2.com
+* !From.infowatch.net
+* !From.replies444@juno.com
+* !From.zainprov@swbell.net
+* !From.dasdasl@mailgate.burton-college.ac.uk
+* !From.*dtcom.net
+* (^Received:.from.CNRI.Reston.VA.US..localhost..127.0.0.1.|Received:.from.ISI.EDU|Received:.from.eikenes.alvestrand.no|^Received:.from.apache.by.asgard.ietf.org|^Received:.from.nobody.by.optimus.ietf.org)
+* (^From.rfc-ed@ISI.EDU|^From:.*rfc-editor@rfc-editor.org|^From:.*RFC.Editor.<rfc-ed@ISI.EDU>|^Sender:.*dinaras@cnri.reston.va.us|^Sender:.*mlee@cnri.reston.va.us|^Sender:.*amyk@cnri.reston.va.us|^From:.*mbeaulie@cnri.reston.va.us|^Sender:.*mbeaulie@cnri.reston.va.us|^Sender:.*nobody@optimus.ietf.org|^From:.*chair@ietf.org|^From:.*Harald.Tveit.Alvestrand|^Sender:.*apache@asgard.ietf.org|^From:.*sweilnau@cnri.reston.va.us|^From:.*scoya@cnri.reston.va.us|^Sender:.*scoya@cnri.reston.va.us|^From:.*rbunch@cnri.reston.va.us|^Sender:.*rbunch@cnri.reston.va.us)
+* (^TOIETF-Announce*|^TOall-ietf@loki.cnri.reston.va.us|^TOall-ietf|^TOall-ietf@ietf.org|^TOall-ietf@ns.ietf.org|^CCall-ietf@ietf.org|^CCall-ietf@ns.ietf.org)
+{
+	:0
+	| /usr/local/majordomo-1.94.5/wrapper resend -l ietf-announce ietf-announce-list
+#	! ietf-announce@ran.ietf.org
+#I got rid of ietf-announce because I couldn't secure it
+	x
+}
+
+	:0 c
+	! mailadm@odin.ietf.org
+	:0 
+	/usr/IETF/logs/spam_announce

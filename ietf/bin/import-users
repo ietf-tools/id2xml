@@ -79,7 +79,7 @@ while line != '':
 	    pass
     if person is None and email:
 	try:
-	    person = PersonOrOrgInfo.objects.distinct().get(emailaddress__address=user)
+	    person = PersonOrOrgInfo.objects.distinct().get(emailaddress__address__iexact=user)
 	except PersonOrOrgInfo.DoesNotExist:
 	    pass
 	except AssertionError:
@@ -89,6 +89,9 @@ while line != '':
 	    u = users.create_user(user, email, person, cryptpw=pw)
 	except users.UserAlreadyExists, (msg, u):
 	    print "Already in system as %s when adding %s (%s)" % ( u.username, user, email )
+	    if not email_re.search( user ):
+		u.username = user
+		u.save()
 	if iesg:
 	    try:
 		group, created = Group.objects.get_or_create(name = level2group[iesg.user_level])

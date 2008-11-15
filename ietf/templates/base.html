@@ -43,6 +43,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    <span style="float: right; font-size: 80%;">Logged in as {{ user }}
       |
       <a href="/accounts/logout/">Log Out</a></span>
+   {% else %}
+   <span style="float: right; font-size: 80%;"><a href="/accounts/login/">Log In</a></span>
    {% endif %}
    <hr>
       <!-- end new headers and layout -->

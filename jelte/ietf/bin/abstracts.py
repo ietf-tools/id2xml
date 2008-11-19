@@ -22,7 +22,7 @@ def group_text(group):
   return text + "\n" + lines + "\n"
 
 def draft_authors(draft):
-  authors = IDAuthor.objects.filter(document=draft)
+  authors = IDAuthor.objects.filter(document=draft).order_by('author_order')
   author_names = []
   for author in authors:
     author_names.append(author.person.first_name + " " + author.person.last_name)
@@ -59,12 +59,13 @@ def print_abstracts_text(acronym, no_abstracts):
   # if you want to store everythinh in a string instead of printing,
   # remember not to use str + str, but make a list for it and use join()
   if acronym:    
-    groups = IETFWG.objects.filter(areagroup__area__area_acronym__acronym=acronym)
+    groups = IETFWG.objects.filter(areagroup__area__area_acronym__acronym=acronym).order_by('group_acronym')
   else:
     groups = IETFWG.objects.all();
 
   print get_intro(no_abstracts)
-  
+  print ""
+  print ""
   for group in groups:
     drafts = group.active_drafts()
     if len(drafts) > 0:
@@ -81,6 +82,7 @@ def print_abstracts_text(acronym, no_abstracts):
         if not no_abstracts:
           print wrap_and_indent(draft_abstract_text(draft), 80, 4)
           print ""
+        sys.exit()
         
 
 def usage():

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from django.conf import settings
-from ietf.idtracker.models import InternetDraft, Area, Acronym, AreaGroup, IETFWG
+from ietf.idtracker.models import InternetDraft, Area, Acronym, AreaGroup, IETFWG, IDAuthor
 import sys
 
 def get_intro(id_index=False):
@@ -21,17 +21,39 @@ def group_text(group):
   lines = "-" * len(text)
   return text + "\n" + lines + "\n"
 
+def draft_authors(draft):
+  authors = IDAuthor.objects.filter(document=draft)
+  author_names = []
+  for author in authors:
+    author_names.append(author.person.first_name + " " + author.person.last_name)
+  return ", ".join(author_names)
+
 def draft_title_text(draft):
   title = "\"" + draft.title + "\""
-  return title + "\n"
+  return title
 
-def draft_abstract_text(draft, indent_str):
-  # This function does indent, but does not perform rewrapping or
-  # other cleanup on the abstract text yet. So it could certainly
-  # be improved
-  abstract_parts = draft.abstract.split("\n");
-  join_str = "\n" + indent_str
-  return indent_str + join_str.join(abstract_parts)
+def draft_abstract_text(draft):
+  # this function does nothing at the moment,
+  # but cleanup functionality on the abstract
+  # text should go here (like removing ^M etc)
+  return draft.abstract
+
+def wrap_and_indent(text, width=74, indent=0):
+  result = []
+  cur_line_words = []
+  words = text.split()
+  cur_len = 0
+  for word in words:
+    if cur_len + len(word) + indent < width:
+      cur_line_words.append(word)
+      cur_len = cur_len + len(word) + 1
+    else:
+      result.append(indent*" " + " ".join(cur_line_words))
+      cur_line_words = [word]
+      cur_len = len(word) + 1
+  if len(cur_line_words) > 0:
+    result.append(indent*" " + " ".join(cur_line_words))
+  return "\n".join(result)
 
 def print_abstracts_text(acronym, no_abstracts):
   # if you want to store everythinh in a string instead of printing,
@@ -48,11 +70,18 @@ def print_abstracts_text(acronym, no_abstracts):
     if len(drafts) > 0:
       print group_text(group)
       for draft in drafts:
-        print draft_title_text(draft)
+        title_parts = []
+        title_parts.append(draft_title_text(draft))
+        title_parts.append(draft_authors(draft))
+        title_parts.append(str(draft.revision_date))
+        title_parts.append("<" + draft.filename + draft.file_type + ">")
+        print wrap_and_indent(", ".join(title_parts), 80, 2)
+        #print len(", ".join(title_parts))
         print ""
         if not no_abstracts:
-          print draft_abstract_text(draft, "    ")
+          print wrap_and_indent(draft_abstract_text(draft), 80, 4)
           print ""
+        
 
 def usage():
   print "Usage: abstracts [OPTIONS]"

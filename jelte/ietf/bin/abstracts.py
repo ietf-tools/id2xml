@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.template.loader import render_to_string
 from ietf.idtracker.models import InternetDraft, Area, Acronym, AreaGroup, IETFWG, IDAuthor
-import sys
+import sys, os
 
 def get_intro(id_index=False):
   if id_index:
@@ -64,7 +64,7 @@ def wrap_and_indent(text, width=74, indent=0):
 # will be written to this file
 # if html_directory is not None, html files per group will
 # be created in this directory, and an overview will be
-def print_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_directory, silent=False):
+def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_directory, silent=False):
   # if you want to store everythinh in a string instead of printing,
   # remember not to use str + str, but make a list for it and use join()
   if acronym:
@@ -100,25 +100,42 @@ def print_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direct
              'rel_url': html_directory + "/" + group.group_acronym.acronym,
              'active_draft_count': len(drafts)
              })
+      if html_directory:
+        group_html_file = open(html_directory + os.sep + group.group_acronym.acronym + ".html", "w")
+        group_html_elements = []
+
       for draft in drafts:
+        title_text = draft_title_text(draft)
+        authors_text = draft_authors(draft)
+        abstract_text = draft_abstract_text(draft)
         if txt_file:
           title_parts = []
-          title_parts.append(draft_title_text(draft))
-          title_parts.append(draft_authors(draft))
+          title_parts.append(title_text)
+          title_parts.append(authors_text)
           title_parts.append(str(draft.revision_date))
           title_parts.append("<" + draft.filename + draft.file_type + ">")
+          
+          group_html_elements.append({'title': title_text,
+                                      'authors': authors_text,
+                                      'rev_date': draft.revision_date,
+                                      'filename': draft.filename + draft.file_type,
+                                      'abstract': abstract_text
+                                     })
+          
           txt_file.write(wrap_and_indent(", ".join(title_parts), 80, 2))
           txt_file.write("\n")
           txt_file.write("\n")
           if not no_abstracts:
-            txt_file.write(wrap_and_indent(draft_abstract_text(draft), 80, 4))
+            txt_file.write(wrap_and_indent(abstract_text, 80, 4))
             txt_file.write("\n")
             txt_file.write("\n")
+          
+      if html_directory:
+        group_html_file.write(render_to_string("idtracker/idtracker_abstracts_group.html", {'drafts': group_html_elements}))
+        group_html_file.close()
 
   if html_file:
-    html_context = {}
-    html_context['groups'] = html_group_elements
-    html_file.write(render_to_string("idtracker/idtracker_abstracts.html", html_context))
+    html_file.write(render_to_string("idtracker/idtracker_abstracts.html", {'groups': html_group_elements}))
 
 
 def usage():
@@ -152,7 +169,11 @@ if __name__ == "__main__":
       html_file = open("/tmp/abstr.html", "w")
     else:
       area_acronym = arg
-  print_abstracts_text(area_acronym, no_abstracts, txt_file, html_file, html_directory, False)
+  if html_directory and not os.path.exists(html_directory):
+    os.mkdir(html_directory)
+  if not os.path.isdir(html_directory):
+    print "Error: ", html_directory, "exists, but is not a directory"
+  create_abstracts_text(area_acronym, no_abstracts, txt_file, html_file, html_directory, False)
   if (txt_file):
     txt_file.close()
   if html_file:

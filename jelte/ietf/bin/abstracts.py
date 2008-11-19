@@ -82,7 +82,6 @@ def print_abstracts_text(acronym, no_abstracts):
         if not no_abstracts:
           print wrap_and_indent(draft_abstract_text(draft), 80, 4)
           print ""
-        sys.exit()
         
 
 def usage():

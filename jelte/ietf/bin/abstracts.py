@@ -45,6 +45,11 @@ def wrap_and_indent(text, width=74, indent=0):
         result.append(indent*" " + " ".join(cur_line_words))
     return "\n".join(result)
 
+# sort key for the output group List, as the database model
+# does not seem to easily allow sorting by acronym
+def group_sort_key(group_elements):
+    return group_elements['acronym']
+
 # if txt_filename is not None, .txt output will be written to
 # that file
 # if idindex_filename is not None, idlist .txt output will be written to
@@ -105,6 +110,7 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
             
             group_elements.append({'name': group_text,
                      'dashes': dashes_for_string(group_text),
+                     'acronym': group.group_acronym.acronym,
                      'rel_url': rel_url,
                      'drafts': draft_elements,
                      'active_draft_count': len(drafts)
@@ -115,6 +121,7 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
                 group_html_file.write(render_to_string("idtracker/idtracker_abstracts_group.html", {'drafts': draft_elements}))
                 group_html_file.close()
 
+    group_elements.sort(key=group_sort_key)
     if txt_filename:
         txt_file = open(txt_filename, "w")
         txt_file.write(render_to_string("idtracker/idtracker_abstracts.txt", {'groups': group_elements}))

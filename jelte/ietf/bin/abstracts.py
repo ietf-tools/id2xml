@@ -58,6 +58,9 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
     # remember not to use str + str, but make a list for it and use join()
     if acronym:
         groups = IETFWG.objects.filter(areagroup__area__area_acronym__acronym=acronym).order_by('group_acronym')
+        if len(groups) == 0:
+          print "Error: unknown area acronym or area has no groups"
+          sys.exit()
     else:
         groups = IETFWG.objects.all();
 
@@ -94,10 +97,15 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
                                        'title_all': wrap_and_indent(", ".join(title_parts), 80, 2),
                                        'abstract': wrap_and_indent(abstract_text, 80, 4)
                                       })
-                    
+            
+            if html_directory:
+                rel_url = html_directory + "/" + group.group_acronym.acronym + ".html",
+            else:
+                rel_url = ""
+            
             group_elements.append({'name': group_text,
                      'dashes': dashes_for_string(group_text),
-                     'rel_url': html_directory + "/" + group.group_acronym.acronym + ".html",
+                     'rel_url': rel_url,
                      'drafts': draft_elements,
                      'active_draft_count': len(drafts)
                      })
@@ -171,10 +179,15 @@ def main():
         else:
             assert False, "Unrecognized option" + o
     
+    if (html_directory and not html_file) or not html_directory and html_file:
+        print ""
+        print "Error: when using one of -d and -f, the other must be used too"
+        print ""
+        usage()
     if (html_directory and html_file) or idindex_file or txt_file:
         if html_directory and not os.path.exists(html_directory):
             os.mkdir(html_directory)
-        if not os.path.isdir(html_directory):
+        if html_directory and not os.path.isdir(html_directory):
             print "Error: ", html_directory, "exists, but is not a directory"
             sys.exit()
         create_abstracts_text(area_acronym, idindex_file, txt_file, html_file, html_directory, silent)

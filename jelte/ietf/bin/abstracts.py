@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.template.loader import render_to_string
 from ietf.idtracker.models import InternetDraft, Area, Acronym, AreaGroup, IETFWG, IDAuthor
-import sys, os, getopt
+import sys, os, getopt, re
 
 def group_string(group):
     text = group.group_acronym.name + " (" + group.group_acronym.acronym + ")"
@@ -22,11 +22,29 @@ def draft_title_text(draft):
     title = "\"" + draft.title + "\""
     return title
 
-def draft_abstract_text(draft):
-    # this function does nothing at the moment,
-    # but cleanup functionality on the abstract
-    # text should go here (like removing ^M etc)
-    return draft.abstract
+def rewrap(text, width=72, indent=0):
+    paras = text.strip().split("\n\n")
+    lwidth = width - indent
+    join_str = "\n" + " " * indent
+    for i in range(len(paras)):
+        para = paras[i]
+        while re.search("([^\n]{%s,}?) +"%lwidth, para):
+            para = re.sub("([^\n]{%s,}?) +([^\n ]*)(\n|$)"%lwidth, "\g<1>\n\g<2> ", para)
+        paras[i] = join_str + join_str.join(para.split('\n'))
+    text = "\n\n".join(paras)
+    return text
+
+def tounix(text):
+    # split into dos or mac lines.
+    # (This is a no-op if the text is already unix text)
+    def nlstrip(line):
+        if line.startswith("\n"):
+            return line[1:]
+        else:
+            return line
+    lines = text.split("\r")
+    lines = [ lines[0] ] + [ nlstrip(line) for line in lines[1:] ]
+    return "\n".join(lines)
 
 def wrap_and_indent(text, width=74, indent=0):
     result = []
@@ -44,6 +62,12 @@ def wrap_and_indent(text, width=74, indent=0):
     if len(cur_line_words) > 0:
         result.append(indent*" " + " ".join(cur_line_words))
     return "\n".join(result)
+
+def draft_abstract_text(draft):
+    # this function does nothing at the moment,
+    # but cleanup functionality on the abstract
+    # text should go here (like removing ^M etc)
+    return rewrap(tounix(draft.abstract), 72, 4)
 
 # sort key for the output group List, as the database model
 # does not seem to easily allow sorting by acronym
@@ -100,7 +124,8 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
                                        'rev_date': draft.revision_date,
                                        'filename': draft.filename + draft.file_type,
                                        'title_all': wrap_and_indent(", ".join(title_parts), 80, 2),
-                                       'abstract': wrap_and_indent(abstract_text, 80, 4)
+                                       'abstract': abstract_text
+                                       #'abstract': wrap_and_indent(abstract_text, 80, 4)
                                       })
             
             if html_directory:

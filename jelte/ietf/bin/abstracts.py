@@ -4,19 +4,6 @@ from django.template.loader import render_to_string
 from ietf.idtracker.models import InternetDraft, Area, Acronym, AreaGroup, IETFWG, IDAuthor
 import sys, os
 
-def get_intro(id_index=False):
-  if id_index:
-    return """              Current Internet-Drafts
-    This summary sheet provides an index of each Internet-Draft.
-    These drafts are listed alphabetically by Working Group acronym and
-    initial post date."""
-  else:
-    return """              Current Internet-Drafts
-    This summary sheet provides a short synopsis of each Internet-Draft
-    available within the \"internet-drafts\" directory at the shadow
-    sites directory.  These drafts are listed alphabetically by working
-    group acronym and start date."""
-
 def group_string(group):
   text =  group.group_acronym.name + " (" + group.group_acronym.acronym + ")"
   return text
@@ -64,7 +51,7 @@ def wrap_and_indent(text, width=74, indent=0):
 # will be written to this file
 # if html_directory is not None, html files per group will
 # be created in this directory, and an overview will be
-def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_directory, silent=False):
+def create_abstracts_text(acronym, idlist_file, txt_file, html_file, html_directory, silent=False):
   # if you want to store everythinh in a string instead of printing,
   # remember not to use str + str, but make a list for it and use join()
   if acronym:
@@ -73,12 +60,6 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
     groups = IETFWG.objects.all();
 
   group_elements = []
-
-  #if txt_file:
-    #txt_file.write(get_intro(no_abstracts))
-    #txt_file.write("\n")
-    #txt_file.write("\n")
-    #txt_file.write("\n")
 
   for group in groups:
     if not silent:
@@ -89,12 +70,6 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
     if len(drafts) > 0:
       group_text = group_string(group)
       
-      #if txt_file:
-        #txt_file.write(group_text)
-        #txt_file.write("\n")
-        #txt_file.write(dashes_for_string(group_text))
-        #txt_file.write("\n")
-        #txt_file.write("\n")
       if html_directory:
         group_html_file = open(html_directory + os.sep + group.group_acronym.acronym + ".html", "w")
       
@@ -121,14 +96,6 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
                                  'abstract': wrap_and_indent(abstract_text, 80, 4)
                                  })
           
-          #txt_file.write(wrap_and_indent(", ".join(title_parts), 80, 2))
-          #txt_file.write("\n")
-          #txt_file.write("\n")
-          #if not no_abstracts:
-            #txt_file.write(wrap_and_indent(abstract_text, 80, 4))
-            #txt_file.write("\n")
-            #txt_file.write("\n")
-          
       group_elements.append({'name': group_text,
            'dashes': dashes_for_string(group_text),
            'rel_url': html_directory + "/" + group.group_acronym.acronym + ".html",
@@ -143,6 +110,9 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
   if txt_file:
     txt_file.write(render_to_string("idtracker/idtracker_abstracts.txt", {'groups': group_elements}))
 
+  if idlist_file:
+    idlist_file.write(render_to_string("idtracker/idtracker_idlist.txt", {'groups': group_elements}))
+
   if html_file:
     html_file.write(render_to_string("idtracker/idtracker_abstracts.html", {'groups': group_elements}))
 
@@ -156,10 +126,10 @@ def usage():
 
 # when called from command line
 if __name__ == "__main__":
-  no_abstracts = False
+  idlist_file = None
   txt_file = None
   html_file = None
-  html_directory = "id.by.wg"
+  html_directory = None
   if len(sys.argv) == 1:
     usage()
     sys.exit(1)
@@ -181,7 +151,7 @@ if __name__ == "__main__":
     os.mkdir(html_directory)
   if not os.path.isdir(html_directory):
     print "Error: ", html_directory, "exists, but is not a directory"
-  create_abstracts_text(area_acronym, no_abstracts, txt_file, html_file, html_directory, False)
+  create_abstracts_text(area_acronym, idlist_file, txt_file, html_file, html_directory, False)
   if (txt_file):
     txt_file.close()
   if html_file:

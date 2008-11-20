@@ -72,13 +72,13 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
   else:
     groups = IETFWG.objects.all();
 
-  html_group_elements = []
+  group_elements = []
 
-  if txt_file:
-    txt_file.write(get_intro(no_abstracts))
-    txt_file.write("\n")
-    txt_file.write("\n")
-    txt_file.write("\n")
+  #if txt_file:
+    #txt_file.write(get_intro(no_abstracts))
+    #txt_file.write("\n")
+    #txt_file.write("\n")
+    #txt_file.write("\n")
 
   for group in groups:
     if not silent:
@@ -89,20 +89,16 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
     if len(drafts) > 0:
       group_text = group_string(group)
       
-      if txt_file:
-        txt_file.write(group_text)
-        txt_file.write("\n")
-        txt_file.write(dashes_for_string(group_text))
-        txt_file.write("\n")
-        txt_file.write("\n")
-      if html_file:
-        html_group_elements.append({'name': group_text,
-             'rel_url': html_directory + "/" + group.group_acronym.acronym,
-             'active_draft_count': len(drafts)
-             })
+      #if txt_file:
+        #txt_file.write(group_text)
+        #txt_file.write("\n")
+        #txt_file.write(dashes_for_string(group_text))
+        #txt_file.write("\n")
+        #txt_file.write("\n")
       if html_directory:
         group_html_file = open(html_directory + os.sep + group.group_acronym.acronym + ".html", "w")
-        group_html_elements = []
+      
+      draft_elements = []
 
       for draft in drafts:
         title_text = draft_title_text(draft)
@@ -115,28 +111,40 @@ def create_abstracts_text(acronym, no_abstracts, txt_file, html_file, html_direc
           title_parts.append(str(draft.revision_date))
           title_parts.append("<" + draft.filename + draft.file_type + ">")
           
-          group_html_elements.append({'title': title_text,
-                                      'authors': authors_text,
-                                      'rev_date': draft.revision_date,
-                                      'filename': draft.filename + draft.file_type,
-                                      'abstract': abstract_text
-                                     })
+          # if wrap_and_indent is implemented as a template function
+          # we wouldn't need the title_all here
+          draft_elements.append({'title': title_text,
+                                 'authors': authors_text,
+                                 'rev_date': draft.revision_date,
+                                 'filename': draft.filename + draft.file_type,
+                                 'title_all': wrap_and_indent(", ".join(title_parts), 80, 2),
+                                 'abstract': wrap_and_indent(abstract_text, 80, 4)
+                                 })
           
-          txt_file.write(wrap_and_indent(", ".join(title_parts), 80, 2))
-          txt_file.write("\n")
-          txt_file.write("\n")
-          if not no_abstracts:
-            txt_file.write(wrap_and_indent(abstract_text, 80, 4))
-            txt_file.write("\n")
-            txt_file.write("\n")
+          #txt_file.write(wrap_and_indent(", ".join(title_parts), 80, 2))
+          #txt_file.write("\n")
+          #txt_file.write("\n")
+          #if not no_abstracts:
+            #txt_file.write(wrap_and_indent(abstract_text, 80, 4))
+            #txt_file.write("\n")
+            #txt_file.write("\n")
           
+      group_elements.append({'name': group_text,
+           'dashes': dashes_for_string(group_text),
+           'rel_url': html_directory + "/" + group.group_acronym.acronym + ".html",
+           'drafts': draft_elements,
+           'active_draft_count': len(drafts)
+           })
+
       if html_directory:
-        group_html_file.write(render_to_string("idtracker/idtracker_abstracts_group.html", {'drafts': group_html_elements}))
+        group_html_file.write(render_to_string("idtracker/idtracker_abstracts_group.html", {'drafts': draft_elements}))
         group_html_file.close()
 
-  if html_file:
-    html_file.write(render_to_string("idtracker/idtracker_abstracts.html", {'groups': html_group_elements}))
+  if txt_file:
+    txt_file.write(render_to_string("idtracker/idtracker_abstracts.txt", {'groups': group_elements}))
 
+  if html_file:
+    html_file.write(render_to_string("idtracker/idtracker_abstracts.html", {'groups': group_elements}))
 
 def usage():
   print "Usage: abstracts [OPTIONS]"

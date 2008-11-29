@@ -1,7 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
-from django.template.loader import render_to_string
 from ietf.idtracker.models import Acronym, PersonOrOrgInfo, WGChair, InternetDraft, IETFWG, EmailAddress
 from utils import sync_docs, FROM_EMAIL
 import datetime

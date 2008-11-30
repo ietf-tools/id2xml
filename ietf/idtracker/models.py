@@ -191,9 +191,7 @@ class InternetDraft(models.Model):
         search_fields = ['filename','title']
         list_display = ('filename', 'revision', 'title', 'status')
 	list_filter = ['status']
-        pass
         #date_hierarchy = 'revision_date'
-        #list_filter = ['revision_date']
 
 class RolodexManager(models.Manager):
     def create_person(self, first_name, last_name, created_by, email_address, middle_initial=''):
@@ -318,10 +316,10 @@ class IESGLogin(models.Model):
     active_iesg = staticmethod(active_iesg)
     class Meta:
         db_table = 'iesg_login'
+	verbose_name = 'IDTracker Login'
     class Admin:
 	list_display = ('login_name', 'first_name', 'last_name', 'user_level')
         ordering = ['user_level','last_name']
-	pass
 
 class AreaDirector(models.Model):
     area = models.ForeignKey(Area, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2, null=True)
@@ -349,7 +347,8 @@ class RfcIntendedStatus(models.Model):
         return self.status
     class Meta:
         db_table = 'rfc_intend_status'
-	verbose_name = 'RFC Intended Status Field'
+	verbose_name = 'RFC Intended Status'
+	verbose_name_plural = 'RFC Intended Statuses'
     class Admin:
 	pass
 
@@ -475,9 +474,9 @@ class BallotInfo(models.Model):   # Added by Michael Lee
     active = models.BooleanField()
     an_sent = models.BooleanField()
     an_sent_date = models.DateField(null=True, blank=True)
-    an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent') 
+    an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent', null=True, blank=True) 
     defer = models.BooleanField(null=True, blank=True)
-    defer_by = models.ForeignKey(IESGLogin, db_column='defer_by', related_name='deferred')
+    defer_by = models.ForeignKey(IESGLogin, db_column='defer_by', related_name='deferred', null=True, blank=True)
     defer_date = models.DateField(null=True, blank=True)
     approval_text = models.TextField(blank=True)
     last_call_text = models.TextField(blank=True)
@@ -591,6 +590,7 @@ class IDInternal(models.Model):
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'
+	ordering = ['rfc_flag', 'draft']
     class Admin:
 	pass
 
@@ -638,8 +638,15 @@ class DocumentComment(models.Model):
 	# this is just a straightforward combination, except that the time is
 	# stored incorrectly in the database.
 	return datetime.datetime.combine( self.date, datetime.time( * [int(s) for s in self.time.split(":")] ) )
+    def __str__(self):
+	return "Comment on %s by %s" % ( self.document, self.get_username() )
     class Meta:
         db_table = 'document_comments'
+    class Admin:
+	list_display = [ 'document', 'get_username', 'datetime', 'ballot' ]
+	list_filter = [ 'ballot' ]
+	date_hierarchy = 'date'
+	ordering = [ 'document', 'date' ]
 
 class Position(models.Model):
     ballot = models.ForeignKey(BallotInfo, raw_id_admin=True, related_name='positions')

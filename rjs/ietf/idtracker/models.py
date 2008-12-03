@@ -484,6 +484,15 @@ class IDInternal(models.Model):
     you cannot use draft__ as that will cause an INNER JOIN
     which will limit the responses to I-Ds.
     """
+
+    ACTIVE=1
+    PUBLISHED=3
+    EXPIRED=2
+    WITHDRAWN_SUBMITTER=4
+    REPLACED=5
+    WITHDRAWN_IETF=6
+    INACTIVE_STATES=[99,32,42]
+
     draft = models.ForeignKey(InternetDraft, primary_key=True, unique=True, db_column='id_document_tag')
     rfc_flag = models.IntegerField(null=True)
     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
@@ -545,9 +554,10 @@ class IDInternal(models.Model):
 	return IDInternal.objects.filter(models.Q(primary_flag=0)|models.Q(primary_flag__isnull=True), ballot=self.ballot_id)
     def docstate(self):
 	if self.cur_sub_state_id > 0:
-	    return "%s :: %s" % ( self.cur_state, self.cur_sub_state )
+            #Henrik said to remove the spaces around the ::s.
+	    return "%s::%s" % ( self.cur_state.state, self.cur_sub_state.sub_state )
 	else:
-	    return self.cur_state
+	    return self.cur_state.state
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'

@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+
+from django.template.loader import render_to_string
+
+from ietf.idtracker.models import IDInternal
+from ietf.idtracker.models import InternetDraft
+from ietf.idtracker.models import IDStatus
+
+
+# am here - return "" if None else whatever it was
+def noneFilter(a):
+  if (a is None):
+    return ""
+  else:
+    return a
+
+all_ids            = InternetDraft.objects.order_by('filename')
+in_track_ids       = all_ids.filter(idinternal__rfc_flag=0).exclude(idinternal__cur_state__in=IDInternal.INACTIVE_STATES)
+
+# This is way too coupled
+exclude_ids        = [item.id_document_tag for item in in_track_ids]
+
+not_in_track       = all_ids.exclude(id_document_tag__in=exclude_ids)
+
+active             = not_in_track.filter(status__status_id=IDInternal.ACTIVE)
+published          = not_in_track.filter(status__status_id=IDInternal.PUBLISHED)
+expired            = not_in_track.filter(status__status_id=IDInternal.EXPIRED)
+withdrawn_submitter = not_in_track.filter(status__status_id=IDInternal.WITHDRAWN_SUBMITTER)
+withdrawn_ietf      = not_in_track.filter(status__status_id=IDInternal.WITHDRAWN_IETF)
+replaced           = not_in_track.filter(status__status_id=IDInternal.REPLACED)
+
+print render_to_string("idindex/all_ids.txt",{  'in_track_ids':in_track_ids,
+						'active':active,
+						'published':published,
+						'expired':expired,
+						'withdrawn_submitter':withdrawn_submitter,
+						'withdrawn_ietf':withdrawn_ietf,
+						'replaced':replaced})
+
+exit(0)
+
+print """
+Internet-Drafts Status Summary
+
+Web version is available at
+https://datatracker.ietf.org/public/idindex.cgi
+
+"""
+
+# Print the in_track drafts
+for item in in_track_ids:
+   cur_state = item.idstate();
+   status = "In IESG processing - ID Tracker state <"+cur_state+">"
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,status,"")
+
+# Print active drafts
+for item in active:
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,item.status.status,"")
+
+## Print published drafts
+for item in published:
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,item.status.status,item.rfc_number)
+
+## Print expired drafts
+for item in expired:
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,item.status.status,"")
+
+## Print drafts withdrawn by submitter
+for item in withdraw_submitter:
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,item.status.status,"")
+
+## Print drafts withdrawn by the ietf
+for item in withdraw_ietf:
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),item.revision_date,item.status.status,"")
+
+## Print the replaced drafts
+for item in replaced:
+   if (item.replaced_by_id):
+     filename=item.replaced_by.filename
+   else:
+     filename="0"
+   print "%s-%s\t%s\t%s\t%s"%(item.filename,item.revision_display(),noneFilter(item.revision_date),item.status.status+" replaced by "+filename,"")
+
+print

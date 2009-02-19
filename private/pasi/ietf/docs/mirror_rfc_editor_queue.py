@@ -42,6 +42,7 @@ import urllib2
 
 QUEUE_URL = "http://www.rfc-editor.org/queue2.xml"
 TABLE = "rfc_editor_queue_mirror"
+REF_TABLE = "rfc_editor_queue_mirror_refs"
 
 def getChildText(parentNode, tagName):
     for node in parentNode.childNodes:
@@ -54,6 +55,8 @@ print "mirror_rfc_editor_queue: downloading "+QUEUE_URL
 response = urllib2.urlopen(QUEUE_URL)
 events = pulldom.parse(response)
 data = []
+draftNames = set()
+refs = []
 for (event, node) in events:
     if event == pulldom.START_ELEMENT and node.tagName == "entry":
         events.expandNode(node)
@@ -65,15 +68,61 @@ for (event, node) in events:
         state = getChildText(node, "state")
         if not state:
             state = "?"
-        data.append([draft, date_received, state])
+        data.append([draft, date_received, state, stream])
+        draftNames.add(draft)
 
-print "mirror_rfc_editor_queue: parsed " + str(len(data)) + " entries"
+        for node2 in node.childNodes:
+            if node2.nodeType == Node.ELEMENT_NODE and node2.localName == "normRef":
+                ref_name = getChildText(node2, "ref-name")
+                ref_state = getChildText(node2, "ref-state")
+                in_queue = ref_state.startswith("IN-QUEUE")
+                refs.append([draft, ref_name, in_queue, True])
+        
+    elif event == pulldom.START_ELEMENT and node.tagName == "section":
+        name = node.getAttribute('name')
+        if name.startswith("IETF"):
+            stream = 1
+        elif name.startswith("IAB"):
+            stream = 2
+        elif name.startswith("IRTF"):
+            stream = 3
+        elif name.startswith("INDEPENDENT"):
+            stream = 4
+        else:
+            stream = 0
+            print "mirror_rfc_editor_queue: warning, unrecognized section "+name
+
+# Find set of all normative references (whether direct or via some
+# other normative reference)
+
+indirect_refs = []
+def recurse_refs(draft, ref_set, level):
+    for (source, destination, in_queue, direct) in refs:
+        if source == draft:
+            if destination in ref_set:
+                pass
+            else:
+                ref_set.add(destination)
+                recurse_refs(destination, ref_set, level+1)
+    if level == 0:
+        for ref in ref_set:
+            if draft != ref:
+                indirect_refs.append([draft, ref, ref in draftNames, False])
+
+for draft in draftNames:
+    recurse_refs(draft, set([draft]), 0)
+
+print "mirror_rfc_editor_queue: parsed " + str(len(data)) + " drafts"
+print "mirror_rfc_editor_queue: parsed " + str(len(refs)) + " direct refs"
+print "mirror_rfc_editor_queue: found " + str(len(indirect_refs)) + " indirect refs"
 if len(data) < 1:
     raise Exception('No data')
 
 cursor = db.connection.cursor()
 cursor.execute("DELETE FROM "+TABLE)
-cursor.executemany("INSERT INTO "+TABLE+" (draft, date_received, state) VALUES (%s, %s, %s)", data)
+cursor.executemany("INSERT INTO "+TABLE+" (draft, date_received, state, stream) VALUES (%s, %s, %s, %s)", data)
+cursor.execute("DELETE FROM "+REF_TABLE)
+cursor.executemany("INSERT INTO "+REF_TABLE+" (source, destination, in_queue, direct) VALUES (%s, %s, %s, %s)", refs+indirect_refs)
 cursor.close()
 db.connection._commit()
 db.connection.close()

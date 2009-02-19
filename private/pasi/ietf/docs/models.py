@@ -33,19 +33,37 @@
 from django.db import models
 
 class RfcEditorQueue(models.Model):
+    STREAM_CHOICES = (
+        (0, 'Unknown'),
+        (1, 'IETF'),
+        (2, 'IAB'),
+        (3, 'IRTF'),
+        (4, 'Independent')
+    )
     draft = models.CharField(maxlength=200,primary_key=True)
     date_received = models.DateField()
     state = models.CharField(maxlength=200, blank=True, null=True)
     # currently, queue2.xml does not have this information, so
     # this field will be NULL (but we could get it from other sources)
     state_date = models.DateField(blank=True,null=True)
+    stream = models.IntegerField(choices=STREAM_CHOICES)
     def __str__(self):
-        return "RfcEditorQueue"+str([self.draft, self.date_received, self.state])
+        return "RfcEditorQueue"+str([self.draft, self.date_received, self.state, self.state_date, self.stream])
     class Meta:
         db_table = "rfc_editor_queue_mirror"
     class Admin:
         pass
-  
+
+class RfcEditorQueueRef(models.Model):
+    source = models.ForeignKey(RfcEditorQueue, db_column='source')
+    destination = models.CharField(maxlength=200)
+    in_queue = models.BooleanField()
+    direct = models.BooleanField()
+    class Meta:
+        db_table = "rfc_editor_queue_mirror_refs"
+    class Admin:
+        pass
+
 class RfcIndex(models.Model):
     rfc_number = models.IntegerField(primary_key=True)
     title = models.CharField(maxlength=250)
@@ -71,7 +89,7 @@ class DraftVersions(models.Model):
     # we can't use filename+revision. But the key for this table
     # does not really matter, so we'll have an 'id' field
     id = models.AutoField(primary_key=True)
-    filename = models.CharField(maxlength=200)
+    filename = models.CharField(maxlength=200, db_index=True)
     revision = models.CharField(maxlength=2)
     revision_date = models.DateField()
     def __str__(self):

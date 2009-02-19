@@ -1,0 +1,132 @@
+{% comment %}
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions 
+are met:
+
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+
+ * Neither the name of the Nokia Corporation and/or its
+   subsidiary(-ies) nor the names of its contributors may be used
+   to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{% endcomment %}
+{% extends "docs/base.html" %}
+
+{% block title %}Internet-Drafts and RFCs
+{% endblock %}
+
+{% block morecss %}
+
+{% include "docs/search.css" %}
+
+.telechat_docs tr.oddrow {background-color: #EDF5FF; }
+.telechat_docs tr.header.telechat_date { margin-top:10px; background:#2647A0; color: white;}
+.telechat_docs tr.header.telechat_date td { font-size: 125%; }
+.telechat_docs tr.header + tr.header { border-top: 2px solid white;}
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Internet-Drafts and RFCs</h1>
+
+<div id="mytabs" class="yui-navset">
+<ul class="yui-nav">
+  <li class="selected"><a href="#tab1"><em>Search</em></a></li>
+  <li><a href="#tab2"><em>My Documents</em></a></li>
+  <li><a href="#tab4"><em>Agenda</em></a></li>
+  <li><a href="#tab5"><em>My Discusses</em></a></li>
+</ul>
+<div class="yui-content">
+
+<!-- ==================================================================== -->
+
+<div id="tab1">
+
+<div id="search_form_box">
+{% include "docs/search_form.html" %}
+</div>
+
+<div style="padding-top:10px;"></div>
+
+<div id="search_results" class="search_results"></div>
+
+</div><!-- tab1 -->
+
+<!-- ==================================================================== -->
+
+<div id="tab2" >
+Not working yet.
+</div>
+
+<div id="tab4">
+<div id="tab4content" style="display:none;">
+<div id="tab4agendatable"></div>
+</div>
+</div>
+
+<div id="tab5">
+<div id="tab5content" style="display:none;">
+<div id="tab5table"></div>
+</div>
+</div>
+
+</div>
+</div>
+<!-- ==================================================================== -->
+
+{% endblock %}
+
+{% block scriptsEnd %}
+
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/connection/connection-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/tabview/tabview-min.js"></script>
+
+<script type="text/javascript">
+
+(function() {
+var tabView = new YAHOO.widget.TabView('mytabs');
+
+})();
+
+function loadX(element, url) {
+    var el = document.getElementById(element);
+      el.innerHTML = "Loading...";
+      YAHOO.util.Connect.asyncRequest('GET', 
+          url,
+          { success: function(o) { document.getElementById(element).innerHTML = (o.responseText !== undefined) ? o.responseText : "?"; }, 
+            failure: function(o) { document.getElementById(element).innerHTML = "Error: "+o.status+" "+o.statusText; },
+            argument: null
+   	  }, null);
+
+}
+
+document.getElementById('tab4content').style.display = 'block';
+loadX('tab4agendatable', '/docs/telechat_docs.html');
+
+document.getElementById('tab5content').style.display = 'block';
+loadX('tab5table', '/docs/discusses.html');
+
+</script>
+
+{% endblock %}

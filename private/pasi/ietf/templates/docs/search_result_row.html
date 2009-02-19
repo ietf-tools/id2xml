@@ -1,0 +1,58 @@
+{% comment %}
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions 
+are met:
+
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+
+ * Neither the name of the Nokia Corporation and/or its
+   subsidiary(-ies) nor the names of its contributors may be used
+   to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{% endcomment %}
+
+{% load ballot_icon %}
+<tr class="{% cycle oddrow,evenrow %}">
+<td class="doc">{% if doc.rfcNumber %}<a href="/docs/rfc{{doc.rfcNumber}}/">RFC {{doc.rfcNumber}}</a><br />
+(<a href="/docs/{{doc.draftName}}/">{{doc.draftName}}</a>){% else %}<a href="/docs/{{doc.draftName}}/">{{doc.draftNameAndRevision}}</a>{% endif %}</td>
+<td class="title">{{ doc.title|escape }}</td>
+<td class="date">{{ doc.revisionDate }}</td>
+
+<td class="status">{% if doc.rfcNumber %}RFC - {{doc.rfcStatus}}
+{%if doc.rfcAlso %}<br />(Also {{ doc.rfcAlso|escape }}){% endif %}
+{%if doc.rfcUpdatedBy %}<br />(Updated by {{doc.rfcUpdatedBy|escape}}){% endif %}
+{%if doc.rfcObsoletedBy %}<br />(Obsoleted by {{doc.rfcObsoletedBy|escape}}){% endif %}
+{% if doc.hasErrata %}<br /><a href="http://www.rfc-editor.org/errata_search.php?rfc={{doc.rfcNumber}}" rel="nofollow" target="_blank">(RFC errata)</a>{% endif %}
+{% else %}
+  {{doc.friendlyState|escape}}
+  {% if doc.replacedBy %} by {% for rep in doc.replacedBy %}<a href="/docs/{{rep}}/">{{rep}}</a> {% endfor %} {%endif %}
+  {% if doc.lastCallEnds %} (ends {{doc.lastCallEnds}}){%endif%}
+  {% if doc.telechatDateRecent %}<br/> (IESG telechat date: {{doc.telechatDate}}){%endif%}
+  {% if doc.rfcEditorState %}<br />(RFC Editor State {{ doc.rfcEditorState|escape }}) {% endif %}
+{% endif %}
+</td>
+<td class="ballot">{% ballot_icon doc %}</td>
+<td class="ad">{% if doc.adName %}{{ doc.adName|escape }}{% else %}&nbsp;{% endif %}</td>
+
+</tr>

@@ -50,6 +50,8 @@ def getChildText(parentNode, tagName):
             return node.firstChild.data
     return None
 
+cursor = db.connection.cursor()
+
 print "mirror_rfc_editor_queue: downloading "+QUEUE_URL
 
 response = urllib2.urlopen(QUEUE_URL)
@@ -64,6 +66,15 @@ for (event, node) in events:
         draft = getChildText(node, "draft")
         if re.search("-\d\d\.txt$", draft):
             draft = draft[0:-7]
+
+        # convert draft filename to id_document_tag
+        cursor.execute("SELECT id_document_tag FROM internet_drafts WHERE filename=%s", [draft])
+        row = cursor.fetchone()
+        if not row:
+            print "mirror_rfc_editor_queue: warning, unknown draft name "+draft
+            continue
+        draft = row[0]
+        
         date_received = getChildText(node, "date-received")
         state = getChildText(node, "state")
         if not state:
@@ -92,6 +103,9 @@ for (event, node) in events:
             stream = 0
             print "mirror_rfc_editor_queue: warning, unrecognized section "+name
 
+print "mirror_rfc_editor_queue: parsed " + str(len(data)) + " drafts"
+print "mirror_rfc_editor_queue: parsed " + str(len(refs)) + " direct refs"
+
 # Find set of all normative references (whether direct or via some
 # other normative reference)
 
@@ -112,15 +126,12 @@ def recurse_refs(draft, ref_set, level):
 for draft in draftNames:
     recurse_refs(draft, set([draft]), 0)
 
-print "mirror_rfc_editor_queue: parsed " + str(len(data)) + " drafts"
-print "mirror_rfc_editor_queue: parsed " + str(len(refs)) + " direct refs"
 print "mirror_rfc_editor_queue: found " + str(len(indirect_refs)) + " indirect refs"
 if len(data) < 1:
     raise Exception('No data')
 
-cursor = db.connection.cursor()
 cursor.execute("DELETE FROM "+TABLE)
-cursor.executemany("INSERT INTO "+TABLE+" (draft, date_received, state, stream) VALUES (%s, %s, %s, %s)", data)
+cursor.executemany("INSERT INTO "+TABLE+" (id_document_tag, date_received, state, stream) VALUES (%s, %s, %s, %s)", data)
 cursor.execute("DELETE FROM "+REF_TABLE)
 cursor.executemany("INSERT INTO "+REF_TABLE+" (source, destination, in_queue, direct) VALUES (%s, %s, %s, %s)", refs+indirect_refs)
 cursor.close()

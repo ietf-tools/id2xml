@@ -31,6 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django.db import models
+from ietf.idtracker.models import InternetDraft
 
 class RfcEditorQueue(models.Model):
     STREAM_CHOICES = (
@@ -40,7 +41,8 @@ class RfcEditorQueue(models.Model):
         (3, 'IRTF'),
         (4, 'Independent')
     )
-    draft = models.CharField(maxlength=200,primary_key=True)
+    draft = models.OneToOneField(InternetDraft, db_column="id_document_tag", related_name="rfc_editor_queue_state")
+    #draft = models.CharField(maxlength=200,primary_key=True)
     date_received = models.DateField()
     state = models.CharField(maxlength=200, blank=True, null=True)
     # currently, queue2.xml does not have this information, so
@@ -55,7 +57,7 @@ class RfcEditorQueue(models.Model):
         pass
 
 class RfcEditorQueueRef(models.Model):
-    source = models.ForeignKey(RfcEditorQueue, db_column='source')
+    source = models.ForeignKey(InternetDraft, db_column="source", related_name="rfc_editor_queue_refs")
     destination = models.CharField(maxlength=200)
     in_queue = models.BooleanField()
     direct = models.BooleanField()

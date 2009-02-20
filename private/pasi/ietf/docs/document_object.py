@@ -205,9 +205,11 @@ def create_document_object(draft=None, rfc=None, rfcIndex=None, base=None):
                 o[k] = re.sub("([A-Z])([0-9])", "\\1 \\2", o[k])
 
     if draft:
-        qs = RfcEditorQueue.objects.filter(draft=o['draftName'])
-        if len(qs) >= 1:
-            o['rfcEditorState'] = qs[0].state
+        try:
+            qs = draft.rfc_editor_queue_state
+            o['rfcEditorState'] = qs.state
+        except RfcEditorQueue.DoesNotExist:
+            pass
 
     if 'rfcNumber' in o:
         o['friendlyGroup'] = 'RFCs'

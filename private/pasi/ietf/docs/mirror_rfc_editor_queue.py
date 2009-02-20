@@ -57,37 +57,39 @@ print "mirror_rfc_editor_queue: downloading "+QUEUE_URL
 response = urllib2.urlopen(QUEUE_URL)
 events = pulldom.parse(response)
 data = []
-draftNames = set()
+draft_names = {}
+draft_ids = {}
 refs = []
 for (event, node) in events:
     if event == pulldom.START_ELEMENT and node.tagName == "entry":
         events.expandNode(node)
         node.normalize()
-        draft = getChildText(node, "draft")
-        if re.search("-\d\d\.txt$", draft):
-            draft = draft[0:-7]
+        draft_name = getChildText(node, "draft")
+        if re.search("-\d\d\.txt$", draft_name):
+            draft_name = draft_name[0:-7]
 
         # convert draft filename to id_document_tag
-        cursor.execute("SELECT id_document_tag FROM internet_drafts WHERE filename=%s", [draft])
+        cursor.execute("SELECT id_document_tag FROM internet_drafts WHERE filename=%s", [draft_name])
         row = cursor.fetchone()
         if not row:
-            print "mirror_rfc_editor_queue: warning, unknown draft name "+draft
+            print "mirror_rfc_editor_queue: warning, unknown draft name "+draft_name
             continue
-        draft = row[0]
+        draft_id = row[0]
+        draft_ids[draft_name] = draft_id
+        draft_names[draft_id] = draft_name
         
         date_received = getChildText(node, "date-received")
         state = getChildText(node, "state")
         if not state:
             state = "?"
-        data.append([draft, date_received, state, stream])
-        draftNames.add(draft)
+        data.append([draft_id, date_received, state, stream])
 
         for node2 in node.childNodes:
             if node2.nodeType == Node.ELEMENT_NODE and node2.localName == "normRef":
                 ref_name = getChildText(node2, "ref-name")
                 ref_state = getChildText(node2, "ref-state")
                 in_queue = ref_state.startswith("IN-QUEUE")
-                refs.append([draft, ref_name, in_queue, True])
+                refs.append([draft_id, ref_name, in_queue, True])
         
     elif event == pulldom.START_ELEMENT and node.tagName == "section":
         name = node.getAttribute('name')
@@ -110,21 +112,22 @@ print "mirror_rfc_editor_queue: parsed " + str(len(refs)) + " direct refs"
 # other normative reference)
 
 indirect_refs = []
-def recurse_refs(draft, ref_set, level):
-    for (source, destination, in_queue, direct) in refs:
-        if source == draft:
-            if destination in ref_set:
+def recurse_refs(draft_id, draft_name, ref_name_set, level):
+    for (source_id, destination_name, in_queue, direct) in refs:
+        if source_id == draft_id:
+            if destination_name in ref_name_set:
                 pass
             else:
-                ref_set.add(destination)
-                recurse_refs(destination, ref_set, level+1)
+                ref_name_set.add(destination_name)
+                if destination_name in draft_ids:
+                    recurse_refs(draft_ids[destination_name], None, ref_name_set, level+1)
     if level == 0:
-        for ref in ref_set:
-            if draft != ref:
-                indirect_refs.append([draft, ref, ref in draftNames, False])
+        for ref_name in ref_name_set:
+            if ref_name != draft_name:
+                indirect_refs.append([draft_id, ref_name, ref_name in draft_ids, False])
 
-for draft in draftNames:
-    recurse_refs(draft, set([draft]), 0)
+for draft_id, draft_name in draft_names.iteritems():
+    recurse_refs(draft_id, draft_name, set([draft_name]), 0)
 
 print "mirror_rfc_editor_queue: found " + str(len(indirect_refs)) + " indirect refs"
 if len(data) < 1:

@@ -162,8 +162,9 @@ TEST_REFERENCE_URL_PREFIX = os.environ.get("IETFDB_REF_PREFIX","") or 'https://d
 
 IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR'
 
-INTERNET_DRAFT_PATH = '/www/tools.ietf.org/id/'
-RFC_PATH = '/www/tools.ietf.org/rfc/'
+# Override this in settings_local.py if needed
+INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
+RFC_PATH = '/a/www/ietf-ftp/rfc/'
 
 IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
 

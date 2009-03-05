@@ -37,27 +37,52 @@ from django import db
 
 import re
 import urllib2
+from datetime import datetime
+import socket
+import sys
 
 URL = "http://merlot.tools.ietf.org/~pasi/draft_versions.txt"
 TABLE = "draft_versions_mirror"
 
-print "mirror_draft_versions: downloading "+URL
+log_data = ""
+def log(line):
+    global log_data
+    if len(sys.argv) > 1:
+        print line
+    else:
+        log_data += line + "\n"
 
-response = urllib2.urlopen(URL)
-data = []
-for line in response.readlines():
-    rec = line[:-1].split("\t")
-    data.append(rec)
+try:
+    log("output from mirror_draft_versions.py:\n")
+    log("time: "+str(datetime.now()))
+    log("host: "+socket.gethostname())
+    log("url: "+URL)
+                    
+    log("downloading...")
+    response = urllib2.urlopen(URL)
+    #log("got \n"+str(response.info()))
+    log("parsing...")
+    data = []
+    for line in response.readlines():
+        rec = line[:-1].split("\t")
+        data.append(rec)
 
-print "mirror_draft_versions: parsed " + str(len(data)) + " entries"
-if len(data) < 1:
-    raise Exception('No data')
+    log("got " + str(len(data)) + " entries")
+    if len(data) < 10000:
+        raise Exception('not enough data')
 
-cursor = db.connection.cursor()
-cursor.execute("DELETE FROM "+TABLE)
-cursor.executemany("INSERT INTO "+TABLE+" (filename, revision, revision_date) VALUES (%s, %s, %s)", data)
-cursor.close()
-db.connection._commit()
-db.connection.close()
+    log("connecting to database...")
+    cursor = db.connection.cursor()
+    log("removing old data...")
+    cursor.execute("DELETE FROM "+TABLE)
+    log("inserting new data...")
+    cursor.executemany("INSERT INTO "+TABLE+" (filename, revision, revision_date) VALUES (%s, %s, %s)", data)
+    cursor.close()
+    db.connection._commit()
+    db.connection.close()
 
-print "mirror_draft_versions: done"
+    log("all done!")
+    log_data = ""
+finally:
+    if len(log_data) > 0:
+        print log_data

@@ -35,98 +35,126 @@ from django.core import management
 management.setup_environ(settings)
 from django import db
 
-from xml.dom import pulldom
-from xml.dom import Node
+from xml.dom import pulldom, Node
 import re
 import urllib2
+from datetime import datetime
+import socket
+import sys
 
 INDEX_URL = "http://www.rfc-editor.org/rfc/rfc-index.xml"
 TABLE = "rfc_index_mirror"
 
-def getChildText(parentNode, tagName):
-    for node in parentNode.childNodes:
-        if node.nodeType == Node.ELEMENT_NODE and node.localName == tagName:
-            return node.firstChild.data
-    return None
-
-def getDocList(parentNode, tagName):
-    l = []
-    for u in parentNode.getElementsByTagName(tagName):
-        for d in u.getElementsByTagName("doc-id"):
-            l.append(d.firstChild.data)
-    if len(l) == 0:
-        return None
+log_data = ""
+def log(line):
+    global log_data
+    if len(sys.argv) > 1:
+        print line
     else:
-        return ",".join(l)
+        log_data += line + "\n"
 
-print "mirror_rfc_index: downloading "+INDEX_URL
+def parse(response):
+    def getChildText(parentNode, tagName):
+        for node in parentNode.childNodes:
+            if node.nodeType == Node.ELEMENT_NODE and node.localName == tagName:
+                return node.firstChild.data
+        return None
 
-response = urllib2.urlopen(INDEX_URL)
-also_list = {}
-data = []
-events = pulldom.parse(response)
-for (event, node) in events:
-    if event == pulldom.START_ELEMENT and node.tagName in ["bcp-entry", "fyi-entry", "std-entry"]:
-        events.expandNode(node)
-        node.normalize()
-        bcpid = getChildText(node, "doc-id")
-        doclist = getDocList(node, "is-also")
-        if doclist:
-            for docid in doclist.split(","):
-                if docid in also_list:
-                    also_list[docid].append(bcpid)
-                else:
-                    also_list[docid] = [bcpid]
-
-    elif event == pulldom.START_ELEMENT and node.tagName == "rfc-entry":
-        events.expandNode(node)
-        node.normalize()
-        rfc_number = int(getChildText(node, "doc-id")[3:])
-        title = getChildText(node, "title")
-
+    def getDocList(parentNode, tagName):
         l = []
-        for author in node.getElementsByTagName("author"):
-            l.append(getChildText(author, "name"))
-        authors = "; ".join(l)
-
-        d = node.getElementsByTagName("date")[0]
-        year = int(getChildText(d, "year"))
-        month = getChildText(d, "month")
-        month = ["January","February","March","April","May","June","July","August","September","October","November","December"].index(month)+1
-        rfc_published_date = ("%d-%02d-01" % (year, month))
-
-        current_status = getChildText(node, "current-status").title()
-
-        updates = getDocList(node, "updates") 
-        updated_by = getDocList(node, "updated-by")
-        obsoletes = getDocList(node, "obsoletes") 
-        obsoleted_by = getDocList(node, "obsoleted-by")
-
-        draft = getChildText(node, "draft")
-        if draft and re.search("-\d\d$", draft):
-            draft = draft[0:-3]
-
-        if len(node.getElementsByTagName("errata-url")) > 0:
-            has_errata = 1
+        for u in parentNode.getElementsByTagName(tagName):
+            for d in u.getElementsByTagName("doc-id"):
+                l.append(d.firstChild.data)
+        if len(l) == 0:
+            return None
         else:
-            has_errata = 0
+            return ",".join(l)
 
-        data.append([rfc_number,title,authors,rfc_published_date,current_status,updates,updated_by,obsoletes,obsoleted_by,None,draft,has_errata])
+    also_list = {}
+    data = []
+    events = pulldom.parse(response)
+    for (event, node) in events:
+        if event == pulldom.START_ELEMENT and node.tagName in ["bcp-entry", "fyi-entry", "std-entry"]:
+            events.expandNode(node)
+            node.normalize()
+            bcpid = getChildText(node, "doc-id")
+            doclist = getDocList(node, "is-also")
+            if doclist:
+                for docid in doclist.split(","):
+                    if docid in also_list:
+                        also_list[docid].append(bcpid)
+                    else:
+                        also_list[docid] = [bcpid]
 
-for d in data:
-    k = "RFC%04d" % d[0]
-    if k in also_list:
-        d[9] = ",".join(also_list[k])
+        elif event == pulldom.START_ELEMENT and node.tagName == "rfc-entry":
+            events.expandNode(node)
+            node.normalize()
+            rfc_number = int(getChildText(node, "doc-id")[3:])
+            title = getChildText(node, "title")
 
-print "mirror_rfc_index: parsed " + str(len(data)) + " entries"
-if len(data) < 1:
-    raise Exception('No data')
+            l = []
+            for author in node.getElementsByTagName("author"):
+                l.append(getChildText(author, "name"))
+            authors = "; ".join(l)
 
-cursor = db.connection.cursor()
-cursor.execute("DELETE FROM "+TABLE)
-cursor.executemany("INSERT INTO "+TABLE+" (rfc_number, title, authors, rfc_published_date, current_status,updates,updated_by,obsoletes,obsoleted_by,also,draft,has_errata) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
-cursor.close()
-db.connection._commit()
-db.connection.close()
+            d = node.getElementsByTagName("date")[0]
+            year = int(getChildText(d, "year"))
+            month = getChildText(d, "month")
+            month = ["January","February","March","April","May","June","July","August","September","October","November","December"].index(month)+1
+            rfc_published_date = ("%d-%02d-01" % (year, month))
 
-print "mirror_rfc_index: done"
+            current_status = getChildText(node, "current-status").title()
+
+            updates = getDocList(node, "updates") 
+            updated_by = getDocList(node, "updated-by")
+            obsoletes = getDocList(node, "obsoletes") 
+            obsoleted_by = getDocList(node, "obsoleted-by")
+
+            draft = getChildText(node, "draft")
+            if draft and re.search("-\d\d$", draft):
+                draft = draft[0:-3]
+
+            if len(node.getElementsByTagName("errata-url")) > 0:
+                has_errata = 1
+            else:
+                has_errata = 0
+
+            data.append([rfc_number,title,authors,rfc_published_date,current_status,updates,updated_by,obsoletes,obsoleted_by,None,draft,has_errata])
+
+    for d in data:
+        k = "RFC%04d" % d[0]
+        if k in also_list:
+            d[9] = ",".join(also_list[k])
+    return data
+
+try:
+    log("output from mirror_rfc_index.py:\n")
+    log("time: "+str(datetime.now()))
+    log("host: "+socket.gethostname())
+    log("url: "+INDEX_URL)
+
+    log("downloading...")
+    response = urllib2.urlopen(INDEX_URL)
+    log("parsing...")
+    data = parse(response)
+
+    log("got " + str(len(data)) + " entries")
+    if len(data) < 5000:
+        raise Exception('not enough data')
+
+    log("connecting to database...")
+    cursor = db.connection.cursor()
+    log("removing old data...")
+    cursor.execute("DELETE FROM "+TABLE)
+    log("inserting new data...")
+    cursor.executemany("INSERT INTO "+TABLE+" (rfc_number, title, authors, rfc_published_date, current_status,updates,updated_by,obsoletes,obsoleted_by,also,draft,has_errata) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
+    cursor.close()
+    db.connection._commit()
+    db.connection.close()
+
+    log("all done!")
+    log_data = ""
+
+finally:
+    if len(log_data) > 0:
+        print log_data

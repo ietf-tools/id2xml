@@ -61,7 +61,6 @@ def parse(response):
                 return node.firstChild.data
         return None
 
-    global output
     events = pulldom.parse(response)
     drafts = []
     refs = []

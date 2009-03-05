@@ -31,6 +31,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django.shortcuts import render_to_response
+from ietf.docs.models import RfcIndex, RfcEditorQueue, DraftVersions
 
 def test(request):
-    return render_to_response('docs/test.html', {})
+    q = RfcEditorQueue.objects.order_by('-date_received')[:20]
+    v = DraftVersions.objects.order_by('-revision_date')[:20]
+    r = RfcIndex.objects.order_by('-rfc_number')[:20]
+    return render_to_response('docs/test.html', {'queue':q, 'versions':v, 'rfcs':r})

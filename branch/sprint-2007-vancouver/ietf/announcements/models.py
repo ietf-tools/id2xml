@@ -12,7 +12,7 @@ class AnnouncedFrom(models.Model):
     announced_from_id = models.AutoField(primary_key=True)
     announced_from = models.CharField(blank=True, maxlength=255, db_column='announced_from_value')
     email = models.CharField(blank=True, maxlength=255, db_column='announced_from_email', editable=False)
-    role = models.ManyToManyField(Role, filter_interface=models.VERTICAL, verbose_name='Role', blank=True)
+    role = models.ManyToManyField(Role, filter_interface=models.VERTICAL, verbose_name='Can use this address', blank=True)
     def __str__(self):
 	return self.announced_from
     class Meta:

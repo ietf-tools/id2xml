@@ -7,7 +7,7 @@ import os
 
 OUTDIR = "/a/www/ietf-ftp/iesg"
 
-set = TelechatMinutes.objects.filter(exported='1')
+set = TelechatMinutes.objects.filter(exported='0')
 for item in set:
 	errorflag = 0
 	filename = "iesg.%s" % item.telechat_date

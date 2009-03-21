@@ -8,11 +8,12 @@ from django.shortcuts import render_to_response
 
 from ietf.idtracker.models import ChairsHistory
 from ietf.idtracker.models import PersonOrOrgInfo
+from ietf.idtracker.models import Role
 from ietf.announcements.models import Announcement
 
 def all(request):
     curr_chair       = (ChairsHistory.objects.
-                        get(chair_type='3', present_chair='1'))
+                        get(chair_type=Role.NOMCOM_CHAIR, present_chair='1'))
 
     curr_chair_email = curr_chair.person.email()[1]
     curr_chair_name = curr_chair.person.email()[0]

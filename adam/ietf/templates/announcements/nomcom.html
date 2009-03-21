@@ -5,17 +5,17 @@
 
 <H1><center>IAB/IESG Nominating Committee</center></H1>
 
-<h3>Current Committee Chair: <a href="mailto:{{ curr_chair_email }}">{{ curr_chair_name }}</a></h3>
+<h3><center>Current Committee Chair: <a href="mailto:{{ curr_chair_email }}">{{ curr_chair_name }}</a></center></h3>
 
 {% for regime in regimes %}
   <hr>
-  <h2>Messages from {{ regime.chair.start_year }} - {{ regime.chair.end_year }}</h2>
+  <h1>Messages from {{ regime.chair.start_year }} - {{ regime.chair.end_year }}</h1>
   <h4>Committee Chair: <a href="mailto:{{ regime.chair.person.email.1 }}">{{ regime.chair.person }}</a></h4>
   <table>
     <tr>
-      <th>Date</th>
-      <th style="font-color:#ff000;max-width:50%;">Subject</th>
-      <th>Sent To</th>
+      <th width="10%">Date</th>
+      <th width="60%">Subject</th>
+      <th width="30%">Sent To</th>
     </tr>
   {% for ann in regime.announcements %}
     <tr>

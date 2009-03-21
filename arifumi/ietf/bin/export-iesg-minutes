@@ -12,7 +12,7 @@ for item in set:
 	errorflag = 0
 	filename = "iesg.%s" % item.telechat_date
 	try:
-		f = open(OUTDIR+filename, 'w', 0644)
+		f = open(OUTDIR+filename, 'w')
 		try:
 			f.write(item.telechat_minute)
 		except BaseException:

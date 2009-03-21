@@ -8,8 +8,9 @@ from ietf.idtracker.models import IDStatus
 
 
 # This block feels to me like it still knows _way_ too much about the insides of the model - should all of it be moved into the model itself?
-all_ids            = InternetDraft.objects.order_by('filename').select_related(depth=1)
-#all_ids            = InternetDraft.objects.order_by('filename')
+# select_related actually causes the wrong thing to happen because of reference problems in the tables
+#all_ids            = InternetDraft.objects.order_by('filename').select_related(depth=1)
+all_ids            = InternetDraft.objects.order_by('filename')
 in_track_ids       = all_ids.filter(idinternal__rfc_flag=0).exclude(idinternal__cur_state__in=IDInternal.INACTIVE_STATES)
 exclude_ids        = [item.id_document_tag for item in in_track_ids]
 not_in_track       = all_ids.exclude(id_document_tag__in=exclude_ids)

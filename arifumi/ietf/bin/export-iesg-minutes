@@ -1,0 +1,30 @@
+#!/usr/bin/env python2.4
+#
+# Arifumi Matsumoto <arifumi@nttv6.net>
+
+from ietf.iesg.models import TelechatMinutes
+import os
+
+OUTDIR = "/a/www/ietf-ftp/iesg"
+
+set = TelechatMinutes.objects.filter(exported='1') # 1 to be 0
+for item in set:
+	errorflag = 0
+	filename = "iesg.%s" % item.telechat_date
+	try:
+		f = open(OUTDIR+filename, 'w', 0666)
+		try:
+			f.write(item.telechat_minute)
+		except BaseException:
+			print "write errorflag\n"
+			errorflag = 1
+		else:
+			f.close()
+	except IOError:
+		print "open errorflag\n"
+		errorflag = 1
+
+	if not errorflag:
+		os.chmod(OUTDIR+filename, 0644)
+		item.exported = 1
+		item.save()

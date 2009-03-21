@@ -32,7 +32,7 @@ for draft in matches:
 #   if ietf_monday > expiration > second_cutoff:
 #       expiration += freeze_delta
     authors = draft.authors.all()
-    to_addrs = [author.email() for author in authors]
+    to_addrs = [author.email() for author in authors if author.email()]
     cc_addrs = None
     if draft.group.acronym != 'none':
         cc_addrs = [chair.person.email() for chair in WGChair.objects.filter(group_acronym=draft.group)]

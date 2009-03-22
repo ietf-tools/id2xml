@@ -93,6 +93,15 @@ class Area(models.Model):
         list_display = ('area_acronym', 'status')
 	pass
 
+class AreaURL(models.Model):
+    area = models.ForeignKey(Area, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=1, null=True, related_name='urls')
+    url = models.URLField(maxlength=255, db_column='url_value')
+    url_label = models.CharField(maxlength=255, db_column='url_label')
+    def __str__(self):
+        return self.url
+    class Admin:
+        pass
+
 class IDStatus(models.Model):
     status_id = models.AutoField(primary_key=True)
     status = models.CharField(maxlength=25, db_column='status_value')
@@ -765,6 +774,11 @@ class EmailAddress(models.Model):
 	#unique_together = (('email_priority', 'person_or_org'), )
 	# with this, I get 'ChangeManipulator' object has no attribute 'isUniqueemail_priority_person_or_org'
 	verbose_name_plural = 'Email addresses'
+    class Admin:
+	# Even though this is edit_inline, we want to be able
+	# to search for email addresses.
+	search_fields = [ 'address' ]
+	list_display = ( 'person_or_org', 'address', 'type', 'priority' )
 
 class PhoneNumber(models.Model):
     person_or_org = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', edit_inline=models.TABULAR, num_in_admin=1)

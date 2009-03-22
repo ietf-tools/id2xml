@@ -1,4 +1,4 @@
-# Copyright The IETF Trust 2007, All Rights Reserved
+# Copyright The IETF Trust 2007, 2009, All Rights Reserved
 
 from django.conf.urls.defaults import patterns, include, handler404, handler500
 
@@ -50,7 +50,7 @@ urlpatterns = patterns('',
       (r'^(?P<path>public|cgi-bin)/', include('ietf.redirects.urls')),
       (r'^ipr/', include('ietf.ipr.urls')),
       (r'^meeting/', include('ietf.meeting.urls')),
-      (r'^accounts/', include('ietf.ietfauth.urls')),
+      (r'^account/', include('ietf.ietfauth.urls')),
 
       (r'^$', 'ietf.redirects.views.redirect'),
 

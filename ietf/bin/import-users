@@ -40,6 +40,10 @@ level2group = {
 	1:	'IESG',
 	2:	'ex-IESG',
 }
+if len(sys.argv) != 2:
+    print "usage: import-users htpasswd"
+    sys.exit(1)
+    
 
 f = open(sys.argv[1], 'r')
 line = f.readline()
@@ -90,8 +94,12 @@ while line != '':
 	except users.UserAlreadyExists, (msg, u):
 	    print "Already in system as %s when adding %s (%s)" % ( u.username, user, email )
 	    if not email_re.search( user ):
-		u.username = user
-		u.save()
+		# If the existing username looks like it's one we made up
+		# (first_last), then change it to the one in the digest file.
+		if "_" in u.username:
+		    print "Changing username from %s to %s" % ( u.username, user )
+		    u.username = user
+		    u.save()
 	if iesg:
 	    try:
 		group, created = Group.objects.get_or_create(name = level2group[iesg.user_level])
@@ -100,7 +108,7 @@ while line != '':
 	    if group:
 		print "Adding %s to %s (user_level %d)" % (u.username, group.name, iesg.user_level)
 		u.groups.add(group)
-	if wg:
+	if wg and wg.password:
 	    # Use the plaintext password
 	    set_password( u, wg.password )
     else:

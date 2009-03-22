@@ -218,6 +218,14 @@ def inpast(date):
 	return date < datetime.datetime.now()
     return True
 
+@register.filter(name='timesince_days')
+def timesince_days(date):
+    """Returns the number of days since 'date' (relative to now)"""
+    if date.__class__ is not datetime.datetime:
+        date = datetime.datetime(date.year, date.month, date.day)
+    delta = datetime.datetime.now() - date
+    return delta.days
+
 @register.filter(name='truncatemore')
 def truncatemore(text, arg):
     """Truncate the text if longer than 'words', and if truncated,

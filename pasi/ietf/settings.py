@@ -35,9 +35,9 @@ MANAGERS = ADMINS
 DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
 DATABASE_NAME = 'ietf'         # Or path to database file if using sqlite3.
 DATABASE_USER = 'ietf'       # Not used with sqlite3.
-#DATABASE_PASSWORD = 'playing' # Not used with sqlite3.
+DATABASE_PASSWORD = 'ietf' # Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_HOST = '130.129.52.254'             # Set to empty string for localhost. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -135,6 +135,7 @@ INSTALLED_APPS = (
     'ietf.my',
     'ietf.proceedings',
     'ietf.redirects',
+    'ietf.idrfc',
 # not yet merged from the Vancouver branch    
 #    'ietf.wgcharter',
 )
@@ -160,6 +161,10 @@ TEST_RUNNER = 'ietf.tests.run_tests'
 TEST_REFERENCE_URL_PREFIX = os.environ.get("IETFDB_REF_PREFIX","") or 'https://datatracker.ietf.org/'
 
 IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR'
+
+# Override this in settings_local.py if needed
+INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
+RFC_PATH = '/a/www/ietf-ftp/rfc/'
 
 IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
 

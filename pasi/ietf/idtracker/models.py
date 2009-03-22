@@ -518,6 +518,15 @@ class IDInternal(models.Model):
     you cannot use draft__ as that will cause an INNER JOIN
     which will limit the responses to I-Ds.
     """
+
+    ACTIVE=1
+    PUBLISHED=3
+    EXPIRED=2
+    WITHDRAWN_SUBMITTER=4
+    REPLACED=5
+    WITHDRAWN_IETF=6
+    INACTIVE_STATES=[99,32,42]
+
     draft = models.ForeignKey(InternetDraft, primary_key=True, unique=True, db_column='id_document_tag')
     rfc_flag = models.IntegerField(null=True)
     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
@@ -942,6 +951,15 @@ class Role(models.Model):
     '''
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     role_name = models.CharField(maxlength=25, db_column='chair_name')
+    
+    # Role values
+    IETF_CHAIR            = 1
+    IAB_CHAIR             = 2
+    NOMCOM_CHAIR          = 3
+    IAB_EXCUTIVE_DIRECTOR = 4
+    IRTF_CHAIR            = 5
+    IAD_CHAIR             = 6
+
     # This __str__ makes it odd to use as a ForeignKey.
     def __str__(self):
 	return "%s (%s)" % (self.person, self.role())

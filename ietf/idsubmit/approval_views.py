@@ -45,15 +45,13 @@ def is_secretariat(user):
 
 def approve_draft(request, filename, approver, person):
     """Add or update an approval for the filename draft"""
-    try:
-        a = IdApprovedDetail.objects.get(filename=filename)
-    except IdApprovedDetail.DoesNotExist:
-        a = IdApprovedDetail(filename=filename)
-    a.approved_status = 1
-    a.approved_person = person
-    a.approved_date = datetime.date.today()
-    a.recorded_py = approver
-    a.save()
+    ( a, created ) = IdApprovedDetail.objects.get_or_create(filename=filename)
+    if created:
+	a.approved_status = 1
+	a.approved_person = person
+	a.approved_date = datetime.date.today()
+	a.recorded_by = approver
+	a.save()
 
     # Find a submission object for this filename whose status is 10
     # ('Initial Version Approval Requested')
@@ -75,16 +73,14 @@ def approve_draft(request, filename, approver, person):
             submission_failed = False
         except IdSubmissionDetail.ApprovalError, e:
             submission_failed = e
-    return render_to_response('idsubmit/approval_success.html', {'draft':filename,
+        return render_to_response('idsubmit/approval_success.html', {'draft':filename,
                                             'submission':submission,
                                             'submission_failed':submission_failed})
-
-def approval2(request):
-    """ "front door" to the approval form with no prespecified draft """
-    return approval(request, None)
+    else:
+        return render_to_response('idsubmit/approval_notfound.html', {'draft':filename, 'created':created, 'approval':a})
 
 @login_required
-def approval(request, draft):
+def approval(request, draft=None):
     """Main view for the page."""
     user = PersonOrOrgInfo.objects.from_django( request.user )
     if user is None:

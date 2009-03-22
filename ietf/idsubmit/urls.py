@@ -20,6 +20,6 @@ urlpatterns = patterns('',
      (r'^status/$', views.draft_status, idsubmit_dict),
      (r'^verify/(?P<submission_id>\d+)/(?P<auth_key>\w+)/$', views.verify_key),
      (r'^verify/(?P<submission_id>\d+)/(?P<auth_key>\w+)/(?P<from_wg_or_sec>(wg|sec))/$', views.verify_key),
-     (r'^approve/$', approval_views.approval2),
      (r'^approve/(?P<draft>[^/]+)/$', approval_views.approval),
+     (r'^approve/$', approval_views.approval),
 )

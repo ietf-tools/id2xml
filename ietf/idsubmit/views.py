@@ -10,6 +10,7 @@ from django.views.generic.simple import direct_to_template
 from django.conf import settings
 from django.db.models import Q
 from django.views.generic.list_detail import object_detail
+from django.contrib.sites.models import Site
 from models import IdSubmissionDetail, IdApprovedDetail, IdDates, SubmissionEnv
 from ietf.idtracker.models import Acronym
 from ietf.idsubmit.forms import IDUploadForm, SubmitterForm, AdjustForm, AuthorForm
@@ -99,16 +100,16 @@ def file_upload(request):
             threshold_msg = dp.check_dos_threshold()
             if threshold_msg:
                 return render("idsubmit/error.html", {'error_msg':threshold_msg}, context_instance=RequestContext(request))
-            meta_data = dp.get_meta_data_fields()
-            submission = IdSubmissionDetail.objects.create(**meta_data)
-            # Display critical error message
-            if submission.status_id >= 100 and submission.status_id < 200:
-                return render("idsubmit/error.html",{'error_msg':STATUS_CODE[submission.status_id]}, context_instance=RequestContext(request))
             (ietfgroup,invalid_group) = dp.get_group_id()
             if invalid_group:
                 return render("idsubmit/error.html",{'error_msg':'Invalid WG: %s' % invalid_group}, context_instance=RequestContext(request))
             if not ietfgroup:
                 return render("idsubmit/error.html",{'error_msg':'Failed to determine IETF WG from filename, %s' % submission.filename}, context_instance=RequestContext(request))
+            meta_data = dp.get_meta_data_fields()
+            submission = IdSubmissionDetail.objects.create(**meta_data)
+            # Display critical error message
+            if submission.status_id >= 100 and submission.status_id < 200:
+                return render("idsubmit/error.html",{'error_msg':STATUS_CODE[submission.status_id]}, context_instance=RequestContext(request))
             submission.group = ietfgroup
             submission.save()
             # Checking existing submission
@@ -293,7 +294,7 @@ def trigger_auto_post(request,submission_id):
             send_mail(request, [submission.submitter_email()], \
                     FROM_EMAIL, \
                     "I-D Submitter Authentication for %s" % submission.filename, \
-                    "idsubmit/email_submitter_auth.txt", {'submission_id':submission_id, 'auth_key':submission.auth_key}, toUser=True)            
+                    "idsubmit/email_submitter_auth.txt", {'site':Site.objects.get_current(), 'submission_id':submission_id, 'auth_key':submission.auth_key}, toUser=True)            
         return HttpResponseRedirect(submission.get_absolute_url())
     else:
         meta_data_errors = {}
@@ -340,7 +341,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
             [toaddr],
             FROM_EMAIL,
             "Initial Version Approval Request for %s" % (submission.filename, ),
-            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename} 
+            "idsubmit/email_init_rev_approval.txt",{'submitter_name':submitter_name,'submitter_email':submitter_email,'filename':submission.filename,'site':Site.objects.get_current()}
         )
 
         submission.save()

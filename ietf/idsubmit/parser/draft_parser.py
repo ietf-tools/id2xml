@@ -389,12 +389,9 @@ class DraftParser(object):
             group_id = Acronym.objects.get(acronym_id=Acronym.NONE)
         else:
             try:
-                ac = Acronym.objects.get(acronym=wg_id)
-                if IETFWG.objects.filter(group_acronym=ac,status__status_id=1,group_type__group_type_id=1).count():
-                    return ac, None
-                else:
-                    return None, wg_id
-            except Acronym.DoesNotExist:
+		wg = IETFWG.objects.get(group_acronym__acronym=wg_id,status=1,group_type=1)
+		group_id = wg.group_acronym
+            except IETFWG.DoesNotExist:
                 return None, wg_id
         return group_id, None
 

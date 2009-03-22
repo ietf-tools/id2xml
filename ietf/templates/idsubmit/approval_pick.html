@@ -8,7 +8,7 @@
   <h2>IETF Internet-Draft Initial Version Approval Tool</h2>
 
   <h2>Pick an Approver for {{ form.draft.data }}</h2>
-  <form action="{% url ietf.idsubmit.approval_views.approval2 %}" method="post">
+  <form action="{% url ietf.idsubmit.approval_views.approval %}" method="post">
     {{ form.draft.as_hidden }}
     {{ approver_form.as_p }}
     <input type="submit" value="Approve Internet-Draft"/>

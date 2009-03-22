@@ -1,7 +1,6 @@
 --NextPart
 
-{% filter wordwrap:72 %}A New Internet-Draft is available from the on-line Internet-Drafts directories.  {% ifnotequal submission.group.acronym "none" %}This draft is
-a work item of the {{ submission.group.acronym }} Working Group of the IETF.{% endifnotequal %}
+{% filter wordwrap:72 %}A New Internet-Draft is available from the on-line Internet-Drafts directories.  {% ifnotequal submission.group.acronym "none" %}This draft is a work item of the {{ submission.group.acronym }} Working Group of the IETF.{% endifnotequal %}
 {% endfilter %}
 
 	Title           : {{submission.title}}

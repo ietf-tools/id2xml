@@ -19,7 +19,7 @@
   <p>
   {% endif %}
   
-  <form action="{% url ietf.idsubmit.approval_views.approval2 %}" method="post">
+  <form action="{% url ietf.idsubmit.approval_views.approval %}" method="post">
     {{ form.as_p }}
     <input type="submit" value="Approve Internet-Draft"/>
   </form>
@@ -43,7 +43,7 @@
   </table>
 {% endif %}
 
-  <h3>Pre-Approved Internet-Drafts</h3>
+  <h3>Approved Internet-Drafts</h3>
   <table border="1" summary="This table lists the Initial Internet-Drafts 
 			     that you have pre-approved">
     <tr>

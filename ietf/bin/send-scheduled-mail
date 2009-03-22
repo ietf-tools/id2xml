@@ -16,7 +16,9 @@ candidates = ScheduledAnnouncement.objects.filter(to_be_sent_date__isnull=True) 
 candidates = candidates.filter(mail_sent=False) #.exclude(to_be_sent_date__gt=now.date())
 for c in candidates:
     if c.to_be_sent_time:
-        tbst = datetime.time( *[int(t) for t in c.to_be_sent_time.split(":")] )
+	# The ridiculous int(float(t)) is because some times contain
+        # fractional seconds, and you can't do int('46.56').
+        tbst = datetime.time( *[int(float(t)) for t in c.to_be_sent_time.split(":")] )
         if tbst > now.time():
 	    # To be sent today, but not yet.
 	    continue

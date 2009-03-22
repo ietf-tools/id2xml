@@ -138,6 +138,7 @@ def send_scheduled(msg, bcc, sendTime, scheduledExtra):
     kwargs['from_val'] = msg['From']
     kwargs['to_val'] = msg['To']
     kwargs['cc_val'] = msg['Cc'] or ''
+    kwargs['subject'] = msg['Subject']
     kwargs['to_be_sent_date'] = sendTime
     kwargs['to_be_sent_time'] = str(sendTime.time())
     kwargs['body'] = str(msg.get_payload())	# if we support multipart, this

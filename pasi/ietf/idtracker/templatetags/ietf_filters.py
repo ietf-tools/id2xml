@@ -286,6 +286,11 @@ def wrap_long_lines(text):
         filled += [ line.rstrip() ]
     return "\n".join(filled)
 
+# based on http://www.djangosnippets.org/snippets/847/ by 'whiteinge'
+@register.filter
+def in_group(user, groups):
+    return user and user.is_authenticated() and bool(user.groups.filter(name__in=groups.split(',')).values('name'))
+
 def _test():
     import doctest
     doctest.testmod()

@@ -1,3 +1,21 @@
+ietfdb (2.25)
+
+  * Refactored IdRfcWrapper and lots of improvements to ID/RFC pages.
+
+  * New "Documents on Future IESG Telechat Agendas" page; some
+    improvements for the "IESG Discuss Positions" page.
+
+  * Improved "Sign in" dialog for new ID/RFC pages.
+	
+  * Better error message if cookies are not supported when logging in.
+
+  * Include all comments (not just 15) in document comment Atom feed; 
+    correctly sort comments on same date.
+	
+  * New template tags for comparisons: greater_than/less_than/equal.
+
+  * Get YUI base URL from settings instead of hardcoding.
+	
 ietfdb (2.24)
 
   * Merged in code from Pasi for new ID/RFC search and per-document pages,

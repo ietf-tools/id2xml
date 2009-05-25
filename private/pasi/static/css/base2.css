@@ -109,6 +109,7 @@ form#search_form { padding-top: 4px; padding-bottom: 4px; }
 .search_results th.ad, .search_results td.ad { white-space:nowrap; min-width: 6em; }
 .search_results td.ballot { border-left: hidden; }
 
+td.ballot { min-width:37px;  }
 table.ballot_icon { empty-cells: show; padding: 0; border-spacing: 0; border: 1px solid black; border-collapse: collapse; table-layout:fixed; min-width:35px; background:white; }
 table.ballot_icon td { border: 1px solid black; height: 7px; width: 6px; padding: 0;}
 td.ballot_icon_green { background:#80ff80; }

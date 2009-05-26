@@ -1,3 +1,12 @@
+ietfdb (2.26)
+
+  * Fixed parsing of REF state in RFC Editor queue.
+
+  * Include draft version in document comment Atom feed.	
+
+  * Minor formatting bugfixes (should work better with IE6 and Safari)
+    in "new layout" (idrfc).	    
+	
 ietfdb (2.25)
 
   * Refactored IdRfcWrapper and lots of improvements to ID/RFC pages.

@@ -167,6 +167,6 @@ def state_age_colored(doc):
     else:
         goal = 14
     if days > goal:
-        return '<span style="padding:0 2px;font-size:85%%;background:yellow;" title="Goal is %d days">(for %d days)</span>' % (goal,days)
+        return '<span style="padding:0 2px;font-size:85%%;background:yellow;" title="Goal is %d days">(for&nbsp;%d&nbsp;day%s)</span>' % (goal,days,('','s')[days != 1])
     else:
-        return '<span style="font-size:85%%;">(for %d days)</span>' % (days,)
+        return '<span style="font-size:85%%;">(for&nbsp;%d&nbsp;day%s)</span>' % (days,('','s')[days != 1])

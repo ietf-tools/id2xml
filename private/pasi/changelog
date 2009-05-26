@@ -5,7 +5,9 @@ ietfdb (2.26)
   * Include draft version in document comment Atom feed.	
 
   * Minor formatting bugfixes (should work better with IE6 and Safari)
-    in "new layout" (idrfc).	    
+    in "new layout" (idrfc).
+
+  * Minor fixes to showing "days in state" data.
 	
 ietfdb (2.25)
 

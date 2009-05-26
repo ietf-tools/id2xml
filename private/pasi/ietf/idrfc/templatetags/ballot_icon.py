@@ -162,6 +162,8 @@ def state_age_colored(doc):
         goal = 30
     elif main_state == "RFC Ed Queue":
         goal = 60
+    elif main_state == "In Last Call":
+        goal = 30
     else:
         goal = 14
     if days > goal:

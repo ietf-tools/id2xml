@@ -3,8 +3,9 @@
 import django.utils.html
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.html import escape
-from django.http import Http404
+from django.http import HttpResponse, Http404
 from ietf.idtracker.models import IETFWG
 from ietf.ipr.models import IprDetail, SELECT_CHOICES, LICENSE_CHOICES
 from ietf.ipr.view_sections import section_table
@@ -42,13 +43,38 @@ def list_all(request, template):
             'thirdpty_disclosures': thirdpty_disclosures.order_by(* ['-submitted_date', ] ),
         }, context_instance=RequestContext(request) )
 
+def list_drafts(request):
+    iprs = IprDetail.objects.filter(status=1)
+    docipr = {}
+    docs = []
+    for ipr in iprs:
+        for draft in ipr.drafts.all():
+            name = draft.document.filename
+            if not name in docipr:
+                docipr[name] = []
+            docipr[name] += [ ipr.ipr_id ]
+        for rfc in ipr.rfcs.all():
+            name = "RFC%04d" % rfc.document.rfc_number
+            if not name in docipr:
+                docipr[name] = []
+            docipr[name] += [ ipr.ipr_id ]
+    docs = [ {"name":key, "iprs":value, } for key,value in docipr.items() ]
+    return HttpResponse(render_to_string("ipr/drafts.html", { "docs":docs, },
+                    context_instance=RequestContext(request)),
+                    mimetype="text/plain")
+
 # Details views
 
-def show(request, ipr_id=None):
+def show(request, ipr_id=None, removed=None):
     """Show a specific IPR disclosure"""
     assert ipr_id != None
     ipr = get_object_or_404(IprDetail, ipr_id=ipr_id)
-    if not ipr.status == 1:
+    if ipr.status == 3 and not removed:
+	return render("ipr/removed.html",  {"ipr": ipr},
+			context_instance=RequestContext(request))
+    if removed and ipr.status != 3:
+	raise Http404
+    if not ipr.status == 1 and not removed:
 	raise Http404        
     section_list = get_section_list(ipr)
     contacts = ipr.contact.all()

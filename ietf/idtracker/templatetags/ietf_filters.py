@@ -169,6 +169,11 @@ def allononeline(text):
     """Simply removes CRs, LFs, leading and trailing whitespace from the given string."""
     return text.replace("\r", "").replace("\n", "").strip()
 
+@register.filter(name='allononelinew')
+def allononelinew(text):
+    """Map runs of whitespace to a single space and strip leading and trailing whitespace from the given string."""
+    return re.sub("[\r\n\t ]+", " ", text).strip()
+
 @register.filter(name='rfcspace')
 def rfcspace(string):
     """
@@ -194,6 +199,14 @@ def rfcnospace(string):
     else:
         return string
 
+@register.filter(name='dashify')
+def dashify(string):
+    """
+    Replace each character in string with '-', to produce
+    an underline effect for plain text files.
+    """
+    return re.sub('.', '-', string)
+
 @register.filter(name='lstrip')
 def lstripw(string, chars):
     """Strip matching leading characters from words in string"""
@@ -213,9 +226,88 @@ def inpast(date):
 	return date < datetime.datetime.now()
     return True
 
+@register.filter(name='timesince_days')
+def timesince_days(date):
+    """Returns the number of days since 'date' (relative to now)"""
+    if date.__class__ is not datetime.datetime:
+        date = datetime.datetime(date.year, date.month, date.day)
+    delta = datetime.datetime.now() - date
+    return delta.days
+
+@register.filter(name='truncatemore')
+def truncatemore(text, arg):
+    """Truncate the text if longer than 'words', and if truncated,
+    add a link to the full text (given in 'link').
+    """
+    from django.utils.text import truncate_words
+    args = arg.split(",")
+    if len(args) == 3:
+        count, link, format = args
+    elif len(args) == 2:
+        format = "[<a href='%s'>more</a>]"
+        count, link = args
+    else:
+        return text
+    try:
+        length = int(count)
+    except ValueError: # invalid literal for int()
+        return text # Fail silently.
+    if not isinstance(text, basestring):
+        text = str(text)
+    words = text.split()
+    if len(words) > length:
+        words = words[:length]
+        words.append(format % link)
+    return ' '.join(words)
+
+@register.filter(name="wrap_long_lines")
+def wrap_long_lines(text):
+    """Wraps long lines without loosing the formatting and indentation
+       of short lines"""
+    if type(text) != type(""):
+        return text
+    text = re.sub(" *\r\n", "\n", text) # get rid of DOS line endings
+    text = re.sub(" *\r", "\n", text)   # get rid of MAC line endings
+    text = re.sub("( *\n){3,}", "\n\n", text) # get rid of excessive vertical whitespace
+    lines = text.split("\n")
+    filled = []
+    wrapped = False
+    for line in lines:
+        if wrapped and line.strip() != "":
+            line = filled[-1] + " " + line
+            filled = filled[:-1]
+        else:
+            wrapped = False
+        while (len(line) > 80) and (" " in line[:80]):
+            wrapped = True
+            breakpoint = line.rfind(" ",0,80)
+            filled += [ line[:breakpoint] ]
+            line = line[breakpoint+1:]
+        filled += [ line.rstrip() ]
+    return "\n".join(filled)
+
+@register.filter(name='greater_than')
+def greater_than(x, y):
+    return x > int(y)
+
+@register.filter(name='less_than')
+def less_than(x, y):
+    return x < int(y)
+
+@register.filter(name='equal')
+def equal(x, y):
+    return str(x)==str(y)
+
+# based on http://www.djangosnippets.org/snippets/847/ by 'whiteinge'
+@register.filter
+def in_group(user, groups):
+    return user and user.is_authenticated() and bool(user.groups.filter(name__in=groups.split(',')).values('name'))
+
 def _test():
     import doctest
     doctest.testmod()
 
 if __name__ == "__main__":
     _test()
+
+    

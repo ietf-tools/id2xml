@@ -5,7 +5,6 @@
 # http://code.djangoproject.com/wiki/SplitSettings
 
 import os
-
 import syslog
 syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 
@@ -15,34 +14,37 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# Domain name of the IETF
+IETF_DOMAIN = 'ietf.org'
+
 ADMINS = (
-    ('IETF Django Developers', 'django-project@ietf.org'),
+    ('IETF Django Developers', 'django-project@' + IETF_DOMAIN),
     ('GMail Tracker Archive', 'ietf.tracker.archive+errors@gmail.com'),
 )
 
+# Server name of the tools server
+TOOLS_SERVER = 'tools.' + IETF_DOMAIN
+
 # Override this in the settings_local.py file:
-SERVER_EMAIL = 'Django Server<django@tools.ietf.org>'
+SERVER_EMAIL = 'Django Server <django-project@' + TOOLS_SERVER + '>'
 
-
-DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@ietf.org>'
+DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@' + IETF_DOMAIN + '>'
 
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
 DATABASE_NAME = 'ietf'         # Or path to database file if using sqlite3.
-DATABASE_USER = 'django'       # Not used with sqlite3.
-#DATABASE_PASSWORD = 'playing' # Not used with sqlite3.
+DATABASE_USER = 'ietf'       # Not used with sqlite3.
+#DATABASE_PASSWORD = 'ietf' # Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-#DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-#DATABASE_HOST = '10.30.47.10' 	   # The MySQL 5 server, new and hot.. but seems to be slow
-DATABASE_HOST = '10.31.47.10'      # Existing MySQL 4.1 server.. 
+DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/New_York'
+TIME_ZONE = 'PST8PDT'
 
 # Language code for this installation. All choices can be found here:
 # http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -111,6 +113,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.i18n',
     'ietf.context_processors.server_mode',
     'ietf.context_processors.revision_info',
+    'ietf.context_processors.yui_url'
 )
 
 INSTALLED_APPS = (
@@ -134,19 +137,16 @@ INSTALLED_APPS = (
     'ietf.my',
     'ietf.proceedings',
     'ietf.redirects',
+    'ietf.idrfc',
+# not yet merged from the Vancouver branch    
+#    'ietf.wgcharter',
 )
 
 INTERNAL_IPS = (
-# llama in san jose
-	'135.207.33.119',
-# fenestro
-	'67.188.114.134',
-# shiraz and marsanne
-        '81.232.110.214',
-        '2001:16d8:ff54::1',
-# merlot
-        '194.146.105.14',
-        '2001:698:9:31:214:22ff:fe21:bb',
+# AMS servers
+	'64.170.98.32',
+	'64.170.98.86',
+
 # local
         '127.0.0.1',
         '::1',
@@ -160,14 +160,29 @@ SERVER_MODE = 'development'
 # The name of the method to use to invoke the test suite
 TEST_RUNNER = 'ietf.tests.run_tests'
 
-TEST_REFERENCE_URL_PREFIX = os.environ.get("IETFDB_REF_PREFIX","") or 'http://compost.research.att.com/old/'
+TEST_REFERENCE_URL_PREFIX = os.environ.get("IETFDB_REF_PREFIX","") or 'https://datatracker.ietf.org/'
 
-IPR_DOCUMENT_PATH = '/home/local/ftp/data/ietf/IPR'
+IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR'
+
+# Override this in settings_local.py if needed
+INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
+RFC_PATH = '/a/www/ietf-ftp/rfc/'
+
+# Override this in settings_local.py if needed
+if SERVER_MODE == 'production':
+    CACHE_BACKEND= 'file://'+'/a/www/ietf-datatracker/cache/'
+else:
+    # Default to no caching in development/test, so that every developer
+    # doesn't have to set CACHE_BACKEND in settings_local
+    CACHE_BACKEND = 'dummy:///'
 
 IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
 
 # The number of days for which a password-request URL is valid
 PASSWORD_DAYS = 3
+
+# Base URL for YUI library
+YUI_URL = "https://ajax.googleapis.com/ajax/libs/yui"
 
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.

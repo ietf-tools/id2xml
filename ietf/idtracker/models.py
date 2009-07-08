@@ -1,5 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+from django.conf import settings
 from django.db import models
 from ietf.utils import FKAsOneToOne
 from django.test import TestCase
@@ -93,6 +94,15 @@ class Area(models.Model):
         list_display = ('area_acronym', 'status')
 	pass
 
+class AreaURL(models.Model):
+    area = models.ForeignKey(Area, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=1, null=True, related_name='urls')
+    url = models.URLField(maxlength=255, db_column='url_value', core=True)
+    url_label = models.CharField(maxlength=255, db_column='url_label')
+    def __str__(self):
+        return self.url
+    class Admin:
+        pass
+
 class IDStatus(models.Model):
     status_id = models.AutoField(primary_key=True)
     status = models.CharField(maxlength=25, db_column='status_value')
@@ -118,6 +128,7 @@ class IDIntendedStatus(models.Model):
         pass
 
 class InternetDraft(models.Model):
+    DAYS_TO_EXPIRE=185
     id_document_tag = models.AutoField(primary_key=True)
     title = models.CharField(maxlength=255, db_column='id_document_name')
     id_document_key = models.CharField(maxlength=255, editable=False)
@@ -154,9 +165,27 @@ class InternetDraft(models.Model):
         self.id_document_key = self.title.upper()
         super(InternetDraft, self).save()
     def displayname(self):
-	return "%s-%s.txt" % ( self.filename, self.revision_display() )
+	if self.status.status == "Replaced":
+	    css="replaced"
+	else:
+	    css="active"
+        return '<span class="' + css + '">' + self.filename + '</span>'
+    def displayname_current(self):
+	if self.status.status == "Replaced":
+	    css="replaced"
+	else:
+	    css="active"
+        return '<span class="%s">%s-%s</span>' % (css, self.filename, self.revision)
+    def displayname_with_link(self):
+	if self.status.status == "Replaced":
+	    css="replaced"
+	else:
+	    css="active"
+	return '<a class="' + css + '" href="%s">%s</a>' % ( self.doclink(), self.filename )
     def doclink(self):
-	return "http://www.ietf.org/internet-drafts/%s" % ( self.displayname() )
+	return "http://" + settings.TOOLS_SERVER + "/html/%s" % ( self.filename )
+    def doclink_current(self):
+	return "http://%s/html/%s-%s" % (settings.TOOLS_SERVER, self.filename, self.revision)
     def group_acronym(self):
 	return self.group.acronym
     def __str__(self):
@@ -179,12 +208,26 @@ class InternetDraft(models.Model):
     def filename_with_link(self, text=None):
 	if text is None:
 	    text=self.filename
-	if self.status.status != 'Active':
-	    return text
-	else:
-	    return '<a href="%s">%s</a>' % ( self.doclink(), text )
-    def displayname_with_link(self):
-	return self.filename_with_link(self.displayname())
+	return '<a href="%s">%s</a>' % ( self.doclink(), text )
+    def expiration(self):
+        return self.revision_date + datetime.timedelta(self.DAYS_TO_EXPIRE)
+    def can_expire(self):
+        # Copying the logic from expire-ids-1 without thinking
+        # much about it.
+        if self.review_by_rfc_editor:
+            return False
+        idinternal = self.idinternal
+        if idinternal:
+            cur_state_id = idinternal.cur_state_id
+            # 42 is "AD is Watching"; this matches what's in the
+            # expire-ids-1 perl script.
+            # A better way might be to add a column to the table
+            # saying whether or not a document is prevented from
+            # expiring.
+            if cur_state_id < 42:
+                return False
+        return True
+
     class Meta:
         db_table = "internet_drafts"
     class Admin:
@@ -403,7 +446,7 @@ class Rfc(models.Model):
     def revision_display(self):
 	return "RFC"
     def doclink(self):
-	return "http://www.ietf.org/rfc/%s" % ( self.displayname() )
+	return "http://" + settings.TOOLS_SERVER + "/html/%s" % ( self.displayname() )
     def doctype(self):
 	return "RFC"
     def filename_with_link(self):
@@ -523,6 +566,15 @@ class IDInternal(models.Model):
     you cannot use draft__ as that will cause an INNER JOIN
     which will limit the responses to I-Ds.
     """
+
+    ACTIVE=1
+    PUBLISHED=3
+    EXPIRED=2
+    WITHDRAWN_SUBMITTER=4
+    REPLACED=5
+    WITHDRAWN_IETF=6
+    INACTIVE_STATES=[99,32,42]
+
     draft = models.ForeignKey(InternetDraft, primary_key=True, unique=True, db_column='id_document_tag')
     rfc_flag = models.IntegerField(null=True)
     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
@@ -584,14 +636,16 @@ class IDInternal(models.Model):
 	return IDInternal.objects.filter(models.Q(primary_flag=0)|models.Q(primary_flag__isnull=True), ballot=self.ballot_id)
     def docstate(self):
 	if self.cur_sub_state_id > 0:
-	    return "%s :: %s" % ( self.cur_state, self.cur_sub_state )
+	    return "%s::%s" % ( self.cur_state.state, self.cur_sub_state.sub_state )
 	else:
-	    return self.cur_state
+	    return self.cur_state.state
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'
 	ordering = ['rfc_flag', 'draft']
     class Admin:
+        list_display = ['draft', 'token_email', 'note' ]
+        ordering = ['draft', ]
 	pass
 
 class DocumentComment(models.Model):
@@ -628,12 +682,17 @@ class DocumentComment(models.Model):
 	if self.created_by_id and self.created_by_id != 999:
 	    return self.created_by.__str__()
 	else:
-	    return "system"
+	    return "(System)"
     def get_username(self):
 	if self.created_by_id and self.created_by_id != 999:
 	    return self.created_by.login_name
 	else:
-	    return "system"
+	    return "(System)"
+    def get_fullname(self):
+	if self.created_by_id and self.created_by_id != 999:
+	    return self.created_by.first_name + " " + self.created_by.last_name
+	else:
+	    return "(System)"
     def datetime(self):
 	# this is just a straightforward combination, except that the time is
 	# stored incorrectly in the database.
@@ -714,7 +773,7 @@ class IESGDiscuss(models.Model):
 class IDAuthor(models.Model):
     document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', edit_inline=models.TABULAR, raw_id_admin=True)
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
-    author_order = models.IntegerField(null=True, blank=True)
+    author_order = models.IntegerField()
     def __str__(self):
 	return "%s authors %s" % ( self.person, self.document.filename )
     def email(self):
@@ -771,6 +830,11 @@ class EmailAddress(models.Model):
 	#unique_together = (('email_priority', 'person_or_org'), )
 	# with this, I get 'ChangeManipulator' object has no attribute 'isUniqueemail_priority_person_or_org'
 	verbose_name_plural = 'Email addresses'
+    class Admin:
+	# Even though this is edit_inline, we want to be able
+	# to search for email addresses.
+	search_fields = [ 'address' ]
+	list_display = ( 'person_or_org', 'address', 'type', 'priority' )
 
 class PhoneNumber(models.Model):
     person_or_org = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', edit_inline=models.TABULAR, num_in_admin=1)
@@ -831,9 +895,17 @@ class IETFWG(models.Model):
 	return [(wg.group_acronym_id, wg.group_acronym.acronym) for wg in IETFWG.objects.all().filter(group_type__type='WG', status=1).select_related().order_by('acronym.acronym').distinct()]
     choices = staticmethod(choices)
     def area_acronym(self):
-        return AreaGroup.objects.filter(group_acronym_id=self.group_acronym_id).area
-    def is_meeting(self, meeting_num):
-        return NotMeetingGroups.objects.filter(group=self.group_acronym_id, meeting=meeting_num).count() == 0
+        areas = AreaGroup.objects.filter(group__exact=self.group_acronym)
+        if areas:
+            return areas[areas.count()-1].area.area_acronym
+        else:
+            return None
+    def area_directors(self):
+        areas = AreaGroup.objects.filter(group__exact=self.group_acronym)
+        if areas:
+            return areas[areas.count()-1].area.areadirector_set.all()
+        else:
+            return None
     class Meta:
         db_table = 'groups_ietf'
 	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it
@@ -842,7 +914,7 @@ class IETFWG(models.Model):
 	search_fields = ['group_acronym__acronym', 'group_acronym__name']
 	# Until the database is consistent, including area_director in
 	# this list means that we'll have FK failures, so skip it for now.
-	list_display = ('group_acronym', 'group_type', 'status')
+	list_display = ('group_acronym', 'group_type', 'status', 'area_acronym', 'start_date', 'concluded_date')
 	list_filter = ['status', 'group_type']
 	#list_display = ('group_acronym', 'group_type', 'status', 'area_director')
 	#list_filter = ['status', 'group_type', 'area_director']
@@ -976,6 +1048,15 @@ class Role(models.Model):
     '''
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
     role_name = models.CharField(maxlength=25, db_column='chair_name')
+    
+    # Role values
+    IETF_CHAIR            = 1
+    IAB_CHAIR             = 2
+    NOMCOM_CHAIR          = 3
+    IAB_EXCUTIVE_DIRECTOR = 4
+    IRTF_CHAIR            = 5
+    IAD_CHAIR             = 6
+
     # This __str__ makes it odd to use as a ForeignKey.
     def __str__(self):
 	return "%s (%s)" % (self.person, self.role())

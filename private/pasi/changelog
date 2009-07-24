@@ -1,3 +1,11 @@
+ietfdb (2.27)
+
+  * Replaced IESG minutes with redirect, and removed related feed/sitemap.
+
+  * Correctly handle discusses for RFCs on /iesg/discusses/ page.
+
+ -- Pasi Eronen <pasi.eronen@nokia.com>  24 Jul 2009 15:22:45 +0200
+
 ietfdb (2.26)
 
   * Fixed parsing of REF state in RFC Editor queue.

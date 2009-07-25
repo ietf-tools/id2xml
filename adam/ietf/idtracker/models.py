@@ -864,8 +864,8 @@ class IETFWG(models.Model):
         return InternetDraft.objects.filter(group__exact=self.group_acronym)
     def charter_text(self): # return string containing WG description read from file
         # get file path from settings. Syntesize file name from path, acronym, and suffix
-        filename = settings.IETFWG_DESCRIPTIONS_PATH + self.group_acronym.acronym + ".desc.txt"
         try:
+            filename = settings.IETFWG_DESCRIPTIONS_PATH + self.group_acronym.acronym + ".desc.txt"
             desc_file = open(filename)
             desc = desc_file.read()
         except BaseException:    

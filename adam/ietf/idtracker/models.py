@@ -864,6 +864,16 @@ class IETFWG(models.Model):
         return InternetDraft.objects.filter(group__exact=self.group_acronym)
     def charter_text(self):
        return "This is a stub implementation for returning the charter for "+self.group_acronym.acronym
+    def description(self): # return string containing WG description read from file
+        # get file path from settings. Syntesize file name from path, acronym, and suffix
+        filename = settings.IETFWG_DESCRIPTIONS_PATH + self.group_acronym.acronym + ".desc.txt"
+        try:
+            desc_file = open(filename)
+            desc = desc_file.read()
+        except BaseException:    
+            desc =  'Error Loading Work Group Description'
+        return desc
+                  
     class Meta:
         db_table = 'groups_ietf'
 	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it

@@ -1,12 +1,21 @@
+{% load ietf_filters %}
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2009, All Rights Reserved #}
 
 {% block title %} {{ wg.group_acronym.name }} Charter  {% endblock %}
 
 {% block content %}
+{% ifequal wg.status.status 'Concluded' %}<div class="wgdone"> {%endifequal%}
+{% ifequal wg.status.status 'Dormant' %}<div class="wgdormant"> {%endifequal%}
 <h1>{{wg.group_acronym.name}} ({{wg}})</h1>
 
 <p>Last Modified: {{ wg.last_modified_date }}</p>
+<p>Status: {% ifequal wg.status.status 'Active' %}Active{%else%} 
+<font color="red">{{ wg.status }}
+{% ifequal wg.status.status 'Concluded' %}on {{wg.concluded_date}}{%endifequal%}
+{% ifequal wg.status.status 'Dormant' %}on {{wg.dormant_date}}{%endifequal%}
+</font>
+{% endifequal %}</p>
 
 <h2>Chair{{ wg.chairs.count|pluralize:": ,s:" }}</h2>
 <ul>
@@ -44,7 +53,7 @@
 </table>
 
 <h2>Description of Working Group:</h2>
-{{ wg.charter_text }}
+<blockquote><p>{{ wg.charter_text|escape|format_charter }}</p></blockquote>
 
 <h2>Goals and Milestones:</h2>
 <table>
@@ -76,7 +85,7 @@
 <h2>Internet-Drafts:</h2>
 <ul>
 {% for draft in wg.drafts %}
-  <li><a href="http://tools.ietf.org/html/{{draft.filename}}">{{draft.title}}</a> ({{ draft.txt_page_count }} pages)</li>
+  <li><a href="{{draft.doclink}}">{{draft.title}}</a> ({{ draft.txt_page_count }} pages)</li>
 {% endfor %}
 </ul>
 
@@ -85,11 +94,15 @@
 <table>
 {% for rfc in wg.rfcs %}
   <tr><td>{{rfc}}{% if rfc.fyi_number %}<br> / FYI{{rfc.fyi_number}}{%endif%}{% if rfc.std_number %}<br> / STD{{rfc.std_number}}{%endif%}:
-  </td><td><a href="http://tools.ietf.org/html/{{rfc}}">{{rfc.title}}</a> ({{rfc.txt_page_count}} pages)
+  </td><td><a href="{{rfc.doclink}}">{{rfc.title}}</a> ({{rfc.txt_page_count}} pages)
   {% for obs in rfc.obsoletes%}
-    {% if forloop.first %}{%else%}, {%endif%}
-    <font color="{%ifequal obs.action 'obsoleted by'%}red{%else%}orange{%endifequal%}">{{obs.action}} {{obs.rfc_acted_on_id}}</font>
+    - <font color="orange">{{obs.action}} RFC{{obs.rfc_acted_on_id}}</font>
   {% endfor %}
+
+  {% for obs in rfc.obsoleted_by%}
+    - {%ifequal obs.action 'Obsoletes'%}<font color="red">Obsoleted by{%else%}<font color="orange">Updated by{%endifequal%} RFC{{obs.rfc_acted_on_id}}
+  {% endfor %}
+
 </td></tr>
 {% endfor %}
 </table>
@@ -97,4 +110,6 @@
 <h2>No Requests for Comments</h2>
 {% endif %}
 
+{% ifequal wg.status.status 'Concluded' %} </div> {%endifequal%}
+{% ifequal wg.status.status 'Dormant' %} </div> {%endifequal%}
 {% endblock %}

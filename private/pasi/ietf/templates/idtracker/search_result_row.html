@@ -9,7 +9,7 @@
 	<td {% if not match.primary_flag %} class="nonprimary" {% endif %} >
 
 	    <a href="{% url ietf.idtracker.views.view_id match.document.filename %}">
-	    {{ match.document.displayname }}
+	    {{ match.document.displayname|safe }}
 	    </a>
 		
 	    {% ifequal match.document.status.status "Replaced" %}

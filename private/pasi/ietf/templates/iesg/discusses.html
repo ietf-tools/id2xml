@@ -70,7 +70,7 @@ class="discuss_my" {% else %} class="discuss_not_my" {% endif %}{% endif %}>
 <a href="/doc/{{doc.draft_name}}/">{{doc.draft_name_and_revision}}</a>
 {% endif %}
 </td>
-<td class="status">{{ doc.friendly_state }}</td>
+<td class="status">{{ doc.friendly_state|safe }}</td>
 <td class="ballot">{% ballot_icon doc %}</td>
 <td class="ad">{% if doc.ad_name %}{{ doc.ad_name|escape }}{% else %}&nbsp;{% endif %}</td>
 <td>

@@ -860,6 +860,8 @@ class IETFWG(models.Model):
         return GoalMilestone.objects.filter(group_acronym__exact=self.group_acronym)
     def rfcs(self): # return a set of Rfc objects for this group
         return Rfc.objects.filter(group_acronym__exact=self.group_acronym)
+    def drafts(self): # return a set of Rfc objects for this group
+        return InternetDraft.objects.filter(group__exact=self.group_acronym)
     def charter_text(self):
        return "This is a stub implementation for returning the charter for "+self.group_acronym.acronym
     class Meta:

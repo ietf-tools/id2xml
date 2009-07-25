@@ -1,3 +1,11 @@
+  * Added new rfcurl filter to eliminate hardcoded references to RFC URLs
+    primarily in the liaisons and drafts pages.
+
+  * Fixed URLs that were broken or outdated by the IETF web page
+    re-organization throughout the tree.  In particular, references to
+    html.charters in URLs, and old charter references.  Including many
+    broken links in leftmenu.
+
 ietfdb (2.27)
 
   * Add support for an iPhone specific agenda format.  Going to the html

@@ -74,6 +74,9 @@ def convert_py(file):
         if re.search("(Field|ForeignKey).*core=True", line):
             line = re.sub(",\s*core=True", "", line)
             fixes['removed core'] = True
+        if re.search("\.clean_data", line):
+            line = re.sub("\.clean_data", ".cleaned_data", line)
+            fixes['cleaned_data'] = True
         outf.write(line)
     inf.close()
     fixes_list = fixes.keys()

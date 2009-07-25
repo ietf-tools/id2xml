@@ -840,7 +840,7 @@ class IETFWG(models.Model):
     def choices():
 	return [(wg.group_acronym_id, wg.group_acronym.acronym) for wg in IETFWG.objects.all().filter(group_type__type='WG').select_related().order_by('acronym.acronym')]
     choices = staticmethod(choices)
-    def area_acronym(self):
+    def gro(self):
         areas = AreaGroup.objects.filter(group__exact=self.group_acronym)
         if areas:
             return areas[areas.count()-1].area.area_acronym
@@ -852,6 +852,12 @@ class IETFWG(models.Model):
             return areas[areas.count()-1].area.areadirector_set.all()
         else:
             return None
+    def chairs(self):
+        return WGChair.objects.filter(group_acronym__exact=self.group_acronym)
+    def secretaries(self):
+        return WGSecretary.objects.filter(group_acronym__exact=self.group_acronym)
+    def charter_text(self):
+       return "This is a stub implementation for returning the charter for "+self.group_acronym.acronym
     class Meta:
         db_table = 'groups_ietf'
 	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it

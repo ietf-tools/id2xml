@@ -22,3 +22,6 @@ def wg_summary_area(request):
 def wg_dir(request):
     wgs = IETFWG.objects.filter(status='1',start_date__isnull=False)
     return render_to_response('wginfo/wg-dir.html', {'wg_list': wgs}, RequestContext(request))
+
+def wg_charter(request, wg="1"):
+    return render_to_response('wginfo/wg-charter.html', {'wg': wg}, RequestContext(request))

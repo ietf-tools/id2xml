@@ -1,0 +1,44 @@
+{% load ietf_filters %}{{wg.group_acronym.name}} ({{wg}})
+{{ wg.group_acronym.name|dashify }}{{ wg.group_acronym.acronym|dashify }}---
+
+Charter
+Last Modified: {{ date }}
+
+Current Status: {{ status }}
+
+Chair(s):
+{% for chair in chairs %}  {{ chair.person }} <{{chair.person.email.1}}>
+{% endfor %}
+
+Area Directors:
+{% for ad in ads %}  {{ ad.person }} <{{ad.person.email.1}}>
+{% endfor %}{% if advisor %}
+Area Advisor:
+  {{ advisor.person }}
+{% endif %}{% if secretary %}
+Secretary/Secretaries:
+{% for secretary in secretary %}  {{ secretary.person }} <{{secretary.person.email.1}}>
+{% endfor %}
+{% endif %}
+
+Mailing List:
+{% for list in mailing_lists %}
+  {{ list.type }}: {{ list.email }}
+  To Subscribe: {{ list.subscribe_url }}
+  Archive: {{ list.archive_url }}
+{% endfor %}
+
+Description of Working Group:
+{{ charter }}
+
+Goals and Milestones:
+{% for milestone in milestones %}  {{ milestone.date }} - {{ milestone.name }}
+{% endfor %}
+
+Internet-Drafts:
+{% for draft in drafts %}  {{draft.name}}({{ draft.size }} bytes)
+{% endfor %}
+
+{% if rfcs %} No Requests for Comments {% else %}Requests for Comments:
+{% for rfc in rfcs %}  {{rfc.name}} ({{ rfc.size }} bytes)
+{% endfor %}{% endif %}

@@ -115,14 +115,14 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
                 title_parts.append(title_text)
                 title_parts.append(authors_text)
                 title_parts.append(str(draft.revision_date))
-                title_parts.append("<" + draft.filename + draft.file_type + ">")
+                title_parts.append("<" + draft.filename + "-" + draft.revision + ".txt" + ">")
                     
                 # if wrap_and_indent is implemented as a template function
                 # we wouldn't need the title_all here
                 draft_elements.append({'title': title_text,
                                        'authors': authors_text,
                                        'rev_date': draft.revision_date,
-                                       'filename': draft.filename + draft.file_type,
+                                       'filename': draft.filename + "-" + draft.revision + ".txt",
                                        'title_all': wrap_and_indent(", ".join(title_parts), 80, 2),
                                        'abstract': abstract_text
                                        #'abstract': wrap_and_indent(abstract_text, 80, 4)

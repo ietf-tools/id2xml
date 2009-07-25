@@ -428,6 +428,8 @@ class Rfc(models.Model):
     # return set of RfcObsolete objects obsoleted by this RFC
     def obsoletes(self): # return a set of Rfc objects for this group
         return RfcObsolete.objects.filter(rfc=self.rfc_number)
+    def obsoletes(self): # return a set of Rfc objects for this group
+        return RfcObsolete.objects.filter(rfc_acted_on=self.rfc_number)
 
     class Meta:
         db_table = 'rfcs'

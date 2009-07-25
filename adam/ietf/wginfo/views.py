@@ -37,3 +37,12 @@ def generate_text_charter(wg):
 def wg_charter_txt(request, wg="1"):
     return HttpResponse(generate_text_charter(wg),
                         mimetype='text/plain; charset=UTF-8')
+
+def wg_charters(request):
+    wgs = IETFWG.objects.filter(status='1',start_date__isnull=False)
+    return HttpResponse(loader.render_to_string('wginfo/1wg-charters.txt', {'wg_list': wgs}),mimetype='text/plain; charset=UTF-8')
+
+def wg_charters_by_acronym(request):
+    wgs = IETFWG.objects.filter(status='1',start_date__isnull=False)
+    return HttpResponse(loader.render_to_string('wginfo/1wg-charters-by-acronym.txt', {'wg_list': wgs}),mimetype='text/plain; charset=UTF-8')
+

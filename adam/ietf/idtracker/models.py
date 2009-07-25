@@ -862,9 +862,7 @@ class IETFWG(models.Model):
         return Rfc.objects.filter(group_acronym__exact=self.group_acronym)
     def drafts(self): # return a set of Rfc objects for this group
         return InternetDraft.objects.filter(group__exact=self.group_acronym)
-    def charter_text(self):
-       return "This is a stub implementation for returning the charter for "+self.group_acronym.acronym
-    def description(self): # return string containing WG description read from file
+    def charter_text(self): # return string containing WG description read from file
         # get file path from settings. Syntesize file name from path, acronym, and suffix
         filename = settings.IETFWG_DESCRIPTIONS_PATH + self.group_acronym.acronym + ".desc.txt"
         try:

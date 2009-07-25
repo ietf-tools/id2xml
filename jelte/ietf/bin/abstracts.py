@@ -129,7 +129,7 @@ def create_abstracts_text(acronym, idindex_filename, txt_filename, html_filename
                                       })
             
             if html_directory:
-                rel_url = html_directory + "/" + group.group_acronym.acronym + ".html",
+                rel_url = html_directory + "/" + group.group_acronym.acronym + ".html"
             else:
                 rel_url = ""
             

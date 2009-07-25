@@ -1,3 +1,9 @@
+ietfdb (2.29)
+
+  * Some Django 1.0 related fixes plus conversion script.  From Pasi.
+	
+ -- Henrik Levkowetz <henrik@levkowetz.com>  25 Jul 2009 14:38:41 +0200
+
 ietfdb (2.28)
 
   * Show full name in document comment log.  From Pasi.

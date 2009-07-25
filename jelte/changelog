@@ -1,3 +1,10 @@
+  * Add new abstracts.py command-line script, that can generate
+    1id-abstracts.txt, 1id-abstracts.html and abstracts/<wg>.html
+
+  * Removed the TemplatedForm, CustomForm and makeFormattedForm. The
+    forms now use a special field_item tag that takes the form and field
+    name, and displays the required asterisk
+
 ietfdb (2.27)
 
   * Add support for an iPhone specific agenda format.  Going to the html

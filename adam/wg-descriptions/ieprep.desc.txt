@@ -1,0 +1,68 @@
+Effective telecommunications capabilities are imperative to facilitate
+immediate recovery operations for serious disaster events, such as,
+hurricanes, floods, earthquakes, and terrorist attacks. Disasters can
+happen any time, any place, unexpectedly. Quick response for recovery
+operations requires immediate access to any public telecommunications
+capabilities at hand. These capabilities include: conventional
+telephone, cellular phones, and Internet access via online terminals, 
+IP telephones, and wireless PDAs. The commercial telecommunications
+infrastructure is rapidly evolving to Internet-based technology.
+Therefore, the Internet community needs to consider how it can best
+support emergency management and recovery operations.
+
+Three examples of emergency communications include:
+
+1. Conveying information about the priority of specific phone calls
+   that originate in a VoIP environment through gateways to the PSTN.
+
+2. Access and transport for database and information distribution
+   applications relevant to managing the crisis. One example of this
+   is the I am Alive (IAA) system that can be used by people in a
+   disaster zone to register the fact that they are alive so that
+   their friends and family can check on their health.
+
+3. Interpersonal communication among crisis management personnel using
+   electronic mail and instant messaging.
+
+Initial documents will describe the problem space and its salient
+characteristics. In particular the working group will devlop a
+Requirements for Internet Emergency Preparedness in the Internet RFC
+which will detail the specific functions and technologies needed to
+provide support for Emergency Preparedness systems in the Internet. The
+working group may also develop a Framework for Supporting Internet
+Emergency Preparedness in IP Telephony RFC if it is determined that IP
+telephony requires special treatment above what would be in the
+requirements document.
+
+The international community needs advice as to what standards to rely
+on, in the form of a BCP. This BCP needs to identify mechanisms to
+provide deterministic behavior of applications, mechanisms for
+authentication and authorization, and recommendations for application
+design with existing protocols. In the IETF considerations for
+treatment and security of emergency communications stretch across a 
+number of Areas and Working Groups, notably including the various 
+telephony signaling working groups, Differentiated Services, Protocol 
+for carrying Authentication for Network Access (pana), and various 
+operational groups, so the IEPREP working group will have to cooperate 
+closely with these groups and with groups outside of the IETF such as 
+various ITU-T study groups.
+
+The working group will develop a BCP RFC or set of RFCs, regarding
+operational implementation of services for Emergency Preparedness using
+existing Internet protocols. The RFC may include identification of gaps
+in existing protocols and requirements for use in new protocol or
+protocol feature design. It is out of scope for this working group to
+do protocol or protocol feature development. The working group will
+not focus on particular national regulations.
+
+Deliverables
+
+Best Current Practice:
+  IETF Recommendations for the Emergency Telecommunications Service
+  using existing protocols - what can be done with existing protcols
+  and what can not be done.
+
+Informational:
+  Requirements for Internet Emergency Preparedness in the Internet.
+  Framework for Supporting Internet Emergency Preparedness in IP
+  Telephony.

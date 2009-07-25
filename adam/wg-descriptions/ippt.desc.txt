@@ -1,0 +1,12 @@
+GOAL:
+
+Very low cost methods of storing packet trace information in
+routers and other devices along a network path have been recently
+developed.  It is possible, using these technologies, to trace
+individual packets back to their source (see, for instance, Snoeren
+et al, Hash-Based IP Traceback,
+http://www.acm.org/sigcomm/sigcomm2001/p1.html).
+
+This BOF is focussed on the protocols required to support this
+kind of trace information and whether IETF wishes to standardize
+these kinds of protocols.

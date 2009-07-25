@@ -1,0 +1,101 @@
+The LEDBAT WG is chartered to standardize a congestion
+control mechanism that should saturate the bottleneck,
+maintain low delay, and yield to standard TCP.
+
+Applications that transmit large amounts of data for a long
+time with congestion-limited TCP, but without AQM, fill the
+buffer at the head of the bottleneck link. With FIFO queue,
+this increases the delay experienced by other applications.
+With buffer of one RTT, the delay doubles. In some cases,
+the extra delay may be much larger. This is a particularly
+acute and common case is when P2P applications upload over
+thin home uplinks: delays in these cases can sometimes be of
+the order of seconds.
+
+The IETF's standard end-to-end transport protocols have not
+been designed to minimize the extra delay introduced by them
+into the network. TCP, as a side effect of filling the
+buffer until it experiences drop-tail loss, effectively
+maximizes the delay. While this works well for applications
+that are not delay-sensitive, it harms interactive
+applications that share the same bottleneck. VoIP and games
+are particularly affected, but even web browsing may become
+problematic.
+
+LEDBAT is a transport-area WG that will focus on broadly
+applicable techniques that allow large amounts of data to be
+consistently transmitted without substantially affecting the
+delays experienced by other users and applications.
+
+The WG will work on the following:
+
+(1) An experimental congestion control algorithm for
+less-than-best-effort "background" transmissions, i.e., an
+algorithm that attempts to scavenge otherwise idle bandwidth
+for its transmissions in a way that minimizes interference
+with regular best-effort traffic.
+
+Desired features of such an algorithm are:
+
+* saturate the bottleneck
+
+* eliminate long standing queues and thus keep
+delay low when no other traffic is present
+
+* quickly yield to traffic sharing the same bottleneck queue
+that uses standard TCP congestion control
+
+* add little to the queueing delays induced by TCP traffic
+
+* operate well in networks with FIFO queueing with drop-tail
+discipline
+
+* be deployable for popular applications that currently
+comprise noticeable fractions of Internet traffic
+
+* where available, use explicit congestion notification (ECN),
+active queue management (AQM), and/or end-to-end
+differentiated services (DiffServ).
+
+Application of this algorithm to existing transport
+protocols (TCP, SCTP, DCCP) is expected to occur in the
+working groups that maintain those protocols.
+
+Once experience is gained with this congestion control
+algorithm on the Internet, the WG will consider if it is
+appropriate to ask the IESG to advance the document as a
+Proposed Standard.
+
+(2) A document that clarifies the current practices of
+application design and reasons behind them and discusses the
+tradeoffs surrounding the use of many concurrent TCP
+connections to one destination and/or to different
+destinations.
+
+Applications routinely open multiple TCP connections. For
+example, P2P applications maintain connections to a number
+of different peers while web browsers perform concurrent
+downloads from the same web server. Application designers
+pursue different goals when doing so: P2P apps need to
+maintain a well-connected mesh in the swarm while web
+browsers mainly use multiple connections to parallelize
+requests that involve application latency on the web server
+side. The IETF transport area community is concerned about
+this practice, because standard Internet congestion control
+results in different transport connections sharing
+bottleneck capacity. When an application uses several
+non-rate-limited transport connections to transfer through a
+bottleneck, it may obtain a larger fraction of the
+bottleneck than if it had used fewer connections. Although
+capacity is the most commonly considered bottleneck
+resource, middlebox state table entries are also an
+important resource for an end system communication. Other
+resource types may exist, and the guidelines are expected to
+comprehensively discuss them.
+
+Applications use a variety of techniques to mitigate these
+concerns. These techniques have not always been reviewed by
+the IETF and their interaction with TCP dynamics is poorly
+understood. The WG will document the known techniques,
+discussing the consequences and, where appropriate, provide
+guidance to application designers.

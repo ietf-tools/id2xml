@@ -1,0 +1,27 @@
+The demand for Internet packet teleconferencing has arrived.  Yet, an
+infrastructure to support the demand is barely in place.  Conference
+control is one component of the infrastructure, and may be defined as 
+the management and coordination of multiple sessions, and their multiple 
+users in multiple media.  The Conference Control Working Group is 
+chartered 
+to design a session layer protocol to perform these functions.  
+
+Toward this end, the Working Group will catalogue existing approaches
+to conference control, identify the requirements for providing these
+services across the general Internet, then define a small, but broad
+set of conference styles that are most useful to support.  For
+instance, we anticipate the need to accommodate both loose- and
+tightly-controlled sessions.  Ultimately, the WG will work to specify,
+implement and deploy the confctrl protocol within IETF teleconferencing
+software over the MBONE.  While scalability will be a critical design
+goal, the full implication of security is likely to be addressed at
+later stages in the effort.
+
+This Working Group falls under the supervision of the Remote
+Conferencing Architecture steering group.  As such, it will provide an
+interface to the Realtime Transport Protocol proposed in the
+Audio/Video Transport Working Group.  In addition, this Working Group
+will track the progress of other groups as they relate to the confctrl
+effort: directory services for cataloguing users and conferences,
+resource reservation and management at the network level, schemes for
+multicast address allocation.

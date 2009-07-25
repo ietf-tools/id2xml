@@ -1,0 +1,56 @@
+1) To gauge whether or not there is sufficient interest for 
+people
+	   to step up as document editors. I'm not convinced you
+	   can handle locating editors entirely via mailing lists.
+	   My experience with standards work indicates that people who
+	   volunteer face-to-face are more likely to follow through
+	   than those who say so only on a mailing list.
+
+	2) Charter bashing in a public setting. I'm not convinced that
+	   this process should happen completely on a mailing list. Not 
+that
+	   it hasn't or won't for other proposals, just that a BOF seems
+	   like a more appropriate venue for this particular type of WG.
+
+	3) There is a definite interest in this type of WG proposal. 
+This
+	   observation is based on informal interactions with other IETF
+	   folks as well as folks from the Defense Messaging System 
+Project
+	   and the Directories Commitee of the Electronic Messaging 
+Association.
+
+	4) There are five primary areas of concern when it comes to 
+Directory
+	   Deployment:
+
+		a) installed base problems and mitigation strategies
+
+		b) schema inconsistencies and mappings
+
+		c) piloting activities in support of particular 
+application use
+		   of a directory service (e.g., forward knowledge of
+		   certificates and a global white pages service)
+
+		d) co-existance of multiple IETF standards-track 
+protocols
+
+		e) help and guidance for the people who deploy 
+directories
+
+	5) All of the work items described in the draft charter as 
+submitted to
+	   the directory-cg@apps.ietf.org mailing list are believed to 
+be
+	   useful (eventually) based on the experience of the person
+	   requesting this BOF as well as based on many discussions with
+	   IETFers and other folks. One goal of this BOF is to slice the
+	   draft charter down to something more reasonable and focused 
+based
+	   on what's important enough to tackle _now_. The remaining 
+work will
+	   be tabled or perhaps pushed off into its own BOF/WG at a 
+future
+	   IETF meeting if there is sufficient interest to justify such 
+work.

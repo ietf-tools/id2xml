@@ -1,0 +1,11 @@
+The working group will define a set of managed objects to be used for
+management of newer versions of Digital Subscriber Line (xDSL) as 
+defined in ITU-T Recommendation G.997.1 (02/2006).
+The MIB defined by this group will be generated using SMIv2, will be
+consistent with the SNMP management framework, and will describe the
+relationship of the objects defined to existing MIBs such as those
+described in other work products of this Working Group, the interfaces
+MIB, and the AToM MIB.
+
+The working group will consider the input of the DSL forum and the ITU
+in the definition of this MIB.

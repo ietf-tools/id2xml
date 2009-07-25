@@ -1,0 +1,43 @@
+In the current Internet, it is fairly common for ISPs to provision their
+subscribers with a single public IPv4 address and for those subscribers
+to use NAT technology to allow multiple machines in their networks to
+access the Internet. This setup essentially requires one public IPv4
+address per subscriber. As the IPv4 free address pool becomes depleted,
+it seems likely that  ISPs will not have enough public IPv4 addresses to
+assign one address per subscriber. When that happens, multiple
+subscriber networks will have to share a single public IPv4 address.
+Multiple approaches have been proposed in order to implement the sharing
+of public IPv4 addresses, as described in section 2.1 of
+draft-arkko-townsley-coexistence-00.
+
+The goal of this BOF is to discuss and gain understanding of a
+particular family of solutions, the so called distributed-NAT approaches
+described in section 2.1.2 of draft-arkko-townsley-coexistence-00. This
+family of solutions, essentially assigns a public IP address and a port
+range to each subscriber and relies on some form of port range routing
+capability within the ISP network. The result is that each subscriber
+still obtains at least a part of a public IP address and retains some of
+the capabilities of the current configuration.
+
+During the BOF we intend to discuss the following items:
+- Problem characterization: We need to understand what is exactly the
+problem, what are the different scenarios that are affected by the IPv4
+address space depletion and what are the possible approaches to address
+the problem. In addition, we need to identify the different relevant
+aspects of the problem and solution space that need to be taken into
+account during the discussion of the solution space.
+- Motivation for SHARA: Discuss the benefits and potential issues with a
+distributed NAT approach.
+- Distributed NAT approaches: Explore the solution space for distributed
+NATs and the implications of the relevant aspects previously identified.
+- Interaction with other efforts. There are a significant number of
+efforts in related areas, such as the work being done in the BEHAVE WG
+and the SOFTWIRES WG. It is then relevant to understand how the proposed
+mechanisms interact with these.
+- Implication for the deployment of IPv6. Any mechanism that aims to
+extend the lifetime of IPv4 can potentially delay IPv6 deployment. An
+analysis of the impact of the adoption of these techniques is needed.
+
+This is non-wg forming BOF and the goal is to provide input material to
+the community in general and the IESG in particular for them to scope
+out what gaps still need to be addressed in chartered WG items in other WGs.

@@ -1,0 +1,38 @@
+A small number of enhancements to the SNMP protocol would provide a
+substantial improvement to the protocol in terms of utility and 
+efficiency. The enhancements must fall within the existing SNMP 
+architecture as defined in RFC 2571. The intent of the working group is 
+to focus on enhancements that may be easily defined and implemented 
+which should then promote rapid acceptance and deployment. New protocol 
+operations are within the realm of acceptable enhancements that may be 
+defined.
+
+The initial work items include:
+
+- A standards-track document defining the mechanism by which the
+  capabilities of a SNMP entity may be determined. This document should
+  also define the interoperability requirements of the SNMP protocol
+  when extensions are present and when they are absent;
+
+- A standards-track document defining a mechanism for efficient
+  retrieval, creation, and deletion of rows in tables;
+
+- A standards-track document defining a mechanism used to delete an 
+  entire subtree of managed object instances. This could, for example, 
+  be used to remove all information related to a particular username in 
+  the SNMP administrative framework;
+
+- A standards-track document defining a mechanism to provide for
+  compression of object identifiers to remove as much redundant 
+  information as possible in the payload of the SNMP message; and,
+
+- A standards-track document defining a mechanism for bulk transfer of 
+  SNMP data.
+
+Some of the documents may be combined if the working group so decides.
+
+No additional work items may be taken on by the working group until 
+this
+initial set of work is close to completion. Additional work will have 
+to 
+be approved by the IESG and the IAB.

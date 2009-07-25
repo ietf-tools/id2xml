@@ -1,0 +1,21 @@
+As the World Wide Web has grown and become widespread, the use
+of the Hypertext Transfer Protocol (HTTP) has become widespread 
+as well.  In particular, HTTP has become a popular transaction 
+or transport protocol to build on top of.  In ways similar to 
+protocols built upon TCP, HTTP has become quite popular at 
+providing basic services such as a framework for entity transport,
+authentication (with Basic, Digest or other),encryption (with TLS 
+or SSL), Proxy/Firewall Boundary (PFB) transiting as well as 
+caching and or replication.
+
+With new protocols based on HTTP becoming increasingly popular, 
+it is important to attempt to lay a framework for using HTTP as a 
+common transport.  Most importantly, a clear mechanism is needed
+for extension and higher level layer detection.  In addition, a set 
+of recommendations for using HTTP in a manner consistent with the
+semantics and vision of the HTTP evolution group is desired to 
+ensure that new protocols built upon HTTP are to remain compatible 
+and functional as HTTP evolves.  Finally, along with an extension
+mechanism, appropriate registries and or procedures are desired to
+avoid conflicts and compatibility issues between new extensions,
+higher level layered protocols and the HTTP evolution itself.

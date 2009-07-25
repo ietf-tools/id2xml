@@ -1,0 +1,39 @@
+This BOF will discuss plans to establish an Internet Traffic Engineering 
+Working Group. Internet Traffic Engineering is defined as that aspect of 
+Internet network engineering which is concerned with the performance 
+optimization of operational networks. It encompasses the application of 
+technology and scientific principles to the measurement, modeling, 
+characterization, and control of Internet traffic, and the application 
+of such knowledge and techniques to achieve specific performance 
+objectives, including the reliable and expeditious movement of traffic 
+through the network, the efficient utilization of network resources, and 
+the planning of network capacity.
+
+The proposed WG intends to define, develop, recommend, and specify
+principles, techniques, and mechanisms for traffic engineering in the
+Internet.  The WG will also serve as a general forum for discussing
+possible improvements to IETF protocols to advance the Traffic 
+Engineering function.
+
+The WG will focus specifically on the control aspects of intra-domain
+Internet traffic engineering. This includes control aspects pertaining
+to intra-domain routing and control aspects pertaining to intra-domain
+network resource allocation. The WG may also consider solutions to the
+problem of traffic engineering across autonomous systems boundaries.
+
+The first work item for the proposed WG will be to a produce a
+comprehensive framework document which articulates the general 
+principles and requirements for Internet traffic engineering.
+
+The second work item for the proposed WG will be to produce an 
+informational document which specifies a generic representation of
+common objects, functions, and data-sets needed for traffic engineering.
+
+The third work item for the proposed WG will be to specify protocols, as 
+needed, to allow different traffic engineering control implementations 
+to interoperate.
+
+The proposed WG will interact with other areas of IETF activity whose
+scope intersect with the definition of traffic engineering. This 
+includes various working groups in the Routing Area, the Transport Area, 
+and the Operations and Management Area.

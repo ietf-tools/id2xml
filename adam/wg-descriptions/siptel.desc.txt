@@ -1,0 +1,64 @@
+Before Internet telephony can become a widely deployed service, a
+number of protocols must be deployed. These include signaling and
+capabilities exchange, but also include a number of "peripheral"
+protocols for providing related services.
+
+The primary purpose of this working group is to develop three such
+supportive protocols. They are:
+
+1. User Location. When placing a telephone call to a user, it is
+necessary for a client (or a proxy for that client) to determine the
+location of the user, so that they can be contacted. This location is
+generally of the form of a telephone number or IP address. The caller
+starts with either an email style address or a telephone number. These
+must be mapped into the location where it is appropriate for the
+caller to actually contact the callee. Unlike traditional mappings,
+such as DNS, which are fairly static and flat, this mapping depends on
+a variety of factors. It can be based on caller preferences (I want
+j.doe@company.com at home), callee preferences (connect the caller to
+my voicemail if its Bob), and status (connect the caller to my PC if
+I'm logged in, cell phone otherwise). Telephone numbers must also be
+mapped - 800-555-1212 might be mapped to the IP address of some
+directory service, for example. Such a mapping should also support
+personal mobility, so that names like j.doe@ieee.org can be mapped to
+wherever that individual is currently residing. Such a location
+service requires a protocol which can forward user location requests
+from server to server. At each server, some local database is accessed
+(the type and scope of such accesses our outside the scope of the
+working group, and can include anything from finger to LDAP to TCAP)
+to determine the next server to forward the request to. The Session
+Initiation Protocol (SIP - draft-ietf-mmusic-sip under development in
+mmusic) provides much of this functionality already. The IPTEL
+working group will define a profile for SIP that adds a few additional
+pieces of functionality required for this service. In particular, SIP
+handles only email-like identifiers at the moment. Support for
+telephone numbers must be added. Additional parameters will also be
+required to provide richer user location services. Finally, SIP
+currently mixes call control and user location. The IPTEL working
+group must separate these two, allowing use of the location service
+without call control, which may be handled by other protocols such as
+H.323. Of course, the IPTEL working group is not hard set on SIP, and
+would entertain other proposals for performing user location. The
+output of this work will be a single standards track RFC, likely
+defined as an extension to SIP.
+
+2. Call Processing Syntax. As part of the location service just
+described, a callee can express preferences about where they would
+like to be contacted - home PC, office PC, office telephone, beeper,
+etc. In order to allow servers, such as H.323 gatekeepers, to act on
+callee preferences, some kind of preference syntax must be
+developed. This syntax would be transmitted by the client to the
+server, allowing the server to process calls based on client
+preferences. The group will develop this syntax, and specify means of
+securely transporting and extending it. The result will be a single
+standards track RFC.
+
+3. Gateway Attribute Distribution Protocol. When making a call between
+an IP host and a PSTN user, a telephony gateway must be used. The
+selection of such gateways is based on client expressed preferences,
+and availability of gateways. Since gateways outside of the hosts'
+autonomous system might be used, a protocol is required to allow
+gateways to distribute their attributes (such as PSTN connectivity,
+supported codecs, etc.) to entities which must route to the PSTN.  The
+group will investigate and design a protocol for this purpose,
+generate an Internet Draft, and advance it to RFC if appropriate.

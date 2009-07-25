@@ -1,0 +1,33 @@
+For some time the internet community has been using the IRC protocol, as 
+the
+basis for building community focused, text based conferencing networks.
+The IRC client/server implementations have, until recently, been based 
+on
+RFC-1459.
+
+Due to limitations in real-world aspects of RFC-1459, such as 
+scalability,
+internationalisation, security and extensibility, the emergence of 
+custom
+alterations to the IRC RFC have clearly caused a divergence amongst the
+collective development of global IRC networks to the extent that they 
+are no
+longer interoperable from a network to network perspective, and have 
+confused the situation with respect to the 
+client to server operability.
+
+As a result from these divergent development streams, it has been 
+identified,
+through co-operative mailing list discussions, that some common features 
+and
+protocol changes can be agreed upon and submitted as an enhancement or
+superceding amendment to the current RFC-1459.
+
+The aim of this BOF is to outline the common issues and concerns, to
+formulate a working group that will document problems in implementing
+RFC-1459 and develop solutions to these problems in the form of an 
+updated
+RFC, or extensions to the current RFC-1459.
+
+The following agenda outlines the tasks that will be performed at the
+BOF meeting.

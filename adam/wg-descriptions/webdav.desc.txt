@@ -1,0 +1,90 @@
+The goal of this working group is to define extensions to the Hypertext
+Transfer Protocol (HTTP) that enable remote collaborative authoring of
+Web resources. This is the third charter for
+this Working Group, and does not include items
+that have already been completed by this Working
+Group (base WebDAV Proposed Standard, ordered
+collections extension, and access control
+extension).
+
+When the WebDAV working group was initially formed, it was reacting to
+experience from circa-1995/96 HTML authoring tools that showed they
+were unable to meet their user's needs using the facilities of the HTTP
+protocol. The observed consequences were either postponed introduction
+of distributed authoring capability, or the addition of nonstandard
+extensions to the HTTP protocol. These extensions, developed in
+isolation, are not interoperable. The WebDAV Distributed Authoring
+Protocol, RFC 2518, addressed these concerns by providing facilities 
+for
+overwrite prevention (locking), metadata management (properties), and
+namespace management (copy, move, collections).
+
+Despite their utility, several important capabilities were not 
+supported
+in the initial Distributed Authoring Protocol. It is a goal to create
+protocols to support these capabilities:
+
+* Referential Containment (Bindings): The WebDAV Distributed Authoring
+ Protocol has unusual containment semantics where multiple containment
+ is allowed, but not supported by any protocol operations, yet
+ container deletion assumes inclusion containment, deleting the
+ container and its members. Most object management systems provide
+ full support for referential containment, and have delete semantics 
+that
+ only remove the container without affecting contained objects.
+
+* Namespace Redirection (Redirect References): HTTP, via its 301 and
+ 302 responses, supports namespace redirection where a request on one
+ URL is returned to the client with instructions to resubmit the same
+ request to another URL.
+
+As with most application layer protocols, implementation and field
+experience on the WebDAV Distributed Authoring Protocol has highlighted
+many issues that should be addressed as the protocol is advanced from
+proposed to draft standard status. Some of these issues will require
+additional deliberation within the WebDAV working group.
+
+NOT IN SCOPE:
+
+The following items were initially identified as being out of scope for
+the WebDAV working group, and continue to be such:
+
+* Definition of core attribute sets, beyond those attributes necessary
+ for the implementation of distributed authoring and versioning
+ functionality
+
+* Creation of new authentication schemes
+
+* HTTP server to server communication protocols
+
+* Distributed authoring via protocols other than HTTP and SMTP
+
+* Implementation of functionality by non-origin proxies
+
+Deliverables
+
+The further output of this working group is expected to be these
+documents:
+
+1. A Bindings Protocol, providing a specification of operations
+ supporting referential containment for WebDAV collections. [Proposed
+ Standard]
+
+2. A Redirect References Protocol, providing a specification of
+ operations for remote maintenance of namespace redirections, and the
+ interaction of these redirections with existing HTTP and WebDAV
+ methods. [Proposed Standard]
+
+4. An updated version of WebDAV Distributed Authoring Protocol that
+ resolves known issues with the protocol. [Draft Standard]
+
+At present, the Binding Protocol and Redirect Reference protocols have
+been through a WG last call but major changes were made and another
+WG last call seems advised. The revision of the WebDAV Distributed
+Authoring Protocol has been started.
+
+In addition to the IETF Internet-Draft repository
+(http://www.ietf.org/ID.html), the most recent versions of these
+documents are accessible via links from the WebDAV Home Page,
+(http://www.ics.uci.edu/pub/ietf/webdav/), and on WebDAV Resources,
+(http://www.webdav.org/).

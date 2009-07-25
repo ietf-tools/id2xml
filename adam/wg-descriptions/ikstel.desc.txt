@@ -1,0 +1,18 @@
+The purpose of this BOF is to introduce the Internet Kermit Service to
+the IETF community.  The IKS is a public service providing the
+installed base of telnet clients which support Kermit file transfer
+protocol with the ability to transfer, convert, and manage files on
+heterogeneous systems over a single connection which can easily pass
+through transport level gateways, firewalls, and network address
+translators.  
+
+In order for the IKS to be successful it requires standard methods for
+securing the connection with mutual authentication and bi-directional
+encryption.  As Authentication and Encryption for Telnet sessions has
+never progressed along the standards track a major goal for this BOF
+is to provide an overview of the work that has been done over the last
+several years in the area of authentication and encryption for Telnet
+sessions.  It is hoped that the outcome of this BOF will be a working
+group whose mission is to manage the completion of standards track
+RFCs in the areas of Telnet Authentication and Encryption and the
+Internet Kermit Service.

@@ -1,0 +1,69 @@
+The Session Initiation Protocol (SIP) working group is chartered to
+maintain and continue the development of SIP, currently specified as
+proposed standard RFC 3261, and its family of extensions.
+
+SIP is a text-based protocol, similar to HTTP and SMTP, for
+initiating interactive communication sessions between users.
+Such sessions include voice, video, chat, interactive games, and
+virtual reality. The main tasks of the group involve bringing SIP
+from proposed to draft standard and specifying and developing
+proposed extensions that arise out of strong requirements. The SIP
+working group will concentrate on the specification of SIP and its
+extensions, and will not explore the use of SIP for specific
+environments or applications. It will, however respond to general-
+purpose requirements for changes to SIP provided by other working
+groups, including the SIPPING working group, when those
+requirements are within the scope and charter of SIP. The process and
+requirements for such extensions are documented in RFC 3427, "Change
+Process for the Session Initiation Protocol".
+
+Throughout its work, the group will strive to maintain the basic model
+and architecture defined by SIP. In particular:
+
+1. Services and features are provided end-to-end whenever possible.
+
+2. Standards-track extensions and new features must be generally
+applicable, and not applicable only to a specific set of session types.
+
+3. Simplicity is key.
+
+4. Reuse of existing Internet protocols and architectures and 
+integrating
+with other Internet applications is crucial.
+
+The primary source of change requirements to be considered by the SIP
+Working Group is the SIPPING working group, which
+analyzes the requirements for application of SIP to several different
+tasks, including the tasks of standards-development organizations
+that are developing systems based on SIP and that may require changes
+or extensions thereto. Additional requirements are produced by the
+other IETF working groups that are using SIP, including the SIMPLE WG
+(which is using SIP for messaging and presence) and the XCON working
+group (which is using SIP for centralized conferencing).
+
+In addition to extending SIP as required to address these externally-
+derived requirements, the deliverables of the group include assuring
+capable security and privacy mechanisms within SIP and increasing
+the stability of the SIP specification.
+
+Specific deliverables toward these goals include:
+
+1. Mechanisms for secure expression of identity in requests and
+responses.
+
+2. Mechanism to securely request services delivery by non-terminal
+elements ("end-to-middle").
+
+3. Guidelines for use of existing security mechanisms such as TLS,
+IPsec, and certificates.
+
+4. Guidelines for the use of descriptive techniques such as SAML
+(Security Association Markup Language) with SIP.
+
+5. Draft standard versions of SIP and critical supporting
+specifications.
+
+Other deliverables may be agreed upon as extensions are understood
+to be necessary. Prospective deliverables will be discussed
+with the Area Director before inclusion on agendas, and new
+proposed work must be approved via a charter update.

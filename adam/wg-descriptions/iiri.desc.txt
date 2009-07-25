@@ -1,0 +1,22 @@
+What's the main purpose of Internet? Information retrieval and 
+exchanging. But what's the most important principle to judge a network? 
+Maybe communication speed. For common user, they can't feel search 
+service in GB Internet is better than that in MB networks. The great 
+progress of Internet didn't bring the great improvement in its main 
+service.
+
+Now Internet is going far and far from their original aim, "knowledge 
+source of human being", and transforming into a jumbled information 
+sea. Many experts are mainly concerned with "physical Internet", but 
+now we need pay more attention to "information Internet".
+
+Information retrieval services may be the most important service of 
+Internet, but there is till no a special work group for it. Current 
+commercial search engines meet many bottleneck problems in coverage and 
+recency. Its service is far from our expectation. It's just a web pages 
+search system. We can also get information from many other information 
+resources such as special databases, FTP search engine, P2P, etc. So a 
+work group for Internet information retrieval system is very necessary. 
+We have proposed a basic information retrieval frame, DRIS (Domain 
+Resource Integration System), for this issue. Any related topic could 
+be discussed in this group.

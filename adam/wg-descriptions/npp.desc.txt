@@ -1,0 +1,15 @@
+The Network Printing Working Group has the goal of pursuing those
+issues which will facilitate the use of printers in an internetworking
+environment.  In pursuit of this goal it is expected that we will
+present one or more printing protocols for consideration for standards
+status in the Internet community.
+
+This working group has a number of specific objectives: to provide an
+Internet-Draft which will describe the LPR protocol; to describe printing
+specific issues on topics currently under discussion within other
+working groups (e.g., Security and Dynamic Host Configuration); to
+present our concerns to those working groups; and to examine printing
+protocols which exist or are currently under development and assess
+their applicability to Internet-wide use, suggesting changes if
+necessary.
+

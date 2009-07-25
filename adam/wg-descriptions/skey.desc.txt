@@ -1,0 +1,3 @@
+Draft Abstract 2/8/95 mw
+
+The BOF on the S/KEY one time password authentication standardization will meet to discuss the desirability of writing a standards strack RFC defining a one time password system based on the Bellcore S/KEY systems.  If the group favors writing this standard, work will start with the writing of a charter of a working group to complete this effort.

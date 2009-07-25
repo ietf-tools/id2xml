@@ -1,0 +1,48 @@
+The Internet Stream Protocol V2 Working Group was formed to clarify and refine
+the existing specification of the Stream Protocol, Version 2 (ST-II)
+contained in RFC 1190.  Since ST-II is a protocol that is already used in
+audio-visual and reserved-resource applications and services, the focus
+of this group is near-term, and its primary purpose is to provide a
+specification that corrects errors in the existing ST-II specification and
+makes it easier to implement ST-II in a manner that is likely to be
+interoperable with other ST-II implementations.
+
+The group intends to address several areas of the ST-II
+specification, including:
+
+ a) the formal definition of states and state transitions;
+
+ b) the removal of mechanisms which are too complicated as currently
+    designed and which have not shown any use in practice;
+
+ c) address the ambiguities caused by the current implementation
+    subsets;
+
+ d) definition of a clear IP encapsulation mechanism;
+
+
+ e) minor revisions suggested by experience with ST-II.
+
+These modifications are expected to reduce implementation time and to
+improve the utility and interoperability of existing and future ST-II
+implementations.  The working group may also provide guidance on the
+use of standard routing protocols to support ST-II, and on the format and
+use of flow specifications.  Finally, particular attention will be
+given to the specification of groups of streams as required for the
+efficient sharing of resources.  Input from current ST-II developers and
+application developers will be solicited to help clarify issues that
+the working group should address.
+
+It is the goal of the group to produce a refined ST-II
+specification that can be used to rapidly satisfy operational
+requirements.  The result of this group is expected to be an
+Experimental RFC.  It is not the intention of this working group to
+define a new communication or resource reservation protocol.  ST-II is
+part of the ongoing IETF efforts to develop protocols that address
+resource reservation issues.  It is possible that future IETF working
+groups will produce other operational protocol options in this area.
+Related work by other IETF working groups shall be carefully monitored
+to see if the actions of this Working Group should be revised.  In
+particular it is expected that there will be interaction with the AVT
+Working Group relating to issues of running RTP over ST-II.
+

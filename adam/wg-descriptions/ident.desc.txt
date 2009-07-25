@@ -1,0 +1,11 @@
+The TCP Client Identity Protocol Working Group is chartered to define
+a protocol for returning the identity of the user initiating a TCP
+connection.  When a client on host A initiates a TCP connection to
+host B, host B may query a server on host A to determine the identity
+of the client on host A.  The primary purpose of this protocol is to
+record the identity of requesters initiating a connection.
+ 
+This work is a clarification and standardization of the Experimental
+Protocol currently published as RFC 931.
+ 
+

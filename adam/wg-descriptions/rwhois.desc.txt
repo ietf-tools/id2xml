@@ -1,0 +1,10 @@
+The RWhois Operational Development Working Group will be a forum
+for coordinating the deployment, engineering and operation of the
+RWhois protocol to replace the current centralized whois model. The
+minimum attribute set will be defined to ensure that all delegated
+registries maintain the required information. Required user
+authentication will be defined to allow remote registration with RWhois
+servers. Operational procedures will be established to ensure that all
+delegated servers conform to a set of minimum standards. If necessary
+the RWhois protocol specification will be updated to reflect changes in
+requirments identifed during the working group tenure.

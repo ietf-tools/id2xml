@@ -1,0 +1,15 @@
+The Network Information Center maintains the central ``NICNAME''
+database and server, defined in RFC 954, providing on-line look-up of
+individuals, network organizations, key nodes, and other information
+of interest to those who use the Internet.  Other distributed
+directory information servers and information retrieval tools have
+been developed and it is anticipated more will be created.  Many sites
+now maintain local directory servers with information about
+individuals, departments and services at that specific site.
+Typically these directory servers are network accessible.  Because
+these servers are local, there are now wide variations in the type of
+data stored, access methods, search schemes, and user interfaces.  The
+purpose of the Whois and Network Information Lookup Service (WNILS)
+Working Group is to expand and define the standard for WHOIS services,
+to resolve issues associated with the variations in access and to
+promote a consistent and predictable service across the network.

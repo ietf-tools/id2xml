@@ -1,0 +1,68 @@
+The BFD Working Group is chartered to specify a protocol for
+bidirectional forwarding detection (BFD), as well as extensions to be
+used within the scope of BFD and IP routing, or protocols such as MPLS
+that are based on IP routing, in a way that will encourage multiple,
+inter-operable vendor implementations.
+
+BFD is a protocol intended to detect faults in the bidirectional path
+between two forwarding engines, including physical interfaces,
+subinterfaces, data link(s), and to the extent possible the forwarding
+engines themselves, with potentially very low latency. It operates
+independently of media, data protocols, and routing protocols. An
+additional goal is to provide a single mechanism that can be used for
+liveness detection over any media, at any protocol layer, with
+a wide range of detection times and overhead, to avoid a proliferation
+of different methods.
+
+Important characteristics of BFD include:
+
+- Simple, fixed-field encoding to facilitate implementations in 
+hardware
+
+- Independence of the data protocol being forwarded between two 
+systems.
+  BFD packets are carried as the payload of whatever encapsulating
+  protocol is appropriate for the medium and network.
+
+- Path independence: BFD can provide failure detection on any kind of
+  path between systems, including direct physical links, virtual
+  circuits, tunnels, MPLS LSPs, multihop routed paths, and 
+  unidirectional links (so long as there is some return path, of 
+  course.)
+
+- Ability to be bootstrapped by any other protocol that automatically 
+  forms peer, neighbor or adjacency relationships to seed BFD endpoint
+  discovery.
+
+At this time the WG is chartered to complete the following work items
+(additional items will require rechartering):
+
+1. Develop the base BFD protocol specification and submit it to the 
+IESG
+   for publication as a Proposed Standard
+                                                                       
+  2. Document BFD encapsulation and usage profile for single-hop IPv4
+   and IPv6 adjacencies (e.g, physical links and IP/GRE tunnels for 
+   static routes, IS-IS, OSPFv2, OSPFv3, single-hop BGP) and submit the
+   specification to the IESG for publication as a Proposed Standard.
+                                                                       
+3. Document BFD encapsulation and usage profile for MPLS LSPs and 
+submit
+   the specification to the IESG for publication as a Proposed 
+Standard.
+                                                                       
+                                                                       
+ 
+   
+4. Develop the MIB module for BFD and submit it to the IESG for
+   publication as a Proposed Standard.
+                                                                       
+5. Document BFD encapsulation and usage profile for multi-hop IPv4
+   and IPv6 adjacencies (e.g. OSPF virtual links and iBGP sessions) 
+   and submit the specification to the IESG for publication as a 
+   Proposed Standard.
+
+Topics for Possible Future Work:
+
+1. Document BFD directly over 802.3 in close collaboration and
+   synchronization with the IEEE.

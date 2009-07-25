@@ -1,0 +1,82 @@
+Recent work in the IETF have led to the development and
+standardization of enhanced network services such as QoS and traffic
+engineering. The complexity of these services and the variations in
+the capabilities of the devices implementing these services provide a
+challenge to anyone trying to configure services within medium- and
+large-scale networks.
+
+The working group will define general-purpose objects that facilitate
+the manipulation of policies and provisioned objects available through
+COPS and COPS-PR.  Where appropriate, these will include frameworks
+clarifying the applicability of COPS objects and the best practices
+for the definition of additional objects defined in other working
+groups.
+
+In particular, the group will address the following work items:
+
+ - A standards track framework document describing the usage of COPS
+   in carrying usage reporting and unsolicited state change 
+   information between a PDP and a PEP [FEEDBACKFRWK].  
+
+ - A standards track document describing a feedback PIB to be used
+   to carry usage/feedback information from the PEP to the PDP
+   [FEEDBACKPIB].
+
+ - Complete work on the standards track documents for (a) the data 
+   definition language for COPS-PR [SPPI] and (b) the set of core
+   data definitions for QoS provisioning [FRWKPIB].
+
+ - A standards track document describing a modular architecture for a
+   COPS based Management Framework. The document will address the COPS
+   message processing, security and access control and may specify
+   examples of how the framework may be implemented.  [COPSFRWK]
+
+ - A standards track document describing a framework or PIB to enable
+   the explicit binding of QoS to to authenticated agents, such as 
+   corporate entities or individual users. 
+   The purpose of this document is to define a set of data structures
+   that represent subscriber identity, subscriber credentials, and
+   provide support for proxing various authentication strategies. 
+   This document will describe the client-server interactions 
+   necessary to install identities, bind identities to other
+   provisioning components and the credentials necessary to complete
+   authentication. Identities may be represented in the data 
+   structures defined by this document and may take one of many
+   forms. Examples include none (open) partial (snooped by the 
+   network device), and  full (provided by an existing authentication
+   protocol). Examples of existing protocols include 802.1x, PAP,
+   CHAP, EAP, Kerberos, HTTP, TLS, SSL, and SRP.
+   [BINDFRWK].
+
+ - An informational document describing the use of COPS over TLS.
+   [COPSTLS]
+
+ The working group will continue to document changes to COPS objects
+ needed to support any extensions to RSVP and extensions to RVSP
+ directly related to usage control. Specifically the working group
+ will pursue:
+
+       - A version of draft-ietf-rap-rsvp-newidentity that addresses
+          security shortcomings with the current document
+          [NEWIDENTITY].
+
+       - A standards track document defining new ErrorValues for the
+         RSVP Policy Error Object [RSVPERRVAL].
+
+       - A standards track document defining the framework and
+         mechanism for authorizing of RSVP sessions [SESSIONAUTH].
+
+       - A standards track document defining an RSVP Local Policy
+         Control Criteria PIB [RSVPPIB].
+
+Documents produced by the working group must fully address all the
+security aspects of this type of protocol. In particular, theft and
+denial of service threats must be minimized.
+
+The Working Group will not define semantics of objects for any 
+specific protocol or technology. Such work will be done 
+(if done at all) in protocol or technology specific WGs.
+
+For the work on the [FEEDBACKFWRK] and [FEEDBACKPIB], the WG will
+work with other WGs (like AAA WG) to prevent duplication and
+overlapping solutions.

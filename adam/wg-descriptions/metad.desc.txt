@@ -1,0 +1,13 @@
+The purpose of this BOF is to gauge the interest in and begin
+discussions for formalizing the requirements of, and develop a protocol 
+for a robust, secure, text-based directory service protocol. Experience
+with Internet-based, distributed, scalable search services, such as
+globally-accessible directories and searchable distributed document
+repositories, has demonstrated the continuing need for such a protocol.
+Existing protocols have one or several unresolvable limitations for such
+applications: limited security, limited query language facilities, high
+"barrier to entry" for client and server applications.
+
+The output of the BOF will be a to determine if there is sufficient 
+interest to warrant a Working Group. If so, then a proposed charter, 
+milestones and task assignments will be produced.

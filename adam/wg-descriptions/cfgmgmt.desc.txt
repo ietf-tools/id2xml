@@ -1,0 +1,10 @@
+Discuss the terminology used in various WGs w.r.t. Policy Based 
+(Network) Management. Then try to come to a common set of terms that we 
+can all agree upon and that we then want each WG to start using. This 
+will make it easier to discuss and read the documents being produced by 
+these WGs; to list some:
+
+POLICY - Policy Framework WG
+RAP - Resource Allocation Protocols WG
+DIFFSERV - Differentiated Services WG
+IPSP - IPsec Policy BOF

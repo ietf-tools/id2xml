@@ -1,0 +1,51 @@
+Application protocols originally designed for use over TCP can
+effectively use the upper-layers of OSI, that is the ACSE (Association
+Control Service Element), Presentation and Session protocols as their
+``transport'' mechanism. The IPS application protocol is thus migrated
+to be another OSI protocol, and could subsequently be integrated with
+other OSI application protocols. The communication requirements of
+such application protocols are essentially connect, read and write.
+This can be met by the OSI upper-layer protocols, using only their
+basic features. However, for such a migration there need to be a) a
+specification of the use of various OSI parameters and fields for this
+purpose, b) interfaces to OSI that are as close as possible to those
+for original supporting IPS protocols, and c) OSI implementations of
+reasonable efficiency
+
+Item a) is essential for interworking at all, b) is needed to reduce the
+conversion effort, and c) to make the migrated application usable.  The
+``skinny stack'' approach, where the OSI implementation provides only
+those features needed by the application is a possible solution to c).
+
+The intent of the group is to identify the requirements for a) and
+develop the specifications for b). Other groups are also planning to
+consider different aspects of these.
+
+For a), the North American OSI implementors workshop (OIW) intend
+developing profiles for basic communications using the upper-layers, but
+there are important addressing and other questions that are specific to
+TCP to OSI migration.
+
+For b), it is intended that the IETF working group should consider
+specification of the use of the socket interface to access the OSI upper-
+layers. This will define representations of those OSI protocol fields that
+need to be available to the programmer and specify values for those
+that can be fixed.
+
+Although the initial work will concentrate on ex-TCP migrants,
+consideration will also be given to ex-UDP migrants and, especially for
+the interface aspects, to further extending the interface to provide
+access to other OSI parameters/fields. This would allow new application
+protocols, specified initially for use over OSI, to be built using the
+socket interface.
+
+Although the mapping will be supportable using ``skinny stacks''
+(minimal functionality implementations), it will define conformant use of
+the OSI protocols and so can be achieved by general-purpose OSI
+implementations.
+
+No special remote management issues are expected - remote
+management will be by the usual methods for the environment.
+
+Security issues will include whether ACSE-authentication should be
+accessible.

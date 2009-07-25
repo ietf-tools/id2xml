@@ -1,0 +1,51 @@
+There are a number of instances where it would be very useful
+for a sender to be able to determine capabilities, or attributes,
+of recipient's email address.  For example:
+
+- a sender of email might want to know whether the recipient
+  is willing to accept HTML files
+
+- a sender of Internet fax (which runs over email) might like to 
+  know whether a recipient can handle color faxes, or high resolution
+
+- a sender of Internet fax might like to know whether the recipient
+  will acknowledge receipt of the fax using a message disposition
+  notification
+
+- a sender of email might want to know the recipient's public key(s)
+  for encryption and/or signatures
+
+- a sender of email might want to know a the URL of a recipient's 
+  home page 
+
+It's also possible that a email recipient might want to know where to 
+find various services related to his email address, or other attributes 
+about those services, without having to configure each of them 
+separately.
+
+A variety of mechanisms, some more satisfactory than others, have 
+been proposed to address one or more of these problems: including
+using DNS by itself (perhaps with NAPTR or SRV records), DNS+LDAP, 
+DNS+ACAP, adding "recipient query" functionality to SMTP, and adding 
+attributes to message disposition notifications (MDNs) to allow 
+them to return recipient capabilities in email.
+
+This BOF will attempt to determine the sense of the community
+as to whether there should be a standard convention for mapping
+an email address onto a set of attributes, perhaps outline
+some of the requirements for such a convention, and to suggest
+possible solutions.  If there is interest in establishing such a 
+convention, the BOF will also attempt to determine whether this
+should be pursued as a working group or by some other means.
+
+This BOF is being held back-to-back to the E.164 mapping BOF,
+which is examining a similar problem - whether there should be
+a standard convention for mapping E.164 numbers (i.e. phone
+numbers) onto attributes of those numbers.  Since some services 
+(notably internet fax and voice mail) might use either Internet 
+email addresses or E.164 numbers to identify recipients, it
+seems worth considering whether the two mapping services should 
+share common components.  And yet the two services are likely
+to be used by different communities with possibly divergent views of
+the requirements, which is why they're being discussed in separate
+BOFs.

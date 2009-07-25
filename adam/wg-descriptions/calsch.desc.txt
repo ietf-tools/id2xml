@@ -1,0 +1,72 @@
+Calendaring and group scheduling products are well established for 
+organizational use, but they usually are limited to exchange of
+information among users of the same system, usually within the 
+boundaries of a single organization. This working group will pursue
+development of standards to enable different products to interoperate 
+and to work across organizational boundaries. This work will
+include the development of MIME content types to represent common 
+objects needed for calendaring and group scheduling
+transactions and access protocols between systems and between clients 
+and servers. The working group will also consider and
+recommend solutions to the security issues concerning the exchange of 
+calendar information between network entities. 
+
+The group will exist to create standards that make calendaring and 
+scheduling software significantly more useful and to enable a new
+class of solutions to be built that are only viable if open standards 
+exist. The Calendaring and Scheduling Working Group is
+chartered to focus on Internet standards for three basic problems
+facing group scheduling and calendaring users today. These include the 
+following: 
+
+1. A standard content type for capturing calendar event and to-do 
+   information. The content type should be suitable as a MIME message  
+   entity that can be transferred over MIME based email systems or HTTP 
+   World Wide Web. The basic objects along with their representation 
+   using MIME will be specified in the document entitled "Core Object 
+   Specification". 
+
+2. A standard peer-to-peer protocol for common calendaring and group 
+   scheduling transactions. For example, these may include
+   exchanging over the Internet, event-requests, reply to 
+   vent-requests, cancellation notices for event-requests, requesting 
+   free/busy time and replying to free/busy time requests between 
+   different calendaring products. The working group will undertake
+   this work in two phases, with the first phase focusing on meeting 
+   requests and the second phase on free-busy time. To the extent that 
+   the peer-to-peer protocol has requirements related to security, the 
+   working group will attempt to apply existing Internet standards for
+   authentication, and to assure privacy and integrity of sensitive 
+   calendaring information. The protocol for the interoperable  
+   transactions will be specified in a document called "Calendar 
+   Interoperability Protocol" in the milestone list. 
+
+3. A standard access protocol to allow for the management of calendars, 
+   events and to-dos over the Internet. This protocol will be
+   specified in the document called "Calendar Access Protocol" in the 
+   milestone list. 
+
+This working group effort should be developed and stabilized with a 6-9 
+months since there has been considerable prior work done in this area. 
+This prior body of work includes: 
+
+* Distributed Scheduling Protocol (CHRONOS) IETF Working Group
+
+* ISO/IEC SC18 Distributed Office Application for Calendaring,
+  Scheduling and Appointments
+
+* MHS Alliance Calendaring and Scheduling Interoperability Protocol 
+  (CSIP) 
+
+* X.400 API Association (XAPIA) Calendaring and Scheduling API (CSA)
+  and Calendaring and Scheduling Interoperabilty Specification (CSIS) 
+
+* X/Open Consortium Calendaring and Scheduling (XCS) Implementor's 
+  Specification
+
+* Versit vCalendar format 
+
+The working group will focus on harmonizing, evolving and developing 
+protocols and algorithms based on this work. The process is
+subject to extension if many new features are added, or more revision
+is needed.

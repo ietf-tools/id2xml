@@ -1,0 +1,30 @@
+The primary language subtags allowed by the current IANA Language
+Subtag Registry are limited to ISO 639-1 and ISO 639-2 in the same
+way as they were limited by RFC 3066. This covers approximately 500
+possible language subtags. ISO 639-3, scheduled for approval towards
+the end of 2006, will make available around 7000 more code elements
+for identifying languages.
+
+The working group will prepare an update to the Language Subtag
+Registry procedures to allow the use of 3-letter code elements
+from ISO 639-3 as primary language subtags or extended language
+subtags as appropriate. The working group will also deliver means
+to update the current IANA Language Subtag Registry with the newly
+available subtags.
+
+The working group will examine, and if necessary clarify or adjust,
+procedures and guidelines with respect to extended language subtags
+and variant subtags. Use cases include the identification of
+signed languages, transliterations, and transcriptions.
+The working group will also consider how the draft work on
+ISO 639-6 may relate to the future development of language tags.
+
+The working group will clarify text where necessary. It may also
+make adjustments to the registration process and the form of the
+registry if this is deemed appropriate based on ongoing registration
+and operational experience. These adjustments and clarifications
+are not expected to delay the progress of the work.
+
+Work on the drafts is planned to start before ISO 639-3 is fully
+approved and published. However, the WG will not finalize the
+drafts before ISO 639-3 is fully approved.

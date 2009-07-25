@@ -1,0 +1,55 @@
+The Remote UI is a mechanism that enables user interfaces to be 
+rendered on other devices than those that run the application logic.
+
+
+Manufacturers are creating devices that are highly optimised for 
+certain environments. Because the devices are intended for a diverse 
+range of purposes, their UI capabilities can vary considerably; screen 
+size and ratio, color depth, windowing system with various widget 
+sets, input methods are making the environment highly heterogenous. At 
+the same time, application developers and UI designers are trying to 
+create user interfaces that are high optimised for the rendering 
+platform, so that the user experience is improved by having the 
+respective application easy to learn and use.
+
+
+A user interface may be composed of several widgets, wherein a widget 
+is understood as an element of a user interface that displays 
+information or provides a specific way for a user to interact with an 
+application. Widgets may for instance comprise icons, pull-down menus, 
+buttons, selection buttons, progress indicators, on-off checkmarks, 
+scrollbars, windows, window edges, toggle buttons, forms and any other 
+elements for displaying information, inviting, accepting, and 
+responding to user actions.
+
+
+Therefore, when an UI is rendered on another device than the one that 
+is running the application logic, provisions need to be made, so that 
+the user can percieve the UI as a local application making it 
+intuitively usable.
+
+
+A widget-level Remote UI protocol provides the mechanism which enable 
+a client device to generate a UI, received from a server device, using 
+the client device's native UI capabilities, and keeping the UI 
+synchronised with the application logic. Typically, a widget-level 
+Remote UI mechanism has usually three components:
+
+
+- UI description language: contains the descriptions of the widgets, 
+their properties and relationships between the widgets. Typically the 
+widget-level UI descriptions are augmented with stylesheets containing 
+hints such as preferred colours to use, which layout to use, which 
+background picture, etc.
+
+
+- The UI remoting protocol: is the transport protocol that is 
+responsible with communicating (partial) UI updates from the server to 
+the client and UI events triggered through changes in widget states 
+made by the user from the client to the server.
+
+
+- Session setup: is responsible with identifying compatible servers 
+and clients and initiating the UI remoting session between them. A 
+client is compatible with a server when they support the same UI 
+remoting protocol and the same UI description language.

@@ -1,0 +1,15 @@
+Today  there exists a  variety of network  management tools for
+the collection and presentation  of network statistical  data.
+Different kinds  of measurements  and  presentation techniques
+make it hard to compare data between networks.  There exists a
+need to compare these statistical data on  a uniform  basis to
+facilitate cooperative management,  ease problem isolation  and
+network planning.
+
+The working group will  try  to   define a  model for  network
+statistics,   a minimal set   of  common  metrics,   tools for
+gathering  statistical  data, a  common  statistical  database
+storage format and  common presentation   formats.  Collecting
+tools will store data in a given  format later to be retrieved
+by presentation tools displaying the data in a predefined way.
+

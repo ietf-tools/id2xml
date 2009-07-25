@@ -1,0 +1,14 @@
+The W3C has been carrying out discussions in a URI Planning Interest 
+Group to evaluate the opportunities for W3C work in the area of Uniform 
+Resource Identifiers (URIs) and to develop a proposal for continued 
+work.  The type of issues considered have included creation of a 
+standardized architecture for resolving URIs; infrastructure that would 
+allow diverse, persistent URIs to be recognized and handled by web-
+aware 
+software; collaboration with other standards agencies to make informal 
+URI schemes formal.  
+
+Some of these areas have been discussed informally within the IETF, and 
+the purpose of this meeting is to raise awareness about potential W3C 
+activity and discuss where joint IETF-W3C activity would be interesting 
+and useful.

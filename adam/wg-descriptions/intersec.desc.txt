@@ -1,0 +1,8 @@
+This BOF begins with the observation that there are some circumstances
+in which systems overall can benefit if the end-system knows about a
+transport service intermediary and sets out information for it, such
+as TCP or QoS classifier information.  In particular, more secure
+services may be possible.
+
+The BOF will discuss requirements for a possible protocol in this
+space and explore how IETF might work with these.

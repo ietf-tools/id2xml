@@ -1,0 +1,6 @@
+The IAB is holding an invitational workshop on the status of 
+the Internet network layer, and future scenarios for it, in the 
+week before the IETF meeting. Issues will include prospects
+for both IPv4 and IPv6, and related end-to-end issues.
+The BOF will act as a preliminary report to the IETF on the 
+discussions, conclusions and recommendations of the workshop.

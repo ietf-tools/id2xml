@@ -1,0 +1,15 @@
+The Internet is quickly becoming the prefered method of delivery for 
+information and on-line services. The growth of this industry is 
+resticted by the limited availability of secure online payment
+mechanisms, especially for small amounts. Micropayments are designed to 
+allow charging of small amounts, where the minimal fees of credit-card 
+payments are unacceptable. There have been, and still are, many attempts 
+at providing a micropayments solution, however so far none of them was 
+successful, and in particular none of the deployed systems seems to be 
+able to reach critical mass of buyers and sellers. Furthermore, even if 
+one or more of these systems gain popularity, the lack of 
+standardization may slow down their availability. In this BOF we'll 
+review some recent micropayment markup standardization spec from
+the W3C, and discuss whether the IETF should attempt to contribute 
+standards in this area  - i.e. should we create a micropayments WG (and 
+if so what would its charter and goals be).

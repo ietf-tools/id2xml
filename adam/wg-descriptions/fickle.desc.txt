@@ -1,0 +1,25 @@
+Networks and many network applications must be robust and reliable.
+For these applications and services, such as packetized voice,
+correcting a failure must be almost instantaneous.  The first step in
+correcting a failure is, of course, detecting that it occurred.  IP
+routing protocols and signaling protocols as well as many application
+layer protocols incorporate their own keepalive mechanisms to detect
+failures.  Typically, these protocols detect failures on the order of
+seconds or tens of seconds.  While there are some physical and link
+layer technologies that inherently supply link outage detection, not
+all link layers do this.  In order to provide for fast failure
+detection over any type of lower layer, an IP layer fast keepalive
+protocol can be used.
+
+This BOF will address the need for a general purpose keepalive
+mechanism between peer devices at the IP layer.  As part of the BOF an
+initial proposal for a general-purpose peer-to-peer neighbor adjacency
+protocol will be presented.  This proposal is designed to detect
+failures at the IP protocol layer over a variety of media.  This
+protocol uses periodic hello messages between peers on the same IP
+subnet to determine "link aliveness." We feel that a fast IP layer
+keepalive is necessary to assist in detecting failures over a variety
+of lower layer protocols that may or may not provide this capability
+themselves.  A generic fast hello protocol provides mainly two
+benefits.  The first is a generic protocol for neighbor discovery.
+The second is support for fast link failures over any media type.

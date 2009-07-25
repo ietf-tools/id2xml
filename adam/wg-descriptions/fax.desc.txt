@@ -1,0 +1,51 @@
+Previous IETF efforts developed specifications for simple and extended
+Internet mail-based facsimile service profiles, tailored to interwork 
+with the world of T.30 facsimile.  This extension effort will take care 
+of differential routing between classic Internet mail and timely 
+deliveries, and consider with particular regard universal messaging 
+issues and its relation with Internet mail.
+
+The WG will produce a final increment of specification for supporting
+a "full" equivalence of T.30 service over Internet mail. Technical work
+for this effort includes timely delivery, [image] feature 
+selection/negotiation, document privacy, and integrated
+specification of Full-mode Facsimile Profile of Internet Mail (FFPIM).
+
+For interconnecting fax services over the dial-up telephone network and
+carriage of facsimile message data over the Internet, two types of 
+interface systems are required:
+
+o Internet/Dial-up Fax gateway, moving data from the Internet to
+  classic or Internet-aware dial-up fax products and services
+
+o Dial-up/Internet Fax gateway, moving data from classic or
+  Internet-aware dial-up fax products and services to the Internet
+
+The working group will also consider the requirements for gatewaying
+Internet Mail (as profiled for facsimile Simple, Extended modes and 
+FFPIM) with T.30 Facsimile.
+
+The working group will specifically take note of quality of service 
+issues and might decide to produce an Implementer's Guide.
+
+T.30 facsimile carries expectations of message privacy, so that FFPIM 
+must specify a basic facility via the Internet. Although T.30 does not 
+provide document integrity, users frequently believe that it does.
+Consequently the Faxext working group will also seek specification of a 
+basic authentication facility over the Internet.
+
+T.30 facsimile provides for receiver capability identification to the 
+sender, allowing a sender to provide the "best" fax image the receiver 
+can handle. The Faxext working group will consider mechanisms to 
+provide 
+similar functionality for fax images transferred by e-mail.
+
+Additional areas of discussion will be: Annotated fax messages and
+universal messaging issues as they relate to FFPIM, as well as schema
+and TIFF extensions required to support the new JBIG-2 (T.88)
+compression method.
+
+The working group will continue the excellent pattern of coordinating
+activities with other facsimile-related standards bodies, in particular
+the ITU, VPIM and other WGs, and with using work from related IETF 
+efforts.

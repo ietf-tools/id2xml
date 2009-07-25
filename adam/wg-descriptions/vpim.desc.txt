@@ -1,0 +1,62 @@
+The Voice Profile for Internet Mail (VPIM) Version 2 is currently a 
+Proposed Standard (RFC 2421) Applicability Statement. It is an 
+application of Internet Mail originally intended for sending voice 
+messages between voice messaging systems.  As such, VPIM imposes
+several restrictions on the message and transport to support the 
+characteristics of voice messaging. Many voice mail vendors have 
+implemented systems according to RFC 2421 and are in the process of
+deploying these systems around the world. Most vendors have completed 
+(or are currently involved in) interoperability testing of VPIM 
+products and have posted their results on the VPIM website.  This 
+working group will promote the advancement of VPIM v2 on the standards 
+track.
+
+Several minor problems with VPIM v2 have been identified during the 
+development and testing of products.  These problems can easily be
+fixed with minor clarifications to the protocol.  A revised VPIM v2
+(and related protocols as necessary) will be produced to reflect these 
+clarifications. No protocol changes will be introduced in this update.
+
+Though VPIM uses Internet Mail, its restrictions can be inconvenient 
+when sending and receiving messages from traditional desktop email 
+clients. As a result, there is interest in loosening the restrictions
+of VPIM in a new version and make it the voice component of a unified
+messaging protocol suite.  This would make it easier for desktop 
+clients to send, receive, and forward voice messages while maintaining 
+support for the characteristics of a voice message.
+
+The primary goal of Version 3 is to support interoperability with 
+deployed desktop email clients.  A secondary goal is to specify 
+interoperability with Version 2. The result is that the semantics of a 
+voice or fax message within an email message can be interpreted at as 
+many clients as possible.
+
+An initial proposal for VPIM v3 (also known as Internet Voice Mail 
+(IVM)) is currently documented in several Internet Drafts (see 
+draft-ema-vpimv3-*): VPIM v3 Goals, VPIM v3 Unified Messaging (Primary 
+Content), VPIM Addressing and VPIM v3 Specification. As well, several 
+supporting protocol extensions may need to be worked in this group or
+in collaboration with other groups.  These are: IMAP voice extensions, 
+voice directory profiles, content negotiation details for voice and 
+partial non-delivery notifications.
+
+The working group will initially focus on agreement of the goals and 
+then define a set of protocol documents to address the media, 
+addressing, and handling semantics. Finally, VPIM v2 - v3 Interworking 
+will be documented separately if needed.
+
+Collaboration
+
+The voice mail vendors and several email vendors have been meeting in 
+the VPIM work group at the Electronic Messaging Association (EMA) for 
+several years. This team produced VPIM v1 (RFC 1911) and VPIM v2 (RFC 
+2421).  This group meets three times a year in between IETF meetings
+and is regularly attended by core VPIM proponents.  As a result, there 
+is benefit to using this venue as an interim meeting.
+
+In addition, the work of this group is related to similar work by the 
+Internet Fax WG.  It is intended that Version 3 will use at least the 
+Simple Mode of Internet Fax.
+
+As well, other IETF WGs may be interested in proposed voice extensions 
+to protocols.  There may be value in collaborating on some work items.

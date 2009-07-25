@@ -1,0 +1,14 @@
+Note: A seperate list has been set up for L2TP discussions
+
+L2TP Discussions:l2tp@zendo.com
+To Subscribe: l2tp-request@zendo.com
+Archive: http://bodhi.zendo.com/vandys/l2tp-mail
+
+The Point-to-Point Protocol (PPP) was designed to encapsulate multiple
+protocols.  IP was the only network layer protocol defined in the
+original documents.  The working group is defining the use of other
+network layer protocols and options for PPP. The group will define the
+use of protocols including: bridging, ISO, DECNET (Phase IV and V),
+XNS, and others.  In addition, it will define new PPP options for the
+existing protocol definitions, such as stronger authentication and
+encryption methods.

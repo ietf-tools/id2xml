@@ -1,0 +1,196 @@
+Steve Waldbusser is TA for SNMP/MIB related matters
+  Matt Zekauskas is TA for Transport Retaled matters
+
+
+
+The RMON MIB Working Group is chartered to define a set of managed
+objects for remote monitoring of networks. These objects will be the
+minimum necessary to provide the ability to monitor multiple network
+layers of traffic in remote networks; providing fault, configuration,
+and performance management, and will be consistent with the SNMP
+framework and existing SNMP standards.
+
+The following list of features for this RMON has been previously
+discussed in relation to existing RMON functionality and is included
+to focus these RMON activities. It is recognized that other issues
+may be considered and that certain of the following issues may not
+be part of the final specification(s):
+
+  1. Application Performance Measurement
+
+     Monitoring support for the measurement and characterization
+     of network application protocols, striving to measure an
+     application user's experience as closely as possible.
+     The RMON-2 MIB (RFC 2021) contains a protocol directory
+     that will be used to identify applications for monitoring
+     purposes.
+
+     While it is important to measure the performance of computing
+     and network resources, these measurements don't give an insight
+     to the actual service delivered to end-users. This end-user
+     experience is best measured by the response-time and availability
+     of application transactions because users interact directly
+     with applications. This working group will create extensions
+     to the RMON-2 MIB that will allow Application Performance
+     Measurements to be retrieved with SNMP, no matter which
+     technology is used to perform the measurements.
+
+     The goal of the working group is to provide a common framework
+     and set of MIB objects, within the current RMON framework,
+     for the identification and characterization of application
+     responsiveness and availability, and the reporting of
+     test results produced by such mechanisms.  Common metrics and
+     derived metrics will be characterized and reported in a manner
+     consistent with the IP Performance Metrics Framework (RFC 2330).
+
+     It is an explicit non-goal of the working group to select
+     one or more mechanisms as the preferred or standard RMON
+     application performance measurement mechanism. However, it is
+     possible that one or more standard mechanisms will be
+     developed in the future, after significant implementation
+     experience has been gained by the working group.
+
+  2. Differentiated Services Statistics Collection
+
+     Monitoring support for Differentiated Services (DS) statistics
+     collection, for the purpose of DS codepoint usage analysis
+     and possibly other statistics related to DS deployment and
+     performance tuning.
+
+  3. Interface TopN Reporting
+
+     It is often too slow or difficult to determine the
+     busiest ports in devices such as high port-density switches,
+     using existing RMON mechanisms.
+     New monitoring support is needed for quickly determining
+     the most congested (highest utilized) physical ports and
+     links in an RMON-capable device with multiple interfaces.
+
+  4. TR-RMON MIB Advancement
+
+     The Token Ring RMON MIB (RFC 1513) is ready for standards
+     track advancement. An interoperability and deployment survey
+     has already been completed, but the MIB must be updated in
+     SMIv2 format before it can be advanced on the standards track.
+
+
+  5. Transport Performance Measurement
+
+     There is a need for standardized means to collect and report
+     selectable performance metrics and statistics derived from
+     the monitoring of network packets and transport protocol states.
+     The monitoring covers both passive and active traffic generation
+     sources. Monitoring support for the these measurements can
+     provide a drill-down capability to provide insight into the
+     performance of the lower-level transactions which comprise the
+     overall performance of a network application.
+
+     The goal of the working group is to provide a common framework
+     and set of MIB objects, within the current RMON framework,
+     for the identification and characterization of transaction-level
+     performance, and the reporting of test results produced by such
+     mechanisms. Common metrics and derived statistics will be
+     characterized and reported in a manner consistent with the
+     IP Performance Metrics Framework (RFC 2330).
+
+  6. SMON MIB Advancement
+
+     The SMON MIB (RFC 2613) is ready for standards
+     track advancement. An interoperability and deployment survey
+     will be completed, and submitted to the IESG.
+     It is possible that minor enhancements and corrections to
+     RFC 2613 will be made, based on the survey findings and
+     working group input.
+
+  7. RMON-2 MIB Advancement
+
+     The RMON-2 MIB (RFC 2021) is ready for standards
+     track advancement. An interoperability and deployment survey
+     will be completed, and submitted to the IESG.
+     It is possible that minor enhancements and corrections to
+     RFC 2021 will be made, based on the survey findings and
+     working group input.
+
+  8. RMON PI Reference Advancement
+
+     The RMON Protocol Identifiers Reference (RFC 2895) is ready
+     for standards track advancement. An interoperability and
+     deployment survey will be completed, and submitted to the
+     IESG. It is possible that minor enhancements and corrections
+     to RFC 2895 will be made, based on the survey findings and
+     working group input.
+
+  9. Synthetic Sources for Performance Monitoring
+
+     Mechanisms are needed for the remote control of synthetic
+     packet sources and destinations, for the purpose of
+     enhancing remote performance monitoring capabilities within
+     IP networks and services. These mechanisms must utilize
+     the RMON protocol directory for protocol encapsulation
+     identification. Any interactions with the
+     RMON Framework or dependencies on specific RMON MIB objects
+     (if any) will be specified as well.
+
+  10. RMON Framework 
+
+     Documentation is needed which clarifies the remote network 
+     monitoring framework, and describes the inter-relationships and 
+     dependencies between the various RMON MIB modules. A conceptual 
+     model is needed to help administrators and developers better 
+     understand data sources, the protocol directory, and the existing 
+     RMON statistical collections. Undocumented 'RMON folklore', as 
+well 
+     as the limitations and appropriate application of various 
+     implementation techniques will also be addressed. 
+
+  11. Real-time Application QoS Monitoring MIB
+
+     There is a need to extend the RMON framework to monitor end 
+devices 
+     such as IP Phones, pagers, Instant Message Clients, Cell Phones, 
+     and PDA devices. An end-to-end user experience of the quality of 
+     service (QoS) and performance for such an application is a 
+     combination of device performance and transport network 
+     performance. Monitoring should be performed at the application 
+     layer that reflects a specific end user experience on a 
+particular 
+     IP end point, reflecting specific transport network performance
+
+There is a need to extend the RMON framework to monitor end devices
+such as IP Phones, pagers, Instant Message Clients, Cell Phones,
+and PDA devices. An end-to-end user experience of the quality of
+service (QoS) and performance for such an application is a combination
+of device performance and transport network performance. Monitoring
+should be performed at the application layer that reflects a specific
+end user experience on a particular IP end point, reflecting specific
+transport network performance.
+
+This working group will extend the RMON Framework to allow Real-time
+Application QoS information of these types of end devices to be
+retrieved with SNMP, independent of the technology used to
+perform the measurements.
+
+The WG will define a common framework and set of MIB objects,
+within the current RMON framework, for the identification and
+characterization of application QoS parameters, and the reporting
+of the on-going measurement reports produced by these mechanisms.
+Common metrics and derived metrics will be characterized and reported
+in a manner consistent with the IP Performance Metrics Framework
+(RFC 2330).
+
+The WG will also define a set of RAQMON Application level QoS PDUs
+to have common formats of reporting statistics between a RAQMON
+Data Source and a RAQMON Report Collector. These Common
+RAQMON PDUs will be transported over existing protocols, such as
+RTCP or SNMP.
+
+The measurement methodology is out of the scope of the RAQMON work
+and will be in conformance with the IPPM WG recommendations, and
+also may take into account considerations from application-specific
+(IM and telephony) WGs as needed. This WG will consider the
+cases for transport of RAQMON PDUs, including how RTCP might be
+used and still meet security/privacy goals.
+
+Security aspects related to RAQMON reports will be cognizant of
+privacy and anonymity issues while being responsive to the needs
+of measurement applications.

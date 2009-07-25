@@ -1,0 +1,2 @@
+Discuss on-going directory standardization work,namely LDAP extension 
+work.

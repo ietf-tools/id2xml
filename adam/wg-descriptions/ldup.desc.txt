@@ -1,0 +1,123 @@
+As LDAPv3 becomes more widely deployed, replication of data
+across servers running different implementations becomes an
+important part of providing a distributed directory service.
+However, the LDAPv3 community, to date, has focused on
+standardizing the client-server access protocol. This group
+was originally chartered to standardize master-slave and
+multi-master LDAPv3 replication as defined below:
+
+o Multi-Master Replication - A replication model where
+       entries can be written and updated on any of several
+       replica copies, without requiring communication with
+       other masters before the write or update is performed.
+
+o Master-Slave, or Single-Master Replication - A replication
+       model that assumes only one server, the master, allows
+       write access to the replicated data. Note that
+       Master-Slave replication can be considered a proper
+       subset of multi-master replication.
+
+Recently, the WG established consensus on a change of
+direction to pursue publication of a standards track
+protocol for LDAPv3 client synchronization, an experimental
+LDAPv3 replication protocol, and supporting informational
+documents. Thus the new work program is largely the same
+as the original work program with one notable exception,
+the LDAPv3 replication protocol is intended to be an
+experimental rather than a standards track protocol.
+
+The WG's approach was to first develop a set of requirements
+for LDAPv3 directory replication and write an applicability
+statement defining scenarios on which replication requirements
+are based. An engineering team was formed consisting of different
+vendors and the co-chairs in order to harmonize the existing
+approaches into a single standard approach. All of these have
+been accomplished during the pre-working group stage. It should
+be noted, however, that replication using heterogeneous servers
+is dependent on resolving access control issues, which were
+the domain of other working groups. Because the responsible
+WG failed to achieve consensus on a standard access control
+model for LDAPv3, the LDUP WG formed a design team to explore
+the issue of how to address the lack of such a model
+in the context of LDAPv3 replication. This design team made
+recommendations to the working group. The working group
+considered these recommendations and consensus was
+established on addressing these recommendations in
+the context of revising other working group deliverables
+rather than adding new deliverables specific to access
+control for replication. Largely because of the lack of
+a standard access control model for LDAPv3, the working
+group also established consensus on pursuing an experimental
+or informational publication path for a majority of working
+group documents formerly intended to become proposed standards.
+
+The new replication architecture supports all forms of
+replication mentioned above. Seven areas of working group
+focus have been identified through LDUP Engineering Team
+discussions, each leading to one or more documents to be
+published:
+
+o LDAPv3 Replication Architecture
+
+         This documents a general-purpose LDAPv3 replication
+         architecture, defines key components of this architecture,
+         describes how these key components functionally behave,
+         and describes how these components interact with each
+         other when in various modes of operation
+
+o LDAPv3 Replication Information Model
+
+         Defines the schema and semantics of information used to
+         operate, administer, maintain, and provision replication
+         between LDAPv3 servers. Specifically, this document will
+         contain common schema specifications intended to
+         facilitate interoperable implementations with respect to:
+
+               + replication agreements
+
+               + consistency models
+
+               + replication topologies
+
+               + managing deleted objects and their states
+
+               + administration and management
+
+o LDAPv3 Replication Information Transport Protocol
+
+         LDAPv3 extended operation and control specifications
+         required to allow LDAPv3 to be used as the transport
+         protocol for information being replicated
+
+o LDAPv3 Replica Management
+
+         Specifications designed to support administration,
+         maintenance, and provisioning of replicas and
+         replication agreements. These specifications may
+         take the form of definitions for LDAPv3 extended
+         operations, controls, and/or new schema elements.
+
+o LDAPv3 Update Reconciliation Procedures
+
+         Procedures for detection and resolution of conflicts
+         between the state of multiple replicas that contain
+         information from the same unit of replication.
+
+o A General Usage Profile of the LDAPv3 Replication Architecture,
+       Information Model, Protocol Extensions, and Update 
+Reconciliation
+       Procedures.
+
+o LDAPv3 Client Update
+
+         A protocol that enables an LDAP client to
+         synchronize with the content of a directory
+         information tree (DIT) stored by an LDAP server
+         and to be notified about the changes to that
+         content.
+
+The work being done in the LDUP WG should be coordinated
+to the closest extent possible with similar work being done
+in the ITU. This is necessary both because LDAP depends
+on X.500 and because it makes sense from an operational
+perspective.

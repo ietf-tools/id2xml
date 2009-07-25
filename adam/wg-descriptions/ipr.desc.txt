@@ -1,0 +1,54 @@
+The IETF and the Internet have greatly benefited from the free
+exchange of ideas and technology. For many years the IETF normal
+behavior was to standardize only unencumbered technology.
+While the "Tao" of the IETF is still strongly oriented toward
+unencumbered technology, we can and do make use of technology that has
+various encumbrances.
+One of the goals of the IETF IPR policy has been to make it easier
+for the IETF to make use of encumbered technology when it made
+sense to do so.
+
+This group has attempted to clarify and update that IPR policy,
+resulting in RFC 3978, RFC 3979 and RFC 3905. The WG has also
+discussed the possibility of changing the IETF's patent policy, but
+did not detect a consensus for doing so.
+
+At the time of this recharter (February 2006), there are two
+remaining items of work for the WG:
+
+- An issue with the production of derivative works has led to the
+realization that RFC 2026 and RFC 3978 do not specify exactly the
+same policy on this matter, and that neither policy, when read
+literally, may be optimal for the IETF's purpose,
+in accordance with its mission statement (RFC 3935), its policy
+of retaining change control of its own documents, and its desire
+for its documents to be openly available and useful.
+
+- The creation of the IETF Trust for managing the IETF IPR has led
+to the question of how the Trustees should evaluate the
+benefit of the IETF community as a whole and if necessary the
+consensus of the IETF on a given matter. Specifically the question
+arises whether the previous discussions of the IPR WG have led to
+experience that should be codified for the guidance of the Trustees.
+
+The WG will produce 3 documents:
+
+- An update to RFC 3978 (BCP) that attempts to specify a complete set
+of rights with respect to derivative works granted to the IETF by
+authors, as well as technical updates necessitated by the existence
+of the Trust
+- A document (info) giving advice to the IETF Trust on what rights in
+IETF contributions it should attempt to grant to the public in order
+to retain change control while allowing open access, resolving the
+discrepancy between RFC 2026 and RFC 3978
+- A document (info) giving other advice to the IETF Trust on IPR
+handling, based on the IPR WG's experience of discussions in the area
+
+The last document may include advice to the IETF Trust on
+mechanisms for consulting with the community on IPR issues once the
+IPR WG has closed, if consensus on such advice can be found.
+
+The IPR WG may decide to drop the last document from its charter if
+it decides that it has nothing to say.
+
+All documents should have an IETF-wide Last Call before being approved.

@@ -1,0 +1,6 @@
+The Alert Management Working Group is chartered with defining and
+developing techniques to manage the flow of asynchronously generated
+information between a manager (NOC) and its remote managed entities.
+The output of this group should be fully compatible with the letter and
+spirit of SNMP (RFC 1067) and CMOT (RFC 1095).
+

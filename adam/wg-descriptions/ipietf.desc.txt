@@ -1,0 +1,24 @@
+Draft Charter 11/15/94 mw
+
+The Intellectual Property of the IETF (ipietf) Working Group is chartered
+to investigate the issues surrounding Intellectual Property (the other IP)
+as it relates to the use of patented and licensed technology in proposed
+protocols and standards.  An explicit objective is to modify RFC1602 as 
+necessary as it relates to intellectual property.
+
+The current policy of the IETF is to avoid all patented or licensed
+technology unless unavoidable or for a compelling reason and any such
+technology must be available under a non-restrictive license.  While
+the latter requirement is good, the former may actually not be in the
+best interest of the IETF and Internet community.  It may actually be
+wiser and safer for the IETF to prefer technology that is patented but
+also is freely licensed or licensed at low cost.
+
+The issues revolving around the specifics of protection of the IETF on 
+future patent infringement claims and the defensive nature of this action
+will be investigated along with the issues of appropriate licensing fees
+and the requirement for the exchange of chattle.
+
+It is expected that most of the work of this group will be conducted via
+email.
+

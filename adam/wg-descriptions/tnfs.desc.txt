@@ -1,0 +1,29 @@
+The Trusted Network File  System Working Group is chartered to define 
+protocol extensions to the Network File System (NFS) Version 2 protocol 
+which supports network file access in a Multilevel Secure (MLS) Internet 
+environment.  MLS functionality includes Mandatory Access Control (MAC),
+Discretionary Access Control (DAC), authentication, auditing, documentation, 
+and other items as identified in the Trusted Computer System Evaluation 
+Criteria (TCSEC) and Compartmented Mode Workstation (CMW) documents.
+
+The primary objective of this working group is to specify extensions to the 
+NFS V2 protocol which support network file access between MLS systems.  It
+is intended that these extensions introduce only a minimal impact on 
+the existing NFS V2 environment, and that unmodified NFS V2 clients and 
+servers continue to be fully supported.
+
+Transferring information between MLS systems requires exchanging additional
+security information along with the file data.  The general approach to be 
+used in extending the NFS V2 protocol is to transport additional user context 
+in the form of an extended NFS UNIX style credential between a Trusted NFS
+(TNFS) client and server, and to map that context into the appropriate server
+security policies which address file access.  In addition, file security 
+attributes are to be returned with each TNFS procedure call.  Otherwise, 
+the NFS V2 protocol remains essentially unchanged.
+
+The Trusted System Interoperability Group (TSIG) has already developed a 
+specification which defines a set of MLS extensions for NFS V2, and has also
+planned for the future integration of Kerberos as the authentication mechanism.
+The TNFS Working Group should be able to use the TSIG Trusted NFS document
+as a foundation.
+

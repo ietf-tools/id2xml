@@ -1,0 +1,33 @@
+The object of this group is to develop standards for using forward 
+error correction (FEC) codes with applications in the Internet to 
+provide protection against packet loss. The group will develop a
+framework for application of FEC codes to arbitrary packet flows over
+unreliable transport protocols over both IP multicast and unicast. The
+group will build on the work of the RMT working group in the form of 
+the FEC Building Block developed there to ensure that the framework
+developed can support multiple FEC codes and maintain independence
+between FEC codes and content delivery protocols. Note: framework
+here is a protocol framework, with a design to be determined, but 
+suitable for interoperable implementations. It is not used in the 
+sense often used by IETF of a document akin to requirements.
+
+A primary objective of this framework is to support FEC for streaming
+media. The group will coordinate closely with AVT and MMUSIC working
+groups to ensure that this use-case is fully specified both in terms of
+interactions with RTP/RTCP and application layer signalling. The group 
+will also coordinate with the DCCP working group, at least, 
+considering that transport's role in streaming media.
+
+The group will work with the RMT working group to ensure that the FEC
+Building Block defined in RMT supports both the RMT use-cases (object
+delivery over multicast) and the more general FEC protection of IP 
+flows over unreliable unicast and multicast transport. The group will 
+also consider developing its charter to include for proposals for 
+standardization of specific FEC codes - taking on this work from the 
+RMT working group - including consideration of their areas of 
+applicability and generality.
+
+Specification of hybrid schemes involving both retransmission and
+forward error correction will be out of scope of the group. However the
+group should consider of whether work on such schemes should be
+considered in a future phase.

@@ -1,0 +1,21 @@
+The IPAE Working Group seeks to develop a capability for extending IP to 
+support larger addresses, while minimizing impact on the installed base of IP 
+users.  An enhancement to the current system is mandatory due to the 
+limitations of the current 32-bit IP addresses.  IPAE seeks to upgrade the 
+current system, rather than to replace the Internet Protocol.  The approach 
+taken will be to sandwich a small addressing layer, above IP but below TCP 
+or UDP, with the new layer having its own IP Protocol-ID.  This special layer 
+will thereby encapsulate new, larger, globally-unique addresses for the source
+and destination, as well as any other fields of information that are 
+considered essential.
+
+The specificaton effort will attend to issues of transition and coexistance, 
+among unmodified ``IP'' hosts and hosts which support ``IPAE'' hosts. The 
+IPAE approach will develop a framework to organize the Internet into areas 
+called ``IP Addressing Commonwealths'' within which 32-bit IP addresses are 
+unique and are part of a larger, globally-unique Internet addressing scheme.  
+It is a goal of this effort to avoid requiring any router within a 
+Commonwealth to be modified, but any host wishing full Internet connectivity 
+will need to support IPAE eventually.  Further, any system wishing to support 
+full IPAE addresses will need to be modified, including network management 
+software.

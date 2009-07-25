@@ -1,0 +1,27 @@
+The Next Steps in Signaling (NSIS) WG is developing a next-generation
+general purpose signaling protocol. The protocol is intended to be
+useful for a wide variety of applications including reservation of QoS
+resources and configuration of middleboxes (NATs, firewalls). The
+current consensus within NSIS is that the protocol would consist of
+two layers: a generic (NSIS) transport or messaging layer for
+delivering packets between NSIS capable nodes and one or more specific
+(NSIS) signaling layer which would implement the various
+applications. A common characteristic of all applications is that they
+require the installation or modification of state or the collection of
+information along the data path. NSIS is currently focusing on an
+interpretation of 'along the data path' as 'visiting the same routers
+as the data flow'. This is denoted as path-coupled signaling. For a
+number of applications, it would be useful to have a somewhat broader
+interpretation of 'along the data path', e.g. 'visiting the same AS's
+as the data flow'. This is denoted as path-decoupled signaling.
+
+
+The purpose of the BOF session is to survey and discuss the
+path-decoupled signaling case. The first part of the discussion should
+bring forward arguments and counter-arguments for path-decoupled
+signaling.  - What are potential interesting use cases for
+path-decoupled signaling - ...  The second part deals with the
+expected impact path-decoupled signaling would have on the NSIS
+protocol. It should provide insight in the expected consequences on
+the layer split and the modularity of both layers in case they would
+need to support path-decoupled signaling applications.

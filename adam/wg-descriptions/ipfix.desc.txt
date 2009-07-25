@@ -1,0 +1,55 @@
+The IPFIX working group has specified the Information Model (to
+describe IP flows) and the IPFIX protocol (to transfer IP flow data
+from IPFIX exporters to collectors). Several implementers have already
+built applications using the IPFIX protocol. As a result of a series
+of IPFIX interoperability testing events the WG has produced
+guidelines for IPFIX implementation and testing as well as
+recommendations for handling special cases such as bidirectional flow
+reporting and reducing redundancy in flow records.
+
+Practical experiences with IPFIX implementations exposed new
+requirements for the IPFIX protocol that so far have not been
+addressed by the WG. The major current goal of the WG is developing
+solutions that meet the new requirements without modifying the core
+IPFIX protocol specifications.
+
+1. The IPFIX WG has developed a MIB module for monitoring IPFIX
+implementations. Means for configuring these devices have not been
+standardized yet. The WG will develop an XML-based configuration data
+model that can be used for configuring IPFIX devices and for storing,
+modifying and managing IPFIX configurations parameter sets. This work
+will be performed in close collaboration with the NETCONF WG.
+
+2. There is a need for storing measured flow information and for
+exchanging this information between different systems and
+organizations. The WG will develop a common IPFIX file format for
+storing flow data in order to facilitate interoperability and
+reusability among a wide variety of flow storage, processing, and
+analysis tools. It will be a flat-file format using binary encodings
+that are based on the IPFIX message format.
+
+3. When dealing with enterprise-specific information elements in IPFIX
+flow records, it often occurs that the receiver of the record does not
+know the definition of the information element. For processing such
+information elements it would be desirable for the receiver to know at
+least the data types of the enterprise-specific information elements.
+The WG will develop an extension to IPFIX that provides means for the
+encoding of IPFIX data type information within an IPFIX Message
+stream.
+
+4. Another requirement resulting from practical use of IPFIX is
+reporting IPFIX template records and corresponding data records within
+the same SCTP stream. The IPFIX WG will develop guidelines for this
+use case.
+
+5. First applications of IPFIX at large operator networks showed the
+need for mediation of flow information, for example, for aggregating
+huge amounts of flow data and for anomymization of flow information.
+The IPFIX WG will investigate this issue and produce a problem
+statement and a framework for IPFIX flow mediation.
+
+6. The PSAMP WG has developed a protocol for reporting
+observed packets. The PSAMP protocol is an extension of
+the IPFIX protocol. The IPFIX WG will develop a MIB module
+for monitoring PSAMP implementations. The new MIB module
+will be an extension of the IPFIX MIB module.

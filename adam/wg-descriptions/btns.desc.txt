@@ -1,0 +1,80 @@
+Current Internet Protocol security protocol (IPsec) and Internet Key
+Exchange protocol (IKE) present somewhat of an all-or-nothing
+alternative; these protocols provide protection from a wide array of
+possible threats, but are sometimes not deployed because of the need
+for pre-existing credentials. There is significant interest in
+providing anonymous (unauthenticated) keying for IPsec to create
+security associations
+(SAs) with peers who do not possess authentication credentials that
+can be validated. Examples of such credentials include self-signed
+certificates or "bare" public keys. This mode would protect against
+passive attacks but would be vulnerable to active attacks.
+
+The primary purpose of this working group is to specify extensions to
+the IPsec architecture, and possibly extensions or profiles of IKE, so
+that IPsec will support creation of unauthenticated SAs. The goal of 
+the
+resulting RFCs is to enable and encourage simpler and more rapid
+deployment of IPsec in contexts where use of unauthenticated SAs is 
+deemed
+appropriate, to enable and encourage the use of network security where
+it has been difficult to deploy--notably, to enable simpler, more
+rapid deployment.
+
+Any IKE and IPsec extensions/profiles developed in this WG must not
+undermine the security facilities already defined for IPsec.
+Specifically, the access control facilities that are central to IPsec
+must not be degraded when unauthenticated SAs are employed
+concurrently with authenticated SAs in the same IPsec implementation.
+
+Two related problems emerged during the discussion of this problem.
+First, there is a desire in the KITTEN, RDDP, NFSv4 and potentially
+other working groups to make use of unauthenticated IPsec SAs, and
+later cryptographically bind these SAs to applications, which perform
+their own authentication. The specification of how this binding is
+performed for IPsec and the specification of how the binding interacts
+with application authentication protocols are out of scope for this
+working group. However, interactions between this cryptographic
+channel binding and IPsec (e.g., the PAD, SPD, SAD, etc.) are expected
+to be similar to those for the unauthenticated mode with no
+binding. To avoid duplication of effort, This working group needs to
+consider how to support channel bindings when developing extensions to
+IPsec, specifically the PAD and SPD elements.
+
+Secondly, BTNS and the channel bindings work both encourage IPsec to
+be used to secure higher layer protocols. As such we need to determine
+what information these higher layer protocols need from IPsec.
+
+Two proposals are under discussion for providing unauthenticated SA
+support for IPsec: bare RSA keys transported by IKE and self-signed
+certificates transported by IKE.
+
+
+The WG has the following specific goals:
+
+a) Develop an informational framework document to describe the
+motivation and goals for having security protocols that support
+anonymous keying of security associations in general, and IPsec and 
+IKE in
+particular
+
+b) Develop an informational applicability statement, describing a set
+of threat models with relaxed adversary capability assumptions, to
+characterize the contexts in which use of unauthenticated SAs is 
+appropriate
+
+c) If necessary, specify standards-track IKE extensions or profiles
+that support one or both of the bare RSA keys or self-signed
+certificates
+
+d) Specify standards-track extensions to the SPD and PAD to support
+unauthenticated SAs for IPsec and cryptographic channel bindings for 
+IPsec
+
+e) Develop an informational document describing the interfaces that
+IPsec implementations should provide to allow IPsec SAs to be used to
+secure higher layer protocols
+
+The final goal is expected to complement work going on elsewhere in
+establishing best current practice for higher layer protocols secured
+by IPsec.

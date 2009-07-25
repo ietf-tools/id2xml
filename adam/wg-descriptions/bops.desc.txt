@@ -1,0 +1,19 @@
+The Border Gateway Protocol (BGP) is fundamental to the
+operation of the Internet. In recent years, the occurrence
+of BGP related operational issues has increased, and
+while overall understanding of the default-free routing
+system has improved, there is still a long and growing
+list of concerns. Among these are routing table growth rates,
+dynamic properties of the routing system, and the effects
+of routing policy on both the size and dynamic nature of
+the routing table. In addition, new and innovative uses of
+BGP, such as the use of BGP as a signaling protocol for
+applications such as VPN, have created new and unexpected
+operational issues. 
+
+The purpose of the BGP OPS WG is continue and expand on
+the original charter of the PTOMAINE WG. In particular,
+the purpose of the BOPS WG is to consider and measure the
+problem of routing table growth, and where appropriate,
+to document the operational aspects of measurement,
+policy, security, and VPN infrastructures.

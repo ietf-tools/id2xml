@@ -1,0 +1,81 @@
+The Integrated Directory Services (IDS) Working Group is chartered to
+facilitate the integration and interoperability of current and future
+directories into a unified Internet directory service. This work will
+unite directories based on a heterogeneous set of directory
+services protocols (X.500, WHOIS++, etc.).
+
+In addition to specifying technical requirements for the integration,
+the IDS Working Group will also contribute to the administrative and
+maintenance issues of directory service offerings by publishing
+guidelines on directory data integrity, maintenance, security, and
+privacy and legal issues for users and administrators of directories.
+
+The IDS Working Group will pay special attention to the creation of an
+Internet White Pages Directory Service and will sponsor and track
+projects to achieve this goal and specifically take steps to facilitate
+wide-spread experimentation of the protocols evolving in the ASID
+Working Group.
+
+The IDS Working Group will work on applications of directory technology
+and will track ongoing applications projects.  The IDS Working Group
+will assume responsibility for the creation and maintenance of on-line
+catalogs of directory services implementations.  These catalogs will be
+periodically published as Informational RFCs.
+
+The IDS Working Group will take up the unfinished tasks of the WHIP -
+White Pages Requirements Working Group - that was constituted at the
+Seattle IETF.  The WHIP Working Group set out to define the basic
+requirements for a Simple Internet White Pages Service.
+
+The IDS Working Group will liaise with the groups working on
+development and deployment of the various directory service protocols.
+
+The IDS Working Group is a combined effort of the Applications Area and
+the User Services Area of the IETF.
+
+Ongoing Activities:
+ 
+  Track emerging directory service protocols in order to identify the
+  need for specifying standards for interworking with other service
+  protocols
+
+  Liaise with groups working on deployment and development of directory
+  services to locate and fix interoperability problems.
+
+  Identify unfilled needs of directory service offerers,
+  administrators, and users.
+
+Catalogs maintained on-line, with occasional publication as RFCs:
+ 
+   RFC due   On-line version          Name
+   
+   Dec 95    Jun 95 A Catalog of WHOIS++ Implementations.
+                    -- Patrick Faltstrom (first issue)
+   Dec 95    Jul 95 The On-line X.500 Directory Implementations Catalog 
+                    (on-line version of RFC 1632).
+                    -- Chris Apple and Ken Rossen
+ 
+Pilot Projects reporting to this group:
+
+    The Long Bud Project -- Internet Pilot Project for the
+    Deployment of X.500 Directory Information in Support of
+    X.400 Routing (RFC 1802)
+    Co-ordinator: Kevin Jordan
+    Lifetime: Jan 94 - Dec 96
+ 
+    The Internet Nomenclator Project
+    Co-ordinator: Joann Ordille
+    Lifetime: Jun 95 - Jun 97
+ 
+    The Internet Whois++ Project
+    Co-ordinator: Patrick Faltstrom
+    Lifetime: Jun 95 - Jun 97
+
+    The Internet X.500 (1993) Directory Project
+    Co-ordinator: Vincent Berkhout
+    Lifetime: Dec 95 - Dec 97
+ 
+    The Schema Registry project - identifying and publishing X.500
+    schema elements used on the Internet
+    Co-ordinator: Sri Sataluri
+    Lifetime: November 94 - Nov 96

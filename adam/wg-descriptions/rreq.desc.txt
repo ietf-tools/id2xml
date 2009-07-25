@@ -1,0 +1,29 @@
+The Router Requirements Working Group has the goal of publishing the
+existing draft as an Historic RFC, then updating it to include 
+references to more recent work, such as OSPF, BGP, multicast, etc.
+Unlike other groups, this is recognized as an on-going effort that
+should result in a series of drafts. It is expected that a revised
+requirements draft will be published on a regular basis.
+ 
+The working group will also instigate, review, or (if appropriate)
+produce additional RFCs on related topics.  To date, group members have
+produced draft documents discussing the operation of routers which are 
+in
+multiple routing domains (3 papers), TOS, and a routing table MIB.
+ 
+The purposes of this project include:
+ 
+- Defining what an IP router does in sufficient detail that
+  routers from different vendors are truly interoperable.
+ 
+- Providing guidance to vendors, implementors, and purchasers of
+  IP routers.
+ 
+The working group has decided that, unlike RFC 1009, the Router 
+Requirements
+document should not discuss link layer protocols or address resolution.
+Instead, those topics should be covered in a separate Link Layer 
+Requirements
+document, applicable to hosts as well as routers.  Whether this group 
+will
+create the Link Layer Requirements document is still to be determined.

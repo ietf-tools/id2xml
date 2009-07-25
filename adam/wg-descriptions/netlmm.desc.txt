@@ -1,0 +1,94 @@
+The IETF has defined both local and global mobility management
+protocols that are intended to handle IP mobility for nodes. All IP
+mobility management protocols defined thus far require the involvement
+of the mobile node in order to accomplish mobility. This working
+group is tasked with defining a network-based local mobility
+management protocol, where local IP mobility is handled without
+involvement from the mobile node. The idea is that the mobile node
+may move across multiple access routers without encountering a change
+in its IP address, thereby hiding the mobility from the IP layer and
+above.
+
+As part of the first phase of efforts in this working group, a
+protocol for such network-based local mobility has been developed.
+This protocol, Proxy Mobile IPv6 (PMIPv6), has been developed based on
+Mobile IPv6, after considering other alternative approaches. With
+this protocol, unmodified IP nodes may change access routers without
+having to change the IP address on an interface, within a given
+administrative domain. This is accomplished by having Mobile Access
+Gateways (MAGs), often part of the access routers in a network, send
+binding updates on behalf of mobile nodes attached to them, to a Local
+Mobility Anchor (LMA). The LMA manages the mobility of the mobile
+nodes across the MAGs within a given PMIPv6 domain.
+
+The PMIPv6 protocol is being adopted as part of several wide-area
+wireless network (e.g., 3GPP, 3GPP2, WiMAX) and local area network
+environments. The current charter of this working group involves
+specification of some necessary features that make the deployment of
+this protocol feasible in these various environments.
+
+As part of this effort, it is essential to support mobility for IPv4
+end nodes. Some means of dealing with overlapping private IPv4
+addresses of mobile nodes and supporting separation of flows between
+the MAG and LMA is also required. Further, given that local and
+global mobility management protocols are likely to be deployed in some
+combination in various environments, it is necessary to clearly define
+the interactions between PMIPv6 and MIPv6. Interactions with AAA
+protocols such as RADIUS and Diameter may be required for
+authorization or provisioning purposes. When multiple LMAs are
+present, an automated LMA discovery mechanism may be needed to
+facilitate deployment. The above items are in scope of the current
+charter.
+
+The MAG and LMA are considered to be IPv6 capable for all efforts of
+this protocol. Also, all features defined must work with unmodified
+IP nodes. Specifying any changes to mobile nodes is out of scope of
+the current charter. Handoff and route optimizations are also out of
+scope. There is, however, considerable interest in optimization work,
+for instance, and a future recharter of this working group is likely
+to address this in some manner.
+
+NETLMM WG Deliverables
+----------------------
+
+1) Interface between a PMIPv6 MAG and MN: This interface will define
+the interaction between a regular IP node and a MAG that will be used
+to trigger various mobility management actions on the MAG. This is
+necessary for the MAG to properly trigger binding updates to the LMA
+and create appropriate mobility management state.
+
+2) IPv4 Support for PMIPv6: This will define the support for IPv4
+nodes in PMIPv6. This will also define the protocol operation over an
+IPv4 transport between the MAG and LMA, by employing protocol extensions
+already developed in the MEXT WG.
+
+3) Interactions between Mobile IPv6 and Proxy Mobile IPv6: This will
+highlight the interactions required between these protocols in various
+methods of co-existence of these in a system, with a view to
+documenting the best practices to be used. The scenarios considered
+will include a hierarchical model of local and global mobility
+management using PMIPv6 and MIPv6 respectively, a mixed mode of the
+two with some nodes supporting MIPv6 and others not, and the use of
+MIPv6 upon movement of nodes outside a PMIPv6 domain.
+
+4) GRE Keying option for PMIPv6: This will define a mechanism using
+GRE keys to support separation of flows between a MAG and LMA.
+
+5) RADIUS support for PMIPv6: This will define the interactions
+between RADIUS and PMIPv6 to support policy provisioning and
+authorization.
+
+6) Automatic LMA discovery: This will define the ability for MAGs to
+automatically discover and use an LMA within a PMIPv6 domain. The
+scope of this effort may include specifying the use of DNS or DHCP
+based LMA discovery or LMA discovery using policy information
+retrieved via AAA protocols.
+
+7) MIB for PMIPv6: This will define the MIB for the protocol for
+interoperability purposes.
+
+8) PMIPv6 path management and failure detection: This will define
+an extension to the PMIPv6 protocol allowing PMIPv6 peers to
+verify bidirectional reachability with their peer, detect
+failure of their peer, and signal their own failure to their
+peer.

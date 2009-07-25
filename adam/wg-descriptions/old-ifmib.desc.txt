@@ -1,0 +1,59 @@
+     The Interfaces MIB Working Group is chartered to accomplish two tasks.
+
+     First, to develop a collection of managed objects which model the
+     relation between different entities in the data link and physical
+     layers.  The working group will explore different modeling
+     approaches in order to develop a collection of objects which is
+     both correct in the modeling sense and has an acceptable impact (if
+     any) on the interfaces table from MIB-II and all media MIB modules
+     on the standards track or under development by a working group.
+     The objects defined by the working group will be consistent with
+     the SNMP framework.
+
+     Second, to prepare a recommendation to the IESG evaluating RFC-1229 
+     (the interface-extensions MIB), RFC-1231 (the token-ring MIB), RFC-1304
+     (the SMDS MIB), and RFC-1398 (the ethernet-like MIB) with respect to the
+     standards track.
+
+     The recommendation will document implementation, interoperability,
+     and deployment experience.  If these experiences suggest that
+     changes should be made to the documents, new drafts may be
+     prepared.
+
+     For RFCs 1229, 1231, and 1304, the recommendation will report one
+     of four outcomes for each RFC:
+	  
+	- that the RFC should be advanced from Proposed to Draft 
+        Standard status, without changes (if no problems are found);
+
+	- that a draft prepared by the working group should replace
+	the RFC, and be designated a Draft Standard (if only minor changes
+	are made);
+	
+	- that a draft prepared by the working group should
+	replace the RFC, and be designated a Proposed Standard (if major
+	changes or feature enhancements are made); or,
+	
+	- that the RFC should be designated as Historic (if this technology
+	is problematic).
+
+     For RFC 1398, the recommendation will report one of five outcomes:
+
+        - that the RFC should be advanced from Draft Standard to Standard
+        status, without changes (if no problems are found);
+     
+        - that a draft prepared by the working group should replace 
+        the RFC, and be designated a Standard (if only editorial changes 
+        are made);
+     
+        - that a draft prepared by the working group should replace 
+        the RFCs, and be designated a Draft Standard (if only minor 
+        changes are made);
+     
+        - that a draft prepared by the working group should replace 
+        the RFC, and be designated a Proposed Standard (if major changes 
+        or feature enhancements are made); or,
+     
+        - that the RFC should be designated as Historic (if this 
+        technology is problematic).
+

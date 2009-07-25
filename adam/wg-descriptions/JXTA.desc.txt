@@ -1,0 +1,30 @@
+JXTA is a set of open, generalized peer-to-peer protocols that allow 
+any connected device (cell phone, to PDA, PC to server) on the network 
+to communicate and collaborate.  The JXTA Community 
+<http://www.jxta.org> has been the home of JXTA development since April 
+2001.  The projects managed by the JXTA Community span from multiple 
+implementations of the JXTA Protocol Specification to numerous 
+applications and services implemented on top of the various reference 
+language binding implementations (J2SE, Personal Java, J2ME, C).
+
+The JXTA Community wishes to submit to the IETF the JXTA Protocol 
+Specification encompassing the JXTA architecture, Identifiers, Message 
+Formats, Core/Standard Services, and Transports common to all JXTA 
+implementations.  It is understood by the JXTA Community that upon 
+acceptance by the IETF, the IETF will maintain full change control over 
+the protocol specification.  The JXTA Community will maintain change 
+control over the reference implementations and applications/services 
+built upon the JXTA Protocol Specification.
+
+It is expected that a JXTA WG if formed will consist of currently 
+participating JXTA Community members and interested members from the 
+IETF Community.
+
+This BOF is intended to raise and address any questions associated with 
+the formation of a JXTA WG as well as introduce area of work that will 
+be necessary for a successful completion of the working group effort.
+
+All members of the IETF interested in JXTA are urged to join the JXTA 
+Community at http://www.jxta.org.  Discussion on the subject of IETF 
+participation will take place on the discuss@jxta.org mailing list 
+which may be joined from http://www.jxta.org/project/www/maillist.html.

@@ -1,0 +1,45 @@
+Bluetooth is an emerging technology for short range wireless 
+communication which enables devices in proximity (< 10 meters) to 
+communicate with each other.  Bluetooth SIG, a consortium of nine 
+promoter companies and over 1800 adopter companies, is defining radio, 
+baseband, and protocol specifications to facilitate interoperability 
+among multi-vendor Bluetooth solutions. Bluetooth version 1.0 
+specifications were released in Dec 1999 and the first generation of 
+products (cellular phones, headsets, palmtops, and laptop computers) 
+are 
+expected to be launched before the end of this year.
+
+Bluetooth can support point-to-point, point-to-multipoint, and 
+multi-hop
+communication over wireless medium, but only point-to-point feature of
+Bluetooth is enabled in version 1.0 release. The next release is aimed 
+at supporting any-to-any communication among devices forming a piconet.
+Bluetooth piconets can exist as disconnected networks or be connected 
+to
+the Internet via cell phones or LAN access points. In both 
+configurations (connected or disconnected), it is desirable to make 
+Bluetooth devices IP addressable and use IP based protocols for address 
+assignment, name resolution, and packet forwarding.
+
+A Bluetooth piconet can be viewed as an instance of a zero-conf 
+network.
+Similarly, a collection of connected piconets can be modeled as an
+instance of a MANET (multi-hop ad hoc) network.  Personal Area 
+Networking (PAN) working group of Bluetooth SIG has already started the 
+process of developing a specification for IP over Bluetooth. This BOF 
+will provide an open forum for the members of the Bluetooth SIG and the 
+IETF to exchange information, debate design issues, and learn from each 
+other's work. The aim of the BOF is to ensure that the IP over 
+Bluetooth
+specifications are compatible with the protocols being developed by the
+zero-conf and manet working groups of the IETF.
+
+Specifically, the aim is to discuss the following topics:
+
+1.  Present an overview of Bluetooth technology to the IETF community
+2.  Explain the constraints of Bluetooth PHY layer (why some things can
+    or cannot be done)
+3.  IPv{4,6} encapsulation, MTU, multicast for a single piconet.
+    - discussion of synergy with zero-conf working group
+4.  Evolution of issue #3 for multiple connected piconets.
+6.  Applying MANET protocols to Bluetooth multihop networks.

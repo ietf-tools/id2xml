@@ -1,0 +1,13 @@
+IS-IS is an IGP specified and standarized by ISO and incorporating 
+extensions to support IP. It has been deployed successfully in the 
+Internet for several years years. The IS-IS Working Group is chartered 
+to document current protocol implementation practices and improvements, 
+as well as to propose further extensions to be used within the scope of 
+IS-IS and IP routing. Short term, the WG is expected to deliver a set 
+of 
+documents describing common implementation practices and extensions 
+necessary to scale the protocol. These specifications will encourage 
+multiple, inter-operable vendor implementations.
+
+This working group will interact with other standards bodies that have
+responsibility for standardizing IS-IS.

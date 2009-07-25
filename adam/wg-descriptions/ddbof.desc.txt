@@ -1,0 +1,13 @@
+This meeting's purpose is to discuss what actions, if any, the IETF
+should take regarding the standardization of mechanisms that discover
+directly adjacent network nodes.
+
+
+Several proprietary solutions exist in this area. As such, network
+operators feel the need for an interoperable solution that covers the
+needs of IP network infrastructure nodes as well as layer 2 devices.
+
+
+Current efforts in this area by other standard bodies will be
+discussed, as well as the potential for collaboration with those
+efforts.

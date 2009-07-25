@@ -1,0 +1,45 @@
+The advent of switched multi-channel (e.g., WDM, DWDM, OTDM) optical
+networks using OXCs (Optical Cross-connects) and other optical
+switching elements presents many new opportunities for improving the
+performance of IP networks and supporting faster and more flexible
+provisioning of IP services.  However, much needs to be specified
+before interoperable products based on these technologies can be
+deployed in service provider networks.  The work needed in this area
+includes:
+
+- Document the use of existing framing methods for IP over optical
+  dataplane and control channels, and as necessary specify additional
+  framing methods.
+
+- Identify and document the characteristics of the optical transport
+  network that are important for selecting paths for optical channels,
+  setting-up optical channels, and tearing-down optical channels.
+
+- Document the applications of the common control and measurement
+  protocols to the technology-dependent aspects of optical path setup,
+  teardown, and maintenance of optical channels across networks with
+  optical components.
+
+- Document the requirements for control of optical networks by elements
+  outside the optical network itself.
+
+- Document the applicability of IP-based protocols for the controlled
+  dissemination of optical network topology, metric, and constraint
+  information. Such information can be used for inventory management,
+  path selection, and other purposes. The information to be exchanged
+  should accommodate both all-optical and optical-electrical-optical
+  switching technologies.
+
+- If a need is identified to develop new protocols or make
+  incompatible modifications to existing protocols (e.g., routing and
+  signaling protocols) to accomplish the above goals, then a recharter
+  must first be approved before undertaking such work.
+
+The IP over Optical WG will coordinate with relevant working groups
+within the IETF to leverage existing work. The WG may also generate
+requirements for other IETF WGs as needed.  Additionally, the WG may
+collaborate with other standards bodies and interoperability forums
+engaged in IP over optical activities (e.g., including ITU-T) to share
+information, minimize duplication of effort, and coordinate activities
+in order to promote interoperability and serve the best interest of
+the industry.

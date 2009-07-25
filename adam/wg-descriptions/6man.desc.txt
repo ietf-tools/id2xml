@@ -1,0 +1,20 @@
+The 6man working group is responsible for the maintenance, upkeep,
+and advancement of the IPv6 protocol specifications and addressing
+architecture. It is not chartered to develop major changes or
+additions to the IPv6 specifications. The working group will
+address protocol limitations/issues discovered during deployment
+and operation. It will also serve as a venue for discussing
+the proper location for working on IPv6-related issues within
+the IETF.
+
+The working group's work items are as follows:
+
+o Complete work on RA Flags Option
+o Complete work on RH0 Deprecation
+o Complete work on IPv6 over PPP Compression Negotiation
+o Complete work on Centrally Allocated Unique Local
+Addresses (ULA-C)
+
+All new work items not listed above require the approval
+of the working group and the sponsoring Area Director before
+they will be taken on by the working group.

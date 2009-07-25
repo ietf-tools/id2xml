@@ -1,0 +1,11 @@
+Draft 4/24/94 - mw
+
+The recent series of natural disasters in California, together with an
+ongoing goal of reducing worker commute time, has spurred interest in
+telecommuting.  Telecommuting is a kind of remote interaction that
+includes desktop videoteleconferencing, shared workspace and
+computer-supported cooperative work (CSCW) and other mechanisms, in
+support of part-week or full-time remote work, either from home or
+hometown telecommuting center.  We propose a forum for discussing the
+issues, limiting factors, enabling technologies, NII-evolution, and 
+systems integration issues required to support telecommuting.

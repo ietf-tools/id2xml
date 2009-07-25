@@ -1,0 +1,60 @@
+The purpose of the MSEC WG is to standardize protocols for securing
+group communication over internets, and in particular over the global
+Internet. Initial efforts will focus on scalable solutions for groups
+with a single source and a very large number of recipients. Additional
+emphasis will be put on groups where the data is transmitted via
+IP-layer multicast routing protocols (with or without guaranteed
+reliability). The developed standard will assume that each group has a
+single trusted entity (the Group Controller) that sets the security
+policy and controls the group membership. The standard will strive
+to provide at least the following basic security guarantees:
+
++ Only legitimate group members will have access to current group
+communication. This includes groups with highly dynamic membership.
+
++ Legitimate group members will be able to authenticate the source
+and contents of the group communication. This includes cases where
+group members do not trust each other.
+
+An additional goal of the standard will be to protect against
+denial-of-service attacks, whenever possible.
+
+Due to the large number of one-to-many multicast applications and the
+sometimes conflicting requirements these applications exhibit, it is
+believed that a single protocol will be unable to meet the requirements
+of all applications. Therefore, the WG will first specify a general
+Reference Framework that includes a number of functional building
+blocks. Each such building block will be instantiated by one or more
+protocols that will be interchanable. The Reference Framework will not
+only describe one-to-many multicast, but also many-to-many multicast.
+
+In addition, as a secondary goal the MSEC WG will also focus on
+distributed architectures for group key management and group policy
+management, where for scalability purposes multiple trusted entities
+(such as Key Distributors) are deployed in a distributed fashion. For
+this purpose, the Reference Framework will not only describe
+one-to-many multicast, but also many-to-many multicast.
+
+MSEC will generate at least the following documents, which could be
+considered as base documents:
+
+1. An RFC describing the security requirements of multicast security 
+and
+an RFC describing the MSEC Architecture.
+
+2. An RFC describing the Group Key Management Architecture and an RFC
+describing Group Policy Management Architecture in MSEC.
+
+3. Several RFCs describing specifications for protocols that implement
+source authentication, group key management and group policy 
+management.
+As multicast security covers a broad range of issues, and therefore
+touches other Working Groups in the IETF, the MSEC WG will work closely
+with othersecurity-related Working Groups (e.g. IPsec, IPSP), as well
+as other Working Groups which maybe considered a 'consumer' of the
+technologies produced in the MSEC WG (e.g. AVT, MMUSIC) or which may
+have a multicast focus (e.g. PIM, RMT, IDRM, MAGMA).
+
+With this in mind, the MSEC WG is open to receiving new work items,
+whenever it is considered appropriate to be homed in the MSEC WG. Such
+drafts will be matured in conjunction with the MSEC base documents.

@@ -1,0 +1,108 @@
+The transmission and reception of final form documents (i.e. presented 
+in a format that describes their final rendering) is an essential 
+global
+communications service.
+
+Several protocols and services have been developed over the years to
+facilitate document transmission, including the GSTN Fax service 
+[ITU-T.30].  Within the IETF several protocols have been developed that
+facilitate document transmission, including RFC 2305 and RFC 2532 
+[Store
+and Forward Internet Fax] and the Internet Print Protocol [IPP].
+
+Problem Statement:
+
+Each of these services has one or more severe limitations or 
+restrictions that may not be suitable for all document transmissions.
+
+Among those limitations that could be applied to one or more of the 
+above services:
+
+1. Limitations on Quality (resolution or color transmission)
+
+2. Ability to repudiate request for receipt confirmation (MDN - DSN)
+
+3. Lack of clear and unambiguous legal identification of sender and 
+   recipient
+
+4. Lack of ability to adequately determine the success or failure of a
+   document transmission during processing
+
+5. Inability to establish reliable knowledge or negotiation of 
+recipient
+   capabilities
+
+6. Inability to satisfy legal as well as general custom and practice 
+for
+   document transmission technologies, as typically applied to GSTN 
+Fax.
+
+7. Inability to establish transaction security, authenticity and
+   confidentiality of document transmission
+
+Work Group Objectives:
+
+The purpose of the work group will be to investigate current work 
+within
+the IETF and identify protocols, procedures and policies that can 
+satisfy the requirements for reliable document transmission with a high 
+degree of fidelity and reliability.
+
+Essential attributes for Quality Document Delivery Services include:
+
+Timely Delivery.
+
+Transaction Security, Authenticity and Confidentiality.
+
+High quality output with sender control of presentation detail
+
+Legal identity exchange.
+
+Document format selection based on confirmed capabilities of sender 
+and/or receiver.
+
+Proof of Delivery (Receipt Notification).
+
+Study will be given to the requirements of 3rd party document delivery
+service providers.
+
+The WG will not submit any new protocols only extensions or 
+augmentations to existing or proposed Standards Track protocols.
+
+Proposed solutions:
+
+Proposed solutions should not impose undue burdens on implementers in 
+order that the protocol should be available on a wide variety of 
+devices 
+and systems.
+
+The working group will closely coordinate its activities with other 
+IETF
+Work Groups, including the Internet Print Protocol working group [IPP] 
+and the Internet Fax working group [FAX] as well other document 
+transmission related standards bodies and related work groups, notably 
+the ITU-T Study Group 8. The group will take note of other areas and 
+Work Groups within the IETF that may have direct bearing on reliable 
+document delivery.
+
+Relevant areas include:
+
+-  Security, Authentication and Encryption (TLS, etc)
+
+-  Sender Identification (vCard)
+
+-  RFC 2301 File Formats
+
+-  Digital Signatures and Certificates
+
+-  RESCAP
+
+-  IMPP
+
+-  ENUM
+
+
+Particular emphasis will be taken to design protocol elements that 
+would
+likely reduce the possibility of document "spaming" as well as other 
+forms of denial and abuse of service.

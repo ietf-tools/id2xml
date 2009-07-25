@@ -1,0 +1,5 @@
+This BOF is a follow-up to address some of the issues raised in the
+RUTS BOF at the Orlando IETF meeting and in a number of other working 
+group sessions in Orlando.  The aim of the BOF is to try and understand 
+the best way to be able to support multiple parallel unicast sessions 
+between two IP hosts.

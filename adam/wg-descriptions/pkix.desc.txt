@@ -1,0 +1,47 @@
+The PKIX Working Group was established in the fall of 1995 with the 
+goal of developing Internet standards to support X.509-based Public 
+Key Infrastructures (PKIs). Initially PKIX pursued this goal by 
+profiling X.509 standards developed by the CCITT (later the ITU-T). 
+Later, PKIX initiated the development of standards that are not 
+profiles of ITU-T work, but rather are independent initiatives 
+designed to address X.509-based PKI needs in the Internet. Over time 
+this latter category of work has become the major focus of PKIX work, 
+i.e., most PKIX-generated RFCs are no longer profiles of ITU-T X.509 
+documents.
+
+PKIX has produced a number of standards track and informational RFCs. 
+RFC 3280 (Certificate and CRL Profile), and RCF 3281 (Attribute 
+Certificate Profile) are recent examples of standards track RFCs that 
+profile ITU-T documents. RFC 2560 (Online Certificate Status 
+Profile), RFC 3779 (IP Address and AS Number Extensions), and RFC 
+3161 (Time Stamp Authority) are examples of standards track RFCs that 
+are IETF-initiated. RFC 4055 (RSA) and RFC 3874 (SHA2) are examples 
+of informational RFCs that describe how to use public key and hash 
+algorithms in PKIs.
+
+PKIX Work Plan
+
+PKIX will continue to track the evolution of ITU-T X.509 documents, 
+and will maintain compatibility between these documents and IETF PKI 
+standards, since the profiling of X.509 standards for use in the 
+Internet remains an important topic for the working group.
+
+PKIX does not endorse the use of specific cryptographic algorithms 
+with its protocols. However, PKIX does publish standards track RFCs 
+that describe how to identify algorithms and represent associated 
+parameters in these protocols, and how to use these algorithms with 
+these protocols. We anticipate efforts in this arena will continue to 
+be required over time.
+
+PKIX will pursue new work items in the PKI arena if working group 
+members express sufficient interest, and if approved by the cognizant 
+Security Area director. For example, certificate validation under X. 
+509 and PKIX standards calls for a relying party to use a trust 
+anchor as the start of a certificate path. Neither X.509 nor extant 
+PKIX standards define protocols for the management of trust anchors. 
+Existing mechanisms for managing trust anchors, e.g., in browsers, 
+are limited in functionality and non-standard. There is considerable 
+interest in the PKI community to define a standard model for trust 
+anchor management, and standard protocols to allow remote management. 
+Thus a future work item for PKIX is the definition of such protocols 
+and associated data models.

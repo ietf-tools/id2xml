@@ -1,0 +1,73 @@
+Network News Transfer Protocol (NNTP), defined in RFC 977, was released
+to the world in March 1986. It was designed to do two things for the
+"netnews" computer conferencing system:
+
+1. Provide access to the netnews article database on a network server
+   for "reader" client programs.
+
+   The situation everyone wanted was access to netnews throughout a
+   network, without having to actually run the netnews server software
+   and keep a local copy of the article database (a sizeable resource
+   commitment, even then).
+ 
+2. Provide the means for interactive server to server article transfer
+   over the Internet.
+ 
+   The netnews system uses a "flood broadcast" mechanism to distribute
+   articles to all sites, which as a consequence of its operation,
+   creates many duplicate copies of any given article. These duplicates
+   account for the netnews system's high reliability and speed in
+   distributing articles, but they must be each eliminated at the
+   receiving site, to avoid infinite replication.
+ 
+Originally, netnews was developed by the UUCP Network community, and
+used "batched" file transfer over modems and telephone lines to
+transmit articles from site to site. This mechanism did not allow for
+interrogating the remote system's database to see if the articles to
+betransmitted were already at the destination (a common case). NNTP's
+principal server to server article transfer mechanism allows for this
+interrogation of the receiver, and thus saves both network bandwidth
+and processing time on the remote.
+ 
+Unfortunately, NNTP's original design had limitations which have become
+apparent over the decade since its release. For example, NNTP's server
+to server article transfer performance over the wide area Internet
+suffers because there are at least two protocol round-trips per article
+transfer, which does not allow two NNTP servers to continuously stream
+the articles that must be transferred between them, and thereby make
+full use of the available bandwidth (moderated by TCP's congestion
+control mechanisms).
+ 
+Also, a number of extensions to the protocol are now in common use (and
+yet more have been proposed), but most such extensions are only
+documented in the source code that implements them, or in associated
+release notes - not in the NNTP standard. Such extensions would benefit
+from IETF community review, and proper specification. Where there is
+widespread interest in a particular kind of extension, the internet
+user community would benefit from consensus among implementors prior to
+deployment, as to the particulars of that extension.
+ 
+The IETF NNTP extensions Working Group shall:
+ 
+1. Revise and publish a standards-track successor to RFC 977 that
+   removes ambiguities from the original document, defines a mechanism
+   for adding extensions to the protocol, and provides a mechanism for
+   the server to inform the client of the extensions which it
+   supports.
+ 
+2. Include in the same document some reasonable group of existing
+   commonly used extensions forming a new base functionality for NNTP.
+ 
+3. Upon completion of the RFC977 successor document, and presuming that
+   proposals for extensions to the NNTP protocol have been submitted
+   for consideration by IESG, the working group may be asked by the
+   IESG Applications Area Directors to review one or more extensions  
+   for NNTP.
+ 
+   Part of the purpose of such a review will be to test the newly
+   established mechanism for adding protocol extensions.
+ 
+The first concern of this working group shall be for the
+interoperability of the various NNTP implementations, and therefore for
+clear and explicit specification of the protocol. It is very important
+that we document the existing situation before taking up any new work.

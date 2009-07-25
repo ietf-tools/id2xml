@@ -1,0 +1,72 @@
+There is much interest in enabling networked personal appliances to 
+communicate with and control each other over the Internet. Although 
+there are numerous networking technologies which allow networked 
+personal appliances to operate within a single home environment or 
+domain, there is currently no support for control of these devices from 
+the Internet, or for interworking the various home networking 
+technologies.  The ability to provide such support will radically 
+enhance the ability to provide exciting new services.  The initial 
+proposals and ideas on this topic were submitted to the IETF SIP WG.
+
+The purpose of the proposed working group is to develop an architecture 
+and framework for recommending (and if necessary, developing) protocols
+which will enable communication with and control of Internet Personal
+Appliances (IPAs).
+
+For the purposes of the group, Internet Personal Appliances (IPAs) are 
+regarded as networked devices which share the following 
+characteristics: 
+(1) The ability to interact with the physical environment (either 
+through sensors or actuators); (2) Limited (or restricted) general 
+computational power, though the devices may possess high-computation 
+power for specific tasks such as image processing, or speech 
+recognition.
+
+In general, IPAs will be groups of sensors and/or actuators with 
+limited 
+computational power, and networking capability.  Some IPAs will be 
+portable, and will provide service in multiple locations. A subset of 
+these will be mobile; that is, they will provide service irrespective 
+of 
+their location, whether they are stationary or in transit.  Examples of 
+IPAs include:  controllable lamps, alarm clocks, washing machines, 
+cameras, door bells, temperature sensors, sprinklers, and garage doors.
+
+The scope of the proposed Working Group will comprise the following 
+areas of study:
+
+ - Architecture and framework for communication and control of Internet
+   Personal Appliances over the Internet.
+
+ - Control and communication protocol of Internet Personal Appliances
+   over the Internet.  Only protocols usable by IP hosts will be
+   considered in this WG.
+
+ - Naming and addressing for Internet Personal Appliances.
+
+ - Internet Personal Appliance discovery and registration.
+
+ - Security for Internet Personal Appliances.
+
+The following deliverables are planned:
+
+1.  Requirements document:  This document will outline in detail the
+    networking and protocol requirements for enabling secure
+    peer-to-peer communication and control of Internet Personal 
+    Appliances.
+
+2.  Architecture and framework document (including terminology):  
+    This document will describe a framework and architecture for 
+    supporting the networking, protocol and security requirements 
+    outlined in deliverable 1.
+
+3.  Recommendations on protocols to realize the Internet Personal
+    Appliance framework:  As far as possible, this WG will not 
+    develop new protocols, but recommend existing protocols to re-use. 
+ 
+    Where appropriate, the WG will recommend extensions to existing 
+    protocols which will make them more suitable for use in the 
+    Internet Personal Appliance framework.  Only protocols usable by 
+    IP hosts will be considered in this WG.  All protocols developed 
+    or extended must provide a high-level of security, as outlined 
+    in deliverables 1 and 2.

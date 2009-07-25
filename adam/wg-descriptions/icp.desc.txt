@@ -1,0 +1,28 @@
+Description:
+
+ICP is a lightweight message format used for communicating among
+WWW caches.  ICP is primarily used in a cache mesh to locate
+specific WWW objects in neighbor caches.  A cache in such a mesh
+may have numerous choices for resolving a URL request.  ICP is used
+to assist in selecting the most appropriate location.  One cache
+will send an ICP query to its neighbors.  The neighbors will send
+back ICP replies indicating a ``HIT'' or a ``MISS.''  All current
+ICP implementations use UDP as the transport.  Messages consist of a
+20-byte fixed header and a variable-sized payload.  The payload is
+normally a URL string.  ICP has been in use since 1995.  We
+estimate there are approximately 3000 Web caches in operation that
+support ICP.
+
+The purpose of this BOF is to propose formation of the ICP Working
+Group.  The goal of the ICP working group is only this:  To
+document existing, deployed ICP version 2 implementations as an
+Informational RFC.  There will be two documents: one describing the
+protocol and message format, and another describing how ICP is
+currently applied to Web cache meshes.  This will be the second ICP
+BOF.
+
+For more information, please visit the ICP Development page at
+
+    http://www.nlanr.net/Cache/ICP/.
+
+

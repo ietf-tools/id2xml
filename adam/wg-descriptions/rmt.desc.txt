@@ -1,0 +1,66 @@
+The purpose of this WG is to standardize reliable multicast transport.
+
+
+Initial efforts have focused solely on the standardization of the
+one-to-many transport of large amounts of data. Due to the large
+number of applications that fall into this category, and the sometimes
+orthogonal requirements these applications exhibit, it is believed
+that a "one size fits all" protocol will be unable to meet the
+requirements of all applications. In recognition of this observation,
+this working group will standardize two protocol instantiations,
+initially as Experimental protocols, and then as warranted, in the
+standards track, from the following families:
+
+1) A NACK-based protocol.
+2) An "Asynchronous Layered Coding protocol that uses Forward Error
+   Correction.
+
+The WG will carry out protocol standardization in general by composing
+a a set of RFCs that specify
+
+- building blocks: A set of easily-separable coarse-grained modular
+components that are common to multiple protocols along with abstract
+APIs that define a building block's access methods and their
+arguments.
+
+- protocol instantiations: Specifications that define the necessary
+gluing logic and minimal additional functionality required to realize
+a working protocol from one or more building blocks. These
+specifications will also include an abstract API that defines the
+interface between the protocol implementation and an application.
+
+The WG has previously completed work on three documents to assist in
+the standardization process. RFC2887 describes the design-space in
+which the one-to-many transport protocols will be developed. RFC3048
+explains the concepts of building-blocks and protocol
+instantiations. RFC3269 provides guidelines to authors of drafts that
+specify building-blocks and protocol instantiations.
+
+The WG will generate and submit for standardization drafts of the
+following building-blocks for use in the construction of the two
+protocols: congestion control, negative acknowledgments, forward error
+correction, and to address the RFC 2357 security requirements.
+
+Generic mechanisms for router assist are also considered for an
+additional building block. Initial work on the framework for
+router-assist has already been performed, the WG will evaluate whether
+to complete this task basing on available resource and interest.
+
+The WG will also standardize and generate RFCs for the following two
+protocol instantiations: A NACK-based protocol, and an Asynchronous
+Layered Coding (ALC) protocol that uses Forward Error Correction.
+RFC 3450 is the Experimental RFC of the ALC protocol instantiation.
+
+If new requirements are identified that cannot be satisfied with the
+building-blocks and protocol instantiations described above, the Area
+Directors in consultation with the IESG may add additional
+building-blocks and protocol instantiations to the working group
+deliverables.
+
+This working group will work closely with the Internet Research Task
+Force (IRTF) groups on Reliable Multicast (RMRG) and
+Secure Multicast (SMUG), especially for meeting the congestion control
+and security requirements mandated by RFC 2357. This working group may
+work with the Area Directors to recharter to standardize reliable
+multicast for additional scenarios beyond the one-to-many transport of
+bulk data once they are sufficiently well understood.

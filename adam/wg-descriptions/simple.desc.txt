@@ -1,0 +1,64 @@
+This working group focuses on the application of the Session Initiation
+Protocol (SIP, RFC 3261) to the suite of services collectively known 
+as 
+instant messaging and presence (IMP). The IETF has committed to 
+producing an interoperable standard for these services compliant to 
+the 
+requirements for IM outlined in RFC 2779 (including the security and 
+privacy requirements there) and in the Common Presence and Instant 
+Messaging (CPIM) specification, developed within the IMPP working 
+group. As the most common services for which SIP is used share quite a 
+bit in common with IMP, the adaptation of SIP to IMP seems a natural 
+choice given the widespread support for (and relative maturity
+of) the SIP standard.
+
+The primary work of this group will be to generate:
+
+1. A proposed standard SIP extension documenting the transport of 
+Instant Messages in SIP, compliant to the requirements for IM outlined 
+in RFC 2779, CPIM and in BCP 41 (so that the transport implications of 
+the extension with respect to network congestion are considered in the 
+design).
+
+2. A proposed standard SIP event package and any related protocol 
+mechanisms used to support presence, compliant to the requirements for 
+presence outlined in RFC 2779 and CPIM.
+
+3. An architecture for the implementation of a traditional 
+buddylist-based instant messaging and presence application with SIP. 
+Included might be new mechanisms for message confirmation delivery, 
+indications for when a party is in the process of typing a message, 
+secure buddylist manipulation operations, and the extension of the 
+CPIM 
+presence format to describe typical IM states. Each of these 
+mechanisms 
+will be consistent with a SIP-based architecture, as well as meeting 
+the constraints otherwise described in this charter.
+
+All SIMPLE proposals fulfilling these goals must document the mappings 
+of their operation to CPIM. Any SIP extensions proposed in the course 
+of this development will, after a last call process, be transferred to 
+the SIP WG for consideration as formal SIP extensions.
+
+The working group will work within the framework for presence and IM 
+described in RFC 2778. The extensions it defines must also be 
+compliant 
+with the SIP processes for extensions. The group cannot modify 
+baseline 
+SIP behavior or define a new version of SIP for IM and presence. If 
+the 
+group determines that any capabilities requiring an extension to SIP 
+are needed, the group will seek to define such extensions within the 
+SIP working group, and then use them here.
+
+The working group will operate in close cooperation with the IMPP 
+working group, which will be completing CPIM in parallel. The working 
+group will also cooperate with any other groups defined to standardize 
+other presence and IM systems, to ensure maximum sharing of 
+information 
+and avoid reinvention of the wheel. The working group will cooperate 
+with the SIP working group, soliciting reviews to ensure its 
+extensions 
+meet SIPs requirements. The working group will also collaborate with 
+the SIP WG to ensure consistent operation of the SUBSCRIBE and NOTIFY 
+methods across the other applications being defined for its use.

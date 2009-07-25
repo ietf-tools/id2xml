@@ -1,0 +1,5 @@
+The purpose of the MPLS OAM BOF is to determine what type of operations 
+and maintenance tools are required for MPLS networks. The BOF will 
+address if traceroute and ping are sufficient operations and 
+maintenance tools for MPLS network operators. The BOF will consider the 
+need for other types of OAM tools for MPLS networks.

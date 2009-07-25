@@ -1,0 +1,45 @@
+The goal of the group is to specify the requirements for 
+internationalized access to domain names and to specify a standards 
+track protocol based on the requirements.
+
+The scope of the group is to investigate the possible means of doing
+this  and what methods are feasible given the technical impact they 
+will
+have on  the use of such names by humans as well as application 
+programs, as well as the impact on  other users and administrators of 
+the domain name system.
+
+A fundamental requirement in this work is to not disturb the current 
+use
+and operation of the domain name system, and for the DNS to continue to
+allow any system anywhere to resolve any domain name.
+
+The group will not address the question of what, if any, body should
+administer or control usage of names that use this functionality.
+
+The group must identify consequences to the current deployed DNS
+infrastructure, the protocols and the applications as well as 
+transition
+scenarios, where applicable.
+
+The WG will actively ensure good communication with interested groups 
+who are studying the problem of internationalized access to domain 
+names.
+
+
+The Action Item(s) for the Working Group are
+
+1. An Informational RFC specifying the requirements for providing
+   Internationalized access to domain names. The document should
+   provide guidance for development solutions to this problem, taking
+   localized (e.g. writing order) and related operational issues into
+   consideration.
+
+2. An Informational RFC or RFC's documenting the various proposals and
+   Implementations of Internationalization (i18n) of Domain Names. The
+   document(s) should also provide a technical evaluation of the
+   proposals by the Working Group.
+
+3. A standards track specification on access to internationalized 
+domain
+   names including specifying any transition issues.

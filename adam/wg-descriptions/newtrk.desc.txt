@@ -1,0 +1,81 @@
+The problem working group found that many IETF participants feel that
+the current IETF hierarchy of Proposed, Draft and Full Standard 
+maturity
+levels for specifications is no longer being used in the way that was
+envisioned when the stratification was originally proposed. In 
+practice,
+the IETF currently has a one-step standards process. The goal of this
+working group is to agree on a revised IETF Standards Track, to replace
+the standards track described in RFC 2026. The working group will also
+decide on a process path forward.
+
+The disparity between the documented IETF standards process and what is
+used in practice can cause confusion on the part of those people or
+organizations that use IETF technologies. It has also led to a general
+disregard of the cautions in RFC 2026 on the appropriate deployment of
+IETF technologies described in Internet Drafts or Proposed Standard
+RFCs.
+
+The NewTrk working group is a follow on to the newtrk BOF held during
+the 58th IETF Meeting in Minneapolis. That BOF was held as a result of
+the work of the problem working group.
+
+The sense of the room at the end of the newtrk BOF was that:
+1/ some change was needed to the IETF Standards Track
+2/ a revised standards track should have more than one stage
+3/ there should be some form of "working group snapshot," this might
+or might not be a formal stage on the standards track and might or 
+might
+not be an archival publication
+4/ at least one stage should require multiple interoperable
+implementations of the technology to ensure document clarity
+5/ any revised standards track should include some type of "IPR hook"
+to keep the IETF and IESG out of the business of determining what IPR
+claims are legitimate and what licensing terms are fair.
+
+The goal of this working group is to agree on a revised IETF Standards
+Track, taking into consideration the above points, to replace the
+standards track described in RFC 2026. The working group will also
+decide on a process for making forward progress. Some of the possible
+paths being producing a revised version of RFC 2026 (and maybe other
+RFCs), producing a standalone document or documents that update parts 
+of
+the existing RFCs or a mixture of the two. There may be other
+possibilities.
+
+The working group should also take into account other issues raised by
+the problem working group and during the newtrk BOF as needed.
+
+The deliberations of the working group will cover at least the 
+following
+topics:
+a/ the standards track itself (number of stages, movement between
+maturity levels, working group snapshots, maintenance, IPR issues)
+b/ access to the standards track for individual submissions
+c/ non-standards track document categories including BCP,
+Informational, Experimental, and Historic and their relationship to the
+standards track
+d/ usability of the standards track (bug fixes, version numbers,
+grouping multiple specifications, and maybe deprecation)
+e/ development of a primary marker to distinguish documents
+originating from the IETF from those not originating from the IETF
+
+Discussions in the working group since the NewTrk BOF have added two
+possible additional topics to the working group's agenda.
+
+As part of a revised standards track process, the group will also
+explore the creation of a new series of short IESG-approved IETF
+documents to describe and define IETF technology standards. These
+documents should be able to be used to define the IETF understanding of
+what constituted a specific IETF standard at particular points in time.
+The working group will also consider the usefulness of implementation
+and or interoperability registers in conjunction with such a document
+series.
+
+The working group will also discuss the usefulness of new "cleanup"
+procedures to reclassify existing standards track RFCs based on breadth
+of adoption (or lack of it) or the risk to the Internet of the
+technology described in the RFC.
+
+The NewTrk working group will coordinate its work with other reform
+activities currently underway in the IETF.

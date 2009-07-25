@@ -1,0 +1,10 @@
+The Point-to-Point Protocol (PPP, RFC 1661) is a mature protocol with a
+large number of subprotocols, encapsulations and other extensions. The
+PPPEXT working group exists to provide a forum for asking clarifications
+about the existing specifications and to defend against enhancements
+of questionable value. The group is not expected to create new
+specifications, and if a need for such work comes up, a recharter is
+required. The group may, however, advance existing specifications
+to the next level in the standards track, if a need for that comes up.
+Similarly, the group may classify existing specifications as Historic
+where this is appropriate.

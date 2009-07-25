@@ -1,0 +1,43 @@
+The major goal of the Benchmarking Methodology Working Group is to make
+a series of recommendations concerning the measurement of the
+performance characteristics of various internetworking technologies;
+further, these recommendations may focus on the systems or services that
+are built from these technologies.
+
+Each recommendation will describe the class of equipment, system, or
+service being addressed; discuss the performance characteristics that
+are pertinent to that class; clearly identify a set of metrics that aid
+in the description of those characteristics; specify the methodologies
+required to collect said metrics; and lastly, present the requirements
+for the common, unambiguous reporting of benchmarking results.
+
+To better distinguish the BMWG from other measurement initiatives in the
+IETF, the scope of the BMWG is limited to technology characterization
+using simulated stimuli in a laboratory environment.  Said differently,
+the BMWG does not attempt to produce benchmarks for live, operational
+networks. Moreover, the benchmarks produced by this WG shall strive to
+be vendor independent or otherwise have universal applicability to a
+given technology class.
+
+Because the demands of a particular technology may vary from deployment
+to deployment, a specific non-goal of the Working Group is to define
+acceptance criteria or performance requirements.
+
+An ongoing task is to provide a forum for discussion regarding the
+advancement of measurements designed to provide insight on the operation
+inter-networking technologies.
+
+In addition to its current work plan, the BMWG is explicitly tasked to
+develop benchmarks and methodologies for the following technologies:
+
+* MPLS Forwarding: Develop specific methods to characterize the
+latency and forwarding performance of MPLS devices, extending the
+fundamental recommendations of RFC 1242 and RFC 2544 to this networking
+technology.
+
+* SIP Networking Devices: Develop new terminology and methods to
+characterize the key performance aspects of network devices using
+SIP, including the signaling plane scale and service rates while
+considering load conditions on both the signaling and media planes. This
+work will be harmonized with related SIP performance metric definitions
+prepared by the PMOL working group.

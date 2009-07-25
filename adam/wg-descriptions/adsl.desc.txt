@@ -1,0 +1,4 @@
+Statement of Objective : Explore the  interest the formation of a 
+working group within the IETF to address ADSL Internet related issues, 
+with the first order of business to take the ADSL Forum's ADSL Line 
+MIB to an IETF standards track.

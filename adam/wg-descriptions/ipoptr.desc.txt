@@ -1,0 +1,59 @@
+Note: this WG is one of a set of WGs that comprise the 'sub-IP'
+pseudo-area that the IESG recently created. All of the sub-IP WGs are
+temporarily being housed in the General Area until the IESG decides on
+a final management structure for managing these groups. The Area
+Directors for the following areas acting as a group will be the Area
+Advisors: INT, O&M, RTG and TSV.  The name(s) listed above under
+"Technical Advisor(s)" are the the responsible Area Directors for the
+working group.
+
+Resilient Packet Rings, under development within the IEEE's
+802.17 RPRWG, will provide substantial enhancements in both
+efficiency and flexibility over current bi-directional ring
+topologies. Benefits of resilient packet rings (RPRs) will
+include spatial re-use (full utilization of both counter-
+rotating rings) while maintaining APS-like protection switching
+during media faults. The 802.17 RPRWG will develop mechanisms
+for topology discovery, congestion control, and protection
+switching. Reference the IEEE 802.17 RPRWG at
+http://www.ieee802.org/rprsg/index.html for further information.
+
+This work is specifically being done in parallel with the IEEE
+effort so that cross fertilization between the IEEE and IETF
+groups takes place while the IEEE standard is being developed.
+In particular, the IPoRPR Working Group would produce a
+requirements and framework document which will be used as input
+to the IEEE RPRSG to help it formulate its requirements. Areas
+which are of particular interest to the IPoRPR Working Group will
+involve the layer 2 to layer 3 interaction in areas such as:
+
+- alarm notification
+
+- fast restoration
+
+- fast convergence
+
+- traffic engineering
+     (e.g. resource availability/usage information)
+
+- quality of service issues
+
+
+The requirements and framework document will:
+
+- Clearly state requirements for L2-L3 interaction within
+  these rings
+
+- Highlight the motivation and associated benefits
+
+- Define key components, Layer abstractions and partitioning
+
+- Document assumptions, any observations and issues
+
+- Formulate the mechanisms required to accomplish IP-awareness
+  within these Resilient Packet Rings
+
+The WG will not address issues that are clearly within the MAC Layer
+and will not develop any protocols at this time. No formal liaison
+with the IEEE is anticipated. It is expected that individuals will
+participate directly in both groups.

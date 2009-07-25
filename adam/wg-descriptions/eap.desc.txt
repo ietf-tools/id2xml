@@ -1,0 +1,25 @@
+The EAP working group will restrict itself to the following work items
+in order to fully document and improve the interoperability of the
+existing EAP protocol:
+
+1. IANA considerations for EAP.
+2. Type space extension to support an expanded Type space.
+3. EAP usage model.
+4. Threat model and security requirements.
+5. Documentation of interaction between EAP and other layers.
+6. Resolution of interoperability issues.
+7. EAP state machine.
+8. EAP keying framework.
+9. EAP network selection problem definition
+
+Items 1-6 were included within RFC 3748. Items 7-9 will be handled
+as separate documents.
+
+While the EAP WG is not currently chartered to standardize EAP
+methods, with the publication of RFC 3748, the EAP WG will
+assume responsibility for review of EAP methods requesting
+a Type code allocation, as specified in the IANA considerations
+section of RFC 3748.
+
+When the current work items are completed, the WG may be
+rechartered, or a new WG may be formed to standardize methods.

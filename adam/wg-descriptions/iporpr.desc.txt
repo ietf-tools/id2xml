@@ -1,0 +1,31 @@
+Resilient Packet Rings (RPR), developed within the IEEE 802.17 RPR WG,
+provides substantial enhancements in both efficiency and flexibility
+over current bi-directional ring topologies. Benefits of resilient
+packet rings include spatial re-use (full utilization of both
+counter-rotating rings) while maintaining protection switching during
+media faults, as well as defined mechanisms for topology discovery,
+congestion control, and protection switching.
+Reference the IEEE 802.17 RPR WG at http://www.ieee802.org/17/ for
+further information. IEEE 802.17-2004 is currently published and work is
+in progress on bridging enhancements.
+
+The IPORPR Working Group will produce two documents:
+
+1) An IPORPR definition of how to transport IP/MPLS over 802.17 RPR in
+"basic mode". This document will cover encapsulation formats
+(e.g., IPv4/IPv6), how to perform address resolution (e.g., ARP/ND), IP
+multicast transmission, priority mapping to the RPR
+"serviceClass", etc.
+
+2) An IPORPR framework that goes beyond "basic mode," describing some
+of the features and characteristics of 802.17 RPR, and how they
+might be exploited by, e.g., IP or MPLS. For example, an RPR ring
+can be accessed in a number of ways: it can be viewed as a "dumb"
+LAN supporting traditional broadcast like Ethernet ("basic mode"),
+or its advanced features could be exploited.
+
+The IPoRPR WG will coordinate its activities with other appropriate
+standards bodies and encourage cross participation with those
+bodies. Coordination will take place with the following bodies in
+particular: IEEE 802.17 (http://www.ieee802.org/17/) - ITU-T SG15 Q9,
+11, 12 (http://www.itu.int/ITU-T/studygroups/com15/sg15.html)

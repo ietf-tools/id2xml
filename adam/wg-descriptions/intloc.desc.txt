@@ -1,0 +1,19 @@
+Abstract
+
+This BOF will study the problems of internationalization in Internet 
+protocols, with particular emphasis on the knowledge needed to 
+effectively internationalize Internet protocols.
+
+The BOF is NOT specifically concerned with the DNS or attempts at 
+information location services; it is trying to focus on the Internet 
+protocol suite as a whole.
+
+The BOF will be focused around a set of internet-drafts:
+
+- draft-alvestrand-i18n-howto
+- draft-hoffman-i18n-terms
+- "I18N case studies" (not yet published)
+- "I18N sorting and matching" (not yet published)
+
+The public mailing list for the BOF is intloc-discuss@ops.ietf.org.
+Use intloc-discuss-REQUEST@ops.ietf.org to subscribe.

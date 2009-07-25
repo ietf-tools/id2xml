@@ -1,0 +1,76 @@
+Background
+==========
+
+Computer security incidents occur across administrative domains often
+spanning different organizations and national borders. Therefore, the
+exchange of incident information and statistics among involved parties 
+and associated Computer Security Incident Response Teams (CSIRTs) is 
+crucial for both reactionary analysis of current intruder activity and 
+proactive identification of trends that can lead to incident 
+prevention.
+
+Scope
+=====
+
+The purpose of the Incident Handling (INCH) working group is to define 
+a data format for exchanging security incident information used by a 
+CSIRT. A CSIRT is defined broadly as an entity (either a team or 
+individual) with a security role or responsibility for a given 
+constituency (e.g., organization, network).
+
+The use case for the INCH WG output is to standardize the information 
+model and messaging format currently used in communication between a 
+CSIRT and the:
+
+* constituency (e.g., users, customers) from which it receives reports 
+of misuse;
+
+* other parties involved in an incident (e.g., technical contact at an
+attacking site, other CSIRTs); and
+
+* analysis centers performing trending across broad data-sets.
+
+These INCH developed formats will replace the now largely human-
+intensive communication processes common in incident handling. The 
+working group will address the issues related to representing and 
+transporting:
+
+* the source(s) and target(s) of system misuse, as well as the 
+analysis of their behavior;
+
+* the evidence to support this analysis;
+
+* status of an incident investigation and analysis process; and
+
+* meta-information relevant to sharing sensitive information across
+administrative domains (e.g., internationalization, authorization, 
+privacy).
+
+Constraints
+===========
+
+The WG will not attempt to define
+
+- - an incident taxonomy;
+- - an archive format for incident information;
+- - a format for workflow process internal to a CSIRT; or
+- - a format for computer security related information for which there 
+is already a working standard.
+
+Output of Working Group
+=======================
+
+1. A set of high-level requirements for a data format to represent
+information commonly exchanged by CSIRTs.
+
+2. A specification of an extensible, incident data description language
+that describes a format that satisfies these requirements (Output #1).
+
+3. A set of sample incident reports and their associate representation 
+in the incident data language.
+
+4. A message format specification and associated transport binding to 
+carry the encoded description of an incident (Output #2).
+
+5. Guidelines for implementing the data format (Output #2) and 
+associated communications (Output #4)

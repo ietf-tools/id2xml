@@ -1,0 +1,16 @@
+The intent of this work is to provide a number of extensions which were 
+not covered by the original IPP WG charter, but for which there is 
+industry demand.
+
+- Short summary of the work done in the IPP WG. 
+  (Final drafts currently with the IESG).
+
+- Explanation of the three proposed extensions areas:
+
+  1) IPP Notifications (already started)
+
+  2) IPP Optional Operations for Operators & Administrators
+
+  3) IPP Extensions for Advanced Production Printing
+
+Discussion and checking the level of IETF interest for these extensions.

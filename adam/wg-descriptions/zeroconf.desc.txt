@@ -1,0 +1,44 @@
+Working group issue tracking:
+         http://www.drizzle.org/~aboba/ZEROCONF/issues.html
+
+ The goal of the Zero Configuration Networking (ZEROCONF) Working
+ Group is to enable networking in the absence of configuration and
+ administration. Zero configuration networking is required for
+ environments where administration is impractical or impossible,
+ such as in the home or small office, embedded systems 'plugged
+ together' as in an automobile, or to allow impromptu networks as
+ between the devices of strangers on a train.
+
+ ZEROCONF will make networking as easy as possible,
+ but no easier. In some cases other considerations may dominate
+ ease of use. For example, network security requires some
+ configuration which may not be as easy as the unacceptable
+ alternative of 'no security.'
+
+ The working group was orginally chartered to
+ develop a requirements specification for host and application
+ operation in environments lacking configuration. The areas
+ for consideration included:
+
+ * Interface Configuration (IP address, network prefix,
+ gateway router)
+
+ * Name-to-Address Translation
+
+ * Service Discovery
+
+ * Automatic allocation of Multicast Addresses
+
+ * Sufficient security features to prevent networks
+ from being any less secure than networks which do not use
+ ZEROCONF protocols
+
+ The ZEROCONF WG could not come to a consensus regarding these
+ requirements. A ZEROCONF requirements document will not be
+ published by this working group.
+
+ This WG will produce one protocol specification, describing
+ automatic generation and assignment of link-local IPv4 addresses
+ in environments lacking host configuration (static or using DHCP).
+ The document will describe existing practice as well as define
+ recommendations for future implementations.

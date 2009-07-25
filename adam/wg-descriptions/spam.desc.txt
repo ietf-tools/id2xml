@@ -1,0 +1,42 @@
+Bulk unsolicited email (so-called "spam") is widely 
+believed to be a problem in today's Internet, especially 
+when the distribution methods used conceal the origins of 
+the sender and exploit the computer and network resources 
+of otherwise-uninvolved third parties.  Many, perhaps most, 
+of the issues associated with spam are political and legal, 
+e.g., whether or not it should be permitted, how it is 
+precisely defined, and whether the use of third-party 
+facilities is appropriate or constitues theft of service. 
+Those political and legal issues cannot be effectively 
+addressed by IETF and will not be discussed in this BOF.
+
+However, for the user who would prefer to not receive such 
+traffic, or the MTA operator who would prefer to not relay 
+or expand it, some technical measures may be feasible.  
+This BOF will review the possible technical mechanisms, 
+including the potential for protocol changes that would 
+better control unsolicited or unauthorized mailings, and 
+determine whether a working group on the subject should be 
+recommended to the IESG.
+
+Since, where this topic is concerned, ideas are many and time
+is short, anyone wanting to express an opinion should prepare
+either a position statement (in ascii text) or a short (not to
+exceed five minutes) presentation in HTML format and email it
+to ietf-ube-bof-submit@imc.org prior to the start of IETF.
+Relevant contributions from those who expect to be present at
+the BOF will be posted to http://www.imc.org/ietf-ube-bof/ and
+given priority for BOF time and discussion (unless there is
+extra time, those who do not submit materials in advance
+should not expect to be heard at the BOF).  Presentations
+which are submitted will be available on a projector.
+Contributions that do not represent technical / engineering
+proposals, and particularly those that propose legislation or
+retaliation, will not be posted.
+
+As is usual with IETF sessions, discussion will be much better
+(and there will be more time for it) if materials are reviewed
+by all participants in advance.   If there is little time
+relative to the number of presentations, the chair will assume
+that the BOF participants will have read all of the materials
+on the web page.

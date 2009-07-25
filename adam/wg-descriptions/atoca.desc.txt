@@ -1,0 +1,54 @@
+ecrit is working on citizen-to-authority calls.  Alerts that are sent
+from "authorities" (which we define broadly to any level of authority,
+including, for example, a school administrator) to "citizen" (which we
+also define broadly to include visitors and other individuals and
+groups) are of great interest.  Many efforts are underway in other fora,
+but all of them are stovepipes: limited by which authorities can invoke
+alerts as well as which networks they can be distributed on.  What is
+needed is a more flexible way to deliver alerts from any notifier to any
+interested or affected individual, via any device connected to the
+Internet. 
+
+This is a large problem: some alerts must be delivered to an enormous
+number of endpoints; a Tsunami warning may involve millions of devices
+eventually.  A system which can deliver messages to billions of
+endpoints with one notification are obviously attractive attack
+targets.  This is further complicated by the desire to accept
+notifications from a wide variety of notifiers, complicating
+authentication mechanisms that might be employed.  The security
+implications of any solutions must be addressed as a intergral part of
+the solution from the very start of the work.   
+
+Classic alert systems typically use layer 2 broadcast mechanisms and
+often use some kind of location as a criteria for who gets the alert. 
+On the Internet, multicast mechanisms may be helpful, but the paucity of
+multicast deployment must be considered.  Besides broadcast, 
+which certainly is very appropriate, it is very useful to be able to
+subscribe to events for individuals who may not normally meet criteria
+for being included in a broadcast.  For example, parents may wish to
+receive alerts that affect their children.  An alert directed to anyone
+in the path of a hurricane may be broadcast, but the parent may need 
+a subscription to get the same alert when they are not in the affected
+area. 
+
+The content of an alert is also a significant challenge to Internet
+scale alerts.  The alert must be rendered on a wide variety of devices
+with different user interface capabilities.Multiple languages have to be
+accomodated.  Networks with limited bandwidth must be
+considered.  
+
+Alert work is being done in many fora, and some is directly applicable
+to this work. For example, OASIS work on Common Alerting Protocol is
+likely part of the solution. It should also be recognised that this is
+an area of work that will be highly regulated and as such close work
+with the fora where regulators operate (e.g. ATIS, ETSI and ITU-T) may
+help with the deployment of any solutions.  
+
+The purpose of the BOF is to determine the need and scope for authority
+to citizen alerts, what existing protocols and mechansims need to be
+adapted to meet those needsand the appropriate representation for alerts
+should be.
+
+This work could be accomplished within an expanded charter of ecrit, or
+a new work groupcould be formed.  This work will leverage geopriv work
+on location.

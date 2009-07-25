@@ -1,0 +1,50 @@
+The TUBA Working Group will work on extending the Internet Protocol
+suite and architecture by increasing the number of end-systems which
+can be effectively addressed and routed.  The TUBA effort will expand
+the ability to route Internet packets by using addresses which support
+more hierarchy than the current Internet Protocol (IP) address space.
+TUBA specifies the continued use of Internet transport protocols, in
+particular TCP and UDP, but specifies their encapsulation in ISO 8473
+(CLNP) packets.  This will allow the continued use of Internet
+application protocols such as FTP, SMTP, TELNET, etc. An enhancement
+to the current system is mandatory due to the limitations of the
+current 32-bit IP addresses.  TUBA seeks to upgrade the current system
+by a transition from the use of IPv4 to
+ISO/IEC 8473 (CLNP) and the corresponding large Network Service Access
+Point address space.
+
+In addition to protocol layering issues and ``proof of concept'' work,
+the TUBA approach will place significant emphasis on the engineering
+and operational requirements of a large, global, multilateral public
+data network.  TUBA will work to maximize interoperatability with the
+routing and addressing architecture of the global CLNP infrastructure.
+The TUBA Working Group will work closely with the IETF NOOP and
+OSI IDRP for IP Over IP Working Groups to coordinate a viable CLNP-based
+Internet which supports the applications which Internet users depend on
+such as TELNET, FTP, SMTP, NFS, X, etc.  The TUBA Working Group will also
+work collaboratively with communities which are using CLNP, and will
+consider issues such as interoperability,
+applications coexisting on top of multiple transports, and the
+evolution of global public connectionless datagram networks, network
+management and instrumentation using CLNP and TUBA, and impact on
+routing architecture and protocols given the TUBA transition.
+
+The TUBA Working Group will consider how the TUBA scheme will support
+transition from the current IP address space to the future NSAP
+address space without discontinuity of service, although different
+manufacturers, service providers, and sites will make the transition
+at different times. In particular, the way in which implementations
+relying on current 32-bit IP addresses will migrate must be
+considered.  TUBA will ensure that IP addresses can be assigned, for
+as long as they are used, independently of geographical and routing
+considerations. One option is to embed IP addresses in NSAP addresses,
+possibly as the NSAP end-system identifier. Whatever scheme is chosen
+must run in a majority of *-GOSIPs and other NSAP spaces. The TUBA
+strategy will require a new mapping in the DNS from NAMEs to NSAP
+addresses.
+
+The rationale RFC (RFC 1347) documents issues of transition and
+coexistence, among unmodified IPv4 hosts and hosts which support
+TUBA hosts.  Hosts wishing full Internet connectivity will need to
+support TUBA.
+

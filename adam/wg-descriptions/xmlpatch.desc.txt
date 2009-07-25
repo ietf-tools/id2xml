@@ -1,0 +1,7 @@
+This BoF will discuss the IETF taking on generic work in XML resource 
+manipulation. It is not the intent of this BoF to charter a working 
+group, but to review a proposal currently being put forward in SIMPLE 
+and to discuss whether work of this type is a reduplication of 
+existing work, a useful adjunct to existing work, or an appropriate
+replacement for existing work.  The BoF will discuss: draft-urpalainen-
+simple-xml-patch-ops, and attendees should review it carefully.

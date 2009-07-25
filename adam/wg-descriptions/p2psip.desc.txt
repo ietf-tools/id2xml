@@ -1,0 +1,122 @@
+The Peer-to-Peer (P2P) Session Initiation Protocol working group 
+(P2PSIP WG) is chartered to develop protocols and mechanisms for the 
+use of the Session Initiation Protocol (SIP) in settings where the 
+service of establishing and managing sessions is principally handled 
+by a collection of intelligent endpoints, rather than centralized 
+servers as in SIP as currently deployed. A number of cases where such 
+an architecture is desirable have been documented.
+
+The work focuses on collections of nodes called "P2PSIP peers" and
+"P2PSIP clients". P2PSIP peers manifest a distributed namespace in 
+which overlay users are identified and provides mechanisms for 
+locating users or resources within the P2PSIP overlay. P2PSIP clients 
+differ from P2PSIP peers primarily in that they do not store 
+information in the overlay, but only use it to locate users and 
+resources. P2PSIP clients and peers use the resolution services of the 
+peers as an alternative to the SIP discovery process of RFC 3263. In 
+this way, P2PSIP offers an alternative mechanism for determining the 
+correct destination for SIP requests. The working group's initial 
+charter scope will be to produce protocols to enable this alternate 
+mechanism for RFC 3263 functionality. Session management, messaging, 
+and presence functions are performed using conventional SIP.
+
+This group's primary tasks are to produce:
+
+1. An overview document explaining concepts, terminology, rationale, 
+and illustrative use cases for the remaining work.
+
+2. A proposed standard defining a P2PSIP Peer Protocol. This protocol 
+is used between P2PSIP overlay peers, some of which may be behind
+NATs. This protocol will define how the P2PSIP peers collectively
+provide for user and resource location in a SIP environment with no or
+minimal centralized servers. This protocol may or may not be
+syntactically based on SIP, a decision to be made by the WG. The group
+will identify and require one base P2P algorithm (likely a particular
+Distributed Hash Table (DHT) algorithm), while allowing for additional
+optional algorithms in the future.
+
+3. Optionally, a proposed standard defining a P2PSIP Client Protocol 
+for use by P2PSIP clients, some of which may be behind NATs. This 
+protocol will define how the P2PSIP clients query and/or modify, the 
+resource location information of the overlay. While clearly a logical 
+subset of the P2PSIP Protocol, the WG will determine if the P2PSIP 
+Client Protocol is a syntactic subset of the P2PSIP Peer Protocol, and 
+whether the P2PSIP Client Protocol builds on the SIP protocol.
+
+4. A usage document. This document will address how the protocols
+defined above, along with existing IETF protocols, can be used to
+produce systems to locate a P2PSIP peer or client, identify appropriate
+resources to facilitate communications (for example media relays), and
+establish communications between the users of these P2PSIP peers or
+clients, without relying on centralized servers. Additionally, the
+document will explain how P2PSIP and conventional SIP entities can
+interoperate.
+
+The initial work will assume the existence of some enrollment process
+that provides a unique user name, credentials, and an initial set of
+bootstrap nodes if that is required by the protocols. Developing a
+non-centralized enrollment process is not in scope.
+
+The work planned for the P2PSIP working group is distinct from, but
+requires close participation with other IETF WGs, particularly SIP,
+SIPPING, SIMPLE, BEHAVE and MMUSIC. The group cannot modify the 
+baseline SIP behavior, define a new version of SIP, or attempt to 
+produce a parallel protocol for session establishment. If the group 
+determines that any capabilities requiring an extension to SIP are 
+needed, the group will seek to define such extensions within the SIP 
+working group using the SIP change process (RFC 3427). Similarly, 
+existing tools developed in the BEHAVE and MMUSIC groups will be used 
+for NAT traversal, with extensions or changes desired to support P2PSIP
+presented to the BEHAVE or MMUSIC working groups.
+
+The working group will assume that NATs and firewalls exist in the
+Internet, and will ensure that the protocols produced work in their
+presence as much as possible. Similarly, the WG will avoid making
+protocol design decisions that would preclude the creation of anonymous
+communications systems using techniques such as onion routing to 
+conceal the IP addresses of P2PSIP peers.
+
+P2P networks pose unique security and privacy problems because an
+adversarial relationship may exist between nodes. Attackers can mount
+both integrity attacks on the stored data and denial of service
+attacks on the system as a whole. The WG will not attempt a solution
+to these issues for P2P networks in general. In order to simplify this
+problem, the WG will assume that all participants in the system are
+issued unique identities and credentials through some mechanism not in
+the scope of this working group, such as a centralized server, and
+that the data stored in the network will be authenticated by the
+storing entity in order to address the integrity issue and to some
+extent alleviate the DoS issue. Because signaling dialogs may be
+routed through intermediate P2PSIP peers which may be untrusted by the
+originating SIP UA, the WG will address the issue of establishing
+authenticated signaling dialogs through such untrusted relays.
+
+P2P systems also have privacy issues because the nodes that store data
+objects and route requests are unrelated to the clients which want to
+communicate. In the design of the P2PSIP protocol, the WG will assess
+these privacy issues and determine to what extent they need to be
+alleviated. The protocol document will contain a complete description 
+of the privacy properties of P2PSIP.
+
+The following topics are excluded from the Working Group's scope:
+
+1. Issues specific to applications other than locating users and
+resources for SIP-based communications and presence.
+
+2. Solving "research" type questions related to P2PSIP or P2P in
+general. The WG will instead forward such work to the IRTF P2PRG or
+other RG as appropriate. Examples include fully distributed schemes for
+assuring unique user identities and the development of P2P-based
+replacements for DNS.
+
+3. Locating resources based on something other than URIs. In other
+words, arbitrary search of attributes is out of scope, but locating
+resources based on their URIs is in scope. Using URIs need not imply
+using the DNS or having a record in the DNS for the URI.
+
+4. Multicast and dynamic DNS based approaches as the core lookup
+mechanism for locating users and resources. Approaches based on these
+technologies may be reasonable ways to solve similar problems but that
+is not the focus of this WG. These techniques may be in-scope for
+locating bootstrap peers/servers or for interoperation with
+conventional SIP.

@@ -1,0 +1,6 @@
+The IEA BOF will discuss internationalization of email addresses. 
+Although domain names in email addresses (everything to the right of 
+the "@") are already internationalized by RFC 3490, the mailbox name 
+(everything to the left of the "@") is not. The BOF will consider 
+various proposals that would allow users to have internationalized 
+mailbox names and how they would work with existing Internet mail.

@@ -1,0 +1,31 @@
+The goal of this working group is to define standards-track technology
+for SNMP Agent extensibility.  The resulting technology specification
+will allow independently developed sub-agents to communicate with a
+master-agent running on an Internet device.
+
+The technology specification will consist of:
+
+ o (mandatory) a platform-independent protocol which supports
+    intra-agent communication within a device or local area network;
+
+ o (optional) a MIB module, which, when implemented by a master-agent,
+   allows an SNMP-based management application to monitor and control
+   the intra-agent communication service; and,
+
+ o (optional) a programmatic interface to the services offered by
+   that protocol.
+
+The working group is explicitly directed to develop a solution which is
+adequate to achieve transparency with respect to whether a SNMP request
+is processed by a master-agent and/or one or more sub-agents;
+simultaneously, the working group is further directed to use good
+engineering judgement is developing an approach with the smallest
+reasonable "footprint" to achieve intra-agent communication.  As a
+consequence, if the working group may choose to avoid complete
+transparency, if, at its discretion, this proves too costly.  In this
+case, the working group should document its decision for this
+engineering trade-off.
+
+Although the working group will solicit existing specifications and
+experience in this area, it will produce a vendor-neutral technology
+specification.

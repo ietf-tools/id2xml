@@ -1,0 +1,13 @@
+The goal of this BOF is to discuss the need and scope of a new working
+group whose charter will be to
+ 
+-Identify monitoring interoperability requirements among ISPs with
+respect to standardized infrastructure and sharing of data. 
+-Identify components of an operational monitoring infrastructure
+currently not addressed in the IETF, in particular, (i)storage, aging
+and analysis of collected data and (ii) control plane functionality. 
+-Provide guidelines to equipment vendors to help them meet the needs of
+ISPs' monitoring infrastructure. 
+-Make recommendations to other working groups standarizing different
+elements of monitoring, e.g., IPPM, IPFIX and PSAMP, INCH, IDWG, etc.,
+and define the context for applying these elements.

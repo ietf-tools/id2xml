@@ -1,0 +1,58 @@
+The WG will develop new protocols and architectures to enable better 
+deployment of IP over MPEG-2 transport and provide easier interworking 
+with IP networks. Specific properties of this subnetwork technology 
+include link-layer support for unicast and multicast, large numbers of 
+down-stream receivers, and efficiency of transmission.
+
+These properties resemble those in some other wireless networks. The 
+specific focus of the group is on the use of MPEG-2 transport 
+(examples include the Digital Video Broadcast (DVB) standards: DVB-RCS;
+DVB-S and DVB-T and related ATSC Specifications) in next generation
+networks and is not concerned with the development, replacement, or
+retention of existing protocols on the existing generation of networks.
+
+The WG will endeavour to reuse existing open standard technologies, 
+giving guidance on usage in IP networks, whenever they are able to 
+fulfill requirements. For instance, we acknowledge the existing 
+Multiprotocol Encapsulation (MPE) [ATSC A/90;ETSI EN 301192] and that 
+this will continue to be deployed in the future to develop new 
+markets. Any alternative encapsulation would need to co-exist with MPE.
+
+Appropriate standards will be defined to support transmission of IPv4 
+and IPv6 datagrams between IP networks connected using MPEG-2 
+transport subnetworks. This includes options for encapsulation, dynamic
+unicast address resolution for IPv4/IPv6, and the mechanisms needed to
+map routed IP multicast traffic to the MPEG-2 transport subnetwork. 
+The 
+standards will be appropriate to both MPE and any alternative 
+encapsulation method developed. The developed protocols may also be 
+applicable to other multicast enabled subnetwork technologies 
+supporting large numbers of directly connected systems.
+
+The current list of work items is:
+
+Specify the requirements and architecture for supporting IPv4/IPv6 via 
+MPEG-2 transmission networks. Such requirements should consider the 
+range of platforms currently (or anticipated to be) in use. This draft 
+will be an Informational RFC.
+
+Define a standards-track RFC defining an efficient encapsulation 
+method. The design will consider the need for MAC addresses, the
+potential need for synchronisation between streams, support for a wide
+range of IPv4/IPv6 and multicast traffic.
+
+Provide an Informational RFC describing a framework for unicast and 
+multicast address resolution over MPEG-2 transmission networks. The 
+document will describe options for the address resolution process, 
+relating these to appropriate usage scenarios and suggesting 
+appropriate protocol mechanisms for both the existing Multi-Protocol
+Encapsulation (MPE) and the efficient encapsulation (2). Consideration
+will be paid to existing standards, and the cases for IPv6 and IPv4 
+will be described. 
+ 
+Define standards-track RFC(s) to specify procedures for dynamic 
+address resolution for IPv4/IPv6. This will describe the protocol and
+syntax of the information exchanged to bind unicast and multicast flows
+to the MPEG-2 TS Logical Channels.  This will include specific
+optimisations appropriate for networks reaching large numbers of
+down-stream systems.

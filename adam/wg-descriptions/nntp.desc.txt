@@ -1,0 +1,22 @@
+This group will study and review the issues involved with netnews
+transport over the Internet.  Originally released as an RFC in
+February of 1986, NNTP is one of the most widely implemented
+elective protocol.  As of this writing, the protocol has just
+passed its fifth birthday, and has not been updated once.
+
+Over the years several enhancements have been suggested, and several
+have even been widely implemented.  The intent of this working group 
+will be to encode the more popular and plausible enhancements into an
+Internet standards-track protocol.  Included in the initial list of
+changes to be considered are the following:
+
+(1) User level and site designated authentication methods;
+
+(2) Binary transfer capability;
+
+(3) Minimization of line turnaround; and
+
+(4) Stronger article selection capability.
+
+It is expected that public domain software will be released
+concurrently with an RFC, demonstrating the protocol enhancements.

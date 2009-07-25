@@ -1,0 +1,38 @@
+1. Recommend changes to the FTP protocol to support users of
+   languages other than English.
+
+2. Define a new command for a uniform directory listing between
+   platforms. This command will provide an alternative to the existing
+   LIST and NLST commands which has a common format between all FTP
+   implementations and which also provides the ability to represent
+   non-ASCII filenames.
+
+3. Make recommendations for standards-track protocol extensions to
+   support IPv6 in FTP. The group will evaluate RFC 1639 and recommend,
+   revise, or redo as appropriate.
+
+4. Define a mechanism for ftp clients and servers to transmit
+   information regarding extensions supported and not supported.
+   
+5. Propose extensions, and/or review proposals submitted by others,
+   to improve the security of FTP.
+
+6. Define a standardized method of checkpoint/restart which works
+   for the stream transfer mode.
+
+7. Define a means of file transfer between a client and server
+   (as opposed to a client mediating a transfer between two servers)
+   which does not require the IP addresses of the endpoints to
+   be transmitted in the FTP protocol.
+
+8. Produce an informational document describing the SIZE and MDTM
+   commands as currently used.
+
+The following issues are specifically omitted from the working group's
+
+charter, but may be added by the Area Directors if time permits,
+once the above goals have been acheived.
+
+1. Compression of files for transmission.
+
+2. Internationalization of charset conversion for transmission.

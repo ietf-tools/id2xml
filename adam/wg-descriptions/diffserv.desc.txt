@@ -1,0 +1,72 @@
+There is a clear need for relatively simple and coarse methods of
+providing differentiated classes of service for Internet traffic, to
+support various types of applications, and specific business
+requirements. The differentiated services approach to providing quality
+of service in networks employs a small, well-defined set of building
+blocks from which a variety of aggregate behaviors may be built. A
+small bit-pattern in each packet, in the IPv4 TOS octet or the IPv6
+Traffic Class octet, is used to mark a packet to receive a particular
+forwarding treatment, or per-hop behavior, at each network node. A
+common understanding about the use and interpretation of this
+bit-pattern is required for inter-domain use, multi-vendor
+interoperability, and consistent reasoning about expected aggregate
+behaviors in a network. Thus, the Working Group has standardized a
+common layout for a six-bit field of both octets, called the 'DS
+field'.  RFC 2474 and RFC 2475 define the architecture, and the general
+use of bits within the DS field (superseding theIPv4 TOS octet
+definitions of RFC 1349).
+
+The Working Group has standardized a small number of specific per-hop
+behaviors (PHBs), and recommended a particular bit pattern or
+'code-point' of the DS field for each one, in RFC 2474, RFC 2597, and
+RFC 2598. No more PHBs will be standardized until all the current
+milestones of the WG have been satisfied and the existing standard PHBs
+have been promoted at least to Draft Standard status.
+
+The WG has investigated the additional components necessary to support
+differentiated services, including such traffic conditioners as traffic
+shapers and packet markers that could be used at the boundaries of
+networks. There are many examples of these in the technical
+literature.
+
+The WG will define a general conceptual model for boundary devices,
+including traffic conditioning parameters, and configuration and
+monitoring data. It is expected that a subset of this will apply to all
+diffserv nodes. The group will also define a MIB and a PIB for diffserv
+nodes, and an encoding to identify PHBs in protocol messages. It will
+document issues involving diffserv through tunnels.
+
+The WG will develop a format for precisely describing various
+Per-Domain Behaviors (PDBs). A PDB is a collection of packets with the
+same codepoint, thus receiving the same PHB, traversing from edge to
+edge of a single diffserv network or domain. Associated with each PDB
+are measurable, quantifiable characteristics which can be used to
+describe what happens to packets of that PDB as they cross the network,
+thus providing an external description of the edge-to-edge quality of
+service that can be expected by packets of that PDB within that
+network. A PDB is formed at the edge of a network by selecting certain
+packets through use of classifiers and by imposing rules on those
+packets via traffic conditioners.
+
+The description of a PDB contains the specific edge rules and PHB
+type(s) and configurations that should be used in order to achieve
+specified externally visible characteristics.
+
+In addition to defining a format for PDB descriptions, specific
+descriptions of PDBs that can be constructed using the standard PHBs
+will be developed and reviewed by a design team prior to informational
+or standards track publication.
+
+The group will continue to analyze related security threats, especially
+theft of service or denial of service attacks, and suggest
+counter-measures.
+
+The group will not work on:
+
+o mechanisms for the identification of individual traffic flows
+
+o new signalling mechanisms to support the marking of packets
+
+o end to end service definitions
+
+o service level agreements

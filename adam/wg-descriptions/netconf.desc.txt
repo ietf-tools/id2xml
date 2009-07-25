@@ -1,0 +1,137 @@
+Charlie Kaufman is Technical Advisor for Security Matters
+
+Configuration of networks of devices has become a critical requirement
+for operators in today's highly interoperable networks. Operators from
+large to small have developed their own mechanisms or used vendor
+specific mechanisms to transfer configuration data to and from a
+device, and for examining device state information which may impact
+the configuration. Each of these mechanisms may be different in
+various aspects, such as session establishment, user authentication,
+configuration data exchange, and error responses.
+
+The NETCONF Working Group is chartered to produce a protocol suitable
+for network configuration, with the following characteristics:
+
+- Provides retrieval mechanisms which can differentiate between
+  configuration data and non-configuration data
+- Is extensible enough so that vendors will provide access to all
+  configuration data on the device using a single protocol
+- Has a programmatic interface (avoids screen scraping and
+  formatting-related changes between releases)
+- Uses a textual data representation, that can be easily manipulated
+  using non-specialized text manipulation tools.
+- Supports integration with existing user authentication methods
+- Supports integration with existing configuration database systems
+- Supports network wide configuration transactions (with features such
+  as locking and rollback capability)
+- Is as transport-independent as possible
+- Provides support for asynchronous notifications.
+
+The NETCONF protocol is using XML for data encoding purposes, because
+XML is a widely deployed standard which is supported by a large number
+of applications.
+
+The NETCONF protocol should be independent of the data definition
+language and data models used to describe configuration and state
+data.
+
+However, the authorization model used in the protocol is dependent on
+the data model. Although these issues must be fully addressed to
+develop standard data models, only a small part of this work will be
+initially addressed. This group will specify requirements for standard
+data models in order to fully support the NETCONF protocol, such as:
+
+- identification of principals, such as user names or distinguished names
+- mechanism to distinguish configuration from non-configuration data
+- XML namespace conventions
+- XML usage guidelines
+
+The initial work started in 2003 and has already been completed and was
+restricted to following items:
+
+  a) NETCONF Protocol Specification, which defines the operational model,
+     protocol operations, transaction model, data model requirements,
+     security requirements, and transport layer requirements.
+  b) NETCONF over SSH Specification: Implementation Mandatory,
+  c) NETCONF over BEEP Specification: Implementation Optional,
+  d) NETCONF over SOAP Specification: Implementation Optional.
+
+  These documents define how the NETCONF protocol is used with each
+  transport protocol selected by the working group, and how it meets
+  the security and transport layer requirements of the NETCONF Protocol
+  Specification.
+
+  e) NETCONF Notification Specification, which defines mechanisms that
+     provide an asynchronous message notification delivery service for
+     the NETCONF protocol.  NETCONF Notification is an optional
+     capability built on top of the base NETCONF definition and
+     provides the capabilities and operations necessary to support
+     this service.
+
+  The NETCONF notification specification has been finished now as well.
+
+In the current phase of the incremental development of NETCONF the
+workgroup will focus on following items:
+
+1. Fine-grain locking: The base NETCONF protocol only provides a lock
+   for the entire configuration datastore, which is not deemed to meet
+   important operational and security requirements. The NETCONF working
+   group will produce a standards-track RFC specifying a mechanism for
+   fine-grain locking of the NETCONF configuration datastore.
+
+2. NETCONF monitoring: It is considered best practice for IETF working
+   groups to include management of their protocols within the scope of
+   the solution they are providing. The NETCONF working group will
+   produce a standards-track RFC with mechanisms allowing NETCONF
+   itself to be used to monitor some aspects of NETCONF operation.
+
+3. Schema advertisement: Currently the NETCONF protocol is able to
+   advertise which protocol features are supported on a particular
+   netconf-capable device. However, there is currently no way to discover
+   which XML Schema are supported on the device. The NETCONF working
+   group will produce a standards-track RFC with mechanisms making this
+   discovery possible (this item may be merged with "NETCONF monitoring"
+   into a single document).
+
+   Note: The schema-advertisement material has been merged into the
+   NETCONF monitoring document based on WG consensus.
+
+4. NETCONF over TLS: Based on implementation experience there is a
+   need for a standards track document to define NETCONF over TLS as an
+   optional transport for the NETCONF protocol.
+
+5. NETCONF default handling: NETCONF today does not define whether
+   default values should be returned by the server in replies
+   to requests for reading configuration and state data. Different
+   clients have different needs to receive or not to receive
+   default data. The NETCONF working group will produce a
+   standards-track RFC defining a mechanism that allows
+   NETCONF clients to control whether default data is returned
+   by the netconf server.
+
+6. NETCONF implementations have shown that the specification in RFC4741
+   is not 100% clear and has lead to different interpretations and
+implementations. 
+   Also some errors have been uncovered. So the WG will do an rfc4741bis
+with
+   following constraints:
+
+     - bug fixes are to be done
+     - clarifications can be done
+     - extensions can be done only when needed to fix bugs 
+       or inconsistencies (i.e. we are not doing a NETCONF V2)
+     - The work can be started based on the discussion in IETF #73 (see
+        http://www.ietf.org/proceedings/08nov/slides/netconf-3.pdf).
+
+   Note: A technical errata has been posted on rfc4742. If the work on
+   rfc4741bis uncovers any additional fixes/clarifications that need
+   to be made to rfc4742, the WG may consider to also do a rfc4742bis
+   as part of this work-item.
+
+The following items have been identified as important but are currently
+not considered in scope for re-chartering and may be candidates for work
+when there is community consensus to take them on:
+
+- NETCONF Notification content
+- Access Control requirements
+- NETCONF access to SMI-based MIB data

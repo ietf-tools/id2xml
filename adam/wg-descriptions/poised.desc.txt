@@ -1,0 +1,72 @@
+In 1992 and 1993, the POISED effort revised the responsibilities of
+the IESG and IAB and instituted a selection process for filling
+positions on these bodies.  The ISOC Trustees gave interim approval
+to these arrangements and asked that we revisit, revise and formalize
+the arrangements after two rounds of selection had been completed.
+The POISED Working Group will now review the current rules, propose
+charters and rules for the IESG, IETF, IAB, IRSG, and IRTF, and submit
+them to the ISOC Trustees after approval by the IETF.
+
+There appears to be general consensus that the current assignments of
+responsibility and the selection process are working moderately well,
+so it is not anticipated that there will be large changes.
+Nonetheless, some issues have been raised and need review.  Among
+these are:
+
+o There is a complex interplay between the IETF area structure and the
+  selection process for the IESG.  The IESG has the power to create,
+  split, merge and remove areas, but the nominations committee has the
+  responsibility to fill positions.  The IESG needs some flexibility
+  to balance work loads, use its people effectively, and meet the
+  changing needs of the IETF.  The current rules are not completely
+  clear as to how to handle all of the likely situations; these need to
+  be spelled out and agreed to.
+
+o The nominations committee has non-voting liaisons from the IESG and
+  IAB.  Both nominations committees also had current IAB or IESG
+  members, who volunteered and were selected at random, as voting
+  members.  It has been suggested that current IESG and IAB members
+  carry too much weight in the deliberations and should be barred from
+  serving on the nominations committee.
+
+o The selection and role of the nominations committee chair is somewhat
+  unclear.  In particular, what power does the chair have to deal with
+  unresponsive committee members and/or to resolve disputes?
+
+o At what point, if any, does the nominations committee's list of
+  candidates become public.  This ties in with the apparent double-
+  standard of how publically incumbents vs. non-incumbents announce
+  their candidacy.
+
+o The way to handle interim appointments is not clear.  Two specific
+  issues are: who appoints interim members (and is ``ratification''
+  required), and how long does interim appointees serve?
+
+o When the nominations committee has completed its work, it informs the
+  IAB and the ISOC Trustees.  The procedures for doing so need to be
+  spelled out.  At issue is when the nominations become public, whether
+  the community at large is invited to comment, and what to do if there
+  is difficulty in filling any of the positions.
+
+o There is currently no specific mechanism for the IAB to use to
+  provide architectural guidance to working groups before the RFC
+  submission stage.  POISED may discuss whether such a mechanism is
+  necessary, and if so, what that mechanism looks like.
+
+o The role of the IRTF and research groups has not yet been defined.
+
+o Should there be a regular mechanism for convening a POISED Working
+  Group in the future?
+
+o The ISOC Trustees require that the procedures adopted meet with the
+  approval of counsel and the insurance carriers in order to protect
+  the Society from exposure.  The procedures, rules, etc. adopted by
+  the community will most likely be satisfactory to counsel, but input
+  and review from counsel is essential.
+
+In its deliberations, POISED may produce new documents (e.g., an IETF
+Charter -- if the lack of such a charter delays the POISED effort),
+and it may request changes to existing documents (e.g., ``The IAB
+Charter'' [RFC 1601], ``The Internet Standards Process -- Version 2''
+[RFC 1602], and ``IETF Working Group Guidelines and Procedures''
+[RFC 1603]).

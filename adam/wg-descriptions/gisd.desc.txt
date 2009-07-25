@@ -1,0 +1,24 @@
+GISD collects short descriptions of Internet service aspects.  Internet
+service in GISD means the interaction of Internet service providers
+among themselves and with their users.  GISD aims to provide a
+common frame of reference and vocabulary to talk about an Internet
+service.  For each aspect of the Internet service, it describes different
+options for service provision in use in the current Internet.  GISD is
+merely descriptive and does not proscribe or mandate.  The GISD document is
+intended to be a living document, collecting the work of many contributors.
+
+The GISD Working Group will update and revise the GISD document to
+assist network service providers in a better understanding and description
+of what Interent service means.
+
+- Update and revise the GISD document that lists the areas and aspects of
+  interest to TCP/IP network service providers.
+
+- Identify additional GISD areas and aspects appropriate to GISD.
+
+- Identify areas of overlap with other IETF working groups.
+
+- Create a reference document of GISD terms.
+
+- Establish procedures to ensure the ongoing maintenance of the document
+  and identify an organization willing to do it.

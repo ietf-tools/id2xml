@@ -1,0 +1,22 @@
+The CIDR Deployment Working Group will be a forum for
+coordinating the deployment, engineering, and operation of classless
+routing protocols and procedures in the global Internet. This activity
+will include, but not be limited to:
+
+  - Deployment of CIDR addressing and routing in the global Internet.
+     Will include coordination of deployment of new exterior routing
+     protocols, such as BGP4, which support CIDR.
+
+  - Develop mechanisms and procedures for sharing operational
+    information to aim the operation.
+
+  - Development of procedures, policies, and mechanisms to improve
+    the utilization efficiency of the IPv4 address space.
+
+  - Work on longer-term strategies for hierarchical, CIDR-based
+    addressing and routing. Examples include class A subnetting and
+    provider block sub-allocation along geographical/topological
+    boundaries as is done for 193.0.0.0 and 194.0.0.0 in Europe.
+
+Initially, this working group will be simply the reincarnation of the
+BGP Deployment Working Group under a new name.

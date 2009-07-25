@@ -1,0 +1,22 @@
+In October 1999 RFCs 2720-2724 were published, specifying the RTFM
+Traffic Measurement Architecture.  Since then many sites have been 
+using
+the NeTraMet implementation for production traffic data collection, and
+others have used it as the basis of further developments in the field 
+of
+network traffic measurement. 
+
+From this development work a need has arisen to extend the RTFM
+Architecture, so as to:
+
+ a) Develop a high-level interface to RTFM, so as to make
+    RTFM capabilities easily and directly accessible to
+    new application programs.
+ b) Standardise the 'new attributes' described in RFC 2724.
+ c) Add further attribute types, and attributes which use them.
+
+Supporting material for these needs has been published as Internet
+Drafts (see below).  The BOF will discuss issues raised by the Drafts,
+determine what work needs to be done, and establish a timeframe for it.
+The need for a new RTFM Working Group will be considered, and a charter
+for such a group discussed.

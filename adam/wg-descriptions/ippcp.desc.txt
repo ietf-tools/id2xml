@@ -1,0 +1,47 @@
+Lossless data compression has commonly been deployed in layers below IP
+(PPP being one example). However, the anticipated deployment of
+higher-layer encryption protocols (e.g., IPSec) threatens to reduce the
+effectiveness of lower-layer compression techniques since encrypted
+data cannot be compressed.  The IP Payload Compression Protocol Working
+Group will develop protocol specifications that make it possible to
+perform lossless compression on individual payloads before the payload
+is processed by a protocol that encrypts it. These specifications will
+allow for compression operations to be performed prior to the
+encryption of a payload by such protocols as IPSec.
+
+The Working Group will focus on the compression of independent payloads
+(i.e., independent datagrams) in a stateless manner. By stateless, we
+mean that decompression of a received packet does not rely on correct
+reception or correct ordering of previous packets.
+
+The immediate problem the Working Group will address is the development
+of a payload compression protocol for use in conjunction with IPSec.
+The working group will develop its specifications to support both IPv4
+and IPv6. Although the primary motivation for this WG is the need to
+compress packets when IPSec is used, the WG will develop an
+architecture that does not preclude its use with other potential
+protocols or the absence of IPSec.
+
+The working group will identify and document the mechanisms that allow
+two communicating parties to negotiate the use of compression as well
+as the compression format to be employed. The Working Group will
+consider defining extensions to ISAKMP to support the negotiation of
+compression parameters. Use of ISAKMP as the immediate effort shall not
+preclude compression in the absence of IPsec.  Alternate negotiation
+mechanisms (or even static negotiation), if appropriate, shall be
+identified and extended as needed to accommodate the use of payload
+compression functionality. Since compression will be negotiated,
+existing implementations of IP will interoperate with implementations
+that support compression.
+
+The output of this WG will consist of a base architectural document
+that provides the framework for how compression will be done (i.e.,
+defines the compression "shim"), together with one or more documents
+giving specific compression algorithms and formats. The architectural
+document will describe how different compression algorithms can be
+negotiated and supported, but the documenting of specific compression
+algorithms will be done elsewhere (i.e., in standalone documents). A
+registration mechanism for various compression formats will be
+specified as part of the base protocol. If possible, an existing
+registration mechanism for compression formats shall be used (e.g.,
+Compression Control Protocol options of PPP).

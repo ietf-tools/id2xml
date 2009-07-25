@@ -1,0 +1,31 @@
+Note: The Technical Advisor has the task to advice on technical matters
+related to all the MIB work in this WG. 
+Rapid advances in communication technology have accentuated the need for
+security in the Internet. The IP Security Protocol Working Group (IPSEC)
+will develop mechanisms to protect client protocols of IP. A security
+protocol in the network layer will be developed to provide cryptographic
+security services that will flexibly support combinations of
+authentication, integrity, access control, and confidentiality. 
+
+The IPSEC working group will restrict itself to the following short-term
+work items to improve the existing key management protocol (IKE) and
+IPSEC encapsulation protocols: 
+
+1. Changes to IKE to support NAT/Firewall traversal 
+
+2. Changes to IKE to support SCTP 
+
+3. New cipher documents to support AES-CBC, AES-MAC, SHA-2, and a fast
+AES mode suitable for use in hardware encryptors 
+
+4. IKE MIB documents 
+
+5. Sequence number extensions to ESP to support an expanded sequence
+number space. 
+
+6. Clarification and standardization of rekeying procedures in IKE. 
+
+The working group will also update IKE to clarify the specification and
+to reflect implementation experience, new requirements, and protocol
+analysis of the existing protocol. The requirements for IKE V2 will be
+revised and updated as the first step in this process.

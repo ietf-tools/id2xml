@@ -1,0 +1,6 @@
+The objective of the Transmission Architecture Working Group is to
+drive the development, documentation and testing of MIB objects for
+the physical and data-link layers of the OSI model.  The Working Group 
+attempts to consolidate redundant MIB variables from new specifications into a
+universal structure.
+

@@ -1,0 +1,77 @@
+Since early in the effort to internationalize domain names, which
+resulted in the standards associated with IDNA, it has been
+understood that internationalization of email address local parts is
+required. At the same time, email address internationalization poses
+a series of special problems. Constraints on the interpretation of 
+local-parts by any system other than the final delivery one make 
+address encoding nearly impossible. The need to use addresses in both 
+the email envelope and in header fields, and to do so in ways that are 
+at least compatible, suggests that this is not a simple and isolated 
+problem.
+
+This working group will address one basic approach to email
+internationalization. That approach is based on the use of an SMTP
+extension to enable both the use of UTF-8 in envelope address local-
+parts and optionally in domain-parts and the use of UTF-8 in mail
+headers -- both in address contexts and wherever encoded-words are
+permitted today. Its initial target will be a set of experimental
+RFCs that specify the details of this approach and provide the basis
+for generating and testing interoperable implementations. Its work
+will include examining whether "downgrading" -- transforming an
+internationalized message to one that is compatible with unextended
+SMTP clients and servers and unextended MUAs -- is feasible and
+appropriate and, if it is, specifying a way to do so. If it is not,
+the WG will evaluate whether the effort is worth taking forward.
+Other approaches may be considered by the formation of other
+working groups.
+
+Key parts of this effort include extended analyses and, if necessary,
+proof of concept in three areas in addition to smooth operation when
+all systems and components along a message path have been upgraded to
+support the new facilities. They are
+
+o Examination of scenarios for the appearance of these facilities to
+users, including ways in which alternate addresses may be
+specified if those are needed for downgrading.
+o Examination of different locations at which downgrading might be
+required and accomplished, differentiating between requirements
+and capabilities at the point of origin (at or before the
+submission server), those that exist while the message is in
+transit, and those that apply after SMTP "final delivery" or in
+the logical vicinity or an IMAP or POP server.
+o Examination of the "mailing list question", i.e., how a mixture of
+traditional and internationalized addresses on a mailing list will
+impact message flows, error reports, and delivery notifications in
+all plausible combinations of servers and addresses, including
+internationalizated and traditional reverse paths.
+
+Once the Experimental RFCs are completed and implemented, the
+experience gathered will be evaluated. If the approach is found to
+have been successful (using criteria the WG will establish as an
+early work item), the WG will be rechartered to update the documents
+for processing onto the standards track.
+
+1.6. Deliverables
+
+The following deliverables are foreseen in this charter. The WG
+chairs may structure the deliverables into specific documents
+or document sets as needed. Adding or removing documents
+outside of these deliverables will require a charter update.
+
+o Overview and architecture (Info)
+o Interworking scenarios, including the "mailing list question"
+(Info)
+o SMTP extensions specification (Exp)
+o Header format specification (Exp)
+o Downgrading specification in SMTP (Exp)
+o Downgrading specification in POP servers (Exp)
+o Downgrading specificatio
+n in IMAP servers (Exp)
+o Results and evaluation of experiment (Info)
+
+Going forward, it is possible that the SMTP downgrading specification
+will go for Informational due to the difficulty of fully specifying
+all necessary behavior.
+
+Additional possible documents suggested:
+Advice for MUA implementors (Info)

@@ -1,0 +1,25 @@
+A standard protocol is needed to integrate work providers, asynchronous
+services, across the intranet/internet and provide for their 
+interaction. The integration and interactions consist of control and 
+monitoring of the work.  Control means creating the work, setting up the 
+work, starting the work, stopping the work, being informed of 
+exceptions, being informed of the completion of the work and getting the 
+results of the work  Monitoring means checking on the current status of 
+the work and getting a history of the execution of the work. The 
+protocol should be light weight and easy to implement, so that a variety 
+of devices and situations can be covered.
+
+The Simple Workflow Access Protocol is a proposed way to solve this 
+problem through use of HTTP protocol, and by transferring structured 
+information encoded in XML.  A new set of HTTP methods is defined, as 
+well as the information to be supplied and the information returned in 
+XML, that accomplish the control of generic asynchronous services.  This 
+has applicability to workflow because a workflow is itself an 
+asynchronous service, and it also has the need to be able to call 
+asynchronous services outside of itself.
+
+This BOF will introduce a strawman draft of the SWAP protocol and
+discuss the goals behind the work.  It will attempt to gauge whether
+the goals are appropriate for IETF, and if so, whether there is
+interest within IETF in forming a working group to develop and
+standardize such a protocol.

@@ -1,0 +1,7 @@
+This BOF will begin with a summary of the Distributed Indexing/Searching
+Workshop sponsored by the Web Consortium, held May 28-29 (see
+http://www.w3.org/pub/WWW/Search/960528/cfp.html).  We will then explore 
+how
+the recommendations of this workshop relate to IETF Directory groups, 
+and
+consider what, if anything, the IETF should do in this area.

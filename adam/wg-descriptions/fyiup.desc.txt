@@ -1,0 +1,15 @@
+The FYI Updates Working Group will oversee the work of updating
+two existing FYI documents.  These documents are two that the
+User Services Area has determined are out of date, but contain
+information that would be useful to the Internet community if it
+were updated.
+
+The first document will be:
+
+  FYI 7: FYI on Questions and Answers: Answers to commonly asked
+         "experienced Internet user" questions.
+
+ 
+
+The Working Group will provide an online and in-person focus for
+discussing and coordinating the work of revising these FYIs.

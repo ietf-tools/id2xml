@@ -1,0 +1,28 @@
+The purpose of the SSM working group is to define source-specific
+multicast in order to provide unambiguous semantics to the designers
+of the protocols and host interfaces used in conjunction with
+source-specific multicast.
+
+SSM is intended to be a short-lived and highly-focused working group.
+
+The working group has two specific tasks:
+
+1) A concise standards-track RFC that clearly defines the
+source-specific multicast model and its relation to RFC 1112
+multicast. This document will specify of the host interfaces to be
+used for source-specific multicast, the rules that hosts, routers, and
+protocols must follow when allocating and using source-specific
+addresses. This document will serve as a reference to RFC authors
+designing protocols and host interfaces that implement SSM. 
+
+2) An informational RFC providing an overview of source-specific
+multicast. This document will serve as a starting point for parties
+interested in source-specific multicast.
+
+Other SSM-related documents may be taken on as work items by other
+multicast working groups that have more specific expertise, including
+pim, mboned, and magma. For instance, a document describing the use of
+IGMPv3 for SSM has been adopted by MAGMA. The SSM working group chairs
+will cooperate with chairs of the related working groups and the Area
+Directors to determine the appropriate location of SSM-related
+documents that arise during the working group's lifetime.

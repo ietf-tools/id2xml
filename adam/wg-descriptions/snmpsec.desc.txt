@@ -1,0 +1,6 @@
+Enhancements to the SNMP network management framework are being
+contemplated within the SNMP Version 2 Working Group of the IETF. The
+SNMP Security Working Group is chartered to consider changes to RFCs
+1351, 1352, 1353 that may be required either for consistency with this
+SNMP evolution effort or to reflect implementation experience with the
+current specifications.

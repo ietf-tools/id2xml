@@ -1,0 +1,79 @@
+OAuth allows a user to grant a third-party Web site or
+application access to their resources, without necessarily
+revealing their credentials, or even their identity. For
+example, a photo-sharing site that supports OAuth would
+allow its users to use a third-party printing Web site to
+access their private pictures, without gaining full control
+of the user account.
+
+OAuth consists of:
+* A mechanism for a user to authorize issuance of credentials which
+a third party can use to access resources on their behalf.
+* Mechanism for using the issued credential to authenticate
+HTTP requests (called "signatures" in current OAuth).
+
+The Working Group will produce one or more documents
+suitable for consideration as Proposed Standard that will:
+* Improve the terminology used.
+* Embody good security practice, or document gaps in its
+capabilities, and propose a path forward for addressing the
+gap.
+* Promote interoperability.
+* Provide guidelines for extensibility.
+
+This specifically means that as a starting point for the
+working group OAuth 1.0 (i.e., draft-hammer-oauth),
+which is a copy of the original OAuth specification in IETF
+draft format, is used and the available extension points
+are going to be utilized. In completing its work to update
+OAuth 1.0 to become OAuth 1.1, the group will strive to
+retain backwards compatibility with the OAuth 1.0
+specification. However, changes that are not backwards
+compatible might be accepted if the group determines that
+the changes are required to meet the group's technical
+objectives and the group clearly documents the reasons for
+making them.
+
+Furthermore, OAuth 1.0 defines three "signature" methods used
+to protect requests, namely PLAINTEXT, HMAC-SHA1, and RSA-
+SHA1. The group will work on new authentication ("signature")
+methods and will describe the environments where new security
+requirements justify their usage. Existing signature methods will
+not be modified but may be dropped as part of the backwards
+compatible profiling activity. The applicability of
+existing and new authentication methods to protocols other than
+HTTP will be investigated.
+
+The Working Group should consider:
+* Implementer experience.
+* The end-user experience, including internationalization.
+* Existing uses of OAuth.
+* Ability to achieve broad implementation.
+* Ability to address broader use cases than may be
+contemplated by the original authors.
+
+After delivering OAuth 1.1, the Working Group may consider
+defining additional functions and/or extensions, for
+example (but not limited to):
+* Discovery of OAuth configuration, e.g.,
+http://oauth.net/discovery/1.0.
+* Comprehensive message integrity, e.g.,
+http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/draf
+ts/1/spec.html.
+* Recommendations regarding the structure of the token.
+* Localization, e.g.,
+http://oauth.googlecode.com/svn/spec/ext/language_preferenc
+e/1.0/drafts/2/spec.html.
+* Session-oriented tokens, e.g.,
+http://oauth.googlecode.com/svn/spec/ext/session/1.0/drafts
+/1/spec.html.
+* Alternate token exchange profiles, e.g., draft-dehora-
+farrell-oauth-accesstoken-creds-00.
+
+The work on extensions is within the scope of the working
+group charter and requires consensus within the group to
+add new milestones.
+
+The Working Group will also define a generally applicable
+HTTP authentication mechanism (i.e., browser-based "2-leg"
+scenerio).

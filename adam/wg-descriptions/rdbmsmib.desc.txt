@@ -1,0 +1,20 @@
+The Relational Database Management System (RDBMS) MIB Working Group is
+chartered to develop a set of managed objects for RDBMS implementations.
+These objects will be the minimum necessary to provide the ability to
+monitor and control these systems, providing fault, configuration, and
+performance management, and will be consistent with the SNMP framework
+and existing SNMP standards.
+
+At its discretion, the working group may also define a small number of
+unsolicited notifications (traps) which carry these managed objects.
+However, the working group recognizes that traps are used sparingly in
+the SNMP framework.
+
+The working group recognizes that the structure of RDBMS implementations
+varies widely, and shall take special care that its definitions reflect
+a generic and consistent architectural model of RDBMS management rather
+than the structure of particular RDBMS implementations, or operating
+system or platform-specific issues.  However, because of the inherent
+architectural differences between different implementations, the working
+group may have to separate the MIB definitions common to all RDBMSs from
+the definitions which would apply only to some RDBMSs.

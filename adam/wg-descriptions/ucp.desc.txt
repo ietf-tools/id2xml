@@ -1,0 +1,2 @@
+The User Connectivity Working Group will study the problem of how to
+solve network users' end-to-end connectivity problems.

@@ -1,0 +1,19 @@
+The cellular community is now standardizing the next generation cellular
+systems. These systems will use IP to deliver telephony to coming mobile
+phones, to allow end-to-end IP telephony. As cellular bandwith is 
+expensive, radio spectrum efficiency is of outmost importance and thus
+the IP/UDP/RTP headers must be compressed over the air. 3GPP has 
+specified the requirements for the needed header compression scheme and 
+it has been shown that no current header compression scheme in the IETF 
+can satisfy these requirements. CRTP [RFC-2508] is the closest candidate 
+but is not sufficiently robust against errors on the link, i.e., CRTP 
+cannot deliver acceptable performance at the anticipated error rates. It 
+is likely that the number of users of cellular IP telephony will be 
+larger than the current number of people using TCP/IP, therefore it is 
+important that a suitable header compression scheme is developed.
+
+The BOF will outline the relevant properties of the cellular links, the
+requirements, and will explain why CRTP fails. One or more proposals for
+a suitable header compression scheme will be presented, and finally we
+will discuss if and how the IETF will work on standardizing a suitable
+header compression scheme.

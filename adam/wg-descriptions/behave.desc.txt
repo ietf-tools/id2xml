@@ -1,0 +1,102 @@
+The behavior of NATs varies from one implementation to
+another. As a result it is very difficult for applications to predict
+or discover the behavior of these devices. Predicting and/or
+discovering the behavior of NATs is important for designing
+application protocols and NAT traversal techniques that work reliably
+in existing networks. This situation is especially problematic for end-
+to-end applications where one or both end-points are behind a NAT, such
+as multiuser games, interactive multimedia and P2P download.
+
+The working group documents best current practices to enable NATs to
+function in as deterministic a fashion as possible. The NAT
+behavior practices will be application independent. This has already
+completed for UDP, TCP, DCCP, Multicast and ICMP. It continues with SCTP
+and any additional protocol deemed necessary to handle. The WG has
+documented approaches for characterizing and testing NAT devices.
+
+BEHAVE will develop protocol-independent toolkits usable by application
+protocols for NAT traversal. The WG has already produced an update of
+the binding discovery protocol STUN. It will now produce a relay
+protocol that focuses on security that is usable with both IPv4 and
+IPv6, and capable of relaying between the two IP versions.
+
+The goal of this work is to encourage migration to IPv6. To support
+deployments where communicating hosts require using different address
+families (IPv4 or IPv6), address family translation is needed to
+establish communication. In BEHAVE's specification work on this topic
+it will coordinate with the V6ops WG on requirements and operational
+considerations.
+
+"An IPv4 network" or "an IPv6 network" in the descriptions below refer
+to a network with a clearly identifiable administrative domain (e.g., an
+enterprise campus network, a mobile operator's cellular network, a
+residential subscriber network, etc.). It will also be that network that
+deploys the necessary equipment for translation.
+
+The BEHAVE WG will design solutions for the following four translation
+scenarios; other scenarios are out of scope:
+
+1. An IPv6 network to IPv4 Internet, i.e. perform translation between
+IPv4 and IPv6 for packets in uni- or bi-directional flows that are
+initiated from an IPv6 host towards an IPv4 host. The translator
+function is intended to service a specific IPv6 network of arbitary
+size. Port translation is necessary on the IPv4 side for efficient
+IPv4 address usage.
+
+2. IPv6 Internet to an IPv4 network, i.e. perform translation between
+IPv4 and IPv6 for packets in uni- or bi-directional flows that are
+initiated from an IPv6 host towards an IPv4 host. The translator
+function services is intended to service a specific IPv4 network
+using either private or public IPv4 addresses. Because this scenario
+has different constraints compared to (1), e.g. the IPv4 hosts that
+are to be reachable over IPv6 can be enumerated. The WG should
+attempt to design a simpler solution with less impact on
+applications.
+
+3. An IPv4 network to IPv6 Internet, i.e. perform translation between
+IPv4 and IPv6 for packets in uni- or bi-directional flows that are
+initiated from an IPv4 host towards an IPv6 host. The translator
+function is intended to service a specific IPv4 network using either
+public or private IPv4 address space.
+
+4. IPv4 Internet to an IPv6 network, i.e. perform translation between
+IPv4 and IPv6 for packets in uni- or bi-directional flows that are
+initiated from an IPv4 host towards an IPv6 host. The translator
+function is intended to service a specific IPv6 network where
+selected IPv6 hosts and services are to be reachable.
+
+All translation solutions shall be capable of handling flows using TCP,
+UDP, DCCP, and SCTP, unless they prevent a timely completion of the work
+item. The fundamental parts of ICMP are also required to work.
+Additional protocols directly on top of IP may be supported. Translation
+mechanisms must handle IP fragmentation.
+
+The translators should support multicast traffic and its control traffic
+(IGMP and MLD) across them, both Single Source Multicast (SSM) and Any
+Source Multicast (ASM). However, the WG may determine that it becomes
+too complex or too difficult to realize with maintained functionality,
+for some or all cases of multicast functionality.
+
+Translation mechanisms cannot transparently support protocols that embed
+network addresses within their protocol messages without application
+level gateways (ALGs). Because ALGs have security issues (like blocking
+usage of TLS), are error prone and brittle, and hinder application
+development, the usage of ALGs in the defined translators should be
+avoided. Instead application developers will need to be aware and use
+mechanisms that handle the address family translation. ALGs may be
+considered only for the most crucial of legacy applications.
+
+DNS is a crucial part in making a large number of applications work
+across a translator. Thus the solution to the above translation cases
+shall include recommendations for DNS. If additional DNS functionality
+is needed, it may be developed. Any DNS extensions must be developed
+together with the DNSEXT WG, including issuing a joint WG last call for
+any documents.
+
+The WG needs to determine the best method for providing address space to
+a translator in the different deployment cases and documenting the pros
+and cons of the suggested approaches. The WG is to seek input from the
+Routing, Operations and Internet areas.
+
+Solutions may solve more than one of the cases, however timely delivery
+is more important than a unified solution.

@@ -1,0 +1,14 @@
+The goal of the Authenticated Firewall Traversal Working Group is to 
+specify a protocol to address the issue of application-layer support for 
+firewall traversal. The working group intends to specify a traversal 
+protocol supporting both TCP and UDP applications with a general 
+framework for authentication of the firewall traversal. To promote
+interoperability, the group will also propose a base authentication 
+technique for use within the general authentication framework.  
+
+The output of the group will consist of a standards-track RFC(s) 
+describing the traversal protocol, the base authentication methods and a 
+reference implementation of the protocol, and base authentication 
+methods. The working group will start with the SOCKS system described by 
+David Koblas in his paper presented at the 1992 Usenix Security 
+Symposium.

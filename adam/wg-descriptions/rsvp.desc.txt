@@ -1,0 +1,22 @@
+RSVP is a resource reservation setup protocol for the Internet. Its
+major features include: (1) the use of ``soft state'' in the routers, 
+(2)
+receiver-controlled reservation requests, (3) flexible control over
+sharing of reservations and forwarding of subflows, and (4) the use of
+IP multicast for data distribution.
+
+The primary purpose of this working group is to evolve the RSVP
+specification and to introduce it into the Internet standards track.
+The working group will also serve as a meeting place and forum for
+those developing and experimenting with RSVP implementations.
+
+The task of the RSVP Working Group, creating a robust specification for
+real-world implementations of RSVP, will require liaison with two other
+efforts: (1) continuing research and development work on RSVP in the
+DARTnet research
+community, and (2) the parallel IETF working group that is considering
+the service model for integrated service. Although RSVP is largely
+independent of the service model, its design does depend upon the
+overall integrated service architecture and the requirements of
+real-time applications. As an additional task, RSVP will maintain
+coordination with the IPng-related working groups.

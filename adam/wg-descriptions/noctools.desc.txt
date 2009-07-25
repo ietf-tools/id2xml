@@ -1,0 +1,3 @@
+The NOC-Tools Working Group will develop a catalog to assist network
+managers in the selection and acquisition of diagnostic and analytic
+tools for TCP/IP Internets.

@@ -1,0 +1,25 @@
+Network management is becoming more complex with the strong convergence
+movement that is blending IP networks and traditional telephone 
+networks. Each of these communities has its own management concepts and
+technology standards. IP networks use SNMP almost exclusively while
+traditional telephone networks are primarily focused on TMN
+(Telecommunication Management Network) and associated protocols. The 
+aim
+of this BOF is to help acquaint the IETF community with TMN concepts 
+and
+technologies and to explore how the capabilities provided by both sets
+of concepts and technologies can be accommodated in  the converged
+networks of the future.
+
+ITU-T SG4 representatives will present to the IETF Network Management
+community the TMN framework and technologies, including its work plan
+for the integrated management of hybrid circuit/packet/IP networks and
+how SNMP fits into the TMN framework.
+
+There is also a Q&A and some time to discuss the TMN framework and the
+TMN/SNMP and ITU-T/IETF relationships. This exchange of viewpoints
+should give us all a better understanding of the different approaches 
+to
+(System and) Network Management. At the same time we can possibly
+identify some joint work items that may need follow up and/or further
+study.

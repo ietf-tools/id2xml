@@ -1,0 +1,34 @@
+The focus of the USERDOC2 Working Group is on identifying and locating
+documentation about the Internet. A major activity is the revision of
+an existing bibliography of on-line and hard copy documents/reference
+materials/training tools addressing general networking information and
+``How to use the Internet'' (RFC 1175, FYI 3). This effort will also be
+used to help locate documentation produced by other organizations and
+examine the means by which such documents are made available on the
+Internet. The target audience is those individuals who provide services
+to end users and end users themselves. The group is also developing a
+new FYI RFC document designed as a very short bibliography targeted at
+novice users.
+
+The USERDOC2 Working Group will:
+
+(1) Identify and categorize useful documents, reference materials,
+training tools, and other publications about the Internet, particularly
+those available on-line.
+
+(2) Publish on-line and hard copies of the bibliographies produced and
+other reference material on documentation as needs are identified.
+
+(3) Develop and implement procedures to maintain and update the
+bibliography and investigate methods to provide the information in an
+on-line format.
+
+(4) As a part of the update process, identify new materials for
+inclusion in the active bibliography and identify additional needs
+which are required for locating documentation and other publications.
+
+(5) Review procedures for periodic review of the bibliography by the
+User Services Working Group.
+
+(6) Examine methods for delivering documentation and work with
+providers to improve the availability of basic Internet documentation.

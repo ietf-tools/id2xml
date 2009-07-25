@@ -1,0 +1,18 @@
+The PWOT BOF at IETF50 is the successor to the Circuit Emulation over 
+Transport (ceot) BOF of IETF49 and it is a formative discussion for a 
+proposed working group that will be in the Transport Area and will 
+probably be called Pseudo Wire Emulation Edge-to-Edge (pwe3).
+
+The basic idea is to provide services that appear as "pseudo wires" 
+across a packet switched networks, from edge-to-edge, that is that can 
+be treated as wires in an internetwork. Transport technologies, in the 
+IETF sense of transport, are involved becacsue of the requirements of 
+some technologies (e.g. TDM or ATM) for timing recovery or ordered 
+delivery.
+
+The purpose of the proposed WG is standardization within the IETF of 
+pseudo-wire services. The working group will focus on development of a 
+common edge-to-edge signaling protocol plane for the tunnel, and specify 
+techniques for both encapsulating service-specific PDUs and achieving 
+service-specific characteristics, such as ordered delivery, timing, and 
+so on.

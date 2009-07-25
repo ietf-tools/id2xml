@@ -1,0 +1,54 @@
+The Site Security Policy Handbook Working Group is chartered to create
+a handbook that will help sites develop their own site-specific
+policies and procedures to deal with computer security problems and
+their prevention.
+
+Among the issues to be considered in this group are:
+
+\begin{enumerate}
+
+\item Establishing official site policy on computer security:
+
+\begin{itemize}
+
+\item       Define authorized access to computing resources.
+\item       Define what to do when local users violate the access policy.
+\item       Define what to do when local users violate the access policy of
+         a remote site.
+\item       Define what to do when outsiders violate the access policy.
+\item       Define actions to take when unauthorized activity is suspected.
+\end{itemize}
+
+\item Establishing procedures to prevent security problems:
+
+\begin{itemize}
+\item        System security audits.
+\item        Account management procedures.
+\item        Password management procedures.
+\item        Configuration management procedures.
+\end{itemize}
+
+\item Establishing procedures to use when unauthorized activity occurs:
+
+\begin{itemize}
+\item        Developing lists of responsibilities and authorities:  site
+         management, system administrators, site security personnel,
+         response teams.
+\item        Establishing contacts with investigative agencies.
+\item        Notification of site legal counsel.
+\item        Pre-defined actions on specific types of incidents (e.g.,
+         monitor activity, shut-down system).
+\item        Developing notification lists (who is notified of what).
+\end{itemize}
+
+\item Establishing post-incident procedures
+
+\begin{itemize}
+\item        Removing vulnerabilities.
+\item        Capturing lessons learned.
+\item        Upgrading policies and procedures.
+\end{itemize}
+
+\end{enumerate}
+
+

@@ -1,0 +1,36 @@
+The goal of the PMTUD working group is to specify a robust method for
+ determining the IP Maximum Transmission Unit supported over an
+ end-to-end path. This new method is expected to update most uses of
+ RFC1191 and RFC1981, the current standards track protocols for this
+ purpose. Various weakness in the current methods are documented in
+ RFC2923, and have proven to be a chronic impediment to the deployment
+ of new technologies that alter the path MTU, such as tunnels and new
+ types of link layers.
+
+ The proposed new method does not rely on ICMP or other messages from
+ the network. It finds the proper MTU by starting a connection using
+ relatively small packets (e.g. TCP segments) and searching upwards by
+ probing with progressively larger test packets (containing application
+ data). If a probe packet is successfully delivered, then the path MTU
+ is raised. The isolated loss of a probe packet (with or without an
+ ICMP can't fragment message) is treated as an indication of a MTU
+ limit, and not a congestion indicator.
+
+ The working group will specify the method for use in TCP, SCTP, and
+ will outline what is necessary to support the method in transports
+ such as DCCP. It will particularly describe the precise conditions
+ under which lost packets are not treated as congestion indications.
+ The work will pay particular attention to details that affect
+ robustness and security.
+
+ Path MTU discovery has the potential to interact with many other parts
+ of the Internet, including all link, transport, encapsulation and
+ tunnel protocols. Thereforethis working group will particularly
+ encourage input from a wide cross section of the IETF to help to
+ maximize the robustness of path MTU discovery in the presence of
+ pathological behaviors from other components.
+
+ Input draft: 
+
+                 Packetization Layer Path MTU Discovery
+                 draft-mathis-plpmtud-00.txt

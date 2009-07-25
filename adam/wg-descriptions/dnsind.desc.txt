@@ -1,0 +1,20 @@
+The DNS Incremental Transfer, Notification, and Dynamic Update Working
+Group is concerned with three areas of future DNS protocol
+development:
+
+ 1. Incremental Zone Transfer - As the sizes of some zone files have 
+grown
+    quite large, it is believed that a protocol addition to allow the
+    transfer of only the changed subset of a zone will reduce net 
+traffic
+    and the load on critical servers.
+ 
+ 2. Change Notification - There can be large time intervals during which
+    at least one secondary has data that is inconsistent with the 
+primary.
+    The proposed ``notify'' mechanism (where the primary sends a message
+    to known secondaries) facilitates fast convergence of servers
+    vis-a-vis consistency of data in the zones.
+ 
+ 3. Dynamic Update - The need to frequently update small portions of a
+    large zone and to have those updates propagate is perceived.

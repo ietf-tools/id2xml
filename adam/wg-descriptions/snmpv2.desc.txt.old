@@ -1,0 +1,66 @@
+This Working Group is chartered to consider technical contributions to
+the SNMP evolution process and to produce a single recommendation as
+to which contributions (or combinations or modifications thereof)
+should define the next generation SNMP network management framework.
+
+The announced deadline for technical contributions to the SNMP
+evolution process is September 10, 1992. Any individual interested in
+contributing to this process should prepare and submit his/her
+contribution according to the requirements for detail, completeness,
+copyright, and format set forth in the original announcement. This
+Working Group is under no obligation to consider contributions that do
+not meet these basic requirements or contributions that are not
+submitted by the contribution deadline.
+
+This Working Group has the option of (a) rejecting any or all
+contributions as the basis for positive evolution, (b) accepting any
+or all contributions as candidates for standardization, or (c)
+modifying or combining any or all contributions to produce consensus
+proposals for standardization.
+
+The product of the Working Group will be a single recommendation to
+the IESG identifying those submitted specifications (or modifications
+thereof), if any, whose standardization as part of the SNMP framework
+is agreed to be warranted and desirable.  The Working Group will not
+be chartered to produce tutorial, explanatory, advisory, or
+informational documents of any kind.
+
+In its deliberations, the Working Group will take special cognizance
+of architectural principles on which the historic success of SNMP has
+rested:
+
+(1) The SNMP framework minimizes the overall cost of a manageable
+network by minimizing the cost and complexity of those management
+system components that are most numerous.
+
+(2) The SNMP framework fosters ubiquity of deployment by admitting the
+widest possible range of implementation strategies.
+
+(3) The SNMP framework fosters operational robustness by realizing
+management system function as closely as possible to centers of
+responsible authority.
+
+(4) The SNMP framework fosters operational robustness by locating
+control of resources consumed by the management activity (e.g.,
+bandwidth, processing) as closely as possible to centers of
+responsible authority.
+
+Moreover, the deliberations of the Working Group will take special
+cognizance of at least two aspects of evolutionary logistics:
+
+(1) A single transition from existing SNMP technology to the next
+stage of SNMP evolution is highly desirable; multi-stage or protracted
+transitions are less desirable.
+
+(2) Minimizing the number of distinct management technologies
+concurrently deployed in the Internet is highly desirable.
+
+Consistent with the community desire for timely, deliberate progress,
+the Working Group may be disbanded at the time of the IETF plenary
+meeting in the Spring of 1993 regardless of whether or not it has
+produced the single recommendation required by its Charter.
+
+This Working Group is not chartered to consider security aspects of
+the SNMP framework, as these are addressed as a matter of course by an
+existing IETF working group.
+

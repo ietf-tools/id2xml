@@ -1,0 +1,42 @@
+The Extensible Authentication Protocol (EAP) [RFC 3748] is a network
+access authentication framework used in the PPP, 802.11, 802.16, VPN,
+PANA, and in some functions in 3G networks. EAP itself is a simple
+protocol and actual authentication happens in EAP methods.
+
+Over 40 different EAP methods exist. Most of these methods are
+proprietary methods, but some are documented in informational RFCs. In
+the past the lack of documented, open specifications has been a
+deployment and interoperability problem. There are currently only two
+EAP methods in the standards track that implement features such as key
+derivation that are required for many modern applications.
+Authentication types and credentials continue to evolve as do
+requirements for EAP methods.
+
+This group is chartered to work on the following types of mechanisms
+to meet requirements relevant to EAP methods in RFC 3748, RFC 4017,
+RFC 4962 and EAP Keying:
+
+- A mechanism based on strong shared secrets. This mechanism should
+strive to be simple and compact for implementation in resource
+constrained environments.
+
+- A document that defines EAP channel bindings and provides guidance
+for establishing EAP channel bindings within EAP methods.
+
+- Enable TLS-based EAP methods to support channel bindings. This item
+will not generate a new method; rather, it will focus on adding
+support for EAP channel bindings to the tunneled method (described
+below), and if possible, other TLS-based EAP methods. Potential
+mechanisms for adding channel binding support will be investigated,
+including tunneling of channel binding parameters, or a TLS extension,
+or other standard TLS mechanism
+
+- A mechanism to support extensible communication within a TLS
+protected tunnel. This mechanism will support meeting the requirements
+of an enhanced TLS mechanism, a password based authentication
+mechanism, and additional inner authentication mechanisms. It will
+also support channel bindings (as described above) in order to meet
+RFC 4962 requirements.
+
+- A mechanism that makes use of existing password databases such as AAA
+databases. This item will be based on the above tunnel method.

@@ -1,0 +1,40 @@
+Uniform Resource Characteristics (URCs) are descriptions, such as
+bibliographic or configuration control records, of Internet-accessible
+resources. Particular communities expend considerable effort to develop
+descriptions that are appropriate for their resources. Many of these
+descriptions are notable more for their commonalties and their
+gratuitous differences than for their necessary, community-specific,
+distinctions.
+
+These resource descriptions are of interest to the IETF because
+Internet applications that make use of such descriptions display a need
+for at least three forms of interoperability. The first is for
+separately-developed applications to exchange descriptions that conform
+to a commonly-agreed description scheme. The second is to translate
+descriptions from one scheme to another with minimum loss of
+information. The third is for two applications that use the same
+descriptive scheme but different transfer protocols to exchange
+descriptions with the aid of a gateway.
+
+To provide these forms of interoperability, the URC-WG is chartered to
+standardize the framework for a family of descriptive datatypes known
+as URC subtypes. The framework will specify:
+
+    1) The structure of the datatypes and a minimal query capability,
+       as well as the rules for mapping the datatypes and queries to
+       and from at least two record formats.
+
+    2) The conveyance of those record formats in well-established
+       Internet transfer protocols.
+
+    3) At least two syntaxes for defining new datatypes.
+
+    4) The semantics of a very small number of descriptive elements,
+       such as URL and Content-type, that are needed for retrieving
+       resources over the network, are appropriate for all URCs
+       to utilize, and are within the domain of IETF standards.
+
+In order to demonstrate all the forms of interoperation, the URC-WG is
+also chartered to standardize a small number of particular URC
+subtypes, and a small number of realizations of the URC framework in
+well-established Internet transfer protocols.

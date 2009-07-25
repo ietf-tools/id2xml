@@ -1,0 +1,21 @@
+At the Seattle IETF in March 1994, a BOF was held on the establishment
+  of a Simple Internet White Pages Service (SIWPS).  A basic model was
+  proposed, and further work was defined.  One of the requested work 
+items
+  was a definition of the basic requirements for such a service.  This
+  working group is chartered to produce a single Informational RFC
+  capturing these basic requirements.  It will do so without prejudice 
+to
+  existing solutions or implementations.
+ 
+  The requirements document should only contain the basic requirements
+  for a SIWPS.  The list is not meant to be exhaustive, but rather 
+should
+  provide a set of minimum requirements to guide the overall structure 
+of
+  white pages service effort; these requirements can be used by related
+  IETF working groups to start to define the Internet white pages 
+service.
+ 
+  The working group is meant to be short-lived and to produce only the
+  one document.

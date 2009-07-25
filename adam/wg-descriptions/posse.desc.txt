@@ -1,0 +1,13 @@
+This BOF is to assemble a blue-ribbon panel to 
+
+(1) identify and examine current operational problems with
+    current Packet-over-SONET/SDH payload mappings
+
+(2) identify short-term fixes and work-arounds
+
+(3) establish a collaborative basis for a longer-term permanent 
+    solution which provides for new SONET/SDH mappings for general
+    payloads carrying bit- and byte- framed HDLC with large packet
+    sizes.  With this mapping in place, all IETF protocols based 
+    on HDLC framing can simply use it and not have to bother with 
+    the complexities of SONET/SDH transport.

@@ -1,0 +1,76 @@
+Note: A charter rewrite/update is underway.
+
+
+Motivation
+
+The Standard for Interchange of USENET Messages, defined in RFC 1036,
+was released in December 1987. This RFC defines the format that format
+that all usenet articles must follow (similar to the way RFC 822 does 
+for email) and also covers the algorithm that is used to distribute 
+usenet articles. Since that time there has been no official update 
+published despite the rapid growth in Usenet and other networks that 
+use 
+the RFC 1036 article format.
+
+A draft update to RFC 1036 ( "Son of RFC 1036" ) was released by Henry
+Spencer in June 1994 but this was not further pursued and is now itself
+out of date. Currently a combination of this and RFC 1036 are regarded 
+as the de-facto standard.
+
+At the present time an urgent need has been identified to formalize and
+document many of the current and proposed extensions to the Usenet
+Article format. Many extensions are only vaguely documented and have
+competing and overlapping alternatives. A draft update to RFC 1036 ( 
+"Son of RFC 1036" ) was released by Henry Spencer in June 1994 but 
+this 
+was not further pursued and is now itself out of date. Currently a 
+combination of this and RFC 1036 are regarded as the de-facto standard.
+
+At the present time an urgent need has been identified to formalize and
+document many of the current and proposed extensions to the Usenet
+Article format. Many extensions are only vaguely documented and have
+competing and overlapping alternatives.
+
+In particular the following areas need urgent attention:
+
+- Standards for the signing of articles (sign-control and PGP-MOOSE)
+- Authentication of cancels.
+- Use of non-ASCII character sets in article headers and bodies
+- Standardization of article bodies and the use of MIME in articles.
+- Standardization and extension of 3rd party control messages affecting
+  articles (NOCEM)
+- General revision of various limits (eg article size) listed in
+  previous standards.
+
+and many other aspects of the standards need reviewing.
+
+Description
+
+The Goal of this working group is to publish a standards-track 
+successor
+to RFC 1036 that with particular attention to backward compatibility,
+formalizes best current practice and best proposed practice. The Group
+shall also aid and/or oversee the production of other Usenet related
+Internet Drafts and Standards.
+
+The Working Group shall:
+
+1. Produce an Internet Draft (or series of drafts) that describes the
+   core standards for a Usenet article and the features that all Usenet
+   software should take account of.
+
+2. Produce a group of Internet Drafts formally describing extensions to
+   the core standard for a Usenet article (see above).
+
+3. Produce a further Internet Draft that incorporates the core standard
+   for a Usenet article (see 1) plus all those extensions (see 2) that 
+ 
+   the working group believe should become part of a final standard.
+
+4. Publish a standards-track successor to RFC 1036 that formalizes best
+   current practice and best proposed practice.
+
+5. Publish any other extensions to the Usenet Article Standard that
+   warrant being formal extensions but are outside the scope of the 
+main
+   standard.

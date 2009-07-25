@@ -1,0 +1,5 @@
+Discussion of existing requirements for a generic registry-registrar
+protocol and check of interest in using these requirements as the basis 
+for a standards track protocol.  Review of current whois protocol 
+proposals and check of interest in including whois protocols within the 
+charter of a working group.

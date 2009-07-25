@@ -1,0 +1,35 @@
+The goal of this working group is to define, specify, and develop the
+Application Configuration Access Protocol as a general access mechanism
+for per-user and per-server structured lists of information. In
+addition, the Working Group will specify how to use the protocol to
+store specific structured lists, initially application configuration
+options and addressbooks.
+
+The Application Configuration Access Protocol is a proposed solution to
+the problems of client configuration for users of the internet.
+
+Given the increasing prevalence of network access points and rapidly
+increasing numbers of users with diverse needs and settings, there is a
+phenomenon of internet application users who typically connect from
+more than one physical location and/or operating system to use the same
+set of internet services and applications. These users must recreate
+sets of personal configuration information for each system, session,
+and location that they use. This may include information such as
+application options and preferences; personal or shared user data such
+as addressbooks, bookmarks, or subscription lists; or shared data for
+internal client use, such as authorization group lists.
+ 
+The products of this working group will be:
+ 
+   * a formal specification for the protocol
+   * formal specifications of datasets used by the protocol and related
+     extensions to the protocol
+   * an RFC intended to move to a Standard in a timely manner
+   * a specification for extensibility of the protocol in the form of a
+     framework document
+   * additional informational and/or experimental RFCs as necessary to
+     amplify and/or extend ACAP.
+
+Note on goals and milestones: because the work of the ACAP WG is based
+on the previous work done on IMSP, there is justification for a
+somewhat more aggressive schedule than is customary.

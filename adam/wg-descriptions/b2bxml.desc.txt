@@ -1,0 +1,10 @@
+Description: Recently there is a strong movement for encoding data for 
+web based information exchange, such as in Business to Business 
+communications, using XML to encode the data in the communications. 
+Strategies are evolving, such as SOAP, but the problem specification 
+and 
+protocol requirements need to be clarified for enforcement by the IETF 
+community. This BOF discusses this problem space to set forth the 
+problem area requirements. Examining existing techniques will be done 
+to 
+assure the problem space is well defined.

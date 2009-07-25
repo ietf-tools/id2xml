@@ -1,0 +1,24 @@
+Several proposals have recently been published for the signing of 
+messages,primarily email messages, to deter source address spoofing.  
+These include:
+        DomainKeys, draft-delany-domainkeys-base-00.txt
+        Identified Internet Mail, draft-fenton-identified-mail-00.txt
+        E-mail Postmarks, http://www.lessspam.org/EmailPostmarks.pdf
+
+While the prevention of message spoofing is also a goal of the MARID 
+working group, cryptographic approaches to this problem are explicitly 
+outside the charter of MARID.  Nevertheless, many that are familiar 
+with the address-based authorization approaches MARID is considering 
+consider them to be an interim step until message signing is deployed, 
+or as a complementary technology to be used along with message signing.
+
+This BOF (and IETF Working Group formation, if there is sufficient 
+interest) will focus on standards for message signing, including:
+ - Signature format (syntax) and binding to message source dress
+ - Key management procedures
+ - Selection of message content to be signed (headers, etc.)
+ - Mechanisms for minimizing breakage as messages pass through the 
+mail 
+   system
+ - Operation of message signing in concert with address-based 
+   authorization

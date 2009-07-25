@@ -1,0 +1,75 @@
+The goal of this working group is to define protocols to allow the
+interoperation of separately-administered content networks.
+
+A content network is an architecture of network elements, arranged for
+efficient delivery of digital content. Such content includes, but is
+not limited to, web pages and images delivered via HTTP, and streaming 
+or continuous media which are controlled by RTSP.
+
+The working group will first define requirements for three modes of
+content internetworking: interoperation of request-routing systems,
+interoperation of distribution systems, and interoperation of 
+accounting systems.  These requirements are intended to lead to a 
+follow-on effort to define protocols for interoperation of these 
+systems.
+
+In its initial form, the working group is not chartered to deliver
+those protocols, but we encourage individual submission of 
+internet-drafts describing protocols intended to meet the evolving 
+requirements.  We anticipate rechartering of the working group to 
+specify protocols, after the requirements documents are stable and
+rough consensus emerges about the number and relationship of such 
+protocols.
+
+In addition to defining requirements, the working group will develop a
+number of supporting documents.  These documents are: a shared 
+vocabulary for the problem domain, scenarios, an overall architecture 
+for interoperation, and a summary of request-routing mechanisms 
+currently in use.  The total expected deliverables are as follows, 
+including the current draft corresponding to each:
+
+1. Vocabulary
+
+http://www.ietf.org/internet-drafts/draft-day-cdnp-model-09.txt
+
+2. Scenarios
+
+http://www.ietf.org/internet-drafts/draft-day-cdnp-scenarios-04.txt
+
+3. System Architecture
+
+http://www.ietf.org/internet-drafts/draft-green-cdnp-gen-arch-03.txt
+
+4. Request-Routing Known Mechanisms
+
+http://www.ietf.org/internet-drafts/draft-cain-cdnp-known-request-routi
+n
+g-04.txt
+
+5. Requirements for Request-Routing
+
+http://www.ietf.org/internet-drafts/draft-cain-request-routing-req-03.t
+x
+t
+
+6. Requirements for Distribution
+
+http://www.ietf.org/internet-drafts/draft-amini-cdi-distribution-reqs-0
+2
+.txt
+
+7. Requirements for Accounting
+
+http://www.ietf.org/internet-drafts/draft-gilletti-cdnp-aaa-reqs-01.txt
+
+
+In addition to the drafts listed with specific deliverables, the 
+following CDI-related drafts have been written by participants in the 
+group.
+
+
+http://www.ietf.org/internet-drafts/draft-douglis-cdi-known-mech-00.txt
+
+http://www.ietf.org/internet-drafts/draft-cain-cdi-cnap-00.txt
+
+http://www.ietf.org/internet-drafts/draft-barbir-cdi-cnapcomp-00.txt

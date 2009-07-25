@@ -1,0 +1,64 @@
+E-mail archive: 
+http://www.ietf.org/mail-archive/working-groups/ipoverib/current/mailli
+st.html
+
+InfiniBand is an emerging standard intended as an interconnect for
+processor and I/O systems and devices (see the Infiniband Trade
+Association web site at http://www.infinibandta.org for details). IP
+is one type of traffic (and a very important one) that could use this
+interconnect. InfiniBand would benefit greatly from a standardized
+method of handling IP traffic on IB fabrics. It is also important to
+be able to manage InfiniBand devices in a common way.
+
+This working group has two tasks:
+
+- specify the protocols and encapsulations to transport IPv4/v6 over
+  an InfiniBand fabric.
+
+- specify a set of MIB objects to allow management of the InfiniBand
+  fabric itself.
+
+The initial scope of the WG was limited to the use of the basic IB
+Unreliable Datagram (UD) transport mode for transporting IP over
+Infiniband. With that work mostly done, the scope has been extended to
+develop an optional mechanism for transporting IP over other IB
+transport modes. In particular, there is a desire to transport IP over
+one or both of IB's connected modes, which enable the use of a much
+larger MTU than the IB link MTU size. They also provide improved
+reliability and performance through the use of link level orderly and
+reliable delivery, and IB's automatic path migration (APM) feature.
+However, care must be taken to ensure that use of an IB reliable
+transport does not unduly interfere with the retransmission and
+congestion control mechanisms used by higher layers (e.g., TCP and
+SCTP).
+
+Other more advanced functionalities such as mapping IP QOS into
+IB-specific capabilities remain out of scope of the WG charter.
+
+Work items
+
+1. Specify standards track procedures for transporting IP over
+IB. This includes:
+
+- supporting ARP/ND packets in order to map IP addresses into IB
+  link-layer addresses.
+
+- define encapsulations for carrying ARP, IPv4 and IPv6
+  packets over IB
+
+- Define  how to transport IP multicast over IB.
+
+2. Specify a standards track channel adapter MIB that allows
+management of an InfiniBand channel adapter. There will require that
+InfiniBand types be added to the ifType defined by IANA
+
+3. Specify a standards track baseboard management MIB that will allow
+management of specified device properties
+
+4. Specify sample counter MIBs to allow InfiniBand sample counters to 
+be
+exposed to external SNMP management applications
+
+5. Specify an optional, standards track encapsulation for carrying IPv4
+and IPv6 packets over either IB unreliable connections or reliable
+connections.

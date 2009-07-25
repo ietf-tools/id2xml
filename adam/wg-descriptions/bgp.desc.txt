@@ -1,0 +1,3 @@
+Develop the BGP protocol and BGP technical usage within the Internet,
+continuing the current work of the Interconnectivity Working Group in
+this regard.

@@ -1,0 +1,33 @@
+The notion of using RSVP or an in-band signaling protocol
+for finding firewalls and NATs has been floating around for
+years but hasn't received detailed scrutiny.  At the same
+time, work on using out-of-band signaling (midcom) has found
+that it is highly sensitive to topological complexity.
+Midcom additionally leaves the problem of locating
+middleboxes in the network unaddressed.
+
+By using a protocol like RSVP, we can simultaneously address
+the problems of locating middleboxes in the network, routing
+requests to the correct middlebox, and handling topological
+complexity (for example, if there are both firewalls and
+NATs in a datapath it may be extremely difficult to
+determine the correct address to use in a firewall pinhole
+request).  We can solve these problems by leveraging
+existing IP routing mechanisms and sending middlebox
+communications request along the normal forwarding path, but
+it introduces other problems (security, correct function
+with 3rd-party call control and signaling).
+
+This BOF is a first step towards examining whether and under
+what conditions an inband middlebox communication protocol
+would be useful in practice.  Among the topics to be
+discussed are the relationship to other work, such as NSIS
+and TED, whether or not this approach really would provide
+greater network transparency, and interactions with
+applications that use 3rd-party signaling.
+
+Documents:
+        draft-shore-tist-prot-00.txt
+        draft-ietf-nsis-req-02.txt
+        draft-rosenberg-sipping-session-policy-00.txt
+        {others as they're resubmitted}

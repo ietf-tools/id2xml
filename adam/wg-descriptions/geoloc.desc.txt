@@ -1,0 +1,37 @@
+As more and more resources become available on the Internet, some 
+applications need to acquire geographic location information about 
+certain resources or entities. These applications include navigation, 
+emergency services, management of equipment in the field, and other 
+location based services.
+
+But while the formatting and transfer of such information is in some 
+sense a straightforward process, the implications of doing it, 
+especially in regards to privacy and security, are anything but.
+
+The primary task of this working group will be to assess the 
+authentication, integrity, and privacy requirements that arise as a 
+result of the transfer of such information. Once this is done the 
+working group will proceed to devise a protocol framework that meets 
+these requirements.
+
+In addition, the working group will define the actual format used to 
+represent the geographic location of an identifiable entity.
+
+The combination of these two elements should provide a service capable 
+of transferring geographic location information in a private and secure 
+fashion.
+
+For interoperability reasons, a  single absolute/default format shall be
+specified that must be supported by all SLO-aware entities. This format 
+shall have (at least) a location specified in earth-based coordinates 
+(Longitude, Latitude, and Altitude) and a Timestamp when these values 
+were last known. An existing format standardized elsewhere may be used 
+if one is appropriate. In addition, a framework for adding any optional 
+geographic location  representations shall be defined. The working group 
+will not define any optional geographic location representation formats. 
+(If necessary defining optional representation(s) can be a future work 
+effort.)
+
+There must also be a security mechanism  selected/designed for SLO 
+Payloads. The security mechanism must be supported by all SLO-aware 
+entities.

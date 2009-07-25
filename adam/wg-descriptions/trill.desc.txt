@@ -1,0 +1,77 @@
+The TRILL WG will design a solution for shortest-path frame routing in
+multi-hop IEEE 802.1-compliant Ethernet networks with arbitrary
+topologies, using an existing link-state routing protocol technology.
+
+This work will initially be based on draft-perlman-rbridge-03.txt.
+
+The design should have the following properties:
+
+- Minimal or no configuration required
+- Load-splitting among multiple paths
+- Routing loop mitigation (possibly through a TTL field)
+- Support of multiple points of attachment
+- Support for broadcast and multicast
+- No significant service delay after attachment
+- No less secure than existing bridged solutions
+
+Any changes introduced to the Ethernet service model should be
+analyzed and clearly documented. To ensure compatibility with IEEE
+VLANs and the Ethernet service model, the WG will request an IEEE
+liaison relationship with IEEE 802.1, and IEEE 802.1 will be asked to
+review the architecture document and specification(s) before they are
+submitted to the IESG.
+
+It is not an explicit requirement that the solution should be able to
+run on existing IP routers or IEEE 802 switches as a software upgrade.
+However, the working group should take deployment considerations into
+account, to ensure that the solution can interwork with bridges in a
+flexible manner (e.g., to allow incremental deployment into LANs that
+currently use 802.1D bridges).
+
+The TRILL working will work with the L2VPN WG to develop interworking
+between TRILL and 802.1D bridges at the edge, such that a bridged
+sub-cloud could be attached to TRILL devices in more than one place
+for redundancy.
+
+The solution must not interfere with the end-to-end transparency of
+the Internet architecture or with end-to-end congestion control and
+QOS mechanisms.
+
+The WG will work on the following items:
+
+(1) Develop a problem statement and architecture document that
+describes the high-level TRILL architecture, discusses the
+scalability of that architecture, describes the threat model
+and security impacts of the TRILL solution, and describes the
+expected impacts (if any) of the TRILL solution on the Ethernet
+service model.
+
+(2) Define the requirements for a TRILL-capable routing protocol, and
+select one or more existing routing protocols that could meet
+those requirements.
+
+(3) Work with the appropriate Routing area working group to extend an
+existing routing protocol to meet the TRILL working group
+requirements.
+
+Note: The TRILL working group is not chartered to develop a new
+routing protocol or to make substantial modifications to an
+existing routing protocol. If, during the requirements definition
+and selection phase, the TRILL working group discovers that no
+existing routing protocol will meet their needs, we will need to
+re-assess the TRILL WG charter to determine how/if this work
+should proceed.
+
+(4) Produce a (set of) TRILL specification(s) for standards track
+publication that define(s) what information must be carried in an
+encapsulation header for data packets. Although this work will
+initially be undertaken only for 802.1-compliant links, it
+may later be expanded to non-802.1 links, so the design should be
+link-layer agnostic to whatever extent possible.
+
+The TRILL working group is chartered to undertake all of the above
+tasks and may begin work on more than one of these tasks in parallel.
+However, the problem statement and architecture document should be
+completed before the details of the base protocol are finalized, while
+there is still time to consider changes to the architecture without
+major impacts on established specifications.

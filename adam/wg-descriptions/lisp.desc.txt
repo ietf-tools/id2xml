@@ -1,0 +1,76 @@
+The IAB's October 2006 Routing and Addressing Workshop (RFC 4984)
+rekindled interest in scalable routing and addressing architectures for
+the Internet. Among the many issues driving this renewed interest are
+concerns about the scalability of the routing system and the impending
+exhaustion of the IPv4 address space. Since the IAB workshop, several
+proposals have emerged which attempt to address the concerns expressed
+there and elsewhere. In general, these proposals are based on the
+"locator/identifier separation".
+
+The basic idea behind the separation is that the Internet architecture
+combines two functions, routing locators, (where you are attached to the
+network) and identifiers (who you are) in one number space: The IP
+address. Proponents of the separation architecture postulate that
+splitting these functions apart will yield several advantages, including
+improved scalability for the routing system. The separation aims to
+decouple locators and identifiers, thus allowing for efficient
+aggregation of the routing locator space and providing persistent
+identifiers in the identifier space.
+
+LISP supports the separation of the IPv4 and IPv6 address space
+following a network-based map-and-encapsulate scheme (RFC 1955). In
+LISP, both identifiers and locators are IP addresses. In LISP,
+identifiers are composed of two parts: a "global" portion that uniquely
+identifies a particular site and a "local" portion that identifies an
+interface within a site. The "local" portion may be subdivided to
+identify a particular network within the site. For a given identifier,
+LISP maps the "global" portion of the identifier into a set of locators
+that can be used by de-capsulation devices to reach the identified
+interface; as a consequence a host would typically change identifiers
+when it moves from one site to another or whenever it moves from one
+subnet to another within an site. Typically, the same IP address will
+not be used as an identifier
+and locator in LISP.
+
+LISP requires no changes to end-systems or to most routers. LISP aims
+for an incrementally deployable protocol.
+
+A number of approaches are being looked at in parallel in the IRTF and
+IETF. At this time, these proposals are at an early stage. All proposals
+(including LISP) have potentially harmful side-effects to Internet
+traffic carried by the involved routers, have parts where deployment
+incentives may be lacking, and are NOT RECOMMENDED for deployment beyond
+experimental situations at this stage. Many of the proposals have
+components (such as the identifier to locator mapping system) where it
+is not yet known what kind of design alternative is the best one among
+many.
+
+However, despite these issues it would be valuable to write concrete
+protocol specifications and develop implementations that can be used to
+understand the characteristics of these designs. The LISP WG is
+chartered to work on the LISP base protocol
+(draft-farinacci-lisp-12.txt), the LISP+ALT mapping system
+(draft-fuller-lisp-alt-05.txt), LISP Interworking
+(draft-lewis-lisp-interworking-02.txt), LISP Map Server
+(draft-fuller-lisp-ms-00.txt), and LISP multicast
+(draft-farinacci-lisp-multicast-01.txt) for these purposes, with the
+given drafts as a starting point. The working group will encourage and
+support interoperable LISP implementations as well as defining
+requirements for alternate mapping systems. The Working Group will also
+develop security profiles for the ALT and/or other mapping systems.
+
+It is expected that the results of specifying, implementing, and testing
+LISP will be fed to the general efforts at the IETF and IRTF (e.g., the
+Routing Research Group) that attempts to understand which type of a
+solution is optimal. The LISP WG is NOT chartered to develop the final
+or standard solution for solving the routing scalability problem. Its
+specifications are Experimental and labeled with accurate disclaimers
+about their limitations and not fully understood implications for
+Internet traffic. In addition, as these issues are understood, the
+working group will analyze and document the implications of LISP on
+Internet traffic, applications, routers, and security. This analysis
+will explain what role LISP can play in scalable routing. The analysis
+should also look at scalability and levels of state required for
+encapsulation, decapsulation, liveness, and so on
+(draft-meyer-loc-id-implications) as well as the manageability and
+operability of LISP.

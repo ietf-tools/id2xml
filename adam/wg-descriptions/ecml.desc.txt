@@ -1,0 +1,7 @@
+"The Electronic Commerce Modeling Language is a simple specification
+of hierarical field names and field contents for communication between
+parties engaged in electronic commerce. Version 1.0 (RFC 2706) is aimed 
+at consumer to merchant information flow for such things as ship to 
+address and card payment information. It is being widely deployed by 
+merchants and wallet vendors. This BOF will discuss future developemnt 
+of ECML within the IETF."

@@ -1,0 +1,42 @@
+The Host Resources MIB Working Group is chartered to produce exactly
+one document that defines SNMP MIB objects that instrument
+characteristics common to all Internet hosts. The goal of this work is
+to address the urgent operational need in the Internet community for
+management of host systems. Owing to this urgency, the working group
+will focus exclusively on the alignment of existing MIB technology in
+order to achieve common solutions in a timely manner.
+
+For purposes of this effort, the term ``Internet host'' is construed to
+mean any computer that communicates with other similar computers
+attached to the Internet and that is directly used by one or more human
+beings. Although the work of the group does not necessarily apply to
+devices whose primary function is communications services (e.g.,
+terminal servers, routers, bridges, monitoring equipment), such
+relevance is not explicitly precluded.  The single MIB produced shall
+instrument attributes common to all Internet hosts including, for
+example, both personal computers and systems that run variants of
+Unix.
+
+The methodology of this working group is to focus entirely on the
+alignment of existing, enterprise-specific MIBs for SNMP that are
+relevant to its task. The group will work towards its goal by
+distillation and generalization of these existing MIBs into a single,
+common MIB definition.
+
+Owing to the urgent operational need for managing host systems, this
+effort will not be comprehensive in scope. Rather, the MIB produced by
+this group will be confined to critical information about hardware and
+software configuration, processor and memory use, and data storage
+capacities, backup, and use.
+
+Owing to the lack of a well-understood and accepted architecture, the
+working group will not address in any way, mechanisms that could be used
+to monitor or control the use of licensed software products.
+
+All definitions produced by the group will be consistent with the SNMP
+network management framework and all other Internet-standard MIBs for
+SNMP.  Wherever possible, the definitions produced will make use of or
+align with relevant work in progress with chartered working groups of
+the IETF. Also, wherever possible, the working group will take into
+consideration pre-existing, stable work produced by other, accredited
+standards bodies.

@@ -1,0 +1,40 @@
+There are many cases where a service consumer needs to contact a
+service provider to get credentials that the consumer can use when
+accessing the service; part of this initial contact may involve
+the consumer and the provider mutually validating the other's 
+identity.
+This working group will look at some of the cases where cryptography
+is used to provide authentication.
+
+When doing enrollment of a service consumer against a service 
+provider, three pieces of information need to be provided or created 
+in 
+order to support authentication of the service consumer to the service 
+provider (and visa versa) and to allow for additional security 
+services 
+to be provided any information exchanged. These pieces of data are:
+
+1. An identifier, within a namespace controlled by the service
+   provider, for the service consumer.
+2. Keying information to be used for identity confirmation.
+3. A set of service consumer permissions. These permissions
+   describe to the provider the services that the consumer
+   wants to access, and they describe to the consumer what
+   services offered by the provider will be accessable.
+
+Each of these data items could be created by either the consumer or
+provider at any point during the enrollment process.
+
+This group will create a model to be used in describing enrollment
+procedures and create a document for a framework how this is to be 
+done. The group will then produce three documents profiling the use of 
+the framework for the following types of keying material:
+
+      1. A shared secret key.
+      2. A bare asymmetric key.
+      3. A bound asymmetric key (such as an X.509 certificate).
+
+As part of the validation of the framework, the group will examine how
+other real world enrollment procedures could be profiled. For example,
+credit card information might be part of the input to the enrollment
+process.

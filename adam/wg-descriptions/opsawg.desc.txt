@@ -1,0 +1,40 @@
+The Operations and Management Area receives occasional proposals for 
+the development and publication of RFCs dealing with operational and
+management topics that are not in scope of an existing working group 
+and do not justify the formation of a new working group. The OPSAWG 
+will serve as the forum for developing such work items in the IETF.
+
+The OPSAWG mailing list is an open discussion forum for such work 
+items, when they arise. The working group meets if there are active 
+proposals that require discussion. The working group milestones are 
+updated as needed to reflect the current work items and their 
+associated milestones. All new work items and rechartering proposals 
+will be brought for approval with the IESG.
+
+The focus of the work will be on topics that govern the behavior or WGs
+in the O&M area (e.g., manageability requirements) and on small, 
+highly focused projects that don't merit a WG of their own or belong 
+to WGs that have already concluded (e.g. advancement of documents on 
+the standards track, application statements, extensions of MIB 
+modules).
+
+The OPSAWG will undertake only work items that are proved to have at
+least a reasonable level of interest from the operators and users
+community and have a committed number of editors and reviewers. It is
+not within the scope of the OPSAWG to pick up failed WG work or parts 
+of a WG charter items that could not come to convergence on what they 
+were chartered to do.
+
+The currently active OPSAWG work items mostly fall under the following
+topics:
+
+(A) Development of a BCP document that will provide guidelines for
+authors and a reference for reviewers of IETF documents that specify 
+new protocols or protocol extensions about the information about 
+operational and manageability requirements that needs to be covered in 
+these documents
+
+(B) Templates and tools for Operations and Management Area Documents
+
+(C) Maintenance and small scale extensions of documents that were
+developed in working groups that have concluded (e.g. MIB modules).

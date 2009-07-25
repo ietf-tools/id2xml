@@ -1,0 +1,32 @@
+The working group will create a Best Current Practices document which
+outlines the most effective methods for using the SNMP Framework to
+accomplish configuration management. The scope of the work will include
+recommendations for device specific as well as network-wide (Policy)
+configuration. The group is also chartered to write any MIB modules
+necessary to facilitate configuration management, specifically they 
+will
+write a MIB module which describes a network entities capabilities and
+capacities which can be used by management entities making policy
+decisions at a network level or device specific level.
+
+As a proof of concept, the working group will also write a MIB
+module which describes management objects for the control of
+differentiated services policy in coordination with the effort
+currently taking place in the Differentiated Services Working Group.
+
+Deliverables
+
+1. A Best Current Practices document to provide guidelines on how
+   to best use the existing Internet Standard Management Framework
+   to perform configuration management.
+
+2. A MIB module which describes a network entities capabilities
+   such as support for a particular type of security or a particular
+   queuing method on certain interfaces. The module will also convey
+   the capacity of the device to perform certain work.
+
+3. A MIB module which can be used to concisely convey information
+   about desired network wide Diffserv Based QoS behavior.
+
+4. A document which describes potential future work needed to
+   meet all the Requirements for Configuration Management.

@@ -1,0 +1,11 @@
+Successful content distribution business plans have been hampered by 
+the
+all-or-nothing nature of a multicast routed infrastructure. Several 
+drafts
+have arisen over the past few years to address the last-mile multicast
+deployment gap, but have all lost momentum for various reasons. Recent
+efforts on yet another draft have revealed the need to have all 
+affected
+parties participate in the effort in order to provide a comprehensive 
+yet
+simple and deployable solution.

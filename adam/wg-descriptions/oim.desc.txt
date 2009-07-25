@@ -1,0 +1,8 @@
+This Working Group will specify management information and protocols
+necessary to manage IP-based and OSI-based LANs and WANs in the
+Internet based on OSI Management standards and drafts, NIST
+Implementors Agreements and NMF Recommendations. It will also provide
+input to ANSI, ISO, NIST and NMF based on experience in the Internet,
+and thereby influence the final form of OSI International Standards on
+management.
+

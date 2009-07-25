@@ -1,0 +1,21 @@
+The IP over Large Public Data Networks Working Group will
+specify the operation of the TCP/IP protocol suite over Public Data
+Networks (PDNs) such as SMDS, ISDN, X.25 PDNs, and Frame Relay.  The
+working group will develop and define algorithms for the resolution of
+IP addresses and for the routing of IP datagrams over large,
+potentially global, public data networks.
+
+The IP over SMDS Working Group has defined the operation of the
+Internet protocols when SMDS is used to support relatively small
+virtual private networks, or Logical IP Subnets (LISs).  Issues
+arising from public and global connectivity were delegated to the
+IPLPDN Working Group. 
+
+The IPLPDN Working Group will also continue the work of the Private Data Network
+Routing Working Group (PDNROUT) on X.25 PDNs.  This work will be
+extended to include call management and the use of the ISDN B channels
+for the transport of IP datagrams.
+
+Address resolution and routing over Frame Relay will also be
+discussed.
+

@@ -1,0 +1,22 @@
+The primary purpose of this proposed working group is to develop the 
+PERM protocol.  The PERM protocol provides secure management of usage 
+rights for digital entertainment content. PERM is not intended to 
+replace existing television conditional access systems or device 
+content protection mechanisms. Rather, it is intended to complement 
+such systems by providing authenticated signaling of usage-rights for 
+content works that have usage rights associated with them.  PERM 
+signaling operates across heterogeneous data networks, particularly 
+home networks, and uses Internet standards where appropriate.
+
+The PERM Working Group will identify existing Internet standards-track
+documents suitable for supporting PERM signaling and security needs.  
+This investigation will be documented in a "PERM Framework" 
+Informational-track document.  Following the framework document, one or 
+more PERM specifications will be published as standards-track 
+documents.  It is entirely possible that the current PERM specification 
+will be edited by the working group and published with modest changes.  
+It is the task of the PERM working group, however, to ensure that the 
+PERM protocol is integrity-protected, optionally private, and safe to 
+use on both unicast and multicast networks.  The PERM working group 
+will ensure PERM compatibility with the authorization, credential, and 
+public-key standards published by the IETF.

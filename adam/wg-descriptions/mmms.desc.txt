@@ -1,0 +1,24 @@
+Advances in radio and cellular communications technology are making it 
+practical to exchange not just short text message but larger media-rich 
+messages in a wireless environment. This BOF is intended to determine 
+the need and interest in creating a new IETF working group within the 
+Application Area. This working group would develop internet practices 
+and standards to define how best multimedia messaging services could be
+provided in a mobile or bandwidth-constrained Internet environment.  The 
+emphasis is on the application level protocols, not the transport or 
+network protocols associated with wireless networks.  Existing 
+multimedia messaging related standards (e.g., MIME, POP3, IMAP, SMTP) 
+would form the basis of this work, with additional work in areas to be 
+determined at the BOF meeting, potentially including:
+  * Push notifications to the client.
+  * Deliver of messages according the quality of network connection 
+    currently available (due to coverage, network capacity and user 
+    subscription)
+  * Setup and activate user profiles that define handling rules
+  * Automatic or manual selective retrieval/forwarding of the parts 
+    of individual messages
+  * Control of message part transcoding before deliver to client.
+
+If sufficient interest exists, this BOF will create a draft charter for
+a working group defining the scope of work and relationships with other
+IETF working groups and external standards organizations. 

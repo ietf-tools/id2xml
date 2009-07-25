@@ -1,0 +1,31 @@
+The Session Initiation Protocol Core (SIPCore) working group is
+chartered to maintain and continue the development of the core SIP
+specifications, currently defined as proposed standard RFCs 3261, 3262,
+3263, 3264, and 3265.
+
+The SIPCore working group will concentrate on specifications that
+update or replace the core SIP specifications. In this context,
+"update" means replacing or modifying protocol elements in the above
+listed RFCs in ways that would affect most or all implementations of
+those RFCs alone. Extensions to SIP that add new functionality that
+would not be required of all implementations will be done outside of
+this WG. The process and requirements for such extensions are
+documented in RFC 3427bis, "Change Process for the Session Initiation
+Protocol".
+
+Throughout its work, the group will strive to maintain the basic
+model and architecture defined by SIP. In particular:
+
+1. Services and features are provided end-to-end whenever possible.
+
+2. Reuse of existing Internet protocols and architectures and
+integrating with other Internet applications is crucial.
+
+The primary source of change requirements will be a) interoperability
+problems that stem from ambiguous, or under-defined specification,
+and b) requirements from other working groups in the RAI Area.
+
+Although in general the WG will not work on extensions to SIP, it
+may take on some previous work items from the SIP working group
+to allow for a smooth transition. The adoption of new items requires
+explicit agreement from the AD or rechartering.

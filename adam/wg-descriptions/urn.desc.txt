@@ -1,0 +1,29 @@
+The goal of this working group is to define both a Uniform Resource
+Name (URN) framework and an initial set of components that fit this
+framework.
+
+URNs are persistent identifiers for information resources.  The output
+of this Working Group will comply with RFC 1737, which defines URNs and
+gives requirements for them.  The framework will define the mechanics
+for enabling global scope, persistence, and legacy support requirements
+of URNs; requirements for namespaces to support this structure will
+also be defined.   Although the framework will allow URNs to be defined
+that vary in terms of degree of scalability and persistance, ensuring
+"user friendliness" of all resultant identifiers is beyond the scope of
+this group.
+
+This WG will define the framework for URNs, at least one resolution
+registry system, and at least one namespace.  RFCs describing
+additional material will also be developed (per the milestones,
+below).
+
+Input documents: 
+
+ o A Framework for the Assignment and Resolution of Uniform Resource
+   Names <draft-daigle-urnframework-00.txt>
+
+ o Resolution of Uniform Resource Identifiers using the Domain Name
+   System <draft-daniel-naptr-01.txt>
+
+ o Requirements for URN Resolution Systems
+   <draft-girod-urn-res-require-00.txt>

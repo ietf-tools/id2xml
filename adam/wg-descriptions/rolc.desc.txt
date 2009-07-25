@@ -1,0 +1,64 @@
+NOTE: This WG combined with IPATM to form the ION WG.
+
+Summary: This group is created to analyse and propose solutions to
+those problems that arise when trying to perform IP routing over large
+``shared media'' networks. Examples of these networks include SMDS, 
+Frame
+Relay, X.25, and ATM.
+
+Definition:
+   Internetwork Layer: To avoid confusion with multiple meanings of
+   ``network'' layer, we will use the term ``Internetwork'' layer to
+   unambiguously refer to that layer at which IP runs. This is the
+   layer at which IP routing functions. This is also the layer at which
+   CLNP, DECnet, etc. run.
+
+Large cloud:  A collection of ``end-points'' be they routers or hosts,
+   connected over a fabric such that communication can be established,
+   in the absence of policy restrictions, between any two such
+   entities. This communication within a cloud takes place using
+   addressing and capabilities below the ``Internetwork'' layer.
+
+The connectivity may or may not require circuit setup before
+communication. Such a collection is considered large if it is
+infeasible for all routing entities on such a ``cloud'' to maintain
+``adjacencies'' with all others. Examples include, but are not limited
+to, ATM, Frame Relay, SMDS, and X.25 public services.
+
+The group will investigate the operation of IP routing protocols and
+services over ``Large Clouds.'' Whenever possible, solutions shall be
+applicable to a range of ``cloud'' services. That is, the goal is a
+single solution applicable to multiple kinds of large ``clouds'' be they
+public or private, and independent of the specific technology used to
+realize the ``cloud'' (even a very large bridged Ethernet). It is also 
+an
+objective that solutions, where possible, apply to network layer
+protocols other than IP.
+
+The problems the group will cover are:
+
+A) The architectural implications of allowing direct communication
+   between entities which do not share a common IP network number. The
+   group will also entertain proposals on the use of a common IP network
+   number. If (as many believe) it is infeasible, an effort to document
+   the difficulties will be made.
+
+B) The routing/information protocol required to allow direct
+   communication between two entities which were not directly
+   exchanging routing information.  This will include address
+   resolution.  The solution must couple closely to routing. It must
+   take into account realistic connectivity policies.
+
+C) Operation of existing protocols between peers on such clouds. Are
+   any changes necessary or desirable?  If changes are required, they 
+will
+   be proposed to the relevant working group.
+
+D) Consideration of how policy restrictions and constraints (such as
+   access control and policy-based routing paths) affect A, B, and C.
+
+The group will also review the applicability of the work to ISDN and
+POTS. These technologies have a prima-facia difference, in that the
+number of simultaneous connections is much smaller. The implications of
+this for routing and relaying at the Internetwork layer will need to be
+explored further.

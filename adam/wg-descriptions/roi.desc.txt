@@ -1,0 +1,43 @@
+Background:
+
+Much of today's usage of the Internet and IP networks is for
+buffer-to-buffer data transfers, often in the form of bulk data and
+inter-process communications, using a variety of Internet protocols,
+including HTTP, FTP, NFS, CIFS, and soon, iSCSI.  Gigabit and faster
+network transfers incur heavy system resource costs, including both
+CPU use and system bus bandwidth, particularly on the receiving side.
+Overhead is dominated by the costs of processing and copying incoming
+data in order to place it at its ultimate destination.
+
+A solution to this problem that has been widely used in both research
+and industry is direct data placement, which can be enabled by a
+remote direct memory access (RDMA) protocol. An RDMA protocol makes it
+possible for a network interface to place data from an incoming packet
+directly into the memory where the application wants the data. This
+has significant savings in the receive side overhead and is needed for
+efficient support of multi-gigabit networks.
+
+The industry's need for high efficiency, high bandwidth communications
+in the data center has led to both proprietary and standards-based
+RDMA technologies, such as the Virtual Interface Architecture (VIA),
+and Infiniband.  However, these protocols are incompatible with the
+Internet Protocol framework.  The purpose of this WG is to develop the
+requirements for an RDMA architecture and protocol for use with the
+Internet Protocol suite.
+
+It is envisioned that the RDMA protocol developed will be cleanly
+layered above existing Internet transport protocols such as SCTP and
+TCP, and rely on them for reliable delivery and congestion management.
+
+The working group will develop several documents. These are:
+  * A problem statement, which describes what the problems are, the
+    motivation for making  RDMA service available in the Internet
+    and IP networks, and provides a basic explanation of generic
+    RDMA technology.  Informational RFC.
+  * A requirements document that describes the technical
+    requirements of an RDMA protocol for use in the Internet and
+    IP networks.  Informational RFC.
+  * A document that sets out the case for RDMA in a detailed
+    discussion of the technology, including what the problem is,
+    alternative methods of solving it, and why an RDMA technology
+    is a sound approach.  Informational RFC.

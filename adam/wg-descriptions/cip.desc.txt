@@ -1,0 +1,15 @@
+This Working Group is looking at issues involved in
+connection-oriented (or stream- or flow-oriented) internet level
+protocols.  The long-term intent is to identify the issues involved,
+to understand them, to identify algorithms that address them, and to
+produce a specification for a protocol that incorporates what the
+Working Group has learned.  To achieve this goal, the Group is
+defining a two year collaborative research effort based on a common
+hardware and software base.  This will include implementing different
+algorithms that address the issues involved and performing experiments
+to compare them.  On a shorter time-line, ST is a stream-oriented
+protocol that is currently in use in the Internet.  A short-term goal
+of this Working Group is to define a new specification for ST, called
+ST-2, inviting participation by any interested people.  MCHIP and the
+Flow Protocol have also been discussed because they include relevant
+ideas.

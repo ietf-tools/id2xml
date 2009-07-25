@@ -1,0 +1,61 @@
+Radio Frequency Identification (RFID) is a technique whereby a device,
+known as an RFID 'reader', can remotely sense the presence of, and
+access embedded memory on, a transponder, known as a 'tag'. Tags may be
+affixed to objects as a means to track the location and movement of 
+said objects within facilities equipped with readers. Tags may also 
+include environmental sensors that may capture and report conditions 
+to which the tag has been subjected. The tags can be stationary 
+(attached to fixed locations in a facility) or mobile (attached to 
+things moving about the facility). The readers can be stationary 
+(attached to doors, walls, shelving, or scaffolding) or mobile 
+(handheld, or vehicle-mounted).
+
+Recently, as a result of the development of standard RF (air) protocols
+and through the application of low-cost embedded computing technology,
+the implementation of RFID readers has evolved from peripherals,
+typically connected to a host computer via a serial port; to standalone
+devices supporting TCP/IP stacks, connected via wired (Ethernet) or
+wireless (802.11) LAN technology to enterprise computing resources
+supporting RFID-enabled client applications. 
+
+We envision a typical RFID deployment comprising of a network of RFID
+readers controlled by one or more reader network controller elements
+(which may be software in a server, embedded software in a 
+router/switch, or a standalone device). These controller elements in
+turn are connected to hosts/servers running client applications that
+ultimately consume the acquired tag data and management applications
+that monitor the operation of the reader network.
+
+This working group will specify a controller-to-reader protocol, the 
+Simple Lightweight RFID Reader Protocol, or SLRRP (pronounced 'slurp') 
+for use in an IP-based network to convey configuration, control, 
+status, and tag information to and from readers. This will be the 
+initial priority of the working group.  In the future, the working 
+group may specify a set of cooperating functions and possibly 
+protocols that achieve the level of operations support and management 
+expected of devices in today's IP network infrastructure.  
+
+It is possible that work undertaken in other working groups and even 
+other standards bodies (e.g. MIBs, discovery protocols) will be 
+referenced by this working group.  It is even possible that entire
+deliverables could be satisfied by the work of other working groups 
+(e.g. discovery protocols).  This working group will seek to maximize
+the use of existing specifications where applicable.  
+
+
+SLRRP Interaction With Other Standards Bodies:
+
+There are currently two organizations that develop specifications for 
+RFID air protocols, ISO and EPCGlobal.  Because the IETF will not 
+define a specific RFID air protocol, it is an appropriate venue for 
+the development of an air protocol-independent framework for RFID 
+reader communications and management.  This is the goal of SLRRP. 
+
+Because this working group seeks to develop operations and protocols 
+based on RFID operations defined in publically available documents, 
+there is no need for a formal liason between this working group and 
+other organizations.
+  
+Members of the working group are encouraged to participate in the other
+standards development forums so that the proper awareness of 
+dependencies and cooperating functions can be maintained.

@@ -1,0 +1,13 @@
+A number of IETF efforts have developed or are developing different 
+forms of reliable (and often "lightweight") transport protocols, because 
+they perceive that TCP is inadequate for their requirements.  This BOF 
+will explore what those requirements are, serving both as input into a 
+TSV directorate document discussing the services that can be built on 
+top of TCP; and to gauge the utility of developing a transport protocol 
+(perhaps a TCP variant) and/or session protocol that can meet these 
+needs in a general way.
+
+The focus is on clear-and-present requirements for unicast and reliable
+(or "near-reliable") transport/sessions, and not on general transport
+protocol features, nor on specific alternative transport protocols 
+(except as they illustrate requirements).

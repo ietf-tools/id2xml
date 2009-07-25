@@ -1,0 +1,107 @@
+The Yet Another Mail (YAM) WG will revise existing Internet Mail
+specifications currently at Draft Standard to advance them to Full
+Standard. YAM will focus strictly on advancing email-related
+specifications for which the community already has some years of
+experience with deployment and interoperability. Its function is not to
+reopen or reconsider protocols - if a specification is found to need
+significant technical work, YAM will remove it from the WG's agenda.
+
+This charter's scope of work is the set of email-related RFCs that are
+currently at Draft Standard. Each document will be examined, along with
+its errata, and a recommendation made as to whether it is suitable for
+advancement to Full Standard. If it is not, the WG may recommend
+whether it should be republished at Draft Standard, moved to Historic,
+or recycled to Proposed Standard. However, any actual work to
+facilitate publication of a document at other than Full Standard is
+outside the WG's scope. If the WG cannot quickly reach consensus about
+further work on a document, it will drop the documents from its agenda
+without further comment or effort.
+
+The purpose of this working group is to work on protocols that are
+already recognized as effectively full standards, improving their
+written specifications to align with that status. The working group does
+not intend to revise the actual protocols in any way and will avoid
+document changes that might even accidentally introduce protocol
+changes, destabilize a protocol, or introduce semantic or syntactic
+changes.
+
+In particular, it will avoid adding new document sections that were not
+previously required and making BNF grammar changes that didn't originate
+from interoperability problems or difficulties in comprehension by
+implementors.
+If an existing protocol implementation is conforming to the Draft Standard
+version of the protocol specification, it must also be conforming to the
+resulting Full Standard version. Hence, specification changes that
+create a violation of this requirement are out of scope of the working
+group charter.
+
+On a case by case basis, substantive changes may be considered, if they
+will modify text to match existing conforming implementations -- that
+is, implementations that are already deployed with significant use.
+Specifically, such changes will be permitted to relax requirements or
+to fix BNF bugs where the intent is and has been clear. The WG will
+consult with the IESG about proposed changes before it starts working
+on them. Once the document is done by the WG, approval proceeds
+using the normal IETF approval process. The two step approach is proposed
+in order to save both IESG and WG time and to avoid late surprises
+when a document is considered done by the WG.
+
+After the tasks of this charter are completed, the WG will consider
+rechartering to move selected mature specifications that are still at
+Proposed Standard to higher maturity levels, or to work on those
+documents previously identified as needing to be republished at Draft
+Standard or Proposed Standard.
+
+The underpinnings of this WG effort are:
+
+(1) Wide deployment and use of interoperable implementations of an
+existing standards-track protocol demonstrates a presumption that the
+existing specification is adequate. The burden of demonstrating the
+contrary lies with those who believe that they see significant technical
+or documentation defects.
+
+(2) It is generally in the best interest of the IETF and the Internet
+community to see specifications of mature protocols advance on the
+standards track, eliminating any uncertainty as to whether the protocols
+have been adequately understood and tested. To that end, YAM will avoid
+modification of documents simply to adjust them to match contemporary
+IETF notational or linguistic norms.
+Obviously, updating of references, boilerplate, and the equivalent are
+exceptions to this, but success in the WG requires that there be a
+good-faith commitment by both its participants and the IESG to avoid
+seeking changes that (a) do not contribute in a substantial and
+substantive way to the quality and comprehensibility of the
+specification, or that (b) force a change to the existing protocol.
+
+The steps to be followed by the WG are, approximately:
+
+o The WG will start work by analyzing the following email related
+documents which are currently Draft Standards,
+removing any that have significant technical defects or whose advancement
+may be controversial under the advancement criteria specified in RFC 2026:
+
+RFC 1652 8BITMIME
+RFC 1864 Content-MD5
+RFC 2045, 2046, 2047, 2049 MIME base specs
+RFC 3282 Content-language
+RFC 3461 DSNs
+RFC 3462 Multipart/Report
+RFC 3463 Enhanced Status Codes
+RFC 3464 Message Format for DSNs
+RFC 3798 Message Disposition Notification
+RFC 4409 Message Submission
+RFC 5321 SMTP
+RFC 5322 Internet Message Format
+
+o Form review and editing teams for each document to be advanced.
+
+o Formulate a list of proposed changes (stated in general terms,
+rather than specific wording).
+
+o Obtain WG consensus and consult with IESG on these changes.
+
+o Post I-Ds for WG consideration and consensus formation.
+
+o Recommend resulting documents to IESG for publication processing.
+
+o Rinse and repeat.

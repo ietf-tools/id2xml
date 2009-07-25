@@ -1,0 +1,24 @@
+One of the basic requirements of ``plug and play'' operation is that a
+host must be able to acquire an address dynamically, either when
+attaching to a network for the first time or when the host needs to be
+readdressed.  The purpose of the ADDRCONF Working Group is to design
+and specify a protocol for allocating addresses dynamically to IPv6
+hosts.  The address configuration protocol must be suitable for a wide
+range of network topologies, from a simple isolated network to a
+sophisticated globally connected network.  It should also allow for
+varying levels of administrative control, from completely automated
+operation to very tight administrative control.
+ 
+The scope of the working group is to propose a host address
+autoconfiguration protocol which supports the full range of topological
+and administrative environments.  It is the intention that, together
+with IPv6 system discovery, the address autoconfiguration protocol will
+provide the minimal bootstrapping information necessary to enable hosts
+to acquire further configuration information (such as that provided by
+DHCP in IPv4).  The scope does not include router configuration or any
+other host configuration functions.  However, it is within the scope of
+the working group to investigate and document the interactions between
+this work and related functions including system discovery, DNS
+autoregistration, service discovery and broader host configuration
+issues, to facilitate smooth integration.
+

@@ -1,0 +1,47 @@
+World Wide Web documents are most often written using Hyper Text Markup
+Language (HTML). HTML is notable in that it contains "embedded
+content"; that is, HTML documents often contain pointers or links to
+other objects (images, external references) which are to be presented
+to the recipient. Currently, these compound structured Web documents
+are transported almost exclusively via the interactive HTTP protocol.
+The MHTML working group has developed three Proposed Standards (RFCs
+2110, 2111 and 2112) which permit the transport of such compound
+structured Web documents via Internet mail in MIME multipart/related
+body parts.
+
+The Proposed Standards are intended to support interoperability between
+separate HTTP-based systems and Internet mail systems, as well as being
+suitable for combined mail/HTTP browser systems.
+
+It is beyond the scope of this working group to come up with standards
+for document formats other than HTML Web documents.  However, the
+Proposed Standards so far produced by the working group have been
+designed to allow other such formats to use similar strategies.
+
+The MHTML WG is currently INACTIVE while first implementations are
+under way.  To support implementation efforts, the WG Editor maintains
+an Informational Internet-Draft
+ftp://ftp.dsv.su.se/users/jpalme/draft-ietf-mhtml-info-06.txt which
+provides additional useful information for implementors.  This
+Informational Draft also discusses Web page formatting choices that
+affect their efficient use through disconnected channels such as mail.
+It will become an Informational RFC after implementation experience has
+been collected.  Until then, this informational draft will be kept
+current and available in the IETF Internet-Drafts library.
+
+The MHTML Mailing List remains open for discussion of any issues that
+may arise during implementation, and to collect information about
+successful interoperable and interworkable implementations in
+anticipation of progression to Draft-Standard Status.
+
+
+From May to October, 1997, the working group will Monitor
+Implementation progress and discuss issues, periodically Update Draft
+of Informational Document.
+
+
+
+The editors of this group are:
+
+Main editor: 	  Jacob Palme <jpalme@dsv.su.se>
+Associate editor: Alex Hopmann <alex.hop@resnova.co>

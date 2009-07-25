@@ -1,0 +1,4 @@
+This BOF will consider the IETF character set and language tag
+policy <draft-alvestrand-charset-policy-00.txt> and attempt to
+determine whether there is consensus that this policy, or a
+revision thereof, should be the policy of the IETF.

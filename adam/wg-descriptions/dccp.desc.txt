@@ -1,0 +1,57 @@
+The Datagram Control Protocol working group is chartered to develop and
+standardize the Datagram Congestion Control Protocol (DCCP). DCCP is a
+minimal general purpose transport-layer protocol providing only two
+core functions:
+
+- the establishment, maintenance and teardown of an unreliable packet
+  flow.
+
+- congestion control of that packet flow.
+
+Within the constraints of providing these core functions, DCCP aims to 
+be a general purpose protocol, minimizing the overhead of packet 
+header 
+size or end-node processing as much as possible. Therefore, DCCP is as 
+simple as possible, and as far as reasonably possible, it should avoid 
+providing higher-level transport functionality. DCCP will provide a
+congestion-controlled, unreliable packet stream, without TCP's 
+reliability or in-order delivery semantics. Additional unicast, 
+flow-based application functionality can be layered over DCCP.
+
+
+SCOPE
+
+Drafts for DCCP, and several associated congestion control IDs, already
+exist. The first task before the working group will be an abbreviated
+functional requirement validation of those drafts. There are two 
+possible outcomes:
+
+1) The current DCCP draft is declared suitable for further work, with 
+   some areas listed for possible extension.
+
+2) The current DCCP draft is declared unsuitable for further work, and 
+   more formal functional requirement exploration begins.
+
+Prior to the final development of the protocol, the working group will
+investigate areas of functionality that should be integrated into DCCP
+because they are difficult or impossible to layer above it. These areas
+include security and multi-homing/mobility, at a minimum. The protocol
+will be for both IPv4 and IPv6. It will not encompass multicast. It
+is strictly a unicast transport.
+
+For security, the working group will endeavor to ensure that DCCP
+incorporates good non-cryptographic mechanisms that make it resistant
+to denial-of-service attacks on DCCP connections and DCCP servers. A 
+related topic that will be explored is whether DCCP can be a candidate 
+to replace UDP in the transport of security management protocols such
+as IKE and JFK.
+
+The working group will also investigate DCCP's relationship with RTP 
+(the Real-time Transport Protocol).
+
+Once the DCCP specification has stabilized, the WG will produce a 
+document providing guidance to potential users of DCCP. The precise
+form of this document will be determined by WG discussion, but it 
+might 
+include example APIs, an applicability statement, or other forms of 
+guidance about appropriate usage of DCCP.

@@ -1,0 +1,52 @@
+As more and more resources become available on the Internet, there are 
+immediate and pressing needs for some applications to acquire spatial 
+location information about certain resources or entities. These 
+applications include navigation, emergency services, management of 
+equipment in the field, and other location based applications.
+
+The objective of the Spatial Location WG is to develop a payload format 
+to solve the following problem: How can an application represent the 
+spatial location of an identifiable entity, via or represented on the 
+Internet?
+
+The payload shall define the spatial location in (at least) a 
+geo-centric three dimensional coordinate representation (with a 
+timestamp) of a uniquely identifiable entity.
+
+The work items for the Spatial Location (SLO) Payload are:
+
+1. Spatial Location Representations. For interoperability reasons, a 
+   single absolute/default format shall be supported by all SLO-aware 
+   entities. This format shall have (at least) Longitude, Latitude, 
+   Altitude and a Timestamp when these values were last known. In
+   addition, a framework for adding any optional spatial location 
+   representations shall be specified. Though, this group shall not 
+   define any optional spatial location representation. Defining 
+   optional representation(s) can be a future work effort.
+
+2. SLO Payload Coding Mechanism. There must be a coding mechanism 
+   selected/designed for coding/decoding SLO Payload. The coding 
+   mechanism must be supported by all SLO-aware entities.
+
+3. Investigating the requirements of SLO payload on application and 
+   carrier protocols. The investigation by this group will focus
+   on:
+
+   - Representation Negotiation Mechanism Requirements,
+
+   - Requirements of Server Discovery,
+
+   - Transport related Security, QoS and Policy Requirements,  etc.
+
+   - Requirements for Applications to utilize SLO Payload
+
+What this group will not focus on during the initial chartering,
+shall be the following:
+
+    - Descriptive Location
+
+    - Location Assisting
+
+    - Generic Measurements
+
+    - Non-earth based location systems (ex: heliocentric)

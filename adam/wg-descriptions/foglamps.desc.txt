@@ -1,0 +1,8 @@
+With heavy use of RFC 1918 private addressing a number of applications 
+have run into some difficulty.  This has been documented by the IAB in 
+numerous RFCs and several drafts.  The purpose of this BOF is NOT to 
+revisit those discussions, but to examine the current limits on NATs, 
+and review some of the proposed mechanisms to deal with those 
+limitations.  Based on that review we will decide whether a working 
+group is necessary to (a) provide mechanisms and/or (b) review 
+conflicting mechanisms.

@@ -1,0 +1,36 @@
+This working group exists for the purpose of creating two documents:
+The first document, a BCP RFC, will be the process for registering
+new URL schemes.  The second document, an Informational RFC, will be
+a guideline for the creators of new URL schemes.  The purpose of this
+guideline will be to help ensure that new URL schemes:
+
+  - Consistently implement the general syntax of URLs as specified in 
+the
+    URL Generic Syntax and Semantics RFC.
+  - Are compatible with existing URL schemes.
+  - Have clearly specified character encoding rules.
+  - Have a well defined set of operations specified for them.
+  - Properly address security considerations.
+
+The following issues are considered beyond the scope of this working
+group and shall not be addressed by it:
+
+  - Modifications to the URL Generic Syntax and Semantics RFC.
+  - Specific URL schemes, previously proposed or not, except as test
+    cases for the guidelines document.
+  - UR* schemes other than URLs.
+
+
+Justification for working group:
+
+RFC 1738 defined URL schemes for a number of protocols popular at the
+time that it was written.  Many URL schemes for protocols not addressed
+in RFC 1738 have been proposed since the publication of that RFC.
+
+Due to the absence of guidelines for the development of new URL schemes,
+some of these recently proposed schemes lack completeness.  Further,
+while some of these schemes are now on the standards track, no mechanism
+for the registration of these new schemes has yet been specified.
+
+The output of this working group is needed in order to help ensure the
+overall integrity and consistency of URLs in the future.

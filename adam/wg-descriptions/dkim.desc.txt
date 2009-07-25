@@ -1,0 +1,110 @@
+The Internet mail protocols and infrastructure allow mail sent from one
+domain to purport to be from another. While there are sometimes
+legitimate reasons for doing this, it has become a source of general
+confusion, as well as a mechanism for fraud and for distribution of 
+spam (when done illegitimately, it's called "spoofing"). The DKIM 
+working group will produce standards-track specifications that allow a 
+domain to take responsibility, using digital signatures, for having 
+taken part in the transmission of an email message and to 
+publish "policy" information about how it applies those signatures. 
+Taken together, these will assist receiving domains in detecting (or 
+ruling out) certain forms of spoofing as it pertains to the signing 
+domain.
+
+The DKIM working group will produce a summary of the threats that are
+addressed by the proposed standards-track specifications, while
+acknowledging their limitations and scope. The DKIM working group will
+also produce security requirements to guide their efforts, and will
+analyze the impact on senders and receivers who are not using DKIM,
+particularly any cases in which mail may be inappropriately labeled as
+suspicious or spoofed.
+
+While the techniques specified by the DKIM working group will not 
+prevent fraud or spam, they will provide a tool for defense against 
+them by assisting receiving domains in detecting some spoofing of 
+known domains. The standards-track specifications will not mandate any 
+particular action by the receiving domain when a signature fails to 
+validate. That said, with the understanding that guidance is necessary 
+for implementers, the DKIM documents should discuss a reasonable set 
+of possible actions and strategies, and analyze their likely effects 
+on attacks and on normal email delivery. The DKIM working group will 
+not attempt to establish requirements for trust relationships between 
+domains nor to specify reputation or accreditation systems.
+
+The DKIM working group will consider mailing-list behaviour that is
+currently deemed acceptable, will make every effort to allow such 
+mailing lists to continue to operate in a DKIM environment, and will 
+provide a plan for smooth transition of mailing lists that fail to 
+operate. The specifications will also advise mailing lists on how to 
+take advantage of DKIM if they should choose to do so.
+
+The signatures will use public-key cryptography and will be based on
+domain name identifiers. Public keys needed to validate the signatures
+will be stored in the responsible identity's DNS hierarchy. The
+specifications will be based on the following Internet Drafts:
+
+   * draft-fenton-dkim-threats
+   * draft-allman-dkim-base
+   * draft-allman-dkim-ssp
+
+These documents represent experimentation and consensus from a number 
+of designers and early implementors.
+
+Experimentation has resulted in Internet deployment of these
+specifications. Although not encouraged, non-backwards-compatible 
+changes to these specifications will be acceptable if the DKIM working 
+group determines that the changes are required to meet the group's 
+technical objectives.
+
+The resulting protocols must meet typical criteria for success. In
+addition to security, these include usability, scalability, ease of
+deployment, and cryptographic algorithm independence.
+
+To prevent this task from becoming unwieldy, several related topics are
+considered out of scope for the DKIM working group. These topics 
+include:
+
+* Reputation and accreditation systems. While we expect these to add
+  value to what is defined by the DKIM working group, their development
+  will be separate, and is out of scope for the DKIM working group.
+
+* Message content encryption.
+
+* Additional key management protocols or infrastructure.
+
+* Signatures that are intended to make long-term assertions beyond the
+  expected transit time of a message from originator to recipient, 
+  which is normally only a matter of a few days at most.
+
+* Signatures that attempt to make strong assertions about the identity
+  of the message author, and details of user-level signing of messages
+  (as distinguished from domain-level keys that are restricted to
+  specific users).
+
+* Duplication of prior work in signed email, including S/MIME and
+  OpenPGP.
+
+Once the primary goals are met, the DKIM working group may also study
+whether to adopt a work item for specifying a common mechanism to
+communicate the results of message verification to the message 
+recipient. The generation of a standards-track specification on this 
+topic will require an update to the DKIM working group charter.
+
+The deliverables for the DKIM working group are these:
+
+* An informational RFC presenting a detailed threat analysis of, and
+  security requirements for, DKIM. IESG approval of this document is
+  a prerequisite for the submission of the standards-track
+  specifications.
+
+* A standards-track specification for DKIM signature and verification.
+
+* A standards-track specification for DKIM policy handling.
+
+* A standards-track specification for DKIM DNS Resource Record(s).
+
+* An informational RFC providing an overview of DKIM and how it can
+  fit into overall messaging systems, how it relates to other IETF
+  message signature technologies, implementation and migration
+  considerations, and outlining potential DKIM applications and
+  future extensions.

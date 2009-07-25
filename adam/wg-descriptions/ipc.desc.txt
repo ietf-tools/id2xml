@@ -1,0 +1,33 @@
+Recent work in the IETF has led to the development of standards for a 
+QoS-enabled Internet.  Through the efforts of the Integrated Services 
+working group, data flows can describe their desired or required service 
+to the network.  RSVP carries the service requests into the network, 
+where the acceptance of these QoS requests results in better network 
+service to some flows, possibly at the expense of service to traditional 
+best-effort flows.
+
+In an open and public Internet (as well as large intranets), maintaining
+such service differentiation inherently depends on mechanisms capable of
+enforcing (or reporting) operational policy constraints.  Towards this
+end, RSVP message formats contain a place-holder for policy data0 
+elements, which may contain information relevant to the network's
+decision to grant a reservation request.
+
+Certain network elements may require assistance in the processing of 
+these policy-data elements and, therefore, may communicate with one or 
+more policy servers, entities which specialize in the making of policy 
+decisions.
+
+The purpose of the IPC working group is to establish a scalable policy
+control model for RSVP.  The working group will specify a protocol for
+use among RSVP-capable network nodes and policy servers.  This work 
+will also require documentation of any extensions to RSVP which may 
+be necessary in support of this policy control.
+
+Documents produced by the working group must fully address all the 
+security aspects of this type of protocol.  In particular, theft and 
+denial of service threats must be minimized.
+
+In pursuit of these goals, the working group must expressly avoid
+specifying policy behavior.  The judgment of specific policies is
+similarly beyond the scope of the working group.

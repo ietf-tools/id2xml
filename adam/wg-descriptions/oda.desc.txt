@@ -1,0 +1,14 @@
+The ODA Working Group will develop guidelines for the use of the Office
+Document Architecture for the  exchange of Compound documents including
+formattable text, bit-map graphics and geometric graphics according to
+the ODA Standard.  It will  consider  also Intercept Standards for other
+document  content types it considers vital - e.g.,  spreadsheets.  The
+Working Group will  define  how to use  both SMTP and X.400  for
+interchange of ODA documents.   It will maintain close liaison with the 
+SMTP
+and X.400 Working Groups.
+
+This Working Group will review the availability of ODA implementations, 
+in
+order to mount a Pilot Testbed for processable compound document
+interchange.  Finally, it will set up and evaluate such a testbed.

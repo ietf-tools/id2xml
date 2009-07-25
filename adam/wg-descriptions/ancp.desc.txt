@@ -1,0 +1,128 @@
+Purpose:
+
+The purpose of the ANCP WG is to standardize an IP based Access Node 
+Control Protocol (ANCP) for use in service provider Digital Subscriber 
+Line (DSL) access and aggregation networks. ANCP operates between an 
+Access Node (AN) and Network Access Server (NAS). 
+
+Necessary Terminology:
+
+Access Node (AN) - Network device, usually located at a service 
+provider central office or street cabinet, that terminates acess loop 
+connections from Subscribers. In DSL, this is often referred to as a 
+Digital Subscriber Line Access Multiplexer (DSLAM)
+
+Network Access Server (NAS) - Network device which aggregates 
+multiplexedSubscriber traffic from a number of Access Nodes. The NAS 
+plays a central role in per-subsciber policy enforcement and QoS. 
+Often referred to as an Broadband Network Gateway (BNG) or Broadband 
+Remote Access Server (BRAS). A detailed definition of the NAS is given 
+in RFC2881.
+
+Goals:
+
+ANCP is intended to address the requirement for a bidirectional, IP-
+based, control protocol that operates across multiple types (i.e., 
+Ethernet, ATM) of DSL access and aggregation networks. The goal of an 
+ANCP message exchange is to convey status and control information 
+between one or more ANs and one or more NASs without going through 
+intermediate element managers. 
+
+The ANCP WG will address the following four use-cases:
+
+1. Dynamic Access Loop Attributes
+Various queuing and scheduling mechanisms are used in access networks 
+to avoid congestion while dealing with multiple flows and distinct QoS 
+profiles. Communicating the access-loop status, attributes and current 
+DSL synchronization rate between the AN and Subscriber up to the NAS 
+is desirable, particularly when the NAS is providing QoS for 
+individual flows and subscribers. ANCP will provide a mechanism to 
+communicate dynamic access-loop attributes from the AN to the NAS.
+
+2. Access Loop Configuration
+In additional to reporting Access Loop characteristics from the AN to 
+the NAS, ANCP will allow a NAS to send loop-specific configuration 
+information to an AN based on the results of subscriber authentication 
+and authorization (e.g., after AAA responses have been received at the 
+NAS). 
+
+3. Remote Connectivity Test
+Traditional DSL access and aggregation networks employ point-to-point 
+ATM circuits between the AN and NAS for each subscriber, allowing 
+troubleshooting of the local loop from the NAS via ATM OAM tools. With 
+the increasing deployment of Ethernet in the access and aggregation 
+network, operators require consistent methods to test and troubleshoot 
+connectivity for mixed Ethernet and ATM access networks (including the 
+local loop). ANCP will allow a remote procedure for a local loop 
+connectivity test to be triggered from the NAS with results 
+communicated back to the NAS. 
+
+4. Multicast
+When multicast replication for subscriber-bound traffic is performed at
+the AN, it offloads the network between the AN and NAS. However, a
+subscriber's policy and configuration for multicast traffic may only be
+known at the NAS. ANCP will provide a mechanism to communicate the
+necessary information exchange between the AN and NAS so as to allow 
+the AN to perform subscriber bound multicast group replication in line 
+with the subscriber's policy and configuration, and also allow the NAS 
+to follow each subscriber's multicast group membership.
+
+Non-Goals:
+
+ANCP is an IP-based protocol that operates between the AN and NAS, 
+over a DSL access and aggregation network. It will not address setup 
+or configuration of circuits or connections in the access and 
+aggregation network itself.
+
+The focus of this WG is on one very specific application space. While 
+the design of the protocol must be general as to not preclude other 
+uses in the future should a need arise, it is not a goal of this WG
+to address specific requirements outside of DSL access and aggregation 
+networks. 
+
+Security:
+
+The ANCP working group will provide a threat analysis and address the 
+associated security aspects of the control protocol. 
+
+Resiliency and Scalabilty: 
+
+A graceful restart mechanism will be defined to enable the protocol to 
+be resilient to network failures between the AN and NAS.
+
+Scalability at the NAS is of primary concern, as it may be aggregating 
+traffic from a large number of ANs, which in turn may be serving a 
+large number of Subscribers. ANCP traffic should not become a denial 
+of service attack on the NAS control plane. Format of messages, 
+pacing, transport over UDP or TCP, etc. will be considered with this 
+in mind.
+
+For reasons of aggregation network scalability, some use cases require 
+that aspects of NAS or AN functionality may be distributed in nodes in 
+the aggregation network. In these cases, ANCP can run between these 
+nodes.
+
+Deliverables:
+
+The working group will define a basic framework and requirements 
+document intended for Informational publication, focusing on the four 
+use-cases outlined in this charter. This document will include a 
+security threat analysis and associated requirements. The WG will then 
+investigate and define a solution for an IP based control protocol 
+meeting these requirements. 
+
+There are early interoperable implementations of an ANCP-like protocol 
+which are based on an extended subset of the GSMPv3 protocol. This 
+running code will be the the starting point for the working group 
+solution, and will be abandoned only if the WG determines it is not 
+adequate to meet requirements going forward.
+
+Coordination with other Working Groups or Organizations:
+
+The working group will coordinate with the ADSL MIB working group so 
+the the management framewoirk and MIB modules are consistent for DSL 
+access environments. The working group will re-use, as far as 
+possible, standard MIB modules that have already been defined.
+
+The remote connectivity test use case may require coordination with 
+ITU-T Ethernet OAM work, and with IEEE 802.1ag.

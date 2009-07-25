@@ -1,0 +1,112 @@
+The IETF IPCDN Working Group develops and standardizes MIBs
+for IP-capable data-over-cable systems, for example cable
+modems, multimedia terminal adapters and associated
+cable-data equipment in a cable headend.
+These MIBs cover not only cable data interfaces, but also
+management of cable-data equipment and systems.
+
+The WG mailing list may be used to discuss Internet-related
+issues in data-over-cable equipment and systems. In the event
+of a particular new Internet technology issue arising in the
+cable-data context, the WG will identify whether that is best
+handled within the IETF or is best handled by another standards
+body. In the event that new IETF MIB work is requested, the WG
+chairs can discuss additional WG work items with the AD. Such
+additions will have to go through normal re-charter process.
+If non-MIB work gets identified, such items are not normal
+work items for this IPCDN-MIB WG and must go through normal
+IETF new WG chartering process.
+
+Standardization of MIBs for DOCSIS and PacketCable systems are
+explicitly within the scope of the IPCDN Working Group.
+
+The IPCDN WG will also keep informed on what other groups in
+the industry are doing as it relates to the efforts of this
+working group.
+
+The WG will align its specifications with IPv6 and SNMP Standards.
+
+Related groups:
+
+CableLabs (http://www.cablelabs.com/) is structured into projects.
+In its Cable Modem DOCSIS project, CableLabs has produced three
+generations of data over cable specifications: DOCSIS 1.0,
+DOCSIS 1.1, and DOCSIS 2.0.
+In its PacketCable project, CableLabs has produced one generation
+of interface specifications for delivering real-time multimedia
+services over DOCSIS (http://www.packetcable.com/specifications/).
+Internationally, IPCablecom is the global name associated
+with the extensions & global standardization of PacketCable
+in ETSI & ITU-T SG9.
+
+DOCSIS 1.0 includes specifications for a bidirectional
+data-over-cable interface (RFI, or Radio Frequency Interface)
+and a data privacy service (BPI, or Baseline Privacy Interface).
+The key devices in a DOCSIS network are the Cable Modem (CM, the
+device at the subscriber premise) and the Cable Modem Termination
+System (CMTS, the device at the cable headend). For DOCSIS 1.0
+systems, the IPCDN WG has published the Cable Device MIB
+(RFC 2669), the RF Interface MIB (RFC 2670), and the Baseline
+Privacy MIB (RFC 3083).
+
+DOCSIS 1.1 extends the DOCSIS 1.0 specifications to support
+better quality of service parameters (RFIv1.1), to enable
+operation in European cable networks (EuroDOCSIS), and to
+authenticate modems and firmware images (BPI+). The IPCDN WG
+will update the Cable Device and Radio Frequency MIBs for
+DOCSIS 1.1, and repair flaws discovered in operational use.
+Other IPCDN WG documents will address the operational and
+management issues for new DOCSIS 1.1 functional components
+(e.g. BPI+), for subscriber device management, and for
+uniform event notification. The IPCDN WG has also published the DOCSIS
+Subscriber Management MIB (RFC4036) for DOCSIS 1.1 and 2.0
+systems.
+
+DOCSIS 2.0 enhances the DOCSIS 1.1 specifications at the
+physical layer, in particular to support two new physical
+layer encodings: S-CDMA and A-TDMA. The IPCDN WG will update
+the Radio Frequency MIB for DOCSIS 2.0.
+
+PacketCable 1.0 is built on top of the DOCSIS 1.1 cable modem
+infrastructure and it includes a suite of interface
+specifications covering multimedia terminal adapter (MTA)
+device provisioning, voice over IP session signaling, QoS
+signaling based on IETF standards. The key systems in a
+PacketCable network are the multimedia terminal adapter (MTA),
+a Call Management Server (CMS), a PacketCable-compliant
+DOCSIS 1.1 CMTS, Media Gateway Controllers, Media Gateways
+along with back-office systems. In ITU-T SG-9 and ETSI AT,
+IPCableCom has standardized PacketCable to create a set of
+international standards.
+
+
+Work items:
+
+The IPCDN WG will address issues related to network management,
+especially as they concern HFC access networks. It is expected
+that other services (i.e. RSVP, IPSEC, etc.) will operate
+mostly unmodified.
+
+The specific work items include
+
+-- DOCSIS,
+- publish MIB documents for:
+- subscriber device management on a DOCSIS 1.1 CMTS,
+- managing the quality of service parameters for a
+DOCSIS 1.1 device,
+- managing the Baseline Privacy Plus system for a
+DOCSIS 1.1 device,
+- uniform event notification on a DOCSIS 1.1 device,
+- revise MIB documents for:
+- DOCSIS 1.0 RF Interface MIB to support EuroDOCSIS
+parameters and DOCSIS 2.0 physical layer management,
+- the DOCSIS 1.0 Cable Device MIBs to address SNMPv3
+and IPv6 compliance and interoperability issues,
+
+-- IPCablecom & PacketCable
+- publish MIB documents for:
+- managing the device parameters of
+PacketCable/IPCableCom MTA devices,
+- managing the signaling parameters of
+PacketCable/IPCableCom MTA devices,
+- managing events for PacketCable/IPCablecom systems,

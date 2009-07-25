@@ -1,0 +1,88 @@
+Draft Charter 6/21/93 - mdw
+
+We are in the process of building global directory systems and other 
+information services on the global Internet.  In many parts of the world
+it is seen as essential for the success of the global services that they 
+should be able to recognize, store, and present textual information like
+personal and organizational names, represented in the character sets 
+used
+by those concerned.  This means that the Directory must be able to 
+handle
+national characters not found in the US-ASCII repertoire.  The same 
+applies
+to the other global information services on the network (e.g., the 
+databases
+used in many information servers).  This is especially a problem as 
+information services are provided for clients on various different 
+hardware
+architectures.
+
+Currently, for the Western European languages at least 5 different 
+encodings
+are in use on the network: ISO-7 National Variants, ISO 8859/1, ROMAN8,
+T.61, and RC850.  (See RFC1345 for further information on these 
+character
+sets.)  If you consider the other scripts used in Europe and the other
+encodings the number of different character set codes rise to as many as 
+40.  This is the real (and messy) world we live in.  Changing the 
+character
+sests in this world is not an option, as curent systems run applications 
+which can support only the character sets used by that system.
+
+However, a universal encoding has begun to appear: UCS (ISO 10646).  
+Initial
+experience with this solution has been positive.  However, there are 
+still
+many issues to be addressed in the context of ISO 10 646 and the other
+character set codes, which will exist on the Internet in the future:
+
+(1) Can we agree on some common network services/model for character set 
+    handling?
+
+(2) Should a general-purpose SW tool be designed that will support both
+    UCS and regional character sets?
+
+(3) Is there a solution that will make character set convertors for 
+different
+    codes ``plug-and-play'' (i.e., an API) without specifying the actual
+    underlying implementation?  Can we use UCS as a common denominator 
+for
+    that?
+
+(4) Is it necessary to have a document identifying the language and the
+    character sets which cater to a particular language?
+
+(5) If we need to solve these problems and UCS (ISO 10 646) is the only 
+    available general option today which is maybe close to be 
+sufficient,
+    can we start with UCS and make minimal changes or specifications 
+which
+    will be sufficient for our needs.  Can we discuss the missing 
+    agreement/specifications required in the communication protocols 
+such as:
+
+    (a) The order of octets in the interchange of data is left to be 
+        specified by the sender and the recipient in UCS.  What are the 
+        ``sender'' and ``recipient'' on the Internet?  Can we define a 
+        mechanism to identify the serialized byte order of a data 
+stream?
+
+    (b) Additional encoding mechanisms for the UCS have been proposed.  
+Do
+        these schemes have any merit?
+
+    (c) Some amount of profiling may be necessary for UCS use in some 
+        particular countries, do we need to specify that globally or we
+        can leave it to a particular region to be solved as regional 
+matter?
+
+    (d) Do we need to differentiate or specify how tagged data (i.e., 
+the
+        field type in a database) and how ``serialized byte order'' data 
+        are treated in a communication protocol or will some common
+        specification for the tag and the type be suffient?
+
+
+The goal of the BOF is to test the interest for the various issues.  If
+possible a clear set of issues could be identified then working group(s) 
+will be defined.

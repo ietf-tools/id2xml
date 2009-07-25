@@ -1,0 +1,80 @@
+The IPPM WG has developed a set of standard metrics that can be
+applied to the quality, performance, and reliability of Internet data
+delivery services. These metrics are designed such that they can be
+performed by network operators, end users, or independent testing
+groups. It is important that the metrics not represent a value judgment
+(i.e. define "good" and "bad"), but rather provide unbiased quantitative
+measures of performance.
+
+Functions peripheral to Internet data delivery services, such as NOC/NIC
+services, are beyond the scope of this working group.
+
+The IPPM WG has produced documents that define specific metrics and
+procedures for accurately measuring and documenting these metrics. This
+is the current list of fundamental metrics and the existing set of
+derived metrics.
+
+- connectivity
+- one-way delay and loss
+- round-trip delay.
+- delay variation
+- loss patterns
+- packet reordering
+- bulk transport capacity
+- link bandwidth capacity
+- packet duplication
+
+The working group will advance these metrics along the standards track
+within the IETF. The WG will document the process of moving documents along
+the standards track, based on draft-bradner-metricstest. As this process
+is likely to be needed by other groups as well (in particular BMWG,
+PMOL), the group will collaborate with other groups in order to ensure
+that there
+is consensus amongst all groups expected to use the process.
+
+Additionally, the WG will produce Proposed Standard AS documents,
+comparable to applicability statements in RFC 2026, that will focus on
+procedures
+for measuring the individual metrics and how these metrics characterize
+features that are important to different service classes, such as bulk
+transport,
+periodic streams, packet bursts or multimedia streams. Each AS
+document will discuss the performance characteristics that are
+pertinent to a specified service class; clearly identify the set of
+metrics that
+aid in the description of those characteristics; specify the methodologies
+required to collect said metrics; and lastly, present the requirements
+for the common, unambiguous reporting of testing results. The AS
+documents can also discuss the use of the metrics to verify performance
+expectations,
+such as SLA's, report results to specific user groups or investigate
+network problems. The focus is, again, to define how this should be
+done, not
+to define a value judgment. The WG may define additional statistics for
+its metrics if needed. Specific topics of these AS documents must be
+approved by the Area Directors as charter additions.
+
+The WG will work on documents describing how to compose and decompose
+the results of its metrics over time or space.
+
+The WG has produced protocols to enable communication among test
+equipment that implements the one- and two-way metrics (OWAMP and TWAMP
+respectively). OWAMP and TWAMP will be advanced along the standards
+track. Further
+development of these protocols will also be done inside the WG.
+
+The metrics developed by the WG were developed inside an active
+measurement context, that is, the devices used to measure the metrics
+produce their own traffic. However, most metrics can be used inside a
+passive context as well. No work is planned is this area though,
+this may be changed with AD approval.
+
+The intent of the WG is to cooperate with other appropriate standards
+bodies and forums (such as ATIS IIF, ITU-T SG 12, 13 and 15, MEF) to
+promote consistent approaches and metrics. Within the IETF process, IPPM
+metrics
+definitions will be subject to as rigorous a scrutiny for usefulness,
+clarity, and accuracy as other protocol standards. The IPPM WG will
+interact with other areas of IETF activity whose scope intersect with
+the requirement of these specific metrics. The WG will, on request, provide
+input to other IETF WG on the use of these metrics.

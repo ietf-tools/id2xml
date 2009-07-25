@@ -1,0 +1,13 @@
+
+  The Multi-Media Bridge Working Group has the task of addressing
+  the function of multi-media bridges within TCP/IP networks.  This
+  is viewed as necessary at this time because of the proliferation
+  of these devices.
+
+  The first goal of the Group is to document the multi-media bridge
+  technology and point out the issues raised by having these devices
+  in a TCP/IP internet.  If there are problems which can be addressed
+  the Group will work towards resolving them and documenting the
+  solutions.
+
+

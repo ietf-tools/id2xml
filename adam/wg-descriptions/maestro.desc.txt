@@ -1,0 +1,31 @@
+As we continue to deploy multicast services across the internet, we 
+continue to learn more about the scaling, deployment, and usage 
+propereties of IP multicast. This BoF proposes to discuss two possible 
+architectural enhancements to the existing multicast services which may 
+improve the acceptance and widespread usage of multicast. The first of 
+these is the possiblity of using a two-part global multicast address 
+with the goal of easing address allocation headaches and the use of 
+shared resources in ISP backbones. The second is to provide a slightly 
+different multicast service to groups where there is a single source and 
+thereby achieve greater scalability if there is a large number of such 
+groups.
+
+The purpose of the BoF is to air these issues with the community at 
+large and to ascertain if there is sufficient interest in pursuing this 
+direction to form a Working Group to produce corresponding protocol and 
+operational specifications.
+
+Some of this work has been presented at prior IETFs and other forums, so 
+the BoF will not be of a tutorial nature (i.e. there will not be 
+presentations of the earlier work on "Simple Multicast" and "Express"). 
+Rather, we will discuss the relationship between these (and other) 
+proposals and the current trajectory for multicast deployment in the 
+Internet as a whole. We hope to ascertain if employing some or all of 
+these techniques could accelerate deployment, or result in higher 
+confidence that widespread multicast will be more scalable, debuggable, 
+and robust.
+
+In order to start the discussion prior to Oslo, it would be convenient 
+to use an existing mailing list: sm-interest@cs.ucl.ac.uk. Participants 
+should have read the following material prior to attending the BoF:
+	http://www.cs.ucl.ac.uk/research/rama/

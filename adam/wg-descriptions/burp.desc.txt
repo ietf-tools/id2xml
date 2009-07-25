@@ -1,0 +1,13 @@
+Most networks require a user to register and provide authentication 
+information including their credentials before being allowed access or 
+authorized to use certain resources.  Dial-up networks and others have 
+relied on PPP's capability to do user authentication in conjunction with 
+AAA(RADIUS) as a means to the process of user registration.  Wireless 
+cellular networks have relied on specific layer 2 identifiers and layer 
+3 messaging (NOT IP) to accomplish user registration.  However as new 
+types of networks such as wireless LANS are deployed in hotspot areas, 
+and other new types of access networks are deployed which provide 
+connectivity to the Internet, the legacy mechanisms may not be 
+appropriate in such scenarios.  The BOF aims to determine if a 
+registration protocol decoupled from the lower layers is needed. Such a 
+protocol has many potential applications.

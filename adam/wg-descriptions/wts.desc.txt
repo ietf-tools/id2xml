@@ -1,0 +1,10 @@
+The goal of the Web Transaction Security Working Group is to develop
+requirements and a specification for the provision of security services
+to Web transaction, e.g., transactions using HyperText Transport 
+Protocol
+(HTTP). This work will proceed in parallel to and independently of the
+development of non-security features in the HTTP Working Group. The
+working group will prepare two documents for submission as Internet
+Drafts; an HTTP Security Requirements Specification, and an HTTP
+Security Protocol Specification. The latter will be submitted as a
+Standards Track RFC.

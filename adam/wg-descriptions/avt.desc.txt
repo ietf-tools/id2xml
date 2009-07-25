@@ -1,0 +1,90 @@
+The Audio/Video Transport Working Group was formed to specify a
+protocol for real-time transmission of audio and video over unicast
+and multicast UDP/IP. This is the Real-time Transport Protocol, RTP,
+together with its associated profiles and payload formats. The
+current aims of the working group are:
+          
+- to review and revise existing payload formats to advance those
+which are useful to Draft Standard, and to declare others as Historic.
+Milestones will be established as a champion for each payload format is
+identified.
+          
+- to develop payload formats for new media codecs, and to document
+best-current practices in payload format design. The group
+continues to be precluded from work on codecs themselves because of
+overlap with the other standards bodies, and because the IETF does not
+have the ability to effectively review new codecs. An exception was
+made for the freeware iLBC codec on a highly experimental basis, but
+acceptance of new codec work is unexpected and subject to rechartering.
+          
+- to complete the forward error correction work to update RFC
+2733 in the form of the ULP payload format
+          
+- to extend RTP to work with Source-Specific Multicast sessions with
+unicast feedback
+          
+- to provide a framing mechanism for RTP over TCP and TLS
+          
+- in collaboration with the MPLS and ROHC WGs, to develop a solution
+for header compression of RTP across MPLS networks that avoid
+decompression and compression at each MPLS node.
+          
+- to develop a new RTP profile for the combination of the SRTP
+profile and the Extended RTP Profile for RTCP-based Feedback
+(RTP/SAVPF)
+          
+- to maintain and enhance the SRTP Profile, with review and input
+from the Security Area
+          
+- to develop a new RTP profile for usage of TFRC (RFC 3448) with RTP
+over UDP to allow application developers to gain experience
+with TCP friendly congestion control.
+          
+- to develop a MIB for RTCP XR (RFC 3611).
+          
+- to update the RTP MIB, including aligning it with RFC 3550.
+          
+- to clarify how RTP is used for media in conferencing with
+centralised nodes performing relay, translation or mixing of media.
+          
+- to develop the mechanisms needed for efficient control of media
+and its encoding process in RTP based conferencing, both over
+multicast and transport containing relays, translators and mixers. An
+example of such a mechanism is a method to request a full intra coded
+frame of video. This would be used to allow joining participants to
+receive video immediately after joining instead of waiting for the
+next intra coded frame. It also allows mixers to perform switching
+between media sources without the need to re-encode the media.
+          
+- to develop a solution for carrying media meta data, specifically
+SMPTE timestamps, to enhance the media stream. Such transport
+may be done in either RTP or RTCP depending on which is most suitable.
+The WG may consider if a generalized mechanism should be developed to
+enable future types of meta data to be easier to include.
+          
+- to develop two new metric blocks for the RTCP XR (RFC 3611)
+framework to provide information on the media quality experienced by
+the receiver of RTP flows. One metrics block is for high resolution
+measurements of audio and speech quality. A second one for
+providing information on the quality of video. The timescale to
+complete this second block and the included metrics are highly
+dependable on the development of standardized subjective metrics for
+video quality. The WG will consider what metrics that are available
+and if they should be included or not. The metrics blocks shall not
+duplicate signalling information anyway necessary for the
+establishment of the session.
+          
+- to specify how the RFC 3550 requirement on RTCP senders to always
+send compound packets can be relaxed to allow for non-compound
+packets. The specification need to define under which criteria
+non-compound RTCP packets may be sent while maintaining the
+functionality that motivated the usage of compound RTCP packets
+and keep the bandwidth within specified limits.
+          
+The longer term goals of the working group are to advance the SRTP
+Profile, the Extended RTP Profile for RTCP-based Feedback, the
+Compressed RTP framework, and the RTP MIB to Draft Standard.
+          
+The group has no plans to develop new RTP profiles beyond those
+listed above, but will consider rechartering to produce profile level
+extensions if appropriate.

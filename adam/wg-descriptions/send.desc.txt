@@ -1,0 +1,54 @@
+Neighbor Discovery is the basic protocol by which IPv6 nodes discover
+their default routers on the local link, and by which nodes on a local
+link resolve IPv6 addresses to MAC layer addresses, for delivery of
+packets on the local link. Neighbor Discovery is specified in RFC
+2461. One of the design principles behind Neighbor Discovery is to
+enable zero configuration, i.e., to allow hosts to start communicating
+with other hosts at the local link and in the Internet without any
+requirements for manual configuration.
+
+RFC 2461 specifies that IPsec AH should be used to secure signaling
+for Neighbor Discovery. Due to bootstrapping issues, only manual keying
+works and that is impractical for most cases. This is in conflict with
+the goal of Neighbor Discovery, namely to allow complete
+address autoconfiguration of a node.
+
+The objective of this working group is to define protocol support for
+securing IPv6 Neighbor Discovery without requiring manual keying. The
+following are charter items for the working group:
+
+1) A threat assessment and trust model for local links will be
+   worked out. The threat assessment will clearly describe which
+   threats the Neighbor Discovery security solution(s) will address
+   and which are not addressed. The trust model will describe what
+   types of networks require what level of security solution.
+   Together these form a clear problem statement and a set of
+   requirements.
+
+2) A protocol for assuring authenticatable distribution of public keys,
+   that allows for example tying a public key to a node's IP address or
+   interface ID, and for example authenticating a router's
+   authorization to route, will be designed. The working group will 
+   consider the presentation by Steve Bellovin at the SEND BOF as a 
+   starting point.
+
+3) The use of the key distribution protocol and public key
+   cryptographic scheme for calculating digital signatures
+   in IPsec AH and/or ESP headers will be specified. IANA
+   may be requested to reserve one or more of the reserved
+   SPIs (1-255) for the protocol.
+
+The Working Group will attempt to use well-known and existing public 
+key cryptographic protocols with good security properties, in order to
+reduce the risk of unintended side effects, and to expedite the
+completion of the work. The protocol will be designed to assure that 
+all
+functions of RFC 2461 and RFC 2462 are addressed.
+
+Specifically out of scope is IPv4 and ARP. Although ARP has similar
+problems, there is a huge installed base of ARP. It seems unlikely that
+any substantial fraction of that installed based would be updated
+quickly enough to make a difference. On the other hand, IPv6 deployment
+is still its initial stages, and changes to Neighbor Discovery are more
+likely to be widely adopted, if the Working Group executes quickly
+enough on its task.

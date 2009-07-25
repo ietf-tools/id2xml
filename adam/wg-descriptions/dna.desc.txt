@@ -1,0 +1,100 @@
+When an IPv6 node detects or suspects that its
+ underlying link layer (L2) connectivity has or
+ may have undergone a change, it needs to check
+ whether its IP layer (L3) addressing and routing
+ configurations are still valid or have changed.
+ In the case that the L3 connectivity has changed,
+ the node needs to reconfigure and may need to
+ initiate mobility procedures, such as sending
+ Mobile IP binding updates. Changes in an L2
+ connection do not necessarily mean that
+ there has been change in L3 connectivity.
+
+ For the purposes of detecting network attachment,
+ an L3 link is defined as the topological range
+ within which IP packets may be sent without resorting to
+ forwarding. In other words, a link is the
+ range where a given IP configuration is valid.
+
+ In IPv6, the IP layer configuration information
+ includes the set of valid unicast addresses[RFC 2462,
+ RFC 3315], the Duplicate Address Detection (DAD)
+ status of the addresses[RFC 2462], valid routing
+ prefixes[RFC 2461], set of default routers[RFC 2461],
+ neighbor and destination caches[RFC 2461], multicast
+ listener (MLD) state[RFC 2710]. The current IPv6
+ stateless and stateful autoconfiguration procedures
+ may take a fairly long time due to delays associated
+ with Router Discovery and Duplicate Address Detection.
+
+ The main goal of this WG is to develop mechanisms that
+ reduce or avoid such delays, in cases where they are
+ not necessary. For example if an interface comes back
+ up after having been down momentarily, it can be
+ quicker to verify that one is still attached to the
+ same link than rerunning the full reconfiguration as
+ if one were connecting to a new L3 link and had no
+ previous configuration information cached.
+
+ In some wireless technologies, the link layer state
+ and events may not give an accurate indication of
+ whether or not the IP addressing configuration and
+ routability have changed. For example, a host may
+ be able to see a base station but still be unable to
+ deliver or receive IP packets within the L3 link.
+ Moreover, a hardware indication that a radio link
+ is up does not necessarily mean that all link layer
+ configuration, such as authentication or virtual
+ LAN connectivity has been completed. Therefore
+ detecting network attachment requires not only
+ change detection but IP layer connectivity testing.
+
+ The purpose of the DNA working group is to define
+ standards track and BCP documents that allow hosts
+ to detect their IP layer configuration and
+ connectivity status quickly, proposing some
+ optimization to the current specifications that
+ would allow a host to reconfigure its IPv6 layer
+ faster than today.
+
+ The group will define a set of goals for detecting
+ network attachment, describing existing issues
+ and important properties of potential solutions.
+
+ The working group will describe best current practice
+ for nodes making use of existing information
+ for detecting network attachment.
+
+ The working group will define a set of extensions to the
+ current IPv6 configuration protocols [RFC 2461, 2462,
+ possibly RFC 3315] that allow the nodes to
+ discover whether L3 configuration or connectivity
+ may have changed more reliably and easily than today.
+
+ Initiation of L3 link change detection procedures can
+ be achieved either through reception (or lack of
+ reception) of messages at the IP layer or through
+ indications from other layers. The working group
+ will produce an informational document that
+ contains a catalogue of the indications currently
+ available from a subset of wireless link layer
+ technologies.
+
+ The DNA WG will not define new procedures or APIs
+ related to link layers.
+
+ Documents
+
+     * Define goals for detecting network attachment in IPv6
+           (Informational).
+
+     * Specify recommendations for detecting network
+           attachment and L3 link change in IPv6 networks (BCP).
+
+     * Define a protocol extension for detecting network
+         attachment and L3 link change in IPv6 networks
+         more reliably and easily (Standards Track).
+
+     * Document existing link layer (L2) information which is
+         useful to start detecting network attachment
+         (Informational).

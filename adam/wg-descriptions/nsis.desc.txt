@@ -1,0 +1,44 @@
+The Next Steps in Signaling Working Group is responsible for
+standardizing an IP signaling protocol with QoS signaling as the first
+use case.  This working group will concentrate on a two-layer
+signaling paradigm.  The intention is to re-use, where appropriate,
+the protocol mechanisms of RSVP, while at the same time simplifying it
+and applying a more general signaling model.
+
+The existing work on the requirements, the framework and analysis of
+existing protocols will be completed and used as input for the
+protocol work.
+
+NSIS will develop a transport layer signaling protocol for the
+transport of upper layer signaling. In order to support a toolbox or
+building block approach, the two-layer model will be used to separate
+the transport of the signaling from the application signaling.  This
+allows for a more general signaling protocol to be developed to
+support signaling for different services or resources, such as NAT &
+firewall traversal and QoS resources.  The initial NSIS application
+will be an optimized RSVP QoS signaling protocol.  The second
+application will be a middle box traversal protocol.  An informational
+document detailing how Differentiated Services can be signaled
+with the QoS Signaling protocol will be made.
+
+Security is a very important concern for NSIS. The working group will
+study and analyze the threats and security requirements for
+signaling.  Compatibility with authentication and authorization
+mechanisms such as those of Diameter, COPS for RSVP (RFC 2749) and
+RSVP Session Authorization (RFC 3250), will be addressed.
+
+It is a non-goal of the working group to develop new resource
+allocation protocols. Traffic engineering is out of scope of this
+WG. Additionally, third party signaling is out of scope of this WG.
+New mobility and AAA protocols are out of scope of the WG.
+However, the work produced in this Working Group should work with 
+existing IETF mobility and AAA protocols, including (but not limited 
+to)
+Mobile IP, Seanoby Context Transfer, etc.  An applicability statement
+will be written to discuss the applicability of NSIS protocols in 
+mobile
+environments.
+
+NSIS also welcomes participation and expression of requirements
+requirements from non-IETF standards organization members, for
+instance 3GPP, 3GPP2 and ITU-T.

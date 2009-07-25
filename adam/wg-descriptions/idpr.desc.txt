@@ -1,0 +1,4 @@
+The Inter-Domain Policy Routing Working Group is chartered to
+develop an architecture and set of protocols for policy routing
+among large numbers of arbitrarily interconnected administrative
+domains.

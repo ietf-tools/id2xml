@@ -1,0 +1,37 @@
+IP can be carried by many physical mechanisms. The vertical blanking
+interval of analog television signals (or VBI) is one more of these
+with the characteristic that it is unidirectional. It may therefore be
+only suitable for UDP/IP or multicast applications at present or we may
+build on this as other internet protocols are enhanced to allow
+unidirectional operation. A number of companies have already enhanced
+the functionality (in layers above the NABTS or WST, the two byte
+encoding standards for VBI) to include FEC, conditional access,
+encryption, file transfer etc, but each in a proprietary and
+incompatible way. This is a disincentive for systems to grow, and for
+the VBI to become widely used as a data transport mechanism.
+
+The broadcast industry is turning to digital TV, which will offer many
+Mbps broadcast data capacity, but this technology is in its infancy and
+still not widely available at the right price.  VBI may therefore be
+viewed as an intermediate system (using well known, low cost and
+currently operating - for more than 10 years - technology) which will
+serve the data broadcast industry for a few years yet and probably for
+very many years in the less advanced countries - most countries
+actually. Sure the data rate is lower, but so is the cost.  We already
+have transmissions, test equipment, test software, decoding software
+and chipsets. All we are talking of doing is upgrading the software to
+do a bit more.
+
+The reason for carrying IP is that it is a commonly available well
+known format to build on. The data broadcast industry then does not
+have to re-invent the wheel to use higher level protocols, but can
+simply layer existing protocols on IP.  We expect IP and non-IP traffic
+to co-exist on VBI initially, but as the higher levels of internet are
+defined for broadcast use the IP traffic would dominate.
+
+The IPVBI group will define a standard mechanism for transmitting IP
+datagrams on top of both NABTS and WST VBI formats.  The standard will
+include framing mechanisms, header compression, and an FEC system, all
+based on existing IETF standards where possible.  Protocols above the
+IP layer (like streaming media and broadcast file transfer) will not be
+considered by IPVBI.

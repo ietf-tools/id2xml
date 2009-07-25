@@ -1,0 +1,38 @@
+Internet routers that are capable of active queue management (e.g., RED
+gateways) detect congestion before the queue overflows, and therefore
+are no longer limited to packet drops as an indication of congestion.
+Explicit Congestion Notification (ECN) is described in Internet draft
+draft-kksjf-ecn-00.txt [RF97].  With ECN, a router could notify
+ECN-capable end nodes of congestion by setting the ECN bit in the
+packet header instead of dropping the packet at the router.
+
+The incorporation of ECN in the Internet would benefit applications and
+transports that are sensitive to the loss (and/or the subsequent
+retransmission delay) of a single packet.  The range of applications
+that should benefit includes short web transfers, interactive telnet
+traffic, realtime audio and video traffic, and reliable multicast.  For
+many of these applications, depending on packet loss as a normal
+congestion notification mechanism is less than optimal.
+
+The main purpose of this BOF is to collect together people already
+working on ECN to discuss outstanding IP, TCP, and UDP-related issues
+regarding ECN.  The BOF will also serve as an introduction to the
+issues for other members of the IETF community.
+
+We believe that one reasonably straightforward function of the meeting
+would be as a forum to discuss the additions needed for ECN support in
+TCP.  This is already under discussion informally, as there are several
+independent implementations of ECN in IP and in TCP for experimental
+purposes in testbeds. We hope to also discuss issues of
+interoperability and the motivation for the 2nd bit in the ECN proposal
+to aid gradual introduction of ECN functionality. The meeting could
+also begin a discussion of the issues involved in adding ECN support to
+UDP and UDP-based applications.
+
+[RF97] Ramakrishnan, K.K., and Floyd, S., A Proposal to add Explicit
+Congestion Notification (ECN) to IPv6 and to TCP . Internet draft
+draft-kksjf-ecn-00.txt, work in progress. November 1997.
+
+ECN Page: http://www-nrg.ee.lbl.gov/floyd/ecn.html
+
+RED: http://www-nrg.ee.lbl.gov/floyd/red.html

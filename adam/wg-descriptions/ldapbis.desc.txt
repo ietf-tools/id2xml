@@ -1,0 +1,22 @@
+The LDAPv3 "core" specification is RFC 2251-2256 and 2829-2831.
+The purpose of this working group is to shepherd these RFCs
+through the Internet Standard process.
+
+The group will deliver revised LDAPv3 specifications suitable for 
+consideration as a Draft Standard. This work will be based upon RFCs
+2251-2256, 2829-2831.
+
+The group will deliver a document detailing IANA considerations
+for LDAP suitable for consideration as a Best Current Practice.
+
+The group will deliver an applicability statement defining LDAPv3.
+This work will be based upon draft-hodges-ldapv3-as-00.txt.
+
+The following areas are out of scope: 
+- "LDAPv4"
+
+- All LDAP Extensions (LDAPext) excepting StartTLS.
+
+- LDAP Replication (LDUP)- LDAP non-"core" Schema
+
+- Connection-less LDAP (LDAPext)

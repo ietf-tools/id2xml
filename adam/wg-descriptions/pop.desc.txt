@@ -1,0 +1,9 @@
+The POP working group is chartered to survey existing POP
+implementations and determine how well implementations match the
+specification in RFC 1225.  Based on this survey, determine what
+clarifications need to be made to the specification and also what
+additional features or simplifications are warranted.
+
+The scope of the working group focuses only on POP 3.  Work on other
+mailbox access protocols are not within the charter of this working
+group.

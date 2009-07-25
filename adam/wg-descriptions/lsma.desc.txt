@@ -1,0 +1,53 @@
+Note: Allyn Romanow <allyn@eng.sun.com> is also an Area Technical 
+Advisor.
+
+
+This group focuses on the needs of applications that require real-time
+or near real-time communications to support a large number of
+simulation processes (virtual entities). These applications have been
+analyzed by the U.S. Department of Defense to require IP multicast
+support for 10K simultaneous groups, for upwards of 100K virtual
+entities in a global sized WAN by the year 2000.
+
+The concrete example application is the Distributed Interactive
+Simulation work of the DIS Interoperability and Standards workshops and 
+  
+standardized as IEEE 1278 - 1995.
+
+The concrete example application is the Distributed Interactive
+Simulation work of the DIS Interoperability and Standards workshops and
+standardized as IEEE 1278 - 1995.  Future simulation implementations
+will use the  High Level Architecture (HLA) work sponsored by the U.S.
+Defense Modeling and Simulation Office, and which is currently being
+standardized by the newly formed Simulation Interoperability Standards
+Organization (SISO).
+
+The WG aims to provide documentation on how the IETF multicast
+protocols, conference management protocols, transport protocols and
+multicast routing protocols are expected to support the example
+application.  The result of this WG will be two Informational documents
+that we hope will be used as input and advice by a number of IETF
+working groups, among them IDMR, ION, MBONED, MMUSIC, and by working
+groups being developed on Reliable Multicast Applications and QOS
+Routing.
+ 
+The document editors for the informational documents will be Steve
+Seidensticker for "Scenarios" and Mark Pullen for "Limitations".
+ 
+The Scenarios document will describe the environment in which
+distributed simulation applications operate. It will provide realistic
+example scenarios of small, medium and large simulation exercises.  The
+Limitations product will document the limitations of current IETF
+products as they pertain to distributed applications. This document
+will offer concise examples of how distributed applications demonstrate
+these limitations and to the extent possible, offer potential solutions
+to the identified limitations.
+
+The documents will attempt to provide specific numbers for the demands
+placed on protocol or infrastructure, and for the limits that protocols
+impose on the applications.
+ 
+The group will assess the need for new protocols to support the
+requirements it identifies, and the Limitations document will report on
+this assessment.  One recommendation it expects to document is for
+development of a virtual reality transfer protocol.

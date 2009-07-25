@@ -1,0 +1,34 @@
+One form of attack on computing systems connected to the Internet is
+eavesdropping on network connections to obtain login id's and passwords
+of legitimate users [RFC 1704]. Bellcore's S/KEY(TM) one-time password
+system was designed to counter this type of attack, called a replay
+attack [RFC 1760]. Several one-time password implementations compatible
+with Bellcore's S/KEY (TM) system exist. These implementations are
+increasingly widely deployed in the Internet to protect against passive
+attacks.
+
+The object of this working group is to write a standards track RFC for
+one-time password technology, using the technology in the Bellcore
+S/KEY system and related interoperable packages (e.g., logdaemon, NRL
+OPIE) as the basis for the group's effort. The standards-track RFC will
+enhance multi-vendor interoperability in one-time password
+authentication technologies and thereby help reduce security risks in
+the Internet.
+
+General authentication servers are outside the scope of this working
+group. The ``S/Key-0'' system being considered for use in Kerberos is
+outside the scope of this working group.
+
+The standards-track specification will describe how this one-time
+password technology can be used with at least the MD4, MD5, and SHA
+algorithms. The standard one-time password dictionary from RFC 1760
+will be reused in order to maintain backwards compatibility with the
+various deployed systems, however, support for hexadecimal format
+passwords will also be mandatory to implement. The standard might
+specify passphrase quality checks for the secret passphrase. The
+standard will be specified so as to eliminate any possible conflict
+with the Bellcore trademark on the term ``S/Key.''
+
+An Informational RFC might also be issued that describes conventions
+for the UNIX commands relating to one-time passwords, including
+command(s) to securely update a remote one-time password.

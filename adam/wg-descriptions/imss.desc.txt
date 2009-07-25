@@ -1,0 +1,43 @@
+Fibre Channel is a high speed network technology primarily used for 
+storage networking (i.e., Storage Area Networks [SANs]). Two
+important aspects of Fibre Channel interact with the Internet:
+        - Fibre Channel can encapsulate and carry IP protocol traffic
+        - Fibre Channel devices can be managed via SNMP
+
+The Internet and Management Support for Storage WG (imss) is chartered 
+to address two areas, specifically:
+        - IPv4 over Fibre Channel has been specified in RFC 2625. A
+          corresponding specification for IPv6 is needed.
+        - An initial Fibre Channel Management MIB has been developed by
+          the IP Storage (ips) WG; extensions are needed to encompass
+          management of additional aspects of Fibre Channel, such
+          as zoning.
+
+In the future, other storage related MIBs for other storage transports 
+such as INCITS T10 Serial Attached SCSI (SAS) or SCSI command specific 
+MIBs may be proposed. This group would work with the appropriate 
+technical committee(s) in a manner similar to that described for 
+INCITS 
+T11 below.
+
+As Fibre Channel standardization is handled by the INCITS T11 Technical
+Committee (http://www.t11.org), a close working relationship with T11 
+is essential to the WG's success. In particular:
+       - The IPv6 over Fibre Channel specification will be based on
+         draft-desanti-ipv6-over-fibre-channel-02.txt. This draft
+         was originally developed within a T11 study group and T11
+         has officially recommended this draft to the IETF.
+       - The WG will not standardize management of Fibre Channel  
+         features ahead of their incorporation into appropriate T11 
+         Fibre Channel standards.
+       - The WG will work closely with T11, specifically Task Group 
+         T11.5, on the functionality and structure of the MIBs it      
+         develops for management of Fibre Channel.
+
+In addition to working closely with the INCITS T11 Technical 
+Committee, 
+this Working Group will work closely with IETF IPv6 Working Group as 
+appropriate. In particular, the IPv6 Working Group will be kept 
+informed on the progress and status of the IPv6 over Fibre Channel 
+specification. The IMSS Working Group Last Call announcement will be 
+cross-posted to the IPv6 WG mailing list.

@@ -1,0 +1,57 @@
+This working group is responsible for defining and specifying a
+limited number of solutions for supporting provider-provisioned
+Layer-3 (routed) Virtual Private Networks (L3VPNs).
+
+The WG is responsible for standardization of the following solutions:
+    1. BGP/MPLS IP VPNs (based on RFC 2547)
+    2. IP VPNs using Virtual Routers
+    3. CE-based VPNs using IPsec
+
+The following VPN deployment scenarios will be considered by the WG:
+
+    1. Internet-wide: VPN sites attached to arbitrary points in
+       the Internet
+
+    2. Single service provider (SP)/single AS: VPN sites attached to
+       the network of a single provider within the scope of a single
+       AS
+
+    3. Single SP/multiple AS'es: VPN sites attached to the network
+       of a single provider consisting of multiple AS'es
+
+    4. Cooperating SPs: VPN sites attached to networks of different
+       providers that cooperate with each other to provide VPN service
+
+The WG will address deployment of the following features in a VPN
+environment:
+
+    1. IP Multicast
+    2. IPv6
+
+As part of this effort the WG will work on the following tasks
+(additional work items will require rechartering):
+
+    1. Requirements and framework for Layer 3 VPNs
+    2. Solution documents for each approach listed above (including
+      applicability statements)
+    3. MIB definitions for each approach
+    4. Security mechanisms for each approach
+
+As a general rule, the WG will not create new protocols, but will
+provide functional requirements for extensions of the existing
+protocols that will be discussed in the protocol-specific WGs. L3VPN
+WG will review proposed protocol extensions for L3VPNs before they are
+recommended to appropriate protocol-specific WGs.
+
+As stated above, the WG will define an IPv6 over BGP / MPLS VPN
+solution.  This will include a forwarding plane component and a
+control plane component.  In the forwarding plane, IPv6 datagrams will
+be encapsulated within an MPLS header.  If any aspect of IPv6
+forwarding over MPLS is as yet undefined, the L3VPN WG will defer to
+the MPLS and appropriate IPv6 WGs.  On the control plane, BGP
+extensions may also need to be defined. In this respect, the L3VPN WG
+will defer to the IDR and appropriate IPv6 WGs.
+
+QoS support is excluded from the charter at this time.  It may be
+considered for inclusion in an updated charter at a later time. Future
+work items may also include OAM support.

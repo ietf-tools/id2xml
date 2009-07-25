@@ -1,0 +1,48 @@
+The IAB arranged a workshop in October, 2006 to focus on routing and
+addressing issues [0]. This workshop identified scalability problems
+in the global routing system. The research community is working to map
+the overall design space and understand the tradeoffs between the
+different solutions. This work happens in the Routing Research Group
+(RRG). The solutions discovered so far have interesting behaviours
+that are not fully understood by mere desk analysis. For instance,
+some of the solutions have packet reordering and delay implications
+that may affect higher layers. Some have MTU implications for large
+parts of the Internet. Most solutions require deployment of new nodes,
+and the incentive models for deploying them are not entirely clear.
+
+LISP and the LISP Alternative Topology mapping system (ALT) is one
+solution in the overall design space, under the general category of
+"map-and-encapsulate" mechanisms. The purpose of this BOF is to form
+an Exploratory Group (RFC 5111) at the IETF. The group will host
+discussions and documents necessary to perform experiments that help
+the community understand the above behaviours better, by using LISP
+and ALT as an example. The expected outputs are:
+
+- document(s) that describe open issues where experimentation
+  may be helpful,
+- document(s) that describe planned experiments and results thereof,
+  and
+- experimental protocol specifications (exp, June 2009)
+
+As an Exploratory Group, this group has a finite lifetime of 18
+months. At the end of those 18 months, and depending on the outcome
+of the experiments and the design work from the RRG, the group
+may either be terminated or rechartered. The group shall also:
+
+- clearly label its results as experimental
+- avoid design discussions that are within the scope of the RRG,
+- refrain from spending significant amount of time on the well
+  understood parts of map-and-encapsulate mechanisms
+- demonstrate commitment to focus on experiments before
+  submitting any protocol specifications for publication
+  as RFCs
+
+This group is only focused on LISP and ALT. Some results may apply to
+other designs as well, such as solutions involving a similar mapping
+system but a different encapsulation scheme. But this is not
+guaranteed. If other proposals surface from the research community
+with equally interesting questions that would benefit from similar
+experimentation, future groups can be created for that purpose, as
+long as there appears to be sufficient interest in the community for
+such work. The interest is demonstrated via XXX independent
+implementation efforts.

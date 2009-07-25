@@ -1,0 +1,24 @@
+Goal: "middle boxes" are defined for this BOF as any intermediary box
+performing functions apart from normal, standard functions of an IP
+router on the data path between a source host and destination host.
+This includes both boxes that attempt to be transparent to
+application protocols, and those that participate in application
+protocols. Work is in progress in the IETF on some aspects of middle
+boxes. The BOF is intended to prepare for a structured discussion of
+some wider issues, from an architectural viewpoint, in order to:
+
+   * Analyze issues raised by the growth of middle boxes in the 
+Internet
+     infrastructure.
+   * Identify harmful and harmless practices.
+   * Suggest architectural guidelines.
+   * Identify additional work that should be done in the IETF and IRTF.
+
+An implied goal is to identify any necessary updates to the
+Architectural Principles of the Internet [RFC 1958].
+
+The BOF will concentrate on the taxonomy presented in
+draft-carpenter-midtax-00.txt, as a first step in the analysis.
+This document establishes a taxonomy of middle boxes, cites previous
+or current IETF work concerning middle boxes, and attempts to
+identify issues and areas where further work is necessary.

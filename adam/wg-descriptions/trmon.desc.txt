@@ -1,0 +1,22 @@
+The Token Ring Remote Monitoring MIB Working Group is chartered to
+produce a new MIB specification that extends the facilities of the
+existing Remote Monitoring (RMON) MIB (RFC 1271) for use in monitoring
+IEEE 802.5 Token Ring networks.
+
+The Token Ring RMON MIB extensions will be developed in the same
+architectural framework as the existing Ethernet-based RMON MIB.  The
+original RMON MIB architecture was designed with the intention of
+incorporating MIB extensions devoted to monitoring other network media
+types.  This Token Ring activity is the first attempt at such
+integration.
+
+In creating the Token Ring Extensions, the working group will, wherever
+possible, conform to terminology and concepts defined by relevant IEEE
+standards.  It may be that a MIB devoted to monitoring may need to
+expand on the IEEE objects and definitions.  Such modifications will
+be accompanied by a detailed rationale.
+
+All work produced by the Token Ring Remote Monitoring Working Group
+will be consistent with the existing SNMP network management framework
+and standards.
+

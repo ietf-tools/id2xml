@@ -1,0 +1,37 @@
+The Internet Open Trading Protocol provides an interoperable framework 
+for Internet commerce.  It is payment system independent and will be 
+able to encapsulate payment systems such as SET, Mondex, CyberCash, 
+DigiCash, GeldKarte, etc.  IOTP is able to handle cases where such 
+merchant roles as the shopping site, the payment handler,the deliverer 
+of goods or services, and the provider of customer support are performed 
+by different parties or by one party.
+
+The Internet Open Trading Protocol working group will (1) determine
+requirements for IOTP transport and for IOTP 2.0, (2) document
+interoperability experience with IOTP v1.0 (which will have been
+published as Informational), and (3) develop the specification for IOTP
+transport and IOTP version 2.0.
+
+Selection of items for inclusion in v2.0 is expected to be from the
+following and others suggested by the Working Group:
+
+- Dynamic Definition of Trading Sequences
+- Multiple Protocol Options
+- Offer Request Block
+- Public Key Signatures (v1.0 uses secret key signatures)
+- Signatures on the Delivery Response
+- Improved Problem Resolution (extend to cover presentation of
+  signed receipt to customer support party, etc.)
+- Selection of Additional Options
+- Shorter Element and Attribute Names
+- Transaction Status Inquiry (if not included in v1.0)
+- OTP Architecture (informational development of standard interfaces
+  to software components).
+
+The following are out of scope for v2.0:
+
+- server to server communications protocols (except as protocol
+  elements needed for client to server communications may also be
+  useful for server to server communications)
+- legal or regulatory issues surrounding the implementation of the
+  protocol or information systems using it.

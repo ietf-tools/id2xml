@@ -1,0 +1,17 @@
+The IETF Chair has gathered a team called PESCI - Process Evolution
+Committee of the IETF.
+
+This team has (this will be true when the BOF rolls around) published a
+document which contains two parts:
+
+- A list of principles that the committee feels should underlie the 
+search for improvements to the IETF process
+
+- A list of next steps that the committee feels should be undertaken in
+order to get the necessary next process reform steps done.
+
+The BOF seeks input on these two topics, and is expected to conclude 
+that either the next steps suggested by PESCI are untenable, or that 
+the next steps should be pursued (possibly modified based on feedback).
+
+The PESCI team will report the conclusions from the BOF in the plenary.

@@ -1,0 +1,16 @@
+The recent IETF Last Call for draft-carpenter-rfc2026-changes has
+shown that many people active in the IETF community are wary of
+changing the IETF procedures without a very thorough discussion. Yet,
+the POISED WG and the NEWTRK WG efforts showed that it is indeed
+difficult to craft new procedures and then obtain IETF consensus for
+them.
+
+While there does not appear to be consensus to adopt all of the
+changes in draft-carpenter-rfc2026-changes, there does appear to be
+support for some of the changes. The objective of this BOF is to
+determine which of the proposed changes have broad community support.
+The intent is to generate a document that can be easily approved as
+an update to RFC 2026 that contains only the proposed changes with
+broad community support.
+
+This BOF is not intended to form an IETF WG.

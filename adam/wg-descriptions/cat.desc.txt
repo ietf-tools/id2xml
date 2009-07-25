@@ -1,0 +1,30 @@
+The goal of the Common Authentication Technology (CAT) Working Group is 
+to provide distributed security services (which have included 
+authentication, integrity, and confidentiality, and may broaden to 
+include authorization) to a variety of protocol callers in a manner 
+which insulates those callers from the specifics of underlying security 
+mechanisms.
+
+By separating security implementation tasks from the tasks of 
+integrating security data elements into caller protocols, those tasks 
+can be partitioned and performed separately by implementors with 
+different areas of xpertise. This provides leverage for the IETF 
+community's security-oriented resources, and allows protocol 
+implementors to focus on the functions their protocols are designed to 
+provide rather than on characteristics of security mechanisms. CAT seeks 
+to encourage uniformity and modularity in security approaches, 
+supporting the use of common techniques and accommodating evolution of 
+underlying technologies.
+
+In support of these goals, the working group pursues several 
+interrelated tasks. We have defined a common service interface (GSS-API) 
+allowing callers to invoke security services in association-oriented 
+environments, with an associated token format identifying the security 
+mechanism being employed. Existing documents provide C language bindings 
+for GSS-API; currently ongoing work is defining bindings for Java.  
+Authorization interfaces are currently being evaluated as a related area 
+for follow-on work, with the level of achievable portability an 
+important consideration. The CAT Working Group also defines supporting 
+mechanisms to provide security services; current activity includes 
+specification of "low-infrastructure" mechanisms to support ease of 
+deployment and use.

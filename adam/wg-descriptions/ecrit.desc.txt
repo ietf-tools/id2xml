@@ -1,0 +1,44 @@
+In a number of areas, the public switched telephone network (PSTN) has
+been configured to recognize an explicitly specified number (commonly
+one that is short and easily memorized) as a call for emergency
+services.  These numbers (e.g. 911, 112) relate to an emergency
+service context and depend on a broad, regional configuration of
+service contact methods and a geographically-constrained context of
+service delivery.  These calls are intended to be delivered to special
+call centers equipped to manage emergency response. Successful
+delivery of an emergency service call within those systems requires
+both an association of the physical location of the originator with an
+appropriate emergency service center and call routing to deliver the
+call to the center.
+
+Calls placed using Internet technologies do not use the same systems
+to achieve those goals, and the common use of overlay networks and
+tunnels (either as VPNs or for mobility) makes meeting them more
+challenging.  There are, however, Internet technologies available to
+describe location and to manage call routing.  This working group will
+describe when these may be appropriate and how they may be used.
+Explicitly outside the scope of this group is the question of
+pre-emption or prioritization of emergency services traffic. This
+group is considering emergency services calls which might be made by
+any user of the Internet, as opposed to government or military
+services that may impose very different authentication and routing
+requirements.
+
+The group will show how the availability of location data and call
+routing information at different steps in session setup would enable
+communication between a user and a relevant emergency response
+center. Though the term "call routing" is used in this document, it
+should be understood that some of the mechanisms which will be
+described might be used to enable other types of media streams. Video
+and text messaging, for example, might be used to request emergency
+services.
+
+While this group anticipates a close working relationship with groups
+such as NENA and ETSI EMTEL, any solution presented must be useful
+regardless of jurisdiction, and it must be possible to use without a
+single, central authority.  Further, it must be possible for multiple
+delegations within a jurisdiction to be handled independently, as call
+routing for specific emergency types may be independent. 
+
+This working group cares about privacy and security concerns, and will
+address them within its documents.

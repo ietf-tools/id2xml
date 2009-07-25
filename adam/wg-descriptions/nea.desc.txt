@@ -1,0 +1,99 @@
+Network Endpoint Assessment (NEA) architectures have been implemented
+in the industry to assess the "posture" of endpoint devices for the
+purposes of monitoring compliance to an organization's posture policy
+and optionally restricting access until the endpoint has been updated
+to satisfy the posture requirements. An endpoint that does not comply
+with posture policy may be vulnerable to a number of known threats that
+may exist on the network. The intent of NEA is to facilitate corrective
+actions to address these known vulnerabilities before a host is exposed
+to potential attack. Note that an endpoint that is deemed compliant may
+still be vulnerable to threats that may exist on the network. The
+network may thus continue to be exposed to such threats as well as the
+range of other threats not addressed by maintaining endpoint
+compliance.
+          
+Posture refers to the hardware or software configuration of an endpoint
+as it pertains to an organization's security policy. Posture may
+include knowledge that software installed to protect the machine (e.g.
+patch management software, anti-virus software, host firewall software,
+host intrusion protection software or any custom software) is enabled
+and up-to-date. An endpoint supporting NEA protocols can be queried for
+posture information.
+          
+An organization may make a range of policy decisions based on the
+posture of an endpoint. NEA is not intended to be prescriptive in this
+regard. Supported deployment scenarios will include, but are not
+limited to, providing normal access regardless of compliance result
+along with any recommendations for remediation ("advisory mode"), as
+well as providing restricted access sufficient for remediation purposes
+and any essential services until an endpoint is in compliance
+("mandatory mode"). Specifying mechanisms for providing restricted
+access is outside the scope of the NEA WG.
+          
+Since NEA involves many different components from different vendors,
+interoperability is important. The priority of the NEA working group is
+to develop standard protocols at the higher layers in the architecture:
+the Posture Attribute protocol (PA) and the Posture Broker protocol
+(PB). PA and PB will be designed to support a variety of lower layer
+protocols. When used with standards for lower layers, the PA and PB
+protocols will allow interoperability between an NEA Client from one
+vendor and an NEA Server from another.
+          
+Since there are already several non-standard protocols at these higher
+layers, the NEA working group will consider these existing protocols as
+candidates for the standard protocols. A requirements document will be
+written and used as a basis for evaluating the candidate protocols. The
+working group may decide to standardize one of the candidate protocols,
+use one of them as a basis for a new or revised protocol, or decide
+that a new protocol is needed.
+          
+The NEA Requirements document will include a problem statement,
+definition of terms, requirements for the PA and PB protocols, and an
+overall security analysis. It will also include generic requirements
+for the protocol transporting PA, PB: the Posture Transport protocol
+(PT). PT protocols may be standardized in other WGs since these
+protocols may not be specific to NEA. The NEA WG will identify and
+specify the use of one mandatory to implement PT protocol that is fully
+documented in an RFC.
+          
+The PA (Posture Attribute) protocol consists of posture attributes that
+are carried between a particular Posture Collector in a NEA client and
+a particular Posture Validator in a NEA Server. The PA protocol is
+carried inside the PB protocol. A base set of standard posture
+attributes will be specified that are expected to address many common
+posture policies. Vendor-specific attributes will also be supported;
+vendor-specific attributes will be identified by a private enterprise
+number and a vendor assigned value. Vendors are strongly encouraged to
+document vendor-specific attributes in an RFC. The NEA WG will
+investigate the use of a standard syntax for all attributes.
+          
+The PB (Posture Broker) protocol aggregates posture attributes from one
+or more Posture Collectors in an NEA client and sends them to the NEA
+server for assessment by one or more Posture Validators.
+          
+The PT (Posture Transport) protocol carries the PB protocol.
+          
+The NEA working group will not specify protocols other than PA and PB
+at this time. The expectation is that an existing protocol can be used
+for the PT.
+          
+One commonly discussed issue with NEA systems is how to handle
+compromised endpoints, whose reports of their own posture may not be
+accurate. Detecting or handling such endpoints is out of scope of the
+NEA WG. Work on PA will focus on attributes useful for assessing
+posture of those endpoints reporting accurate information. However, the
+protocols developed by the NEA WG must be designed to accommodate
+emerging technologies for identifying and dealing with lying endpoints.
+          
+Note that NEA is not chartered to develop standard protocols for
+remediation. NEA is intended to be used with new or existing tools that
+can be used in the absence of NEA. NEA is applicable to computing
+enterprise environments, where endpoints accessing the enterprise's
+network are owned and/or expected to conform to the policies set forth
+by the organization that owns and operates the network. All other
+cases are outside the scope of the NEA charter, since we do not know
+that NEA would be useful in such cases. NEA applicability and security
+considerations will be described in the appropriate NEA documents.
+          
+Further work in the NEA WG will be considered via the rechartering
+process after the completion of these milestones.

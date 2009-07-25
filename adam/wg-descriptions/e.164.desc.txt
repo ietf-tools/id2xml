@@ -1,0 +1,45 @@
+There has been tremendous interest in the development of an Internet
+service which offers responses to queries about E.164 numbers. Examples
+of such queries are as follows:
+
+"Give the information needed (or the various possibilities)to
+ communicate with the terminal whose E.164 number is xxxxxxx"
+"Give the information needed (or the various possibilities) to
+ communicate with the subscriber who 'owns' the E.164 number xxxxxx"
+"Can a fax be sent to the E.164 number xxxxxxx?"
+"Which capabilities/services are supported by the terminal with E.164
+ number xxxxxxxx?"
+
+The goal of the BOF is to determine if an IETF working group should be
+chartered to do things such as:
+
+a) specify the architecture and protocols which clients use to query
+   information about E.164 numbers.
+b) specify the architecture and protocols which servers use to aquire
+   the information needed to respond to such queries.
+
+Examples of protocols and systems that have been proposed to solve these
+problems are: DNS, BCP, LDAP, WASL....
+
+As these examples suggest, the problem is not yet precisely defined, and
+a part of the BOF is to be devoted to gaining rough consensus on the
+exact scope of the eventual WG. We shall have to decide if there are
+several different problems to be solved in several different ways, or a
+single problem to be solved in a single way, or indeed if the problem
+should not be solved by a new IETF working group.
+
+As a final open problem, it is not clear that the interest in this
+protocol is restricted to queries on E.164 numbers - some would like to
+extend the scope to deal with "queries about telephone numbers" more
+generally, which might include national, regional, and even private
+numbering plans as well as the International E.164 numbering plan.
+
+The BOF will have presentations and discussion on the following topics:
+
+a) Exactly which problem(s) should be within the scope of the new WG 
+   (if one is needed)?
+b) Proposals for Architectures and/or Protocols to solve the problem.
+
+By the end of the BOF the plan is have closure on at least the first of
+these topics.  There will be several presentations on concrete proposals
+as well.

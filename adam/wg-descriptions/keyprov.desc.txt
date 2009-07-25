@@ -1,0 +1,46 @@
+Current developments in deployment of Shared Symmetric Key (SSK) 
+tokens have highlighted the need for a standard protocol for 
+provisioning symmetric keys.
+
+The need for provisioning protocols in PKI architectures has been 
+recognized for some time. Although the existence and architecture of 
+these protocols provides a feasibility proof for the KEYPROV work 
+assumptions built into these protocols mean that it is not possible 
+to apply them to symmetric key architectures without substantial 
+modification.
+
+In particular the ability to provision symmetric keys and associated 
+attributes dynamically to already issued devices such as cell phones 
+and USB drives is highly desirable. The working group will develop 
+the necessary protocols and data formats required to support 
+provisioning and management of symmetric key authentication tokens, 
+both proprietary and standards based.
+
+Input Documents
+---------------
+
+The following Internet drafts have been proposed by their authors as 
+input documents:
+
+* Dynamic Symmetric Key Provisioning Protocol (M. Pei, S. Machani)
+* Portable Symmetric Key Container (A. Vassilev, J. Martinsson, M. 
+Pei, P. Hoyer, S. Machani)
+* Extensions to CT-KIP to support one- and two-pass key 
+initialization (M. Nystroem, S. Machani)
+
+Scope and Deliverables
+----------------------
+
+The scope of the working group shall be to define protocols and data 
+formats necessary for provisioning of symmetric cryptographic keys 
+and associated attributes.
+
+The group shall consider use cases related to use of Shared Symmetric 
+Key Tokens. Other use cases may be considered for the purpose of 
+avoiding unnecessary restrictions in the design and ensure the 
+potential for future extensibility.
+
+The working group will produce the following deliverables:
+
+* Portable Symmetric Key Container
+* Dynamic Symmetric Key Provisioning Protocol

@@ -1,0 +1,73 @@
+The emergence of off-the-shelf network processor devices that 
+implement 
+the fast path or forwarding plane in network devices such as routers, 
+along with the appearance of a new generation of third party 
+signaling, 
+routing, and other router control plane software, has created the need 
+for standard mechanisms to allow these components to be combined into 
+functional wholes. ForCES aims to define a framework and associated 
+mechanisms for standardizing the exchange of information between the 
+logically separate functionality of the control plane, including 
+entities such as routing protocols, admission control, and signaling, 
+and the forwarding plane, where per-packet activities such as packet
+forwarding, queuing, and header editing occur. By defining a set
+of standard mechanisms for control and forwarding separation, ForCES 
+will enable rapid innovation in both the control and forwarding 
+planes. 
+A standard separation mechanism allows the control and forwarding
+planes to innovate in parallel while maintaining interoperability.
+
+The products of this working group will be:
+
+o A set of requirements for mechanisms to logically
+  separate the control and data forwarding planes of
+  an IP network element (NE)
+
+o An applicability statement for the ForCES model
+  and protocol
+
+o Informational RFCs as necessary documenting current
+  approaches to the functional model and controlled
+  objects therein
+
+o An architectural framework defining the entities
+   comprising a ForCES network element and identifying
+   the interactions between them.
+
+o A description of the functional model of a
+  Forwarding Element
+
+o A formal definition of the controlled objects in the
+  functional model of a forwarding element. This
+  includes IP forwarding, IntServ and DiffServ QoS. An
+  existing specification language shall be used for
+  this task.
+
+o Specification of IP-based protocol for transport of the
+  controlled objects. When the control and forwarding devices
+  are separated beyond a single hop, ForCES will make use of an
+  existing  RFC2914 compliant L4 protocol with adequate reliability,
+  security and congestion control (e.g. TCP, SCTP) for transport
+  purposes.
+
+The main focus area of the working group will be control and
+forwarding separation for IP forwarding devices where the
+control and forwarding elements are in close (same room/small
+number of hops) or very close (same box/one hop) proximity. Other
+scenarios will be considered but at not the main focus of the
+work. The functional model of the forwarding element will include
+QoS (DiffServ and IntServ) capabilities of modern networking
+devices such as routers.  In order to minimize the effort to
+integrate forwarding elements and control elements, a mechanism
+for auto discovery and capability information exchange will form
+an integral part of the standardized interface.
+
+ForCES will coordinate with other standards bodies and working
+groups as appropriate. Examples of such bodies include IETF/GSMP,
+IETF/Megaco, the Network Processing Forum (NPF), the Multiservice
+Switching Forum (MSF), IEEE P1520, and SoftSwitch. ForCES will
+review relevant protocol efforts such as GSMP and Megaco and will
+extend or reuse them if appropriate. If protocol reuse is
+accepted as satisfactory for fulfilling the ForCES requirements
+then ForCES may recharter to adopt specific deliverables around
+the selected protocol.

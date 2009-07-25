@@ -1,0 +1,12 @@
+Objectives of BOF:
+1. To consider the creation of a new IETF working group called
+*H.Series Multimedia MIBs*. The proposed scope for this working group
+includes the definition of managed objects for: H.323 Terminals, H.323
+Gatekeepers, H.323 MCUs; H.320 Terminals, H.320 MCUs and H.323/H.320
+Gateways.  Other items under consideration could be the definition of
+managed objects for H.323/PSTN Gateways.
+2. To develop the charter for this new working group
+3. To create the list of candidate Internet-Drafts which will comprise
+the MIB hierarchy for Multimedia Terminals and Systems
+4. To develop Milestones and Work Schedule - 15 minutes
+5. To discuss relationships with ITU-T  - 15 minutes

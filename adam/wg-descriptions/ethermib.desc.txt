@@ -1,0 +1,72 @@
+This Working Group is charged with resolving the outstanding
+conformance issues with the Ethernet MIB in preparation for
+its elevation from Proposed to Draft Standard status.
+Specifically, this Working Group shall:
+
+(1)  Develop a document explaining the rationale for assigning
+     MANDATORY status to MIB variables which are optional in
+     the relevant IEEE 802.3 specification (the technical
+     basis for the Internet Ethernet MIB). This shall not be a
+     standards-track document.
+
+(2)  Develop an implementation report on the Ethernet MIB.
+     This report shall cover MIB variables which are
+     implemented in both Ethernet interface chips, and in
+     software (i.e., drivers), and discuss the issues
+     pertaining to both.  This report shall also summarize
+     field experience with the MIB variables, especially
+     concentrating on those variables which are in dispute.
+     This document shall not be a standards-track document.
+     While the Ethernet MIB is progressing through the
+     standardization process, this document shall be
+     periodically updated to reflect the latest implementation
+     and operational experience.
+
+(3)  Work to reconcile the differences regarding MANDATORY and
+     OPTIONAL MIB variables with the IEEE 802.3 Management
+     Specification.
+
+(4)  Extend explicit invitations to the members, reviewers,
+     and participants of the IEEE 802.3 committee to
+     participate in the Working Group's efforts. This will
+     ensure that as much Ethernet and IEEE 802.3 expertise
+     as possible is available.
+
+(5)  Maintain a liaison with the IEEE 802.3 committee. All
+     documents produced by the Working Group will be forwarded
+     to the IEEE 802.3 committee for their consideration as
+     contributions to their efforts.
+
+(6)  Modify the ``grouping'' of variables in the MIB, in the
+     light of the implementation and operational experience
+     gained, in order to effect the desired conformance
+     groupings.
+
+This Working Group is chartered to make only changes to the
+MIB that fall into the following categories:
+
+(1)  Division of variables into MIB groups.  This may
+     necessitate adding or deleting groups and conceptual
+     tables and moving variables among said groups and
+     conceptual tables.  Doing so may require the addition or
+     deletion of variables necessary to support the conceptual
+     tables (e.g., the ...Table, ...Entry, and ...Index types of
+     variables).  These changes may be necessary to align
+     the MIB with the work of other standards bodies, the
+     needs of implementors, and the needs of network managers
+     in the Internet.
+
+(2)  Changing the conformance requirements of the MIB groups
+     in order to align the MIB with the work of other
+     standards bodies, the needs of implementors, and the
+     needs of network managers in the Internet.
+
+(3)  Deleting variables from the MIB on the basis of
+     implementation and operational experience showing that
+     the variables are either unimplementable or have little
+     practical operational value.
+
+The Working Group is explicitly barred from making changes to
+the definition or syntax of objects nor may the Working Group 
+add objects to the MIB except as may be required by Point 1
+above.

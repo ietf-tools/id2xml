@@ -1,0 +1,15 @@
+Temporary Text - 11/1/94 mw
+
+The Emergency Information Infrastructure (EII) Project is an effort
+to foster the development and application of advanced telecommunications
+networks in support of the emergency management community as a whole.
+
+The ``emergency management community'' includes government agencies,
+community-based organizations, businesses and corporations, media,
+and the public.  At one time or another, virtually everyone takes 
+some role in the emergency-management community.
+
+This session will bring together leaders in network technology
+with practitioners of emergency management to identify ways the
+Internet can help communities adapt, adjust, and overcome both
+large-scale disasters and day-to-day emergencies.

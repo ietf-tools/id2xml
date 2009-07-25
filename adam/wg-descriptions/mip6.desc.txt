@@ -1,0 +1,76 @@
+Mobile IPv6 (MIPv6) specifies routing support to permit an IPv6 host to
+continue using its "permanent" home address as it moves around
+the Internet. Mobile IPv6 supports transparency above the IP
+layer, including maintenance of active TCP connections and UDP port
+bindings. The specifications for these mechanisms consist of:
+
+        draft-ietf-mobileip-ipv6-24 (RFC XXX) and
+        draft-ietf-mobileip-mipv6-ha-ipsec-06 (RFC XXX)
+
+The protocol as specified in the above two documents can be considered
+as  the baseline or minimum protocol set for implementing IPv6
+mobility. During the development phase of the base protocol, a few
+additional features were identified as necessary to facilitate
+deployment (described below).
+
+The primary goal of the MIP6 working group will be to enhance base
+IPv6 mobility by continuing work on developments that are required for
+wide-scale deployments. Additionally the working group will ensure
+that any issues identified by the interop testing of the MIPv6
+specifications are addressed quickly. Specific work items with this
+goal in mind are listed below:
+
+1) Create and maintain an issue list that is generated on the basis of
+   interop testing and address these issues as enhancements to the
+   base protocol
+
+2) Features such as renumbering of the home link, home agent discovery,
+   Route Optimization, which are currently a part of the base
+   specification can be specified more explicitly as separate
+   specifications. This will also enable modularizing the Mobile
+   IPv6 specification further into the minimal subset and add-on
+   features. Some of these specifications will be identified as
+   base mechanisms of Mobile IPv6.
+
+3) A number of enhancements to basic IPv6 mobility were identified
+   during the development of the base specification. These
+   enhancements will be taken up in a phased manner depending on the
+   priority identified with each. Below are listed the work items to
+   be taken up by the WG:
+
+      - A bootstrap mechanism for setting up security associations
+        between the Mobile Node (MN) and Home Agent (HA) that would
+        enable easier deployment of Mobile IPv6. This bootstrap
+        mechanism is intended to be used when the device is turned on
+        the very first time and activates MIPv6. The WG should
+        investigate and define the scope before solving the problem.
+
+     - Improving home agent reliability: in the event of a home agent
+       crashing, this would allow another home agent to continue
+       providing service to a given mobile node.
+
+     - Support for a Mobile Node changing its home address, either
+       because of renumbering in its home network or because it
+       periodically changes addresses (perhaps via RFC3041)
+
+     - Route optimization will require security mechanisms for
+       trusting and updating the binding information.Return-routability
+       is the basic mechanism for route-optimization. Mechanisms using
+       a shared secret Key/Security Association will be considered.
+       Methods for establishing a security association between the
+       mobile node and the correspondent node are out of the scope 
+       of the WG.
+
+     - The working group will also document problem statements
+       associated with deploying Mobile IPv6 in the following areas:
+         a. Mobile IPv6 issues in the presence of firewalls
+         b. Mobile IPv6 deployment and transition issues in the        
+            presence of IPv4/IPv6 networks
+         c. Multicast issues
+
+It should be noted that there are potential optimizations that might
+make mobile IP more attractive for use by certain applications (e.g.,
+making handovers "faster"). The latter category of optimizations is
+explicitly out-of-scope at this time; this WG will focus on issues
+for which there is strong consensus that the work is needed to get
+basic mobility deployable on a large scale.

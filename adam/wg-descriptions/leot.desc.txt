@@ -1,0 +1,9 @@
+SPs are focused on providing services for customer transport of layer 1 
+and layer 2 (bit-based and frame-based) payloads over a unified 
+infrastructure.  These services, often referred to as transparent 
+transport, includes the transport of Ethernet, ATM and Frame Relay as 
+well as methods for transporting time division multiplexed (TDM) digital 
+signals (SONET circuit emulation) over a packet-oriented network.
+
+The purpose of the BOF is to assess the viability of pursuing 
+standardization work within the IETF for these technologies.

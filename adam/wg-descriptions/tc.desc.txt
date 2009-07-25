@@ -1,0 +1,114 @@
+ISPs will likely deploy IPv6 incrementally, meaning that parts, rather
+than all of their networks will support native IPv6 service. They will
+need a way to provide IPv6 service to customers without requiring that
+native IPv6 service be provided on the access link.  Automatic 
+transition mechanisms like 6to4, teredo do not really leverage the
+infrastructure the ISP had put in place and offer little insight on
+how to gradually introduce native IPv6 in the access network. 
+Configured tunnels are better suited for the job, and a number of
+deployments have been undertaken using the tunnel broker approach. 
+However, the lack of standard on how to configure those tunnels 
+remains a serious obstacle and manual configuration of all the 
+parameters is a significant burden for typical customers.
+
+
+ISP assumptions:
+
+It is assumed that the ISP has upgraded its core network and has
+global IPv6 connectivity. It is also assumed that the ISP has obtained
+global address space (that it will delegate to its customers), either
+from an RIR or an upstream ISP.  They key point is that the ISP does
+not (yet) provide native IPv6 access to all of its customers, but does
+want to provide an IPv6-over-IPv4 tunneling service. It is also
+assumed that large ISPs will have multiple POPs, and roaming customers
+will want to use a tunnel service topologically close to the current
+POP, rather than always using the same one.
+
+
+Access media assumptions:
+
+No assumptions are made on the access network. They will have high or
+low bandwidth, high or low latency, high or low access cost, and there
+will be more or less secure. Especially in the case of wireless access
+network, confidentiality of the data cannot always be guaranteed. 
+Address spoofing may or may not be a problem.  Although those 
+environment vary widely, it is expected that a single configuration 
+protocol with a number of options can be designed to accommodate all 
+the different cases.
+
+Customer assumptions:
+
+Customers connecting with IPv6 to their ISP can have multiple
+configurations.
+The most common topologies expected to be encountered are:
+
+  - a single node, directly attached to the ISP access network
+  - a router, directly attached to the ISP access network
+  - a router, behind an unmodifiable IPv4-only customer owned NAT
+
+The IPv4 addresses of the customer may change over time and be
+dynamically allocated.  In the case of NAT environment, both the
+internal and the external addresses may be dynamically allocated.
+Another case to consider in the "roaming" user within its home ISP
+network. When the customer is roaming within the ISP network(s), this
+is not really different than having a dynamic IPv4 address, except
+that the "nearest" ISP tunnel end point to use may be different.  When
+the customer is roaming in another ISP network that does not offer
+IPv6 service, the "home" ISP may be willing to still offer tunneling
+service, however the security implications and the tunnel end point
+discovery mechanism to use will be different.
+
+Work items:
+
+A "generic" tunnel setup protocol. The key requirement is to allow the
+creation of a tunnel for sending IPv6 over IPv4. In order to setup a
+tunnel, some negotiation may be needed in order to determine such
+properties as the encapsulation (e.g., GRE, IPv6-over-IPv4, etc.), MTU
+parameters, authentication and/or security properites, etc.  For
+reasons of efficiency over very high latency networks, minimizing the
+number of packet exchanges is desirable.
+
+This group will not create new tunneling encapsulations. Moreover, it
+will reuse the work of other WGs rather than inventing unneeded
+mechanism. For example, IPsec can be used to create tunnels. The setup
+protocol could determine that an IPsec tunnel is needed, and then rely
+on IKE (as specified elsewhere) to setup up the appropriate tunnel.
+
+--------------------------------------------
+A key question the BOF should answer is if the tunnel set-up protocol
+should be limited to IP in IP tunnel (with a focus on IPv6 in IPv4) or
+if it should be extended to other types of encapsulation, like GRE,
+MPLS,...
+--------------------------------------------
+
+Another possible work item is a way for an ISP to indicate that it is
+offering tunnel services to its direct customers. This is also known
+as tunnel end-point discovery.
+
+--------------------------------------------
+The BOF should answer is if this second work items should be covered
+by the same wg or not.
+--------------------------------------------
+
+Focus:
+
+This work is not about creating a new transition mechanism, but to
+offer a standardized way to configure tunnels.
+
+Some of the issues initially explored are:
+	- Do we want to focus on IP in IP tunnels or extend to GRE, 
+MPLS,...
+	- Do we want to address the tunnel end point discovery problem?
+	- Could we live with UDP encapsulation always on?
+	- Do we need mutual authentication? How strong should this be?
+	- Should some of this authentication mechanism "follow-on" 
+          atfer the tunnel set-up phase has finished?
+	- Can we have separate channels, one for configuration and one
+          for the tunneled traffic or should we maintain only one
+          channel to help traverse NAT?
+	- Should we embed some kind of signaling in the tunnel channel?
+	- How much of the wheel are we going to re-invent?
+  	  e.g. if we define a new packet exchange and there is a goal
+	  to minimize the total number of RTT needed, there is a 
+          temptation to piggy-back configuration information in this
+          protocol that could be over wise obtained via DHCP...

@@ -1,0 +1,5 @@
+The MTU Discovery Working Group is chartered to produce an RFC
+defining an official standard for an IP MTU Discovery Option.  ``MTU
+Discovery'' is a process whereby an end-host discovers the smallest MTU
+along a path over which it is sending datagrams, with the aim of
+avoiding fragmentation.

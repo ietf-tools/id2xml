@@ -1,0 +1,23 @@
+The IETF Performance and Congestion Control Working Group is chartered
+to collect and develop short-term techniques for improving Internet
+performance, methods like TCP Slow-start, which are retrofittable and
+inexpensive to implement.  After a preliminary draft of a white paper
+documenting such performance enhancements for hosts and gateways, it
+was decided to sharpen the focus and divide the material into two
+papers.
+
+The first paper is the Internet-Draft on gateway congestion control
+policies and algorithms.  The intent of this paper is to present what
+is now known about the difficult problem of avoiding congestion in
+Internet gateways.  It describes proposed policies such as Random
+Drop, Congestion Indication, and Fair Queuing, and sketches
+ground-rules for their adoption.  An additional goal of the paper
+(achieved during the writing) is to generate dialogue on longer-term
+Internet gateway performance problems.
+
+The other paper is an RFC on TCP performance.  This describes TCP
+algorithms such as Retransmit Backoff, Slow-start, Nagle (Small-Packet
+Avoidance), and Delayed Ack, as well as their correct interaction.
+The scope is to expand the treatment of TCP performance found in the
+Host Requirements RFC.
+

@@ -1,0 +1,20 @@
+The User Services Working Group of the IETF provides a regular forum
+for people interested in all levels of user services to identify and
+initiate projects designed to improve the quality of information
+available to users of the Internet.  USWG's goals are:
+
+1. Meet on a regular basis to consider projects designed to improve
+    services to users.
+
+2. Create working groups or other focus groups to carry out projects
+   deemed worthy of pursuing.
+
+3. Provide a forum in which user services providers can discuss and
+   identify common concerns.
+
+4. Take on work to update existing FYI documents when that work does
+   not coincide with the scope of an existing Working Group.
+
+This is an active, on-going working group in the USV area of the
+IETF.  It is the spawning ground for establishing other working groups
+in this area.

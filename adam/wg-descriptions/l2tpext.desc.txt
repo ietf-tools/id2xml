@@ -1,0 +1,111 @@
+This group is responsible for extensions to the Layer 2 Tunneling
+Protocol.  Examples of L2TP "extensions" include any changes to the
+L2TP encapsulation, control messages, or new AVPs sent in IETF
+standard control messages.
+
+I. L2TP Background:
+
+L2TP (RFC2661) provides a means for tunneling PPP over IP. Because PPP
+can effectivly carry any traffic (e.g., IP (RFC 1332), IPX (RFC 1552),
+etc.) it can effectively be used to tunnel arbitrary protocols over
+IP. L2TP provides:
+
+- An extensible control protocol for dynamic setup, maintenance, and
+  teardown of multiple layer 2 tunnels between two logical endpoints.
+
+- An encapsulation method for tunneling PPP frames between each
+  endpoint. This includes multiplexing of multiple, discrete, PPP
+  streams between each endpoint.
+
+L2TP looks (in most ways) like just another point-to-point link to PPP 
+and may thereby take advantage of the work done for any protocol 
+defined 
+for use over a traditional PPP WAN link. It should be noted, however, 
+that the ability to dynamically establish a PPP connection between any 
+two IP connected endpoints brings new applications and challenges of 
+scale to existing PPP implementations and protocol definitions that 
+must 
+be considered.
+
+As high-speed broadband access to the home replaces traditional dialup
+infrastructure, L2TP has been utilized as one standard method for
+aggregation and delivery of PPP connections over packet networks. Thus, 
+rather than a relatively small scale or low speed circuit-switched 
+connection such as an analog modem or ISDN connection at the L2TP
+Access Concentrator (LAC), we see PPP being received over ATM PVCs
+which are generally higher speed and "always-on" vs. temporally 
+connected.  Further, there are non-IETF standard PPP tunneling
+protocols that have been developed and deployed, including PPPoE
+(RFC 2516) and the 3GPP2 Wireless GPRS Tunneling Protocol Standard 
+(http://www.3gpp.org) that interface with L2TP at various points in the 
+network.  While it is unfortunate that there is more than one standard 
+method for tunneling PPP defined, each of these have their own
+installed bases and specific application-driven nuances. Proper 
+integration with these various tunneling methods as they "hand-off" to 
+the L2TP portion of the network must be ensured.
+
+II. L2TP Interaction with PWE3 for Pseudo-Wire Transport:
+
+In addition to tunneling PPP, L2TPEXT will develop protocol extensions
+necessary for the tunneling of specific "pseudo-wires" as defined in
+the PWE3 WG. Specific milestone identification for this activity is
+currently subject to ongoing work and results from PWE3.
+
+III. WG Activities
+
+The Working Group is currently focussed on the following activities:
+
+- RFC2661 bundles data transport, protocol signaling, and PPP
+  emulation methods into a single document. This working group will
+  separate RFC2661 into stand-alone documents for greater
+  modularity. This will consist of a base L2TP document defining
+  common tunneling constructs and encapsulation, and a PPP document
+  defining the use of these constructs for tunneling of PPP sessions
+  as defined in RFC2661. Documents for tunneling of pseudo-wires
+  defined in PWE3 will be forthcoming as well.
+
+  As RFC2661 is rewritten to separate the tunnel setup and maintenance
+  sections for support of new applications and increased modularity,
+  some modifications to the base protocol may be necessary. This
+  includes addition of a Pseudo Wire AVP to identify the pseudo wire
+  being carried (with PPP identified as 0). In all cases, these will
+  follow the extensible models offered in the L2TP base protocol
+  design, with as much attention to backwards compatibility as
+  possible given the new requirements.
+
+
+In addition to its broader scope, L2TPEXT has ongoing work to complete
+from its inception as a tunneling protocol for PPP only. While RFC2661
+will ultimately be made obsolete by a new L2TP base specification and
+companion PPP over L2TP specification, documents based on RFC2661
+which do not require this new degree of modularity will still be
+published in the near term. These include:
+
+- Identification of specific parameters and modes of IPsec in order to
+  aid interoperability when IPsec is used to secure L2TP traffic.
+
+- An L2TP MIB for network management.
+
+- An L2TP Differentiated Services Extension to negotiate DSCP
+  parameters to be set for packets associated with a given L2TP
+  tunnel, sessions within a tunnel, or L2TP control traffic which may
+  need differentiated QoS settings.
+
+- Extensions to L2TP for additional or more robust control information
+  for informational or operational purposes as deemed necessary based
+  on operational experience. These include better transfer of L2TP PPP
+  LCP Information between tunnel endpoints when such state needs to be
+  shared, PPP Disconnect codes within L2TP control messages for better
+  debugging, and L2TP session information for enhanced logging,
+  billing, and error reporting.
+
+- Standard methods for operation over such packet networks such as
+  Frame Relay and AAL5.
+
+- L2TP defines a base encapsulation for operation in typical
+  environments for tunneling PPP at the time RFC2661 was being
+  developed. In cases where bandwidth cost is at a premium, the size
+  of the L2TP header becomes more significant. L2TP will define a
+  compressed version of the L2TP header for these environments that
+  takes advantage of the L2TP control plane to establish operational
+  parameters allowing removal of information from individual packets.

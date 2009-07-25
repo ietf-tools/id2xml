@@ -1,0 +1,48 @@
+The objective of this group is to decide how to best address known
+problems in existing implementations of the current TCP standard(s) and
+practices.  The overall goal is to improve conditions in the existing
+Internet by enhancing the quality of current TCP/IP implementations. It
+is hoped that both performance and correctness issues can be resolved
+by making implementors aware of the problems and their solutions.  In
+the long term, it is felt that this will provide a reduction in
+unnecessary traffic on the network, the rate of connection failures due
+to protocol errors, and load on network servers due to time spent
+processing both unsuccessful connections and retransmitted data.  This
+will help to ensure the stability of the global Internet.
+
+Examples of detected problems:
+
+o TCPs that retransmit all unacknowledged data at a single time.
+  This behavior greatly adds to Internet load, at a time when
+  the network is already under stress.  The combination can
+  lead to congestion collapse.
+
+o TCPs that misinitialize the congestion window, leading to
+  potentially enormous bursts of traffic when new connections
+  begin.  Such burstiness can greatly stress Internet routers.
+
+In the BOF, it was generally agreed that problems of this class need
+to be fixed.
+
+Scope:
+
+The scope of this group must be carefully defined in order to ensure
+timely progress. To this end, TCP issues that still remain areas of
+research are  considered out of scope for the WG.  For example new
+improvements in congestion control algorithms are not within the WG
+scope. The WG will solicit input from the End-To-End research group of
+the IRTF on questions of whether a TCP implementation issue is
+considered research.
+
+The major objectives of this group will be to :
+
+Produce a compilation of known problems and their solutions.  This will
+raise awareness of these issues.
+
+Determine if any problems found are the result of ambiguities in the
+TCP specification.  If necessary, produce a document which clarifies
+the specification.
+ 
+Catalog existing TCP test suites, diagnostic tools, testing
+organizations, and procedures that can be used by implementors to
+improve their code, and produce a document enumerating them.

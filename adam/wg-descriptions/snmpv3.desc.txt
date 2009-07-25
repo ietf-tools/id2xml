@@ -1,0 +1,49 @@
+The SNMPv3 Working Group is chartered to prepare recommendations for
+the next generation of SNMP. The goal of the Working Group is to
+produce the necessary set of documents that will provide a single
+standard for the next generation of core SNMP functions.
+
+During the past several years, there have been a number of activities
+aimed at incorporating security and other improvements to SNMP.
+Unfortunately, strongly held differences on how to incorporate these
+improvements into SNMP prevented the SNMPV2 Working Group from coming
+to closure on a single approach. As a result, two different approaches
+(commonly called V2u and V2*) have emerged.
+
+The Security and Administrative Framework Evolution for SNMP Advisory
+Team (the Advisory Team) was formed to provide a single recommended
+approach for SNMP evolution.  The technical starting point for this
+Working Group will be the recommended approach provided by the Advisory
+Team.
+
+This approach provides for the convergence of concepts and technical
+elements of V2u and V2*.  The SNMPv3 Working Group is not starting new
+work and will use as many concepts, technical elements and
+documentation as practical from the V2u and V2* activities.  Previous
+delays in providing a single standard for the next generation of SNMP
+core functions dictate that the Working Group move forward as quickly
+as possible to document and publish Internet Drafts and RFC's.  To this
+end, the Working Group will make use of as much existing documentation
+as practical. Additionally, functional changes beyond those needed to
+provide a single approach will be strongly discouraged.
+
+Timely completion of a single approach for SNMPv3 is crucial for the
+continued success of SNMP.  Recognizing the need for prompt completion,
+the following objectives are provided to the Working Group:
+
+- accommodate the wide range of operational environments with
+  differing management demands;
+
+- facilitate the need to transition from previous, multiple protocols
+  to SNMPv3;
+
+- facilitate the ease of setup and maintenance activities.
+
+
+Note: SNMPv3 planned specifications:
+
+	SNMPv3 Modules and Interface Definitions
+	SNMPv3 Message Processing and Control Module Specification
+	SNMPv3 Security Model Module Specification
+	SNMPv3 Local Processing Mosule Specification
+	SNMPv3 Proxy Specification

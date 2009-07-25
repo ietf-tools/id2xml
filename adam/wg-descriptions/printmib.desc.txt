@@ -1,0 +1,37 @@
+The Printer MIB Working Group is chartered to develop a set of managed
+objects for networked printers. These objects will be the minimum
+necessary to provide the ability to monitor and control these systems,
+providing fault, configuration and performance management, and will be
+consistent with the SNMP framework and existing SNMP standards.
+
+At its discretion, the working group may also define a small number of
+unsolicited notifications (traps) which carry these managed objects.
+However, the working group recognizes that traps are used sparingly in
+the SNMP framework.
+
+The working group recognizes that the area of networked printers is
+quite diverse. However, the working group is specifically confined to
+defining managed objects that instrument critical information about:
+
+- printer engine
+
+- interpreters
+
+- media
+
+- input sources
+
+- output destinations
+
+- I/O interfaces
+
+Further, the working group is specifically prohibited from defining
+managed objects that define instrumentation about:
+
+- other marking technologies (e.g., those that mark onto film)
+
+- fonts
+
+- spooling
+
+- print job management

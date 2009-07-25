@@ -1,0 +1,24 @@
+The Internet School Networking Working Group is chartered to address
+issues related to the connection of primary and secondary schools
+worldwide to the Internet. The key audiences include network service
+providers and educational policy makers responsible for network access
+and use. The key areas of focus for this group are advocacy and
+articulation.
+
+1. Advocacy. The ISN Working Group will facilitate dialog between the
+   primary and secondary education community and the Internet
+   engineering community in order to identify and fulfill the needs of
+   the primary and secondary school community.
+
+2. Articulation. Informed by the group's experience, and with input
+   from other IETF working groups, the ISN Working Group will
+   articulate solutions to the challenges a school may experience in
+   seeking and gaining a connection to the Internet, as well as the
+   benefits of such a connection. Advantages to Internet connectivity
+   may be articulated by means of pointers to such services as user
+   interfaces, directories, organizations, and training programs, as
+   well as to other resources. Articulation will most often be in the
+   form of periodic documents that address key issues of interest to
+   the school networking community. Representative issues to be
+   addressed by the group include connectivity models, educational
+   directories, and acceptable use policies.

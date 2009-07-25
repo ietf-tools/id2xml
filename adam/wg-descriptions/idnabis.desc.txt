@@ -1,0 +1,99 @@
+The original Internationalized Domain Name (IDN) WG specified rules for
+the use of characters other than Latin A(a)-Z(z), digits 0-9 and the
+hyphen (?-?) in domain names in RFC3490, RFC3491 and RFC3492 in 2002
+(published in 2003 and often referenced collectively as ?IDNA2003?).
+
+These documents depend on RFC 3454 and were tied to Unicode version 3.2.
+ An update to the current version (5.x) is required to accommodate
+additional scripts.  In addition, experience has shown that significant
+improvements could be made in the protocol as presently specified.
+
+This WG is chartered to decouple IDNA from specific versions of Unicode
+using algorithms that define validity based on Unicode properties.  It
+is recognized that some explicit exceptions may be necessary in any
+case, but attempts will be made to minimize these exceptions.
+
+Additional goals:
+
+  - Separate requirements for valid IDNs at registration time (insertion
+of names into DNS zone files), vs. at resolution time (looking up those
+names)
+  - Review, and if necessary revise, the algorithms and rules for
+handling right to left character sequences in an IDN context to allow
+labels based on additional scripts and languages and to make
+presentation as predictable as reasonably possible.
+  - Permit use of some scripts that were inadvertently excluded by the
+original protocols.
+  - Ensure practical stability of validity algorithms for IDNs.
+
+The constraints of the original IDN WG still apply to IDNABIS, namely to
+avoid disturbing the current use and operation of the domain name
+system, and for the DNS to continue to allow any system to resolve any
+domain name in a consistent way. The client-based approach of the
+original IDN work will be maintained -- substantially new protocols or
+mechanisms are not in scope.  In particular, IDNs continue to use the
+"xn--" prefix and the same ASCII-compatible encoding, and the 
+bidirectional algorithm follows the same basic design.
+
+The specifications are initially organized as four documents: overview
+and rationale, protocol, table algorithm, and improvements to the
+bidirectional algorithm. These documents are to be used as the basis for
+the discussion of the general direction of the work.
+
+This working group will be providing extended public review of the
+output of a design team that has been working on improvement of the IDNA
+specifications.
+
+This review-based approach is being used in part because of the way the
+work was undertaken by the team; in particular, the design team has been
+working with IETF visibility and has solicited and received significant
+amounts of technical review already from IETF participants and from
+others including experts in the Unicode specifications and the use of
+scripts in languages.  If the public review provided by this Working
+Group confirms the basic method outlined in the input documents, it is
+expected that the working group will be able to respond with any needed
+changes and close in a short period of time.  If technical issues arise
+that indicate a fundamentally different approach must be taken from the
+one outlined above, it is anticipated that this working group would
+close, and a new one with an appropriate charter would be considered.
+
+This work is intended to specify an improved means to produce and use
+stable and unambiguous IDN identifiers.
+
+There are a variety of generally unsolvable problems, notably the
+problem of characters that are confusingly similar in appearance (often
+known as the "phishing" problem) that are not specifically part of the
+scope of the WG although some of the preliminary results of the design
+team suggest that the improvements contemplated in the specifications
+might mitigate some of the ways in which the current IDNA specifications
+can be abused for phishing purposes.
+
+While it is referenced from the original IDNA2003 package, the original
+Stringprep specification, RFC 3454, is not formally part of the IDNA
+package and will not be altered by this work.
+
+The work will update or obsolete RFC 3490.  It is not expected to
+continue to use Nameprep (RFC 3491).  Nameprep is used by other
+specifications; determining how (or whether) to update those
+specifications and, consequently, the long-term status of 
+Nameprep, are not part of this effort.  The method for ASCII-compatible
+("ACE") encoding of IDNs, "Punycode" (RFC 3492) will not be revised by
+this WG.
+
+Subject to the more general constraints described above, the WG is
+permitted to consider changes that are not strictly
+backwards-compatible.  For any such change that is recommended, it is
+expected to document the reasons for the change, the characters
+affected, and possible transition strategies. 
+
+The assumptions outlined above are considered critical to the WG
+constituted by this charter.  The WG will stop work and recommend that a
+new charter be generated if it concludes that any of the following are
+necessary to meet its goals:
+
+   (i) A change to the "punycode" algorithm or to the ACE approach to
+encoding names  in the DNS.
+   (ii) A change to the ACE prefix from "xn--"
+   (iii) A change to the basic approach taken in the design team
+documents (Namely: independence from Unicode version and elimination of
+character mapping in the protocol)

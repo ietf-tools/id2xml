@@ -1,0 +1,94 @@
+The original CAPWAP WG charter included drafting a problem statement
+and a taxonomy of architectures. The new charter of the CAPWAP WG
+proposes building upon the original charter and developing a CAPWAP
+protocol to provide interoperability among WLAN backend architectures.
+The intent of the CAPWAP protocol is to facilitate control, management
+and provisioning of WLAN Termination Points (WTPs) specifying the
+services, functions and resources relating to 802.11 WLAN Termination
+Points in order to allow for interoperable implementations of WTPs
+and ACs.
+
+The revised CAPWAP WG will reference two classes of the Centralized
+WLAN Architecture family, namely the Local MAC and the Split MAC,
+as described in the CAPWAP Architecture Taxonomy draft. The protocol
+will define the CAPWAP control plane including the primitives to
+control data access. An effective Centralized CAPWAP Architecture
+impacts how WLAN data traffic is managed over the backend network.
+This implies the abilitiy to control how data is forwarded by
+negotiating existng data encapsulation mechanisms and specifying
+data payload formats in order to ensure interoperability between
+CAPWAP vendors. No other specifications of the CAPWAP data plane
+are within the scope of this charter.
+
+The CAPWAP WG will strive for extensibility in the protocol design
+to favor future applicability to other access technologies, especially
+IEEE 802.16. While accommodation of any access technology other than
+IEEE 802.11 is not required for successful completion, there are clear
+deployment advantages if a wide range of access technologies are
+accommodated.
+
+In summary, the primary goals of the group will be:
+
+1. Defining a set of Objectives based on the architecture taxonomy
+work that lists the requirements for an interoperable CAPWAP
+protocol. In addition, the WG will incorporate requirements
+derived from the inputs provided by Enterprise and (hotspot)
+Providers based on the WLAN deployment challenges addressed
+by CAPWAP architecture. This document will:
+
+a. include objectives to address problems described in the
+CAPWAP Problem statement document
+b. Describe each objective, its benefit to the protocol and
+how it satisfies the problem statement.
+c. Prioritize and classify the objectives into 3 categories:
+i. Mandatory and Accepted
+ii. Desirable
+iii. Rejected
+d. Undergo review in IEEE 802 as needed
+
+This should result in the first WG Last Call for Objectives draft.
+
+To avoid requirements bloat and stalemate, the WG has a
+hard deadline on the Objectives phase. The WG MUST reach WG
+consensus on the objectives draft by Feb 2005. This is for
+several reasons:
+* We must send this for review to IEEE at that time.
+* We must have a reasonably stable set of objectives
+so that candidate submissions are aware of the objectives
+to be met.
+
+The 2nd WG Last Call (in April) for the objectives draft is to
+ensure that the WG has consensus on any changes that may result
+from IEEE and expert review. So it is not the intention that
+the WG keeps adding new Objectives after Feb 2005.
+
+If the WG cannot reach consensus on the Objectives draft by the
+May 2005 milestone to the IESG, the WG will close.
+
+2. Evaluating a set of candidate proposals that include existing
+IETF protocols and any proposals leading to the selection of
+a protocol on which to base the CAPWAP standard.
+
+3. Developing a CAPWAP protocol standard that meets the Mandatory
+and Accepted objectives from the Evaluation draft and contains
+the minimal set of feature needed to control and provision
+WLAN Access Points. Specifically The CAPWAP protocol document
+will address the following considerations:
+a. Architecture
+b. Operations
+c. Security
+d. Network Management
+e. Scalability
+f. Performance
+
+4. A MIB Document to support the CAPWAP protocol.
+
+In addition, the CAPWAP WG will maintain its Liaison with the
+IEEE to ensure consistency of its work with the IEEE 802.11
+Standard.
+
+Deliverables:
+* Objectives/Criteria Document for CAPWAP protocol
+* Protocol evaluation and base protocol selection document
+* CAPWAP Protocol standard
+* MIB support standard

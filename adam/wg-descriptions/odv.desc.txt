@@ -1,0 +1,2 @@
+The Open Distance Vector Working Group is chartered to sponsor working
+on distance vector based routing protocols, and related work.

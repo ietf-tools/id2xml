@@ -1,0 +1,88 @@
+The IPsec suite of protocols includes IKEv1 (RFC 2409 and associated
+RFCs), IKEv2 (RFC 4306, RFC 4718, and associated RFCs), and the IPsec
+security architecture (RFC 4301). IPsec is widely deployed in VPN
+gateways, VPN remote access clients, and as a substrate for
+host-to-host, host-to-network, and network-to-network security.
+
+The IPsec Maintenance and Extensions Working Group will continue the
+work of the earlier IPsec Working Group which was concluded in 2005. Its
+purpose is to maintain the IPsec standard and to facilitate discussion
+of clarifications, improvements, and extensions and improvements to
+IPsec, mostly to IKEv2. The working group will also be a focus point for
+other IETF Working Groups who use IPsec in their own protocols.
+
+The initial set of work items is:
+
+- A revision to IKEv2 (RFC 4306) that incorporates the clarifications
+from RFC 4718, and otherwise improves the quality of the specification,
+taking into account implementation and interoperability experience. In
+some cases, the revision may include small technical corrections;
+however, impact on existing implementations must be considered. Major
+changes and adding new features is beyond the scope of this work
+item. The starting point for this work is draft-hoffman-ikev2bis.
+
+- An IPsec document roadmap that describes the various RFC documents
+covering IPsec, including both the core RFC 240x and RFC 430x versions
+of IPsec, and extensions specified in other documents. Sections 2 and 3
+of RFC 2411 can provide useful material, but the expected scope is
+slightly different from RFC 2411. This document will be informational.
+
+- A standards-track extension to IKEv2 that provides full IPv6 support
+for IPsec remote access clients that use configuration payloads. This
+work will be based on draft-eronen-ipsec-ikev2-ipv6-config. The WG shall
+solicit help and reviews from the 6MAN WG to ensure that all aspects of
+IPv6 are properly considered.
+
+- A standards-track extension that allows an IPsec remote access client
+to "resume" a session with a gateway; that is, to skip certain parts of
+IKE negotiation when connecting again to the same gateway (or possibly a
+cluster of closely cooperating gateways). The idea is similar to TLS
+session resumption without server-side state, specified in RFC 5077.
+
+The main goals for this extension are to avoid public-key computations
+(to reduce VPN gateway load when a large number of clients reconnect to
+the gateway within a short period of time, such as following a network
+outage), and remove the need for user interaction for authentication
+(which may be required by some authentication mechanisms). The extension
+shall not have negative impact on IKEv2 security features.
+
+Failover from one gateway to another, mechanisms for detecting when a
+session should be resumed, and specifying communication mechanisms
+between gateways are beyond the scope of this work item. Specifying the
+detailed contents of the "session ticket" is also beyond the scope of
+this document; if there is sufficient interest, this could be specified
+later in a separate document.
+
+To the degree its content falls within the scope of this work item, text
+and ideas from draft-sheffer-ipsec-failover will be used as a starting
+point.
+
+- A standards-track extension to IPsec that allows an IPsec remote
+access gateway to redirect VPN clients to another gateway. This
+extension should be aligned with the session resumption extension,
+(the previous work item), and if so decided by the WG, could be
+specified in the same document. The starting point will be
+draft-devarapalli-ipsec-ikev2-redirect.
+
+- A standards-track mechanism that allows an intermediary device, such
+as a firewall or intrusion detection system, to easily and reliably
+determine whether an ESP packet is encrypted with the NULL cipher; and
+if it is, determine the location of the actual payload data inside the
+packet. The starting points for this work item are
+draft-grewal-ipsec-traffic-visibility and draft-hoffman-
+esp-null-protocol.
+
+The initial scope of the WG is restricted to the work items listed
+above. The WG shall not consider adding new work items until one or more
+of its documents progress to IESG evaluation. At that time, the WG can
+propose rechartering.
+
+Chartering this WG is not intended to have effect on documents that
+beyond the initial scope. In particular, work on IPsec extensions that
+are not included in this charter can happen as usual in other WGs (and
+there are currently several other WGs working on IPsec extensions; for
+example, BTNS and ROHC), or as individual submissions.
+
+This charter will expire in July 2010 (24 months from approval). If
+the charter is not updated before that time, the WG will be closed and
+any remaining documents revert back to individual Internet-Drafts.

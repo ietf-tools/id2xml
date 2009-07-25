@@ -1,0 +1,46 @@
+The Network Time Protocol (NTP) is widely deployed and used
+in the Internet. However, the standardization status of this
+protocol has lagged in the IETF. RFC 1305 (NTP version 3) was
+published in March 1992 and remains unchanged and at Draft
+Standard status. RFC 1305 represents the majority of full NTP
+implementations deployed today. RFC 2030 (SNTP version 4)
+was published as an Informational RFC in October 1996 as a
+lightweight version of NTP for deployments not requiring the full
+functionality of NTP. SNTP now represents the majority of both
+NTP traffic and NTP implementation issues on the Internet. A
+good deal of work has been produced in the NTP community
+updating both NTPv3 and SNTPv4. This work is ongoing and
+available through the collaborative development effort in the NTP
+community, but it has not been reflected back into the NTP
+specifications.
+
+The goal of this working group is to document NTPv4 based on
+the extensive work of the NTP community and to advance the
+standardization status of NTP. It is an explicit goal of this effort to
+have NTPv4 interoperate with the deployed base avoiding any
+backwards-incompatible changes.
+
+A number of topics have been raised as potential work items for
+an update to NTP including support for IPv6, security
+considerations including authentication, automatic configuration
+including possible requirements for DHCP, and algorithm
+improvements. This working group will focus first on delivering
+NTPv4 and will defer additional development efforts until after
+the delivery of NTPv4. Support for IPv6 and defining
+mechanisms for securing NTP transactions is considered part of
+the core NTPv4 functionality. Potential further modifications and
+additions to the NTP protocol will be documented for possible
+further work beyond the initial NTPv4 effort.
+
+The working group will initially focus on the following
+deliverables:
+1. NTPv4 Scope and Requirements Document
+(documenting the scope of the NTPv4 update and
+identifying issues deferred for future work).
+2. NTPv4 Protocol Specification (documenting the protocol
+on the wire)
+3. NTPv4 Architecture and Algorithms Specification
+(documenting the architecture, mathematical algorithms,
+and behavior of NTP servers and clients)
+4. NTPv4 MIB (provision for management and monitoring
+of NTP via SNMP)

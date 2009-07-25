@@ -1,0 +1,42 @@
+The Interactive Mail Access Protocol (IMAP) Working Group
+   is chartered to refine and extend the current IMAP2 protocol as a
+   candidate standard for a client-server Internet e-mail protocol to
+   manipulate remote mailboxes as if they were local.  An explicit
+   objective is to retain compatibility with the growing installed base
+   of IMAP2-compliant software.  It is expected that the resulting
+   specification will replace both RFC 1176 and the more recent (as yet
+   unplublished) IMAP2bis extensions document.
+
+   The IMAP Working Group will also investigate how to provide for
+   ``disconnected operation'' capabilities similar to the DMSP protocol
+   (RFC 1056, with Informational status) with a goal of making it
+   possible for IMAP to replace DMSP.
+
+   An e-mail access protocol provides a uniform, operating 
+   system-independent way of manipulating message data (e-mail or
+   bulletin board) on a remote message store (repository).  Mail user
+   agents implementing such a protocol can provide individuals with a
+   consistent view of the message store, regardless of what type of
+   computer they are using, and regardless of where they are connected
+   in the network.  Multiple concurrent sessions accessing a single
+   remote mailbox, and single sessions accessing multiple remote
+   mailboxes, are both possible with this approach.
+
+   This differs from POP3 (RFC 1225) in that POP is a store-and-forward
+   transport protocol that allows an MUA to retrieve pending mail from
+   a mail drop (where it is then usually deleted automatically),
+   whereas IMAP is focused on remote mailbox manipulation rather than
+   transport. IMAP differs from various vendor-specific remote access
+   approaches in that IMAP is an open protocol designed to scale well
+   and accommodate diverse types of client operating systems.
+
+   Security-related tasks include how to incorporate secure
+   authentication mechanisms when establishing a session, and possible
+   interactions with Privacy Enhanced Mail.
+
+   It is expected that most of the work of this group will be conducted
+   via e-mail.  A goal is to integrate and update RFC 1176 and the
+   existing IMAP2bis draft, then submit the result as an Internet-Draft
+   well before the November 1993 IETF meeting, which would then focus on
+   detailed review of the text in preparation for submission as a
+   Proposed Standard before the end of 1993.

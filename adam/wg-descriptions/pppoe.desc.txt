@@ -1,0 +1,5 @@
+This BOF will discuss the use of the Point-to-Point Protocol (PPP) 
+over Ethernet media.  As a broadcast media, Ethernet presents many
+challanges to the use of PPP.  But PPP presents many compelling
+advantages to access technologies that utilize bridged ethernet
+topologies.

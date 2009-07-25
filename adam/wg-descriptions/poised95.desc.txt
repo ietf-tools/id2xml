@@ -1,0 +1,23 @@
+The POISED95 Working Group is a focused effort to resolve some
+long-standing issues of the standards process and IETF procedure:
+
+o The Intellectual Property Rights (IPR) section of RFC 1602 is widely
+  seen as inoperative, because it demands guarantees and procedures
+  when licensing technologies that few, if any, donors will accept.
+
+o The procedures of the NOMCOM, or Nominating Committee, have been
+  quite informal and different with every NOMCOM.  They need to be 
+codified.
+
+o Standards procedure documented in RFC 1602 needs to be restated to
+  reflect reality and to remove obsolete provisions.
+
+o The ISOC has proposed creating a link between the IETF and ISOC, and
+  has even created a committee to study the issue. The IETF needs a
+  corresponding effort.
+
+o Other issues as appropriate.
+
+As befits an international organization, POISED95 will meet in
+Stockholm and Dallas to try and gauge a rough consensus on these issues
+and develop guidelines and drafts for the appropriate documents.

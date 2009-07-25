@@ -1,0 +1,39 @@
+The WG will work out mechanisms for improved cross-functional
+review within the IETF, addressing the issues identified by the
+PROBLEM WG. This includes a better community review, as well as
+more structured pre-IESG review that may be used to improve
+scalability of the IESG review function.
+
+Definitions:
+
+ o Cross-functional review: document review covering different
+   aspects of Internet technology, including those represented by
+   WGs within different IETF areas.
+
+ o Community review: document review performed by individual IETF
+   participants and not caused by their responsibilities within
+   the IETF management structure.
+
+ o Structured review: more formal and role-based document review
+   performed by individuals assuming certain responsibilities (such
+  as by WG chairs, directorate and IESG members.)
+
+It is an explicit goal of the WG to come up with mechanisms
+encouraging early review of the documents while ideas are still
+in the formation stage. An early review is best for catching
+architectural problems while they're still relatively easy to
+solve. In particular, many cross-functional interactions can be
+spotted and dealt with, thus avoiding many "late surprises". A
+final review (currently done by the IESG) can catch remaining
+cross-functional interactions, as well as deal with overall
+quality issues.
+
+The WG will cooperate with others in starting and evaluating
+experiments with early community and structured reviews. The
+evaluation of such experiments may be published as Informational
+RFCs if the group so desires.
+
+The WG will also coordinate with other WGs involved in the IETF
+reform process on proposed changes to the IETF Working Group
+operations and Standards process if those are considered
+necessary.

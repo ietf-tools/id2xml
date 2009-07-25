@@ -1,0 +1,28 @@
+Note: This Working Group is co-chartered in the Internet Area.
+
+Multicast address allocation is an essential part of using IP
+multicast. Multicast addresses are an even more limited resource than
+unicast addresses, and must be allocated dynamically if they are to
+satisfy expected demand. To this end, the MALLOC WG will define three
+protocols which work together to form a global dynamic multicast
+address allocation mechanism. These protocols will be:
+
+- a "host to Address Allocation Server" protocol used by a host to
+  obtain one or more multicast addresses from an address allocation
+  server within its domain.
+
+- an intra-domain server to server protocol that address allocation
+  servers within the same domain can use to ensure that they do not 
+give
+  out conflicting addresses.
+
+- an inter-domain protocol to provide aggregatable multicast address
+  ranges to domains, which the servers in that domain can then allocate
+  individual multicast addresses out of. This protocol will work in
+  conjunction with the IDMR WG's Border Gateway Multicast Protocol to
+  provide a scalable inter-domain multicast routing solution.
+
+Although mechanisms for enforcing policies for multicast address
+allocation may be considered, setting any such policies is not within
+the scope of this WG.  Alternative multicast models are also out of
+scope.

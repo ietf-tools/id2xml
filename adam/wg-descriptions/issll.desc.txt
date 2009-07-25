@@ -1,0 +1,119 @@
+The ISSLL Working Group defines specifications and techniques needed
+to implement Internet Integrated Services capabilities within specific
+network technologies.
+ 
+The Internet Integrated Services design, developed within the IETF by
+working groups such as INTSERV and RSVP, specifies extensions to the
+IP architecture which allow applications to request and receive a
+specific level of service from the internetwork, as alternatives to
+the current IP best-effort service class.  The work of these groups has
+resulted in technology-independent protocols and specifications.
+Focused engineering work to define the mapping of these universal
+specifications onto specific subnetwork technologies is now required.
+ 
+At minimum, the following points must be addressed for each candidate
+technology:
+ 
+- Service mappings.  Service mappings define the way that the link layer
+  technology is used to provide a particular IntServ traffic management
+  service, such as controlled-load or guaranteed-delay.
+ 
+- Setup protocol mappings.  Setup protocol mappings define how an 
+internet-
+  level setup protocol such as RSVP is implemented or mapped onto the 
+link
+  layer technology.
+ 
+- Adaptation protocols.  Adaptation protocols are used to augment the
+  native capabilities of the link-layer technology, when this is
+  necessary to support required Integrated Services functions.
+ 
+- Statements of non-applicability.  Statements of non-applicability 
+describe
+  which Integrated Service capabilities are not supported by the link
+  layer technology under consideration.
+
+The ISSLL WG will carry out this work for all technologies with 
+perceived
+market demand and of sufficient interest to its members.  To ensure 
+timely
+progress on each work item the WG will employ an administrative 
+structure
+based on technology coordinators, as described below.  The WG expects to
+coordinate its activities across technologies whenever technical
+commonality between layer two media is apparent.  The WG chairs hold
+primary responsibility for this coordinating role.
+ 
+WG Outputs:
+ 
+The WG is expected to produce standards-track RFC's, informational RFC's
+and "best-current-practices" guidelines, as required.  The need for
+standards-track RFC's is limited both because the work of the group is
+focused on the engineering of existing protocols to existing link layer
+technologies, and because in certain cases information and guidelines
+will better serve the needs of a rapidly evolving technology.
+ 
+Operational Structure:
+ 
+Due to the scope of the task and the need for parallel progress on
+multiple work items, the WG effort is organized as follows:
+ 
+A technical coordinator will be identified and selected for each media
+technology adopted as a work item by the group.  This person will be
+responsible for coordinating the technical efforts of the group with
+respect to that media, working with and motivating the document
+editors, and evangelizing the group's work within the community and
+relevant external organizations such as the IEEE and ATM Forum.
+ 
+Since many link layer media continue to evolve, and since that evolution
+may be influenced by the work of the ISSLL WG, it is expected that each
+technology work item will be divided into short term tasks, medium term
+tasks, and ongoing monitoring, as follows:
+
+ 
+- Short term tasks focus on using the existing technology as best
+as possible with no changes whatsoever.  This work will accept whatever
+limits are imposed the link-level and IP-level technology, with the
+goal of creating the best solution possible within a 6-9 month 
+timeframe.
+ 
+- Medium term tasks focus on planned changes to the technology that are
+currently being standardized and may not yet be widely available
+Ideally this work would conclude just as the changes become available
+in the market.  In general a 1-1.5 year timeframe is appropriate for 
+these
+tasks.
+ 
+- Monitoring focuses on tracking and advising on changes being made by
+others to a link layer technology, to allow it to better support the
+Integrated Services models and protocols.  Generally, these efforts 
+would
+be conducted as informal activities, rather than work items within the 
+WG
+structure.  The exception would be when formal cooperation between the 
+WG
+and an external effort was required.
+ 
+In addition to the normal responsibilities of IETF working group chairs,
+the ISSLL chairs hold primary responsibility for selection of 
+coordinators,
+identifying areas of technical commonality and building cross-technology
+efforts within the group.
+ 
+Relationship to Other Working Groups:
+ 
+The ISSLL WG maintains a close working relationship with the INTSERV
+and RSVP WG's.  Particularly, ISSLL may wish to feed back information
+about the effectiveness or limitations of RSVP and INTSERV work in the
+context of a specific technology to these groups for review.  ISSLL is
+also expected to interact with other WG's as needed to aid in the use
+of particular media (e.g. IPATM, PPPEXT).
+ 
+Coordinators for initially important technologies:
+ 
+   ATM                 Sue Thomson, set@bellcore.com
+   Low-Speed Serial    Carsten Bormann, cabo@informatik.uni-bremen.de
+   Ethernet
+   Token Ring          Wayne Pace, pacew@raleigh.ibm.com
+   Frame Relay
+   Cable Modems

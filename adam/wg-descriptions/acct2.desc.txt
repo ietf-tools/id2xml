@@ -1,0 +1,25 @@
+  The Internet Acounting Working Group had the goal of producing 
+  standards for the collection of accounting data within the Internet
+  to support a wide range of management and cost allocation policies.
+  This Internet Accouting 2 Working Group (acct2) continues by
+  publishing the Accounting Architecture and Accounting Meter MIB RFCs
+  as quickly as possible.
+
+  The 'accounting model' is a generalized model for accounting data,
+  covering the adjacent, peer and transport layers for several network
+  protocols (IP, IPX, EtherTalk, DECnet and CLNS).  This will be
+  developed further to include the application layer.
+
+  File formats for accounting data storage are also of interest.  
+  Standardization of these would facilitate data exchange between 
+  accounting and billing systems (e.g., telco systems.)   The working
+  group will also produce a requirements document for the further use
+  of accounting data.
+
+  The RMON Working Group is also interested in monitoring traffic flows 
+  between pairs of hosts, an activity which is already covered by the
+  accounting meter MIB.  This group will consult with RMON on this
+  topic.  Other working groups (such as NASREQ and AAC) are also
+  interested in accounting issues; this group will consult with them to
+  ensure that such issues are addressed in a consistent way.
+

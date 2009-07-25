@@ -1,0 +1,36 @@
+Draft Charter 5/19/93 - md
+
+One of the problems with terminal servers attached to a LAN is the
+large number of small packets they can generate.  Frequently, most of 
+these packets are destined for only one or two hosts.  The large number of
+small packets causes performance problems not only with the terminal
+servers generating the packets, but also with the hosts receiving the
+packets.  The receiving hosts must pass all these small packets through
+their TCP/IP protocol stacks and send the data to the destination
+applications.  A standard solution to this overhead problem would be 
+useful to both terminal servers and host nodes.  
+
+One proposed solution to this problem is the CMP protocol.  CMP is defined
+in the Internet-Draft document draft-cameron-cmp-00.txt.  CMP is a protocol 
+which allows multiple Telnet and Rlogin connections, between a server and a 
+host, to share a single TCP connection.  With simple extensions this can 
+be expanded to include other TCP protocols.  Other solutions that address 
+part of the problem have been proposed.
+
+(An email list has been set up for discussion of the CMP protocol.  To
+join the list, send a request to cmp-id-request@xylint.co.uk)
+
+Proposed Agenda for the BOF:
+
+- presentation and discussion of the problem, including typical
+    hardware and system conditions
+
+- presentation and discussion of CMP
+
+- discussion of performance and dynamics implications
+
+- discussion of other proposals 
+
+- discussion of architecture issues and solution requirements
+
+- determine level of interest and whether to form a working group

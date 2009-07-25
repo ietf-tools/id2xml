@@ -1,0 +1,66 @@
+Internet Traffic Engineering is defined as that aspect of Internet 
+network engineering concerned with the performance optimization of 
+traffic handling in operational networks, with the main focus of the 
+optimization being minimizing over-utilization of capacity when other 
+capacity is available in the network. Traffic Engineering entails that 
+aspect of network engineering which is concerned with the design, 
+provisioning, and tuning of operational internet networks.  It applies 
+business goals, technology and scientific principles to the 
+measurement, 
+modeling, characterization, and control of internet traffic, and the 
+application of such knowledge and techniques to achieve specific 
+service 
+and performance objectives, including the reliable and expeditious 
+movement of traffic through the network, the efficient utilization of 
+network resources, and the planning of network capacity.
+
+The Internet Traffic Engineering Working Group defines, develops, 
+specifies, and recommends principles, techniques, and mechanisms for 
+traffic engineering in the internet.  The working group also serves as 
+a 
+general forum for discussing improvements to IETF protocols to advance 
+the traffic engineering function.
+
+The primary focus of the tewg is the measurement and control aspects of
+intra-domain internet traffic engineering.  This includes provisioning,
+measurement and control of intra-domain routing, and measurement and 
+control aspects of intra-domain network resource allocation. Techniques 
+already in use or in advanced development for traffic engineering 
+include ATM and Frame Relay overlay models, MPLS based approaches, 
+constraint-based routing, and traffic engineering methodologies in 
+Diffserv environments.  The tewg describes and characterizes these and 
+other techniques, documents how they fit together, and identifies 
+scenarios in which they are useful.
+
+The working group may also consider the problems of traffic engineering
+across autonomous systems boundaries.
+
+The tewg interacts with the common control and measurement plane 
+working
+group to abstract and define those parameters, measurements, and 
+controls that traffic engineering needs in order to engineer the 
+network.
+
+The tewg also interacts with other groups whose scopes intersect, e.g. 
+mpls, is-is, ospf, diffserv, ippm, rap, rtfm, policy, rmonmib, disman, 
+etc.
+
+The work items to be undertaken by TE WG encompass the following 
+categories:
+
+- BCP documents on ISP uses, requirements, desires (TEBCPs)
+
+- Operational TE MIB (TEMIB)
+
+- Document additional measurements needed for TE (TEM)
+
+- TE interoperability & implementation informational notes (TEIMP)
+
+- Traffic Engineering Applicability Statement (TEAPP)
+
+For the time being, it also is covering the area of verification that
+diffserv is achievable in traffic engineered SP networks.  This will 
+entail verification and review of the Diffserv requirements in the the 
+WG Framework document and initial specification of how these 
+requirements can be met through use and potentially expansion of 
+existing protocols.

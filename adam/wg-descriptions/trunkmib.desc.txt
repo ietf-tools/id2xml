@@ -1,0 +1,18 @@
+This working group will consider revisions to the DS1 and DS3 MIBs
+(currently published as Proposed Standards in RFC-1232 and RFC-1233) in
+preparation for their consideration as Draft Standards.
+
+Consistent with the IETF standards process, the working group is
+chartered to consider only those changes to the DS1 and DS3 MIBs that
+are based on implementation experience or on the need to align with
+relevant ANSI T1M1 standards. In this context, the working group will
+thoroughly document the implementation or alignment rationale for each
+considered change.
+
+All changes made by the working group will be consistent with the
+existing SNMP framework and standards --- in particular, those
+provisions of RFC-1155 regarding addition and deprecation of objects
+in standard SNMP MIBs.
+
+This working group will be a short-lived activity, involving a single
+meeting, and will conclude its business no later than June 1992.

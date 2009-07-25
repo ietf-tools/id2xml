@@ -1,0 +1,17 @@
+The working group is chartered to work on issues related to the
+deployment of CLNP in the Internet.  The first area of this group's
+work has been the learning necessary to start deploying OSI in
+Internet networks.  This phase includes planning for OSI
+deployment by creating routing plans for regional networks and
+education on using OSI routing protocols.
+ 
+This first area of the group's work will be on-going as we continue to
+deploy OSI in the Internet.  This step has lead to people deploying
+OSI for pilot projects and demonstrations of OSI.
+ 
+The second step of deploying OSI will be the transition of OSI from a
+pilot service to a production service.  During this phase we will work
+on specifying the network debugging tools and test beds.  We will need
+to track the level of OSI support in the Internet.  We will need to
+provide documentation for new users of OSI on the Internet.
+ 

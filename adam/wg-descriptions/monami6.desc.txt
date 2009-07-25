@@ -1,0 +1,77 @@
+There is currently rapid development in the area of new wireless
+standards (802.11*, 802.16, 802.20, UMTS, Bluetooth and others). At
+the same time, terminals which have radio and protocol support for
+two, three or even more standards are appearing. This opens the
+possibility of using multiple access types simultaneously, with each
+access used to transport the traffic for which it is most
+appropriate. For instance, an intermittent, but high-bandwidth access
+type might be used for file transfers (e.g. music download) while a
+low-bandwidth, high reliability access might simultaneously be used
+for a voice call.
+
+In the meantime, IP-level mobility support protocols such as Mobile
+IPv6 (RFC 3775) and NEMO Basic Support (RFC 3963) have been conceived
+by the IETF to support handoffs for IPv6 mobile hosts and routers,
+respectively.
+
+However, these protocols do not today provide standardized support for
+simultaneous differentiated use of multiple access technologies,
+although several proposals exist for such support, and some of them
+have been implemented and tested.
+
+When a mobile host/router uses multiple network interfaces
+simultaneously, or when multiple prefixes are available on a single
+network interface, the mobile host/router would end up with multiple
+Care-of Addresses (CoAs). In addition, the Home Agent might be
+attached to multiple network interfaces, or to a single network
+interface with multiple prefixes, hence resulting in the option to use
+multiple IP addresses for the Home Agent. This could result in the
+possibility of using a multitude of bi-directional tunnels between
+pairs of {Home Agent address, CoA} and a number of associated issues:
+establishment, selection and modification of multiple simultaneous
+tunnels. Some of the issues are very specific to mobility and are
+generally applicable to both mobile hosts and mobile routers using
+Mobile IPv6 and NEMO Basic Support respectively. Some of these issues
+can be resolved with relatively small and straight-forward changes to
+Mobile IPv6 and NEMO Basic Support (e.g. multiple CoAs registration).
+
+The objective of the Monami6 WG is to produce a clear problem
+statement and to produce standard track specifications to the
+straight-forward problems associated with the simultaneous use of
+multiple addresses for either mobile hosts using Mobile IPv6 or mobile
+routers using NEMO Basic Support and their variants (FMIPv6, HMIPv6,
+etc). Where the effects of having multiple prefixes on a single
+interface is identical to the effects of having multiple interfaces
+each with a single prefix, Monami6 will consider a generalized
+approach to cater for multiple prefixes available to a mobile
+host/router. Once this is done, the WG might re-charter in order to
+work on more generic issues that prevent taking advantage of the
+multiple CoAs and HoAs available to mobile nodes and routers.
+
+The WG does not plan to define a tunnel selection mechanism, but may
+document how to use existing mechanisms based upon preferences or
+policies. In particular, the WG will consider that a tunnel
+is alive as long as packets can be exchanged with the corresponding
+peer. In addition, local information, such as interface up/down
+events, or other failure detection mechanisms can be used to quickly
+detect failure of tunnel(s).
+
+WG Deliverables:
+
+- A document explaining the motivations for a node using multiple
+interfaces and the scenarios where it may end up with multiple
+global addresses on its interfaces [Informational]
+
+- An analysis document explaining what are the limitations for
+mobile hosts using multiple simultaneous Care-of Addresses and Home
+Agent addresses using Mobile IPv6, whether issues are specific to
+Mobile IPv6 or not [Informational].
+
+- A protocol extension to Mobile IPv6 (RFC 3775) and NEMO Basic
+Support (RFC 3963) to support the registration of multiple Care-of
+Addresses at a given Home Agent address [Standard Track].
+
+- A "Flow/binding policies exchange" solution for an exchange of
+policies from the mobile host/router to the Home Agent and from the
+Home Agent to the mobile host/router influencing the choice of the
+Care-of Address and Home Agent address [Standard Track].

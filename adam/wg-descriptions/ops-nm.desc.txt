@@ -1,0 +1,16 @@
+We have now had a number of sessions in the OPS Operna Area Meeting
+and in interim meetings at NANOG, RIPE, and by the time of the IETF
+also at LISA. Communication between Operators and IETF-NM folk have
+improved quite a bit. But what we need is a simple and minimal
+requirements document (Informational RFC is what we are thinking of 
+for now) that we can then use to steer further work in the IETF.
+ 
+In order to try and come to closure on this, we will have this
+BOF at the 52nd IETF to help focus on the above goal. We are
+targeting closure on this either at the BOF or on the OPS-NM
+mailing list no later than feb 2002.
+ 
+
+Reading material:
+
+http://www.ietf.org/internet-drafts/draft-ops-operator-req-mgmt-01.txt

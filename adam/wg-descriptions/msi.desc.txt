@@ -1,0 +1,16 @@
+The objective of the Management Services Interface Working Group is to
+define a management services interface by which management
+applications may obtain access to a heterogeneous, multi-vendor,
+multi-protocol set of manageable objects.
+
+The service interface is intended to support management protocols and
+models defined by industry and international standards bodies.  As
+this is an Internet Engineering Task Force Working Group, the natural
+focus is on current and future network management protocols and models
+used in the Internet.  However, the interface being defined is
+expected to be sufficiently flexible and extensible to allow support
+for other protocols and other classes of manageable objects.  The
+anticipated list of protocols includes Simple Network Management
+Protocol (SNMP), OSI Common Management Information Protocol (CMIP),
+CMIP Over TCP (CMOT), Manufacturing Automation Protocol and Technical
+Office Protocol CMIP (MAP/TOP CMIP) and Remote Procedure Call (RPC).

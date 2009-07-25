@@ -1,0 +1,12 @@
+The Router Discovery Working Group is chartered to adopt or develop a
+protocol that Internet hosts may use to dynamically discover the
+addresses of operational neighboring gateways.  The group is expected
+to propose its chosen protocol as a standard for gateway discovery in
+the Internet.
+
+The work of this group is distinguished from that of the Host
+Configuration Working Group in that this group is concerned with the
+dynamic tracking of router availability by hosts rather than the
+initialization of various pieces of host state (which might include
+router addresses) at host-startup time.
+

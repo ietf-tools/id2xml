@@ -1,0 +1,63 @@
+The Distributed Management Working Group is chartered to define an
+initial set of managed objects for specific distributed network
+management applications which can be consistently developed and
+deployed.  A distributed network manager is an applicaton that acts
+in a manager role to perform management functions and in an agent
+role so that it can be remotely controlled and observed.
+
+Distributed network management is widely recognized as a requirement
+for dealing with today's growing internets. A manager application is
+a good candidate for distribution if it requires minimal user
+interaction, it would potentially consume a significant amount of
+network resources due to frequent polling or large data retrieval, or
+it requires close association with the device(s) being managed.
+
+The working group will limit its work to distributed network management
+applications where the main communication mechanism for monitoring
+and control is SNMP. Future work (and other working groups) may be
+chartered to investigate other distribution techniques such as CORBA
+or HTTP. The objects defined by the working group will be consistent
+with the SNMP architecture defined in RFC 2571. The working group
+will especially keep security considerations in mind when defining
+the interface to distributed management.
+
+The working group will complete these tasks:
+
+Define a Scheduling MIB
+
+Define a Script MIB
+
+Define a Remote Operations MIB
+
+Define an Expression and Event MIB to support Threshold Monitoring
+
+Define a Notification Log MIB
+
+Define an Alarm MIB
+
+The working group will consider existing definitions, including:
+
+o the RMON working group's work in this area
+
+o the Application MIB (RFC 2564), SysAppl MIB (RFC 2287) and
+  related standards.
+
+The work on the Alarm MIB will take into consideration existing
+standards and practices, such as ITU-T X.733.  Whether any mappings to
+these other standards appear in the Alarm MIB or in separate documents
+will be decided by the WG.  The WG will actively seek participation
+from ITU participants to make ensure that the ITU work is correctly
+understood.
+
+It is recognized that the scope of this working group is narrow
+relative to the potential in the area of distributed network
+management. This is intentional in order to increase the likelihood
+of producing useful, quality specifications in a timely manner.
+However, we will keep in mind and account for potential related or
+future work when developing the framework including:
+
+o Event and alarm logging and distribution
+
+o Historical data collection/summarization
+
+o Topology discovery

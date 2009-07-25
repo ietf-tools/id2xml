@@ -1,0 +1,73 @@
+The dhc working group (DHC WG) has developed DHCP for automated 
+allocation, configuration and management of IP addresses and TCP/IP 
+protocol stack parameters. DHCPv4 is currently a "Draft Standard" and 
+is documented in RFC 2131 and RFC 2132. DHCPv6 is currently a 
+"Proposed Standard" and is documented in RFC 3315. Subsequent RFCs 
+document additional options and other enhancements to the 
+specifications.
+
+The DHC WG is responsible for reviewing DHCP options or other 
+extensions (for both IPv4 and IPv6). The DHC WG is expected to review 
+all proposed extensions to DHCP to ensure that they are consistent 
+with the DHCP specification and other option formats, that they do not 
+duplicate existing mechanisms, etc. Generally speaking, the DHC WG 
+will not be responsible for evaluating the semantic content of 
+proposed options. Similarly, the ownership of specifications typically 
+belongs the relevant working group that needs more functionality from 
+DHCP, not the DHC WG. The DHC WG coordinates reviews of the proposed 
+options together with those working groups. It is required that those 
+working groups have consensus to take on the work and that the work is 
+within their charter. Exceptionally, with AD agreement, this same 
+process can also be used for Individual Submissions originating 
+outside WGs.
+
+However, the DHC WG can in some cases develop its own options that 
+relate to either maintenance of existing specifications or 
+improvements in the operation of the DHCP infrastructure itself.
+
+The DHC WG has the following main objectives:
+
+* Develop extensions to the DHCP infrastructure as required to meet 
+new applications and deployments of DHCP. The topics currently 
+in development are:
+
+- Subnet allocation mechanisms
+- Virtual subnet identification option
+- Option for passing DNS domain information in DHCPv6
+- DHCP relay agent assignment notification in DHCPv6
+- Option for DHCPv6 server reply sequence numbers
+- Rebinding capability for DHCPv6 Reconfigure messages
+- Behavior of layer 2 relay agents
+
+The adoption of new items requires explicit agreement from 
+the AD or rechartering.
+
+* Write analyses of the DHCPv4 and DHCPv6 specifications, 
+including RFC 2131, RFC 2132, RFC 3315 and other RFCs defining 
+additional options, which identifies ambiguities, contradictory 
+specifications and other obstacles to development of interoperable 
+implementations. Recommend a process for resolving identified 
+problems and incorporating the resolutions into the DHCP 
+specification.
+
+Secondly, advance DHCPv4 (RFC 2131 and RFC 2132) and DHCPv6 (RFC 
+3315) in IETF Standards Track.
+
+Thirdly, specify guidelines for creating new DHCP options, and 
+report on the status of DHCPv4 option reclassification. 
+
+* Assess the requirements for a dual-stack host to use DHCP to obtain 
+configuration settings for both IPv4 and IPv6. Hosts that include 
+implementations of both IPv4 and IPv6 ("dual-stack hosts") may use 
+DHCP to obtain configuration settings (including assigned addresses) 
+for both IPv4 and IPv6. The DHCPv4 and DHCPv6 specifications (RFC 
+2131, RFC 2132, RFC 3315 and subsequent RFCs) do not explicitly 
+explain how a dual-stack host uses DHCP to obtain configuration 
+settings for both IP stacks. The DHC WG will evaluate solutions for 
+configuration of dual-stack hosts through DHCP and select a solution 
+that will be developed and published by the WG.
+
+* Hold a discussion whether on-link prefix information and default 
+router information is needed in DHCP in addition to router 
+advertisements. Actual solutions are out of scope for the WG, 
+however.

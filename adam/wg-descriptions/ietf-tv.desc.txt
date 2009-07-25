@@ -1,0 +1,30 @@
+With recent changes in the IETF and ways in which interested parties
+participate, there is a new push to re-evaluate the mechanisms that are
+provided for remote participation and working group meeeting archiving.
+
+For the past several years, two sessions have been multicast at two bit
+rates (low and high). These sessions have also been recorded and made
+available relatively soon after the meeting. More recently, experiments
+have been conducted in an attempt to add additional rooms with unicast
+support but only audio.
+
+At this point, we are at a cross-roads. Because of perceived changes in
+remote participant needs and funding availability, the IETF needs to
+decide what is needed in terms of service to users. Furthermore, an
+analysis needs to be done on what this service will cost and whether 
+there is budget to support it.
+
+This BOF is a chance for the IETF community to discuss these issues in 
+an open forum and help decide what our next steps should be in providing
+these services for future IETF meetings.
+
+To kick off the discussion, we will present a summary of the effort and
+resources involved in prior audio and video support and describe a few
+service options which might be provided in the future.
+
+We particularly would like to hear from past and current users of the 
+IETF multicast/unicast services.
+
+Note that while jabber use has become much more prevalent recently and 
+its use affects how distance participation works, using instant 
+messaging in IETF meetings is not the focus of this BoF.

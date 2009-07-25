@@ -1,0 +1,16 @@
+The TLS Working Group was established in 1996 to standardize a
+'transport layer' security protocol. The working group began with SSL
+version 3.0. The TLS Working Group has completed a series of
+specifications that describe the Transport Layer Security protocol
+versions 1.0 and 1.1, extensions to the protocol, and new
+ciphersuites to be used with TLS.
+
+The primary goal of the WG is to publish a revision of TLS, version 
+1.2, that removes the protocol's dependency on the MD5 and SHA-1 digest
+algorithms, which have been either wholly or partially compromised by
+recent research. The TLS WG will also work on new authenticated
+encryption modes for TLS, including modes based on counter mode
+encryption (CTR) and combined encryption/authentication modes, and
+may define major new cipher suites for TLS for this purpose. In the
+preparation of TLS 1.2, the WG will attempt to avoid gratuitous
+changes to TLS 1.1.

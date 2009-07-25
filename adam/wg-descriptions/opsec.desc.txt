@@ -1,0 +1,59 @@
+Goals:
+
+The OPSEC WG will document best current practices with regard to network
+security. In particular an effort will be made to clarify the rationale
+supporting current operational practice, address gaps in currently
+understood best practices for forwarding, control plane, and management
+plane security and make clear the liabilities inherent in security
+practices where they exist.
+
+Scope:
+
+The scope of the OPSEC WG is intended to include the protection and
+secure operation of the forwarding, control and management planes.
+
+Documentation of best common practices, revision of existing operational
+security practices documents and proposals for new approaches to
+operational challenges are in scope.
+
+Method:
+
+It is expected that the work product of the working group will fall into
+the category of best current practices documents. Taxonomy or problem
+statement documents may provide a basis for best current practices
+documents.
+
+Best Current Practices Document
+
+For each topic addressed, a document will be produced that attempts to
+capture current practices related to secure operation. This will be
+primarily based on operational experience. Each entry will list:
+
+* threats addressed,
+* current practices for addressing the threat,
+* protocols, tools and technologies extant at the time of writing that
+are used to address the threat,
+* the possibility that a solution does not exist within existing tools
+or technologies.
+
+Taxonomy and Problem Statement Documents
+
+A document which attempts to describe the scope of particular
+operational security challenge or problem space without necessarily
+coming to a conclusion or proposing a solution. Such a document might be
+a precursor to a best common practices document.
+
+While the principal input of the Working Group are operational
+experience and needs, the output should be directed both to provide
+guidance to the operators community as well as to Working Groups that
+develop protocols or the community of protocol developers at large, as
+well as to the implementers of these protocols.
+
+Non-Goals:
+
+The Operations security working group is not the place to do new
+protocols.
+
+New protocol work should be addressed in a working group chartered in
+the appropriate area or as individual submissions. The OPSEC WG may take
+on documents related to the practices of using such work.

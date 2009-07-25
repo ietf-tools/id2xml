@@ -1,0 +1,60 @@
+This BOF will discuss internal training and development
+programs and educational resources for IETF participants
+and leaders.
+
+The IETF has been educating IETF participants and leaders for
+many years, via formal training classes, educational web
+sites, published materials and formal and informal mentoring
+programs.  Our educational efforts have included training sessions
+for newcomers, introductory training sessions for new WG chairs,
+and educational web resources for WG chairs, document editors and
+other participants.  There have also been educational sessions for
+IETF participants held at some IETF plenary meetings.
+
+Over the past year, there has been an increasing awareness of
+the need for better educational programs and resources for
+IETF WG chairs, document editors and other participants.
+
+A grass-roots effort was initiated to expand the WG Chairs
+training program to include ongoing education for continuing
+WG chairs.  The Newcomers training, formerly provided by the
+IETF Secretariat, has been folded in to the WG Chairs training
+effort.  Also, we've discussed the development of training
+programs or resources for document editors and other IETF
+participants.
+
+As this effort expands beyond the area of WG chairs training,
+it is increasingly important to have the IETF community involved
+in this effort -- both to give the community more visibility
+into these activities, and to receive input and assistance from
+the wider community in developing our educational programs
+and resources.
+
+In this BOF, we'll discuss the IETF's existing educational
+programs and resources, and we'll discuss how those programs
+could be enhanced or expanded in the future.  We will also
+discuss how best to organize and managed our educational
+programs on an ongoing basis, including a discussion of
+whether we should form a Working Group to further this effort.
+
+At the San Francisco IETF in March 2003, a voluntary session
+was held for IESG members and WG chairs to discuss training
+for ongoing WG chairs.  The notes from that session can be
+found at:
+
+http://www.psg.com/~mrw/WGChairs_Training_Notes_Mar03.txt
+
+BOF attendees should also familiarize themselves with our
+existing training materials and on-line educational resources.
+
+For Newcomers:
+http://www.ietf.org/newcomer/frame.htm
+http://www.ietf.org/overview.html
+
+For WG Chairs:
+http://psg.com/~mrw/WGChairs_Training_Mar03.ppt
+http://www.ietf.org/IESG/wgchairs.html
+
+Examples of Participant Training:
+http://www.ietf.org/proceedings/01dec/slides/plenary-3/index.html
+http://www.ietf.org/proceedings/02mar/slides/plenary-3/index.html

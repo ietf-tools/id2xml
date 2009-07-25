@@ -1,0 +1,17 @@
+With the emergence of new wireless technologies, there has been a 
+proliferation of inter-access point mobility protocols. Most of these 
+are achieved through the use of complicated link layers. Moreover,
+these protocols do not allow for seamless mobility between different 
+wireless technology access points.
+
+The CRAPS BOF will examine whether a Working Group should be chartered 
+to design a protocol facilitating seamless handover that is common
+across most all types of radio access points and base stations. The goal
+of the Working Group is to re-use existing IETF protocol where possible.
+The output of the Working Group could be used by the various wireless 
+and cellular SDOs, which would then enable users to seamlessly roam 
+between different wireless technologies.
+
+The wireless Internet should provide seamless roaming, at both the micro 
+and macro mobility level, and perhaps a single protocol can provide 
+both. In addition, the interfaces to AAA and QOS should be similar.

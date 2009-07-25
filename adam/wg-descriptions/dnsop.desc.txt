@@ -1,0 +1,25 @@
+The DNS Operations Working Group will develop guidelines for the
+ operation of DNS software servers and the administration of DNS zone
+ files. These guidelines will provide technical information
+ relating to the implementation of the DNS protocol by the
+ operators and administrators of DNS zones. The group will
+ perform the following activities: 
+
+ 1. Define the processes by which Domain Name System (DNS) software
+       may be efficiently and correctly administered, configured, and
+       operated on Internet networks. This will include root zone
+       name servers, gTLD name servers, name servers for other DNS
+       zones, iterative DNS resolvers, and recursive DNS resolvers.
+       As part of this effort, the group will produce documents
+       explaining to the general Internet community what processes
+       and mechanisms should be employed for the effective management
+       and operation of DNS software. 
+
+ 2. Publish documents concerning DNSSEC operational procedures. 
+
+ 3. Publish documents concerning the IPv6 DNS operational
+       procedures and DNS-related IPv6 transition and coexistence
+       issues. 
+
+ 4. Publish documents concerning the operations of the root and
+       TLD services, and DNS resolvers.

@@ -1,0 +1,40 @@
+The IDRP for IP over IP Working Group is chartered to standardize and 
+promote 
+the use of IDRP (ISO Inter-Domain Routing Protocol) as a scalable inter-
+autonomous system routing protocol capable of supporting policy-based 
+routing 
+for TCP/IP internets.  The objective is to take IDRP, as it is defined 
+by ISO 
+standards, and define backward compatible extensions and/or network 
+adaptation layers to enable this protocol to be used in TCP/IP 
+internets.  
+If any ISO standardization efforts overlap with this area of work, it is
+intended that the ISO work will supersede the standards proposed by this
+group.
+
+1) IDRP for IP over IP document (standards track)
+ 
+   This document contains the appropriate adaptations of the IDRP 
+protocol
+   definition that enables it to be used as a protocol for exchange of
+   ``inter-autonomous system information'' among routers to support
+   forwarding of IP packets across multiple autonomous systems.
+
+2) IDRP MIB document (standards track)
+
+   This document contains the MIB definitions for IDRP.  These MIB
+   definitions are in two parts; IDRP General MIB, and IDRP for  IP
+   MIB. An appendix is planned: IDRP for IP GDMO
+
+3) IDRP - OSPF Interactions (standards track)
+
+   This document will specify the interactions between IDRP and OSPF.
+   This document will be based on a combination of the BGP-OSPF 
+interactions
+   document and IDRP - IS-IS interactions document.
+
+4) IDRP for IP Usage document (standards track)
+
+   Most of the IDRP for IP Usage document will reference the CIDR
+	(supernetting) document.  Any additional terms or protocol
+	definitions needed for IDRP for IP will also be specified here.

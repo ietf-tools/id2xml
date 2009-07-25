@@ -1,0 +1,4 @@
+Help facilitate the incorporation of the OSI protocol suite into the
+Internet, to operate in parallel with the TCP/IP protocol suite.
+Facilitate the co-existence and interoperability of the TCP/IP and OSI
+protocol suites.

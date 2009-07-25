@@ -1,0 +1,4 @@
+To discuss security requirements for objects and documents in a 
+store-and-forward environment.  Topics for discussion include any 
+document or object type requiring or benefitting from security services
+including WWW documents, e-mail, EDI, and others.  9/20/94 mw

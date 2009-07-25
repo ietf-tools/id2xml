@@ -1,0 +1,57 @@
+Note: This Working Group is jointly chartered by the Routing Area.
+The Routing Area Director:  Joel Halpern (jhalpern@newbridge.com)
+
+Motivation
+
+The Internetworking Over NBMA Working Group was formed to combine the
+work of two previous working groups, IP Over ATM (ipatm) and Routing
+Over Large Clouds (rolc), because these two groups were often working
+very closely together on similar, if not identical, problems and
+solutions.  The group will be evolutionary, not revolutionary; it will
+continue the work in the previous groups on the NBMA Next Hop
+Resolution Protocol (NHRP), IPv4 over ATM, and IPv6 over ATM.
+
+Description
+
+This WG will focus on the issues involved in internetworking network
+layer protocols over NBMA (non-broadcast multiple access) subnetwork
+technologies, such as ATM, Frame Relay, SMDS, and X.25 private and
+public networks.  The group will endeavor to make all its solutions
+applicable to the entire range of network layer protocols and NBMA
+subnetworks.  We recognize, however, that there will be cases where
+specific optimizations to IPv4, IPv6, and particular subnetwork
+technologies will result in better service to the user.
+ 
+The group will focus on protocols for encapsulation, multicasting,
+addressing, address resolution and neighbor discovery, interactions
+with and optimization of internetworking-layer routing protocols when
+run over NBMA subnetworks, and protocol-specific network management
+support, as appropriate.  The working group will submit these
+protocols for standardization.
+ 
+The working group may also produce experimental and informational
+documents, including "Best Current Practices" guidelines, as
+required.
+ 
+For ATM, the WG will continue the ipatm WG's transition from the LIS
+model described in RFC 1577 to the generalized NHRP model developed by
+the rolc WG, including a transition plan for existing networks.
+ 
+The working group will coordinate its activities with the following
+other working groups:
+ 
+1) Integrated Services over Specific Lower Layers (issll), for
+   coordinating Quality of Service (QoS) issues and the implementation
+   of IP integrated services capabilities (RSVP, the service models,
+   etc.) over NBMA networks.
+ 
+2) IP Next Generation (ipng), for IPv6 over ATM coordination.
+
+The working group will also coordinate its work with other relevant
+standards bodies (e.g., ATM Forum, Frame Relay Forum, ANSI T1S1,
+ITU-T) and make recommendations to these organizations regarding the
+requirements for IP internetworking where the current published
+subnetwork standards, practices, or functionality do not meet the
+needs of internetworking.
+ 
+The working group will not develop subnetwork layer standards.

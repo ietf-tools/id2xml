@@ -1,0 +1,7 @@
+This working group was chartered to extend the RFC 822 message format to
+facilitate multi-media mail and alternate character sets.  RFCs 1341
+and RFC 1342 document the Multi-Media Extensions for Internet Mail.
+
+The working group will work to progress MIME to Draft Standard status
+and provide a forum for the review of standards track content-type
+specifications and the review of character set extensions to MIME.

@@ -1,0 +1,87 @@
+This working group will define extensions to HTTP and the WebDAV 
+Distributed Authoring Protocol necessary to enable distributed Web 
+authoring tools to perform, in an interoperable manner, versioning and 
+configuration management of Web resources.
+
+Versioning, parallel development, and configuration management are 
+important features for remote authoring of Web content. Version 
+management is concerned with tracking and accessing the history of 
+important states of a single Web resource, such as a stand alone Web 
+page. Parallel development provides additional resource availability in 
+multi-user, distributed environments, allowing authors the choice of 
+making independent changes on the same resource at the same time, later 
+merging together those changes. Configuration management addresses the 
+problems of tracking and accessing multiple interrelated resources over 
+time as sets of resources, not simply individual resources. 
+Traditionally, artifacts of software development, including code, 
+design, test cases, requirements, help files, and more have been a
+focus of configuration management. Web sites, comprised of multiple 
+inter-linked resources (HTML, graphics, sound, CGI, and others), are 
+another important class of complex information artifacts that benefit 
+from the application of configuration management.
+
+The WebDAV working group originally focused on defining version 
+management capabilities for remote authoring applications. However, it 
+has become clear that while versioning functionality alone is useful
+for a range of content authoring scenarios involving one, or a small
+set of resources, versioning alone is insufficient for managing larger 
+sets of content. Support for parallel development and simple remote 
+configuration management of Web resources provides needed functionality 
+for managing larger sets of interrelated content developed by multiple 
+users at different locations. A standard protocol for accesing such 
+services will ensure interoperability between many clients and many 
+servers.
+
+A sub-group of the WebDAV working group has developed functional 
+requirements for versioning and configuration management of Web
+content. These requirements encompass the following capabilities, which 
+shall be considered by this working group:
+
+IN-SCOPE:
+
+- Naming and accessing resource versions and configurations
+
+- Creating new revisions of a resource
+
+- Placing a resource under version and configuration control
+   
+- Parallel development
+
+- History retrieval
+
+- Differencing
+
+- Merging of revisions and configurations
+
+- Operations on configurations
+
+- Mapping resource versions and configurations to the URL namespace
+ 
+- Versioning support for downlevel HTTP and WebDAV clients
+
+Further information on these objectives can be found in the document, 
+"Goals for Web Versioning".
+
+NOT IN SCOPE:
+
+HTTP server to server communication protocols
+
+Development process management, workflow, or change request management
+
+Versioning and configuration management via non-HTTP and WebDAV
+protocols.
+
+Implementation of functionality by non-origin proxies
+
+Deliverables
+
+The following documents are expected to form the final output of this 
+working group.
+
+1. A goals document, which describes the high-level functional
+   requirements for remote versioning and configuration management, 
+   including rationale.
+
+2. A protocol specification, which describes new HTTP methods, headers,
+   request bodies, response bodies, and WebDAV properties to
+   implement the remote versioning and configuration management goals.

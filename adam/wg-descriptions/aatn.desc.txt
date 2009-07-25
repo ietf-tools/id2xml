@@ -1,0 +1,18 @@
+To address the limitations of the IPv4 address space the Internet
+community needs to adopt variant technologies until IPv6 can be deployed
+giving the Internet a new address space.  Three such technologies are
+Network Address Translation (NAT), Link Tunnel Protocols like L2TP, and
+the use of address translation in Firwall products.  This BOF would like
+to investigate and discover if there is valid work to do, which can be
+used to assist this IPv4 problem thru the Avoidance of Network Address
+Translation on Networks (AATN).  This work would address todays need for
+IPv4 and some of the needs for IPv6 which are not addressed by the
+existing NGTRANS WG.  Because this work includes work specific just to
+IPv4 it should not be part of NGTRANS, but there will be some overlap
+clearly.  Engineers in our community have begun to work on AATN in
+various manners and from several IETF WG mail lists this work appears to
+have a growing interest.  This is also not part of the NAT work on going
+as that function is to define and specifiy parts to do NAT.  One
+objective of this work is to provide and insure that end-to-end host
+connectivity is supported for mobility and IPSEC, without network 
+address translation.

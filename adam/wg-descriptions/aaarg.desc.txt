@@ -1,0 +1,116 @@
+The IESG/IAB security workshop concluded that plaintext passwords are
+no longer acceptable in new protocols.  Unfortunately, a large number
+of complex problems need to be solved in order for there to be a
+practical alternative for application protocols.  The goal of this
+working group is to identify or develop components for a baseline
+authentication/authorization system for use by Internet application
+protocols.  This system must have the following characteristics:
+
+* Be as simple as possible -- specifically, baseline authentication,
+  authorization and integrity services must not require ASN.1 or the
+  deployment of a certificate infrastructure.
+
+* Have no dependencies which require or have the effect of requiring
+  trade secret technology
+
+* Have no dependencies which would prevent or unnecessarily complicate
+  freely available or shareware implementations.  Specifically, patents
+  are a serious concern.
+
+* Provide a transition strategy for moving from current plaintext
+  password systems
+
+* Allow for the existence of proxy servers in the architecture
+
+* Avoid potential export restrictions as much as possible
+
+The top priority deliverables are:
+
+* A SASL mechanism intended to replace CRAM-MD5 which repairs the
+  weakness of MD5, the lack of an authorization identifier, and
+  possibly also addresses the lack of optional integrity protection
+  and CRAM's susceptibility to dictionary attacks by a passive
+  observer.  This document should include sample source code in an
+  appendix to assist implementors with no security experience or
+  references.
+
+* A simple password changing protocol to replace the defacto standard
+  "poppassd" which uses plaintext passwords.
+
+* A SASL mechanism which can be used to transition from plaintext
+  passwords
+
+* A simple protocol to permit the verification of authentication
+  credentials against an authentication/authorization database.
+  RADIUS will be reviewed to determine if it is appropriate for
+  application level use.
+
+* An RFC which documents the overall architecture for application
+  protocols and makes recommendations for how application protocol
+  implementors can support various security scenarios.
+
+The second priority deliverables are:
+
+* An Informational RFC which documents vendor support for this
+  architecture.  This will require an outreach effort to Internet
+  server vendors to determine how they can integrate a "no plaintext
+  passwords on the network" architecture into operating system
+  services such as login, change password, switch user and proprietary
+  secure services.
+
+* An RFC which makes a recommendation for a small set of encryption
+  technologies for use in application protocols which meet the
+  architecture criteria listed above.  The goal is to make
+  interoperable encryption easier to deploy.
+
+* An RFC which recommends a single remote login protocol for use with
+  this architecture.  If necessary this will repair problems in that
+  protocol or extend it to meet the architecture criteria.
+
+* An RFC which documents an API for use with SASL
+ 
+ Goals and Milestones: 
+
+   Jun 97       First draft of SASL password transition document
+
+   Jul 97       First draft of password change document
+
+   Aug 97       First draft of authentication verification protocol,
+                if deemed necessary
+
+   Aug 97       First draft of CRAM-MD5 replacement document
+
+   Aug 97       Meet in Munich
+
+   Sep 97       First draft of architecture document
+
+   Sep 97       SASL transition submitted to IESG for proposed standard
+
+   Sep 97       Password change submitted to IESG for proposed standard
+
+   Oct 97       Auth verification submitted to IESG for proposed 
+standard
+
+   Nov 97       CRAM-MD5 replacement submitted to IESG for proposed 
+standard
+
+   Nov 97       First draft of encryption document
+
+   Nov 97       First draft of SASL API
+
+   Nov 97       First draft of remote login document
+
+   Dec 97       First draft of vendor document
+
+   Dec 97       Architecture document submitted to IESG for ?? status
+
+   Jun 98       Conclude Working Group
+
+ Internet-Drafts:
+
+Posted Revised       I-D Title  <Filename>
+------ ------- ------------------------------------------
+
+ Request For Comments:
+
+  None to date.

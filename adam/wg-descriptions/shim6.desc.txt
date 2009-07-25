@@ -1,0 +1,45 @@
+Earlier efforts in this working group completed the Shim6 protocol
+specification, documented in RFCs 5533 through 5535. This protocol is
+a layer 3 shim for providing locator agility with failover
+capabilities for IPv6 nodes. Hosts that employ Shim6 use multiple IPv6
+address prefixes and setup state with peer hosts. This state can later
+be used to failover to a different set of locators, should the
+original locators stop working.
+
+The Shim6 approach has a number of advantages, such as enabling small
+sites to be multihomed without requiring a provider independent IPv6
+address prefix for the site. But the approach has also been
+criticized, e.g., for the operational impacts that the use of multiple
+prefixes causes. At this time there is no clear view on how well Shim6
+works in practice. Implementation and deployment in select networks is
+needed to determine its true characteristics.
+
+The Shim6 working group is chartered to track the implementation and
+testing or deployment efforts. The group is also expected to shepherd
+to completion a few remaining informational documents that complement
+the existing protocol specifications.
+
+The specific work items of the group are:
+
+o Write an implementation and/or deployment experience report.
+
+o Specify socket API extensions. This API enables interactions between
+applications and the Shim6 layer for advanced locator management,
+and access to information about failure detection and path
+exploration. It also enables some applications to turn Shim6 off.
+
+o Complete the work on the applicability draft. This draft explains
+in detail in which types of networks Shim6 is applicable, and
+what its advantages and disadvantages are. The draft will also
+explain how firewalls are impacted by the use of Shim6. Finally,
+the draft will also explain how Shim6 can be used in situations
+where native IPv6 connectivity is not available, such as using
+Shim6 over 6to4.
+
+The group will also work in co-operation with the 6MAN working group
+as they continue their efforts in improving IPv6 address selection
+mechanisms.
+
+The group shall not work on extensions to the Shim6 protocol itself at
+this time. However, new work items can be added through rechartering
+as others get completed.

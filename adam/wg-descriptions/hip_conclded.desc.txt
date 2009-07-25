@@ -1,0 +1,21 @@
+IP has suffered for the lack of security.  Efforts like IPsec and 
+DNSSEC 
+have added various levels of security to IP, but have not addressed 
+some 
+of the fundamental security deficiencies in IP.  By adding a 
+cryptographic Host Identity and a payload for its exchange between two 
+hosts, we can greatly enhance the security of IP while addressing a 
+fundamental flaw in IP.  This flaw being the lack of a true identity 
+for 
+a host that is independent of how IP packets are routed to a host.
+
+By adding a Host Identity namespace to the IP protocol, the role of the 
+IP address changes to simply a packet forwarding namespace, since all 
+of 
+the higher protocols are bound to the Host Identity.  This provides for 
+cleaner host mobility and addressing realm transition (i.e. NAT) 
+methodology.  However, adding a Host Identity provides for a new class 
+of Denial Of Service attacks, and thus the Host Identity Payload (HIP) 
+and its exchange protocol are carefully crafted to not only avoid 
+introducing DOS attacks, but also to lessen the opportunity for the 
+existing transport level DOS attacks.

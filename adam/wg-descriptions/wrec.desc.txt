@@ -1,0 +1,24 @@
+The purpose of this working group is to define a co-ordinated caching 
+and replication framework for the world wide web.
+
+Replication of web services and caching of http responses are distinct 
+paradigms that to a large degree require distinct solutions. However, it 
+is also important that web caches and replicated services be able to 
+coexist.  Ultimately, the working group will define a framework for 
+efficient, reliable, and predictable service in a web which includes 
+both replicas and caches.  Part of this framework will be a means by 
+which replicas and caches may be automatically discovered and utilized 
+by clients.
+
+Because of the wide variety of caching and replication solutions which 
+are already in use, the initial task of the group is to familiarize 
+itself with the diversity of existing practice. The group will therefore 
+produce a document which provides a taxonomy of existing caching / 
+replication developments and terminology which would be used as a 
+reference for later work. In parallel with this, existing protocols and 
+standards which are not publicly documented will be submitted to the 
+IESG for publication as informational RFCs by their respective 
+proponents. Once the initial phase is complete, the group will make a 
+recommendation as to whether further protocol work is necessary or 
+desirable, and submit a revised charter for consideration by IESG and 
+IAB.

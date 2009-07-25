@@ -1,0 +1,72 @@
+In the standard operation of Internet systems, various labels and data
+are managed globally -- domain names, IPv4 and IPv6 addresses,
+etc. From time to time, for operational and administrative purposes,
+users of the Internet need to be able to find and access registered
+nformation associated with those labels.
+
+The CRISP (Cross-Registry Information Service Protocol) WG will
+define a standard mechanism that can be used for:
+
+ - finding authoritative information associated with a label,
+
+ - a protocol to transport queries and responses for accessing that
+ information,
+
+ - a first profile (schema & queries) to support commonly-required
+ queries for domain registration information,
+
+ - a second profile (schema & queries) to support commonly-required
+ queries for numbering resource information. ("numbering resources"
+ is used to refer to IP addresses and ASNs)
+
+The WG will strive to preserve an extensible architecture so that the
+work possibly be useful in the future to other types of registries
+beyond those specifically considered by the group.
+
+
+Specific topics that are NOT goals of this WG are:
+
+ - Backwards compatibility with existing administrative directory
+ services such as WHOIS.
+
+ - Provisioning of data into registry or registrar systems. CRISP
+ provides a uniform access to and view of data that may be held in
+ disparate backend servers.
+
+The CRISP service definition will define:
+
+ - a standard mechanism that can be used to determine the
+ authoritative server(s) for information about a given label
+
+ - a single mandatory to implement protocol for transporting
+ application queries and responses, including
+
+ - expression of input query
+
+ - expression of result sets
+
+ - standard expression of error conditions
+
+ - authentication and verification of data integrity
+
+ - specific data types and queries to be supported in the
+ supported registry services.
+
+Deliverables:
+
+ - Requirements document as an Informational RFC. (previously 
+submitted)
+
+ - First draft of protocol (use) specification. (previously submitted)
+
+ - First draft of domain registration administrative directory
+ services required schema element specification. (previously submitted)
+
+ - Document specifying a new protocol, or the use of an existing one,
+ for providing CRISP service (application transport).
+
+ - Document specifying required schema elements and queries for domain
+ registration administrative directory queries.
+
+ - Document specifying required schema elements and queries for
+ numbering resources registration administrative directory queries.

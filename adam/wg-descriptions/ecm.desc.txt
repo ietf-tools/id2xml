@@ -1,0 +1,79 @@
+The Endpoint Congestion Management (ECM) Working Group has two goals:
+
+1)  To provide a standard set of congestion control algorithms
+    that transport protocols can take advantage of rather than
+    having to develop their own
+
+2)  To develop mechanisms for unifying congestion control across
+    an appropriate subset of an endpoint's active unicast connections.
+
+For ECM, we define a "congestion group" as one or more unicast 
+connections communicating with a common destination, and for which a 
+decision has been made to bundle the connections together into a single 
+flow for purposes of congestion control.
+
+For each congestion group, a Congestion Manager (CM) will track the 
+capacity currently available along the network path(s) used by the 
+group, based on congestion indications such as packet loss information, 
+in a manner analogous to TCP's "congestion window".  The CM will then 
+pass this information along to a Scheduler module that determines how 
+that capacity is to be partitioned among the connections in the 
+congestion group.
+
+Determining the granularity of "common destination" (e.g., particular
+subnet, CIDR mask, specific address, or specific address and range of 
+ports), and making the decision as to which connections should be 
+bundled together into a single congestion group and which go into 
+separate groups, are both difficult problems, because they are heavily 
+influenced by the specifics of both the remote network topology and by 
+possibly-remote policy decisions. It is the hope of the IESG that the 
+IRTF will undertake research into exploring how to address these issues. 
+ In the interim, the working group is charged with devising near-term 
+solutions to these problems with sufficient flexibility to accommodate 
+those possible alternative schemes sufficient flexibility to accommodate 
+those possible alternative schemes that can be anticipated.  The working 
+group is also charged with maintaining good communications with the IRTF 
+effort, should one materialize.
+
+The CM architecture will stress separation of the mechanisms of 
+determining the current available capacity from the policies of how to 
+then schedule that capacity.  It is a requirement that the architecture 
+eventually apply both to TCP and to UDP-based (and other IP-based) 
+transport that includes feedback information concerning congestion 
+(e.g., packet loss or explicit congestion notification).  The initial WG 
+deliverables will focus on developing CM for unifying connections that 
+either use TCP or use UDP in a style comparable with TCP in terms of 
+detecting loss and measuring the round-trip time.  It is possible that 
+the scope of work will be extended in the future to also include 
+mechanisms for applying congestion control to transports that do not 
+include such feedback.
+
+The WG is also tasked to investigate the architecture's security
+implications; and the degree to which network stability will be 
+entrusted to correct operation of applications using ALF transports, 
+rather than operating system kernels.
+
+The WG will initially produce four documents:
+
+- An Informational RFC on congestion control principles.  The
+  goal of this document is to explain the need for congestion
+  control and what constitutes correct congestion control.  One
+  specific goal is to illustrate the dangers of neglecting to
+  apply proper congestion control, including the sometimes elusive
+  argument that congestion control is not needed because the
+  protocol will only be run over well-provisioned paths.
+
+- A Standards Track RFC describing the behavior of a
+  standard-conforming Congestion Manager (how it decides the
+  current available given congestion feedback from the
+  members of a congestion group).
+
+- A Standards Track RFC giving an abstract API for communication
+  between Congestion Manager clients, the Congestion Manager, and
+  the Scheduler.  This initial work is confined in scope to
+  supporting congestion groups made up of either TCP connections
+  and/or UDP connections that incorporate the same sort of feedback
+  (per packet loss information; RTT computation) as TCP.
+
+- An Informational RFC giving an example of the behavior of one
+  or more Schedulers.

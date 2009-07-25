@@ -1,0 +1,4 @@
+SRP (Spatial Reuse Protocol) is a MAC layer protocol for local, metro, 
+and wide area rings developed at cisco systems.  We would like to 
+establish a working group to evaluate, improve, and standardize this 
+protocol.

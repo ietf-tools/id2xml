@@ -1,0 +1,4 @@
+The IETF OSI X.400 Working Group is chartered to identify and provide
+solutions for problems encountered when operating X.400 in a dual
+protocol internet.  This Charter includes pure X.400 operational
+issues as well as X.400 $<$-$>$ RFC 822 gateway (ala RFC 987) issues.

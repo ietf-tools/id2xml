@@ -1,0 +1,35 @@
+At the Minneapolis meeting (3/99), a BOF was held to explore the
+issues of home networking. The goal of the BOF was to discuss how
+Networks in the Small (e.g., Home Networks) can and should work and to
+determine if there is standards work to be done. The overall theme was
+what needs to be done to make plug-and-play really work in an IP
+environment. As a comparison point, Appletalk, IPX & NetBIOS all just
+work with no manual configuration of individual nodes.  This isn't the
+case with IP where either manual configuration is needed or servers
+must be present (e.g., DHCP, DNS, etc.). Home networks include
+environments where the presence of servers cannot be assumed.
+However, Appletalk, IPX and NetBIOS do not scale to larger
+environments, and NITs solutions will need to transition to and
+coexist with larger environments in a reasonable fashion.
+
+This WG will study the requirements for "home networking".  Home
+networks can include (but are not limited to) environments where
+neither DNS servers nor DHCP servers are present. The WG will also
+survey existing protocols that address the problem of autoconfiguration,
+with the aim of understanding whether existing IP protocols are adequate
+to solve the needs for autoconfiguration in the "home" environment, or
+whether additional protocols are needed.
+
+This WG will produce two informational documents.  The first describes
+the requirements for the configuration information and services a node
+needs in order to fully participate on home networks and/or the
+Internet at large.  The second details a 'profile' specifying which
+protocols specifically satisfy the requirements outlined in the first
+document.  If it is determined that no existing standard protocol
+fulfills the requirements, or that existing protocols are insufficient
+or inadequate, the profile may specify that a new protocol is required
+or recommend a change to an existing standard to apply to the NITS
+environment.
+
+This WG will not develop new protocols. In the event that protocol
+work is deemed necessary, a followup WG will be chartered.

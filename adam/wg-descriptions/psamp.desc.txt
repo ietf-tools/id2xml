@@ -1,0 +1,108 @@
+The Packet Sampling working group is chartered to define a standard
+set of capabilities for network elements to sample subsets of packets
+by statistical and other methods. The capabilities should be simple
+enough that they can be implemented ubiquitously at maximal line
+rate. They should be rich enough to support a range of existing and
+emerging measurement-based applications, and other IETF working groups
+where appropriate.
+
+The focus of the WG will be to (i) specify a set of selection
+operations by which packets are sampled (ii) specify the information
+that is to be made available for reporting on sampled packets; (iii)
+describe protocols by which information on sampled packets is reported
+to applications; (iv) describe protocols by which packet selection and
+reporting configured.
+
+Packet reports must be communicable in a timely manner, to
+applications either on-board of off-board the sampling network
+element. The streams of packet reports produced by a packet sampling
+must (i) allow consistent interpretation, independent of the
+particular network element that produced them; (ii) be self-defining,
+in that their interpretation does not require additional information
+to be supplied by the network element; (iii) allow robustness of
+interpretation with respect to missing reports or part of reports;
+
+Network elements shall support multiple parallel packet samplers, each
+with independently configurable packet selectors, reports, report
+streams, and export. Network elements must allow easy and secure
+reconfiguration of these packet samplers by on-board or external
+applications.
+
+Export of a report stream across a network must be congestion avoiding
+in compliance with RFC 2914. Unreliable transport is permitted because
+the requirements at the exporter for reliable transport (state
+maintenance, addressibilty, acknowledgment processing, buffering
+unacknowledged data) would prevent ubiquitous deployment. Congestion
+avoidance with unreliable export is to be accomplished by the
+following measures, which shall be mandatory to implement and use. The
+maximum export rate of a report stream must be configurable at the
+exporter. A report stream must contain sufficient information for
+transmission loss to be detected a collector. Then the collector must
+run a congestion control algorithm to compute a new sending rate, and
+reconfigure the exporter with this rate. In order to maintain report
+collection during periods of congestion, PSAMP report streams may
+claim more than a fair share of link bandwidth, provided the number of
+report streams in competition with fair sharing traffic is limited.
+ 
+Selection of the content of packet reports will be cognizant of
+privacy and anonymity issues while being responsive to the needs of
+measurement applications, and in accordance with RFC 2804.
+
+Re-use of existing protocols will be encouraged provided the protocol
+capabilities are compatible with PSAMP requirements.
+
+Specifically, the PSAMP WG will perform the following tasks, in
+accordance with the principles stated above:
+
+1. Selectors for packet sampling. Define the set of primitive packet
+   selection operations for network elements, the parameters by which
+   they may be configured, and the ways in which they can be combined.
+
+2. Packet Information. Specify extent of packet that is to be made
+   available for reporting. Target for inclusion the packet's IP
+   header, some subsequent bytes of the packet, and encapsulating
+   headers if present. Full packet capture of arbitrary packet
+   streams is explicitly out of scope. Specify variants for IPv4 and
+   IPv6, extent of IP packet available under encapsulation methods,
+   and under packet encryption.
+
+3. Sampled packet reports. Define the format of the report that is
+   constructed by the network element for each sampled packet for
+   communication to applications. The format shall be sufficiently
+   rich as to allow inclusion in the packet report of (i) IP packet
+   information as specified in paragraph 2 above; (ii) encapsulating
+   packet headers as specified in paragraph 2 above; (iii) interface
+   or channel identifiers associated with transit of the packet across
+   the network element; (iv) quantities computable from packet content
+   and router state, (v) quantities computed during the selection
+   operation. All reported quantities must reflect the router state
+   and configuration encountered by the packet in the network element.
+
+4. Report Streams. Define a format for a stream of packet reports, to
+   include: (i) the format of packet reports in the stream; (ii) the
+   packet reports themselves; (iii) configuration parameters of the
+   selectors of the packets reported on; (iv) configuration parameters
+   and state information of the network element; (v) quantities that
+   enable collectors and applications to infer of attained packet
+   sampling rates, detect loss during samping, report loss in
+   transmission, and correct for information missing from the packet
+   report stream; (vi) indication of the inherent accuracy
+   of the reported quantities, e.g., of timestamps.
+
+5. Multiple Report Streams. Define requirements for multiple parallel
+   packet samplers in one network element, including the allowed
+   degradation of packet reporting when packets are selected by
+   multiple packet samplers.
+
+6. Configuration and Management. Define a packet sampler MIB to reside
+   at the network element, including parameters for packet selection,
+   packet report and stream format, and export. Select or define a
+   communication protocol to configure/read this MIB.
+
+7. Presentation, Export, and Transport of Packet Reports. Define
+   interface for presentation of reports to on-board applications.
+   Select unreliable transport protocol for remote export. Determine
+   rate control algorithms for export.
+
+Initial Internet-Draft: A Framework for Passive Packet Measurement
+[draft-duffield-framework-papame]

@@ -1,0 +1,12 @@
+The purpose of this BOF is to discuss the pros and cons of 
+``geographical'' versus ``provider'' based addressing schemes for IPv7. 
+ Since all of the proposals are capable of assigning addresses under 
+either scheme or (hybrid), this discussion is independent of the IPv7 
+proposals.
+
+The primary goal is to establish and agree upon the pros and cons of 
+both schemes, and to document that understanding.  This document, plus 
+descriptions of the schemes (which will be available prior to the BOF) 
+will serve as the basis for a consensus process concerning IPv7 
+addressing.  A secondary goal is to reach and document a Group 
+consensus.

@@ -1,0 +1,17 @@
+The TELNET Working Group will examine RFC 854, ``Telnet Protocol
+Specification,'' in light of the last six years of technical
+advancements, and will determine if it is still accurate with how the
+TELNET protocol is being used today.  This group will also look at all 
+the TELNET options, and decide which are still germane to current-day 
+implementations of the TELNET protocol.
+
+
+(1) Re-issue RFC 854 to reflect current knowledge and usage of the
+    TELNET protocol.
+   
+(2) Create RFCs for new TELNET options to clarify or fill in any
+    voids in the current option set.  Specifically: environment
+	 variable passing, authentication, encryption, and compression.
+
+(3) Act as a clearing-house for all proposed RFCs that deal with the
+    TELNET protocol.

@@ -1,0 +1,65 @@
+The PCE Working Group is chartered to specify a Path Computation Element
+(PCE) based architecture for the computation of paths for MPLS and GMPLS
+Point to Point and Point to Multi-point Traffic Engineering LSPs.
+
+In this architecture path computation does not occur on the head-end
+(ingress) LSR, but on some other path computation entity that may
+physically not be located on the head-end LSR.
+
+The PCE WG will work on application of this model within a single Domain
+or within a small group of domains (where a domain is a layer, IGP area
+or Autonomous System with limited visibility from the head-end LSR). At
+this time, applying this model to large groups of domains such as the
+Internet is not thought to be possible, and the PCE WG will not spend
+energy on that topic.
+
+The WG will specify a protocol for communication between LSRs (termed
+Path Computation Clients - PCCs) and PCEs, and between cooperating PCEs.
+This protocol will be capable of representing requests for path
+computation including a full set of constraints, will be able to return
+multiple paths, and will include security mechanisms such as
+authentication and confidentiality.
+
+The WG will determine requirements for extensions to existing routing
+and signaling protocols in support of PCE discovery and signaling of
+inter-domain paths. Candidate protocols for extensions are RSVP-TE,
+OSPF-TE, ISIS-TE and BGP. Any necessary extensions will be produced in
+collaboration with the Working Groups responsible for the protocols.
+
+The Working Group will also work on the definition of metrics to
+evaluate path quality, scalability, responsiveness and robustness of
+path computation models.
+
+Work Items:
+
+
+- Functional specification of MPLS and GMPLS Traffic Engineered LSP path
+computation models involving Path Computation Element(s). This includes
+the case of computing the paths of intra and inter-domain TE LSPs. Such
+path computation includes the generation of primary, protection and
+recovery paths, as well as computations for (local/global)
+reoptimization and load balancing. The WG will address the inter-area
+(single IGP domain) scenario first. WG progress will be evaluated before
+inter-AS related work is started.
+- Specification of the PCE-based architecture.
+- Specification of requirements and protocol extensions related to the
+policy, and security aspects of PCE-based path computation involving
+PCEs of multiple administrative entities.
+- In cooperation with protocol specific Working Group (OSPF, ISIS, IDR,
+MPLS, CCAMP), development of routing (OSPF, ISIS, BGP) and LSP signaling
+(RSVP-TE) extensions required to support PCE-based path computation
+models.
+- Specification of techniques in support of PCE discovery within and
+across domains. Where such techniques result in the extensions of
+existing protocols (e.g., OSPF, ISIS or BGP), this work will be done in
+conjunction with the appropriate WGs.
+- Specification of a new communication protocol for use between a PCC
+and a PCE, and between PCEs. A single protocol will be selected from
+among candidates that include the existing protocols defined in other
+WGs.
+- Definition of objective metrics to evaluate various criteria such as
+the measurement of path quality, response time, robustness and
+scalability of path computation models.
+
+Review of the document "Requirements for path computation element in
+GMPLS inter-domain networks" produced by the CCAMP WG.

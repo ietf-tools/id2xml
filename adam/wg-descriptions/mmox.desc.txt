@@ -1,0 +1,11 @@
+We do not believe there will be conflicts between this proposed
+working group and existing working groups in terms of charter. In
+terms of scheduling, there may be some discussion regarding the use of
+SIP/RTP as a signaling infrastructure and transport of real-time data.
+If possible, it would be nice to avoid conflicts between this BoF
+session and proceedings of the AVT, MMUSIC, SIP and SIMPLE working
+groups. That being said, it's unlikely we'll be presenting detailed
+technical recommendations at this early stage, we are simply
+interested in insuring that experts in the subject matter of these
+groups have the maximal opportunity to discuss the applicability of
+SIP/RTP to MMO applications.

@@ -1,0 +1,9 @@
+This working group is chartered to define and maintain the MIB and
+relevant related mechanisms needed to allow management of workgroup
+PCs and servers that are using the Microsoft Lan Manager protocols.
+These protocols provide file and print service and mechanisms for
+development of application server-client systems such as ones for mail
+or SQL database.
+
+
+

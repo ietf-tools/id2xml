@@ -1,0 +1,135 @@
+The Timing over IP Connections and Transfer Of Clock (TICTOC) WG is 
+concerned with highly accurate time and frequency distribution over 
+native IP and MPLS-enabled IP Packet Switched Networks (PSNs). While 
+this need arises from a variety of sources (see 
+draft-bryant-tictoc-probstat-01.txt), the application areas of focus for 
+this WG are:
+
+(1) Network infrastructures with the need for highly accurate time and 
+frequency distribution within well-engineered service provider or 
+enterprise campus networks. On-path support with specialized hardware 
+may be expected to be available at one or more hops on a given path.
+
+(2) Individual hosts and devices on the public Internet requiring 
+functionality or performance not currently available in NTP. On-path 
+support may be utilized if available, but is not expected. This 
+application brings additional requirements beyond improved accuracy, for 
+example, the traceable and authenticated distribution of UTC time, 
+including correct handling of leap seconds.
+
+The NTP Working Group is currently standardizing the fourth version of 
+NTP for time distribution over IP networks. The NTP WG has focused its 
+deliverables largely on standardizing the currently deployed NTPv4, 
+while collecting requirements for future extensions. These requirements 
+will transition to the tictoc WG for further development. Meeting those 
+requirements may include revision of the protocol to a new version 
+level. However, in all cases backwards compatibility and coexistence 
+with currently deployed NTPv4 is a paramount concern. An applicability 
+statement will describe the use cases for which any extension of NTP is 
+targeted.
+
+The IEEE Test and Measurement Society is in the closing stages of 
+standardizing a second version of IEEE1588. This is unofficially known 
+as IEEE1588v2 and is expected to be published as IEEE1588-2008. 
+IEEE1588v2 is emerging as a viable solution for time transfer over 
+service provider and campus Ethernet networks, and for which on-path 
+hardware support is becoming available. IEEE1588v2 specifically 
+encourages other standards organizations to adapt it to their 
+requirements, and provides guidelines for doing so. TICTOC will 
+determine whether a profile for IEEE1588v2 over IP or MPLS-enabled IP 
+networks would be suitable for (1), and if so will produce a profile 
+within the guidelines provided in the IEEE1588v2 specification. An 
+applicability statement will describe the use cases for which any 
+profile of IEEE1588v2 is targeted.
+
+Time and Frequency distribution is considered by many to be a complex 
+and often esoteric subject area. The WG will develop a modular framework 
+in order to map out components within the solution space, define 
+terminology, and identify common areas of protocol work that can be 
+capitalized upon.
+
+TICTOC will also consider the co-existence of IEEE1588v2 and NTP in the 
+same network. In doing so, TICTOC will first verify that the data model 
+of NTP can be accommodated by IEEE1588v2 protocol operation and document 
+any deficiencies compared to NTP. If there is a need to map the data 
+models, it will produce a specification for how to utilize IEEE 1588 in 
+a localized region as one portion of an NTP-based system.
+
+TICTOC protocols will be applicable to a variety of link layer 
+technologies. To get the highest quality time and frequency transfer the 
+user should take advantage of two types of on-path service where they 
+are available: Link based frequency transfer, and hop-by-hop delay 
+correction (for time).  Examples of link based frequency support are 
+SONET/SDH, TDM, Synchronous Ethernet and DSL with timing reference 
+support. The main types of support that can be provided by a network 
+element are boundary clock (where the clock is regenerated at the node 
+in a multistage master slave relationship) and transparent clock where 
+corrections are applied to time transfer packets as they pass through to 
+compensate for the queuing delay, and where known for asymmetry in the 
+link delay.  Transparent clock  (queue delay correction) requires 
+routers to identify a time transfer packet, record the queuing delay, 
+and either apply an on the fly correction to the packet, or to generate 
+a follow-up packet with the necessary time correction information. 
+TICTOC will ensure that any transparent clock design is acceptable in an 
+Internet environment. On-path support is not a given, and TICTOC will 
+investigate methods for automatically discovering when this support is 
+available and when it is not.
+
+TICTOC will transfer time and frequency over both IP and IP enabled MPLS 
+PSNs.  One of the major users of TICTOC technology is the service 
+provider community, where MPLS enabled IP networks are common. If 
+necessary, TICTOC may take advantage of the path control properties of 
+MPLS and the ability to signal modifications to per packet forwarding 
+behavior.
+
+The security of time transfer, including the authentication of the time 
+reference is an important consideration and must be designed in from the 
+beginning.
+
+The ultimate system-level accuracy of time and frequency transfer 
+depends on a number of factors outside the scope of the protocols 
+themselves. Thus, even if it is possible for TICTOC to make a number of 
+improvements at the protocol level to facilitate more accurate time and 
+frequency transfer, it is impossible for the WG to provide system-level 
+accuracy guarantees on its own.
+
+The TICTOC WG will co-ordinate with the PWE3 and NTP WGs in the IETF, as 
+well as IEEE1588, IEEE 802.1AS and ITU-T SG15 Q13. It is also expected 
+that active individuals in the TICTOC WG will propose the formation of 
+an IRTF RG to study more advanced aspects of time and frequency 
+distribution.
+
+
+First phase Objectives:
+
+- To develop a time and frequency distribution requirements document for 
+the two cases listed above, including coexistence of the two as appropriate.
+
+- To develop a document defining the modular breakdown of functionality 
+within the solution space.
+
+- To determine the extent to which these requirements can be satisfied 
+using IEEE1588v2 and NTPv4 within each use case, along with an 
+associated gap analysis for what requirements are not met without 
+adaptation or extension of these protocols.
+
+- To develop an IEEE1588v2 profile as necessary for time and frequency 
+distribution, with primary focus on (1). This profile will include a MIB 
+module for IEEE1588v2.
+
+- To develop extensions to NTPv4 as necessary for time and frequency 
+distribution, with primary focus on (2).
+
+- If required, to develop mechanisms for coexistence of IEEE1588v2 and NTP.
+
+- To document threat analyses and security mechanisms for all protocols 
+developed by the WG.
+
+- To document media mappings for link layer technologies of interest.
+
+Second phase Objectives (requiring re-charter of the WG):
+
+To propose and document algorithms, protocols and mechanisms for 
+transport, frequency acquisition, ranging, and packet selection/discard, 
+master clock selection, path selection, OAM, synchronization status 
+messaging, performance monitoring, security, and network management.

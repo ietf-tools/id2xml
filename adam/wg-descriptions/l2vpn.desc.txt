@@ -1,0 +1,144 @@
+The L2VPN working group is responsible for defining and specifying a
+limited number of solutions for supporting provider-provisioned Layer-2 
+Virtual Private Networks (L2VPNs).  Layer-2 VPN's comprise the following:
+
+1. Virtual Private LAN Service (VPLS) -- A Layer-2 service that emulates
+   an Ethernet (V)LAN across an IP or an MPLS-enabled IP Packet Switched 
+   Network (PSN).
+
+2. Virtual Private Wire Service (VPWS) -- A Layer 2 service that
+provides point-to-point connectivity for a variety of link layers,
+including Frame Relay, ATM, Ethernet, PPP, etc., across an IP or
+MPLS-enabled IP PSN. 
+
+3. Virtual Private Multicast Service (VPMS) -- A Layer 2 service that
+   Provides point-to-multipoint connectivity for a variety of link
+layers, including Frame Relay, ATM, Ethernet, PPP, etc., across an IP or
+MPLS-enabled IP PSN.
+
+4. IP-only L2VPN -- A point-to-point or point-to-multipoint "IP-only" 
+   service over an IP or MPLS-enabled PSN.  This service is similar to 
+   VPWS because it supports a variety of link-layer protocols on the 
+   Attachment Circuits, including Frame Relay, ATM, Ethernet, PPP, etc.
+IP-only L2VPN's are different from both VPLS and VPWS because unicast
+Layer-2 frames containing IP data packets, either IPv4 or IPv6, are de-
+   encapsulated leaving only the IP data packet to be transmitted over 
+   the PSN.  An IP-only L2VPN service also differs from L3VPN service, 
+   since no routing protocol operates between the PE and CE;
+furthermore, connectivity from CE to CE is provided via an emulated
+Layer-2 service over the PSN, which results in the CE's appearing to be
+directly attached to each other at Layer-2.  The WG will address two
+specific types of IP-only L2VPN:
+
+   a) Those with Attachment Circuits (ACs) that use the same Layer 2 
+   framing at all attachment points in the same L2VPN; and,
+
+   b) Those with ACs that use different Layer 2 framing at various 
+   attachment points in the same L2VPN. For (b), inter-working between 
+   link-layers is strictly out of scope beyond that which is minimally 
+   necessary to ensure that IP packets are transported from an AC of one
+type, across the IP or MPLS-enabled IP PSN, and to an AC of another 
+   type in as transparent a manner as possible to the CEs on both sides 
+   of the service.
+
+VPLS, VPWS and VPMS operate over Pseudowires (PWs) as defined by the
+PWE3 WG.  As with a single PW, an L2VPN emulates a "native" service
+over a PSN that is reasonably faithful to, but may not be entirely
+indistinguishable from, the native service itself. Further, following
+in the "edge-to-edge" nature of the PWs that it uses, the L2VPN WG
+will not define any new mechanisms which exert control over the
+underlying PSN.  When necessary it may, however, recommend or require
+the use of existing PSN QoS and path control mechanisms between PW
+endpoints which make up the L2VPN.
+
+L2VPN's will make use of existing IETF specified mechanisms unless there
+are technical reasons why the existing mechanisms are insufficient or
+unnecessary.
+
+The L2VPN WG is responsible for specification of the discovery and 
+membership of PE's participating in a VPLS, VPWS or IP-only L2VPN as
+well as the membership of CE devices to a specific instance of a L2VPN.
+
+The L2VPN WG will provide extensions of existing protocols that will be 
+discussed in protocol-specific WG's.  In particular, the L2VPN WG 
+may define extensions to pseudowire management mechanisms (including
+OAM), specifically Pseudowire Virtual Circuit Connectivity Verification
+(VCCV), for VPLS.  Those VCCV extensions will be reviewed by PWE3 to
+ensure they are inline with the overall design/architecture of VCCV
+and MPLS.
+
+The L2VPN WG will not define new encapsulations, control (set-up, 
+configuration, maintenance or tear-down), or resiliency mechanisms
+specifically related to pseudowires, because those must be defined by
+the PWE3 WG.  Furthermore, the L2VPN WG will not define protocol inter-
+working between a VPLS or VPWS and native service-layer control, OAM or 
+or resiliency mechanisms, as those will be defined by the PWE3 WG.  On 
+the other hand, the L2VPN WG may define how to operate native service-
+layer control, IEEE 802.1 OAM or resiliency mechanisms on top of a VPLS 
+or VPWS service.
+
+The L2VPN WG scope includes the following:
+
+1. Discovery of PE's participating in a Layer-2 VPN and the associated
+   topology required for connectivity of the VPLS or VPWS service.
+
+2. Signaling of information related to the discovery and membership of 
+   PE's within a L2VPN.  These procedures must use PWE3 control and 
+   management procedures, or define requirements for extensions of PWE3 
+   protocols to suit the needs of an L2VPN.  Once those requirements are
+reviewed by the L2VPN WG, they should be provided to the PWE3 WG to
+derive solutions.
+
+3. MIB's for Layer-2 VPN solutions.
+
+4. Specification of requirements and framework that will define
+Operations Administration and Management (OAM) procedures for VPLS and
+VPWS VPN's, related to the operation of VPLS and VPWS VPN's over IP/MPLS
+PSN's. In addition, the L2VPN WG will define OAM solutions for VPLS and
+VPWS VPN's.
+
+5. Mechanisms to permit optimization of multicast data traffic within
+   a VPLS or VPWS VPN over an IP/MPLS PSN. 
+
+6. Improved service convergence for multi-homed CE's to VPLS PE's.  
+   Specifically, upon failure of a primary path from a CE to VPLS PE, 
+   initiate a rapid switch-over to an alternate path.  If required, 
+   interactions with native service-layer resiliency mechanisms will be 
+   provided via solutions from other IETF WG's such as PWE3.
+
+7. Enhancements to increase the scalability of the Control Plane and
+   Data Plane (e.g.: number of PW's and MAC Forwarding Database, 
+   respectively) of VPLS PE nodes.
+
+8. Define requirements and solutions for Auto-Discovery and Signaling
+   of Inter-AS VPLS and VPWS L2VPN's, in addition to Inter-AS solutions
+   for multicast-optimized VPLS and VPMS Layer-2 VPN's.
+
+The L2VPN WG currently works on the following tasks:
+
+- Define MIB's appropriate for each type of Layer-2 VPN.
+
+- Specification of Operations Administration and Management (OAM)
+  mechanisms for VPLS, VPWS and IP-only VPN's.
+
+- Specification of procedures to permit optimization of L2VPN multicast 
+  data traffic within the PSN.
+
+- Define enhancements to increase scalability of VPLS PE nodes, to
+  provide aggregation of learned customer MAC addresses at VPLS PE's.
+
+- Identify requirements for multi-homing of CE's to VPLS PE's. 
+  elements.  Based on these requirements, define solutions for achieving
+  fast convergence after a switchover to an alternate path, for example
+  through optimized MAC flushing within a VPLS domain.
+
+- Identify requirements for Inter-AS VPLS and VPWS services.  Define
+  Inter-AS enhancements to VPLS and VPWS based on these requirements.
+
+- Include extensions to L2VPN protocols and RFC's necessary to create an
+  MPLS Transport Profile (MPLS-TP).  The work on the MPLS TP needs to be
+  coordinated between four primary working groups (MPLS, PWE3, L2VPN and
+  CCAMP) that are chartered to do MPLS TP work.
+
+Where necessary, the WG will coordinate its activities with IEEE 802.1
+and ITU.

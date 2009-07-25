@@ -1,0 +1,33 @@
+Present specifications for access to 3270 and 5250 based applications 
+over TCP/IP require improvement to become more commercially viable. 
+Security, Service Location, Response Time, and Session Balancing are 
+improvement examples.
+ 
+The WG will drive to update and extend the standards specifications 
+proposed in rfc1647 and rfc1205 so that they fully support 3270 and 
+5250 
+style access to host (S/390 and AS/400) applications respectively in 
+today's environments.
+ 
+Consideration will be given to work already in progress on protocols 
+for
+accessing 3270 and 5250 based applications over TCP/IP.
+ 
+Three protocol documents will be produced.
+ 
+Deliverables
+
+1. A revised version of rfc1647 (tn3270e) including clarifications of 
+   the protocol, and security considerations.  The revised rfc1647 will 
+   be submitted to the IESG for advancement of the tn3270e protocol to 
+ 
+   draft standard status. Currently it is a proposed standard.
+ 
+2. A new standards track document defining options for the tn3270e 
+   protocol. Such options are: IPDS printing, response time monitoring, 
+   error reporting, session balancing, service location, and security.
+ 
+3. A new standards track document defining enhancements to the tn5250
+   protocol. This new protocol will be called tn5250e. This is not 
+   Display Station Passthru but printing, LU assignment, service 
+   location, and security.

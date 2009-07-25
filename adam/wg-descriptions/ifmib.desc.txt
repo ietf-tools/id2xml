@@ -1,0 +1,21 @@
+The Interfaces MIB working group is reactivated and chartered to 
+accomplish one task: to prepare a recommendation to the IESG evaluating 
+RFC 1573 with respect to the standards track.
+
+The recommendation will document implementation, interoperability, and 
+deployment experience.  If this experiences suggests that changes 
+should 
+be made to the documents, new drafts may be prepared.
+
+The recommendation will report one of four outcomes: that the RFC 
+should 
+be advanced from proposed to draft status, without changes (if no 
+problems are found); that a draft prepared by the working group, should 
+replace the RFC, and be designated a draft standard (if only minor 
+changes are made); that a draft prepared by the working group, should  
+ 
+replace the RFC, and be designated a proposed standard (if major 
+changes 
+or feature enhancements are made); or, that the RFC should be 
+designated 
+as historic (if this technology is problematic).

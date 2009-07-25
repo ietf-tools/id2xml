@@ -1,0 +1,27 @@
+This working group has three main objectives:
+
+* Consider current issues in traffic flow measurement, such as
+
+  - Security issues relating to both traffic measuring devices
+    and to the data they produce.
+
+  - Policy issues relating to traffic measurement and usage
+    accounting, for example any requirements these may place on
+    emerging network protocols
+
+  - Existing work in traffic flow measurement, including that of
+    IETF Working Groups such as bmwg/ippm, rsvp and rmonmib, as
+    well as that by vendors and independent researchers
+
+* Produce an improved Traffic Flow Model considering at least the
+  following needs:
+
+  - wider range of measurable quantities, e.g. those relating to
+      IPv6, and to class of service
+  - simpler ways to specify flows of interest
+  - better ways to control access to measured flow data
+  - strong focus on data reduction capabilities
+  - efficient hardware implementation
+
+* Develop the RTFM Architecture and Meter MIB as 'standards track'
+  documents with the IETF.

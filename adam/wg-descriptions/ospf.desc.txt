@@ -1,0 +1,5 @@
+The OSPF Working develops and documents extensions and bug fixes to the
+OSPF protocol, as well as documenting OSPF usage scenarios.
+The specific protocol work items area listed in the Goals and 
+Milestones section below. Additional work items will require 
+rechartering.

@@ -1,0 +1,31 @@
+The RADIUS protocol resulted from the first NAS Requirements
+effort, and as such, as enjoyed great success in helping
+build large switched-access collector networks.  The RADIUS
+working group is in the final stages of finishing the documentation
+of the existing RADIUS protocol as influenced by current
+deployment experience.
+
+This experience, however, has made it clear that the requirements
+for today's large collector networks are more complex and
+subtle than those identified in the first NASREQ effort,
+and as such, there are capability requirements which cannot
+readily be addressed by RADIUS without significant, deep
+conceptual changes.
+
+Rather than simply hack away at RADIUS, as some suggest,
+this BOF will assess the interest in and likelyhood of
+success of a new, clean-sheet NAS Requirements effort which
+will attempt to produce a larger, more comprehensive framework
+capturing these new, richer requirements.
+
+The result of this effort would be a new version of NAS
+Requirements document. That document would then form the
+basis of a charter for a protocol development effort to address
+those new requirements.
+
+The NASREQng effort is expected to be hosted in the Operational
+Requirements Area because that is very much what is to
+be captured: requirements for operational capabilities.
+Any resulting protocol development, however, would be hosted
+in a more appropriate area to be decided when that becomes
+a real issue.

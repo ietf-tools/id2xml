@@ -1,0 +1,8 @@
+The energy of the Network Management community in the IETF has been 
+focused on finishing the work on SNMPv3 and SMIv2. These are more or 
+less finished by now, and the community may have energy left over to 
+look at other areas that need work.
+
+This BOF is to identify those work items (if any) which make sense to 
+work on within the IETF and where we have enough clarity of problem 
+statement, interest and volunteers to charter the work to a WG.

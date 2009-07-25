@@ -1,0 +1,84 @@
+A personal address book (PAB) contains a read/write copy of attributes 
+describing a user's interpersonal contacts. This is distinct from a 
+directory which contains a primarily read-only copy of users within an 
+organization. While these two data objects share a large number of 
+common attributes, their use and access patterns are fundamentally 
+different. The IETF has a standards-track data format (vCard) which 
+has been successfully used to interchange both personal-address-book 
+and user directory entry data objects. However, due to the lack of a 
+standard access control model for LDAP, the lack of a standard LDAP 
+schema and DIT-model for vCard PAB objects, and the different access 
+patterns for PAB data (as opposed to directory data), the use 
+of LDAP as an access protocol for PABs has had mixed results in 
+practice. Moreover, the vCard format has been extended by many parties 
+and the current specification is ambiguous for some objects.
+
+If the deployed protocols related to interpersonal communication are 
+viewed as a component-based system, there are a number of points in 
+the system that would benefit from a standards track access protocol 
+for personal address book data. 
+This includes:
+
+* Mail User Agents use PAB data to assist outgoing email addressing 
+and may use vCard attachments to transport PAB data between users.
+* Calendar User Agents use PAB data to invite attendees to events
+* Instant Messaging User Agents can provide additional information 
+about a user's buddies if they can be associated with a user's PAB 
+entry.
+* A server-side Sieve engine with the spamtest/virustest extension 
+would benefit from access to a user's PAB to provide per-user white 
+list capabilities.
+* Various deployed challenge-response mechanisms for email present in 
+Mail Transfer Agents, such as TMDA, would be improved by a PAB-based 
+white list.
+* Mobile device synchronization software might be simplified by a 
+single cross-platform PAB access protocol.
+* A voice conference or IP telephony system could access a user's PAB 
+to provide name-based or nickname-based dialing.
+
+
+This WG will produce the following outputs:
+
+(1) A revision of the vCard specification (RFC2426) at proposed 
+standard status. This revision shall include other vCard standardized 
+extensions (RFC 2739, 4770) and extensions assisting synchronization 
+technologies (for example, a per-entry UUID or per-attribute sequence 
+number). Other extensions shall be considered either in the base 
+specification or in additional documents.
+
+(2) An address book access protocol leveraging the vCard data format. 
+The Internet-draft draft-daboo-carddav will be the starting point.
+The WG is explicitly cautioned to keep the base specification feature 
+set small with an adequate extension mechanism, as failure to do so 
+was a problem for previous PAB efforts (ACAP). The WG will consider 
+arguments of the form "feature X must be in the base feature set 
+because ..." with great skepticism.
+
+These documents will consider security implications carefully. The WG 
+will consider developing a mechanism that provides the ability to 
+check if an email address (or im address, etc) is in the user's PAB 
+without providing unrestricted access to all of the user's PAB data. 
+The WG should also consider developing a mechanism that allows the 
+user to grant this limited permission to a third-party service (such 
+as a server-based Sieve engine) for white-list purposes.
+
+Once the primary outputs are complete, the WG will consider the 
+following secondary outputs:
+
+(3) An XML schema which is semantically identical to vCard in all ways 
+and can be mechanically translated to and from vCard format without 
+loss of data. While vCard has deployed successfully and will remain 
+the preferred interchange format, a standard XML schema which 
+preserves vCard semantics might make vCard data more accessible to XML-
+centric technologies such as AJAX and XSLT. Such a standard format 
+would be preferable to multiple proprietary XML schemas, 
+particularly if vCard semantics were lost by some of them and a lossy 
+gateway problem resulted.
+
+(4) Identifying useful deployed vCard vendor extensions and creating 
+standards track versions of those extensions.
+
+(5) Cooperate with the Sieve WG to produce a Sieve extension for 
+address book Sieve tests.
+
+(6) LDAP mapping to the new vCard format without loss of data.

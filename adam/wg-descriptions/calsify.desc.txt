@@ -1,0 +1,32 @@
+The Calendaring and Scheduling standards, defined in RFC's 2445, 2446,
+and 2447 were released in November 1998, and further described in RFC
+3283. They were designed to progress the level of interoperability
+between dissimilar calendaring and scheduling systems. The Calendaring
+and Scheduling Core Object Specification, iCalendar, succeeded in
+establishing itself as the common format for exchanging calendaring
+information across the Internet. On the other hand, only basic
+interoperability has been achieved between different scheduling 
+systems.
+
+The Calsify working group is chartered to:
+
+(1) Revise the Calendaring and Scheduling Standards to advance the
+state of interoperable calendaring and scheduling by addressing
+the known interoperability issues, errata, and problems found based on
+implementation experience.
+
+(2) Clarify the registration process for iCalendar extensions (i.e.,
+the current core object specification only provides a template
+to register new properties).
+
+(3) Provide a means to ease transition from, and to co-exist with,
+the earlier iCalendar standards to the new ones.
+
+Proposing an XML representation or transformation of iCalendar
+objects is out of the scope of this working group.
+
+Depending on the results of the update process on the standards 
+documents the working group will consider whether advancing the 
+documents to draft standard is appropriate. If we decide to move the 
+documents to draft status, milestones may get changed and/or added
+to allow for any additional work necessary to advance the documents.

@@ -1,0 +1,23 @@
+     The Character MIB Working Group is chartered to prepare a
+     recommendation to the IESG evaluating RFCs 1316-1318 (the Character
+     MIBs) with respect to the standards track.
+
+     The recommendation will document implementation, interoperability,
+     and deployment experience.  If these experiences suggest that
+     changes should be made to the documents, new drafts may be
+     prepared.  The recommendation will report one of four outcomes for
+     each RFC:
+
+	- That the RFC should be advanced from Proposed to Draft Standard status,
+	  without changes (if no problems are found);
+
+	- That a draft prepared by the working group should replace the
+	  RFC, and be designated a Draft Standard (if only minor
+	  changes are made);
+
+	- That a draft prepared by the working group should replace the
+	  RFC, and be designated a Proposed Standard (if major
+	  changes or feature enhancements are made); or,
+
+	- That the RFC should be designated as Historic (if this
+	  technology is problematic).

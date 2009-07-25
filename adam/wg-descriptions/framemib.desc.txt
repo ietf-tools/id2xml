@@ -1,0 +1,12 @@
+Proposed Charter 2/12/93 - md
+
+To see if there is interest in writing a Frame Relay Network MIB.  The Frame
+Relay forum has expressed a need for a Fram Relay Network MIB to support 
+end-customer network management of a Frame Relay Network.  This MIB will be
+used to monitor the frame relay portions of a Frame Relay Network, and will 
+rely on other MIBs (i.e., DS1 MIB - RFC1406) to monitor the physical layer.
+This MIB will initially be limited in scope to support only a few applications,
+but will be devised to be extendable.  Work has already begun in the Frame
+Relay Forum to support this activity, but it is hoped that the IETF will
+standardize the MIB as a proposed standard RFC.
+

@@ -1,0 +1,41 @@
+The Service Location Protocol is a decentralized, lightweight, scalable
+and extensible protocol for service discovery within a site.  It allows
+but does not require centralized administration.  Even when security,
+administrative policies or convenience require centralization (say in
+large enterprise deployments) the protocol requires very little
+administration. The protocol limits its use of multicast and broadcast
+as much as possible to conserve network bandwidth.  Moreover, the
+protocol is extensible to arbitrary service advertisement and discovery
+and supports multiple languages and character set encodings.
+
+The working group will document procedures for discovering services,
+and standardize "service:" schemes, which are definitions for resource
+and service URLs.
+
+The focus of the working group will be on completing various documents
+which describe how to do service discovery and how to standardize 
+service definitions which will be advertised and discovered.
+
+ - Interactions between Service Location Protocol and other enterprise
+   naming and directory service protocols will be explored, defined,
+   and standardized.
+
+ - Schemes for popular services will be discussed, and standardization
+   efforts with other working groups explored as needed.
+
+ - Operational experiences and security procedures will be discussed
+   and documented as best current practice.
+
+ - Service Type attribute definitions will be standardized by
+   registering a 'Service Template' with IANA.   This document will
+   also describe how Service Types and Directory Schemas can be made
+   interoperable.  The Service Location Protocol can then be used to
+   populate a directory service dynamically.
+
+ - An Application Programmers Interface has been developed to allow
+   a uniform mechanism for applications to make use of Service Location
+   Protocol functions, which will be supplied as an informational
+   document.
+
+ - The Service Location Protocol itself will be revised and improved
+   on, continuing it along the standards track.

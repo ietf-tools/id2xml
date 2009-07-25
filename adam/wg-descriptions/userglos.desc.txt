@@ -1,0 +1,8 @@
+The Internet User Glossary Working Group is chartered to create an
+Internet glossary of networking terms and acronyms for the Internet
+community.
+
+The working group will update the existing Internet Users' Glossary 
+(RFC-1392, FYI-18), which is now over two years old.  The group will 
+make any necessary corrections and add new terminology which has evolved 
+since the last edition was created.

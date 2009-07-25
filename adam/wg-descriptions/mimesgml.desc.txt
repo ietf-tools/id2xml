@@ -1,0 +1,15 @@
+The Standard Generalized Markup Language (SGML) community is actively
+addressing certain issues that relate to interoperability but not those
+directly related to electronic mail.
+
+This working group will address e-mail issues and concerns to directly
+support the exchange of SGML in MIME e-mail.  These issues include the
+structure of  MIME document that will contain both SGML document markup
+and the various definitions, including handling of public and private
+identifiers.
+
+The working group's effort is NOT intended to address the syntax and 
+structure of SGML.  Previous work in this area, ISO 9069, SGML Document 
+Interchange Format (SDIF) and SGML Open Technical Resolution 9401 will 
+be addressed as interface requirements that may be supported through 
+e-mail.

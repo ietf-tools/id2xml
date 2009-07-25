@@ -1,0 +1,20 @@
+The purposes of this BOF will be to 
+
+1.  Explore technical issues associated with the creation
+    of an Internet Nearcast Service.
+
+2.  Determine what related efforts exist.
+
+3.  Gauge interest in participating in the work.
+
+4.  Possibly gauge concensus in creating a working group.
+
+
+This BOF is a bit preliminary, since the technical ideas
+are only sketched out at this point.  I envision, assuming
+things go well at the BOF, that an internet-draft will be
+created between Memphis and Munich, and that this internet-draft
+will be the basis for a more "serious" BOF in Munich.  It
+is more likely that the second BOF would make the decision
+about forming a working group.
+

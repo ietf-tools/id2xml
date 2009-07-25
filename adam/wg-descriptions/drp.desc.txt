@@ -1,0 +1,13 @@
+Administration of Domain Name Service (DNS) registration increasingly
+distinguishes between operation of the data base for registrations, 
+versus "front-end" sales and support services by registrars who interact 
+with registrants and with the "back-end" data base.  Especially for 
+various Top-Level Domains, the desire is to permit multiple registrars 
+to share access to the database.  This BOF will consider a working group 
+for development of a protocol for a registrar access to the registry.  
+The protocol will permit interaction between a registrar's own 
+application and the data base service running a domain name service 
+registry repository. Specification for user interface access, such as by 
+a web front end, is beyond the scope of the proposed working group.  The 
+working group will base its efforts on the CORE SRS version 1.5 
+protocol, as documented in <draft-crispin-srs-00.txt>.

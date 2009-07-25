@@ -1,0 +1,27 @@
+As the global DNS applications and Top-Level Domain (TLD) registries 
+begin to adopt the IDNA (Internationalized Domain Names in 
+Applications) standards the registration of IDNs (Internationalized 
+Domain Names) at shared registry systems becomes an important element 
+of operational functionality for domain registries.
+
+Furthering the discussion from the PROVREG group, describing 
+the "desire to allow a registrar to access multiple registries via the 
+same protocol, even if the registries differ in operational models," 
+there is interest for the same to apply to the provisioning of IDNs.
+
+Although the EPP RFCs have already provided extension guidelines, due 
+to the foreseeable frequency of IDN provisioning and the potential 
+complexity for registrars if different implementations are adopted by 
+different registries, it makes sense to try to establish standardized 
+extensions for IDN provisioning.
+
+In general, there are two main approaches to incorporating IDN 
+provisioning elements to EPP: 
+1. Extensions to Domain Mapping; or 
+2. New IDN Object Mapping.
+
+The goal of this BOF is to see if there is enough interest from the 
+community to create a workgroup that would be chartered to create 
+documents on both:
+1. Requirements of IDN provisioning
+2. Standard Extensions for IDN-over-EPP

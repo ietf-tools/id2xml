@@ -1,0 +1,10 @@
+RFC 1327 describes mappings to enable interworking between e-mail
+systems using RFC 822 and e-mail systems using CCITT X.400(88). RFC 1327
+is a Proposed Standard and up for review. A specially formed review
+team has proposed to integrate RFC 1494, RFC 1495, outcome of the NOTARY
+group (support for delivery notifications in SMTP) and align it with
+X.400(92). The name of the specification is MIXER which stands for Mime
+Internet X.400 Enhanced Relay.  The working group will review the MIXER
+draft, refine it as needed and move the document to Proposed Standard.
+
+The goal is to concentrate the work in a single document.

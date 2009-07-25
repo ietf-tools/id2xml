@@ -1,0 +1,27 @@
+The Message Tracking MIB working group will produce two standards
+track documents: a message tracking model document and a MIB
+document.
+
+The model  will describe the message tracking problem by
+identifying the entities involved (e.g., message relays or "MTAs",
+management agents), define relationships between the entities,
+define approaches for inter-domain message tracking, and address
+security issues. Messages will be tracked from the time an MTA
+accepts a message, up through the time it delivers the message on
+to another entity, which could be another MTA, a message store, or
+other possibilities. Some of  these destinations will generate
+subsequent messages (status notifications, list expansions, etc.),
+which need to be related to the original message for further
+tracking. The types of messages to be tracked include RFC 822bis
+messages, and optionally others.
+
+The MIB will contain SNMP MIB variables used to track messages
+(e.g. message tracking request identifier, message identifier,
+recipient name, delivery time), will describe specific elements
+of procedure for using those MIB variables, and will discuss
+security. A mechanism will be developed whereby a manager may
+request specific message tracking information using a variety of
+criteria (e.g. message identifier, originator  name, time range,
+wild-cards), and obtain information about messages that satisfy
+those criteria. Such  information is useful for fault,
+performance, and security purposes.

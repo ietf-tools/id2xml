@@ -1,0 +1,26 @@
+There is widespread customer and industry interest in the deployment
+and use of IP based virtual private networks (VPN).  An IP VPN can be
+defined as the emulation of a private network facility across a shared 
+IP based network infrastructure. The goal is to provide the same set of
+services that are provided to the user in the private network over the
+VPN. There may be many distinct types of VPNs,reflecting the wide 
+variety of communication needs of customers. Customers can use their own 
+equipment to provide the functionality needed for a VPN, an ISP can 
+provide this service, or it may be a cooperative combination of 
+functionality provided by customer equipment and ISP services. 
+
+There was a general consensus on the mailing list that the problem is 
+relevant and that there is a need for a forum for discussing them. We 
+feel there is a need for a working group to work on defining the 
+requirements, framework, architecture, service interface and 
+requirements for mechanisms to implement VPN's. 
+
+The goal of the BOF is:
+   - Agree on the VPN models the group should define: CPE based, ISP 
+based and a hybrid model.
+   - Agree on the services these models provide: Routing & Addressing,
+Security, Traffic Engineering and VPN Management (Membership discovery,
+determination, and enrollment)
+   - Agree on a working group charter and the documents the working 
+group should produce initially- Requirements, Framework and 
+Architecture.

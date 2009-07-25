@@ -1,0 +1,51 @@
+The IP/1394 WG formed in the summer of 1997 after a single BOF. The
+goal is to enable TCP/IP over IEEE 1394 in devices with a wide range of
+capabilities. Example devices are network-devices such as PCs, as well 
+as, devices such as cameras, VCRs, and TVs, which are not traditionally
+networked. The WG expects these IP/1394 devices to communicate with 
+hosts across the global Internet and within a single home Intranet.
+
+IEEE 1394 is a family of related documents: IEEE Std 1394-1995, the only
+formally approved IEEE 1394 standard, IEEE P1394a, a supplement to the
+original that contains corrections and enhancements, IEEE P1394b, an 
+ongoing supplement that defines higher data rates and longer distances 
+over additional media types, and IEEE P1394.1, ongoing work to define 
+homogeneous 1394 to 1394 bridges. IP/1394 WG members are working 
+informally within P1394.1 so that in the future, IP/1394 devices may be 
+able to communicate through 1394 bridges. Also, an informal liaison 
+exists with P1394a to insure ARP, Multicast Channel Allocation Protocol 
+(MCAP), and IP broadcast can utilize the P1394a broadcast channel.
+
+The IP/1394 WG plans to deliver the following two documents:
+
+* IPv4 over 1394 Specification
+
+* 1394 Extensions for DHCP (with cooperation from DHCP WG)
+
+For only IPv4, the IPv4 over 1394 document defines:
+
+* Encapsulation of ARP, MCAP, IP unicast, IP multicast, and IP 
+  broadcast.
+
+* The ARP protocol that maps IP unicast addresses to 64 bit 1394 addrs.
+
+* The MCAP protocol that maps IP multicast addresses to 1394 channels.
+
+* A mapping of IP Broadcast addresses to the P1394a broadcast channel.
+
+* An IEEE 1212 Unit Directory that allows dynamic loading of IP/1394
+  drivers.
+
+There are no IP/1394 WG plans to work on an IPv6 over 1394 
+specification, a 1394 SNMP MIB, or methods to relate 1394 services 
+(including a 1394 isochronous service) to other Quality of Service (QoS) 
+IETF work. Plans may change if sufficient interest is expressed and 
+enough individuals agree to do the work. So far, one WG member produced 
+an IPv6 over 1394 ID; another WG member wrote an IP over isochronous 
+1394 ID. These drafts should be the starting points for any future work 
+on their respective topics.
+
+In the Fall of 1999, WG members plan to have an interoperability event 
+to test all aspects of the IPv4 over 1394 document. The purpose of the 
+testing is to advance the document through the IETF standardization 
+process.

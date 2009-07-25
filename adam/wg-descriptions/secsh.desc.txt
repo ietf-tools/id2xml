@@ -1,0 +1,24 @@
+The goal of the working group is to update and standardize the popular
+SSH protocol. SSH provides support for secure remote login, secure file
+transfer, and secure TCP/IP and X11 forwardings. It can automatically
+encrypt, authenticate, and compress transmitted data.  The working
+group will attempt to assure that the SSH protocol
+
+ o  provides strong security against cryptanalysis and protocol 
+attacks,
+
+ o  can work reasonably well without a global key management or
+    certificate infrastructure,
+
+ o  can utilize existing certificate infrastructures (e.g., DNSSEC,
+    SPKI, X.509) when available,
+
+ o  can be made easy to deploy and take into use,
+
+ o  requires minimum or no manual interaction from users,
+
+ o  is reasonably clean and simple to implement.
+
+The resulting protocol will operate over TCP/IP or other reliable but
+insecure transport. It is intended to be implemented at the application
+level.

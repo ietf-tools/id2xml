@@ -1,0 +1,16 @@
+Draft 3/16/94 mw
+
+From the team that developed the Internet-in-a-box, there is interest
+in pursuing IETF work in the realm of ``ato-registration''.  This BOF
+will be held to discuss IETF interest in such an activity and how it 
+should proceed.
+
+The description of the work being submitted:
+
+Before a client system and server can interact, they must be configured
+to know about each other.  The Remote Account Maintenance Protocol (RAMP)
+was designed to ease the process of account creation and machine 
+registration on server systems.  RAMP clients create their own accounts
+by populating pre-configured templates on RAMP servers.  This frees Server
+Administrators from some mundane tasks, while providing users instant
+access to certain server resources.

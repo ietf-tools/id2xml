@@ -1,0 +1,29 @@
+This working group will define the protocol necessary to provide 
+timely information to online users on the presence of other online users 
+and allow them to exchange instant messages. 
+
+An ad-hoc group is analyzing the functional needs of several 
+organizations, and is developing requirements for a presence 
+notification protocol. These requirements encompass the following 
+capabilities, which shall be considered by this working group: 
+In Scope:
+  *  Instant messaging 
+  *  Queries of online status
+  *  Subscriptions to online status 
+  *  Notifications of online status to those who are subscribed
+  *  Other common properties of users (besides online status)
+  *  Rich access controls definable by user
+  *  Addressing of users
+  *  Define how to do media negotiation and session initiation
+  *  Support for location independence
+  *  Consideration of how this will work with existing firewalls
+  *  Security considerations, especially privacy
+Further information on requirements can be found in the document, 
+"Presence Information Protocol Requirements"
+(http://ds.internic.net/internet-drafts/draft-dusseault-pipr-00.txt) 
+The scope of activity of this working group should remain narrowly 
+focused on subscriptions, notifications and instant messages.  This 
+working group will leverage off of previous work when it is applicable. 
+Discussion of the security issues concerning a presence information 
+protocol are essential to the creation of a protocol which implements 
+this functionality in a manner usable by participants on the Internet.

@@ -1,0 +1,33 @@
+The SIP/IN Interworking (SIN) BOF is intended to determine whether a 
+working item on SIP/IN interworking is needed in the IETF, and, if so, 
+whether the relevant work is to be carried in an existing working group 
+or a new working group is to be created.
+
+SIP/IN Interworking is considered here for the purpose of utilizing the 
+existing Intelligent Network solutions in setting up an 
+'IP_Host-to-Phone' call. The solution of this problem is essential to 
+the industry in order to re-use the existing applications in the IP 
+telephony environment: most telephony applications (800, PSTN VPN, 
+credit card calling, to name only a few) are based on IN. It is 
+essential then to re-use them in the IP telephony environment. The
+proposed architecture employs the Software Switch (soft switch), which 
+ 
+appears to the PSTN (in this case, the IN service control point) as  a 
+"normal" PSTN switch; it appears to the IP network as a SIP Server.
+
+Thus, the soft switch must translate certain SIP messages into 
+appropriate Intelligent Network Application Part (INAP) queries to 
+service control; conversely, responses and instructions from the 
+service 
+control must be translated into (sequences of) SIP messages. In 
+particular, 1) IN Call Model must be interpreted for the SIP-based IP 
+telephony environment;
+
+2) IN messages must be mapped into (sequences of) SIP messages and vice 
+versa 
+
+3) IN parameters must be mapped into existing SIP parameters (or 
+relevant SIP extensions must be defined) and vice versa
+
+It is proposed that this work be carried jointly between the IETF and 
+ITU-T IN questions."

@@ -1,0 +1,10 @@
+The BOF will examine the need for a standard set of capabilities for
+network elements to sample traffic. One motivation to standardize
+these capabilities comes from the requirement for measurement-based
+support for network management and control across domains.
+This requires domain wide consistency in the types of sampling schemes
+available, the manner in which the resulting measurements are
+presented, and consequently, consistency of the interpretation that
+can be put on them. The capabilities are positioned as suppliers of
+packet samples to higher level consumers, including both remote
+collectors and applications, and on board applications.

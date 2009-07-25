@@ -1,0 +1,47 @@
+Adaptive applications, those that can adapt their resource requirements 
+to
+variations in network resources, can provide a significant reduction in
+Internet congestion.  In addition, adaptive applications can offer much
+better quality to end users than can non-adaptive applications under
+varying network conditions.  Such applications will represent an 
+important
+piece in the solution to the current Internet congestion control/QoS
+(quality of service) problems.  The technology for making audio and 
+video
+applications adaptive has been under development by researchers over the
+last 10 years.  
+
+Applications built on protocols that do not do congestion control can
+hamper the performance of the Internet. TCP backs off in the face of
+congestion but other transport protocols, such as UDP and RTP, do not, 
+and
+thus can contribute significantly to network congestion.
+
+Many Internet researchers and developers have come to believe that the
+network forwarding devices (e.g. routers) must do internal congestion
+control in order to provide robust and viable network service.  A 
+variety
+of schemes have been suggested for policing traffic and managing router
+buffer queues.  In such a controlled environment, non-adaptive 
+applications
+will fare badly while those applications which can adapt will provide
+better performance to the user.
+
+This BOF will consider what can constructively be done to further the
+development of adaptive applications.  For example, what additional
+protocol support is needed from RTP?  While the technology for making
+applications adaptive, does not require standardization, it would be
+helpful to publish an Informational RFC which states what behavior is
+required from applications to perform well in the Internet today and in
+particular in an Internet where the routers implement internal 
+congestion
+control.  It would also be useful to make clear the issues involved in
+constructing adaptive applications, and to show some example mechanisms 
+and
+algorithms which are known to work.   
+
+This BOF focuses on best-effort traffic, rather than traffic for which 
+QoS
+reservations of some kind have been made (by RSVP for example). It is
+reasonable to expect that best effort traffic will be the bulk of the
+Internet traffic in the near future.

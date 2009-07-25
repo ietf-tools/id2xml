@@ -1,0 +1,35 @@
+The lack of a common set of security requirements and methods for
+ routing protocols has resulted in a wide variety of security
+ mechanisms for individual routing protocols. Ongoing work on
+ requirements for the next generation routing system and future work on
+ the actual mechanisms for it will require well documented routing
+ security requirements.
+
+ The products of this working group will be used by routing protocol
+ designers to ensure adequate coverage of security in the future,
+ including well known and possible threats.
+
+ The scope of work is limited to router-to-router protocols only for
+ both unicast and multicast systems, and does NOT include
+ host-to-router protocol such as IGMP, ICMP, ARP, or ND. It is also a
+ non-goal at this point to produce new or change the current security
+ mechanisms in the existing routing protocols.
+
+ The RPSEC working group is charged with the following tasks:
+
+ - Document threat models for routing systems
+
+ - Document security requirements for routing systems
+
+ - Document security analysis and requirements for specific routing
+     protocols (e.g., OSPF, BGP)
+
+ - Provide a common area for discussion between security and routing
+     experts on the topic of securing the routing system
+
+ Possible Future Work
+
+ - Evaluate and document existing and proposed routing security
+     mechanisms with respect to established RPSEC requirements
+
+ - Recommend mechanism(s)

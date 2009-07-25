@@ -1,0 +1,35 @@
+The APEX working group shall specify protocols and data formats that
+define a relaying mesh service for loosely-coupled Internet
+applications, along with specifying services to provide access
+control and rendezvous-by-subscription. In addition, the working
+group shall specify CPIM-compliant application services for
+text-based instant messaging and for online presence, based on the
+APEX service.
+
+Instant messaging differs from email primarily by requiring
+relatively short delivery latency guarantees and, typically, less
+robust transport service. Presence information was readily
+accessible on Internet-connected systems years ago; when a user had
+an open session to a well-known multi-user system, friends and
+colleagues could easily tell who was online. However there is no
+standard way to make this information known to peers. Similarly a
+number of messaging systems have operated over the Internet and
+continue to do so, although none has focused on assuring very low
+latency between posting and delivery.
+
+The working group will use APEX (as described in draft-mrose-apex-*)
+as the basis of the relay mesh, access control and rendezvous
+specifications. The working group will use
+draft-klyne-imxp-message-service and draft-klyne-message-rfc822-xml
+as its starting points for defining the instant messaging and
+presence conforming to RFC2779 and the interoperability details in the
+final version of the CPIM specification (draft-ietf-impp-cpim).
+BCP 41 will be the basis for working group consideration of the
+transport implications of the APEX designs with respect to network
+congestion, and the working group will coordinate on this with the
+BEEP WG.
+
+Although not encouraged, non-backwards-compatible changes to the basis
+specifications will be acceptable if the working group determines that
+the changes are required to meet the group's technical objectives and
+the group clearly documents the reasons for making them.

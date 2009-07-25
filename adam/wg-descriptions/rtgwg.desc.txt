@@ -1,0 +1,17 @@
+The Routing area receives occasional proposals for the development and
+ publication of RFCs dealing with routing topics, but for which the
+ required work does not rise to the level where a new working group is
+ justified, yet the topic does not fit with an existing working group,
+ and a single BOF would not provide the time to ensure a mature
+ proposal. The rtgwg will serve as the forum for developing these types
+ of proposals.
+
+ The rtgwg mailing list will be used to discuss the proposals as they
+ arise. The working group will meet if there are one or more active
+ proposals that require discussion.
+
+ The working group milestones will be updated as needed to reflect the
+ proposals currently being worked on and the target dates for their
+ completion. New milestones will be first reviewed by the IESG. The
+ working group will be on-going as long as the ADs believe it serves a
+ useful purpose.

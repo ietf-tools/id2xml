@@ -1,0 +1,45 @@
+Administration of Domain Name Service (DNS) registration increasingly
+distinguishes between the operation of a "back-end" registry data base
+service for registrations, versus "front-end" support services by
+registrars who interact with registrants and with the registry.  
+Especially for various Top-Level Domains, the desire is to permit 
+multiple registrars to share access to the database.  Conversely, there 
+is a desire to allow a registrar to access multiple registries via the 
+same protocol, even if the registries differ in operational models.
+
+This working group will develop a specification of the requirements and
+limitations for a protocol that enables a registrar to access multiple
+registries and will develop a  protocol that satisfies those 
+requirements. The protocol will permit interaction between a
+registrar's own application and registry applications.
+
+The initial specification will allow multiple registrars to register 
+and maintain domain names within multiple Top Level Domains (TLDs). The
+specification should be flexible enough to support the different 
+operational models of registries.  The specification should allow 
+extension to support other registration data, such as address 
+allocation and contact information. The working group will use as input 
+the "Generic Registry-Registrar Protocol Requirements"  
+(draft-hollenbeck-grrp-reqs-nn) and the Extensible Provisioning
+Protocol presentation, documented in (draft-hollenbeck-epp-nn).
+
+The group will consider support for multiple operational choices, such 
+as for transport and security; it will create no new transport or 
+security protocols.  The group may consider use of the new protocol for 
+diverse registration and update scenarios, in order to understand 
+limitations and possible extensions that are appropriate.  
+Specification 
+for user interface access, such as by a web front end, is beyond the 
+scope of this working group.
+
+Documentation from the working group will:
+
+* Specify the objects exchanged between the registry repository 
+and registrars, the relationships among the objects, and the protocol 
+for exchanging objects between a registrar and the registry; at a 
+minimum the objects will include:  domain name, IP address, and contact 
+details for registrants
+
+* Describe appropriate mechanisms for security during registrar access
+
+* List useful examples of registrar access transactions

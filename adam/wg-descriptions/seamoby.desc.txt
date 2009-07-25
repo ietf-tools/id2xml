@@ -1,0 +1,96 @@
+During the fast handoff discussions within the Mobile IP WG, a need for 
+a new protocol was identified that would allow state information to be 
+transferred between edge mobility devices. Examples of state 
+information 
+that could be useful to transfer is AAA information, security context, 
+QOS properties assigned to the user, Robust Header Compression 
+information, etc.
+
+Further, Standards Defining Organizations (SDOs) that work on wireless,
+such as 3GPP, 3GPP2, IEEE and others, are hoping that the IETF will be 
+able to provide a set of protocols that will enable them to provide 
+real-time services over an IP infrastructure, and, along with Mobile
+IP, SeaMoby is expected to provide such protocols. Furthermore, the 
+protocols developed by the Seamoby Working Group must allow for 
+real-time services to work with minimal disruption across heterogeneous 
+wireless, and wired, technologies.
+
+It is expected that SDOs working on wireless technologies will provide 
+their input into the WG during the requirements gathering and protocol 
+design phase.
+
+In addition to Context Transfer, the working group has identified two 
+more technologies that are important for use as tools for providing 
+real-time services over IP wireless infrastructure:  Handoff Candidate 
+Discovery and Dormant Mode Host Alerting (aka "IP paging"). Another 
+technology, micro-mobility, in which routing occurs without the Mobile 
+IP address change, was determined by WG discussions to require
+research; it has been removed by the present rechartering and the topic 
+has been addressed to the IRTF Routing Research Group. The present 
+charter (revised from its original form) is to define and then possibly 
+develop the three technologies.  The WG will ensure that its 
+deliverables are compatible with the Mobile IP Working Group's mobility 
+management technology.
+
+Context Transfer
+
+There are a large number of IP access networks that support mobility of 
+hosts. For example, wireless Personal Area Networks (PANs) and LANs, 
+satellite and cellular WANs. The nature of this roaming is such that 
+the 
+communication path to the host changes frequently, and rapidly. In many 
+situations, the chage of communications path includes a change in 
+communications media between the host and access networking, including 
+changes from a wireless to a wired connection and changes between 
+wireless technologies even under common administration.
+
+Although the protocol used to actively re-direct the IP packet flows 
+during a change in a mobile's point of attachment is handled by the 
+Mobile IP WG, there is a need for preserving the context of its active 
+IP flows. The IP flow context that might be useful to transfer could 
+include, but not be limited to security context, policy, QOS (diffserv 
+or intserv as needed) header compression, and accounting/AAA 
+information.
+
+The SeaMoby Working group will analyze the requirements and tradeoffs 
+for the goal of transferring context information from a mobile's old 
+access to the new access device. Depending on the results of the 
+requirements analysis, the SeaMoby WG will develop a protocol (or start 
+from an existing protocol such as Contract Net Protocol (CNP) or the 
+IEEE's 802.11f) to transfer the context information for a session.
+
+Handoff Candidate Discovery
+
+Second, while the Mobile IP Working Group in particular is developing
+protocols to provide "fast handoff" solutions, the mechanisms
+currently under development assume that a set of candidates has
+already been chosen and and that handoff should be initiated to all of
+them. However, the selection of suitable candidates is not part of the
+Mobile IP WG's overall scope.  The Seamoby Working Group has
+documented that "seamless" handoffs can best be achieved by
+considering multiple handoff candidates and selecting one or more of
+them as targets for context transfer. This problem is within scope of
+Seamoby. Specifically, Seamoby will define the work in a problem
+statement, and if needed, will define the requirements and the
+protocol for a handoff candidate discovery protocol, which could be
+used with any mobility management protocol.
+
+Dormant Mode Host Alerting
+
+Third, the Working Group will define the requirements for Dormant Mode 
+Host Alerting (DMHA) at the IP layer (also known as IP Paging) in 
+networks, and a protocol will be developed to tackle this problem. DMHA 
+is typically used in networks that support mobile devices that 
+periodically enter dormant mode to reduce power consumption. DMHA 
+enable 
+network devices to track a mobile that has moved from its last point of 
+attachment, while in dormant mode, allowing the mobile's packets to be 
+delivered.
+
+All work produced by the Working Group will support both IPv4 and IPv6, 
+will follow the congestion control principles in RFC2914 (BCP41), and 
+will undergo a security review prior to WG last call. Protocols 
+developed will be accompanied by MIBs.
+
+The Working Group will coordinate closely with the aaa, mobileip, pilc, 
+and rohc working groups.

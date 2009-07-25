@@ -1,0 +1,73 @@
+The global deployment of IPv6 is underway, creating an IPv4/IPv6
+Internet consisting of IPv4-only, IPv6-only and IPv4/IPv6 networks and
+nodes. This deployment must be properly handled to avoid the division
+of the Internet into separate IPv4 and IPv6 networks while ensuring
+addressing and connectivity for all IPv4 and IPv6 nodes.
+
+The IPv6 Operations Working Group (v6ops) develops guidelines for the
+operation of a shared IPv4/IPv6 Internet and provides operational
+guidance on how to deploy IPv6 into existing IPv4-only networks,
+as well as into new network installations.
+
+The main focus of the v6ops WG is to look at the immediate
+deployment issues; more advanced stages of deployment and transition
+are a lower priority.
+
+The goals of the v6ops working group are:
+
+1. Solicit input from network operators and users to identify
+operational issues with the IPv4/IPv6 Internet, and
+determine solutions or workarounds to those issues. These issues
+will be documented in Informational or BCP RFCs, or in
+Internet-Drafts.
+
+This work should primarily be conducted by those areas and WGs
+which are responsible and best fit to analyze these problems, but
+v6ops may also cooperate in focusing such work.
+
+2. Publish Informational or BCP RFCs that identify potential security
+risks in the operation of shared IPv4/IPv6 networks, and document
+operational practices to eliminate or mitigate those risks.
+
+This work will be done in cooperation with the Security area and
+other relevant areas or working groups.
+
+3. As a particular instance of (1) and (2), provide feedback to
+the IPv6 WG regarding portions of the IPv6 specifications that
+cause, or are likely to cause, operational or security concerns,
+and work with the IPv6 WG to resolve those concerns. This feedback
+will be published in Internet-Drafts or RFCs.
+
+4. Publish Informational or BCP RFCs that identify and analyze 
+solutions
+for deploying IPv6 within common network environments, such as
+ISP Networks, Enterprise Networks, Unmanaged Networks (Home/Small
+Office), and Cellular Networks.
+
+These documents should serve as useful guides to network
+operators and users on possible ways how to deploy IPv6 within their
+existing IPv4 networks, as well as in new network installations.
+
+These documents should not be normative guides for IPv6 deployment,
+and the primary intent is not capture the needs for new solutions,
+but rather describe which approaches work and which do not.
+
+IPv6 operational and deployment issues with specific protocols or
+technologies (such as Applications, Transport Protocols, Routing
+Protocols, DNS or Sub-IP Protocols) are the primary responsibility of
+the groups or areas responsible for those protocols or technologies.
+However, the v6ops WG may provide input to those areas/groups, as
+needed, and cooperate with those areas/groups in reviewing solutions
+to IPv6 operational and deployment problems.
+
+Future work items within this scope will be adopted by the WG only if
+there is a substantial expression of interest from the community and
+if the work clearly does not fit elsewhere in the IETF.
+
+There must be a continuous expression of interest for the WG to work
+on a particular work item. If there is no longer sufficient interest
+in the WG in a work item, the item may be removed from the list of WG
+items.
+
+Specifying any protocols or transition mechanisms is out of scope of
+the WG.

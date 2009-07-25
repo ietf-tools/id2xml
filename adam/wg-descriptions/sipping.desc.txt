@@ -1,0 +1,43 @@
+The Session Initiation Protocol Project INvestiGation (SIPPING)
+working group is chartered to document the use of SIP for several
+applications related to telephony and multimedia, and to develop
+requirements for extensions to SIP needed for those applications.
+Such requirements will be referred to the SIP working group for
+development of any new SIP method, header, or option-tag as described
+in Change Policy for SIP (RFC 3467).
+
+Guiding principles for the performance of SIPPING's work will include:
+
+1. Documenting the requirements of specific chartered tasks.
+
+2. Documenting the usage of SIP to solve real problems that need
+to be solved in a standardized way. Examples of important
+topics identified are the session policy architecture, allowing
+network entities to convey policy into an User Agent's
+activity; requirements analysis for session border
+controllers to determine how best such devices can
+operate with SIP usage; guidance on IPv4-IPv6
+co-existence support by SIP and SIP-supported media; and 
+inclusion of real-time text conversation (ToIP), service 
+invocations benefitting hearing and speech impaired users, 
+and other SIP equal access services as requirements are proposed. 
+
+3. Looking for commonalities among the chartered tasks and ongoing
+SIP-related development, as commonalities may indicate for general,
+reusable functionality in SIP.
+
+4. Describing the requirements for any extension determined to pass
+there hurdles, and handing the development task to the SIP WG.
+
+5. Developing procedures and requirements for configuration and
+delivery of SIP User Profiles
+
+Besides performing needed specification of several applications
+of SIP, SIPPING can be seen as also working out use cases that
+clarify the role of SIP in the Internet, and help to ensure that
+Occam's razor is appropriately applied to SIP usage.
+
+The security of all the deliverables will be of special importance.
+The technology for security will be keyed from the SIP Security
+specification within RFC 3261, and additional SIP specifications
+as they apply.

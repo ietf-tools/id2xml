@@ -1,0 +1,10 @@
+The AToM MIB Working Group is currently chartered to:
+
+1. Maintain and advance on the standards track the existing
+    specifications for ATM management (RFC2512-2515).
+
+2. Maintain and advance on the standards track other trunk-mib
+    specifications (i.e., for DS0 - DS3-E3, RFC2493-2496).
+
+The objects defined by the working group will be consistent with the
+Internet-standard Management framework.

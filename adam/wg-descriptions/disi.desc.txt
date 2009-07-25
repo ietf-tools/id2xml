@@ -1,0 +1,28 @@
+The Directory Information Services (pilot) Infrastructure Working
+Group is chartered to facilitate the deployment in the Internet of
+Directory Services based on implementations of the X.500 standards.
+It will facilitate this deployment by producing informational RFCs
+intended to serve as a Directory Services ``Administrator's Guide''.
+These RFCs will relate the current usage and scope of the X.500
+standard and Directory Services in North America and the world, and
+will contain information on the procurement, installation, and
+operation of various implementations of the X.500 standard.  As the
+various implementations of the X.500 standard work equally well over
+TCP/IP and CLNP, the DISI Working Group shall not mandate specific
+implementations or transport protocols.
+
+The DISI Working Group is an offshoot of the OSI Directory Services
+Group, and, accordingly, is a combined effort of the OSI Integration
+Area and User Services Area of the IETF.  The current OSIDS Working
+Group was chartered to smooth out technical differences in information
+storage schema and difficulties in the interoperability and coherence
+of various X.500 implementations.  The DISI Group is concerned solely
+with expanding the Directory Services infrastructure. As DISI will be
+providing infrastructure with an eye towards truly operational status,
+DISI will need to form liaisons with COSINE, Paradise, and perhaps the
+RARE WG3.
+
+As a final document, the DISI Working Group shall write a Charter for
+a new working group concerned with user services, integration,
+maintenance, and operations of Directory Services, the Internet
+Directory User Services Group.

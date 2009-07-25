@@ -1,0 +1,41 @@
+The Mobile IP Working Group has developed routing support to permit IP
+nodes (hosts and routers) using either IPv4 or IPv6 to seamlessly
+"roam" among IP subnetworks and media types.  The Mobile IP method
+supports transparency above the IP layer, including the maintenance of
+active TCP connections and UDP port bindings. Where this level of
+transparency is not required, solutions such as DHCP and dynamic DNS
+updates may be adequate and techniques such as Mobile IP not needed.
+
+The WG moving forward will focus on deployment issues in Mobile IP and
+provide appropriate protocol solutions to address known deficiencies
+and shortcomings. For example, the wireless/cellular industry is
+considering using Mobile IP as one technique for IP mobility for
+wireless data. The working group will endeavor to gain an
+understanding of data service in cellular systems such as
+GPRS, UMTS, CDMA2000, and interact with other standards bodies that
+are trying to adopt and deploy Mobile IP WG protocols in these
+contexts.  In order to provide a complete solution and a set of
+protocols that can be used as a roadmap for widespread deployment, the
+following work needs to be accomplished by this WG. In the near term,
+the WG needs to work on:
+
+- Use of NAIs to identify mobile users/nodes.
+
+- Specifying how Mobile IP should use AAA functionality to support
+
+  inter-domain and intra-domain mobility.
+
+- Develop solutions for IPv4 private address spaces for the scenarios
+  needed for deployment.
+
+- Documenting any requirements specific to cellular/wireless networks.
+
+In the longer term, the WG needs to address:
+
+- QoS in the mobile IP environment using diff-serv and/or 
+int-serv/RSVP.
+
+- Location Privacy.
+
+The Working Group will ensure that solutions proposed for these problem
+domains are suitable for IPv4 and IPv6 respectively.

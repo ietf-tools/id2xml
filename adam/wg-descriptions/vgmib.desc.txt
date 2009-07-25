@@ -1,0 +1,31 @@
+The 100VG-AnyLAN MIB Working Group is chartered to develop a set of
+managed objects for IEEE 802.12 network interfaces and repeaters.
+These objects will be the minimum necessary to provide the ability to
+monitor and control these network interfaces and repeaters, and will be
+consistent with the SNMP framework and existing SNMP standards.
+
+The working group will consider as an important input Section 13 (Layer
+Management Functions and Services), and Annex E (GDMO Specifications
+for Demand Priority Managed Objects) in the current IEEE 802.12 Draft,
+and will monitor and track the progress of that draft as it moves
+toward IEEE standardization. Furthermore, the working group will follow
+the guidelines in the SNMPv2 SMI for mapping GDMO managed objects for
+use with the Internet Network Management Framework. In addition, the
+working group will solicit vendor-specific MIB modules to use as input
+to the working group.
+
+This working group will produce two documents:
+
+     Definitions of Managed Objects for IEEE 802.12 Interfaces
+
+     Definitions of Managed Objects for IEEE 802.12 Repeater Devices
+
+For the repeater portion of the MIB, the working group will make sure
+that its work is aligned with the 802.3 Repeater MIB Working Group to
+ensure that the two working groups produce a consistent framework for
+the management of repeater devices. As a result, development of the
+repeater portion of the MIB will be done concurrently with, but
+independently from, the interfaces portion of the MIB. Furthermore, the
+goals and milestones associated with the repeater portion of the MIB
+are dependent upon the goals and milestones of the 802.3 Repeater MIB
+Working Group.

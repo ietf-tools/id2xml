@@ -1,0 +1,35 @@
+This BOF will focus on proposals for quality improvement within the 
+IETF process, and determine if there is enough substance to work on a 
+framework within which these proposals are evaluated. The outcome of 
+the BOF will be to determine how best to proceed with these issues in 
+the IETF.
+
+There are concerns about the quality and timeliness of IETF output. 
+These problems are enumerated in the IETF Problem Statement, currently 
+under development in the Problem Statement Working Group. The current 
+IETF Problem Resolution Process document suggests that a Working Group 
+be formed to improve the quality processes, including review processes, 
+used by IETF Working Groups.
+
+The goals of this BOF will be to determine a basic approach that the 
+IETF could take to WG process improvement, examine some of the 
+documented proposal for process improvement, and determine if there is 
+enough interest and content to warrant the creation of a WG to improve 
+the quality processes used by Working Groups.
+
+One goal is to write one or more documents on aspects of a WG quality 
+plan.  For example, a document on tracking tools - what's available, 
+and more importantly, how to use them to improve quality.  Another 
+document on reviews - how they might be conducted, the rules for 
+reviewing, choosing reviewers, etc.  The benefit of this is that it 
+while it requires Working Groups to think about the issue, it doesn't 
+require that all working groups come up with the same plan.
+
+READING LIST:
+
+http://www.ietf.org/internet-drafts/draft-ietf-problem-issue-statement-
+01.txt
+http://www.ietf.org/internet-drafts/draft-ietf-problem-process-00.txt
+http://www.ietf.org/internet-drafts/draft-klensin-overload-00.txt
+http://www.ietf.org/internet-drafts/draft-carpenter-solution-sirs-00.tx
+t

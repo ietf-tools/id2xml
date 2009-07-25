@@ -1,0 +1,61 @@
+On the Internet, several more or less localized directory services have
+evolved over the last couple of years. Also 2 global directory services
+have been deployed, X.500 and Whois++. To be able to find something or
+someone, one needs to know what service to use, and what server to
+query.
+
+One step towards the solution of this problem is to define one and only
+one common indexing protocol which all directory services can use when
+passing indexing information. When a user queries one server it should
+be possible for that user to get a referral to another server and even
+another service, if the two servers have exchanged index information.
+
+For this to work, one common protocol must be developed. The idea is to
+expand on the Centroid ideas used by Whois++, to allow it to be used
+for other services than Whois++. At the very least, a localized service
+should be able to be polled by an indexing server using the Common
+Indexing Protocol (CIP). To be specific, three specifications are to be
+presented:
+
+ o An interface spec, where one says how you present a query and what
+   the referrals you get back look like
+
+ o A server interface spec, where one says that the CIP will be able
+   to include information presented in this format
+
+ o An engine spec, which specifies that this is how one support the
+   functionality using Centroids a la Whois++.
+
+The task for this working group is to create the Common Indexing
+Protocol so it is (1) usable for other distributed directory services
+such as X.500, (2) allows the use of non-distributed directory services
+such as CCSO in the distributed directory service, and (3) addresses
+needs such as replication to make the protocol itself more stable.
+
+Just because the Common Indexing Protocol is already in use by Whois++,
+but not published, the first task of this group is to publish version 1
+of the Common Indexing Protocol as is. After that, the protocol must be
+extended according to the specification below. This will result in
+version 2 of the protocol.
+
+Other topics to be addressed potentially include:
+
+ o Incremental updates of indices
+
+ o Support for the UTF-FSS encoding of UNICODE
+
+ o Guidelines for building an effective mesh of indexing servers
+
+ o Administrative protocols and procedures such as server registration
+
+  o Security between directory services
+
+The working group will work in very close cooperation with the working
+groups ASID and IDS in the IETF.
+
+The working group will use the following Internet-Drafts as input:
+
+ o Architecture of the Whois++ Index Service, Chris Weider
+	<draft-ietf-wnils-whois-03.txt>
+ o How to interact with a Whois++ mesh, Patrik Faltstrom
+	<draft-ietf-wnils-whois-mesh-01.txt>

@@ -1,0 +1,27 @@
+The Internet Anonymous FTP Archives Working Group is chartered to
+define a set of recommended procedures for the access and
+administration of anonymous FTP archive sites on the Internet.  Such a
+set of procedures will provide a framework for:
+
+(a) Allowing the inexperienced Internet user the ability to more
+    easily navigate the hundreds of publically accessible archive sites.
+
+(b) Allowing users and network-based tools to retrieve specific site
+    information such as access policies, contact information, possible
+    areas of information specialization, archived package descriptions, 
+etc.,
+    in a standardized manner.
+
+Particular emphasis will be placed on the possible impact of these
+procedures on the FTP site administrators.
+
+Attention will be paid to the impact of newer archive indexing and
+access tools on the operation of such archive sites. A set of
+suggestions will be offered to allow archive site administrators to
+better integrate their offerings with such tools as they are
+developed.
+
+The security of the anonymous FTP site configuration will also be
+considered to be an integral part of this document. It is expected
+that remote management of the archives will be adequately handled by
+existing network management procedures.

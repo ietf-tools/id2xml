@@ -1,0 +1,15 @@
+There are a number of methods in use that gather information about 
+users of products over the network. While many of these information
+gathering methods are benign, the potential for abuse is quite large.
+Popular reports of the privacy issues around web browsing have focused
+on the issue of 'cookies': the use of the HTTP state management
+mechanism to send information about the user to a third party. However,
+there are a large number of other possible threats. For example,
+software packages, when downloaded and installed, may send the user's
+identification and other information directly to the maker of the
+software package, in the name of 'helping' with the identification of
+the user's configuration.
+
+The goal of the BOF is canvas for interest in creating a guideline to
+threats to user privacy and an enumeration of the mechanisms and
+policies that are necessary to avoid such threats.

@@ -1,0 +1,16 @@
+There is a wide interest of e-mail users to know if and when a message
+has been shown to a (human) recipient. This functionality is available
+for a number of PC e-mail systems and within X.400. The receipt working
+group will specify the necessary extensions to support this
+functionality within the Internet Mail environment and optionally also
+specify the necessary mappings for MIXER gateways.
+
+The result of this work will be a Proposed Standard specifying:
+
+o The mechanism used for requesting that the recipient issue a 
+read-receipt.
+
+o The format used for transferring read-receipts.
+
+o The advice on the privacy and security issues involved in 
+read-receipts.

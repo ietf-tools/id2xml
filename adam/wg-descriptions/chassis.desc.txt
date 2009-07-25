@@ -1,0 +1,45 @@
+This Working Group will produce a document describing MIB objects for
+use in a ``chassis'' --- which is a collection of traditionally
+discrete network devices packaged in a single cabinet and power
+supply.  A chassis may comprise, for example, combinations of layer 1
+repeater elements, MAC layer bridges, or internetwork layer routers.
+
+The Working Group is chartered to produce up to three distinct
+documents that define extensions to the SNMP MIB:
+
+(1) The Working Group is chartered to define MIB objects that represent
+the mapping of the logical functions of traditional network devices
+onto particular, physical hardware resources within the chassis.  These
+MIB definitions will not address any aspects of the network functions
+comprised by a chassis box that are shared with an analogous collection
+of discrete network devices.
+
+(2) The Working Group is chartered, at its option, to define MIB
+objects that instrument the operational state of a power supply element
+in a chassis.
+
+(3) The Working Group is chartered, at its option, to define MIB
+objects that represent aggregated information about collections of
+network devices (e.g., aggregate information about devices attached to
+a particular LAN), provided that this MIB specification is not specific
+to chassis implementations of such networks and is also readily
+implementable for analogous collections of discrete network devices.
+
+The MIB object definitions produced will be for use by SNMP and will be
+consistent with existing SNMP standards and framework.
+
+Although the Working Group may choose to solicit input or expertise
+from other relevant standards bodies, no extant standards efforts or
+authorities are known with which alignment of this work is required.
+
+Because the structure of chassis implementations varies widely, the
+Working Group shall take special care that its definitions reflect a
+generic and consistent architectural model of chassis management rather
+than the structure of particular chassis implementations.
+
+Should the Working Group elect to define objects representing
+aggregated information about collections of network devices, those
+efforts will not compromise the operational robustness of the SNMP that
+depends on its realization of management system function as closely as
+possible to centers of responsible authority.
+

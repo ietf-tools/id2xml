@@ -1,0 +1,63 @@
+Due to dramatic increases in circuits speed the traditional system
+buses are limited in length (e.g., PCI is limited to 8") and cannot
+provide the traditional system-wide support. Therefore, the system-wide
+connectivity is provided by a high performance networks operating in
+very close quarters, having the generic name System Area Networks
+(SANs).
+
+Many vendors today use such SANs inside computer platforms to connect
+processors to IO devices, processors to memory, and processors to
+processors. Most existing SANs are proprietary, and don't interoperate
+with each other, not unsimilar to the early stages of LAN development.
+
+In order to be able to interconnect Massively Parallel Processing
+systems (MPPs) and to interconnect workstations into MPP-like clusters
+there is a need to unify the SANs and to provide means for
+interoperability among them.
+
+PktWay is designed to provide a uniform interface for a wide variety of
+SANs, such that the higher levels (such as IP) would be able to use
+SANs in a uniform manner. An IP driver for PktWay would be able to use
+PktWay between heterogeneous processors as if they were all on a single
+SAN.
+
+PktWay would be designed to provide interoperability among closely
+located heterogeneous processors at high speed. Pktway will sacrifice
+scalability and some generality for high performance. Hence, PktWay
+will supplement IP for high performance and for fine granularity of
+processors.
+
+802.1, the link level control protocol is above LANs, such as the
+various Ethernets, FDDI, and Token Ring, at Level-2, and below IP, at
+Level-3.
+
+Similarly, PktWay will be above the various SANs (such as RACEway and
+Paragon) and below IP.
+
+PktWay will define separately:
+
+        * End-to-End protocol (and packet format)
+
+        * Router-to-Router protocol (and packet format)
+
+        * Resource discovery and allocation
+
+
+The members of the PktWay Working Group will design, specify, document,
+propose, implement, and evaluate the above three protocols that define
+the PktWay operation.
+
+The members of the working group will also produce reference software
+for PktWay.
+
+Based on initial reactions it is expected that the working group will
+include members from academia, government, and industry, covering the
+software, hardware, and communication aspects of PktWay.
+
+INTELLECTUAL PROPERTY
+
+All the work that has been performed until now on PktWay is in the
+public domain. The PktWay Working Group will only handle public domain
+information. All the members of the PktWay Working Group will be 
+notified that the working group cannot guard any trade secrets, nor 
+limit the distribution of any proprietary information presented to it.

@@ -1,0 +1,160 @@
+Most deployments of EAP in wireless networks employ an authenticator in
+pass-through mode, usually located at the edge, coupled with a backend 
+AAA/EAP server.  Many EAP methods generate an MSK and an EMSK.  The 
+MSK is used by several EAP lower layers.  The EMSK remains at the peer 
+and server, but it is not presently used in any specifications.  
+Different EAP lower layers make use of the MSK differently; the most 
+common usage is to derive Transient Session Keys (TSKs) to provide 
+access link security in networks (e.g., IEEE 802.11i, IEEE 802.16e), 
+although some lower layers (e.g., IKEv2) use the MSK for other
+purposes.
+ 
+Extensions to current EAP key framework will be needed to facilitate
+inter-authenticator handover and roaming.  Some problems that need to 
+be addressed with extensions to EAP keying include:
+ 
+1) Inter-authenticator handovers require re-execution of EAP 
+authentication even though the same EAP authentication server is 
+used.  Handover scenarios vary considerably in their fundamental 
+assumptions.  In scenarios where hosts remain connected during the 
+handover period, EAP authentication need not be in the critical path 
+for handover.  However, there are scenarios where necessary
+connectivity is not available to support "make before break" 
+communications.
+In these scenarios, significant handover latency can result.  To avoid 
+this latency, SDOs have employed methods such as context transfer and 
+anchoring that are inefficient or insecure or both.
+ 
+2) EAP peers with unexpired keying material from a full EAP exchange 
+must take part in a full EAP exchange with the same AAA server to 
+extend a session. While some EAP methods provide fast re-
+authentication mechanisms, a consistent, EAP-method-independent, low-
+latency re-authentication mechanism is needed.
+ 
+3) EAP generates keys (MSK and EMSK).  When the EAP WG updated the 
+protocol and specified the keying framework, many details regarding 
+the use of the EMSK were not specified.  The EMSK can be used as the 
+root of a cryptographic key hierarchy, and then the keys in the 
+hierarchy are used in various ways to provide the needed security 
+services.  In order to ensure that different keys derived from the 
+EMSK are cryptographically separate and that the key derivations are 
+coordinated in an acceptable manner, it is important to clearly 
+specify the top of the topology for the key hierarchy and some
+guidelines for child key derivations.
+ 
+4) When wireless networks employ AAA infrastructures, the cross-domain 
+roaming is handled by inter-domain authentication via the "home" 
+AAA/EAP server.  Any authentication must pass through the home server, 
+which increases latency. Latency can be reduced by establishing a 
+trust relationship between the EAP peer and the visited domain's 
+AAA/EAP server.  This trust relationship would be brokered by the home 
+EAP/AAA server.  Efficient re-authentication for the EAP peer can be 
+supported locally within the visited domain.
+ 
+Some of the inconsistency in current handoff and roaming solutions can 
+be attributed to different trade-offs between computational cost, 
+mobility performance, and security.  Specifications are not consistent 
+in the way that the key derivation function (KDF) and KDF parameters 
+are used.  Clear direction by the IETF on the topology and 
+construction of a key hierarchy could reduce some of the 
+inconsistencies.  However, the HOKEY WG will not attempt to 
+standardize TSK derivation from the MSK, as this would interference
+with work of other SDOs.
+ 
+The solutions specified by the HOKEY WG fall into several categories, 
+based on timing and mechanism.  The authentication and key management 
+may occur before handoff, when latency is much less critical.  
+Alternatively, authentication and key management can occur as part of 
+the handoff, where latency is critical.  Solutions should reduce or 
+eliminate the number of referrals to AAA servers, and solutions should 
+avoid re-executing lengthy EAP method exc hanges.This may be 
+accomplished by providing new mechanisms for cryptographic keying
+material in combination with a protocol for the timely delivery of 
+appropriate keys to the appropriate entities.  Solutions are expected 
+to include "handover keying," "low-latency re-authentication," 
+and "pre-authentication."
+ 
+All solution categories are useful, each supporting different 
+scenarios.  The HOKEY WG may provide multiple solutions, each 
+addressing a different scenario.
+ 
+Solutions specified by the HOKEY WG must:
+ 
+1) Be responsive to handover and re-authentication latency performance
+objectives within a mobile wireless access network.
+ 
+2) Fulfill the requirements in draft-housley-aaa-key-mgmt and 
+draft-ietf-eap-keying.
+ 
+3) Be independent of the access-technology.  Any key hierarchy 
+topology or protocol defined must be independent of EAP lower layers.  
+The protocols may require additional support from the EAP lower layers 
+that use it.
+ 
+4) Accommodate inter-technology heterogeneous handover and roaming.
+ 
+5) No changes to EAP methods.  Any extensions defined to EAP must not 
+cause changes to existing EAP methods.
+ 
+In specifying an access-technology-independent solution, media 
+independent guidelines for SDOs may also be needed to explain how the 
+keying material and signaling can be employed in a specific access 
+technology.
+ 
+ 
+HOKEY WG Deliverables
+=====================
+ 
+All the specifications will be EAP-method-independent manner and
+access-technology-agnostic.  EAP re-authentication and EAP pre-
+authentication authenticator are expected to use the same layer and 
+the same protocol as the original EAP authentication used for the 
+authenticator.   They will provide enough semantics and guidance so 
+that all SDOs can employ them and preserve cryptographic separation.
+ 
+1) A Problem Statement that defines the problem of re-authentication 
+and key management.  The discussion will include security and 
+performance goals for the solutions.  Too often, mobility optimization 
+discussions do not clearly identify the scenarios that are being 
+addressed; this lack of clarity often makes it difficult to agree on 
+whether the proposed optimizations offer real value.  To avoid this 
+situation, the Problem Statement must clearly describe the scenarios 
+that are being addressed, and the assumptions about the handover
+environment associated with that scenario.
+ 
+2) A specification of an EMSK-based key hierarchy topology.  The 
+specification will include a requirements, one or more KDF, and 
+parameters.  This is follow-on work EAP (RFC 3748) and EAP keying 
+framework that was developed in the EAP WG.
+ 
+3) A specification for the derivation of root keys, such as the 
+handover root key (HRK), as well as any other media-independent keys 
+(e.g., authenticator level keys) that need to be derived from such a 
+root key, to support re-authentication and handover key management.  
+The HOKEY WG can base these keys on either the MSK or the EMSK 
+produced by EAP (pick one).   If the consensus is to use the EMSK, 
+then the HRK forms one branch in the EMSK-based key hierarchy.  This 
+specification will describe the properties of each key that is 
+specified, and the topics must include caching, naming, scope,
+binding, storage, and key lifetime.  
+
+4) A protocol specification for media-independent, low-latency
+re-authentication.  The protocol specification must support handovers 
+between EAP authenticators.  This protocol specification is expected 
+to employ a re-authentication branch in the key hierarchy.
+ 
+5) A protocol specification for secure and timely distribution of
+cryptographic keys to support roaming and handover.  Use of AAA 
+protocols is preferred, and if used, should leverage existing work if 
+possible (such as RADEXT WG work on RFC 3576bis and RADIUS 
+cryptographic algorithm agility). However, if AAA protocols cannot 
+meet the objectives, other protocols for reactive or proactive 
+distribution or retrieval of keys by the proper entities
+is permitted.
+ 
+6) A specification for inter-EAP-authenticator roaming and re-
+authentication in visited domains that is brokered using inter-domain 
+trust relationships to support efficient inter-domain roaming.
+ 
+7) A specification for EAP pre-authentication to support low-latency
+inter-authenticator handoffs.

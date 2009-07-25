@@ -1,0 +1,38 @@
+Enhancements to the gTLD DNS space will entail sharing a registration 
+data
+base (repository) among mutually suspicious registrars.  For this
+operation to succeed, a reliable and efficient method must be defined 
+for
+achieving that sharing.  This Working Group will specify the functional
+requirements and specify or select the protocol to be used for such a
+service.
+ 
+There are three main participatnts in a shared gTLD repository:
+Applicants (users), Registrars, and the Repository.  The Registrars take
+applications from end-users and submit create, modify, and delete 
+requests
+to the central repository. This Working Group will define a protocol for
+the interaction of the Registrars and the central repository i.e., a
+shared database. This group will also define a set of templates that the
+registrars will accept and the maping of those templates into request 
+the
+Repository will process.
+ 
+This working group will focus on transitioning from the system 
+implemented
+by CORE to a robust open standard. The group will look at scaleing and
+security issues, define a transition plan, define protocols for
+interaction between system components, and define database objects. The
+group will work twards a system that scales to 100's of millions of
+objects while not excludeing implementstions from the use of distributed
+databases.
+ 
+Security concerns will include authenticated and private exchanges 
+between
+registrars and the repository, and to migration of applicants entries
+between registrars in a manner that satisfies CORE policies, for example
+preventing "theft" of accounts.
+
+The working group will coordinate it's effort where necessary with other
+working groups (in particular RIDE) for data formats that are already
+defined or use the guidelines put forward by said groups.

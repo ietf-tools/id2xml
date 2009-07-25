@@ -1,0 +1,31 @@
+The Open Network Computing Remote Procedure Call Working Group was
+originally formed to update the RFCs that describe ONC RPC to reflect
+the current state of the deployed and accepted technology, and submit
+them for Internet standardization.  RFCs have been submitted for the
+three core ONC technologies: RPC (RFC1831), RPC Binding (RFC 1833)
+and XDR (RFC1832).
+
+During this work, IESG identified the area of security as requiring
+improvement prior to standardizing the core RPC technologies (RPC and
+RPC Binding).  Therefore, the Working Group shall develop and define
+a security mechanism for ONC RPC which shall, at the minimum, allow
+for strong authentication of client and server principals.  The core
+RPC technologies will be unblocked from the standards track once
+such a mechanism is approved as a Proposed Standard, provided
+that its design does not require changes to the core RPC technologies.
+
+The basis for the work will be the RPCSEC_GSS Protocol Specification,
+draft-ietf-oncrpc-rpcsec_gss.00.txt.
+
+The document editor will be Michael Eisler.
+
+Background:
+
+ONC RPC is a Remote Procedure Call technology that originated in Sun
+Microsystems in the early 1980s. ONC RPC was modelled on Xerox's
+Courier RPC protocols. It has been widely deployed on platforms from
+most major workstation vendors. It has been implemented on MS-DOS,
+Microsoft Windows, Microsoft Windows NT, Mac, VMS, MVS, and
+practically all flavors of UNIX, among others. Sun Microsystems has
+delegated change control for the ONC RPC protocols for the purposes
+of making an Internet Standard to the IETF (see RFC 1790).

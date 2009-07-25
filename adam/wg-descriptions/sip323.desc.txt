@@ -1,0 +1,21 @@
+There are two competing standards in the industry for establishing and
+managing real-time interactive media communications over IP.  One is 
+the 
+proposed IETF standard, Session Initiation Protocol (RFC 2543), and the 
+other is the ITU recommendation, H.323.  Although they use the same 
+protocol (RTP) for media streaming, they cannot establish calls between 
+them.  In the absence of any formal interoperability standards, many 
+vendors are beginning to develop proprietary application gateways for 
+interworking between SIP and H.323.  
+
+In order to provide interoperability between the two standards, it is 
+urgent to define a common interworking specifications for the industry. 
+ 
+The recognition of the need for this interworking specification has 
+lead 
+to calls for its development from both manufacturers and service
+providers, individually and through industry consortia (such as IMTC)
+and other bodies concerned with interoperability (such as ETSI).
+
+In this BOF, we are going to discuss SIP and H.323 interworking issues,
+execution plans and the scope of the work.

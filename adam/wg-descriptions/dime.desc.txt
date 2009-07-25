@@ -1,0 +1,49 @@
+The Diameter Maintenance and Extensions WG will focus on maintenance
+and extensions to the Diameter protocol required to enable its use for
+authentication, authorization, accounting and provisioning in network
+access as well as for other applications environments
+(e.g., IP telephony, mobility).
+
+The IETF has completed work on the Diameter Base protocol and is
+working on revising the base protocol specification. There is on-going
+work on defining RADIUS extensions and the DIME WG will ensure
+that work done in RADEXT is also available for Diameter.
+
+The DIME working group plains to address the following items:
+
+- Maintaining and/or progressing, along the standards track, the
+Diameter Base protocol and Diameter Applications. This includes
+extensions to Diameter Base protocol that can be considered as enhanced
+features or bug fixes, such NAI routing or capability update extensions.
+
+
+- Diameter application design guideline. This document will provide
+guidelines for design of Diameter extensions. It will detail when to
+consider reusing an existing application and when to develop a new
+application.
+
+- Diameter QoS extensions. This work focuses on extensions to
+Diameter to support QoS information to be authorized and provisioned
+in AAA deployments.
+
+- Protocol extensions for the management of Diameter entities. This work
+
+focuses on the standardization of Management Information Bases (MIBs)
+to configure Diameter entities (such as the Diameter Base protocol or
+Diameter Credit Control nodes). The usage of other management protocols
+for configuring Diameter entities may be future work within the group.
+
+- Diameter extensions for mobility protocols, such as Mobile IPv6 and
+Proxy Mobile IPv6. Diameter extensions to support handover keying
+developed in the HOKEY WG are part of this effort.
+
+- New Diameter applications, such as the Diameter NAT control
+application.
+This group will also conduct work on new Diameter applications with
+a Diameter application for configuring NATs as the first item.
+
+Additionally, AAA systems require interoperability in order to work.
+The working group, along with the AD, will need to evaluate
+any potential extensions and require verification that the proposed
+extension is needed. Coordination with other IETF working groups
+and other SDOs will used to ensure this.

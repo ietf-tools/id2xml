@@ -1,0 +1,11 @@
+The IP over FDDI Working Group is chartered to create Internet
+Standards for the use of the Internet Protocol and related protocols
+on the Fiber Distributed Data Interface (FDDI) medium. This protocol
+will provide support for the wide variety of FDDI configurations
+(e.g., dual MAC stations) in such a way as to not constrain their
+application, while maintaining the architectural philosophy of the
+Internet protocol suite. The Group will maintain liaison with other
+interested parties (e.g., ANSI ASC X3T9.5) to ensure technical
+alignment with other standards.  This Group is specifically not
+chartered to provide solutions to mixed media bridging problems.
+

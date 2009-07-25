@@ -1,0 +1,29 @@
+Multicast address allocation is an essential part of using IP
+multicast.  Multicast addresses are an even more limited resource than
+unicast addresses, and must be allocated dynamically if they are to
+satisfy expected demand.  To this end, the MALLOC WG will define three
+protocols which work together to form a global dynamic multicast
+address allocation mechanism.  These protocols will be:
+
+- a local protocol to obtain one or more multicast addresses from a
+local address allocation server.  MDHCP is a likely candidate for such
+a protocol.
+
+- a "domain" wide Address Allocation Protocol (AAP) to obtain that local
+servers can use to claim a multicast address for a period of time.
+This protocol is likely to be similar to the MMUSIC WG's Session
+Announcement Protocol.
+
+- an inter-domain Multicast Address Set Claim (MASC) protocol to
+provide aggregatable multicast address sets (similar to a prefix for
+unicast addresses) that AAP can then allocate individual multicast
+addresses out of.
+
+MASC is intended to work with the IDMR WG's Border Gateway Multicast
+Protocol to provide a scalable inter-domain multicast routing
+solution.  
+
+An important part of these protocols is that they do not guarantee
+that a unique multicast address is allocated.  Rather they provide a
+good statistical likelihood that the address is unique within the
+scope it is allocated for.

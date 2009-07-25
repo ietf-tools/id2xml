@@ -1,0 +1,66 @@
+IP networks are in widespread use in environments like the home where
+there is no network administrator.  With IPv6 deployment delegating
+/48 prefixes and the increasing complexity and variety of home
+networks, automatic configuration of routers in the home is desirable.
+Host auto-configuration mechanisms exist for IPv6 and IPv4 however no
+protocols have been standardised that support autoconfiguration of a
+mesh of routers.
+
+The objective of this working group is to define protocol mechanisms
+that will allow consistent IP subnet prefixes to be automatically
+assigned in a mesh of routers.  Such networks are expected to connect
+to IP infrastructure and will need to receive configuration parameters
+in order to operate (e.g. delegated IPv6 prefix).
+
+IP router auto-configuration is complementary to Layer-2 bridging.
+Many commodity home networking products today use Layer-2 bridging and
+work satisfactorily for simple networks.  Achieving a robust L2
+bridged network requires 802.1d spanning tree (often not implemented).
+Efficient multicast forwarding requires IGMP/MLD snooping, GARP/GMRP
+or a similar mechanism.  Sometimes L2 bridging is not possible, for
+example between IEEE1394 and ethernet, or between FDDI and ethernet.
+A Layer-3 approach allows existing unicast and multicast routing
+protocols to be used to create a robust and efficient auto-configured
+home network.
+
+Work areas:
+
+  1. Parameter propagation
+
+     Specify mechanisms to:
+     - Propogate a delegated address range through a mesh of routers.
+     - Propagate configuration parameters through the mesh of routers
+       to hosts (e.g. default DNS domain suffix, DNS server).
+
+  2. Automatic assignment of subnet identifiers to links.
+
+     - Specify protocols that will automatically generate consistent
+       subnet numbers in a mesh of routers.
+
+  3. Specify how automatic address assignment interacts with specific
+     unicast and multicast routing protocols.
+
+  4. Support for locally scoped name service and service discovery in
+     routed zeroconf networks.
+
+Scope statements:
+
+  - Zerouter protocols are intended to be used in leaf networks.
+    Auto-configuration of transit networks is out of scope.
+
+  - Whilst there are some similarities to MANET routing protocols,
+    zerouter protocols will be used in a different environment.
+    Differences are no/low mobility, and a strong emphasis on address
+    configuration.
+
+  - Auto-configuration of L2 media parameters is out of scope
+    (e.g. virtual circuit IDs and the like).
+
+Existing drafts:
+
+  draft-haberman-ipngwg-auto-prefix-02.txt
+  draft-troan-dhcpv6-opt-prefix-delegation-00.txt
+  draft-lutchann-ipv6-delegate-option-00.txt
+  draft-white-zeroconf-uiap-00.txt
+  draft-white-zeroconf-subnet-alloc-00.txt
+  draft-chelius-router-autoconf-00.txt

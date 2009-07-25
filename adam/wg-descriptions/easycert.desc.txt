@@ -1,0 +1,19 @@
+Public key technology -- certificates, the associated private keys, 
+PKIs, etc. -- are hard to use and hard to deploy.  Some of that is 
+merely perception, of course, but some of it is reality.  The question 
+for this BoF, and a possible future working group is this:  what can 
+the IETF do to make life easier?  Some hardware technologies may help, 
+but of course the IETF doesn't develop such things. On the other hand, 
+if we think they're part of the solution, some BCP we write can say so.
+
+We assume that we're not missing any crucial over-the-wire protocols --
+ though if we are, they'd be prime candidates for IETF work.  
+Accordingly, an easycert working group would be charged with writing a 
+few BCPs and possibly Informational RFCs.  So -- what are the titles 
+of some such RFCs?  If you're a service provider (for any sort of 
+service -- ISP, web site, ecommerce, etc.), what sort of advice should 
+the IETF give you?  The vendors you buy from? Software developers?
+
+The specific goal of the BoF is to figure out what the IETF can do.  
+The desired outcome is a set of major charter points, including the 
+titles of some RFCs we'd produce.

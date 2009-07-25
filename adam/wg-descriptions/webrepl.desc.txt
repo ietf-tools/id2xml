@@ -1,0 +1,14 @@
+Ideas on how to replicate contents of webservers (including caches) 
+have been floating around in the web community. Replication includes
+several steps -- from prefetching information (pushing or polling), 
+to announcement of the availability of new content (again pushing or
+polling). This gets even more complicated when starting to use
+hierarichal caches.
+
+It is also the case that in this area, the community don't want
+proprietary protocols, as one cache should be able to communicate 
+with another one -- even though it is developed by a different vendor.
+
+This BOF is ment to check the interest in the community on this matter,
+and see of there is a possibility to try to focus some work on some few
+items, that have to be standardized.

@@ -1,0 +1,51 @@
+An anycast IP address [RFC 1546] is an address assigned to a set of 
+nodes, such that a packet sent to that address is delivered to one 
+member of the set, in particular to the member "nearest" the sender 
+according to the routing system's measure of distance.  Anycast 
+addresses are formally defined in the IPv6 address architecture [RFC 
+2373], and are also being used or proposed in a number of IPv4 contexts.
+
+There are a large number of open issues regarding anycast addresses,
+listed below.  The purpose of this BOF is to discuss these issues,
+identify any additional issues, and determine what has to be done
+to resolve them (e.g. find volunteers to write one or more drafts,
+perhaps propose establishment of an IETF working group).  The known 
+issues requiring resolution are:
+
+	- more thorough definition of anycast semantics (what does
+	  "nearest" really mean?  what happens if more than one
+	  nearest member?  is delivery to at-most-one member,
+	  at-least-one member, or something else?), including
+	  defining special cases of anycast addresses (e.g.,
+	  "cluster addresses")
+
+	- pros and cons of having anycast addresses be syntactically
+	  distinguished from unicast addresses, and of having "well-
+	  known" anycast addresses?
+
+	- effects on routing (how are they routed?  how can/should
+	  they aggregate?  locally-scoped vs. global anycast addresses?
+	  limits on usage due to routing scaling limits?)
+
+	- transport protocol issues, e.g., supporting TCP connections
+	  to anycast addresses
+
+	- allowing hosts to be members of anycast sets -- requires
+	  a host-to-router protocol like IGMP, but strongly
+	  authenticated?
+
+	- usage guidelines, e.g., anycast vs. multicast for resource
+	  discovery?  local use vs. global use?
+
+Attendees should have read the following documents in advance of the 
+BOF:
+
+	- RFC 1546, Host Anycasting Service
+
+	- RFC 2373, IP Version 6 Addressing Architecture (section 2.6)
+
+	- RFC 2526, Reserved IPv6 Subnet Anycast Addresses
+
+If you would like to present specific ideas/proposals to the BOF, or if
+you know of other relevant documents that should be on the pre-reading
+list, please send email to Steve Deering <deering@cisco.com>.

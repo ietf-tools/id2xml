@@ -1,0 +1,14 @@
+	TP/IX is a new version of the IP, TCP, and UDP protocols, to
+	advance the Internet technology to the scale and performance of
+	the next generation of internetwork technology. TP/IX has been
+	assigned the IP version number 7.
+
+	The working group is chartered to review the TP/IX and RAP
+	protocols, evaluate issues arising during product development
+	and deployment planning, and to document problems and
+	explanations for any parts of the coexistance with IPv4 not
+	covered directly in the TP/IX-IPv4 interoperation design.
+
+	The group will also be the initial forum for development of the RAP
+	protocol while it is experimental; this work will need to be moved
+	to the Routing Area when it is to be advanced.

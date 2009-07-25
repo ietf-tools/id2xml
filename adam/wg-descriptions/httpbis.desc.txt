@@ -1,0 +1,35 @@
+HTTP is one of the most successful and widely-used protocols on the
+Internet today. However, its specification has several editorial
+issues. Additionally, after years of implementation and extension,
+several ambiguities have become evident, impairing interoperability
+and the ability to easily implement and use HTTP.
+
+The working group will refine RFC2616 to:
+* Incorporate errata and updates (e.g., references, IANA registries, 
+ABNF)
+* Fix editorial problems which have led to misunderstandings of the 
+specification
+* Clarify conformance requirements
+* Remove known ambiguities where they affect interoperability
+* Clarify existing methods of extensibility
+* Remove or deprecate those features that are not widely implemented 
+and also unduly affect interoperability
+* Where necessary, add implementation advice
+* Document the security properties of HTTP and its associated 
+echanisms (e.g., Basic and Digest authentication, cookies, TLS) for
+common applications
+
+In doing so, it should consider:
+* Implementer experience
+* Demonstrated use of HTTP
+* Impact on existing implementations and deployments
+
+The Working Group must not introduce a new version of HTTP and should 
+not add new functionality to HTTP. The WG is not tasked with producing 
+new methods, headers, or extension mechanisms, but may introduce new 
+protocol elements if necessary as part of revising existing 
+functionality which has proven to be problematic
+
+The Working Group's specification deliverables are:
+* A document that is suitable to supersede RFC 2616
+* A document cataloguing the security properties of HTTP

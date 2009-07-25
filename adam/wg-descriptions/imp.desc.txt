@@ -1,0 +1,114 @@
+Draft Charter 6/22/93 - mdw
+
+The steady commercialization and privatization of the Internet
+forbodes the growth of ``electronic commerce'' to a much greater extent
+than we see today.  The ability to do business over the Internet will
+benefit the Internet community in several ways: many new and valuable
+services will be available to the users of the Internet; it will drive
+Internet growth to a large extent; it will foster market efficiency by
+making it easier for small vendors to enter large markets and by
+providing consumers with broader range of choice.  A lightweight
+Internet infrastructure for conducting business will enable automated
+transactions between Internet users and service providers ranging from
+Dialog, IEEE Journal Abstracts and AP News to the Home Shopping Club
+and L.L. Bean.
+
+Today, by-and-large, the potential of the Internet to facilitate
+commerce has yet to be tapped -- even by service providers whose
+product is information delivered over the Internet.  Bills and checks
+for online information services are delivered in most cases via the
+camels and mules of the postal service.  Even where product selection
+and delivery are automated, if the actual business transaction is
+conducted via traditional means, much of the advantage of the
+automated component has been lost.  The overall transaction is no
+longer automated, and most of the burden of the non-automated paradigm
+is retained.  Today it is certainly feasible to browse Al's Bait
+Shop's catalogue via Gopher, but until you are able to complete the
+transaction by clicking on the ``Buy Squid'' button as well, much of the
+incentive for automating any aspect of the process is lost.  Moreover,
+absent a common mechanism for completing transactions, Internet-based
+commerce is likely to be entangled in a mesh of bilateral ad-hoc
+mechanisms.
+
+A common mechanism would have the following benefits:
+
+1.  Convenience to Internet users.
+      For example, a Gopher-like interface for identifying, selecting
+      and purchasing products with the click of a button.
+
+2.  Easier vendor access to broader markets.
+      Vendors of commodity products can access the Internet community
+      for the price of an Internet connection.
+
+3.  Promote Internet growth
+      This technology will make the Internet relevant in the daily
+      lives of a much larger group of people.  Further, coupling
+      Internet infrastructure to real business activities increases the
+      chances that the infrastructure will be appropriately funded and
+      maintained.
+
+4.  Provides incentive for fully automated procurement and its benefits.
+      An automated infrastructure can support a market that is as easily
+      consumer-driven as provider-driven -- for example, a market where
+      consumers can find products as easily as products can find them.
+
+5.  Reduced paperwork and bureaucracy
+      Enough said.
+
+The purpose of this BOF is to explore community interest in pursuing a
+definition of common protocols to support commerce on the Internet.
+In particular, we feel it is important to focus discussion on
+approaches with the following characteristics:
+
++ Scalable
+    Cannot preclude business models because of mechanism's inability
+    to scale.  Should scale as the number of network nodes, not
+    ``connections''.
+
++ Independent of market/pricing policy
+    Revenue-recovery aspects should not be specific to any particular
+    policy.  Must be flexible enough to change with market-imposed
+    changes to policies.  Strict tabulation of transactions do not
+    necessarily provide accurate accounting of network costs.
+
++ Supports bilateral as well as trusted third party transactions
+    Should allow simple peer-to-peer transactions.
+
++ Narrow, flexible deployment
+    Facilitates migration to newer commerce policies.
+
++ Accurately accounts for network costs
+    Facilitates rational consumption of resources and market
+    efficiency.
+
++ Facilitates new provider recovery policies
+    Should be lightweight, simple, and flexible.
+
++ Compatible with and leverages existing Internet technology
+    Leverage PEM, MIME, and SNMP.  No reason to re-invent wheels and
+    clutter Internet standards with redundant technology.
+
++ Decouples transport from higher-layer services
+    Critical in order to scale and adapt to newer cost-recovery
+    techniques.
+
++ Does not rely on ``electronic cash'' as exchange medium
+    Primary advantage of electronic cash is anonymity, and cost is
+    high complexity.  Anonymity can be achieved via authenticated
+    vouchers and co-operatives.
+
++ Leverages extant syntactic conventions where relevant
+    e.g., EDI -- UN/EDIFACT, ISO TCs and TAG7, etc.
+
+This activity is of interest to anyone who would benefit by commerce
+over the Internet.  Research into the requisite technology has been
+ongoing for some time, and interest in this area is steadily growing.
+Already several large corporations have either implemented or
+announced their intentions to provide commercial higher-layer Internet
+services.  Indeed, recent unilateral moves within the industry to
+develop relevant technology strongly suggest that the time for action
+in the IETF is now.  We expect standardization of Internet mercantile
+infrastructure to be driven by the needs of Internet users -- folks
+who want to buy things over the Internet, folks who want to sell
+things over the Internet, and folks who stand to profit from the
+ensuing growth of the Internet.

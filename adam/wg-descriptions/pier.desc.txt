@@ -1,0 +1,14 @@
+PIER will fill the niche between the ADDRCONF, CIDRD, DHCP, SERV-LOC,
+and other working groups as needed in identifying processes and
+procedures, tools and techniques for renumbering in both the IPv4 and
+IPv6 environments.  Since IPv6 is still in development, the main focus
+will be IPv4 environments.  Emphasis will be placed on identifying the
+places where hardcoded IP addresses are used and documenting those
+places. If there are viable alternatives to hardcoded IP addresses, the
+working group will document those as well. The end results of these
+investigations will be a series of documents on renumbering issues and
+recommendations on what actions might be taken to address those issues
+where there is no currently viable alternative. These recommendations
+will be to other working groups and/or areas regarding possible
+improvements to protocols that would aid in renumbering. The PIER
+working group will not develop such protocols itself.

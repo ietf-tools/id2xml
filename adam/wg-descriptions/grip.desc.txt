@@ -1,0 +1,28 @@
+The full name of this working group is Guidelines and Recommendations 
+for Security Incident Processing.
+
+This working group is co-chartered by the Security Area.
+
+The purpose of the GRIP Working Group is to provide guidelines and
+recommendations to facilitate the consistent handling of security 
+incidents in the Internet community. Guidelines will address technology 
+vendors, network service providers and response teams in their roles 
+assisting organizations in resolving security incidents. These 
+relationships are functional and can exist within and across 
+organizational boundaries.
+
+The working group will produce a set of documents:
+
+1) Guidelines for security incident response teams (IRT).
+
+2) Guidelines for internet service providers (ISP) consisting of three
+   documents covering the following topics:
+
+   * Expectations on how ISPs will coordinate with each other and IRTs  
+     in incident handling
+
+   * Consumer Checklist on ISPs
+
+   * Site Security Handbook (SSH) Addendum for ISPs
+
+3) Guidelines for vendors (technology producers).

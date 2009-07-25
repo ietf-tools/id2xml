@@ -1,0 +1,53 @@
+This working group shall develop a standards-track specification for
+the next generation data definition language for specifying network
+management data.  As a starting point, the WG will use the SMIng
+language developed in the IRTF Network Management Research Group.
+SMIng represents a superset of the SMIv2 (Structure of Management
+Information v2) and the SPPI (Structure of Policy Provisioning
+Information).  The objective is to replace both the SMIv2 and the
+SPPI with a single, merged language as the data definition language
+for the monitoring, configuration, and provisioning of network
+devices.
+
+The language developed will enable the modeling of network
+management  information in a manner that provides the benefits of
+object-oriented design.  To achieve this, the language must allow
+the design of highly reusable syntactic/semantic components
+(templates) that can be reused by multiple IETF working groups for
+convenience, consistency, and to maximize interoperability in device
+management. A registration mechanism will also be described for
+reusable components defined using the language so that their
+existence and purpose may be archived.
+
+The language will provide for the definition of a transport-independent 
+model so as to allow a variety of implementation-specific technologies 
+to be derived from a single definition.  To demonstrate this, the 
+working group will define two technology specific transport mappings: 
+one for SNMP, and one for COPS.
+
+The language will also provide:
+
+ - syntax optimized for parseability, human readability, and
+   non-redundancy
+
+ - conventions for representing inheritance and containment of
+   defined data
+
+ - enhanced attribute-level and association-level constraints
+
+ - a maximal amount of machine-parseable syntax so that
+   programmatic tools can aid in modeling and implementation
+
+ - a language extension capability
+
+This working group will also define typical usage scenarios for
+the language and highlight its features.  Finally, it will
+develop  a framework by which reusable components specified
+using this language can be registered and made readily
+available for continued reuse and improvement.
+
+The working group will not define models for specific
+technologies, except as required for illustrative examples.
+Specific models are to be developed by the subject matter
+experts using the SMIng in the appropriate technology
+specific WGs.

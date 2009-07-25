@@ -1,0 +1,56 @@
+The Simple Network Management Protocol version 3 (SNMPv3) provides
+message security services through the security subsystem. Previously
+the ISMS Working Group defined a Transport Subsystem definition, a new
+Transport Security Model, and a Secure Shell Transport Model and a
+method for authenticating SNMPv3 users via the Remote Authentication
+Dial-In User Service (RADIUS). The initial body of work to be tackled
+by the working group involved only these pieces. Additional work on
+other transport models and other security extensions were to wait
+until the initial transport architecture and defining documents were
+completed.
+
+It is now possible to authenticate SNMPv3 messages via a RADIUS when
+those messages are sent over the newly defined SSH transport.
+However, it still remains impossible to centrally authorize a given
+SNMP transaction as on-device pre-existing authorization configuration
+is still required. In order to leverage a centralized RADIUS service
+to its full extent, the access control decision in the Access Control
+Subsystem needs to be based on authorization information received from
+RADIUS as well. The result will be an extension to obtain
+authorization information for an authenticated principal from RADIUS.
+The authorization information will be limited to mapping the
+authenticated principal to existing named access control policies,
+defining session timeouts, and similar session parameters. This
+mechanism will not provision the detailed access control rules.
+
+Additionally, new work will be undertaken to define TLS and DTLS-based
+transports that can offer support for environments that prefer
+certificate authentication. Certificate based authentication is
+desirable for many environments with a centralized authentication
+service. DTLS also provides datagram-based transmissions which may be
+desired for environments where TCP performance suffers because of
+network anomalies (e.g. high packet loss rates). A combination of TLS
+and DTLS-based transports offers solutions that addresses both the
+need for certificate-based authentication and for datagram-based
+delivery. Operators will be able to chose the transport solution that
+best meets their needs.
+
+The current goal of the ISMS working group is two-fold: to develop a
+method for allowing for access control decisions to be based on
+information provide by an AAA provisioning service and to develop
+TLS-based and DTLS-based Transport Models.
+
+The new work must not modify any other aspects of SNMPv3 protocol as
+defined in STD 62 (e.g., it must not create new PDU types).
+
+The working group will cover the following work items:
+
+- Specify a mechanism to support centralization of SNMPv3 Access
+Control decisions by means of a RADIUS-provisioned policy name
+bound to a username, which the VACM extension will use to
+dynamically populate the securityToGroupname table. Additionally,
+specify a time limit for access decisions, and such a time limit
+should be used to garbage collect expired dynamic securityToGroup
+mappings.
+
+- Specify TLS and DTLS transport models for SNMP.

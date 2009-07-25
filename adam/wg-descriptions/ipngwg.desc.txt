@@ -1,0 +1,95 @@
+Editor: Bob Hinden (hinden@iprg.nokia.com)
+
+The next generation of the Internet Protocol (IPv6) is intended to
+support Internet traffic for many years into the future by providing
+enhancements over the capabilities of the existing IPv4 service. This
+working group will produce specifications for the core functionality of
+that service.  The working group shall carry out the recommendations of
+the IPng Area Directors as outlined at the July 1994 IETF and in ``The
+Recommendation for the IP Next Generation Protocol,'' Internet-Draft,
+(draft-ipng-recommendation-00.txt), September 1994.
+
+The working group shall use the following documents as the basis of its
+work:
+
+  - Simple Internet Protocol Plus (SIPP) Specification (128 bit version)
+
+  - SIPP Addressing Architecture
+
+  - An Architecture for IPv6 Unicast Address Allocation
+
+  - Simple SIPP Transition (SST) Overview
+
+  - SIPP Program Interfaces for BSD Systems
+
+  - SIPP Security Architecture
+
+  - SIPP Authentication Header
+
+  - SDRP Routing Header for SIPP-16
+
+  - IP Next Generation Overview
+
+  - ICMP and IGMP extensions for SIPP
+
+  - FTP Operation Over Big Address Records (FOOBAR)
+
+  - DNS Extensions to support SIPP
+
+Enhancements to be considered:
+
+  - Large Packets: Consider extensions for support of datagrams which 
+are
+    larger than 64K.
+
+  - Source Routing: The working group shall consider enhanced source
+    routing capabilities for IPng.
+
+  - Tunneling:  Complete specification of IPng in IPng tunneling. 
+
+  - Address format and assignment plan: The working group shall review 
+the
+    details of address structure as specified in [SIPP-16] and shall
+    repair any deficiencies with respect to current or near-term
+    addressing requirements, assuming a fixed, 16-byte size.  The
+    specification shall provide a mechanism for supporting multiple
+    additional formats, for possible enhancement to incorporate other
+    popular addressing schemes.
+
+  - Routing Structure: In completing the addressing details, the working
+    group shall ensure that routing according to current, CIDR-like
+    schemes can be supported comfortably.
+
+  - Autoconfiguration: Coordinate with the IPng Address 
+Autoconfiguration
+    Working Group.
+
+  - Transition: The working group shall coordinate with the related
+    transition and conversion efforts (ngtrans, tacit, nosi, etc.) to
+    ensure that the base specification provides the facilities required
+    for the transition from IPv4.
+
+  - Security: A set of base documents for IPng security shall be
+    completed.  This shall include algorithms for authentication and
+    privacy carried as IPng extension headers and include an initial
+    selection of required encryption and key management algorithms and a
+    facility to support other optional algorithms.  The working group
+    should also examine IPng firewall issues and if necessary develop
+    specific firewall frameworks.
+
+  - Minimum MTU: Consider a larger minimum MTU. 
+
+  - Header Compression: Consider ways to abbreviate the IPng header in 
+the
+    contexts of native IPng, multiple IPng packets in a flow, and
+    encapsulated IPng.
+
+  - TCP/UDP: The IPng Working Group will specify the procedures for 
+hosts
+    to compute and verify TCP/UDP pseudo-headers.  Any other changes to
+    TCP beyond making TCP work with IPng are out of scope of the working
+    group and should be dealt with by a TCPng Working Group.
+
+The IPng Working Group will coordinate with other groups, including
+Mobile IP, IPng Address Autoconfiguration, OSPF, IS-IS, RIPv2, IDR,
+Security, Applications, Network Management, IP over ATM, etc.

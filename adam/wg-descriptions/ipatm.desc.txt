@@ -1,0 +1,39 @@
+NOTE: This WG joined with the ROLC WG to form the ION Working Group
+
+The IP Over Asynchronous Transfer Mode Working Group will focus on the
+issues involved in internetworking the IPv4 and IPv6 protocols over
+Asynchronous Transfer Mode (ATM) networks.  The goal for the working
+group is to produce standards for the TCP/IP Internet protocol suite.
+
+The working group will develop models of IP over ATM internetworking
+architectures; e.g. the classical Logical IP Subnet (LIS) over ATM.
+The working group will develop protocols for encapsulation,
+multicasting, addressing, address resolution, neighbor discovery, use
+of published ATM Forum UNI signaling for IP call set up and connection
+negotiation, and network management, as appropriate, to allow the
+operation of internetwork protocols over an ATM network.  The working
+group will submit these protocols for standardization.
+
+The working group will coordinate its activities with the following
+working groups:
+
+1) Routing over Large Cloud (rolc), for next hop address resolution
+   extensions to the classic LIS model,
+
+2) Integrated Services Working Group (intserv) for coordinating the
+   support of the enhanced Internet service model within an ATM LIS,
+
+3) IP Next Generation Working Group (ipngwg) for IPv6 over ATM
+   coordination, and
+
+4) Resource Reservation Setup Protocol (rsvp) for coordinating the
+   support IP signaling within an ATM LIS.
+
+The working group will coordinate its work with other relevant
+standards bodies (e.g., ATM Forum, ANSI T1S1) and make recommendations
+to these organizations regarding the requirements for IP
+internetworking where the current published ATM standards, practices,
+or functionality do not meet the needs of internetworking.
+
+The working group will not develop physical layer standards for ATM.
+

@@ -1,0 +1,14 @@
+1. Specify the tools and mechanisms that might be used for transition 
+to
+   IPv6.
+
+2. Write documents outlining how the various transition tools and 
+   mechanisms might apply to various scenarios for a transition to 
+IPv6.
+
+3. Coordinate with the IPv6 6bone testbed, operating under the IPv6 
+   Testing Address Allocation allocated in Experimental RFC 2471, to 
+   foster the development, testing, and deployment of IPv6.
+
+4. Coordinate appropriately with other IPv6 related IETF activities and
+   activities in other organizations.

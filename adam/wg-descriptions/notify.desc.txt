@@ -1,0 +1,17 @@
+There appears to be significant interest in Internet-scale event
+notifications.  Event notifications are useful in many domains, 
+including web authoring, instant messaging, buddy lists, workflow, 
+and internet printing.  While efforts are well underway to develop 
+a standard protocol for instant messaging and personal presence, 
+requirements for notification services in other domains suggest the 
+need for development of an interoperable protocol for the registration, 
+initiation, and transport of Internet event notifications.
+
+This BOF aims to develop a better understanding among the different
+communities of interest, elicit scenarios of use for an event 
+notification service, refine requirements for an event notification 
+service, and enumerate the application domains that will benefit from 
+an event notification service, and discussion of how standardization
+will occur in this area.  The BOF will also contain a report from the 
+recent Workshop on Internet Scale Event Notifications (WISEN), held 
+in mid-July.

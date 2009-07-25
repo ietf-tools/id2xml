@@ -1,0 +1,47 @@
+The SDR Working Group is chartered to specify and promote the use of
+SDRP (Source Demand Routing Protocol) as an inter-domain routing protocol
+capability in conjunction with IDRP and BGP inter-domain routing
+protocols.  The purpose of SDR is to support source-initiated selection
+of inter-domain routes, to complement the intermediate node selection
+provided by BGP/IDRP.
+
+The goal of the SDR Working Group is to release the components of SDR
+as IETF Prototypes and to obtain operational experience with SDR in the
+Internet.  Once there is enough experience with SDR, the working group
+will submit the SDR components to the IESG for standardization.
+
+SDR has four components: packet formats for protocol control messages
+and encapsulation of user datagrams, processing and forwarding of user
+data and control messages, routing information distribution/collection
+and route computation, and configuration and usage.
+
+
+The group's strategy is to:
+
+(1) Define the format, processing and forwarding of user datagram and
+control messages so that SDR can be used very early on as an efficient
+means of supporting ``configured'' inter-domain routes.  User packets are
+encapsulated along with the source route and forwarded along the
+``configured'' route.  Routes are static at the inter-domain level, but
+are not static in terms of the intra-domain paths that packets will
+take between specified points in the SDR route. The impact of
+encapsulation on MTU, ICMP, performance, etc., are among the issues
+that must be evaluated before deployment.
+
+(2) Develop simple schemes for collecting dynamic domain-level
+connectivity information, and route construction based on this
+information, so that those domains that want to can make use of a
+richer, and dynamic set of SDR routes.
+
+(3) In parallel with (1) and (2), develop usage and configuration documents
+and prototypes that demonstrate the utility of static-SDR and
+simple-dynamic-SDR.
+
+(4) After gaining some experience with the simple schemes for
+distribution, develop a second generation of information distribution
+and route construction schemes.  The group hopes to benefit from discussions
+with IDPR and Nimrod developers at this future stage because the issues
+faced are similar.
+
+(5) The group will also investigate the addition of security options into the
+SDRP forwarding and packet format specifications.

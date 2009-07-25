@@ -1,0 +1,96 @@
+While ingress filtering [RFC 2827, BCP 38] provides a way to validate
+IP source addresses at an aggregated level, there is not yet a
+standardized mechanism for IP source address validation at a finer
+granularity. Having a finer granularity would be helpful in a number
+of situations, including filtering traffic from customer interfaces
+implemented as ports in a layer 3 aware bridge or a router, general
+improvements in filtering accuracy in enterprise networks, etc.
+Depending on the situation, there may be a requirement for blocking
+spoofed packets or merely logging packets that appear to be spoofed.
+
+Partial solutions exist to prevent nodes from spoofing the IP source
+address of another node in the same IP link (e.g., the "IP source
+guard"), but are proprietary. The purpose of the proposed "Source
+Address Validation Improvements" working group is to standardize
+mechanisms that prevent nodes attached to the same IP link from
+spoofing each other's IP addresses.
+
+The scope of the WG is as follows:
+
+- The working group considers only solutions implemented on systems
+located on the same IP link as a to-be-verified node. The goal of the
+working group is the LAN environment and solutions running in routers or
+layer 3 aware Ethernet bridges.
+
+- Both IPv4 and IPv6 need to be covered.
+
+- The first goal of the working group is on unicast traffic, but
+using the same mechanisms to police multicast traffic is also
+within the scope.
+
+- All address assignment mechanisms need to be supported, including
+stateless, stateful, and manual configuration; as well as privacy and
+cryptographically generated addresses.
+
+- Solutions are preferably based on observing user traffic, or on
+observing or using existing signaling protocols. Examples of
+protocols that can be useful to observe/use are ARP, Neighbor
+Discovery, DHCP, and DHCP Prefix Delegation protocols. Observing
+addresses in IP headers can also be useful. The gathered
+information is used to determine what IP source addresses in
+packets are appropriate. Where automatic operation is impossible
+or would lead to sub-optimal validation results, solutions may
+require manual configuration.
+
+- Interdomain scenarios (across Autonomous Systems) that require
+information from routing protocols like BGP are out of scope.
+Nevertheless, solution may observe routing protocol signaling
+to detect that a device is a router.
+
+- Tracking other protocols is not within the scope of the WG.
+
+- No changes to hosts are allowed.
+
+- The WG is prohibited from creating its own protocols
+or extensions/modifications of current protocols.
+
+These limitations in the scope may be relaxed through later
+rechartering. For instance, solutions tailored for PPP links
+and specific environments may be added later, or solutions
+involving co-operation of the nodes on the link may be
+developed once the baseline solutions have been completed.
+However, the WG is already chartered to work also on a
+solution for Ethernet-based broadband access networks that
+are used in DSL environments. This work is a specialization
+of the working group's primary LAN-based solution.
+
+In order to reach a result that is widely usable and unlikely to
+disturb existing network practices, the working group needs to
+take into account
+
+- nodes that use static addresses,
+- nodes with multiple IP addresses on the same interface,
+- nodes that use multiple link-layer addresses on the same interface,
+- nodes that have multiple interfaces to the same link,
+- attachment of another bridge at a bridge port,
+- presence of routers, NATs, and other similar devices on the same link,
+including their distinction from hosts with multiple interfaces or
+hosts with multiple IP addresses on a single interface,
+- use of SEcure Neighbor Discovery in some networks,
+- nodes that move to another port on the same link, and
+- hosts with anycast addresses.
+
+However, should such wide applicability turn out to be impossible,
+the working group will document the limitations of the solutions
+in due manner. In particular, it is likely that anycast addressing
+and nodes that employ multiple interfaces for load balancing at
+link layer are indistinguishable from an actual spoofing attack.
+There may also be a difference in the applicability between blocking
+and merely logging spoofed packets. In any case, the solutions
+may require to be explicitly turned on for each network or interface
+where they are applicable.
+
+For background information, the working group will also develop a
+threats analysis document that describes what threats the solutions
+from the WG protect against. This document also contrasts SAVI
+to existing solutions.

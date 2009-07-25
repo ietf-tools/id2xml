@@ -1,0 +1,7 @@
+Deployment of secure mail is currently being slowed by the problems of
+user agent migration and key distribution.  In addition, problems of
+forgeries and spam are increasing the importance of providing some
+level of strong authentication with mail. This BOF will discuss
+possibilities of using host and mail gateway level mail secrurity and
+using DNS for mail security key distribution.
+

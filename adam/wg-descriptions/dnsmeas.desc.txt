@@ -1,0 +1,7 @@
+A number of recent measurement studies have looked at different facets
+of how the DNS is operating/performing today.  This session will
+present an overview of these findings and their implications.
+As time permits, discussion will also include suggestions regarding
+possible follow-on measurement studies.  *Fixes* to the DNS as
+suggested by the measurement findings will be noted only at a high
+level; they are not intended to be pursued in detail at the meeting.

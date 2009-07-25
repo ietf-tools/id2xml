@@ -1,0 +1,7 @@
+The goal of the IPSAT BoF is to discuss the problem of supporting
+the Internet Protocol (IP) over GEO satellite links.  The potential
+working group will prepare a framework and requirements document
+describing a typical satellite infrastructure and how an IP based
+network might be architected to utilize this infrastructure. It will
+also address the service interface between IP and the satellite link
+level (DVB or other).

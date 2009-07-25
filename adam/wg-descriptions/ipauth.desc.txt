@@ -1,0 +1,4 @@
+To brainstorm issues related to providing for the security and
+integrity of information on the Internet, with emphasis on those
+protocols used to operate and control the network.  To propose open
+standard solutions to problems in network authentication.

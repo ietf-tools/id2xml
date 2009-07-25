@@ -1,0 +1,46 @@
+The Multiparty MUltimedia SessIon Control (MMUSIC) Working Group was
+chartered to develop protocols to support Internet teleconferencing and
+multimedia communications. These protocols are now reasonably mature,
+and many have received widespread deployments. The group has revised
+some of these protocols in the light of implementation experience and
+additional demands that have arisen from other WGs (such as AVT, SIP,
+and SIPPING). It is focused on using and negotiating mechanisms such
+STUN and TURN in order to enable media sessions to traverse Network
+Address Translators NATs, and on new means to exchange SDP capabilities.
+
+Multimedia communications protocols use a common platform to express
+media and session descriptions: the Session Description Protocol, SDP.
+The many uses of SDP have led to (requests for) numerous extensions and
+have led to recognition of several flaws in the protocol design, some of
+which were addressed in the revision of SDP. In spite of these, it is
+widely deployed.
+
+The current aims of the working group include the following:
+
+- To support the establishment of multi-party multimedia sessions across
+NATs, MMUSIC will define an Internet Connectivity Establishment
+protocol (ICE). This will define several SDP extensions to work with
+NATs for media sessions carried over both UDP and TCP.
+
+- Various extensions to SDP will be pursued to remedy the most urgent of
+SDP's shortcomings. These will be limited and include adding support
+for limited but generic capability negotiations in SDP, defining the
+means to select QoS mechanisms to use for a particular media stream,
+enabling file transfer via the SDP Offer/Answer model, and support
+for
+media loopback.
+
+With the exception of these specific items, only extensions within the
+existing SDP framework will be done (e.g. registering new codecs and
+defining parameters for them, extending SDP to include new address
+families).
+
+- to maintain and revise the specification of the Real Time Streaming
+Protocol (RTSP), including fixes and clarifications based on
+implementation experience. The revised RTSP specification will be
+re-issued as a Proposed Standard RFC. We will also document how RTSP
+can be used in the presence of NAT boxes.
+
+The MMUSIC work items will be pursued in close coordination with other
+IETF WGs including AVT, SIP, SIPPING, SIMPLE, XCON, and BEHAVE, as well
+as others where appropriate such as NSIS.

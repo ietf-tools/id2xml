@@ -1,0 +1,42 @@
+NFS Version 4 is the IETF standard for file sharing. To maintain NFS
+Version 4's utility and currency, the working group is chartered to (1)
+maintain the existing NFSv4, NFSv4.1 and related specifications, such
+as RPC and XDR, (2) progress these specifications along the standards
+track, (3) develop a protocol to create a federated namespace using
+NFSv4's existing referral mechanisms.
+
+(1) NFS version 4.0 maintenance
+
+Under this charter item, the WG correct errors and ambiguities in the
+protocol currently specified in RFC 3530 and advances it along the
+standards track. Extensions of any other kind are out of scope under
+this charter item.
+
+(2) NFS Version 4.1 Maintenance
+
+As with NFSv4.0, the WG will address errors or ambiguities in the
+NFSv4.1 protocol and related specifications in support of progressing
+implementations.
+
+(3) RPC and XDR protocol maintenance
+
+The NFSv4 protocol depends on two related specifications: ONC
+RPC and XDR. Similar to charter item (1), the WG may correct errors and
+ambiguities in the ONC RPC and XDR protocols currently specified by RFCs
+1831, 1833 and 2203. In conjunction with the advancement of the NFSv4
+specification along the standards track, the WG will also work on the
+advancements of its ONC RPC and XDR dependencies. The WG will also
+update the ONC RPC specification for compatibility with IPv6.
+Additionally, it will create an IANA registry for RPC program numbers
+and seed it with a registry Sun has been maintaining.
+
+(4) Federated Namespace
+
+The NFSv4 protocol provides a referral mechanism that allows a
+server to redirect a client to another server. The working group
+will produce documents describing a mechanism for creating a federated
+namespace (single global name space for a set of NFSv4 servers)
+using the NFSv4 protocol's referral capabilities. The file system
+federation protocol will enable file access and namespace traversal
+across collections of independently administered fileservers. No
+modifications will be made to the NFS client to server protocol.

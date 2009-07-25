@@ -1,0 +1,29 @@
+The SNA DLC Services MIB Working Group is chartered to define a set 
+of
+	  managed
+     objects for the SDLC and LLC-2 data link controls for SNA
+     networks.  These objects will be the minimum necessary to provide
+     the ability to monitor and control those devices, providing fault,
+     configuration, and performance management, and will be consistent
+     with the SNMP framework and existing SNMP standards.
+
+     The working group will consider existing enterprise-specific MIB 
+modules
+     that define objects which support management of these devices.  The
+     group may choose to consider any work done by the IEEE in the
+     area of managed object definition for LLC-2.  It will also make 
+sure
+     that its work is aligned with the SNA NAU Services MIB Working 
+Group,
+     due to the close relationship between the devices being worked on 
+by 
+     the two groups.
+
+     The working group recognizes that managed objects for other SNA 
+data
+     link controls and related components (e.g., QLLC, System/370 
+Channel,
+     Data Link Switching, and ESCON) may need to be identified in the
+     future.  These objects are out of scope for the current charter;
+     however, once the group completes its charter, a new charter
+     identifying some or all of these components may be considered.

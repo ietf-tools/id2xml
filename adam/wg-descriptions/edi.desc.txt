@@ -1,0 +1,16 @@
+Electronic Data Interchange (EDI) is a set of protocols for conducting
+highly structured inter-organization exchanges, such as for making
+purchases.  The working group will produce specifications for the use
+of EDI standards over the Internet, with an initial focus on the
+transport of EDI via Internet e-mail.  The EDI community is large,
+diverse and well-established.  This working group effort is explicitly
+NOT intending to specify or modify any of the details of EDI protocols
+themselves.  Instead, it will focus on the requirements for proper
+carriage of EDI over the Internet, attending only to issues of
+encapsulation, addressing, security and the like.
+ 
+Initial efforts by the working group will focus on two deliverables:
+specification for the carriage of various EDI content via MIME-based
+e-mail, and a discussion document, considering issues in the use of
+EDI over the Internet.  The usage document will cover such issues as
+addressing and security.

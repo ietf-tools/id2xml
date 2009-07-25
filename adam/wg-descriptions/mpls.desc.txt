@@ -1,0 +1,41 @@
+The MPLS working group is responsible for standardizing a base
+technology for using label switching and for the implementation of
+label-switched paths over various packet based link-level
+technologies, such as Packet-over-Sonet, Frame Relay, ATM, and
+LAN technologies (e.g. all forms of Ethernet, Token Ring, etc.).
+This includes procedures and protocols for the distribution of
+labels between routers and encapsulation.
+
+The working group is also responsible for specifying the necessary
+management objects (e.g. as part of MIB modules) and OAM techniques for
+the functionality specified in the base MPLS technology.
+
+The first generation of the MPLS standards are largely complete,
+and the current WG work items are:
+
+ - Define requirements, mechanisms and protocol extensions for
+point-to-multipoint (P2MP) MPLS
+
+ - Define requirements, mechanisms and protocol extensions for
+traffic engineered point-to-multipoint (P2MP) MPLS, including
+soft preemption
+
+ - Define requirements and mechanisms for MPLS OAM
+
+ - Define an overall OAM framework for MPLS applications
+
+ - MPLS-specific aspects of traffic engineering for multi-areas/multi-AS
+in cooperation with the CCAMP WG
+
+ - Determine (with CCAMP) what procedures are appropriate for evaluating
+proposals to extend the MPLS and GMPLS protocols, and document these
+
+ - Document current implementation practices for MPLS load sharing
+
+ - Include extensions to the MPLS WG protocols and RFCs necessary to
+create an MPLS Transport Profile (MPLS TP). The work on the MPLS TP will
+be coordinated between the working groups (eg, MPLS, CCAMP, PWE3, and
+L2PVN) that are chartered to do MPLS TP work.
+
+The Working Group chairs tracking of the working group documents can be
+viewed at http://www.tla-group.com/~mpls/mpls-wg-docs.htm

@@ -1,0 +1,59 @@
+This working group will eventually define protocols and data formats
+necessary to build an internet-scale end-user presence awareness,
+notification and instant messaging system.  Its initial task is to
+determine specific design goals and requirements for such a service.
+The design goals document will be submitted for IETF-wide review,
+and based on that review, the group's charter will be extended.
+
+
+Background:
+
+Instant messaging differs from email primarily in that its primary 
+focus 
+is immediate end-user delivery. Presence information was readily
+accessible on internet-connected systems years ago; when a user had an 
+open session to a well-known multi-user system, his friends and 
+colleagues could easily tell where he was connected from and whether he 
+was using his computer.  Since that time, computing infrastructure has 
+become increasingly distributed and a given user may be consistently 
+available," but has no standard way to make this information known to 
+her peers.  This working group will design a system to address this 
+need.
+
+Goals:
+
+The working group will develop an architecture for simple instant
+messaging and presence awareness/notification. It will specify how
+authentication, message integrity, encryption and access control are
+integrated. It is desirable, but not required, for the working group
+to develop a solution that works well for awareness of and
+communication with entities other than human users.
+
+Non-goals:
+
+Providing a general notification mechanism for data other than user 
+presence information and instant messages.
+
+The following keywords describe the scope for the working group.
+Details are to be developed in the architecture document which is the
+output of this working group:
+
+- PRESENCE
+
+- INSTANT MESSAGING
+
+- SHARED
+
+- NAMING
+
+- AUTHENTICATION
+
+- ACCESS CONTROL
+
+- SCALABILITY
+
+Deliverables:
+
+The working group plans to deliver the following document:
+
+- Requirements for Instant Messaging and Presence

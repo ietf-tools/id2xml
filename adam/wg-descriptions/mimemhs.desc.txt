@@ -1,0 +1,11 @@
+MIME, (Multipurpose Internet Mail Extensions) is currently a
+   Draft Standard. MIME redefines the format of message bodies to
+   allow multi-part textual and non-textual message bodies to be
+   represented and exchanged without loss of information.  With the
+   introduction of MIME as a Draft Standard it is now possible to
+   define mappings between RFC 822 content-types and X.400 body parts.
+   The MIME-MHS Interworking Working Group is chartered to develop
+   these mappings, providing an emphasis on both interworking between
+   Internet and MHS mail environments and also on tunneling through
+   these environments. These mappings will be made in the context of an
+   RFC 1148bis environment.

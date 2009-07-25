@@ -1,0 +1,32 @@
+The PIP Working Group is chartered to develop an IPng proposal using
+the basic ideas of PIP as described in the PIP overview. 
+
+PIP is designed on one hand to be very general, being able to handle
+many routing/addressing/flow paradigms, but on the other hand to allow
+for relatively fast forwarding.  PIP has the potential to allow for
+better evolution of the Internet.  In particular, it is hoped that we
+will be able to advance routing, addressing, and flow techniques
+without necessarily having to change hosts (once hosts are running
+PIP).
+
+While the PIP overview demonstrates a number of powerful mechanisms,
+much work remains to be done to bring PIP to a full specification.
+This work includes, but is not limited to, specifying the header
+format; specifying a basic set of error messages (PCMP messages);
+specifying the PIP forwarding rules; specifying host interface messages
+(particularly the directory service query response); specifying rules
+for host PIP header construction; specifying modifications to existing
+protocols for use with PIP (BGP-4, OSPF, ARP, DNS, etc.); specifying
+PIP MTU discovery techniques; and specifying a transition strategy
+for PIP.
+
+Over the near-term, the goal of the PIP Working Group will be to produce these
+specifications and supporting documentation.  Over the long-term, up to
+the point where PIP is definitively rejected as IPng, it is expected
+that the PIP Working Group will oversee implementations and testing of the PIP
+specifications.
+
+Except to the extent that the PIP Working Group modifies existing protocols for
+operation with PIP, and to the extent that the PIP Working Group must be aware of routing/addressing/flow architectures to really make PIP general, the
+PIP Working Group will not work on routing/addresing/flow architectures.
+

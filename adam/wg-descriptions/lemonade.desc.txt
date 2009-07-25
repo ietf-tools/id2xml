@@ -1,0 +1,74 @@
+Lemonade is tasked to provide a set of enhancements and profiles of 
+Internet email submission, transport, and retrieval protocols to 
+facilitate operation on platforms with constrained resources, or 
+communications links with high latency or limited bandwidth. A primary 
+goal of this work is to ensure that those profiles and enhancements 
+continue to interoperate with the existing Internet email protocols in 
+use on the Internet, so that these environments and more traditional 
+Internet users have access to a seamless service.
+
+Lemonade's work is at the crossroads of a body of work related to 
+Internet messaging, in particular work done by the VPIM, FAX, and 
+IMAPEXT IETF working groups. Given the potentially broad scope of 
+activities this group could engage in, the group will focus 
+specifically on the following work items:
+
+0. An informational RFC or RFCs will be produced on LEMONADE 
+architecture and the issues it seeks to address.
+
+1. Enhance the existing IMAP4 message retrieval and message submission 
+(RFC 2476) protocols to satisfy the requirements for handling 
+streaming 
+multimedia content. The existing standards-track CONNEG framework will 
+be used if content negotiation capabilities are needed. The group will 
+employ existing protocols (such as for streaming) with IMAP4 instead 
+of 
+duplicating such functionality within IMAP4.
+                   
+2. Enhance the existing IMAP4 message retrieval and/or message 
+submission (RFC 2476) protocols to satisfy the requirements for 
+forwarding a message and/or its attachments without downloading 
+the message to the client and subsequently uploading the message to a 
+server.
+
+3. Refine the existing IMAP4 message retrieval protocol to facilitate  
+its use with devices that have limited capabilities such as mobile     
+endpoints. At most one backwards compatible profile of IMAP4 will be   
+produced by this effort.
+
+4. Define a format for message notifications for servers reporting     
+message status information to other servers. Specify the method for   
+delivery of those notifications. 
+
+5. Create a specification describing the use of Internet message       
+services in environments where message delivery may take place using   
+either Internet protocols or through an MMS server using WAP to 
+communicate with the receiving user agent.
+
+Any protocols defined by this working group will include appopriate 
+security mechanisms, including authentication, privacy, and access 
+control. Mandatory-to-implement security mechanisms will be specified 
+as needed in order to guarantee secure protocol interoperability.
+
+The transport area will be consulted to deal with any transport-related
+issues that arise, especially in regards to items 1-4 above.
+
+The IAB is currently working on the specification of general 
+guidelines 
+and requirements for notification services. Once complete this work 
+will be used as input to item 4 above.
+
+The working group is aware of several related activities in other 
+groups:
+
+- 3GPP TSG T WG2 SWG3 Messaging <http://www.3gpp.org/TB/T/T2/T2.htm>
+- W3C Mulitmodal interaction Activity <http://www.w3.org/2002/mmi/>
+- Open Mobile Alliance <http://www.openmobilealliance.org/>
+- 3GPP2 TSG-X <http://3gpp2.org/Public_html/X/index.cfm>
+
+The goal is to coordinate efforts with at least these groups as 
+required.
+
+While there is obvious synergy, given the end-of-life of the VPIM and 
+FAX work groups and the similar membership, the working group does not 
+expect to coordinate with these other groups.

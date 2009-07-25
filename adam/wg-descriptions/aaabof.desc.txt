@@ -1,0 +1,14 @@
+This BOF is for the discussion of AAA protocol requirements and
+potential solutions. One working group, the RSVP Authentication and
+Policy (RAP) WG has been working on a protocol API that will enable AAA
+services to be offered to RSVP routers and hosts by a central server;
+other working groups are interested in AAA services as well. An
+alternative proposal, DIAMETER, has been proposed and is being seriously
+considered by some.
+
+We want to meet to discuss the requirements of various working groups,
+consider the alternatives, and recommend a technical direction. Possible
+outcomes include a working group, or a recommendation that DIAMETER be
+placed on the standards track as an individual submission, or that COPS
+be extended to meet various needs, or that other approaches be
+considered.

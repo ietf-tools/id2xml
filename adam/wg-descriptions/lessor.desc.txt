@@ -1,0 +1,17 @@
+When an Internet Server stores a large amount of information, it is
+necessary to offer server-side selecting, searching and ordering in
+order to permit efficient download of interesting parts of the
+information.  The functions used for selecting, searching and ordering
+have many different properties and are often language sensitive.  In
+order to use these functions in applications protocols a naming
+convention and registry is needed.
+ 
+This working group will create a standards track RFC defining a naming
+convention and registry for "comparators."  This registry is intended
+for use by the ACAP protocol and any future Internet-style application
+protocols which offer server side sorting.
+ 
+Definition of specific comparator functions is explicitly out of scope
+for this working group.  The initial set of comparators in the
+registry will include the three defined in the ACAP specification and
+may include the current ISO standards in this area.

@@ -1,0 +1,3 @@
+Explore utility, feasibility of constructing a standard MIB for
+reporting on application response time and to consider related issues
+arising out of this goal.

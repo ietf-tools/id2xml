@@ -1,0 +1,26 @@
+Within the SNMP management framework, the philosophy is to place the
+burden of management processing on managers, not on agents.  As the
+Internet evolves to accommodate multiple protocol suites, there may be
+SNMP agents in the Internet that do not support the recommended method
+of exchanging SNMP messages using UDP/IP. In these instances, the
+proper model for managing a multiprotocol internet should be that
+agents must only be required to support one method of exchanging SNMP
+messages (i.e., encapsulation of SNMP messages in *one* of the
+protocol suites of the multi-protocol internet), and the managers
+support as many encapsulation methods as needed (potentially, all) to
+communicate with all resources it manages.
+
+The SNMP over a Multi-protocol Internet Working Group is chartered to identify
+and provide solutions for communication between SNMP agents and
+managers in those configurations where the recommended method of
+exchanging SNMP messages using UDP/IP cannot be used; i.e., where a
+managed resource supports a single protocol suite that protocol is not
+UDP/IP but another protocol suite of the multi-protocol internet (for
+example, OSI, AppleTalk, or XNS/IPX).
+
+Questions to be considered include: What are the appropriate protocol
+suites to consider?  What is the appropriate method of encapsulating
+SNMP?  What are the addressing considerations for SNMP messages What
+new MIB Modules are required?  What (positive) effect can SNMP-based
+management have on resource-sharing among multiple protocols?
+

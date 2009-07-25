@@ -1,0 +1,75 @@
+The RADIUS Extensions Working Group will focus on extensions to the
+RADIUS protocol required to define extensions to the standard
+attribute space as well as to address cryptographic algorithm
+agility and use over new transports. In addition, RADEXT will
+work on RADIUS Design Guidelines and define new attributes for
+particular applications of authentication, authorization and
+accounting such as NAS management and local area network (LAN) usage.
+
+In order to enable interoperation of heterogeneous RADIUS/Diameter
+deployments, all RADEXT WG work items MUST contain a Diameter
+compatibility section, outlining how interoperability with
+Diameter will be maintained.
+
+Furthermore, to ensure backward compatibility with existing RADIUS
+implementations, as well as compatibility between RADIUS and Diameter,
+the following restrictions are imposed on extensions considered by the
+RADEXT WG:
+
+- All documents produced MUST specify means of interoperation with
+legacy RADIUS and, if possible, be backward
+compatible with existing RADIUS RFCs, including RFCs 2865-2869,
+3162, 3575, 3579, 3580, 4668-4673,4675, 5080, 5090 and 5176.
+Transport profiles should, if possible, be compatible with RFC 3539.
+
+- All RADIUS work MUST be compatible with equivalent facilities in
+Diameter. Where possible, new attributes should be defined so that
+the same attribute can be used in both RADIUS and Diameter without
+translation. In other cases a translation considerations
+section should be included in the specification.
+
+
+Work Items
+
+The immediate goals of the RADEXT working group are to address the
+following issues:
+
+- RADIUS design guidelines. This document will provide guidelines for
+design of RADIUS attributes. It will specifically consider how
+complex data types may be introduced in a robust manner, maintaining
+backwards compatibility with existing RADIUS RFCs, across all the
+classes of attributes: Standard, Vendor-Specific and SDO-Specific.
+In addition, it will review RADIUS data types and associated
+backwards compatibility issues.
+
+- RADIUS Management authorization. This document will define the
+use of RADIUS for NAS management over IP.
+
+-RADIUS attribute space extension. The standard RADIUS attribute
+space is currently being depleted. This document will provide
+additional standard attribute space, while maintaining backward
+compatibility with existing attributes.
+
+-RADIUS Cryptographic Algorithm Agility. RADIUS has traditionally
+relied on MD5 for both per-packet integrity and authentication as well
+as attribute confidentiality. Given the increasingly successful
+attacks being mounted against MD5, the ability to support
+alternative algorithms is required. This work item will
+include documentation of RADIUS crypto-agility requirements,
+as well as development of one or more Experimental RFCs providing
+support for negotiation of alternative cryptographic algorithms
+to protect RADIUS.
+
+- IEEE 802 attributes. New attributes have been proposed to
+support IEEE 802 standards for wired and wireless LANs. This
+work item will support authentication, authorization and
+accounting attributes needed by IEEE 802 groups including
+IEEE 802.1, IEEE 802.11 and IEEE 802.16.
+
+- New RADIUS transports. A reliable transport profile for
+RADIUS will be developed, as well as specifications for
+Secure transports, including TCP/TLS (RADSEC) and UDP/DTLS.
+
+- Documentation of Status-Server usage. A document
+describing usage of the Status-Server facility will be
+developed.

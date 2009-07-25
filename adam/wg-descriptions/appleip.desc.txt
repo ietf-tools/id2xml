@@ -1,0 +1,4 @@
+The IP Over AppleTalk Working Group is chartered to facilitate the connection
+of Apple Macintoshes to IP internets, and to address the issues of
+distributing AppleTalk services in an IP internet.
+

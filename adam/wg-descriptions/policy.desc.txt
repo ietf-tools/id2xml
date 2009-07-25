@@ -1,0 +1,97 @@
+Note: Russ Mundy <mundy@tislabs.com> is the Security Technical
+      advisor for this WG.
+
+
+Problem Statement:
+
+There is a need to represent, manage, share, and reuse policies
+and policy information in a vendor-independent, interoperable,
+and scalable manner. This working group has three main goals.
+First, to provide a framework that will meet these needs. Second,
+to define an extensible information model and specific schemata
+compliant with that framework that can be used for general policy
+representation (called the core information model and schema).
+For now, only a directory schema will be defined. Third, to
+extend the core information model and schema to address the needs of
+QoS traffic management (called the QoS information model and
+schemata).
+
+The viability of the framework will be proven by demonstrating
+that high-level policy information can be translated into device
+configuration information for network QoS applications. This
+requires the coordination of the core and QoS schemata, the
+PIB and MIB being developed in DiffServ, and possibly
+extensions to COPS provisioning, which is being developed
+in RAP. A secondary goal of this framework is to show that this
+general development process can be extended to other
+application domains.
+
+Objectives:
+
+The objectives of this working group are to:
+
+1. Identify a set of representative use cases to guide us in
+   defining a policy framework, information model, and schemata
+   to store, retrieve, distribute and process policies. These use
+   cases should map to a set of policy rules, and aid us in defining
+   the composition of policies.
+
+2. Define a framework for intra-domain policy definition and
+   administration for a heterogeneous set of Policy Decision and
+   Enforcement Points. Here, "intra-domain" refers to policy
+   components that are all under the same (and exclusive)
+   administrative control. The framework will be shown to be able
+   to be used to represent, distribute, and manage policies and
+   policy information in an unambiguous, interoperable manner in
+   a single administrative domain. This framework will be applied
+   to network QoS.
+
+3. A general information model, derived from the CIM/DEN
+   policy model, will be produced. This is intended to serve as a
+   generic means for representing policies and policy information.
+   In addition, a mapping of this information model to a form that
+   can be implemented in a directory that uses LDAPv3 as its
+   access protocol will also be done.
+
+4. Refinements to the above, for representing signaled and
+   provisioned QoS, will be done. That is, both the information
+   model as well as the schema will be extended to focus on
+   network QoS. This will also be used to prove the general
+   extensibility of the model.
+
+5. A key part of demonstrating that this model can provide
+   end-to-end translation of high-level policy specifications to
+   device configurations is to ensure that the information
+   model and schemata are compatible with and can use the
+   information contained in the PIB(s) and MIB(s) being
+   developed in the Differentiated Services WG. To this end,
+   the Policy Framework WG will supply input to the
+   development of the PIBs, and include all applicable PIBs
+   and MIBs in its development considerations for the
+   framework, information model, and schemata.
+
+6. Policy information may be communicated using several
+   protocols. The COPS protocol, being developed in the RAP
+   WG, is an example of one such protocol. The Policy
+   Framework WG will work with the RAP WG to define usage
+   directives for use of the COPS base protocol to support
+   policy information exchange transactions within the
+   framework being standardized in the Policy Framework WG.
+
+7. The Policy Framework WG will work closely with the
+   IPSP WG to ensure that the IPsec data model fits and can
+   be supported within the general framework defined by the
+   Policy Framework WG.
+
+8. The Policy Framework WG will work with other WGs as
+   needed to ensure that the framework, information model,
+   and specific schemata produced meet the needs of these
+   WGs.
+
+9. The charter specifically excludes:
+
+    -protocol definition
+
+    -schema attributes or classes that are vendor-specific
+     (although the schema defined in this group will be defined
+     in a way that is extensible by specific vendors)

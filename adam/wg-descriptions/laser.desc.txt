@@ -1,0 +1,18 @@
+The use of LDAP is becoming increasingly popular, and the demand for
+mail transfer agents (MTAs) to be able to extract relevant information 
+is increasing along with it.  Of particular interest is settling upon a 
+common schema for local email routing.  LDAP will *not* be contacted for 
+routing e-mail until the MTA first determines that it is listed as an MX 
+or A record for the host named on the right hand side of the email 
+address.  The goal is to define which schema to use in requesting local 
+routing information (a.k.a. aliasing) from an LDAP directory service.
+
+There are currently no such standards-track specifications under review
+in the IETF.  There is draft-lachman-ldap-mail-routing-03.txt, which is 
+on track to become an Informational RFC; parts of this may be a good 
+start at a standards-track specification (the focus here is narrower 
+than in that draft). But competing proposals exist (I know of at least 
+one I-D in the works), so the time seems right for a BOF to discuss 
+whether an existing proposal is ready to move forward or if a working 
+group is merited.  I therefore propose that such a BOF be held at the 
+Orlando IETF meeting.

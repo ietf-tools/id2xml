@@ -1,0 +1,5 @@
+The SMDS Working Group is chartered to investigate and to specify the
+manner in which the Internet and the newly defined public network
+service, Switched Multi-megabit Data Service, will interact.  The
+group will discuss topics such as addressing, address resolution,
+network management, and routing.

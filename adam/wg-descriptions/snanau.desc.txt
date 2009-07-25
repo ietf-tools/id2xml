@@ -1,0 +1,17 @@
+The SNA NAU MIB Working Group is chartered to define a set of managed 
+objects for SNA Network Accessible Units. These objects will provide the 
+ability to monitor and control those devices, providing fault, 
+configuration, and performance management, and will be consistent with 
+the SNMP framework and existing SNMP standards.
+
+The working group has completed MIBs for base SNA NAU functions, for LU 
+Type 6.2 or APPC (Advanced Program-to-Program Communication), for APPN 
+(Advanced Peer-to-Peer Networking), for APPN Dependent LU Requester 
+(DLUR) and for APPN HPR (High Performance Routing). The working group is 
+currently working on a MIB for APPN Extended Border Node (EBN) and one 
+to define traps for APPN nodes to send. Work is also beginning on a MIB 
+for APPN HPR in IP networks.
+
+The working group will make sure that its work is aligned with the SNA 
+DLC MIB Working Group, due to the close relationship between the devices 
+being worked on by the two groups.

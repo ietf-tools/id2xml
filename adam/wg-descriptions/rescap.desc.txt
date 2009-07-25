@@ -1,0 +1,84 @@
+Abstract:
+
+A variety of resource identifiers have been widely deployed on the
+Internet as a means of identifying various resources, services, and
+destinations. However, a means of attaching a set of attributes or
+characteristics to a given resource identifier and subsequently
+assessing those attributes or characteristics has not been specified and
+deployed.
+
+A particularly important resolution service of this general type is one
+which, when given a mail address identifying a particular mail
+recipient, will return a series of attributes describing the
+capabilities of that recipient. This differs from a directory service in
+that no searching or other advanced query operations are involved.
+
+The primary purpose of this service is to distribute information
+about resources or services to the global Internet; as such, it is
+not intended for dissemination of private information.  However,
+the group will also consider whether there is a need for the
+query protocol to include authentication, and thus permit
+administrators to restrict the capabilities that are returned
+according to a locally specified security policy.
+
+The first task of this working group will be to define a general
+resolution protocol that will translate resource identifiers to a list
+of attributes. At a minimum the service must be capable of returning
+mail recipient capabilities as described above, but ideally the service
+should also handle more general capability and characteristics
+discovery.
+
+The second task of this working group will be to define an 
+administrative model and update protocol that can be used to set up and
+maintain the information the resolution protocol accesses.
+This protocol will obviously require strong authentication. The
+working group will also consider whether privacy services are
+necessary for the update protocol, and include such services
+in the protocol if it finds that they are necessary.
+
+The service resulting from the combination of these two protocols must
+meet the following requirements:
+
+(0) The resolution protocol must be highly scalable, as the intent is to
+    deploy it very widely.
+
+(1) Resolution protocol and server overhead must be very low, as some
+    applications will make very heavy use of it.
+
+(2) Identifiers input to the resolution service must be formatted as
+    Uniform Resource Identifiers (URIs) containing one or more DNS
+    domains.  Note that mail addresses can be presented as mailto: URIs
+    to meet this requirement.
+
+(3) Facilities to support inheritance within the attribute store will be
+    essential, as the number of identifiers may be very
+    large. Specifically, mechanisms must be provided by which
+    administrators can set default values for members of their
+    administrative domains.
+
+(4) Existing protocols will be profiled for use as part of this service
+    whenever possible rather than developing new protocols. In
+    particular:
+
+    (a) The DNS must be used as the first step in the resolution
+        service, This is because all the URIs under consideration here
+        contain a DNS domain and the DNS is already properly delegated.
+
+    (b) Existing DNS record types such as SRV and NAPTR will be used if
+        feasible, to ease deployment.
+
+    (c) A lightweight resolution protocol may be defined by this working
+        group if no existing protocol proves to be suitable.
+
+    (d) An existing administrative model and maintenance protocol will
+        be used if feasible. Possible candidates for this include ACAP
+        and LDAPv3.
+
+The means to register and extend the set of attributes must be
+specified.  However, specification of actual attributes needed by
+various applications of this service is outside of the scope of this
+working group.
+
+This group will collaborate with the ENUM working group to determine
+the degree to which it is appropriate for the two efforts to share
+technology or protocols when solving their respective problems.

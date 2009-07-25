@@ -1,0 +1,33 @@
+ARCHIVE: http://www.cafax.se/keydist/maillist/
+
+Secure Internet Key Distribution (SIKED)
+
+This effort has a goal of understanding and possibly defining a 
+protocol 
+or set of practices for supplying public keys to elements of other 
+protocols. The rationale for this goal is to enable 
+security-enhancements of existing protocols.  Keying material must be 
+dynamically refreshed to maintain secure states, one of the stumbling 
+blocks in making security work is the distribution and refresh of this 
+material.
+
+The general problem of key management is beyond the scope of this 
+effort. For example, the generation and derivation of keys are beyond 
+scope, as well as the encoding of keys, whether raw or in certificates, 
+is beyond the scope of this effort.  Determing a generic approach to 
+trust is also out of scope.  The effort is strictly looking at how key 
+distribution can be made to scale on the Internet.
+
+The effort will begin with a few distinct efforts, with the early goal 
+of a requirements document.  The first actions of the effort are to 
+understand the various protocols that can benefit from a distribution 
+of 
+keys, and how this interacts with the each protocol as the protocol is 
+currently defined. In addition, a few proposed approaches will be 
+explored, as well as documentation of limitations on proposed 
+mechanisms.
+
+There is no guarantee that there is one and only one approach to key
+distribution.  There are already divergent approaches and this effort 
+is
+not going to argue with them.

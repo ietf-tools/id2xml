@@ -1,0 +1,21 @@
+The number of information services (Gopher, WWW, etc.) on the 
+Internet is
+   growing rapidly.  This poses a problem for administrators, 
+implementors
+   and providers in maintaining the quality of the information service 
+(as
+   opposed to quality of the information itself).
+ 
+   The aim of this working group is to deal with one of the specific
+   problems with respect to quality of the information service, namely 
+link
+   problems.  A link problem is defined as the case where a user selects 
+a
+   link and is returned slow data, no data, incomplete data or wrong 
+data.
+ 
+   The working group will analyze link failures and their causes, and, 
+based
+   on the analysis, it will devise both technical solutions and 
+operational
+   recommendations to address this specific problem.

@@ -1,0 +1,24 @@
+There is a need for many different kinds of efforts to deal with
+operational and front-line engineering issues, including helping
+disparate organizations work with each other.  This is an attempt to
+solidify some of those topics.  This does not make any pretense of being
+exhaustive.
+ 
+Area of interest:  Operational issues and developments of the Internet.
+
+Membership:  Operations and engineering personnel from national backbone
+and mid-level networks.  Other groups with responsibility for production-
+oriented services such as security oriented groups.
+
+Associated technical groups:  Groups which will have an interest in, and
+input to, the agenda of this group will include the IAB and its task
+forces, and groups within FARNET. In particular, FARNET now has several
+technical issues of concern, such as the selection of standard
+internetwork services for debugging (like maps and standard SNMP
+communities), and the specification of standard network statistics to be
+taken (of special concern is the ubiquitous ability to collect those
+statistics).
+
+Meeting times:  Members of the group will represent organizations with
+production responsiblities.  Most work will be carried on via email or
+teleconferencing.  

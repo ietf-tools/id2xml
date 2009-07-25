@@ -1,0 +1,22 @@
+The Domain Name System Security Working Group (DNSSEC) will ensure
+enhancements to the secure DNS protocol to protect the dynamic update
+operation of the DNS. Specifically, it must be possible to detect the
+replay of update transactions and it must be possible to order update
+transactions. Clock synchronization should be addressed as well as all
+of the dynamic update specification.
+
+Some of the issues to be explored and resolved include
+
+o scope of creation, deletion, and updates for both names and zones
+
+o protection of names subject to dynamic update during zone transfer
+
+o scope of KEY resource record for more specific names in wildcard
+  scope
+
+o use of or relationship with proposed expiration resource record
+
+One essential assumption has been identified: data in the DNS is
+considered public information. This assumption means that discussions
+and proposals involving data confidentiality and access control are
+explicitly outside the scope of this working group.

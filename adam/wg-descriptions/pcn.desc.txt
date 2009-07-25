@@ -1,0 +1,87 @@
+The Congestion and Pre-Congestion Notification (PCN) working group 
+develops mechanisms to protect the quality-of-service of established 
+inelastic flows within a DiffServ domain when congestion is imminent 
+or existing. These mechanisms operate at the domain boundary, based 
+on aggregated congestion and pre-congestion information from within 
+the domain. The focus of the WG is on developing standards for the 
+marking behavior of the interior nodes and the encoding and transport 
+of the congestion information. To allow for future extensions to the 
+mechanisms and their application to new deployment scenarios, they 
+are logically separated into several components, namely, encoding and 
+transport along forward path from marker to egress, metering of 
+congestion information at the egress, and transport of congestion 
+information back to the controlling ingress. Reaction mechanisms at 
+the boundary consist of flow admission and flow termination. Although 
+designed to work together, flow admission and flow termination are 
+independent mechanisms, and the use of one does not require or 
+prevent the use of the other. The WG may produce a small number of 
+informational documents that describe how specific quality-of-service 
+policies for a domain can be implemented using these two mechanisms.
+
+The PCN WG will specify the following components to protect the 
+quality-of-service of flows within a DiffServ domain:
+
+(1) a general architecture for flow admission and termination
+based on aggregated (pre-)congestion information
+
+(2) a specification of conditions under which interior nodes
+generate (pre-)congestion information
+
+(3) encoding and transport of (pre-)congestion information
+between the interior and domain egress
+
+(4) metering of (pre-)congestion information at the domain egress
+
+(5) encoding and transport of (pre-)congestion information
+between the egress and the controlling domain ingress
+
+(6) ingress node control mechanisms for flow admission or
+termination, based on aggregated (pre-)congestion information
+
+The WG focuses on the marking behavior and encoding and transport 
+mechanisms needed to realize the overall PCN architecture. Standards- 
+track protocols and mechanisms are only developed where necessary for 
+interoperability. For other components of the architecture, the WG 
+may document examples or provide recommended solutions in 
+informational documents. The architecture document will be 
+comprehensive, and include security, manageability and operational 
+considerations. All PCN mechanisms, including transport and encoding 
+of (pre-congestion) information, are required to cleanly integrate 
+with existing architectures and protocols such as DiffServ and ECN. 
+If the PCN WG requires extensions or modifications to protocols that 
+are products of other WGs, it may motivate their need and describe 
+requirements in informational documents; design of such extensions 
+and modifications will take place in the appropriate WGs.
+
+
+The initial scope of the PCN WG is restricted by the following 
+assumptions:
+
+(A) these components are deployed in a single DiffServ domain,
+where all boundary and interior nodes are PCN-enabled
+and trust each other for correct PCN marking, encoding, 
+transport and aggregation
+
+(B) all flows handled by these mechanisms are inelastic and
+constrained to a known maximum rate through policing or shaping
+
+(C) the number of flows across any potential aggregation bottleneck
+is sufficiently large for stateless, statistical mechanisms 
+to be effective
+
+(D) flows may have different precedence, but the applicability
+of the PCN mechanisms for emergency use (911, GETS, WPS, 
+MLPP, etc.) is out of scope
+
+After completion of the initial phase, the PCN WG may re-charter to 
+develop solutions for scenarios where some of these restrictions are 
+not in place. It may also re-charter to consider applying the PCN 
+mechanisms to additional deployment scenarios (operation over 
+concatenated DiffServ domains, PCN-aware application mechanisms, 
+etc.). The WG may also consider to investigate additional response 
+mechanisms that act on (pre-)congestion information. One example 
+could be flow-rate adaptation (rather than flow admission/ 
+termination) during times of congestion. The details of these work 
+items are outside the scope of the initial phase; but the WG may 
+consider their requirements to design components that are 
+sufficiently general to support such extensions in the future.

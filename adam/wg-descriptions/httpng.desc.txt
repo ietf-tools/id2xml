@@ -1,0 +1,31 @@
+The goal of this working group is to produce a next generation of the 
+HTTP protocol that builds on the experience from HTTP/1.X --- notably 
+including proxies, caching, and firewalls --- by adding explicit 
+layering and modularity to better support the World Wide Web and the 
+other applications that are being layered on top of, and just plain 
+tunnelled through, HTTP. The WG goals will emphasize transitioning 
+existing application functionality to a better technology base, rather 
+than improving the application functionality.
+
+Because HTTP's functionality spans a range that includes both the 
+Transport and Application areas of the IETF, this working group should 
+draw participants from both areas.
+
+The WG will first develop a requirements document detailing the needed
+changes to the HTTP/1.x protocol.  A current draft of this document 
+calls for the factoring of HTTP into three layers: the lowest will 
+provide opaque message transport services needed by the next layer, 
+building upon current and/or future Internet transport protocols such as 
+TCP and UDP; the middle will be a general remote invocation layer; and 
+the highest will be an expression of the web application in terms of the 
+lower two.
+
+The WG will then proceed to standardize the pieces into which HTTP is to 
+be factored.  The WG will also develop techniques for the transition of 
+the Web from HTTP/1.x to HTTP/NG.
+
+The following work is specifically excluded from the scope of this 
+working group: definitions of language mappings and/or ancillary APIs 
+for the remote invocation layer; significantly advancing the 
+functionality of web applications; development of base transport 
+protocols (e.g. any replacement for TCP).

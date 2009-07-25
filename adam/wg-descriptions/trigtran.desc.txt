@@ -1,0 +1,82 @@
+IETF transport protocol development has been based
+on the assumption that two communicating endpoints
+"know" more about characteristics of the paths
+between these endpoints than any single device
+within the network. This is implicit knowledge,
+based on transport algorithm adaptations to
+events in the paths.  Because IP datagram forwarding
+can follow a variety of paths between two endpoints,
+a device within the network in contrast has information
+about one part of the path, but not what the transports
+endpoints "know".
+
+When transport protocols are deployed over paths
+including one or more a wireless subnets, a wireless access
+device now may have significant information about that
+part of the path.  
+
+End-to-end mechanisms continue to work (see
+PILC and related specifications), but must rely
+on communication over a subnetwork link that
+experiences outages and degradation. The TRIGTRAN
+BOF is investigating whether special knowledge
+from wireless access devices can be useful to
+endpoint transports.
+
+It is possible that a wireless access device might
+provide information about the path in a useful way
+because
+
+(a) the wireless access device has detailed
+        knowledge of a subnetwork link, and
+
+(b) it can still communicate with one endpoint
+        when a problematic subnetwork link stops working,
+        or starts working, or...
+
+The goal here is that changes in path characteristics,
+especially outages, RTT...can be explicitly signaled
+without end-to-end blind retransmissions based on peer
+transport retry timers.
+
+If this goal is accepted, it may be broadened to include
+changes in nominal subnetwork transmission rates or other
+subnetwork events, if these subnetwork events are generic
+in nature and accepted by the IETF community as a whole.
+
+The Triggers for Transport (TRIGTRAN) BOF is being held
+to understand
+
+- The nature of generic "transport triggers"
+
+- Possible uses of "transport triggers"
+
+- Mechanisms for signaling transport triggers to
+        accessible transport endpoints
+
+- The architectural impact of this addition to
+        the transport layer
+
+Although the need for this change is more obvious in a
+wireless environment, we're also soliciting input from
+the rest of the Internet community in these areas:
+
+- Whether there are "transport triggers" applicable to
+        all (other?) subnetwork types, beyond link up/link down
+
+- Whether the use of "transport triggers" is worth the
+        effort of modifying existing transport protocols to
+        make use of this information
+
+This BOF is related to, but distinct from, similar
+discussions on triggers in MOBILEIP and in IRTF's Routing
+Research Group on micro-mobility. The primary difference
+is this departs from the low latency and tight coupling of
+those. It is possible that work products from a
+TRIGTRAN working group would be reused with fast handoff
+signaling. We'll explore this *briefly* in the BOF meeting.
+
+TRIGTRAN will start with a scope limited to wireless
+subnetworks, but it is also possible that non-wireless
+subnetworks (for instance, SLOW) may also have events
+that fit into the TRIGTRAN framework.

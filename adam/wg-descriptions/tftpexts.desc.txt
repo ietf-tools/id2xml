@@ -1,0 +1,20 @@
+The TFTP Extensions Working Group will review, refine as needed, and 
+then make a recommendation on standardization of several recent 
+standards-track proposals to extend TFTP.  These proposals include a
+backward compatible extension mechanism for TFTP and related extension
+options for this mechanism.
+ 
+Initial drafts of all of the documents that the working group is 
+expected to review have already been, or will soon be, published.  The
+working group will be starting with documents that have been prepared 
+as individual (or spontaneous design team) contributions.  It is not 
+expected to initiate new work.  On the other hand, it is expected to 
+make explicit "not ready for standardization" or "inappropriate for 
+standardization" recommendations if appropriate. 
+  
+The working group will be begin with the following Internet-Drafts or
+their successors:
+	
+  - draft-malkin-tftp-option-ext-00.txt
+
+  - draft-malkin-tftp-blksize-opt-00.txt

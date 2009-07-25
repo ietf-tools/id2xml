@@ -1,0 +1,14 @@
+This working group will provide a forum for implementers, testers, and
+users of current Internet standard protocols to provide feedback on the
+standards themselves; i.e., on what aspects of the documents defining
+the standards have assisted or hindered the implementation, test, and
+use of those protocols.
+
+The purpose of the group is to collect this information, much of which
+survives today as word-of-mouth knowledge in the Internet community,
+and present it as a BCP document. This document will cover definitions,
+guidelines, and a list of heuristic rules for avoiding common mistakes
+in writing Internet protocol standards documents.
+
+Note: This working group is jointly chartered by the Operational
+Requirements Area and the User Services Area.

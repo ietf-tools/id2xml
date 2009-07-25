@@ -1,0 +1,65 @@
+Background:
+
+The original specification for and implementation of RADIUS was written
+by Steve Willens of Livingston Enterprises in response to a need
+outlined by the earlier NASREQ working group, and has been deployed by
+multiple vendors over the past 3 years.
+
+No other working group appears to be addressing the topic of
+communicating authentication and authorization information between a
+Network Access Server and a central authentication & authorization
+server, and general consensus is that standardization of such a
+protocol would be extremely useful.
+
+This working group will produce four documents:
+
+1) By early '96, an informational RFC documenting the RADIUS protocol
+   already deployed for use by a Network Access Server (NAS) to
+   communicate with a remote Authentication & Authorization database
+   server, with minor amendments reflecting field experience of several
+   implementations over several years at hundreds of sites.
+
+2) By February '96, an informational RFC describing RADIUS Accounting.
+
+3) By early '97, a full standard RFC documenting the RADIUS protocol,
+   addressing any operational or security issues raised concerning the
+   informational RFC. This document will obsolete goal 1.  (If the
+   Internet-Draft for goal 1 is deemed suitable by the IESG for release 
+as
+   a Proposed Standard instead of informational, then goals 1 and 3 will
+   be merged.)
+
+4) Starting in February '96 and concluding in '97, a RADIUS Extensions
+   RFC documenting extensions for additional functionality within the
+   RADIUS framework, which will be interoperable with the base RADIUS
+   defined in the document for goal 3.
+
+The intent in goals 1 through 3 are to document the protocol as it
+exists and is used currently, in such a way as to allow interoperable
+implementations to be written from the RFC.  Minor modifications to
+enhance interoperability or operation based on field experience are
+suitable, major overhauls are outside the scope of this working group's
+charter.  Goal 4 is to provide a mechanism for additional features
+deemed widely useful to be added to the existing framework, for example
+to provide better support for EAP.
+
+Clearly outside the scope of the charter are the following:
+
+1) NAS Standardization is outside the scope.  We're defining standard
+   RADIUS, not a standard encompassing everything about network access
+   servers.  This effort does not require NASes to implement RADIUS; it
+   just defines how the RADIUS Protocol works on NASes that do
+   implement RADIUS.
+
+2) RADIUS is not intended as a NAS management protocol; SNMP already
+   exists for that.
+
+3) Management of the Authentication/Authorization database itself is
+   outside the scope.
+
+4) Alternative transport protocols such as IPX or IPv6 appear
+   straightforward, but will not be addressed in this effort.
+
+5) The flexibility and generality of RADIUS have led to its use for
+   other applications, but this Working Group is addressing only those
+   uses involving user dial-in to Network Access Servers.

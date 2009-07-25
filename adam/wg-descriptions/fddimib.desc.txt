@@ -1,0 +1,5 @@
+The FDDI MIB Working Group is chartered to define a MIB for FDDI
+devices that is consistent with relevant FDDI specifications produced
+by ANSI.  All definitions produced by this working group will be
+consistent with the SNMP network management framework and other
+internet-standard MIBs for SNMP.

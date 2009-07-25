@@ -1,0 +1,35 @@
+The goal of the Common Intrusion Detection Framework (CIDF) Working
+Group is to provide mechanisms to allow independently developed
+intrusion detection-related (ID) components to exchange information
+about events, analyses of attacks, suggested responses, and other
+relevant data.
+
+The working group aims to separate the building blocks of intrusion
+detection from the logic used to manipulate them.  With a uniform
+way of delivering and expressing information about attacks, ID
+systems are able to share information and pool resources, while
+still making their own decisions on how to process attacks and which
+components to share them with.
+
+Furthermore, ID components have stronger security requirements for
+the data than do many distributed applications.  We therefore seek
+mechanisms for authentication, data integrity, and confidentiality
+that are fast, lightweight, and flexible, and that are additionally
+independent of the stability of outside specifications.
+
+Finally, to facilitate the re-use of code developed for ID systems,
+implementers need a consistent API to access ID components.  We
+plan to develop and distribute such an API.
+
+To carry out this goal, the working group sets itself the following
+tasks:
+
+    * To define a language in which statements about events, etc
+      may be expressed.
+
+    * To define an encapsulation that allows message senders and
+      receivers to apply security measures as needed.
+
+    * To define an architecture whereby ID components may register
+      their availability and mode of operation, so that other
+      components may locate them.

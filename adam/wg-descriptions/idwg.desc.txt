@@ -1,0 +1,30 @@
+Security incidents are becoming more common and more serious, and 
+intrusion detection systems are becoming of increasing commercial
+importance.  Numerous intrusion detection systems are important in the 
+market and different sites will select different vendors. Since 
+incidents are often distributed over multiple sites, it is likely that
+different aspects of a single incident will be visible to different
+systems.  Thus it would be advantageous for diverse intrusion
+detection systems to be able to share data on attacks in progress.
+
+The purpose of the Intrusion Detection Working Group is to define data
+formats and exchange procedures for sharing information of interest to
+intrusion detection and response systems, and to management systems
+which may need to interact with them.  The Intrusion Detection Working
+Group will coordinate its efforts with other IETF Working Groups.
+
+The outputs of this working group will be:
+
+1. A requirements document, which describes the high-level functional
+   requirements for communication between intrusion detection systems 
+   and requirements for communication between intrusion detection 
+   systems and with management systems, including the rationale for 
+   those requirements.  Scenarios will be used to illustrate the 
+   requirements.
+
+2. A common intrusion language specification, which describes data 
+   formats that satisfy the requirements.
+
+3. A framework document, which identifies existing protocols best used
+   for communication between intrusion detection systems, and describes
+   how the devised data formats relate to them.

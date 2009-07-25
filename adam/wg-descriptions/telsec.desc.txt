@@ -1,0 +1,45 @@
+The Telnet Security Working Group is a followup to the recent approval
+of the Telnet Authentication and Encryption options as Proposed
+Standards.
+
+Background:
+
+Work on the Telnet Authentication and Encryption options began in the
+early 90s.  Unfortunately, due to various forces the effort to
+finalize these options and move them to the IETF Standards Track did
+not occur until this past year. In the meantime numerous
+implementations supporting these options with a wide variety of
+authentication protocols and encryption algorithms were developed and
+distributed. The most recent editors of the Authentication and
+Encryption Option RFCs believed it was necessary to plug holes in the
+protocols and move them to standards track before continuing their
+development.
+
+While the Telnet Authentication option provides strong authentica-
+tion in a secure manner, the Telnet Encryption option leaves much
+to be desired. While the encryption provides privacy to the telnet
+data stream it does not provide integrity protection.  The TN3270
+Working Group has been working on the Telnet START_TLS option
+which does provide significant improvements in the strength of
+the ciphers used for encryption and provides integrity protection
+as well as privacy for the connection.
+
+Work has also been done to provide for protection of X Windows
+System data communication via the Telnet channel incorporating
+strong authentication of the X Windows sessions. [Telnet FORWARD_X]
+
+There is deployed support for Kerberos 5 that doesn't include the Krb5 
+API upon which [Telnet AUTH KRB5] is based.  However, these products do 
+support GSSAPI-KRB5. It is therefore necessary for a GSSAPI-KRB5 Telnet 
+AUTH method to be implemented in order to interoperate with the 
+authentication subsystems in these deployed products.
+
+There is also some outstanding work on integrating the three
+remaining features of the BSD R-protocols not supported by Telnet
+[TELNET RCMD]:
+
+o STDERR redirection;
+
+o SIGNAL redirection;
+
+o Command execution without shell access.

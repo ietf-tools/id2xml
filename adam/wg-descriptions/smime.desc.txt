@@ -1,0 +1,35 @@
+The S/MIME Working Group has completed a series of Proposed Standards
+that comprise the S/MIME version 3.1 specification. As part of the
+specification update, a new suite of "mandatory to implement" 
+algorithms
+was be selected. Current efforts update and build upon these base
+specifications.
+
+The Cryptographic Message Syntax (CMS) (RFC 3852) is cryptographic
+algorithm independent, yet there is always more than one way to use any
+algorithm. To ensure interoperability, each algorithm should have a
+specification that describes its use with CMS. Specifications for the
+use of additional cryptographic algorithms will be developed.
+
+CMS, as well as S/MIME version 3 and later, permit the use of 
+previously
+distributed symmetric key-encryption keys. Specifications for the
+distribution of symmetric key-encryption keys to multiple message
+recipients will be developed. Mail List Agents (MLAs) are one use of
+symmetric key-encryption keys. The specification will be algorithm
+independent.
+
+To aid initial determination of recipient's cryptographic capabilities 
+a
+specification will be developed allowing S/MIME capabilities to be
+stored and asserted in X.509 certificates based on the X.509 
+certificate
+and CRL profile developed by the PKIX Working Group.
+
+The working group will perform necessary interoperability testing to
+progress the CMS and S/MIME specifications to Draft Standard. The CMS
+specification depends on the RFC 3280, which was developed by the PKIX
+working group. This profile must progress to Draft Standard before CMS
+and the other S/MIME specifications can progress to Draft Standard.
+Assuming timely progress by the PKIX Working Group, the S/MIME
+specification can start progressing to Draft Standard in 2005.

@@ -1,0 +1,26 @@
+The Uniform Resource Identifiers Working Group is chartered to
+define a set of standards for the encoding of system-independent
+resource location and identification information for the use of
+Internet information services.
+
+This working group is expected to produce a set of documents that
+specify standard representations of Uniform Resource Locators
+(URLs) for encoding location and
+access information across multiple information systems, Unique Resource
+Serial Numbers (URSNs) which specify a standardized method for encoding
+unique resource identification information for Internet resources, and
+Uniform Resource Identifiers (URIs) which specify a standardized
+method for encoding combined resource identification and location
+information systems to be used for resource discovery and access
+systems in an Internet environment.  Such standards
+are expected to build upon the document discussed at the UDI BOF
+session held during the 24th IETF meeting in Boston
+
+Such a set of standards will provide a framework that allows the
+Internet user to specify the location and access information for files
+and other resources on the Internet, users and network-based
+tools to uniquely identify specific resources on the Internet, and
+the creation and operation of resource discovery and access
+systems for the Internet.  The security of such resource discovery
+services will also be considered to be an integral part of the work
+of this group.

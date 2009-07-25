@@ -1,0 +1,15 @@
+This is a discussion of the possible reasons for bringing
+into existence a Datagram Control Protocol, one which
+is intended for applications that require the connection
+semantics of TCP and SCTP (with SCTP's anti-DoS features)
+and need specialized congestion control,
+but which do not want TCP's in-order delivery and
+reliability semantics.
+
+The sort of applications which could make use of a DCP are those which
+have timing constraints on the delivery of data, such that reliable
+in-order delivery, when combined with congestion control, is likely
+to result in some information arriving at the receiver after it is
+no longer of use.  Such applications might include streaming media
+and Internet telephony.  Security related issues might also
+define the user of a DCP service.

@@ -1,0 +1,39 @@
+The 6bone is an independent outgrowth of the IETF IPng project that 
+resulted in the creation of the IPv6 protocols intended eventually 
+to replace the current Internet network layer protocols known as IPv4. 
+The 6bone is currently an informal collaborative project covering 
+North America, Europe, and Japan. 
+
+One essential part in the IPv4 to IPv6 transition is the development 
+of an Internet-wide IPv6 backbone infrastructure that can transport 
+IPv6 packets. As with the existing IPv4 Internet backbone, the IPv6 
+backbone infrastructure will be composed of many Internet Service 
+Providers (ISPs) and user networks linked together to provide the 
+world-wide Internet. 
+
+Until the IPv6 protocols are widely implemented and fully tested 
+for interoperability, production ISP and user network routers will 
+not readily place production Internet (IPv4) routers at risk. Thus a 
+way is needed to provide Internet-wide IPv6 transport in an organized 
+and orderly way for early testing and early use. 
+
+The 6bone is a virtual network layered on top of portions of the 
+physical IPv4-based Internet to support routing of IPv6 packets, as 
+that function has not yet been integrated into many production routers. 
+The network is composed of islands that can directly support IPv6 
+packets, linked by virtual point-to-point links called "tunnels". The 
+tunnel endpoints are typically workstation-class machines having 
+operating system support for Ipv6. 
+
+Over time, as confidence builds to allow production routers to carry 
+native IPv6 packets, it is expected that the 6bone would disappear by 
+agreement of all parties. It would be replaced in a transparent way by 
+production ISP and user network IPv6 Internet-wide transport. 
+
+The 6bone is thus focused on providing the early policy and procedures 
+necessary to provide IPv6 transport in a reasonable fashion so testing 
+and experience can be carried out. It would not attempt to provide new 
+network interconnect architectures, procedures and policies that are 
+clearly the purview of ISP and user network operators. In fact, it is 
+the desire to include as many ISP and user network operators in the 
+6bone process as possible to guarantee a seamless transition to IPv6.

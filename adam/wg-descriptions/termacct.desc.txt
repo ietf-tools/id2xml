@@ -1,0 +1,94 @@
+ The "Authentication, Authorization, and Accounting Issues for
+ Terminal/Network Servers"  BOF will be held from 7:00 - 10:00 PM
+ on Tuesday, November 19 at the 22nd IETF meeting in Santa Fe.
+
+ Motivation for this BOF
+
+ In the course of planning for the replacement of the existing
+ proprietary and outmoded equipment that provides user access to
+ MichNet, we have identified several required functions which we
+ currently offer that are not available in any comparable commercial
+ equipment that we have come across.  The major functionality we find
+ lacking lies in the areas of authentication, authorization, and
+ accounting.  We feel that the lack of functionality in these areas
+ presents problems that are by no means specific to MichNet; These
+ problems are, or will be, faced by many other network providers.  In
+ order to illustrate the issues to be discussed, we next present
+ a few examples of some of the functions in the topic areas that are
+ currently performed within MichNet.
+
+ Currently access to specific destinations within MichNet can be
+ either allowed or disallowed based upon factors such as whether the
+ user has been identified to the network, whether the user's account
+ can be billed against, or whether the user's point of access is a
+ dial-up or direct line.  A usage charge can be imposed at
+ either end of a connection, and the network collects the billing
+ information.  The sending of IP packets off MichNet from dial-up
+ lines can be restricted only to authorized users.
+
+ However, these required functions are provided in an ad hoc manner
+ in the current network; We would much prefer to see them provided
+ in a standard manner in the replacement equipment.  Adherence to
+ standards in the provision of these functions would allow us, and
+ others, to easily upgrade to new equipment as it becomes available
+ and also to select this equipment from various vendors.
+
+ While the equipment we are replacing is used mostly for
+ asynchronous user access, the issues to be discussed extend to
+ other forms of access as well.  The term "terminal/network server"
+ refers to devices that allow access to and from an IP network via a
+ dumb terminal, a PC or workstation using point-to-point framed IP
+ (PPP, SLIP, SLFP), and other non-IP networks.
+
+
+ Purpose of this BOF
+
+ The particular functions we would like to address at this BOF lie
+ in the areas of authentication, authorization and accounting.  These
+ are the areas related to terminal/network server access that we
+ feel need the most attention from the IETF.   Most of the discussion
+ at this BOF will center upon these three areas.
+
+ We also would like to discuss the concept of providing a
+ standard, server based, user interface that could be used to
+ control session establishment in a manner independent of the type
+ of terminal/network server providing the access.  It may be
+ possible to have workstations also provide this standard user
+ interface for session control.  The areas of authentication,
+ authorization, and accounting are central to this concept as well.
+
+ We hope to accomplish the following at this BOF.
+
+   - Share experience/needs and seek advice in the areas of
+   authentication, authorization and accounting in relationship to
+   network access.
+
+   - Identify existing standards that could be applied to the
+   problems.
+
+   - Identify working groups that might be interested in solving these
+   problems.
+
+   - Make plans to provide input to these WGs.
+
+   - Possibly start a new working group(s), if problems remain which
+   will not be addressed by the existing process.
+
+
+ Outline of this session
+
+ We would like this BOF to be very interactive.  We will attempt to
+ follow this format:
+
+   - A model for viewing the issues will be described and terms
+   will be defined.
+
+   - A set of authentication, authorization, and accounting
+   requirements will be proposed.
+
+   - Many issues related to required or desired functions as well as
+   to the scope of this endeavor will be discussed.
+
+   - We will finish up with some discussion of where we go from here.
+
+

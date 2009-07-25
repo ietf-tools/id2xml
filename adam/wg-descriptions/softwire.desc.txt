@@ -1,0 +1,40 @@
+The Softwires Working Group is specifying the standardization of
+discovery, control and encapsulation methods for connecting IPv4
+networks across IPv6 networks and IPv6 networks across IPv4 networks in
+a way that will encourage multiple, inter-operable implementations.
+
+For various reasons, native IPv4 and/or IPv6 transport may not be
+available in all cases, and there is a need to tunnel IPv4 in IPv6 or
+IPv6 in IPv4 to cross a part of the network which is not IPv4 or IPv6
+capable. The Softwire Problem Statement, RFC 4925, identifies two
+distinct topological scenarios that the WG will provide solutions for,
+"Hubs and Spokes" and "Mesh." In the former case, hosts or "stub"
+networks are attached via individual, point-to-point, IPv4 over IPv6 or
+IPv6 over IPv4 softwires to a centralized Softwire Concentrator. In the
+latter case (Mesh), network islands of one Address Family (IPv4 or IPv6)
+are connected over a network of another Address Family via point to
+multi-point softwires among Address family Border Routers (AFBRs).
+
+The focus of this WG is to:
+
+Document the softwire encapsulation and control protocol usage for
+one Address Family (IPv6 or IPv4) over another within the defined
+problem spaces set out in RFC 4925.
+
+Define "Dual-Stack Lite" which uses softwires and IPv4 NAT functions
+to reduce the amount of Global and RFC 1918 Local IPv4 addressing
+necessary for a Service Provider with an IPv6-enabled network to
+continue delivering IPv4 reachability to its customers.
+
+The WG will reuse existing technologies as much as possible and
+only when necessary, create additional protocol building blocks.
+
+For generality, all base SOFTWIRE encapsulation mechanisms should
+support all combinations of IP versions over one other (IPv4 over IPv6,
+IPv6 over IPv4, IPv4 over IPv4, IPv6 over IPv6). IPv4 to IPv6
+translation mechanisms (NAT-PT), new addressing schemes, and block
+address assignments are out of scope. DHCP options developed in this
+group will be reviewed jointly with the DHC WG. BGP and other routing
+and signaling protocols developed in this group will be reviewed jointly
+with the proper working groups and other workings that may take interest
+(e.g. IDR, L3VPN, PIM, LDP, SAAG, etc).

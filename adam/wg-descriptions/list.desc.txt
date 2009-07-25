@@ -1,0 +1,38 @@
+This Working Group will concern itself with ``list servers'', i.e.,
+advanced mail exploders/reflectors which provide services such as
+automated subscription, archive maintenance, and coordination with
+similar systems on the network.
+
+The Group will initially focus its activities towards establishing a
+baseline user interface.  Although most current systems support a
+command set patterned after Eric Thomas' BITNET LISTSERV, there is
+wide variance in the options supported and in the general patterns of
+interaction.  This results in a great deal of user confusion.  The
+Working Group's interface definition will address this by establishing
+a set of commands, options, interactions, and procedures which will
+(hopefully) be supported by all list servers as a subset of their full
+repertoire.
+
+As a part of the user interface work, the Group will also define an
+authentication service for users' list server transactions.  Toward
+this end, and to address the privacy issue, the Group will consult
+with the Security Area Advisory Group (SAAG).
+
+The second phase of the Group's work will be to provide for the
+interconnection and coordination of list servers.  Experience with the
+BITNET LISTSERV has shown that it is important for users be able to
+view the collection of list servers on the network as an integrated
+whole.  Ideally, users should only have to deal with their local
+mailing list service---which knows where all public lists are, what
+they are, and is able to act on the user's behalf with respect to
+them.  Interconnecting list servers allows this ``integrated user view''
+to be created and also lets issues such as traffic minimization,
+timely distribution, and load sharing to be more easily addressed.
+Consequently, the Working Group will define the conceptual models,
+communication methods, and extensions to prior work which are
+necessary to bring this interconnection and coordination about.
+
+It is anticipated that further work on issues of authentication and
+privacy will continue in parallel with the ``integration'' effort ---
+perhaps manifesting itself as a separate RFC which extends the user
+interface definition produced during the first phase.

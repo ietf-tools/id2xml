@@ -1,0 +1,8 @@
+There is significant interest in the use of XML-based technologies
+to manage and configure IP-based networks and networking equipment.
+This BOF will discuss the high-level requirements for a network
+configuration mechanism, and will explore how the existing 
+proprietary and standards-based XML technologies, such SOAP, WBEM 
+and SyncML, could be used to meet those requirements.  Based on 
+that discussion, we will determine whether we should pursue any
+IETF work in this area.

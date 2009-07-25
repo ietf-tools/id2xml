@@ -1,0 +1,75 @@
+The NEMO Working Group is concerned with managing the mobility of an
+entire network, which changes, as a unit, its point of attachment to
+the Internet and thus its reachability in the topology. The mobile
+network includes one or more mobile routers (MRs) which connect it to
+the global Internet.
+
+A mobile network is assumed to be a leaf network, i.e. it will not
+carry transit traffic. However,it could be multihomed, either with a
+single MR that has multiple attachments to the internet, or by using
+multiple MRs that attach the mobile network to the Internet.
+
+Initially,the WG will assume that none of the nodes behind the MR will
+be aware of the network's mobility, thus the network's movement needs
+to be completely transparent to the nodes inside the mobile
+network. This assumption will be made to accomodate nodes inside the
+network that are not generally aware of mobility.
+
+A basic approach for network mobility support is for each Mobile
+Router to have a Home Agent, and use bidirectional tunneling between
+the MR and HA to preserve session continuity while the MR moves. The
+MR will acquire a Care-of-address from its attachment point much like
+what is done for Mobile Nodes using Mobile IP. This approach allows
+nesting of mobile networks, since each MR will appear to its
+attachment point as a single node.
+
+The WG will take a stepwise approach by standardizing some basic
+support mechanisms based on the bidirectional tunneling approach, and
+at the same time study the possible approaches and issues with
+providing more optimal routing than can be had with (potentially
+nested) tunneling. However, the WG is not chartered to actually
+standardize a solution to such route optimization for mobile networks
+at this point in time.
+
+The WG will work on:
+
+- A threat analysis and security solution for the basic problem
+(tunneling between HA and MR)
+
+- A solution to the basic problem for both IPv4 and IPv6. The solution
+will allow all nodes in the mobile network to be reachable via
+permanent IP addresses, as well as maintain ongoing sessions as the MR
+changes its point of attachment within the topology. This will be done
+by maintaining a bidirectional tunnel between the MR and its Home
+Agent. The WG will investigate reusing the existing Mobile IPv6
+mechanisms for the tunnel management, or extend it if deemed
+necessary.
+
+- An informational document which specifies a detailed problem
+statement for route optimization and looks at various approaches to
+solving this problem. This document will look into the issues and
+tradeoffs involved in making the network's movement visible to some
+nodes, by optionally making them "NEMO aware". The interaction between
+route optimization and IP routing will also be described in this
+document. Furthermore, security considerations for the various
+approaches will also be considered.
+
+The WG will:
+
+- Ensure that solutions will scale and function for the different
+mobile network configurations, without requiring changes to
+Correspondent Nodes in the Internet. All solutions will aim at
+preserving route aggregation within the Internet and will satisfy an
+acceptable level of security (a thorough survey of new threats and an
+analysis of their severity will be conducted)
+
+- Ensure that various mechanisms defined within other IETF WGs will be
+useful for mobile networks. To achieve this, the NEMO WG will interact
+with other WGs when needed, and may place requirements on the
+protocols developed by those WGs.
+
+The WG will not:
+
+- consider routing issues inside the mobile network. Existing routing
+protocols (including MANET protocols) can be used to solve these
+problems.

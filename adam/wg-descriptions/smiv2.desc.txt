@@ -1,0 +1,3 @@
+The purpose is to discuss a new set of I-Ds (to be posted soon)
+produced by our SMI Design Team. These documents are being readied
+to be submitted for considereation as full Standard.

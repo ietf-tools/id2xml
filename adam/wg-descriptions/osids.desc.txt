@@ -1,0 +1,5 @@
+The OSI-DS group works on issues relating to building an OSI Directory
+Service using X.500 and its deployment on the Internet.  Whilst this
+group is not directly concerned with piloting, the focus is practical,
+and technical work needed as a pre-requisite to deployment of an open
+Directory will be considered.

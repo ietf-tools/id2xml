@@ -1,0 +1,1 @@
+To define a standard mechanism for authentication within the SNMP.

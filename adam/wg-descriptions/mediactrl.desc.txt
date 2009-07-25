@@ -1,0 +1,117 @@
+Real-time multi-media applications often need the services of media 
+processing elements. It is true that modern endpoints are capable of 
+media processing. However, the physics of some media processing 
+applications dictate that it is much more efficient for the media 
+processing to occur at a centralized location. By media processing, we 
+mean media mixing, recording and playing media, and interacting with a 
+user in the audio or video domains. The commercial market calls these 
+media processing network elements "media servers."
+
+Some services achieve significant efficiencies when a central node 
+performs media processing. Because of these efficiencies, media 
+servers are widely used for conference mixing, multimedia messaging, 
+content rendering, and speech, voice, key press, and other audio and 
+video input and output user interface modalities. Given the wide 
+acceptance of the media server, we need a standard way to control them.
+
+Since the media server is a centralized component, the work group will 
+not investigate distributed media processing algorithms or control 
+protocols.
+
+A media server contains media processing components that are able to 
+manipulate RTP streams. Typical processing includes mixing multiple 
+streams, transcoding a stream (e.g., from G.711 to MS-GSM), storing or 
+retrieving a stream (e.g., from RTP to HTTP), detecting tones (e.g., 
+DTMF), converting text to speech, and performing speech recognition. 
+Note that an MRCPv2 server may offer the low-level processing for the 
+last two services, where the media server is a client to the MRCPv2 
+server. Also note it is common to call the package of detecting user 
+input, recording media, and playing media "Interactive Voice  
+Response," or IVR. Media services offered by the media server are 
+addressed using SIP mechanisms, such as described in RFC 4240. Media 
+servers commonly have a built-in VoiceXML interpreter. VoiceXML 
+describes the elements of the user interaction, and is a proven model 
+for separating application logic (which run on the clients of the 
+media server) from the user interface (which the media server 
+renders). Note this is a fundamentally different interaction model from
+MRCPv2, where media processing engines offer raw, low-level speech 
+services.
+
+The work group will examine protocol extensions between media servers 
+and their clients. However, modifying existing standard protocols, 
+such as VoiceXML or SIP towards clients or MRCPv2 towards servers, is 
+not in the work group's charter. The model of interest to this group 
+is where the endpoint solely plays audio or video, transmits audio or 
+video towards the server, and possibly transmits key press information 
+towards the server. Alternate architectures, where the endpoint 
+executes user interface commands, is outside the scope of the
+work group. For example, WIDEX/BEEP, with its distributed user 
+interface description, is not in scope.
+
+The only model of user interface processing the work group will 
+consider is where the media server performs all of the media 
+processing. A caveat here is the media server, in interpreting a 
+VoiceXML page, may make requests to a server for speech services. 
+However, to the media server client and the media end point, the 
+single point of signaling and media interaction is the media server.
+
+Any protocol developed by this group will meet the requirements for 
+Internet deployment. This includes addressing Internet security, 
+privacy, congestion control (or at least congestion safe), operational 
+and manageability considerations, and scale. The protocol will not 
+assume a private administrative domain. There is broad market 
+acceptance of the stimulus/markup application design model for the 
+application server - media server protocol interface. Thus this work 
+group will focus on the use of SIP and XML for the protocol suite.
+
+The work product of this group includes the following:
+
+1. A requirements document. This document will identify and enumerate
+requirements for a suite of media server control protocols. Given that 
+one of the common media server clients is a conference application 
+server, we will consider the application server - media server 
+requirements developed by the XCON work group. Likewise, we will 
+consider media server control requirements from other standards 
+groups, such as 3GPP SA2 and CT1.
+
+2. A framework document. This document will describe the different 
+network elements, their interrelationship, and the broad set of 
+message flows between them.
+
+3. A protocol suite describing the embodiment of the framework 
+document. There may be separate protocol PDU's for audio conference 
+control, video conference control, interactive audio (voice) response, 
+and interactive video (multimedia) response. The separation and 
+negotiation of different PDU's is a working group topic. However, 
+there will be one and only one (class) of PDU's defined by the work 
+group.
+
+4. Means for locating, and possibly establishing sessions to, media 
+servers with appropriate resources at the request of clients. By 
+appropriate, we mean the characteristics of a given media server 
+required or desired for handling a given request. The expectation is 
+such a means would build upon existing SIP, SNMP, and other protocol 
+facilities. Such a means may or may not be an integral part of the 
+item 3 deliverables above. This deliverable is an operational protocol 
+that may rely on management protocols such as SNMP. We are neither 
+creating a new management protocol nor a new provisioning protocol.
+
+Given the above-mentioned conferencing example, the work of this group 
+is of interest to the XCON work group, as this protocol will describe 
+the "Protocol used between the conference controller and the mixer
+(s)." Thus we expect to work closely with XCON. The protocol suite 
+also is a possible embodiment of the ISC/Mr interface from the 3GPP 
+IMS architecture. Thus we expect to gather requirements from, 3GPP, 
+notably SA2, CT1, and CT4. ATIS and ETSI TISPAN have considered a 
+functional element known as a media resource broker. The media
+resource broker provides the functionality described by deliverable 
+#4, above. Thus we expect to gather requirements from ATIS and ETSI 
+TISPAN. The Java Community Process has chartered work on a Java Media 
+Server Control (JMSC) API, known as JSR 309. We expect to gather 
+requirements from JCP, as well.
+
+Because of the vast experience with conferencing protocols and 
+payloads, we expect considerable interaction with AVT and MMUSIC. If 
+the work group requires extensions to SIP, the work group will forward 
+those extensions to the SIP work group for consideration and 
+refinement.

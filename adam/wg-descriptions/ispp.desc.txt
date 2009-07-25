@@ -1,0 +1,57 @@
+Draft Charter 11/1/95 mw
+
+The Internet is increasingly being used for the conduct of commerce,
+much of which requires special data structures and protocols for exchanges
+among commerce participants. Internet commerce is new.  This working group 
+represents an initial effort at Internet standards for payment transactions for
+retail commerce, allowing authentication of the agreement to pay by systems
+which holds accounts for the payer and payee, such as payment cards and
+related instruments.
+
+For concreteness, we use the terminology of the payment cards industry. The
+parties which participate in a card payment are the cardholder,
+merchant, acquirer and issuer, and in many cases, payment systems in
+which the acquirer and issuer participate. The main direct interactions
+at the time of purchase are between cardholder and merchant, merchant
+and acquirer, and acquirer and issuer.
+
+The focus of this working group will be on Internet-based protocols to
+support the cardholder/merchant and merchant/acquirer interactions.
+
+Non-cryptographic security mechanisms, such as e-mail callback loop,
+may be used, when appropriate, to provide authentication.
+
+Strong cryptography may be used, where appropriate, to provide authentication
+and protect payment related details (only) from eavesdropping and/or 
+tampering. However, in order to minimize export, import and use restrictions 
+on the protocol, an objective of this group would be to limit or avoid the 
+use of strong encryption, while keeping other goals such as migration from 
+existing systems.  We note that some designs have obtained permission to 
+export  from the U.S. government, and it is expected that similar
+permission to import, export and/or use such implementations could be
+obtained from other governments.
+
+The payment protocols will not make any assumptions regarding the
+security, reliability or temporal characteristics of the underlying
+media or protocols used to transmit the payment related information.
+Where appropriate, existing protocols and data-representations that
+meet the above criteria will be utilized and possibly extended . The
+payment protocol will provide and support linkages with other protocols 
+related to electronic commerce, including for example price presentation, 
+order confirmation and status, delivery notifications and the like.
+
+Depending on circumstances, one or more of the parties may interact
+with a payment server gateway which translates between the
+Internet specification to be defined here and whatever protocol is
+already in use locally.  The use of payment server gateways is likely
+to be the most common means for acquirers to connect to the Internet
+and use this protocol, but other variations may occur as well.
+
+The working group shall first focus on four documents. The first document
+will be an architecture for an account-based payment protocol; the second
+document will describe the message formats; and the two additional documents
+will describe Web and e-mail based implementations, including any
+necessary extensions to existing protocols and standards (e.g. HTML).
+Consideration will also be given to debit cards and other related 
+instruments, and to the embedding of the same concepts in other transports.
+

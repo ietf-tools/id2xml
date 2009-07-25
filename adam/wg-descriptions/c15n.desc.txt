@@ -1,0 +1,33 @@
+The URN WG's Dynamic Delegation Discovery System (DDDS) describes a
+generalized architecture for 'top down' resolution of identifiers such
+as URIs.  This works well when a (software) client wants or needs to
+dynamically determine the explicit authoritative delegation of 
+resolution.  However, there are times when it is desirable to 
+incorporate other elements of contextual control information in 
+determining, for example, the  "appropriate copy" of a resource -- 
+preferrentially finding a "local" copy of a journal rather than 
+re)purchasing one from the authoritative publisher.  This is generally
+applicable to all URI resolution, but it is more specific than "web 
+caching".  Software systems being built to solve this in today's 
+deployed systems are using specialized, non-interoperable, non-
+scalable approaches.
+
+Some current experimentation and a straw proposal are described below.
+
+This BoF is chartered to determine if there is interest/wherewithal to
+determine a standard vehicle to process contextualized resolution that
+
+   a) is not application- or protocol-specific and
+   b) ties in with global resolution systems (such as DDDS) in order 
+      to preserve authoritative resolution chains, where applicable
+
+Beyond the "appropriate copy" scenario, this should equally be 
+applicable in non-document contexts -- e.g., IP-telephony (enterprise
+dialing schemes taking precedence over, but linked to, global 
+numbering).
+
+While the focus of this BoF is on standardized resolution 
+steps/mechanisms, not "metadata" or "knowledge transactions", 
+discussion 
+must reflect that "context" generalizes beyond location/area (e.g., to 
+"who's paying for this", etc).

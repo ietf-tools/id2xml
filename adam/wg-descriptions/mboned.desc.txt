@@ -1,0 +1,29 @@
+The MBONE Deployment Working Group is a forum for coordinating
+the deployment, engineering, and operation of multicast routing
+protocols and procedures in the global Internet. This activity will
+include, but not be limited to:
+
+- Documenting deployment of multicast routing in the global Internet.
+
+- Receive regular reports on the current state of the deployment of
+  multicast technology. Create "practice and experience" documents that
+  capture the experience of those who have deployed and are deploying
+  various multicast technologies.
+
+- Based on reports and other information, provide feedback to other
+  relevant working groups.
+
+- Develop mechanisms and procedures for sharing operational
+  information to aid in operation of the multicast backbones and
+  interconnects. 
+
+- Update RFC 3171/BCP 51 based on experience. 
+
+- Develop a roadmap informational RFC that describes the current
+  IPv4 and IPv6 IETF multicast architectures, including
+  references to the relevant IETF documents and guidance for
+  implementers and network operators. 
+
+- Complete the MSDP MIB
+
+This is not meant to be a protocol development Working Group.

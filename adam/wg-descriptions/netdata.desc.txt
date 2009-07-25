@@ -1,0 +1,22 @@
+The Network Database Working Group is chartered to define a standard
+interface among databases on TCP/IP internets.  The working group will
+address the issue of database connectivity in a distributed environment
+which allows authorized users remote access to databases.  It will be
+designed as a client/server model based on TCP/IP as its communication
+protocol.
+
+Several problems must be resolved that are associated with the network
+database protocol, such as management of multiple threads between
+clients and servers, management of multiple servers, management of data
+buffers, data conversions, and security.
+
+Additional related problems will be covered as the discussion goes on.
+Therefore, the description and the schedule can be revised.
+
+This working group is independent from the SQL access group; however,
+there may be some overlapping interest.  The SQL access group is welcome
+to join IETF's discussions and share information in both directions.
+If both groups find that merging two efforts into one will speed up the
+process, the merge can be done in the future.  For now, this working
+group works on issues according to its own schedule and efforts.
+

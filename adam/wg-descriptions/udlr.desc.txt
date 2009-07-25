@@ -1,0 +1,31 @@
+Note: An alternate site for UDLR's files is: 
+http://www.udcast.com/udlr 
+
+
+The UDLR working group issued the RFC 3077 in March 2001. This RFC
+describes a link-layer tunneling mechanism (LLTM) for supporting
+unidirectional links (UDL) in the Internet.
+
+During the design of this mechanism by the UDLR working group, several
+implementations evolved. These implementations are fully interoperable
+and are currently being used in several operational environments.
+
+As of the publication of RFC 3077, the working group has decided to
+further their work by issuing the following objectives:
+
+1. Produce informational rfc's that describe in detail the requirements
+   of example case study scenarios as listed below. Note that these
+   scenarios relate to field experiments that are being undertaken 
+   based on the LLTM mechanism:
+
+   a) configuration of multicast routing protocols over a 
+      unidirectional link
+
+   b) configuration of unicast routing protocols over a unidirectional
+      link
+
+   c) securing operation of a UDLR network
+
+2. Identify security holes
+
+3. Push the current document (RFC 3077) status to Draft Standard.

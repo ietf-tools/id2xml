@@ -1,0 +1,25 @@
+The Remote Boot Protocol Working Group is chartered to define a standard 
+protocol between the remote boot client and the responding server.  The 
+Working Group objective is to produce a protocol that insures remote 
+boot clients, of arbitrary platform and instruction set architecture, 
+will be able to choose and obtain an appropriate boot program from a 
+arbitrary variety of boot servers, without the necessity of site 
+specific pre-configuration of the client.
+
+The working group will consider existing remote boot methods. The 
+protocol defined by the working group will be consistent with DHCP and 
+the Service Location Protocol. The working group will coordinate with 
+both the Dynamic Host Configuration Protocol and the Service Location 
+Protocol Working Groups. The output of this WG will consist of a base 
+architectural document that provides the framework for how remote boot 
+will be done (i.e., defines the protocol), together with one or more 
+documents defining the required capabilities of the remote boot client 
+and the responding server. The protocol document will describe how the 
+remote boot client will discover an appropriate boot server, how the 
+client will identify itself to the boot server, and how the remote boot 
+client will obtain a boot program. If possible, an existing protocol to 
+locate a boot service (e.g. Service Location Protocol) will be used. 
+IANA registration for types of remote boot clients and types of boot 
+servers will be specified as part of the base protocol. Documenting 
+necessary capabilities of the remote boot client and boot server will be 
+done elsewhere (i.e., in standalone documents).

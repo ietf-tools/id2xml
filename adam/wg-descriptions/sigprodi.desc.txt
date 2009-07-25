@@ -1,0 +1,8 @@
+There has been a great deal of discussion about looking anew at the 
+issue of quality of service-related signaling on IP networks.  
+
+
+The IETF has already defined an explicit QoS signaling technology in 
+RSVP and, some people would say, an implicit one in diffserv.  This BOF 
+will examine the need to establish new signaling technologies in the 
+light of the experiences with these existing ones.

@@ -1,0 +1,20 @@
+It is often useful to learn the path that packets take through the
+Internet.  This is especially important for dealing with certain
+denial-of-service attacks, where the source IP is forged.  There are
+other uses as well, including path characterization and detection of
+asymmetric routes.  There are existing tools, such as traceroute, but
+these generally provide the forward path, not the reverse.
+
+We propose an ICMP Traceback message to help solve this problem.
+When forwarding packets, routers can, with a low probability,
+generate a Traceback message that is sent along to the destination.
+With enough Traceback messages from enough routers along the path,
+the traffic source and path can be determined.
+
+The output of this group will be a standards-track RFC describing
+the format of such a message, along with guidelines for generation
+and interpretation of such messages.
+
+Major issues to be addressed include end user privacy, the desire of
+some ISPs to keep their network structure proprietary, authentication
+of these messages, and the structure of any necessary PKI.

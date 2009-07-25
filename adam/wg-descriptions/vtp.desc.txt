@@ -1,0 +1,28 @@
+This is to announce the VTP (Virtual Tunneling Protocol) BOF at the 
+37th IETF in San Jose. The BOF will take place Wednesday at 9:00. 
+     
+The VTP protocol may be used by a service provider to offer Virtual 
+Private Network (VPN) services and dial access services to corporate 
+home networks. This protocol can also be used to construct a corporate 
+VPN by establishing VTP tunnels between routers at the branch and 
+corporate offices.
+     
+In order to provide a true "multi-protocol" VPN technology, it is 
+necessary to perform some form of encapsulation and tunneling in order 
+to mask the private address space being used.  This technology must be 
+sufficiently secure in order to protect the network resources from 
+outside attack.
+     
+There exists some basic form of "multi-protocol" VPN technology today 
+by some manufacturers, however these are either very static in nature 
+or are proprietary solutions.  The intent of this document is to 
+establish a standard, dynamic tunnel establishment scheme which 
+require minimal configuration in order to ease deployment of such 
+products.
+     
+VTP uses extensions to existing protocols such as GRE and Mobile-IP, 
+which allow for easy implementations. In addition, VTP specifies an 
+optional kerberos-like key management scheme for key distribution, 
+which allows for multi-provider environments. However IPSEC is 
+recommended as the underlying security mechanism.
+     

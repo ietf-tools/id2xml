@@ -1,0 +1,51 @@
+Proxy Mobile IPv6, specified in RFC 5213, is a network-based mobility
+protocol. It uses a Mobile Access Gateway (MAG) and a Local Mobility
+Anchor (LMA) to allow hosts to move around within a domain while keeping
+their address or address prefix stable. Proxy Mobile IPv6 has been
+incorporated into a number of products and deployments are starting.
+Certain deployment considerations, including localized routing and bulk
+refresh of lifetime are already emerging.
+
+The working group will focus on the following topics relevant for
+network-based mobility:
+
+Localized Routing: a specification for routing traffic between the
+MAG(s) without involving the LMA. That is, allow the MAGs to route
+traffic between hosts from one MAG to another, without being tunneled
+all the way to the LMA. This reduces latency and backhaul load.
+Applications such as voice can benefit from the reduced latency.
+
+Bulk Refresh: a specification of improving the signaling load for
+binding lifetime refresh. The current specifications call for the
+handling of each mobility session independent of each other. When a
+large number of hosts are served by a single MAG, a periodic refresh of
+the binding lifetimes can lead to a signaling storm. The purpose of the
+Bulk Refresh feature is to construct a protocol feature that allows such
+refreshes to occur on a per-MAG basis.
+
+LMA Redirection: a specification for allowing an LMA to redirect a MAG
+to another LMA. This is primarily needed as a way to perform load
+balancing. This functionality is complementary to implementation
+techniques that allow distributed MAG implementations to move tasks
+around without a visible impact at the protocol level, and the
+initial LMA discovery work in the NETLMM WG. An applicability statement
+describing the situations where the new functionality is or is not
+applicable has to be included in the specification.
+
+The work in this charter is entirely internal to the network and does
+not affect hosts in any way (except perhaps through impacting packet
+forwarding capacity visible to the hosts).
+
+The proposed activity will be complementary to the existing IETF Working
+Groups, notably the NETLMM and MEXT WGs. The NETEXT working group will
+also act as the primary forum where new extensions on top of the Proxy
+Mobile IPv6 protocol can be developed. The addition of such new
+extensions to the working group involves addition of the extension to
+this charter through the normal rechartering process.
+
+This initial charter excludes a number of possible work items that were
+discussed in the March 2009 BOF. The working group should continue the
+discussion about a possible update of its charter and principles under
+which the new work items must operate under. The completion of the work
+items in the initial charter is not a requirement for the rechartering
+to become possible.

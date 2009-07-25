@@ -1,0 +1,45 @@
+The formation of the Remote Conferencing Working Group is in response
+to the need to collect together the bits and pieces necessary to
+conduct collaborative work across the Internet. It is the outgrowth of
+the recognition of a set of requirements and areas of work identified
+at the Santa Fe IETF in November, 1991 and reinforced at the MCNC/NSF
+videoconferencing workshop in December, 1991.
+
+The purpose of the Remote Conferencing Working Group is to serve as a
+focal point for the many research activities required to bring remote
+conferencing over the Internet to a reality and to ensure that a
+complete end-to-end OPEN architecture is produced that will enable the
+many functional implementations required for remote conferencing to
+become a commonplace occurrence among the Internet community members.
+The architecture will address both the workstation and conference room
+environments and, in addition to video and audio, will cover other
+media commonly used in local conferencing such as data, text, still
+images and CD-ROM.  In general, the varied forms of conferencing that
+can be integrated into user workstations and desktops will be covered.
+
+Specific milestones for this WG are aggressive and defined through
+March, 1993. Some likely areas of work are listed for timeframes
+beyond then and the WG will probably be in existance for several years
+as new technology and increased bandwidth spawn additional
+conferencing application opportunities.
+
+The Remote Conferencing WG will focus on producing the conference
+session architecture, from conference planning/scheduling to
+conference set-up/initiation, maintenance, change, and termination. It
+will address multi-point conferencing in a tightly controlled small
+conference environment and also cover large broadcast type of
+conferences in a loosely controlled environment. The Working Group
+will also be a focal point for equipment manufacturers who develop
+products such as codecs, workstations and routers. Standards and
+interoperability are major focus items.
+
+The deliverable will consist of an architecture description,
+supporting protocols, referenced dependent architectures, RFC's,
+standards etc, statement of applications supported and guidelines on
+network resources required. While the Remote Conferencing WG will
+develop portions of the overall architecture, it will depend upon,
+influence, work closely with and integrate the results of related work
+such as the Connection Control Protocol effort at ISI, the
+Audio/Visual Transport WG, IP Multicast and the current research
+efforts on network resource management. The WG will ask for/commission
+additional separate WG activities as required.

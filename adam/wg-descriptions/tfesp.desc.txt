@@ -1,0 +1,6 @@
+The IPSEC protocols are very strong; however, this strength poses 
+problems for other parts of the Internet. For example, many different 
+people have legitimate needs to see port numbers. Network engineers need 
+to understand what sorts of traffic are being carried, firewalls have to 
+enforce security policies, etc. This BoF will discuss variants of ESP 
+that can allow more of the packet to be exposed.

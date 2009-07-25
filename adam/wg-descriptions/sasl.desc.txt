@@ -1,0 +1,52 @@
+The Simple Authentication and Security Layer [RFC4422] provides key
+security services to a number of application protocols including BEEP,
+IMAP, LDAP, POP, and SMTP. The purpose of this working group is to
+shepherd SASL, including select SASL mechanisms, through the Internet
+Standards process.
+
+This group will work to progress the SASL Technical Specification
+toward Draft Standard.
+
+The group has determined that DIGEST-MD5 [RFC2831] is not suitable for
+progression on the Standards Track due to interoperability,
+internationalization, and security concerns. The group will deliver a
+technical specification for a suitable password-based challenge/
+response replacement mechanism for Standard Track consideration.
+
+The replacement mechanism is expected to be "better than" DIGEST-MD5
+from a number of perspectives including interoperability,
+internationalization, and security. The replacement mechanism is not
+expected to (but may) provide a security layer itself, instead relying
+on security services provided at a lower layer (e.g., TLS) and channel
+bindings. The WG is expected to strike a consensus-supported balance
+between the many qualities desired in the replacement. Desired
+qualities include (but are not limited to) negotiated key hardening
+iteration count, downgrade attack protection, and mutual authentication.
+The group intends to consider a number of approaches, including
+draft-newman-auth-scram and draft-josefsson-password-auth, as input.
+Additionally, the WG will deliver a document summarizing its
+DIGEST-MD5 concerns and requesting RFC 2831 be moved to Historic
+status. This document will be based upon draft-ietf-sasl-digest-to-
+historic.
+
+This group will deliver a revised Technical Specification suitable for
+publication as Proposed Standard for the GSS-API family of SASL
+mechanisms. This work will be based upon draft-ietf-sasl-gs2.
+
+The group will produce a successor document for the CRAM-MD5
+specification, RFC 2195. The outcome can be a Standards Track
+specification replacing RFC 2195, an Informational document moving RFC
+2195 to Historic, or an Informational document that documents existing
+implementation practice.
+
+The following areas are not within the scope of work of this WG:
+
+- new features,
+
+- SASL Mechanisms not specifically mentioned above, and
+
+- SASL "profiles".
+
+However, the SASL WG is an acceptable forum for review of SASL-related
+submissions produced by others as long as such review does not impede
+progress on the WG objectives listed above.

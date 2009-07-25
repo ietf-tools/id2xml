@@ -1,0 +1,65 @@
+There is currently no universal standard for printing. Several
+protocols are in use, but each has limited applicability and none can
+be considered the prevalent one.  This means that printer vendors have
+to implement and support a number of different protocols and protocol
+variants.  There is a need to define a protocol which can cover the
+most common situations for printing on the Internet.
+ 
+The goal of this working group is to develop requirements for Internet
+Printing and to describe a model and semantics for Internet Printing.
+
+The further goal is to define a new application level Internet Printing
+Protocol for the following core functions:
+ 
+ - for a user to find out about a printer's capabilities
+ - for a user to submit print jobs to a printer
+ - for a user to find out the status of a printer or a print job
+ - for a user to cancel a previously submitted job
+
+The Internet Print Protocol is a client-server type protocol which
+should allow the server side to be either a separate print server or a
+printer with embedded networking capabilities. The focus of this effort
+is optimized for printers, but might be applied to other output
+devices.  These are outside the scope of this working group.
+ 
+The working group will also define a set of directory attributes that
+can be used to ease finding printers on the network.
+
+The Internet Print Protocol will include mechanisms to ensure adequate
+security protection for materials to be printed, including at a minimum
+mechanisms for mutual authentication of client and server and
+mechanisms to protect the confidentiality of communications between
+client and server.
+
+Finally, the IPP working group will produce recommendations for
+interoperation of LPR clients with IPP servers, and IPP clients with
+LPR servers.  These recommendations will include instructions for both
+the translation of the LPR protocol onto IPP and the translation of the
+IPP protocol onto LPR.  However, there is no expectation to provide new
+IPP features to LPR clients, nor is there an explicit requirement to
+translate LPR extensions to IPP, beyond those features available in the
+4.2BSD UNIX implementation of LPR, and which are still useful today.
+ 
+Other capabilities that will be examined for future versions include:
+ 
+ - security features for authentication, authorization, and policies
+ - notifications from the server to the client
+ - accounting
+ 
+Subjects currently out of scope for this working group are:
+ 
+ - protection of intellectual property rights
+ - fax input
+ - scanning
+   
+The working group shall strive to coordinate its activities with other
+printing-related standards bodies, without the need to be strictly
+bound by their standards definitions. These groups are:
+ 
+ - ISO/IEC JTC 1/SC 18/WG 4 on Document Printing Application (ISO/IEC
+   10175 parts 1 - 3)
+ - The Object Management Group (OMG) on OMG Printing Facility (in
+   development)
+ - IEEE (POSIX System Administration - Part 4: Printing Interfaces)
+ - X/Open (Printing Systems Interoperabilty Specification)
+ - The Printer Working Group

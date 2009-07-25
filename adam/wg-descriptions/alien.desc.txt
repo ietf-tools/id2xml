@@ -1,0 +1,50 @@
+Privacy is becoming a more pressing issue in the Internet 
+architecture. There are several reasons for this, including new or 
+proposed legistlation in various countries, the Internet becoming more 
+ubiquitous and mobile, and changes in people's expectations. 
+Furthermore, there are many different perspectives on network-related 
+privacy, and some of these are based on different expectations with 
+respect to privacy in different countries and cultures.
+
+
+The BOF has three distinct goals:
+
+1. To initiate long-term architectural discussion on privacy within 
+the community. One possible outcome of this would be chartering of a 
+privacy research group at the IRTF. The goal of this work is to define 
+exactly what network-related privacy means and to understand the
+breadth and depth of the problem.
+
+2. To initiate shorter-term work to define how to implement and use 
+the existing protocols in such a way that the privacy-sensitive 
+information, such as a user's more-permanent network-layer identity, 
+is not unnecessarily revealed, thereby compromising their network
+privacy. It is envisioned that a new working group crossing the 
+Security and Internet Areas might be a suitable forum for this work, 
+and that if such a working group is formed, it could also act as a 
+common discussion forum to help in co-ordinating protocol-specific 
+work; see the next item.
+
+3. To briefly discuss some specific needs to modify existing 
+protocols, such as Mobile IP, in order to improve their privacy 
+properties. As a baseline, it is assumed that such work would probably 
+be best conveyed in existing working or research groups, such as MIP4, 
+MIP6 or MOBOPTS, whenever there is an active group for the protocol at
+hand.
+
+The focus of the proposed work will be on protecting communicating 
+parties' privacy against eavesdroppers and other third parties. 
+Therefore, unlinkability of various identifiers used in protocols is 
+an important matter; see below. Focus will be on the internetworking 
+layer (IP protocols) and layers close to it, with less attention paid
+to specific applications or physical layer issues. While it is 
+necessary to understand link layer issues, proposals to change 
+existing link layer protocols or to define new link layer protocols is 
+explicitly out of scope.
+
+Location privacy in the sense of keeping location related information, 
+such as the IP address, of a mobile host private from its active peers 
+is explicitly out of scope. However, location privacy in the sense of 
+keeping a given mobile user's location-related information private 
+from third parties, i.e. hosts and nodes with which the node does *not*
+have active communication with, falls within the proposed scope.

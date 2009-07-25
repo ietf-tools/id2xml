@@ -1,0 +1,52 @@
+The Authentication, Authorization and Accounting Working Group
+focused on the development of requirements for Authentication,
+Authorization and Accounting as applied to network access.
+Requirements were gathered from NASREQ, MOBILE IP, and ROAMOPS
+Working Groups as well as TIA 45.6. The AAA WG then solicited
+submission of protocols meeting the requirements, and evaluated
+the submissions.
+
+This incarnation of the AAA Working Group will focus on development
+of an IETF Standards track protocol, based on the DIAMETER submission.
+
+In this process, it is to be understood that the IETF does not function
+as a rubber stamp. It is likely that the protocol will be changed
+significantly during the process of development.
+
+The immediate goals of the AAA working group are to address the 
+following issues:
+
+- Clarity. The protocol documents should clearly describe the contents
+  of typical messages and the requirements for interoperability.
+
+- Error messages. The protocol should define categories of error 
+  messages, enabling implementations to respond correctly based on the 
+  category. The set of error messages should cover the full range of 
+  operational problems.
+
+- Accounting. The accounting operational model should be described for 
+  each type of network access.
+
+- IPv6. The protocol must include attributes in support for IPv6
+  network access and must be transportable over IPv6.
+
+- Transport. The protocol should be transport independent and must 
+  define at least one mandatory-to-implement transport mapping. Other 
+  transport mappings may also be defined. All transport mappings must 
+  effectively support congestion control.
+
+- Explicit proxy support. The protocol should offer explicit support
+  for proxies, including support for automated message routing, route
+  recording, and (where necessary) path hiding.
+
+- RADIUS compatibility. The protocol should provide improved RADIUS 
+  backward compatibility in the case where only RADIUS attributes are 
+  used or where RADIUS proxies or servers exist in the path.
+
+- Security. The protocol should define a lightweight data object 
+  security model that is implementable on NASes.
+
+- Data model. The proposal should offer logical separation between the
+  protocol and the data model and should support rich data types.
+
+- MIBs. A MIB must be defined, supporting both IPv4 and IPv6 operation.

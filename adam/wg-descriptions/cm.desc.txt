@@ -1,0 +1,5 @@
+The goal of this BOF is to explore chartering a working group to
+develop a congestion management API/service/protocol for sharing 
+congestion state across multiple communication channels between two
+endpoints.  The BOF will also explore whether the service should
+include a generic multiplexing layer.

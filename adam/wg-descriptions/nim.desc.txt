@@ -1,0 +1,22 @@
+As the Internet has grown and flourished, new technologies have been
+developed and deployed at a feverish pace. In the traditional IETF
+operations and management model, the working group developing the
+technology has also defined the data elements (MIB definitions) 
+necessary to monitor and manage the technology. While this has been 
+very successful, it has also led to a divergence of definitions and 
+structures. In many cases similar management elements have been 
+completely reinvented in different working groups because of a lack 
+of awareness. In other cases duplication has occurred because of a 
+subtle variation in the definition of the element or because the 
+relationship between the data element and other elements is new or 
+different.
+
+It is recognized that the major benefit of an information model is
+its ability to reuse previously defined constructs across various
+applications.  In order to see the benefits of an information model, 
+each addition to the model needs to be scrutinized for the reuse of 
+constructs that have already been defined in the model. As such, the 
+primary objective of this BOF is to determine the feasibility of 
+defining an information modeling language for the IETF that organizes 
+information to maximize reuse and provides consistency in the 
+information representation across various protocols and services.

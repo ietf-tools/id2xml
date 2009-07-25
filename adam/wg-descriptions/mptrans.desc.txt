@@ -1,0 +1,16 @@
+Abstract 10/19/94 mw
+MPTN is an architecture that permits applications to run over
+transport networks that are not native to the applications programming 
+interface they use.  For example, FTP and Telnet are sockets 
+applications that expect to use a TCP/IP but MPTN would allow those
+applications to run unchanged over an SNA network (delivered product
+today).  Or, one could run CICS applications or SNA displays/printers
+(or 3270 emulators) over a TCP/IP network.  The key aspects of MPTN are 
+that the applications are full function and completely unchanged.  One 
+can even use MPTN gateways to let SNA (or other type) applications
+communicate across any combination of SNA, TCP, or other networks,
+where the end systems can be in different network types.  MPTN is a 
+software only solution that allows customers to reduce the number of
+logical network transports in their enterprise and therefore reduce
+operational costs, and/or add new applications without having to build
+a parallel network or add new hardware boxes or telco lines.

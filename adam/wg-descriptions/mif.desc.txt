@@ -1,0 +1,54 @@
+Many hosts have the ability to attach to multiple networks
+simultaneously. This can happen over multiple physical network
+interfaces, a combination of physical and virtual interfaces (VPNs or
+tunnels), or even indirectly through multiple default routers being on
+the same link. For instance, current laptops and smartphones typically
+have multiple access network interfaces.
+
+A host attached to multiple networks has to make decisions about default
+router selection, address selection, DNS server selection, choice of
+interface for packet transmission, and the treatment of configuration
+information received from the various networks. Some configuration
+objects are global to the node, some are local to the interface, and
+some are related to a particular prefix. Various issues arise when
+contradictory configuration objects that are global to the node are
+received on different interfaces. At best, decisions about these matters
+have an efficiency effect. At worst, they have more significant effects
+such as security impacts, or even lead to communication not being
+possible at all.
+
+A number of operating systems have implemented various techniques to
+deal with attachments to multiple networks. Some devices employ only one
+interface at a time and some allow per-host configuration of preferences
+between the interfaces but still use just one at a time. Other systems
+allow per-application preferences or implement sophisticated policy
+managers that can be configured by users or controlled externally.
+
+The purpose of the MIF working group is to describe the issues of
+attaching to multiple networks on hosts and document existing practice.
+The group shall also analyze the impacts and effectiveness of these
+existing mechanisms. The WG shall employ and refer to existing IETF work
+in this area, including, for instance, strong/weak models (RFC 1122),
+address selection (RFC 3484), ICE and other mechanisms higher layers can
+use for address selection, DHCP mechanisms, Router Advertisement
+mechanisms, and DNS recommendations. The focus of the working group
+should be on documenting the system level effects to host IP stacks and
+identification of gaps between the existing IETF recommendations and
+existing practice. The working group shall address both IPv4 and IPv6 as
+well as stateless and stateful configuration.
+
+Network discovery and selection on lower layers as defined by RFC 5113
+is out of scope. Also, the group shall not develop new protocol or
+policy mechanisms; recommendations and gap analysis from the group are
+solely based on existing solutions. The group shall not assume any
+software beyond basic IP protocol support on its peers or in network
+nodes. No work will be done to enable traffic flows to move from one
+interface to another. The group recognizes existing work on mechanisms
+that require peer or network support for moving traffic flows such as
+RFC 5206, RFC 4980 and the use of multiple care-of addresses in Mobile
+IPv6. This group does not work on or impact such mechanisms.
+
+Once the group has completed its work items, the IETF can make an
+informed decision about rechartering the working group to define new
+mechanisms or asking other, specialized working groups (such as DHC or
+6MAN) to deal with specific issues.

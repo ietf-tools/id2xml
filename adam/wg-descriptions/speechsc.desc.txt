@@ -1,0 +1,52 @@
+Many multimedia applications can benefit from having Automated Speech
+Recognition (ASR), Text to Speech (TTS), and Speaker Verification (SV)
+processing available as a distributed, network resource. To date, 
+there 
+are a number of proprietary ASR, TTS, and SV API's, as well as two 
+IETF 
+drafts, that address this problem. However, there are serious 
+deficiencies to the existing drafts relating to this problem. In 
+particular, they mix the semantics of existing protocols yet are close 
+enough to other protocols as to be confusing to the implementer.
+
+The speechsc Work Group will develop protocols to support distributed 
+media processing of audio streams. The focus of this working group is
+to develop protocols to support ASR, TTS, and SV. The working group
+will only focus on the secure distributed control of these servers.
+
+The working group will develop an informational RFC detailing the
+architecture and requirements for distributed speechsc control. In 
+addition, the requirements document will describe the use cases 
+driving 
+these requirements. The working group will then examine existing 
+media-related protocols, especially RTSP, for suitability as a 
+protocol 
+for carriage of speechsc server control. The working group will then 
+propose extensions to existing protocols or the development of new 
+protocols, as appropriate, to meet the requirements specified in the 
+informational RFC.
+
+The protocol will assume RTP carriage of media. Assuming 
+session-oriented media transport, the protocol will use SDP to 
+describe 
+the session.
+
+The working group will not be investigating distributed speech 
+recognition (DSR), as exemplified by the ETSI Aurora project. The 
+working group will not be recreating functionality available in other 
+protocols, such as SIP or SDP. The working group will offer changes to 
+existing protocols, with the possible exception of RTSP, to the 
+appropriate IETF work group for consideration. This working group will 
+explore modifications to RTSP, if required.
+
+It is expected that we will coordinate our work in the IETF with the
+W3C Mutlimodal Interaction Work Group; the ITU-T Study Group 16 
+Working 
+Party 3/16 on SG 16 Question 15/16; the 3GPP TSG SA WG1; and the ETSI 
+Aurora STQ.
+
+Once the current set of milestones is completed, the speechsc charter 
+may be expanded, with IESG approval, to cover additional uses of the 
+technology, such as the orchestration of multiple ASR/TTS/SV servers, 
+the accommodation of additional types of servers such as simultaneous 
+translation servers, etc.

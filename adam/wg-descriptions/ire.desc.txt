@@ -1,0 +1,30 @@
+IRE will focus on the future direction the Internet Address Registry
+system should take.  There will be four major goals of IRE, namely:
+ 
+- creation of a document defining the Internet address registry system
+  goals, specifically what role(s) the Internet address registry
+  system should be performing, can perform, and what functions are
+  best performed by other bodies.
+ 
+- creation of a document detailing the administrative structure of
+  the Internet address registry system, including chains of delegation
+  and appeal.
+ 
+- creation of a document which can be used as a skeleton for future
+  Internet Address Registry policies, providing background information
+  to help balance the conflicting goals of allowing for growth and
+  avoiding routing problems.
+ 
+- creation of a document providing guidelines to Internet service
+  providers regarding allocation and assignment policies and the
+  implication of registry allocation policies with respect to service
+  provider address assignments.
+ 
+IRE, having a focus specifically on Internet addresses, is explicitly
+NOT exploring, developing, and/or analyzing domain name registry
+developments or evolution,
+ 
+It is expected that all four objectives of the IRE working group will
+result in documents which will be used in the operational functions of
+the Internet Registry system.
+ 

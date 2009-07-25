@@ -1,0 +1,24 @@
+The Draft Charter (see following text) contains a detailed description 
+of the proposed working group as well as references to the mailing 
+list and its archive. The constituency met in an ad-hoc fashion under 
+the auspices of the SIPPING working group at IETF 62, 63 64. Minutes 
+of those discussions are posted at:
+
+http://www.softarmor.com/sipping/meets/ietf62/notes/notes-dwillis-
+p2padhoc-sipping-62.html
+http://www.softarmor.com/sipping/meets/ietf63/notes/p2p-ad-hoc-
+sipping-ietf63.txt
+http://www.softarmor.com/sipping/meets/ietf64/notes/minutes-p2p-
+sipping-ietf64.txt
+
+Historically, the level of interest in this work gas been very high, 
+with more than 50 people attending the ad-hoc sessions despite their 
+unusual scheduling. There are existing drafts for use cases, 
+requirements, and two different solution approaches in the IETF 
+depository at the time of this request. Some of these documents have
+been revised several times and are beginning to mature.
+
+The most significant challenge the constituency has faced is narrowing 
+its focus to a scope that is manageable in an IETF working group. We 
+believe the following draft charter addresses that focus and has 
+strong consensus in the community.

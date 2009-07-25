@@ -1,0 +1,159 @@
+High Level Overview
+
+The goal of this effort is to standardize mechanisms for supporting 
+network-based IP virtual  private  networks  (NBVPN). NBVPNs are 
+distinguished by the following characteristics :
+
+1. Their operations are outsourced to one or more SPs.
+
+2. They may require support for a separate addressing realm for each 
+   customer. That is, several customers may use the same IP prefixes, 
+   which must be kept distinct for each VPN.
+
+3. They are designed for site to site transport of aggregated traffic. 
+    
+The focus of the WG is the layer 3 mechanisms to be implemented
+within the service provider infrastructure. Through these mechanisms
+user interfaces/configurations are simplified and efficiency of
+resource-sharing and multi-VPN management within provider
+networks is improved. Other types of VPN service support where the
+SP infrastructure is totally unaware of the VPN service existence 
+are out of scope of this WG.
+
+Devices  used  for  NBVPNs  provide independent functions for the
+customer-facing side and the network-facing side.  The  customer-
+facing  side  has  a customer-specific IP forwarding environment,
+tailored for each customer. The network-facing side of the device
+participates  in  the SP network's routing (i.e., runs an IGP and
+IBGP as a standard router would).  Tunnels are  used  for  inter-
+site connectivity. There are at least 3 different tunneling mechanisms
+that are considered within  the  scope  of  this  WG  to  support
+NBVPNs:  MPLS,  GRE  and IPSEC.  Note that IPSEC can be used as a
+tunneling protocol itself or an "inner  wrapper"  within  another
+tunneling  protocol such as MPLS or GRE.  NBVPNs may also support
+traditional L2 tunneling protocols  at  the  network-facing  side
+although  the  use of these tunnels are outside the scope of this
+working group.  A single VPN may make use of a mixture of  tunnel
+mechanisms.   
+
+
+Objectives
+
+The following are the objectives  for  the working group.
+
+o Engage   SPs  to  further  refine  service  requirements  at  the
+  customer-facing side which are the basic assumptions for defining
+  the network-facing side functions and MIBs.
+
+o Engage   SPs  to  further  refine  service  requirements from a
+  Service Provider perspective. That also includes:
+
+  - estimate the possible requirements for scale of such services in 
+    terms of the number of simultaneous NBVPNs within a SP's network
+    and the number of simultaneous NBVPNs which might be needed between 
+    SPs;
+
+  - estimate the possible requirements for frequency of change for
+    NBVPNs.
+
+o Ensure that any proposed technology can meet the estimated scale and
+  frequency of change requirements.
+
+o Specify a framework for Network-Based VPNs, including a common 
+  terminology and taxonomy.
+
+o Take into account IPv4 and IPv6, unicast and multicast and
+  customer sites with either permanent or intermittent connectivity
+  to the service provider.
+
+o Define  and  document existing methods for tunnel multiplexing so
+  that a  single  tunnel  between  two  devices  can  be  used  for
+  tunneling multiple VPNs.
+ 
+o Discuss   the  applicability  of  different  methods  for  tunnel
+  associations.  The issue of tunnel association  includes  devices
+  locating  other devices that are attached to the same VPN, tunnel
+  formation, and tunnel multiplexing.
+
+o Specify statistics and other network management information needed
+  for tunnel operation. For example, to be able to determine when a
+  tunnel's up/down state has changed.
+
+o Specify tunnel restoration parameters as required by the specific
+  tunnel technology.
+
+o Specify  the mechanisms  to  distribute  and populate the customer-
+  specific  forwarding  environment  with  local  and  remote  site
+  routes.
+
+o Specify the mechanisms that  are needed  to distribute  routes to
+  to each customer's site.
+
+o Define methods for inter-AS(SP) VPN interconnect  so  that  VPNs  are
+  able to span multiple ASs (SPs). This includes scalability 
+  and configurability issues for large numbers of inter-provider NBVPNs.
+
+o Define the management of inter-AS(SP) VPN interconnect. This includes
+  scalability and configurability issues for large numbers of 
+  inter-provider NBVPNs.
+    
+o Specify the mechanisms needed for interworking between on demand 
+  customer access techniques (ex. IPSEC tunnels) and edge devices
+  providing the NBVPN service. 
+
+o Specify the security mechanisms to be used to protect the control
+  of NBVPN services and the security mechanisms to protect customer
+  data in NBVPN services.
+
+o Identify and specify the technical means for dynamic provisioning of
+  NBVPN. 
+
+o Specify methods to support VPN-specific SLAs. These  includes  1)
+  the  use of IntServ or DiffServ capabilities combined with IPSEC,
+  GRE and MPLS, and 2) the use of TE capabilities combined  with  MPLS
+  QoS. This objective includes both the customer facing side and the 
+  network facing side.
+
+o Define  the  MIBs  and  management  framework  to  be  used   for
+  configuration  and  management of NBVPNs on a per-device and per-
+  customer basis.
+   
+o Coordinate the effort with other organisations working in the same
+  domain (ex. ITU).
+
+o Take into account the impact on network operations organizations
+  of dealing with very large scale deployments of MBVPNs.  Describe
+  debugging tools and procedures. Define standardized metrics for
+  measuring the performance and heath of NBVPNs.
+
+
+Charter Statement
+
+The working group is responsible for defining and specifying the
+set  of  mechanisms  for supporting network-based virtual private
+networks (NBVPNs). The  work  effort  will  include  a  framework
+document, a service requirement document  and  specific  protocol  
+definitions  with  a  focus on scalability and manageability.
+Scalability and manageability requirements will be based on Service 
+Provider's projections for number, complexity, and rate of change of 
+customer VPNs over the next several years.
+
+It is assumed that the effort will produce a limited number of (but 
+likely more than one) solutions. The  goal of this effort is to
+foster interoperable implementations for each of the specific solutions,
+and commonalities among different solutions to the extent this
+is practical. Standardization will be gauged on SP  support  for  
+the  specific solutions.
+
+The  working group will carefully analyze the threat and security
+aspects of  network-based  VPNs  and  define  a  minimal  set  of
+mandatory  to implement technologies and management mechanisms to
+ensure adequate security and  privacy  of  user  data  in  a  VPN
+environment.
+
+It is not within the scope of this WG to define new base protocol
+machinery, such as new routing protocols, new tunneling  schemes,
+or new security mechanisms specific to the NBVPN application. Should
+the WG require additions or enhancements to existing protocol machinery, 
+the WG will refer requirements to the appropriate WG, rather than 
+undertaking them within the NBVPN WG.

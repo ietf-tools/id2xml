@@ -1,0 +1,36 @@
+Note: There is an additional file storage area at 
+      ftp://standards.nortelnetworks.com/megaco/docs/
+
+      There is a Web interface (up to February 2001 only):
+      http://standards.nortelnetworks.com/archives/megaco.html
+
+The Megaco media gateway control protocol, RFC 3015 (also published as 
+ITU-T Recommendation H.248), was developed by the Megaco Working Group 
+in close cooperation with ITU-T Study Group 16. The protocol responds
+to the requirements documented in RFC 2805.
+
+The Megaco Working Group has identified a large number of corrections
+to the protocol specification in the year and a half since RFC 
+3015/Rec. 
+H.248 was approved. As guardians of the protocol specification, Study 
+Group 16 maintains a record of these corrections in the form of an 
+"Implementor's Guide". Study Group 16 now proposes to issue a new 
+version of Recommendation H.248 incorporating these corrections and a 
+limited number of new protocol features. The current charter includes 
+one package, on naming patterns. If the WG determines that other 
+packages are of general usefulness, an AD and IESG review is needed to 
+permit addition of the package to the charter.
+
+The basic mandate of the Megaco Working Group is to cooperate with the 
+ITU-T in the continuing refinement and evolution of the Megaco/H.248 
+protocol. This specifically includes participation in the development
+of H.248v2 and subsequent versions, creation of packages of general 
+usefulness to users of the protocol, and creation of documents
+providing additional information to the development community on 
+specific aspects of the protocol.
+
+The work of package development for specific applications is 
+specifically excluded from the Working Group's mandate. However, the 
+Megaco list will continue to be a place where such packages can be 
+discussed and refined before being submitted to the IESG for potential 
+publication as individually-submitted RFCs.

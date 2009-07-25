@@ -1,0 +1,46 @@
+The task of the TIP working group is to develop an Internet standard
+two-phase commit protocol specification, to enable heterogeneous
+Transaction Managers to agree on the outcome of a distributed
+transaction, based upon the Internet-Draft TIP protocol specification
+<draft-lyon-itp-nodes-01.txt>.  [Note that since
+<draft-lyon-itp-nodes-01.txt> references a modified version of the
+Session Control Protocol (SCP), the TIP WG will also be responsible for
+progression of SCP to Proposed Internet Standard.]
+
+In many applications where different nodes cooperate on some work,
+there is a need to guarantee that the work happens atomically. That is,
+each node must reach the same conclusion as to whether the work is to
+be completed (committed or aborted), even in the face of failures. This
+behaviour is achieved via the use of distributed transactions,
+employing a two-phase commit protocol (2-pc). The use of distributed
+transactions greatly simplifies distributed applications programming,
+since the number of possible outcomes is reduced from many to two, and
+failure recovery is performed automatically by the transaction service
+(Transaction Manager).
+
+Key requirements to be met are, 1) the 2-pc protocol be independent of
+the application-to-application communications protocol, such that it
+may be used with any application protocol (especially HTTP), and 2) the
+2-pc protocol be simple to implement and have a small working footprint
+(to encourage ubiquitous implementation and offer wide applicability).
+
+The first work item of the group is to develop a requirements document,
+which describes at least one complete scenario in which the TIP
+protocol is intended to be used, and describes the requirements on the
+protocol with regards to:
+
+ - Simplicity
+ - Overhead/Performance
+ - Security
+
+The protocols developed by this working group will be analyzed for
+potential sources of security breach. Identified threats will be
+removed from the protocol if possible, and documented and guarded
+against in other cases.
+
+The Internet-Draft document <draft-lyon-itp-nodes-01.txt> is to be used
+as the input base document for the development of this 2-pc protocol
+specification.
+
+Due to extreme differences in the approach, the group will not consider
+the CORBA OTS specification as a solution to its requirements.

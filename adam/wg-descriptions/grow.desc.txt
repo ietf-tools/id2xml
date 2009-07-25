@@ -1,0 +1,70 @@
+The Border Gateway Protocol (BGP) is fundamental to the operation
+of the Internet. In recent years, occurrences of BGP related
+operational issues have increased, and while overall
+understanding of the default-free routing system has improved,
+there is still a long and growing list of concerns. Among these
+are routing table growth rates, interaction of interior and
+exterior routing protocols, dynamic properties of the routing
+system, and the effects of routing policy on both the size and
+dynamic nature of the routing table. In addition, new and
+innovative uses of BGP, such as the use of BGP as a signaling
+protocol for some types of Virtual Private Networks, have created
+new and unexpected operational issues.
+
+The purpose of the GROW is to consider the operational problems
+associated with the IPv4 and IPv6 global routing systems,
+including but not limited to routing table growth, the effects of
+the interactions between interior and exterior routing protocols,
+and the effect of address allocation policies and practices on
+the global routing system. Finally, where appropriate, the GROW
+documents the operational aspects of measurement, policy,
+security, and VPN infrastructures.
+
+GROW will also advise various working groups, including the IDR
+and RPSEC working groups, with respect to whether it is
+addressing the relevant operational needs, and where appropriate,
+suggest course corrections. Finally, operational requirements
+developed in GROW can also be used by any new working group
+charged with standardizing a next generation inter-domain routing
+protocol.
+
+GOALS:
+-----
+
+(i). Evaluate and develop various methodologies of controlling
+                policy information in order to reduce the effect of
+                prefix sub-aggregates beyond the necessary diameter, so
+                as to reduce the Network Layer Reachability Information
+                (or NLRI; see e.g.,draft-ietf-idr-bgp4-23.txt) load on
+                network infrastructure.
+
+(ii). Document and suggest operational solutions to problematic
+                aspects of the currently deployed routing
+                system. Examples include instability caused by
+                oscillation of MULTI_EXIT_DISC (or MED; see RFC 3345)
+                values.
+
+(iii). Analyze aspects of supporting new applications, including
+                extending existing routing protocols and creating new
+                ones. This includes risk, interference and application
+                fit.
+
+(iv). Determine the effect of IGP extensions on the stability of
+                the Internet routing system.
+
+(v). Document the operational aspects of securing the Internet
+                routing system, and provide recommendations to 
+other     
+                WGs.
+
+
+Some Relevant References:
+-------------------------
+http://www.routeviews.org
+http://bgp.potaroo.net
+http://www.cidr-report.org
+http://www.pch.net/routing/BGP_table_size.ital
+http://moat.nlanr.net/AS
+http://www.apnic.net/stats/bgp
+http://www.merit.edu/ipma
+http://www.caida.org/projects/routing/atoms

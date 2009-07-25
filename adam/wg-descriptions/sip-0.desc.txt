@@ -1,0 +1,28 @@
+   SIP is a candidate for IPng. The purpose of the working group
+   is to finalize the SIP family of protocols, and to foster the early
+   development and experimentation of this protocol.
+
+   There are two major characteristics of the SIP proposal: it is very
+   much a continuation of IP, and it aims at maximum simplicity. A
+   short hand definition of SIP could be ``64-bit IP with useless
+   overhead removed.''
+
+   Following the IP model, SIP uses globally-unique addresses,
+   hierarchically structured for efficient routing. SIP addresses are
+   64 bits long, which is believed to be adequate to scale the Internet up
+   to,  say, thousands of internet-addressable devices in every office,
+   every residence, and every vehicle in the world.
+
+   The quest of simplicity in SIP has been described as parallel to the
+   RISC philosophy. The minimal SIP header contains only those fields
+   which are necessary to achieve our goal: routing packets efficiently
+   in a very large internet. As a result of this design philosophy, the
+   SIP header is much simpler than the IP header. Simplicity
+   facilitates high-performance implementation and increases the
+   likelihood of correct implementation.
+
+   Contrary to several other IPng candidates, the SIP effort is
+   focused mostly on the description of the final state, not on the
+   description of the transition. This is due to a coordination with
+   the IPAE Working Group, which has already engaged an intensive study
+   of transition problems, with SIP in mind as a final state.

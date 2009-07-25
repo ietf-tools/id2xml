@@ -1,0 +1,86 @@
+Mobile IPv6 enables IPv6 mobile nodes to continue a session using
+a given "home address" in spite of changes in its point of
+attachment to the network. These changes may cause delay, packet
+loss, and also represent signaling overhead traffic on the network.
+The MIPSHOP WG has so far worked on two technologies to address
+these issues. Hierarchical Mobile IPv6 (HMIPv6) reduces the amount
+and latency of signaling between a MN, its Home Agent and one or
+more correspondent nodes. Mobile IPv6 Fast Handovers (FMIPv6)
+reduces packet loss by providing fast IP connectivity as soon as
+the mobile node establishes a new point of attachment at a new
+link.
+
+The MIPSHOP WG will continue to work on HMIPv6 and FMIPv6, and
+the necessary extensions to improve these protocols. The MIPSHOP
+WG will also identify missing components that are required for
+deploying these protocols and standardize the necessary extensions.
+The WG will also address using these protocols to provide fast
+handovers for network-based mobility management protocols like
+Proxy Mobile IPv6.
+
+The IEEE 802.21 Media Independent Handover (MIH) working group aims
+at providing services to assist with handoffs between heterogeneous
+link-layer technologies, and across IP subnet boundaries. MIH
+services can be delivered through link-layer specific solutions
+and/or through a "layer 3 or above" protocol. MIPSHOP will define the
+delivery of information for MIH services for this latter case. A L3
+based mechanism to identify a valid information server is also
+required. The MIPSHOP will work on developing a protocol for
+transport of MIH services information and mechanisms for discovering
+the MIH server. Security for the transport of MIH information will
+also be addressed.
+
+The MOBOPTS Research Group in the IRTF is chartered to work on
+optimizations related to Mobile IPv6 and IP handoffs among other
+things. The MIPSHOP WG will take mature proposals from the MOBOPTS
+group and standardize them in the IETF on a case-by-case basis.
+
+The MIPSHOP WG will also consider and standardize optimizations for
+the Mobile IPv6 protocol and IP mobility in general.
+
+Scope of MIPSHOP:
+
+The working group will work on:
+
+1. FMIPv6 Mobile Node - Access Router security using the AAA
+infrastructure
+
+Currently MIPSHOP has produced a standards track protocol for
+setting up security between the mobile node and access router
+for security FMIPv6 signaling messages. However, the protocol
+depends on SeND (Secure Neighbor Discovery) to be available on
+the mobile node and the access router. An alternate mechanism
+that leverages the AAA infrastructure would be useful. Many
+target systems where FMIPv6 is likely to be used use a AAA
+infrastructure to authenticate and authorize network access.
+The working group will work on a Informational document describing
+how the AAA infrastructure could be used for setting up security
+associations between the mobile node and the access router.
+
+2. Prefix Management for point-to-point links with FMIPv6
+
+Using FMIPv6 over point-to-points like requires some additional
+considerations with respect to managing and allocating prefixes
+for the mobile node on these point-to-point links. Therefore
+the WG will work on an Informational document to address the
+issues.
+
+3. Handover optimizations when Proxy Mobile IPv6 is used for
+handovers
+
+Proxy Mobile IPv6 (PMIPv6) is a network-based mobility
+management protocol where a node in the access network, called
+the Mobile Access Gateway (MAG) handles mobility on behalf of
+the mobile node. It has been proposed to use FMIPv6 to
+optimize the handover in terms of reducing the packet loss and
+transferring relevant context from the old MAG to the new MAG.
+The working group will also work on other optimizations like
+the use of a transient binding cache entry for improving a
+PMIPv6-based handover.
+
+4. Work on protocols and extensions for transporting information
+related to IEEE 802.21:
+
+The work includes the layer 3 protocol for transporting MIH
+related information and DHCP and DNS extensions for discovering
+the information servers.

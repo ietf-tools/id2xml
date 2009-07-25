@@ -1,0 +1,13 @@
+The goal of the working group is to define the minimal set of managed
+objects for SNMP-based management of ISDN interfaces. ISDN interfaces
+are supported on a variety of equipment (for data and voice) including
+terminal adapters, bridges, hosts, and routers. The set of objects will
+be consistent with the SNMP framework and existing SNMP standards.
+
+The working group will solicit any existing enterprise-specific MIB
+modules to use as input to the standard MIB. The scope of the MIB is to
+support remote configuration and administration; support all ISDN
+interfaces and switch types; provide statistical information of ISDN
+call activity; a table of ISDN call history; and SNMP traps specific to
+ISDN call activity. RFC 1573 shall be used to define interface layering
+issues.

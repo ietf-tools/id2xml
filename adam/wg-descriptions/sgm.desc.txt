@@ -1,0 +1,24 @@
+A number of people in the Internet community have been advocating that 
+the IETF consider standardizing a method for handling multicast to 
+small 
+groups, where "small" is generally understood to be in the range of 
+3-10 
+or so participants. The rationale for this is twofold:
+
+1) there are alleged to be a number of very important applications 
+which
+have a small numbers of participants per group (e.g. classic audio and 
+video conferencing, collaboration tools, etc.) with an extremely large 
+number of such groups simultaneously active on the Internet.
+
+2) Existing IP multicast methods, including newer specialized schemes 
+like Source Specific Multicast (SSM) are generally thought to have 
+scaling problems when there are a very large nubmer of groups, because 
+of per-group state in all the intermediate routers.
+
+Because of the range of possible approaches to this problem and the
+potential widespread impact on portions of the IP protocol suite, 
+router
+implementation, operational practices, etc. of the Internet, the BoF is
+being jointly hosted by the Routing and Internet areas, and will be 
+chaired by Randy Bush of the OPS area.

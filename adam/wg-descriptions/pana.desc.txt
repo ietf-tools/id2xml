@@ -1,0 +1,94 @@
+In some scenarios, an IP-based device is required to authenticate
+itself to the network prior to being authorized to use it. This
+authentication usually requires a protocol that can support various
+authentication methods, dynamic service provider selection, and
+roaming clients. In the absence of such an authentication protocol on
+most of the link-layers, architectures have resorted to filling the gap
+by using a number of inadequate methods. For example, inserting an
+additional layer between link-layer and network-layer mostly for client
+authentication purpose (e.g., PPPoE), overloading another network-layer
+protocol to achieve this goal (e.g., Mobile IPv4 with Registration-
+required flag), and even defining application-layer ad-hoc
+authentication mechanisms (e.g., http redirects with web-based login).
+In these and other cases, a network-layer authentication protocol may
+provide a cleaner solution to the authentication problem.
+
+The goal of PANA is to define a protocol that allows clients to
+authenticate themselves to the access network using IP protocols. Such
+a protocol would allow a client to interact with a site's back-end AAA
+infrastructure to gain access without needing to understand the
+particular AAA infrastructure protocols that are in use at the
+site. It would also allow such interactions to take place without a
+link-layer specific mechanism. PANA would be applicable to both
+multi-access and point-to-point links. It would provide support for
+various authentication methods, dynamic service provider selection,
+and roaming clients.
+
+Mobile IPv4 developed its own protocols for performing PANA-like
+functions (e.g., MN-FA interaction). Mobile IPv6 does not have the
+equivalent of a Foreign Agent (FA) that would allow the access/visited
+network to authenticate the MN before allowing access. The PANA
+authentication agent (PAA) can perform the authentication function
+attributed to the FA in Mobile IPv4, in Mobile IPv6 networks.
+
+The WG will work with the assumption that a PANA client (PaC) is
+already configured with an IP address before using PANA. This IP
+address will provide limited reachability to the PaC until it is
+authenticated with the PAA. Upon successful authentication, PaC is
+granted broader network access possibly by either a new IP address
+assignment, or by enforcement points changing filtering rules for the
+same IP address.
+
+PANA will neither define any new authentication protocol nor define key
+distribution, key agreement or key derivation protocols. It is believed
+that PANA will be able to meet its goals if it is able to carry EAP
+payloads. Note, however, that EAP may need to be extended in order for
+PANA to meet the need for all of its intended usages. Such extensions
+are outside the scope of the PANA WG.
+
+PANA will develop an IP-based protocol that allows a device to
+authenticate itself with the network (and to a PAA in particular) in
+order to be granted network access. The PAA itself may interface with
+other AAA backend infrastructures for authenticating and authorizing
+the service being requested by the host, but such interactions are
+transparent to the PaC.
+
+Network access authentication enables the client to be authorized for
+packet data service. However it is possible that the underlying link
+itself is insecure, i.e the packets being transmitted between the
+client (PaC) and the enforcement point (EP) in the network are not
+protected by any physical or cryptographic means. In such cases,
+PANA will enable the establishment of an IPsec SA between the PaC
+and the EP (a router) to enable access control. In networks that
+have physical security or ciphering as a link-layer feature, no
+such SA is required. Hence the establishment of the IPsec SA is
+optional. The WG will deliver a document that explains how such
+an IPsec SA is established by using IKE after successful PANA
+authentication. No enhancements to either IKE or IPsec are expected.
+
+The PAA does not necessarily act as an enforcement point (EP) to
+prevent unauthorized access or usage of the network. When a PaC
+succesfully authenticates itself to the PAA, EP(s) (e.g., access
+routers) will need to be suitably notified. SNMP will be used
+by the PAA to deliver the authorization information to one or
+more EPs when the PAA is separated from EPs. The WG will document
+the solution based on SNMP for carrying the authorization information
+between the PAA and the EP.
+
+The WG will also propose a solution of how the PaC discovers
+the IP address of PAA for sending the authentication request.
+
+The PANA WG will deliver
+
+- A mechanism for the PAC to discover the PAA on the link.
+
+- The PANA protocol itself, capable of carrying multiple authentication
+methods (e.g. using EAP)
+
+- A document that describes how SNMP is used to deliver authorization
+information from the PAA to the EP in the scenarios where the PAA
+and EP are separated.
+
+- A document that explains the establishment of an IPsec SA between
+the client and a router (EP) subsequent to authentication for
+securing the data packets.

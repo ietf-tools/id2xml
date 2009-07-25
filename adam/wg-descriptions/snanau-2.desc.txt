@@ -1,0 +1,18 @@
+The SNA NAU MIB Working Group is chartered to define a set of managed
+objects for SNA Network Accessible Units. These includes PUs(Physical
+Units) such as type 2.0 and 2.1 and LUs(Logical Units) such as type 1,
+2, 3, and 6.2. These objects will be the minimum necessary to provide
+the ability to monitor and control those devices, providing fault,
+configuration, and performance management, and will be consistent with
+the SNMP framework and existing SNMP standards.
+ 
+The working group has completed the MIBs for base SNA NAU functions and
+advanced functions for LU Type 6.2 or APPC (Advanced Program-to-Program
+Communication). With the exception of the current work in enhancing the
+SNA NAU MIB, the focus of the working group will be developing two
+additional MIBs for managing APPN (Advanced Peer-to-Peer Networking)
+and HPR (High Performance Routing) nodes.
+
+The working group will make sure that its work is aligned with the SNA
+DLC MIB Working Group, due to the close relationship between the
+devices being worked on by the two groups.

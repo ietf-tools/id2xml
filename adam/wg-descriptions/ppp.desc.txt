@@ -1,0 +1,9 @@
+The working group is defining the use of serial lines in data
+networks.  While the main intent is to standardize the connection of
+IP networks over point-to-point links, the protocol is being designed
+to be extensible to other network protocols as well.  The protocol
+will provide the capability of establishing the link parameters,
+authentication, link encryption, link testing, as well as control of
+the link while it is up.  The protocol will also allow configuration
+and control of the higher level protocols such as IP, OSI, 802.3
+bridging, and others.

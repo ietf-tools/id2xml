@@ -1,0 +1,58 @@
+The L1VPN Working Group's task is to specify mechanisms necessary for
+providing layer-1 VPN services (establishment of layer-1 connections
+between CE devices) over a GMPLS-enabled transport service-provider 
+network.
+
+The following two service models will be addressed:
+
+1. Basic mode: the CE-PE interface's functional repertoire is limited 
+to
+path setup signalling only. Provider's network is not involved in
+distribution of customer network's routing information.
+
+2. Enhanced mode: the CE-PE interface provides the signaling
+capabilities as in the Basic mode, plus permits limited exchange of
+information between the control planes of the provider and the customer
+to help such functions as discovery of reachability information in
+remote sites, or parameters of the part of the provider's network
+dedicated to the customer.
+
+The WG will work on the following items:
+
+1. Framework document defining the reference network model, L1VPN
+service model, fundamental assumptions, and terminology.
+
+2. Specification of the L1VPN signaling functionality between the
+customer and the provider network to support the basic mode.
+
+3. Specification of the L1VPN signaling and routing functionality 
+within
+the provider network to support the basic mode.
+
+4. OAM features and MIB modules and/or extensions required for the 
+basic
+mode.
+
+5. Specification of the L1VPN signaling and routing functionality
+between the customer and the provider network to support the extended 
+mode.
+
+6. Specification of the L1VPN signaling and routing functionality 
+within
+the provider network to support the extended mode.
+
+7. OAM features and MIB modules and/or extensions required for the
+extended mode.
+
+8. Applicability guidelines to compare the basic and extended modes.
+
+At this point the WG will address the single-AS scenario only. The
+multi-AS/provider scenario may be considered in future.
+
+Protocol extensions required for L1VPN will be done in cooperation with
+MPLS, CCAMP, OSPF, IS-IS, IDR, L3VPN, and other WGs where necessary.
+
+L1VPN WG shall also cooperate with ITU-T SG13 through the established
+IETF process, and use documents Y.1312 and Y.1313 (describing L1VPN
+requirements and network architectures) as input to its design process.
+The documents will be available at the IETF liaison web-site.

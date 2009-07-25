@@ -1,0 +1,15 @@
+
+     The Modem Management Working Group is chartered to define a MIB
+     module for dial-up modems and similar dial-up devices.  This MIB
+     module will provide a set of objects that are the minimum necessary
+     to provide the ability to monitor and control those devices, and
+     will be consistent with the SNMP framework and existing SNMP
+     standards.
+
+     The working group will consider existing specifications including
+     the RS-232--like, Character, PPP and other related MIB
+     modules.  It will consider enterprise-specific MIB modules which
+     support modem-like devices.  The working group will also consider
+     the TSB Study Group 14's work on an OSI CMIS/CMIP object definition
+     for V series DCEs entitled ``Managed Object Template for V-Series
+     DCEs.''

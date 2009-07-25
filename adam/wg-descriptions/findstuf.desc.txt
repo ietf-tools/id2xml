@@ -1,0 +1,14 @@
+A wide array of mechanisms have emerged from the IETF in recent 
+years. Each of them potentially provides a network service or resource
+location information.  Each of these protocols provides a distinct 
+service.  It would be quite useful to the Internet community if 
+guidance could be provided, in the form of a BCP, which taxonomized 
+and stated the applicability domain of these different protocols.
+This BOF will consider a number of different approaches to finding
+stuff on networks.  We will discuss whether it would be fruitful to
+develop a document which suggests where they fit.  This would involve
+developing both terminology and criteria for expressing what these
+protocols are suited for.
+
+It is possible that this BOF will result in sufficient interest to
+author such a BCP document. 

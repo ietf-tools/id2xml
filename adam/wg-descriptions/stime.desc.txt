@@ -1,0 +1,30 @@
+For trust models to be truly portable across the Internet, transactions
+must be anchored so they are comparable.  The one shared commodity that
+can be widely agreed upon is time, and the ability to authenticate the
+source of the time can assist in providing such portability in trust.
+The ability to securely obtain time from authenticated sources is
+thus becoming a key factor in security and non-repudiation.
+
+Current IETF protocols address the distribution of time, and there
+is also a project for the generation of cryptographically protected
+timestamps.  Existing approaches to distributing time are vulnerable
+to external attack and tampering, as these do not take advantage of
+advances in public key infrastructure and cryptographic methods, and
+require distribution of cryptographic keys via nonscalable out-of-band
+means.  Securing time distribution using PKI mechanisms allows the
+process to scale and minimizes risk.
+
+The purpose of this working group is to define the message formats
+and protocols - specifically, modifications to the existing Network
+Time Protocol (NTP) - which are necessary to support the authenticated
+distribution of time for the Internet.  The working group will be
+chartered for a period of 12 months to meet this goal.  Utilization
+of previous research in this area is expected.
+
+Work will concentrate on the Internet-based NTP, to be enhanced with 
+the
+addition of public-key based authentication and security.  The working
+group expects to enhance NTP by way of occasional "setup" interchanges
+between client and time server to establish a shared secret, followed
+by normal NTP interchanges secured via the shared secret.  The output
+of the working group is expected to be a standards-track document.

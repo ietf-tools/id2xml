@@ -1,0 +1,76 @@
+The IKE Mobility working group will focus on the extensions to the
+IKEv2 protocol required to enable its use in the context where there
+are multiple IP addresses per host (multihoming, SCTP) or where the IP
+addresses changes in the control of the IPsec host (mobility and
+roaming).
+
+The main scenario is making it possible for a VPN user to move from
+one address to another without re-establishing all security
+associations, or to use multiple interfaces simultaenously, such as
+where WLAN and GPRS are used simultaneously. It is also intended that
+the extensions produced by the WG would address specific needs related
+to other work in IETF, such as modification of SCTP end points without
+renegotiation of the security associations or the movement of
+IKEv2-based secure connections to enable Mobile IP signaling to take
+place.
+
+An explicit non-goal is the construction of a fully fledged mobility
+protocol. In particular, the WG shall NOT develop mechanisms for the
+following functions:
+
+ o Hiding of mobility from transport layer protocols or applications
+   (beyond what already exists through the use of the tunnel mode). In
+   this respect MOBIKE is different from Mobile IP, HIP, and other
+   mobility protocols.
+
+ o IP address changes done by third parties (NATs, firewalls etc). In
+   particular, MOBIKE shall not replace or modify IKEv2 NAT traversal
+   function. MOBIKE handles IP address changes initiated by one of the
+   endpoints of the security associations. NAT traversal handles other
+   address changes. MOBIKE should not be tightly coupled with the NAT
+   traversal function, but it is necessary to specify in which cases
+   (if any) they can be used together, and how they interact.
+
+ o Opportunistic authentication or other tools for the reduction of
+   configuration effort. The mechanisms specified in this WG are to be
+   designed for the traditional VPN use case only.
+
+ o Any optimization of packet routing paths due to mobility.
+
+ o Load balancing. Multihoming is supported only in the sense of
+   failing over to another interface; sending traffic over multiple
+   addresses using the same SA is not supported.
+
+ o Use of IKEv1.
+
+Work Items
+
+ The goals of the MOBIKE working group are to address the
+ following issues:
+
+ (1) IKEv2 mobile IP support for IKE SAs. Support for changing and
+     authenticating the IKE SA endpoints IP addresses as requested by
+     the host.
+
+ (2) Updating IPsec SA gateway addresses. Support for changing the IP
+     address associated to the tunnel mode IPsec SAs already in
+     place, so that further traffic is sent to the new gateway
+     address.
+
+ (3) Multihoming support for IKEv2. Support for multiple IP addresses
+     for IKEv2 SAs, and IPsec SAs created by the IKEv2. This should
+     also include support for the multiple IP address for SCTP
+     transport. This should also work together with the first two
+     items, i.e those addresses should be able to be updated too.
+
+ (4) Verification of changed or added IP addresses. Provide way to
+     verify IP address either using static information, information
+     from certificates, or through the use of a return routability
+     mechanism.
+
+ (5) Reduction of header overhead involved with mobility-related
+     tunnels. This is a performance requirement in wireless
+     environments.
+
+ (6) Specification of PFKEY extensions to support the IPsec SA
+     movements and tunnel overhead reduction.

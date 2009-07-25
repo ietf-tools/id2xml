@@ -1,0 +1,47 @@
+Providing QoS enabled services across a diffserv enabled network is 
+often closely linked with the negotiation of a Service Level 
+Specification (as defined in draft-ietf-diffserv-new-terms-03.txt) over 
+the administrative boundary where the service is provided.
+
+The SLS BOF will examine whether a Working Group should be chartered to 
+design a formal extensible model for Service Level Specifications and 
+requirements for the negotiation of Service Levels across 
+(administrative) boundaries. Based on input from the BOF a sharply 
+focused proposal with milestones will be submitted, if need be.
+
+The need to have an agreed set of Service Level Specification 
+parameters 
+and semantics is twofold.
+
+A formal, extensible specification would enable automation of the 
+service negotiation process. Providers and customers would benefit from 
+the faster turnaround of service fulfillment. Providers would continue 
+to enjoy flexibility in designing their service offerings, and 
+customers 
+would enjoy independence from their point of attachment.
+
+Second, the design and the deployment of services across a multi-vendor 
+and multi-provider environment requires a standardized set of semantics 
+for Service Level Specifications being negotiated at different 
+locations: (a) between the customer and the service provider (b) within 
+an administrative domain (for intra-domain SLS negotiation purposes) 
+and 
+(c) between administrative domains (for inter-domain negotiation 
+purposes).
+
+While the semantics of the Service Level Specification need to be 
+defined in a vendor-independent, interoperable and scalable manner, the 
+syntax of the specification may be represented in different 
+specification languages, eg., CIM, LDAP schemata, XML DITs, etc. 
+Similarly, while the semantics of message exchanges during service 
+negotiation need to be specified, the actual packet formats may depend 
+on the protocol chosen for such a negotiation.
+
+The notion of customer and provider as used within this description 
+refer to a service requesting and a service offering entity 
+respectively, and does not imply the specification of any particular 
+business model.
+
+The BOF will be used to gain input on the scope of the proposed working 
+group, such that the goal of semantic specification is fulfilled, 
+together with a narrow but representative syntactic set.

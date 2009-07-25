@@ -1,0 +1,18 @@
+Trans- and inter-continental distributed file systems are upon us.  The 
+consequences to the Internet of distributed file system protocol design and 
+implementation decisions are sufficiently dire that we need to investigate 
+whether the protocols being deployed are really suitable for use on the 
+Internet.  There's some evidence that the opposite is true, e.g., some 
+distributed file systems protocols don't checksum their data,
+don't use reasonable MTUs, don't offer credible authentication or
+authorization services, don't attempt to avoid congestion, etc.
+Accordingly, a Working Group on DFS has been formed by the IETF. The
+Working Group will attempt to define guidelines for ways that distributed file
+systems should make use of the network, and to consider whether any
+existing distributed file systems are appropriate candidates for
+Internet standardization.  The Working Group will also take a look at the 
+various file system protocols to see whether they make data more vulnerable.
+This is a problem that is especially severe for Internet users, and a
+place where the IETF may wish to exert some influence, both on vendor
+offerings and user expectations.
+

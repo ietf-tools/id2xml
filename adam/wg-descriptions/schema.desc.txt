@@ -1,0 +1,41 @@
+In order to achieve the goal of interoperable directory services,
+implementors must agree on standard object classes and attribute types.
+There are a growing number of places where schema for Internet Directory
+Services and Internet Operations are being defined. This plethora of 
+schemas makes interoperation difficult, but is unavoidable. A listing 
+service providing a single point of discovery for white-pages schema 
+will promote schema reuse, reduce duplication of effort, and thus 
+promote directory service interoperability.
+
+This working group will create the standards necessary to deploy a 
+schema listing service. This service will be deployed by 1 January 1998. 
+The standards will use the following design criteria:
+
+- Schema are 'listed' rather than 'registered'.
+
+- The process of listing schema will be centralized for the initial
+  deployment.
+
+- The database which provides the listing store will be centrally
+  administered.
+
+These criteria will reduce administrative overhead, reduce the number of
+protocol and process elements which need to be defined, and do not 
+preclude the provision of additional functionality if the community 
+decides it is necessary.
+
+To this end, the work items include:
+
+Determining the minimum namespace for the listing service.
+
+Determining which syntaxes are allowed for listing.
+
+Finding a document editor.
+
+Deciding whether and how to allow modifications and amendments to the 
+listed schema.
+
+Determining the functionality and operational requirements for the 
+listing service.
+
+Determining who has instruction authority over the listing database.

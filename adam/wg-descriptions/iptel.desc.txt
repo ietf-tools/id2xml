@@ -1,0 +1,60 @@
+The focus of the IP Telephony (iptel) group is on the problems related 
+to naming and routing for Voice over IP (VoIP) protocols.
+Naming is accomplished through the use of the tel URI, which specifies 
+a URI for telephone numbers. The tel URI was originally defined in RFC 
+2806, which was developed outside of any IETF working group. The iptel 
+working group is responsible for updating the specification based on 
+extensive experience with the tel URI. It is chartered to develop any 
+extensions to the tel URI, such as support for number portability 
+indicators and trunk groups.
+
+Routing protocols for VoIP allow intermediaries, such as SIP proxies 
+and H.323 gatekeepers, to make call routing decisions based on 
+reachability information learned from peer elements. The iptel group 
+has already defined a protocol, Telephony Routing over IP (TRIP), RFC 
+3219, which solves one aspect of this problem. Specifically, it 
+handles 
+the case where calls need to be routed between domains. It allows for 
+the exchange of routing information between these providers, so that 
+policies can be applied to the resulting data to create a forwarding 
+information base.
+
+However, this protocol does not address all the scenarios of route 
+information exchange between servers. One important scenario is the 
+propagation of routing information between gateways and the signaling 
+servers in front of them. This is also known as "gateway 
+registration". 
+It allows the signaling server to make a routing decision about which 
+gateway to use based on dynamic information about the gateway 
+resources. Vendors have deployed proprietary solutions for this 
+communications interface. A standard is needed. The group will 
+generate 
+a standards track document that defines a protocol (possibly based on 
+TRIP) for this interface.
+
+TRIP and the gateway registration protocol are orthogonal to the 
+DNS-based mechanisms specified in ENUM and RFC 3264. Those mechanisms 
+are used to translate a URI, representing a name, to an address. If 
+that address is a phone number in the telephone network, trip and 
+tgrep 
+can be used to assist in determining the right route (through various 
+gateways) to that number.
+
+The group will also generate a MIB document for TRIP.
+
+Note that the group is not working on elevating TRIP to Draft Standard 
+at this time.
+
+Deliverables:
+
+1. A proposed standard specification for gateway to server route 
+exchange.
+
+2. A proposed standard TRIP MIB specification, based heavily on the 
+existing BGP-4 MIB documents.
+
+3. A standards track update to the tel URI.
+
+4. Standards track extensions to the tel URI for PSTN 
+interoperability, 
+such as number portability and trunk group identification.

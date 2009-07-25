@@ -1,0 +1,16 @@
+The Bridge MIB Working Group is chartered to define a set of managed 
+objects that instrument devices that conform to the IEEE 802.1
+standards for MAC-layer bridges.
+
+This set of objects should be largely compliant with (and even draw 
+from) those objects defined within each of the IEEE 802.1 standards, 
+although there is no requirement that any specific object be present 
+or 
+absent.
+
+The set of objects should not duplicate, nor conflict with any MIB
+object definitions defined by the IEEE 802.1 standards themselves.
+
+The MIB object definitions produced will be for use by SNMP and will 
+be 
+consistent with other SNMP objects, standards, and conventions.

@@ -1,0 +1,35 @@
+The purpose of this group is to develop or adopt procedures, mechanisms 
+and protocols to support user roaming among groups of Internet service 
+providers (ISPs).  This is different from, but related to, the work of 
+the IP Routing for Wireless/Mobile Hosts Working Group (mobileip) in 
+that the roamops group is not concerned  with the movement of hosts or 
+subnets, but of users. Thus far, the group has produced an architectural 
+document describing the basic mechanisms required to support user 
+roaming, a description of several existing roaming implementations and 
+defined a standard username syntax to support roaming.  A repository for
+documentation describing current roaming implementations is also 
+maintained.
+
+In the future, the group will address interoperability among ISPs and 
+roaming users by standardizing such items as network usage data exchange 
+(including the content, format and protocols involved), phone book 
+attributes and exchange/update protocols, authentication and 
+authorization mechanisms and exploring in in depth the security issues 
+involved with roaming.  This work is expected to consist mainly of new 
+or revised procedures and application-layer protocols, in addition to 
+recommendations for the fulfillment of the Internet roaming 
+requirements.
+
+Any and all business issues regarding the operation of an ISP roaming 
+network (such as settlement, business and billing methods) are 
+specifically NOT in the scope of the roamops Working Group and will not 
+be discussed.
+
+The group will work closely with other IETF Working Groups (including 
+mobileip, saag and cat) to identify issues to which the roamops group 
+should attend, as well as to assure that their work does not make 
+roaming unnecessarily difficult or impossible.
+
+The utmost goal of the group will to make sure, by any means necessary,
+that it produces documents of high quality that are useful to the IETF
+community.

@@ -1,0 +1,23 @@
+     The DECnet Phase IV MIB Working Group is chartered to prepare 
+     a recommendation to the IESG evaluating the standards track status  
+     of RFC 1289 (the DECnet Phase IV MIB).
+
+     The recommendation will document implementation, interoperability,
+     and deployment experience.  If this experience suggests that changes
+     should be made to the document, a new draft may be prepared.  The
+     recommendation will report one of four outcomes:
+
+        - That RFC 1289 should be advanced from Proposed to Draft status,
+          without changes (if no problems are found).
+
+        - That a draft prepared by the working group, should replace RFC
+          1289, and be designated a Draft Standard (if only minor
+          changes are made).
+
+        - That a draft prepared by the working group, should replace RFC
+          1289, and be designated a Proposed Standard (if major
+          changes or feature enhancements are made).
+
+        - That RFC 1289 should be designated as Historic (if this
+          technology is problematic).
+

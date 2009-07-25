@@ -1,0 +1,52 @@
+The Internet Open Trading Protocol is an interoperable framework for
+Internet commerce. It is optimized for the case where the buyer and
+the merchant do not have a prior acquaintance and is payment system
+independent. It can encapsulate and support payment systems such as
+SET, Mondex, secure channel card payment, GeldKarte, etc. IOTP is
+able to handle cases where such merchant roles as the shopping site,
+the payment handler, the deliverer of goods or services, and the
+provider of customer support are performed by different Internet
+sites.
+
+The working group will document interoperability experience with
+IOTP version 1 (which has been published as an Informational RFC)
+and develop the requirements and specifications for IOTP version 2.
+Version 2 will make use of an independent Messaging Layer and utilize
+standard XML Digital Signatures. Selection of other items for
+inclusion in version requirements 2 is to be from the following:
+
+- Dynamic Definition of Trading Sequences
+
+- Offer Request Block
+
+- Improved Problem Resolution (extend to cover presentation of
+  signed receipt to customer support party, etc.)
+ 
+- Ability to indicate and handle a payment protocol not
+  tunneled through IOTP
+
+- Support for wallet servers
+
+- Repeated/ongoing payments - Server to Server messages
+
+- The ability to add both fields and attributes to trading blocks
+
+- Collaboration with other protocols such as ECML.
+
+The following is out of scope for IOTP version 2:
+
+- legal or regulatory issues surrounding the implementation of
+  the protocol or information systems using it.
+
+- design of an XML Messaging Layer
+
+The working group will specify a Secure Channel Credit Debit syntax
+that can be used for financial card payments in connection with
+IOTP.
+
+The working group will specify requirements and specifications for
+Generic Rights Trading.
+
+The working group will specify requirements for and then a syntax
+and processing model of ECML (Electronic Commerce Modeling Language)
+V2.

@@ -1,0 +1,88 @@
+The purpose of the WG is to develop an architecture and protocols for 
+the management and operation of server pools supporting highly reliable
+applications, and for client access mechanisms to a server pool.
+
+The WG will define architecture and requirements for management and 
+access to server pools, including requirements from a variety of 
+applications, building blocks and interfaces, different styles of 
+pooling, security requirements and performance requirements, such as 
+failover times and coping with heterogeneous latencies. This will be 
+documented in an Informational RFC.
+
+Scope:
+
+The working group will focus on supporting high availability and
+scalability of applications through the use of pools of servers.  This
+requires both a way to keep track of what servers are in the pool
+and are able to receive requests and a way for the client to bind to
+a desired server.
+
+The Working Group will NOT address:
+
+1) reliable multicast protocols  - the use of multicast for reliable
+   server pooling is optional. Reliable multicast protocols will be 
+   developed by the RMT WG.
+
+2) synchronization/consistency of data between server pool elements,
+   e.g. shared memory 
+
+3) mechanisms for sharing state information between server pool 
+elements
+
+4) Transaction failover.  If a server fails during processing of a
+   transaction this transaction may be lost. Some services may provide
+   a way to handle the failure, but this is not guaranteed.
+
+The WG will address client access mechanisms for server pools,
+specifically:
+
+1) An access mechanism that allows geographically dispersed servers in
+   the pool
+
+2) A client-server binding mechanism that allows dynamic assignment of
+   client to servers based on load balancing or application specific
+   assignment policies.
+
+3) Support of automatic reconfiguration of the client/server binding in
+   case of server failure or administrative changes.
+
+To the extent that new protocols are necessary to support the
+requirements for server pooling, these will be documented in a
+Standards Track RFC on client access to a binding service (i.e. name
+space) protocol.
+
+The WG will also address use of proxying to interwork existing client
+access mechanisms to any new binding service.
+
+The WG will address server pool management and a distributed service to
+support client/server binding, including:
+
+1) A scalable mechanism for tracking server pool membership (incl.
+   registration)
+
+2) A scalable protocol for performing node failure detection,
+   reconfiguration and failover, and otherwise managing the server pool
+   (supporting caching, membership, query, authentication,
+   and security)
+
+3) A distributed service to support binding of clients to servers,
+   based on information specific to the server pool. Given that this
+   service is essential to access the server pool, a high degree of
+   availability is necessary.
+
+4) A means for allowing flexible load assignment and balancing policies
+
+The protocols and procedures for server pool management will be
+documented in a Standards Track RFC.
+
+The WG will address:
+
+- transport protocol(s) that would be supported (eg. UDP, SCTP, TCP)
+
+- any new congestion management issues
+
+- relationship to existing work such as URI resolution mechanisms
+
+Rserpool will consult with other IETF working groups such as Reliable
+multicast, DNS extensions, AAA, URN, WREC and Sigtran as appropriate
+and will not duplicate any of these efforts.

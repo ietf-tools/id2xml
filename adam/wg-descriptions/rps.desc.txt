@@ -1,0 +1,14 @@
+The Routing Policy System Working Group intends to provide 
+standardization of protocols and recommended practices neccesary to 
+support interoperability of the Internet Routing Registry (IRR). The IRR 
+has been in use since 1995 based initially on the RIPE-181 policy
+language.
+
+The activities of the RPS Working Group shall include (1) defining a
+language, referred to as Routing Policy Specification Language(RPSL),for 
+describing routing policy constraints, (2) defining a simple and robust 
+distributed registry model for publishing routing policy constraints, 
+and (3) providing a forum for the discussion of tools for analysing 
+registered policy constraints, for checking global consistency, for 
+generating router configurations, and for diagnosing operational routing 
+problems.

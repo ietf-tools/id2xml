@@ -1,0 +1,20 @@
+In order to communicate among themselves, ad hoc nodes (refer to RFC
+2501) need to configure their network interface(s) with local addresses
+that are valid within an ad hoc network. Ad hoc nodes may also need to
+configure globally routable addresses, in order to communicate with
+devices on the Internet. From the IP layer perspective, an ad hoc
+network presents itself as a L3 multi-hop network formed over a
+collection of links.
+
+The main purpose of the AUTOCONF WG is to describe the addressing model
+for ad hoc networks and how nodes in these networks configure their
+addresses. It is required that such models do not cause problems for ad
+hoc-unaware parts of the system, such as standard applications running
+on an ad hoc node or regular Internet nodes attached to the ad hoc
+nodes. This group's effort may include the development of new protocol
+mechanisms, should the existing IP autoconfiguration mechanisms be found
+inadequate. However, the first task of the working group is to describe
+one practical addressing model for ad hoc networks.
+
+Once this sole work item is completed, the group can be rechartered to
+work on additional issues.

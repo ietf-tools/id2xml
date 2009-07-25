@@ -1,0 +1,61 @@
+The ENUM working group has defined a DNS-based architecture and 
+protocol
+[RFC 3761] by which an E.164 number, as defined in ITU Recommendation
+E.164, can be expressed as a Fully Qualified Domain Name in a specific
+Internet Infrastructure domain defined for this purpose (e164.arpa).
+
+Background:
+
+E.164 numbers are globally unique, language independent identifiers for
+resources on Public Telecommunication Networks that can support many
+different services and protocols. There is an emerging desire for
+network operators to utilize aspects of RFC 3761 to discover points of
+interconnection necessary to terminate communications sessions
+identified by a E164 number,in addition to identifying end point
+protocols and services.
+
+Working Group Revised Goals and Scope:
+
+1. The working group will update RFC 3761 and advance to Draft 
+Standard.
+
+2. The working group will examine and document the use of RFC 3761 to
+facilitate network interconnection for services using E.164 addressing.
+The working group will coordinate its activities with other IETF 
+working
+groups, existing or to be chartered, that are investigating elements of
+peering and or interconnection for VoIP or other services that 
+typically
+use E.164 addressing.
+
+3. The working group will continue examine and document various aspects
+of ENUM administrative and /or operational procedures irrespective of
+whether e164.arpa domain is used.
+
+4. The working group will also examine the use of RFC 3761 technology
+for storing and delivering other information about services addressed 
+by
+E.164 numbers, for example PSTN call routing and signaling data.
+
+5. The Working Group will continue to maintain appropriate contact and
+liaison with other standards bodies and groups, specifically ITU-T SG2,
+to provide technical or educational information and address, as needed,
+issues related to the use of the E.164 numbering plan for services on 
+IP
+networks. In addition the Working Group will continue to encourage the
+exchange of technical information within the emerging global ENUM
+community as well as documentation on practical experiences with
+implementations, alternate technology uses and the administration and
+provisioning of RFC 3761.
+
+6. As described in RFC 3761, the IETF documents and registers the
+Enumservices. While extant, it is the ENUM working group that performs
+the technical review and development of the Enumservices for the
+Internet community. The working group determines whether to advance 
+them
+and how to progress them technically. Coordination with other WGs will
+be taken into account on these.
+
+Other than Enumservices, all proposed deliverables of the working group
+will be discussed with and approved by the Area Directors, who may
+require wider review due to the broad impact of the subject.

@@ -1,0 +1,71 @@
+TCP is currently the Internet's predominant transport protocol. 
+To maintain TCP's utility the IETF has regularly updated both 
+the protocol itself and the congestion control algorithms 
+implemented by the protocol that are crucial for the stability 
+of the Internet. These changes reflect our evolving 
+understanding of transport protocols, congestion control and new 
+needs presented by an ever-changing network. The TCPM WG will 
+provide a venue within the IETF to work on these issues. The WG 
+will serve several purposes: 
+
+* The WG will mostly focus on maintenance issues (e.g., bug 
+fixes) and modest changes to the protocol and algorithms 
+that maintain TCP's utility. 
+
+* The WG will be a venue for moving current TCP specifications 
+along the standards track (as community energy is available 
+for such efforts). 
+
+* The WG will write a document that outlines "what is TCP". 
+This document will be a roadmap of sorts to the various TCP 
+specifications in the RFC series. 
+
+TCPM will take a subset of the work which has been conducted in 
+the Transport Area WG over the past several years. 
+Specifically, some of the WG's initial work will be moved from 
+the Transport Area WG (tsvwg). 
+
+TCPM is expected to be the working group within the IETF to 
+handle TCP changes. Proposals for additional TCP work items 
+should be brought up within the working group. While 
+fundamental changes to TCP or its congestion control algorithms 
+(e.g., departure from loss-based congestion control) should be 
+brought through TCPM, it is expected that such large changes 
+will ultimately be handled by the Transport Area WG (tsvwg). 
+All additional work items for TCPM will, naturally, require the 
+approval of the Transport Services Area Area Directors and the 
+IESG. 
+
+TCP's congestion control algorithms are the model followed by 
+alternate transports (e.g., SCTP and (in some cases) DCCP). In 
+addition, the IETF has recently worked on several documents 
+about algorithms that are specified for multiple protocols 
+(e.g., TCP and SCTP) in the same document. Which WG shepherds 
+such documents in the future will determined on a case-by-case 
+basis. In any case, the TCPM WG will remain in close contact 
+with other relevant WGs working on these protocols to ensure 
+openness and stringent review from all angles. 
+
+Specific Goals: 
+
+* A document specifying a way to share the local "User TimeOut" 
+value with the peer such that TCP connections can withstand long 
+periods of disconnection. 
+
+* The WG is working on an experimental technique to add robustness 
+to TCP against packet reordering having a negative impact on 
+performance. 
+
+* The WG is coming to grips with how to deal with spoofed segments 
+that can tear down connections, cause data corruption or 
+performance problems. To this end the WG is generating an 
+overview document as well as a scheme that mitigates some of the 
+spoofed segment issues using a challenge-response scheme to 
+reduce the probabilities of a connection being impacted. 
+
+* The WG is writing an informational document about the ways in 
+which TCPs can handle ICMP "soft errors". 
+
+* The WG is updating the specification for Explicit Congestion 
+Notification to allow for the use of ECN during part of TCP's 
+three-way handshake to aid performance for short transfers.

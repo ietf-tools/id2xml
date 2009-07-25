@@ -1,0 +1,19 @@
+Goal: establish framework for future IETF work on differential service
+classes on IP networks.
+
+IntServ and RSVP describe an end-to-end session-based model for
+differential service classes.  Doubts have been expressed about the
+scalability of this approach for the global Internet as well as doubts
+about how well these technologies match what Internet users would like to
+see as products from Internet service providers.
+
+Other models of differential service classes exist, with coarser
+granularity (per subscriber, per application class, etc.) These potentially
+rely only on simple mechanisms that implement the integrated services
+classes (local bandwidth management, precedence and TOS bits, WFQ, CBQ,
+etc.).
+
+The BOF will explore the types of differential services that are desired in
+the Internet and in private intranets and thus what directions IETF work
+should take in the area of differential services over IP, now that the basic
+IntServ & RSVP technologies are complete.

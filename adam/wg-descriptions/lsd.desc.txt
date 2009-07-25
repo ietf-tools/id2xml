@@ -1,0 +1,47 @@
+The LDAP Service Deployment working group will explore, discuss, and 
+document solutions for directory deployment issues related to the 
+installed base of LDAP implementations. Specifically, the working group 
+seeks to publish specifications for areas which currently lack concensus 
+on solutions. The areas which the working group will focus on are:
+
+ o guidelines for writers of new schema
+ o locating LDAP directory servers
+ o naming and interconnection guidelines
+ o minimum schema for LDAPv3 white pages (WP) interoperation
+ o schema inconsistencies and mappings
+
+Community needs are causing directory services schema to proliferate. 
+The resulting specifications are sometimes inconsistent in both form and 
+content. These inconsistencies contribute to interoperability problems 
+encountered by users of LDAP technology today. Providing schema writers 
+with guidelines will address inconsistencies of form, providing 
+implementors with better specifications on which to base schema support 
+in their products and services. Documentation of schema inconsistencies 
+and mappings will address existing content inconsistencies, providing 
+guidance for implementors seeking to better cope with the plethora of 
+current, schema-related interoperability problems.
+
+There is also a growing community need for a minimum schema for LDAPv3 
+white pages directory service interoperation. Currently, there are 
+several different and inconsistent meta schema for intended use as a 
+reference in implementing white pages services. While meta schema are 
+valuable models on which to base LDAP-specific mappings of a schema, 
+they are not directly usable by LDAP service implementors today. 
+Publishing an implementor-endorsed, directly usable, standards-track 
+white pages schema for LDAPv3 with extensibility designed into the 
+schema specification, is a requirement for successful deployment of LDAP 
+in the Internet.
+
+The prevailing model for LDAP service deployment, that of implementing 
+LDAP islands, is becoming inadequate for new and emerging uses of LDAP 
+technology. Among the most pressing of requirements associated with 
+these new and emerging uses of LDAP technology is the need for a widely 
+and consistently supported interconnection methodology for LDAP servers.
+Providing LDAP implementors and users with some basic guidance on how to
+locate an LDAP server is the first step. More comprehensive guidance on
+naming and interconnection is also needed. Examples of topics relevant 
+to this more comprehensive scope of guidance are:
+
+ o managing the root naming context for LDAP directories
+ o using of dc-based and X.500-based naming
+ o guidelines for client and server implementors

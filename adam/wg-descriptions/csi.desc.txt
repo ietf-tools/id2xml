@@ -1,0 +1,86 @@
+The Secure Neighbor Discovery (SEND) protocol defined by RFC 3971
+provides security mechanisms protecting different functions of the
+Neighbor Discovery (ND) protocol defined by RFC 2461. This includes
+address resolution (discovering link layer address of another node
+attached to the link), router discovery (discovering routers attached
+to the link), and neighbor unreachability detection (detecting that a
+node attached to the link is no longer reachable). SEND protection of
+address resolution and neighbor unreachability detection functions
+relies on IPv6 address proof-of-ownership and message integrity
+protection provided respectively via Cryptographically Generated
+Addresses (CGAs) and RSA Digital Signatures.
+
+CGAs are defined in RFC 3972, and are extended with a CGA extension
+format defined in RFC 4581, and a support for multiple hash functions
+defined in RFC 4982. While CGAs were originally defined for the SEND
+protocol, they have proved to be a useful security tool in other
+environments too, and its usage has been proposed to secure other
+protocols such as the Shim6 multihoming protocol and the Mobile IPv6
+protocol. While there is very little deployment of SEND to date, there
+are a number of implementations, recommendations in the NIST and DOD
+profiles call for use of SEND, and operating system vendors are
+considering adding SEND to their next releases. As a result, it is
+desirable to review the current state of the SEND and CGA
+specifications, maintain and complement them where necessary. Up to
+date cryptographic algorithms are needed, and the protocols need to be
+able to deal with certain common situations currently not supported.
+
+Specifically, the WG will look at the following issues:
+
+- Develop an informational document analyzing the implications of
+recent attacks on hash functions used by SeND protocol. Current SeND
+specification uses the SHA-1 hash algorithm and does not provides
+support for hash algorithm agility, hence the critical need for
+understanding the impact of the attacks on the SeND protocol. In
+addition, if as a result of the aforementioned analysis it is deemed
+necessary, standard-track extensions to the SeND protocol to support
+multiple hash algorithms will be defined.
+
+- Specify a standards-track CGA and SeND extensions to support
+multiple public key algorithms. As currently defined CGA and SeND can
+only use RSA keys, and they lack support for other public key
+algorithms (e.g. Elliptic Curve Cryptography -- ECC).
+
+- Develop X.509 certificate management tools for SeND. SeND utilizes
+X.509v3 certificates for performing router authorization. It uses the
+X.509 extension for IP addresses to verify whether the router is
+authorized to advertise the mentioned IP addresses. Since the IP
+addresses extension does not explicitly mention what functions the
+node can perform for the IP addresses it becomes impossible to know
+the reason for which the certificate was allowed. In order to
+facilitate issuance of certificates for specific functions, we need to
+encode the functions permitted for the certificate into the
+certificate itself. The WG will develop a certificate profile,
+including a definition of X.509 Extended Key Usage for SeND . In
+addition, the WG will recommend best practices for (1) enrollment, (2)
+revocation checking, and (3) publishing of certificates. This WG will
+ensure that the profile and recommended practices will cover usage by
+hosts in addition to routers. The working group will coordinate this
+activity with the PKIX and SIDR WGs. Prior to IESG submission of
+the certificate profile, the working group will seek input from
+and coordinate with other groups enabling cryptographic identification
+of device-related properties (e.g., IEEE 802.1ar, IEEE 802.16, WiMAX
+Forum, IETF CAPWAP WG).
+
+- Develop a standard track document defining a mechanism to perform
+SeND certificate provisioning for routers. SeND protocol as defined in
+RFC3971 specifies how IPv6 nodes can trust the prefixes advertised by
+a router. The solution is based on the use of the IP Address
+Delegation extension (RFC3779) in X.509 v3 certificates (RFC3280).
+This work will provide the tools require to provision with the
+certificates to the routers in an automatic manner. The working will
+coordinate this activity with the PKIX WG.
+
+- Produce a problem statement document for Neighbor Discovery Proxies
+and then specify standards-track SEND Extensions to support Neighbor
+Discovery Proxies: SEND protocol as currently defined in RFC 3971
+lacks of support for ND Proxies defined in RFC 3775 and RFC 4389.
+Extensions to the SEND protocol will be defined in order to provide
+equivalent SEND security capabilities to ND Proxies.
+
+- Develop an informational document analysing different approaches to
+allow SeND and CGAs to be used in conjunction with DHCP, and making
+recommendations on which are the best suited. Recharter based on the
+result of the analysis.
+
+- Update base specifications (RFC 3971 and 3972).

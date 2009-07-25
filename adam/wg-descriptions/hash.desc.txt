@@ -1,0 +1,48 @@
+Recently, a team of researchers reported that the SHA-1 one-way hash
+function offers significantly less collision resistance than could be
+expected from a cryptographic hash function with an output of 160 bits.
+This result has inspired significant research activities in government
+and academia. Additional information regarding the security of current
+one-way hash functions, as well as proposals for new one-way hash
+functions, are expected. The proposed working group responds to the
+current state of research in this area. However, additional research is
+likely to provide new insights as the working group progresses.
+
+A two-phase approach is envisioned. The second phase will be pursued by
+revising the charter, only after the first phase is finished and if it
+is clear that the international cryptographic community is actively
+participating in the working group.
+
+The first phase will consist of two main areas of work: setting
+requirements for the use of one-way hash functions in IETF protocols,
+and describing ways to make current hash functions more robust. These
+two work items can be done in parallel.
+
+The working group will consider the suitability of one-way hash
+functions for use with IETF protocols. These requirements will be
+published as one or more BCP documents which specify the features and
+characteristics for standards-track one-way hash functions. The BCP
+documents will also identify information that must be included in any
+request for a hash function to be approved on the standards track.
+
+The DSA signature algorithm requires a hash function whose output is 
+160 bits. The working group will consider at least two approaches to
+strengthen one-way hash functions for use in DSA:
+
+1) Truncate a larger one-way hash function output so that it can be
+used as a secure replacement of a shorter one-way hash function
+output.
+
+2) Including a random value in the hash function computation. The
+random block used is transferred as a field in the algorithm
+identifier data structure. This approach is sometimes called a
+"salted" or "randomized" hash function.
+
+The working group may also consider other potential solutions, and one
+or more standards-track mechanism will be selected.
+
+The optional second phase will identify one or more standards-track
+one-way hash functions that fulfill the requirements stated in the BCP
+documents developed in the first phase. Guidance will also be developed
+to assist protocol developers in the selection among the standards-
+track one-way hash functions.

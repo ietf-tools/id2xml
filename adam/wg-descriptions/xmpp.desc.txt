@@ -1,0 +1,50 @@
+The Extensible Messaging and Presence Protocol (XMPP) is an
+technology for the near-real-time exchange of messages and presence
+notifications, where data is exchanged over Extensible Markup Language
+(XML) streams. The original XMPP working group published RFCs 3920-3923.
+
+Implementation and deployment experience since that time has resulted
+in errata, clarifications, and suggestions for improvement to the core
+XMPP specifications (RFCs 3920 and 3921). Some technologies on which
+XMPP depends (e.g., Transport Layer Security and the Simple
+Authentication and Security Layer) have undergone modifications of their
+own, which XMPP needs to track. Finally, the group needs to define a
+sustainable solution to internationalization of XMPP addresses, since
+the approach taken in RFC 3920 (based on stringprep profiles) is limited
+to Unicode 3.2 characters. Both draft-saintandre-rfc3920bis-* and
+draft-saintandre-rfc3921bis-* reflect community input so
+far regarding these modifications, but the group needs to complete this
+work, especially with regard to internationalization. Because of the
+scope of changes involved, it is envisioned that these specifications
+will be cycled at Proposed Standard.
+
+Although RFC 3923 defines an end-to-end signing and encryption
+technology for use by XMPP systems, to date it has not been implemented.
+A goal of the group is to develop an implementable method for end-to-end
+encryption, preferably based on well known and widely deployed security
+technologies.
+
+XMPP uses TLS for encryption and the Simple Authentication and Security
+Layer (SASL) for authentication. In the case of a server-to-server
+stream, XMPP is deployed using TLS and the SASL EXTERNAL mechanism,
+where each peer presents an X.509 certificate. This model introduces
+scaling challenges in multi-domain deployments because RFC 3920 requires
+that a stream cannot be reused for more than one domain, thus
+necessitating multiple TCP connections. The group will work to overcome
+these challenges by defining an optional mechanism for using a single
+connection with multiple identities. It is anticipated that most of the
+work will consist of defining and providing requirements to the TLS and
+SASL working groups.
+
+Many of the core and extended features of XMPP have also been
+implemented in technologies based on the Session Initiation Protocol
+(SIP). To ensure interworking between XMPP systems and SIP systems, a
+number of Internet-Drafts (draft-saintandre-sip-xmpp-*) have been
+produced. The group will define a framework within which this work could
+be completed.
+
+In completing its work, the group will strive to retain backwards
+compatibility with RFCs 3920 and 3921. However, changes that are not
+backwards compatible might be accepted if the group determines that the
+changes are required to meet the group's technical objectives and the
+group clearly documents the reasons for making them.

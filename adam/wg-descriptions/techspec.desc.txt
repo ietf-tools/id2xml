@@ -1,0 +1,17 @@
+The work of the IETF is to discuss, develop and disseminate
+technical specifications to support the Internet's operation.
+An important output of the IETF, then, is published technical
+specifications. As the IETF progresses, documentation and review
+of its requirements for the process and structure of technical
+specification publication is important in order to ensure continued
+support for the IETF's work.
+
+The focus of this discussion is on the constructive enumeration and
+expression of IETF publication requirements, without prejudice as to 
+whether the requirements are currently met or not.
+
+As input to this discussion, draft-mankin-techspec-req has been
+prepared as a first draft of the requirements, based on the IESG's
+experience and perspective in shepherding documents through the
+standards process. The intention going forward is to produce a
+community-reviewed document (BCP or otherwise, as appropriate).

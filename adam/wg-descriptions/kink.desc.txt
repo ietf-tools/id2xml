@@ -1,0 +1,12 @@
+The KINK working group is chartered to create a standards track
+protocol to facilitate centralized key management for IPsec security
+associations as defined in RFC 2401, as an alternative to IKE (RFC 
+2409).  Participating systems will use the Kerberos architecture as
+defined in RFC 1510 (and its successors) for key management. The goal
+of the working group is to produce a streamlined, fast, easily
+managed, and cryptographically sound protocol that does not require 
+public key operations, and is compatible with existing and future 
+Kerberos infrastructures.
+
+The working group will not require changes to either IPsec (RFC 2401), 
+or Kerberos (RFC 1510).

@@ -1,0 +1,21 @@
+Many Web sites that distribute popular, frequently updated content
+experience problems with "flash crowds": thousands of access per
+minute to the same Web page overload the Web server or the network
+link leading to the server. Moreover, with the increasing growth
+of "push" technology, it is likely that these problems will get worse,
+not better. 
+
+It is possible that integrating IP multicast with the 
+transport protocol used by the Web (HTTP) may be used
+both to solve serious existing operational problems like "flash
+crowds", and to avoid creating new problems due to "server push"
+applications. Several applications (i.e. cache stuffing) appear to be
+naturally amenable to use of unreliable multicast. Thus, moving ahead
+on unreliable webcasting will serve to advance these applications as
+well as to potentially provide short-term solutions for other
+applications.
+
+The primary goal of this BOF will be to see if there is enough
+agreement on the problems to be solved, and enough
+interest in moving forward to form a working group on the 
+subject of unreliable multicasting of Web content.

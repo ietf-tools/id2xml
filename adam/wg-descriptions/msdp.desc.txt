@@ -1,0 +1,12 @@
+The MSDP working group will be charged with standardizing MSDP, the 
+Multicast Source Discovery Protocol. MSDP is a near-term solution for 
+connecting shared trees without the need for inter-domain shared trees 
+(it is envisioned that the Border Gateway Multicast Protocol, BGMP, is 
+the long term solution). MSDP is applicable to shared tree protocols 
+such as PIM-SM and CBT, as well as other protocols that keep active 
+source information at the borders (e.g., MOSPF or PIM-DM with DWRs). 
+This working group will interact closely with both MBONED where 
+operational issues arise, and IDMR where necessary for protocol issues.
+
+Finally, it is envisioned that this working group will have a fairly 
+short live span.

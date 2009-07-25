@@ -1,0 +1,49 @@
+In many scenarios, users need to be able to ensure and prove the
+existence and validity of data, especially digitally signed data, in a
+common and reproducible way over a long and possibly undetermined 
+period
+of time.
+
+Cryptographic means are useful, but they do not provide the whole
+solution. For example, digital signatures (generated with a particular
+key size) might become weak over time due to improved computational
+capabilities, new cryptanalytic attacks might "break" a digital
+signature algorithm, public key certificates might be revoked or 
+expire,
+and so on.
+
+Complementary methods covering potential weaknesses are necessary.
+
+Long-term non-repudiation of digitally signed data is an important
+aspect of PKI-related standards. Standard mechanisms are needed to
+handle routine events, such as expiry of signer's public key 
+certificate
+and expiry of trusted time stamp authority certificate. A single
+timestamp is not sufficient for this purpose. Additionally, the 
+reliable
+preservation of content across change of formats, application of
+electronic notarizations, and subsequent notary services require
+standard solutions.
+
+The objective of the LTANS working group is to define requirements, 
+data
+structures and protocols for the secure usage of the necessary archive
+and notary services. First, the requirements for the long-term archive
+will be collected. Based on that information we will develop a protocol
+to access archive services supplying long-term non-repudiation for
+signed documents and define common data structures and formats. Upon
+completion of the archive-related specifications, we will address
+'notary services' in a similar way. The term 'notary services' is not
+clearly defined. The working group will determine which functions need
+standards, including transformation of documents from one format to
+another without losing the value of evidence, electronic notarization,
+and further verification of legal validity of signed documents. We will
+determine the needs via the requirements paper and act upon the results
+accordingly. 
+
+Work done by the IETF Working Groups PKIX, S/MIME and XMLDSIG will be
+used as the basis to define those structures and protocols. For 
+example,
+the Internet-Drafts "Archive Time-Stamps Syntax (ATS)" and "Trusted
+Archive Protocol (TAP)" and RFC 3029, "Data Validation and Certificate
+Server Protocols (DVCS)", contain applicable concepts.

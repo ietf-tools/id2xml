@@ -1,0 +1,45 @@
+Voice over IP (VoIP) and Multi Protocol Label Switching (MPLS) are two
+important emerging technologies.
+
+Carrying voice over IP networks will potentially enable service 
+providers to use a single infrastructure for all services as the IP 
+based data services are beginning to dominate the traffic volumes in 
+public networks. Thus, VoIP is currently generating a lot of interest 
+among the user and provider community.
+
+Multi-Protocol Label Switching, or MPLS, is an emerging technology that 
+is rapidly being adopted, particularly in the service provider markets.
+Currently most attention on MPLS is focused on Internet Traffic
+Engineering.  The motivation for Voice over MPLS is to leverage the new
+features being introduced in MPLS to support voice-over-packet service.
+
+The initial purpose of Voice over MPLS BOF and subsequent effort is to
+define a framework that provides a common reference point for the 
+operation of voice over MPLS and to identify any needed related 
+standardization work.  The objectives of the effort include:
+
+   * Defining an overall framework for the operation of Voice over 
+MPLS,
+
+   * Defining the use of MPLS label-switched-paths (LSPs) as a bearer
+     capability for packetized voice,
+
+   * Identifying any resulting new requirements being placed on voice
+     call control protocols or MPLS signaling protocols, and
+
+   * Defining MPLS specific efficient transport mechanisms for 
+     packetized-voice possibly using link level or LSP level header
+     compression or suppression mechanisms.
+
+The intent is to support all appropriate voice call control protocols
+(e.g., MEGACO, MGCP, and SIP) and MPLS signaling protocols (RSVP and 
+LDP). Note that the terms Voice over IP over MPLS and Voice over MPLS 
+are used interchangeably.
+
+The purpose of the BOF will be to gauge interest in this effort, to see 
+if there is consensus on moving forward, and to reach consensus on the
+direction to be followed.
+
+Attendees should  read the following documents in advance of the BOF:
+
+   * Voice over MPLS Framework, draft-kankkunen-vompls-fw-00.txt

@@ -1,0 +1,28 @@
+The WEIRD working group will develop a set of web pages.  The
+target audience is people new to the IETF and other Internet   
+generalists. Content within the scope of the group includes:
+current IETF WG and BOF activities, dependencies and
+interrelationships among specific IETF WG and BOF activities, BOF
+historical information, IAB / IESG / Secretariat issues and topics
+of interest and their impact.
+
+Content specifically out of scope includes: information
+interpreting trends in Internet engineering and standards;
+IETF-related information that is editorial in nature.
+
+It is thought that by starting with concrete information of
+general interest related to a topic the WG knows well (IETF
+activities), the concept of doing web pages would be well-tested.
+Future evaluations of the process could address the question of
+re-examining the audience or content scope.
+
+Web content will be developed in collaboration with the IETF
+Secretariat using a mix of new material and material from existing
+Web pages and FYI documents.  Information will be presented
+in an online format suitable for the casual Internet user,
+combining text and illustration.
+
+In order to create a historic archive of the online data and to
+make it more accessible to users who may have difficulty with
+online access, the working group will capture at least one
+snapshot of the web pages and publish it as an FYI RFC.

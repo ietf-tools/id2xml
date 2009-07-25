@@ -1,0 +1,96 @@
+Abstract
+This BOF will examine some of the "above DNS" options and 
+alternatives for solving problems with Internationalization and
+Internationalized access to DNS names and related Internet 
+resources.   It will use a collection of existing documents as
+the starting point for any subsequent working group or other
+efforts.
+
+Introduction
+Examination of Internationalization and other issues with the
+DNS has lead many members of the Internet community to the
+conclusion that the DNS is being expected to serve roles and
+support functions for which it is, by design, profoundly
+unsuitable [1]. While not the only issue, the two of these
+desired functions that have received the most attention to date
+is the effort to internationalize domain names [2] and the
+demand that the Internet's primary naming systems be sensitive
+to the requirements of national and international trademark law
+and practices [3].  In that context, strong requirements have
+been expressed that require sensitivity to language issues (not
+merely the sequences of characters/ code points on which the DNS
+is based), ability to differentiate names by locale and area of
+applicability (such as line of business).  Variations in
+spelling, case matching, or character representations or
+similarities also call for a system with some "search and match"
+capability, rather than merely the strict lookup capability of
+the DNS.  And, while the requirement for global uniqueness of
+network identifiers (such as is the case with the DNS) remains
+critical to a seamless, interconnected, Internet, there are
+clearly requirements for named resource searches that are
+completely sensitive to local (or national or regional or
+topical) issues and requirements.
+
+A general architectural model for such a system, using a layered
+model and incorporating the existing DNS for the functions for
+which it was designed and works well was outlined in [4].  This
+model posits two new search mechanisms for finding resources:
+
+* A multihierarchical, faceted, global search system
+
+* A collection of localized search systems (corresponding
+roughly to yellow pages services that may be separated by topic
+as well as by location)
+
+These are described as "sublayer 2" and "sublayer 3" in [5].
+[6] is a specific proposal for implementing the sublayer 2
+service using CNRP [7].
+
+This BOF will consist of:
+* A brief review of the three [sub]layer model and the
+relationship among the layers.
+* Exploration of sublayer 2 options, using [6] as a base.
+* Discussion of whether or not to standardize sublayer 3 and, if
+so, what elements of it.
+* Planning a schedule for fleshing out sublayer 2 and developing
+further documents.
+
+It is assumed that the framework document (now [5]) and its
+successors will remain a design team effort, eventually
+progressing into an Informational or BCP document by four week
+last call.  It is also assumed that, if standardization or
+further framework efforts are needed within sublayer 2 or 3,
+these will be done as separate, per-sublayer, working groups.
+
+Candidate tasks at sublayer 2:
+
+(i) Determination of the minimal facet set and determination
+mechanisms / registries for the controlled vocabulary facets.
+
+(ii) Decisions about search mechanisms (e.g., CNRP or
+otherwise) and appropriate details.
+
+(iii) Understanding and details of distribution, mirroring,
+and caching of data.
+
+Notes:
+
+[1] See draft-klensin-dns-role-01.txt for a more extended
+discussion and RFC 2825 for some additional discussion.
+
+[2] E.g., the efforts of the IDN WG and a number of efforts
+outside the IETF, including MINC, an ICANN Committee, and
+internationalization or localization efforts in a number of
+countries. 
+
+[3] See, e.g., the discussions of Domain Name trademark issues
+and dispute resolution policies at http://ecommerce.wipo.org/.
+
+[4] See RFC 2826.
+
+[5] draft-klensin-dns-search-03.txt (forthcoming, RSN)
+
+[6] draft-mealing-sls-00.txt
+
+[7] Popp, N., M.  Mealling, L. Masinter, K. Sollins. "Context and
+Goals for Common Name Resolution", RFC 2972. October 2000.

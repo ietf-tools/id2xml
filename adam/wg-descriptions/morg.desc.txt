@@ -1,0 +1,53 @@
+The IETF Message Organization extensions Working Group will work on IMAP
+extensions that improve clients' ability to find messages or groups of
+messages in an IMAP mailstore. As a secondary goal, the WG will design
+its extensions so as to minimize client/server round trips and bandwidth
+overhead.
+
+In particular the Working Group is chartered to finalize and publish the
+following IMAP extensions as proposed standards:
+
+(a) A SORT extension specifying new sort criteria for header fields
+containing email addresses. This extension will be based on
+draft-karp-morg-sortdisplay-00.txt.
+
+(b) A SEARCH extension specifying new search criteria for header fields
+containing email addresses.
+
+(c) A LIST extension for returning STATUS information in LIST responses.
+This extension will be based on
+draft-melnikov-imapext-status-in-list-00.txt.
+
+(d) An extension that formalizes a way to return message counters by
+message context using STATUS and SEARCH commands.
+
+(e) An extension that specifies Internet-search-engine-like searching.
+Such searches would be more flexible (and less formally defined) than
+substring-based searches, and may return their results in a significant
+order. They may include "relevance" scores or similar information that
+could be useful to the user.
+
+(f) New collation algorithms such as "ignore whitespace" and "numeric,
+ignoring punctuation". The WG group will determine which collations are
+needed, taking into consideration the needs of the protocols that use
+the collation framework.
+
+(g) An extension that allows searching for messages within a message
+thread. This extension will be based on
+draft-gulbrandsen-imap-inthread-03.txt.
+
+(h) An extension that allows searching of multiple mailboxes at the same
+time (based on draft-melnikov-imapext-multimailbox-search-03.txt), or of
+multiple mailbox views. The WG will determine which approach (mailboxes
+or views) is more suitable as part of its work.
+
+Additional documents may be added this list, but only via a charter
+revision. There must also be demonstrable willingness in the IMAP
+development community to actually implement a given extension before it
+can be added to this charter.
+
+Revising or replacing the base IMAP4rev1 specification (RFC 3501) is out
+of the scope of this WG. This WG will ensure that all extensions it
+proposes take into account any existing problems in the base
+specification of IMAP, and do not make them worse nor make the problems
+harder to address in the future.

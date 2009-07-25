@@ -1,0 +1,40 @@
+The purpose of this BOF is to standardize a reliability protocols that 
+can be used by a general class of applications to:
+
+1) Seamlessly support server pooling
+
+2) Support automatic receiver failover; when the chosen server fails
+   redirect the message to another server
+
+3) Allow implementation of flexible load assignment and balancing
+   policies among servers
+
+4) Allow servers to be added and removed from the pool transparently
+
+5) Support a fully distributed name space for achieving a high degree
+   of fault tolerance
+
+As the target of this effort is to support the requirements of a large 
+class of applications, we will begin by collecting requirements from a
+variety of application areas.  Included in this group are telephony call
+control, location registers and other services.  Architectural 
+considerations are important.  An architectural framework will clarify 
+building blocks - that is a set of easily separable course grained 
+modular components.
+
+To assist in this standardization process, the BOF will begin with
+work on two documents.  The first will describe the requirements for 
+reliable server pooling.  The second will be an architecture framework 
+document. These two documents will be initially submitted as BOF drafts 
+and subsequently proposed as Informational RFCs.
+
+The WG will carry out protocol standardization by composing two RFCs
+that specify:
+
+   - a fault tolerant name translation service
+   - a user interface for name to address translation, load sharing
+     management and fault management.
+
+RSpool will consult with other IETF working groups such as Reliable 
+multicast, DNS extensions and Sigtran as appropriate.  We will not 
+duplicate any of these efforts.

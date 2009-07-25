@@ -1,0 +1,22 @@
+The Commercial Internet Protocol Security Option Working Group is
+chartered to define an IP security option that can be used to pass security
+information within and between security domains.  This new security option
+will be modular in design to provide developers with a single software
+environment which can support multiple security domains.
+
+The CIPSO protocol will support a large number of security domains.  New
+security domains will be registered with the Internet Assigned Numbers
+Authority (IANA) and will be available with minimal difficulty to all
+parties.
+
+There is currently in progress another IP security option referred to as
+IPSO (RFC 1108).  IPSO is designed to support the security labels used by
+the US Department of Defense.  CIPSO will be designed to provide labeling for
+the commercial, US civilian and non-US communities.
+
+The Trusted Systems Interoperability Group (TSIG) has developed a document
+which defines a structure for the proposed CIPSO option.  The working group 
+will use this document as a foundation for developing an IETF CIPSO
+specification.
+
+

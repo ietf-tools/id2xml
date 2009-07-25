@@ -1,0 +1,22 @@
+This BOF is to introduce a new "Packetization Layer Path MTU Discovery
+Algorithm" and discuss IETF venues that might be used to complete the 
+work.
+
+This new algorithm does not rely on ICMP or other messages from the 
+network (so it is not subject to the problems described in RFC2923).  
+Instead it finds the proper MTU by starting with relatively small 
+packets and searching upwards by probing with test packets.
+
+Key portions of the algorithm need to be implemented in the transport 
+layer. In particular any lost probes should not be treated as 
+congestion 
+signals. For this reason, it can be argued that this work belongs in 
+the 
+TSV area.
+
+Many of the unresolved design issues pertain to the efficient use of 
+shared state between concurrent and successive connections to the same 
+destination. The complexities of the this aspect of the algorithm are 
+due to the huge technological breadth and subtleties of the delivery 
+semantics associated with the network and lower layers.  For this 
+reason, it can be argued that this work belongs in the INT area.

@@ -1,0 +1,76 @@
+The rapid growth of the Internet and the need to control access to
+network resources (bandwidth, routers, hosts, etc.) has quickly
+generated the need for representing, discovering, exchanging and
+managing the policies that control access to these resources in a
+scalable, secured and reliable fashion.
+
+Current IP security protocols and algorithms [RFCs 2401-2412, 2085,
+2104 and 2451] can exchange keying material using IKE [RFC2409] and
+protect data flows using the AH [RFC2402] and/or ESP protocols
+[RFC2406]. The scope of IKE limits the protocol to the authenticated
+exchange of keying material and associated policy information between
+the end-points of a security association.
+
+However, along the path of a communication, there may be
+administrative entities that need to impose policy constraints on
+entities such as security gateways and router filters.  There also is
+a need for end-points of a security association and/or, for their
+respective administrative entities, to securely discover and negotiate
+access control information for the end hosts and for the policy
+enforcement points (security gateways, routers, etc.) along the path
+of the communication.
+
+To address these problems the IPSP Working Group will:
+
+ 1) Specify a repository-independant Information Model for supporting
+    IP security Policies. This model preferrably derives from the 
+    Information Model as defined in the Policy Framework WG.
+
+ 2) Develop or adopt an extensible policy specification language.
+    The language should be generic enough to support policies in
+    other protocol domains, but must provide the necessary security
+    mechanisms that are vital to IPSEC.
+
+ 3) provide guidelines for the provisioning of IPsec policies
+    using existing policy distribution protocols. This includes
+    profiles for distributing IPsec policies over protocols
+    such as LDAP, COPS, SNMP, and FTP,
+
+ 4) adopt or develop a policy exchange and negotiation
+    protocol. The protocol must be capable of: i) discovering
+    policy servers, ii) distributing and negotiating security
+    policies, and; iii) resolving policy conflicts in both
+    intra/inter domain environments. The protocol must be
+    independent of any security protocol suite and key
+    management protocol.  Existing protocol work in the IETF, such as
+    SLP,  will be considered if such protocols meet the requirements
+    of this work.
+
+ 5) Work with the "Policy Terminology" design team to define a common
+    set of terms used in documents in the area of Policy Based
+    (Network) Management.
+
+The proposed work item for this group would yield standards that are
+compatible with the existing IPsec architecture [RFC 2401] and IKE
+[RFC 2409], complementing the standards work achieved by the IPsec
+Working Group. The data model, specification language and exchange
+protocol will evolve from some of the work previously published in the
+following documents:
+
+        draft-ietf-ipsec-policy-model-00.txt
+
+        draft-ietf-ipsec-vpn-policy-schema-00.txt
+
+        draft-ietf-ipsec-spsl-00.txt
+
+        draft-ietf-ipsec-sps-00.txt
+
+        draft-ietf-ipsec-secconf-00.txt
+
+
+This group will also coordinate with other IETF working groups working
+on specifying policies and policies schemas in order to maintain
+compatibility and interoperability. In particular, this working group
+will work closely with the Policy Framework WG to ensure that the
+IPsec Policy Information and data model fits and can be supported
+within the general Policy Framework.

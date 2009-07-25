@@ -1,0 +1,78 @@
+The Services in the PSTN/IN Requesting InTernet Services (SPIRITS) 
+Working Group addresses how services supported by IP network entities 
+can be started from IN (Intelligent Network) requests, as well as the 
+protocol arrangements through which PSTN (Public Switched Telephone 
+Network) can request actions to be carried out in the IP network in 
+response to events (IN Triggers) occurring within the PSTN/IN.  SPIRITS 
+concerns architecture and protocols for secure transport of IN trigger 
+information (requests for actions, as well as plain event 
+notifications, 
+including parameters) from PSTN/IN to the IP network, and optional 
+responses from the IP network back to the PSTN/IN.
+
+The SPIRITS architecture includes, but not limited to, three 
+potentially
+independent entities:
+
+ - the SPIRITS client
+
+ - the SPIRITS server
+
+ - the PSTN/IN requesting system
+
+The SPIRITS client is the entity that requests notification or some 
+actions to be performed in the IP network.  The SPIRITS server is the 
+entity that receives notifications or requests from the PSTN/IN and 
+returns optional responses back to the PSTN/IN, while initiating 
+execution of the services requested in the IP domain.  The SPIRITS 
+server and PSTN/IN requesting sytem both reside in the IP domain, with 
+PSTN/IN entity on the boundary between the IP and PSTN/IN networks.  
+The 
+presence of three independent parties implies a requirement to support 
+complex trust models. Accordingly, the security architecture must 
+support limited trust between the parties.
+
+The parameters passed in any SPIRITS Service request are limited
+to information available from PSTN/IN entities. An example of such a
+service is Internet Call Waiting: on an incoming PSTN call, an IP node
+is notified of the call and can then carry out some actions. Definition 
+of any information or data within the PSTN is the responsibility of the 
+ITU-T and so is out of scope for SPIRITS.
+
+The target of this working group is to describe building blocks for 
+PSTN-IP services that start from PSTN/IN requests, and not to 
+standardize the PSTN-IP services themselves.  The WG will focus on an 
+event-oriented design, rather than a service-oriented design.  Specific 
+services to be considered initially as examples are: (1) Incoming Call 
+Notification (Internet Call Waiting); (2) Internet Caller-Id Delivery; 
+and (3) Internet Call Forwarding and "Follow Me".
+
+SPIRITS will:
+
+o Produce an Informational RFC that describes current practices
+  for supporting the services in question.
+
+o Produce an Informational RFC on the overall architecture of 
+  SPIRITS-type services.
+
+o Develop a Standards Track RFC that specifies a protocol by
+  which PSTN Intelligent Network Service Nodes (or any other
+  node that implements the Service Control Function) can
+  request services of IP hosts, and which can return status
+  indications to the PSTN/IN.
+
+o Consider security and privacy issues relating to providing
+  functions of SPIRITS type. In particular, understand any
+  threats posed by this technology and address them in the
+  proposed standard.
+ 
+o Develop a standards track RFC for a SPIRITS MIB to support the
+  service management protocol between Internet applications and the
+  PSTN/IN Service Management System.  The MIB is to conform to SNMP
+  standards.
+
+SPIRITS will collaborate with other IETF WG's working on similar issues
+and having expertise in PSTN/IP interworking (IPTEL, MMUSIC, PINT, 
+SIP).
+SPIRITS will also establish communication with other relevant standard
+bodies (ITU-T SG11).

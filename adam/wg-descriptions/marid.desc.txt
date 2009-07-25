@@ -1,0 +1,43 @@
+It would be useful for those maintaining domains and networks
+to be able to specify that individual hosts or nodes are authorized
+to act as MTAs for messages sent from those domains or networks.
+This working group will develop a DNS-based mechanism for
+storing and distributing information associated with that 
+authorization.
+
+The primary current use case for this facility is to allow recipient
+MTAs to confirm that peer MTAs' actions are authorized by
+specific domains or networks. This will help combat a certain
+class of domain forgery common in spam. The solution chosen,
+however, should be generally useful for others which might
+check this authorization data.
+
+This working group is being chartered after extensive discussion of
+the issues in the IRTF's Anti-spam Research Group, and it is presumed
+that all active participants will be familiar with the documents 
+produced there which describe the problem. It is not, however, an 
+extension of that research group; it has no general writ to study spam 
+or to produce specifications on the topic. It will not consider 
+anti-spam abatement measures outside of the area of MTA authorization.
+
+Because individual messages may be associated with multiple domains
+(among them the domains present in the RFC2822 From, RFC2822 Sender,
+the SMTP Mail-From, and the SMTP EHLO), the first task of the working
+group will be to establish which of these identities should be
+associated with MTA authorization. Once this decision has been
+reached, it will limit the scope of further activity in this working 
+group, and the chairs will rule out of order discussion related to 
+schemes which use other identities as the basis of authorization.
+
+The groups Technical Advisors will help ensure that the semantics of
+proposals originating within this group are consonant with DNS
+standards and syntax, and they will be available for early cross-review
+to ensure that this work proceeds at an appropriate pace.
+
+Upon chartering of this working group, the IESG intends to request
+that the IRTF Chair and the Chairs of the IRTF's Anti-Spam Research 
+Group seek publication of the listed input documents as Experimental 
+RFCs, so that they are available on an archival basis. The IESG also 
+intends to request that the RFC editor insert a note into each document
+informing the reader that the IETF's MARID working group has taken on
+the task of producing a standard in this area.

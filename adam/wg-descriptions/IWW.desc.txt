@@ -1,0 +1,37 @@
+Wireless technology, including wireless LANs, data transfer over 
+cellular radio (GSM, 3GPP, etc), and mobile operations from aircraft 
+and 
+near earth spacecraft are becoming increasingly important. Some market 
+projections suggest that a mobile Internet in parallel with or 
+augmenting the wired Internet may be comparable in size to the wired 
+Internet as early as 2003.
+
+The wireless operators have not, however, chosen to use IP4, TCP, full
+HTTP/HTML, and other applications for a variety of reasons. These 
+relate 
+to edge device cost, bandwidth limitations, perceived protocol 
+imperfections, unnecessary complexities, the chattiness of the 
+application protocols, and network layer addressing issues. 
+Unfortunately, this creates some serious issues at the wired/wireless 
+demarcation: end to end operation is sacrificed, security is 
+compromised, and automated content modification in some form becomes 
+necessary. The IAB considers these to be serious fundamental issues, 
+which will in time be a serious impediment to the usability of the 
+combined Internet if not addressed.
+
+The IAB, on Feb 29-March 2, held an invitational workshop, hosted by 
+Bob
+Hinden at Nokia. The workshop was to discuss this, determine what the
+legitimate issues are, and make recommendations to the wireless 
+operators, IRTF, and IETF on the architectural road map for the next 
+few 
+years. The fundamental question addressed is "what are the issues, and 
+what really needs to be done to unify the Internet below the 
+application 
+layer." Applications will also need to be addressed, but were perceived 
+to be more than could be usefully discussed in a three-day workshop, 
+and 
+probably require different expertise.
+
+The intent of this BOF is to present a preliminary report on the 
+results, and discuss that report.

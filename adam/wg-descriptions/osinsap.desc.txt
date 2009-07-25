@@ -1,0 +1,58 @@
+The OSI NSAP Guidelines Working Group will develop guidelines for NSAP
+assignment and administration (AKA, the care and feeding of your NSAPs).
+
+Assuming use of existing NSAP address standards, there are two
+questions facing an administration:
+
+\begin{itemize}
+
+\item
+ Do I want to be an administrative authority for allocating NSAPs?
+	\begin{itemize}
+	\item
+        how do I become an administrative authority?
+		\begin{itemize}
+		\item
+          what organizations should expect to be an ``administrative
+            authority'' in the GOSIP version 2.0 address structure?
+		\item
+          where do I go to become an administrative authority?
+		\end{itemize}
+	\item
+        what are the administrative responsibilities involved?
+		\begin{itemize}
+		\item
+           defining and implementing assignment procedures?
+		\item
+          maintaining the register of NSAP assignments.
+		\item
+        what are the advantages/disadvantages of being an
+         administrative authority?
+		\end{itemize}
+	\end{itemize}
+\item
+ Whether NSAPS are allocated from my own or some other
+     administrative authority, what are the technical implications of
+     allocating the substructure of NSAPs?
+
+	\begin{itemize}
+	\item
+        what should be routing domains?
+		\begin{itemize}
+		\item
+          implications of being a separate routing domain (how it will
+            affect routes, optimality of routes, firewalls and
+            information hiding).
+		\item
+          organizing routing domains by geography versus by
+            organization versus by network topology....
+		\end{itemize}
+	\item
+       within any routing domain, how should areas be configured?
+
+		\begin{itemize}
+		\item
+         (same implications as above).
+		\end{itemize}
+	\end{itemize}
+\end{itemize}

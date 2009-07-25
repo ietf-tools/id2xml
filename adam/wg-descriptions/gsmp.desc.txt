@@ -1,0 +1,55 @@
+The base General Switch Management Protocol (GSMPv3) protocol has been
+submitted to the IESG with the request that it become a proposed 
+standard. Currently the GSMP protocol provides switch configuration 
+control and reporting, port management, connection control, QoS and 
+traffic engineering control and the reporting of statistics and 
+asynchronous events for MPLS label switch devices, all either from or 
+to 
+a third party controller.
+
+The working group is responsible for completing the standardization 
+of the GSMP protocol by responding to protocol issues that arise
+during implementation of the current specifications.
+
+Additionally, the working group is responsible for augmenting the
+protocol as follows:
+
+- Support for Optical and Other Extensions and CCAMP Features
+
+The architecture of some optical, TDM, spatial and other switch types
+makes the ability to remotely control the connection state of a switch 
+important.  GSMP has been designed especially for such remote control
+operations.  GSMP is, however,  currently lacking in the specific
+semantics necessary for switches with some new technologies,
+especially in the optical space. The WG will collect requirements and
+define solutions to support optical and other new switching
+technologies, compatibly with the common control and measurement
+protocols WG (CCAMP) work. This work will be done in cooperation with
+the other Sub IP Working groups involved in this area. 
+
+The extensions will include definition of new instances of "labels"
+(for instance lambda identifiers) as needed, to support the usage 
+in the new technologies.  They will also include definitions of port 
+types, of service definitions and of traffic parameters.   
+
+- Switch Partitioning
+
+The current version of GSMP is designed to work with a static switch
+partition. Recently, some regulatory environments (on multiple
+continents) have mandated multi-provider access to the same physical
+infrastructure. The working group will develop extensions to GSMP to
+support dynamic switch portioning. This work would be to adapt GSMP to
+work with multiple partitions in which resource allocation is dynamic
+and variable between the switch partitions. This work would allow
+network operators to dynamically open their forwarders (optical, TDM,
+and other switch types) to multiple administrative domains of control.
+The working group will also see what is achieved by using available
+management tools, e.g. MIBs to monitor and control dynamic switch
+portioning.
+
+- Relationship to Forwarding and Control Element Separation
+
+The WG will conduct a brief (one-meeting) analysis of the potential use 
+of GSMP in mechanisms that allow third party network processors in 
+switch architectures.  The output will be an agreement of the likely 
+scope for a distinct WG that might be using GSMP for this purpose.

@@ -1,0 +1,20 @@
+RIP Version 2 and the Version 2 MIB was approved as a Proposed
+   Standard in January 1993.  They were published as RFC 1388 and RFC 
+1389.
+   Since the mimimum required period has elapsed for a protocol
+   to remain as a Proposed Standard, RIP V2 can now be considered for
+   advancement to Draft Standard.
+
+   The RIP Version 2 Working Group will prepare a recommendation to the
+   IESG evalating the standards track status of RIP Version 2 and the
+   RIP Version 2 MIB.  The recommendation will document implementation,
+   interoperability and deployment experience as required by RFC 1264
+   ``Routing Protocol Criteria.''
+
+   This group is chartered to prepare revisions of ``RIP Version 2''
+	(RFC 1388), ``RIP Version 2 MIB'' (RFC 1389), and the analysis
+	document (RFC 1387) if necessary.
+
+   The RIP Version 2 Working Group is further chartered to evaluate the
+   proposal for ``Routing over Demand Circuits using RIP'' for standards
+   track consideration.

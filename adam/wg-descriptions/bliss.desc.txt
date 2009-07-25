@@ -1,0 +1,143 @@
+The focus of the group is to facilitate effective feature
+interoperability for features sharing common functional primitives
+utilizing SIP in heterogeneous network environments as noted below.
+
+SIP's approach to supporting more advanced features and applications
+has been to specify a number of primitive operations, including refer,
+dialog replacement and joining, and event packages, and then to allow
+those primitives to be combined in many ways to realize different
+features. This approach avoids the need for standardized definitions of
+a feature, which can severely limit innovation and broad 
+applicability.
+
+While this approach brings great flexibility and generality, it
+complicates interoperability. Without any kind of standardized 
+definition of a particular feature, each implementation creates its 
+own definition and corresponding set of call flows and primitives used 
+to realize this feature. In practice, this has resulted in a poor 
+track record for interoperability for more advanced features which 
+make assumptions on supported SIP extensions and behaviors from other 
+elements.
+
+The problem is exacerbated by the desire for these features to work
+across many types of SIP endpoints, including SIP hardphones, 
+softphones, and gateways to the PSTN and other VoIP networks including 
+non-centralized environments, and for the desire to work across domain 
+boundaries and to interwork with the PSTN, when applicable.
+
+The focus will not be on rigorous definition of what the specific 
+feature is and exactly how it works. Rather, the focus will be on 
+documenting the variations that exist in the wild sharing common 
+interop problems, figuring out a minimum baseline requirement for a UA 
+and servers (minimum set of primitives etc.), defining minimum levels 
+of functionality and functional primitives required to realize a broad 
+class of related features, and on interoperating with other elements 
+which might implement one of those features in different ways.
+
+The BLISS working group will coordinate closely with the SIP and 
+SIPPING working groups. Like SIPPING, its role is to focus on 
+applications of  the SIP protocol and not on core extensions to SIP 
+itself. The difference between SIPPING and BLISS, is that BLISS is 
+focused on a particular type of SIP application - call features, and 
+in particular, advanced call features requiring non-trivial call 
+control. SIP applications such as configuration, presence, SIP 
+extensions for IM, and session policy are clearly out of scope for 
+BLISS and remain the sole province of SIPPING. Of course, any features 
+considered by BLISS will support the full range of multimedia 
+supported by SIP - audio, video, text, messaging, and so on.
+
+The BLISS working group will focus on resolving interpretability issues
+on four functional primitives as an initial milestone. Summary for each
+of the functional primitives are as follows.
+
+A "Problem Statement" document will also be charted as the first
+deliverable of this working group. This document will describe the
+problem this working group is trying to address, the criteria to be
+met for items to be accepted and a template for documenting a draft
+for this working group.
+
+Line Sharing
+
+Description: this covers the functionality required for multiple UA 
+instances to be able to see and utilize sessions made to/from either 
+one. It covers a range of features including:
+
+* multiple call appearances
+* call suspend/resume
+* retrieve
+* conference across appearances
+
+Parking
+
+Description: this covers functionality required to move calls from 
+one instance to another without pre-arranged knowledge of the set of 
+instances on which the call is to be shared. Basically a dynamic 
+version of line sharing in a sense.  It would cover features including:
+
+* park
+* parked retrieval
+* directed park
+* directed pickup
+
+Automated Handling
+
+Description: this covers functionality required for a user to 
+indicate, asynchronously from the time of a call, what the handling of 
+a future call should be. It covers the rules on who implements the 
+processing and how it is signaled. Covers features including:
+
+* DND
+* CFU
+* CFNA
+
+
+Call Queuing 
+
+Description: this covers functionality required to queue a call when 
+the callee is not available, handling of a queue and notifying when 
+callee is ready to receive a call. Covers features including:
+
+* CCBS
+* CCNR
+
+Guiding principles for this working group work will include:
+
+- Identify functional primitives with interoperability issues, based 
+on an analysis of variations of features sharing same or similar 
+functional primitives within heterogeneous network(s). Provide a clear 
+description of any interoperability problems that are identified by 
+documenting the variations that exist in the wild for features that is 
+already implemented.
+
+- Document minimum baseline requirements relevant to the functional 
+requirements for addressing the interoperability issue.  Criteria to 
+consider: 
+* who is responsible for invoking?
+* who is responsible for implementing? 
+* how does the functional primitive interact with multiple media types?
+* how does the functional primitive work between administrative 
+domains?
+
+- Initiate analysis of the pros and cons of key approaches to 
+addressing the requirements.
+
+- Where the requirements can be satisfied within the capabilities of 
+the current standards, produce BCPs [and appropriate call-flows] to 
+document the best approach.
+
+- Where normal event packages or SIP uri parameter is all what's 
+needed to prevent interoperability issues, appropriate extensions and 
+its usage would be defined and documented.
+
+- Where extensions to standards are required beyond what's mentioned 
+above, bring the analysis, requirements and need for new extensions to 
+the appropriate working group (SIP, SIPPING or SIMPLE).
+
+- As in the SIPPING charter, the security of all the deliverables 
+will be of special importance.
+
+*Deliverable may attempt to...
+1. Define a single approach to solve the problem.
+2. Allow variations but mandate support for more than one mechanism.
+3. Demonstrate that interoperability is possible even when entities 
+provide the feature with the functional primitive differently.

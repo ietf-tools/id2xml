@@ -1,0 +1,124 @@
+Background/Introduction: 
+
+Well-established fields such as control networks, and burgeoning ones
+such as "sensor" (or transducer) networks, are increasingly being
+based on wireless technologies. Most (but certainly not all) of these
+nodes are amongst the most constrained that have ever been networked
+wirelessly. Extreme low power (such that they will run potentially for
+years on batteries) and extreme low cost (total device cost in single
+digit dollars, and riding Moore's law to continuously reduce that
+price point) are seen as essential enablers towards their deployment
+in networks with the following characteristics:
+
+* Significantly more devices than current local area networks
+
+* Severely limited code and ram space (e.g., highly desirable to fit
+the required code--MAC, IP and anything else needed to execute the
+embedded application--in, for example, 32K of flash memory, using
+8-bit microprocessors)
+
+* Unobtrusive but very different user interface for configuration
+(e.g., using gestures or interactions involving the physical world)
+
+A chief component of these devices is wireless communication
+technology. In particular, the IEEE 802.15.4 standard is very
+promising for the lower (physical and link) layers. As for higher
+layer functions, there is considerable interest from non-IETF groups
+in using IP technology. The IEEE 1451.5 standard for wireless
+transducers has a chapter for 6LoWPAN and the ISA SP100 standard for
+wireless industrial networks has adopted 6LoWPAN for their network
+layer. This working group is expected to coordinate and interact with
+such groups.
+
+Description of Working Group:
+-----------------------------
+
+The Working Group has completed two RFCs: "IPv6 over Low-Power
+Wireless Personal Area Networks (6LoWPANs): Overview, Assumptions,
+Problem Statement, and Goals" (RFC4919) that documents and discusses
+the problem space and "Transmission of IPv6 Packets over IEEE 802.15.4
+Networks" (RFC4944) which defines the format for the adaptation
+between IPv6 and 802.15.4.
+
+The Working Group will generate the necessary documents to ensure
+interoperable implementations of 6LoWPAN networks and will define the
+necessary security and management protocols and constructs for
+building 6LoWPAN networks, paying particular attention to protocols
+already available.
+
+6lowpan will work closely with the Routing Over Low power and Lossy
+networks (roll) working group which is developing IPv6 routing
+solutions for low power and lossy networks (LLNs).
+
+Work Items:
+-----------
+
+1. Produce "6LoWPAN Bootstrapping and 6LoWPAN IPv6 ND Optimizations"
+to define limited extensions to IPv6 Neighbor Discovery [RFC4861] for
+use specifically in low-power networks. This document (or documents)
+will define how to bootstrap a 6LoWPAN network and explore ND
+optimizations such as reusing the structure of the 802.15.4 network
+(e.g., by using the coordinators), and reduce the need for multicast
+by having devices talk to coordinators (without creating a single
+point-of-failure, or changing the semantics of the IPv6 ND
+multicasts).
+This document or documents will be a proposed standard.
+
+2. Produce "6LoWPAN Improved Header Compression" to describe mechanisms
+to allow enhancements to the 6LoWPAN headers. Specifically this 
+document
+will
+describe compression of addresses that are not link-local. Additionally
+this document
+may include other enhancements or optimizations of the HC1 or HC2
+6LoWPAN headers.
+This document will be a proposed standard.
+
+3. Produce "6LoWPAN Architecture" to describe the design and
+implementation of 6LoWPAN networks. This document will cover the
+concepts of "Mesh Under" and "Route Over", 802.15.4 design issues such
+as operation with sleeping nodes, network components (both battery-
+and line-powered), addressing, and IPv4/IPv6 network connections.
+This document will be informational.
+
+4. As a separate Internet Draft, "6LoWPAN Routing Requirements" will
+describe 6LoWPAN-specific requirements on routing protocols used in
+6LoWPANs, addressing both the "route-over" and "mesh-under" approach. 
+This
+document will be created and owned by this working group but is 
+expected to
+be reviewed by the ROLL WG.
+This document will be informational.
+
+5. Produce "Use Cases for 6LoWPAN" to define, for a small set of
+applications with sufficiently unique requirements, how 6LoWPANs can
+solve those requirements, and which protocols and configuration
+variants can be used for these scenarios. The use cases will cover
+protocols for transport, application layer, discovery, configuration
+and commissioning.
+This document will be informational.
+
+6. Produce "6LoWPAN Security Analysis" to define the threat model of
+6LoWPANs, to document suitability of existing key management
+schemes and to discuss bootstrapping/installation/commissioning/setup
+issues. This document will be referenced from the "security
+considerations" of the other 6LoWPAN documents.
+This document will be informational.
+
+The working group will continue to reuse existing protocols and
+mechanisms whenever reasonable and possible.
+
+Non-milestone work items:
+-------------------------
+
+The Working Group will keep two running, often-respun documents:
+-- implementers guide, collecting clarifying information based on
+input from implementers, in particular as it becomes available from
+interoperability events.
+-- interoperability guide, providing information for interoperability
+events, such as temporary interoperability testing strategies or
+information about test harnesses used for interoperability testing.
+
+Both documents will be WG documents, but their disposition is not
+decided at this point (one example for such a document became RFC 4815
+after five years of maintenance and 22 revisions).

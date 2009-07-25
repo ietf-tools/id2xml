@@ -1,0 +1,83 @@
+The NETCONF Working Group has completed a base protocol to be
+used for configuration management.  However, the NETCONF protocol
+does not include a standard content layer.  The specifications do
+not include a modeling language or accompanying rules that can be
+used to model the management information that is to be configured
+using NETCONF. This has resulted in inconsistent syntax and
+interoperability problems. The purpose of NETMOD is to support
+the ongoing development of IETF and vendor-defined data models
+for NETCONF.
+
+NETMOD's requirements are drawn from the RCDML requirements draft
+(draft-presuhn-rcdml) and documents referenced therein.
+
+The WG will define a "human-friendly" modeling language defining
+the semantics of operational data, configuration data,
+notifications, and operations.  This language will focus on
+readability and ease of use.  This language must be able to serve
+as the normative description of NETCONF data models.  The WG will
+use YANG (draft-bjorklund-yang) as its starting point for this
+language.
+
+Language abstractions that facilitate model extensibility and
+reuse have been identified as a work area and will be considered
+as a work item or may be integrated into the YANG document based
+on WG consensus.
+
+The WG will define a canonical mapping of this language to
+NETCONF XML instance documents, the on-the-wire format of
+YANG-defined XML content.  Only data models defined in YANG will
+have to adhere to this on-the-wire format.
+
+In order to leverage existing XML tools for validating NETCONF
+data in various contexts and also facilitate exchange of data
+models and schemas with other IETF working groups, the WG will
+define standard mapping rules from YANG to the DSDL data modeling
+framework (ISO/IEC 19757) with additional annotations to preserve
+semantics.
+
+The initial YANG mapping rules specifications are expressly defined for
+NETCONF modeling.  However, there may be future areas of
+applicability beyond NETCONF, and the WG must provide suitable
+language extensibility mechanisms to allow for such future work.
+The NETMOD WG will only address modeling NETCONF devices and the
+language extensibility mechanisms.  Any application of YANG to
+other protocols is future work.
+
+The WG will consult with the NETCONF WG to ensure that NETMOD's
+decision do not conflict with planned work in NETCONF (e.g.,
+locking, notifications).
+
+While it is desirable to provide a migration path from existing
+MIB modules to YANG data models (modules), it is not a
+requirement to provide full compatibility between SMIv2 and YANG.
+The Working Group will determine which constructs (e.g., conformance
+statements) are not relevant for translation from SMIv2 to YANG. YANG 
+is
+also permitted to introduce constructs that cannot be expressed in
+SMIv2.  However, all basic types that can be represented in SMIv2 must
+be expressible in YANG.
+
+Initial deliverables are below.  The working group may choose to
+combine multiple deliverables into a single document where deemed
+appropriate.
+
+1. An architecture document explaining the relationship
+between YANG and its inputs and outputs. (informational)
+
+2. The YANG data modeling language and semantics (proposed
+standard)
+
+3. Mapping rules of YANG to XML instance data in NETCONF
+(proposed standard)
+
+4. YIN, a semantically equivalent fully reversible mapping to an
+XML-based syntax for YANG.  YIN is simply the data model in an XML
+syntax that can be manipulated using existing XML tools (e.g., XSLT)
+(proposed standard)
+
+5. Mapping rules of YANG to DSDL data modeling framework (ISO/IEC
+19757), including annotations for DSDL to preserve top-level
+semantics during translation (proposed standard).
+
+6. A standard type library for use by YANG (proposed standard)

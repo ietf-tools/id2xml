@@ -1,0 +1,6 @@
+The Site Security Handbook Working Group is chartered to create two 
+  documents: (1) a revised handbook that will help system and network
+  administrators develop their own site-specific policies and procedures 
+  to deal with computer security problems and their prevention and (2) a
+  new handbook for users.  The text of these documents will be developed 
+  from the existing RFC 1244, plus needed revisions and additions.

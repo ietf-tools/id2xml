@@ -1,0 +1,73 @@
+The purpose of host mobility support is to provide continuous Internet
+access to mobile hosts. In contrast to host mobility support, network
+mobility support is concerned with situations where an entire network
+changes its point of attachment to the Internet and thus its
+reachability in the topology. We shall refer to such a network as a
+mobile network (MONET).
+
+
+Network mobility can occur in many different scenarios, including
+networks of sensors deployed in trains, busses, boats, planes, and
+Personal Area Networks (PANs). Sensors are typically used to collect
+information in the mobile network (air pressure, temperature, ...) and
+may need to communicate this information not only to a server on board
+the mobile network, but also to servers in the Internet.  Meanwhile, a
+number of Internet appliances deployed in the mobile network are used
+to collect traffic and navigation data from the Internet. In addition,
+the mobile network deployed in a train or a bus may also provide
+Internet connectivity to the passengers that may wish to connect their
+mobile phone, laptop or the PAN they carry on themselves.
+
+
+The purpose of network mobility support is to provide continuous
+Internet access to all nodes located in the mobile network for
+different types of mobile network. The scenarios outlined above would
+significantly affect the problem definition and raise a number of new
+addressing, routing, and security issues that have not yet been
+considered by traditional work on mobility support, as this BOF will
+try to prove. Several problems will be considering during this BOF,
+for instance:
+
+
+ -  A PAN scenario would, in most cases, imply a small number of
+    devices, on a single subnet and likely to be owned by a single
+    entity. On the other hand, mobile networks on a bus represent a
+    different set of problems. Such instance may in some cases contain
+    severals subnets and a potentially large number of nodes belonging
+    to distinct entities. Several PANs may also exist, connected to
+    one or more Mobile Routers (MRs) on the bus, forming nested mobile
+    networks with several subnets. This questions how different levels
+    of mobility could be handled, how lower levels could be granted
+    access to the Internet via the top-level mobile network, and how
+    multiple dog-leg routing could be avoided.
+
+
+ -  Another dimension of the problem can be seen when considering the
+    speed of mobility. A mobile network on a bus or a train is likely
+    to experience frequent IP handovers, when compared with a mobile
+    network on a plane, connected by satellite to a ground
+    station. The frequency of movement will add certain restrictions
+    on decisions related to allocating addresses to a mobile network,
+    as well as, controlling the frequency of updates.
+
+
+ -  The number of nodes within a mobile network will certainly affect
+    the mobility management scheme (e.g. the number of updates to be
+    sent when MR(s) change their point of attachment within the
+    topology), and whether they should be aggregated (sent by a single
+    entity on behalf of the network) or not.
+
+
+The pre-BOF meeting held at 52th IETF Salt Lake City shown that there
+is a strong interest in the IETF community to work on such issues. It
+is therefore the object of this BOF to define a work context that
+describes the goal we want to achieve and limits the scope of our
+study. We must then identify what constraints limit the implementation
+and the deployment of a potentially and ideally good solution, and
+what requirements solutions must comply to.
+
+
+The work on network mobility support may span and monitor progress and
+place requirements on other working groups, including, but not limited
+to: IPv6, IPSec, MobileIP, PANA, AAA, and possibly SeaMoby and
+MANET WGs.

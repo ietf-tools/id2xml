@@ -1,0 +1,17 @@
+There are a number of content distribution networks (CDNs) deployed 
+and/or planned. Consistent with the general history of internetworking, 
+people are starting to think about ways to interconnect these different 
+CDNs, and talking about "peering at the content level", "CDN peering," 
+or "contentpeering." Regardless of name, the goal is to allow different 
+CDNs -- implemented using differing technology or under different 
+administrative domains -- to cooperate with each other, forming a larger 
+"virtual CDN."
+
+Outline of proposed solution:
+
+Recent discussions have proposed treating a CDN as containing a 
+direction system, a distribution system, and an accounting system. The 
+proposed approach to CDN interoperation is through supporting the 
+transfer of information between the corresponding systems of two peered 
+networks. We propose the development of three protocols or protocol 
+families, one for each of the kinds of systems that can be peered.

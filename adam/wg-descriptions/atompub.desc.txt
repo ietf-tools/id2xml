@@ -1,0 +1,72 @@
+Atom defines a feed format for representing and a protocol for
+editing Web resources such as Weblogs, online journals, Wikis,
+and similar content. The feed format enables syndication; that
+is, provision of a channel of information by representing
+multiple resources in a single document. The editing protocol
+enables agents to interact with resources by nominating a way of
+using existing Web standards in a pattern.
+
+Atom consists of:
+    * A conceptual model of a resource
+    * A concrete syntax for this model
+    * A syndication and archiving format (the Atom
+        feed format) using this syntax
+    * An editing protocol using this syntax
+
+The format must be able to represent:
+    * a resource that is a Weblog entry or article (e.g., it has
+        an author, date, identifier, and content)
+    * a feed or channel of entries, with or without enclosed
+        content
+    * a complete archive of all entries in a feed
+    * existing well-formed XML (especially XHTML) content
+    * additional information in an user-extensible manner
+
+The editing protocol must enable:
+    * creating, editing, and deleting feed entries
+    * multiple authors for a feed
+    * multiple subjects or categories in a feed
+    * user authentication
+    * adding, editing, and deleting users
+    * setting and getting user preferences
+    * creating, getting and setting related resources such as
+        comments, templates, etc.
+
+The working group will use experience gained with RSS (variably
+used as a name by itself and as an acronym for "RDF Site Summary",
+"Rich Site Summary", or "Really Simple Syndication") as the basis
+for a standards-track document specifying the model, syntax, and
+feed format. The feed format and HTTP will be used as the basis
+of work on a standards-track document specifying the editing
+protocol. The goal for the working group is to produce a single
+feed format and a single editing protocol; the working group will
+only consider additional formats or additional protocols if those
+charter changes are approved by the IESG.
+
+The working group will also take steps to ensure interoperability, by:
+    * unambiguously identifying required elements in formats
+    * clearly nominating conformance levels for different types of
+        software
+    * providing clear extensibility mechanisms and constraints upon
+        them
+
+The Atom protocol will be designed to provide security services
+for updating and accessing dynamic online resources. The working
+group will consider current known issues with requirements for
+remote access, along with the fact that many such resources are
+constrained by providers who provide the resource owners with
+little configuration control.
+
+The working group's primary focus will be on delivering an
+interoperable format and corresponding protocol; it is expected
+that all but the most basic, generic metadata and functions will be
+accommodated through extensions, rather than in the core documents.
+
+Extension development is not included in this charter. The working
+group will consider the need to either close or to modify the charter
+and document extensions once the core document set has been approved
+by the IESG.
+
+The working group has two mailing lists: atom-syntax@imc.org for
+discussing the Atom format and atom-protocol@imc.org for discussing the
+protocol.

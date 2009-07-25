@@ -1,0 +1,10 @@
+The major purpose of this group is to coordinate BGP deployment and
+application in the current Internet.
+ 
+It intends to create a forum for BGP users to share BGP deployment
+experiences and also provide a channel for users to communicate with
+router vendors who implemented or who are implementing BGP.  It also intends
+to discuss BGP policy application and coordinate policy implementation
+in the current Internet routing environment which includes defining the
+usage of policy, defining a mechanism to share policy information, etc.
+ 

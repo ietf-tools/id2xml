@@ -1,0 +1,26 @@
+     The AToM MIB Working Group is chartered to define sets of managed
+     objects which will be useful in the management of ATM and SONET
+     equipment (interfaces, networks, and/or services that conform
+     to the relevant ATM and SONET specifications).  The initial sets
+     defined will be:
+
+       - An interface-specific MIB for ATM interfaces, which is aligned with
+         the managed objects for interface layering being defined by the
+         Interfaces MIB Working Group.  The working group should consider 
+         the ATM Forum's ILMI MIB for its suitability in this respect, plus 
+         any extensions necessary to instrument the layers between the ATM
+         layer and the IP layer (e.g., AAL5).  The latter should
+         take into account the work of the IP over ATM
+         Working Group (e.g., the ``Multi-Protocol over AAL5''
+         specification).
+
+       - Managed objects for the monitoring and control of ATM PVCs and
+         SVCs, both in ATM end-points and in ATM switches or networks.
+         (Objects for ATM SVCs will be considered after completion of the
+	 work on ATM PVCs.) 
+
+       - Managed objects that instrument devices with SONET interfaces
+         that conform with the relevant SONET specifications.  This work
+         should closely align to other trunk MIBs (DS1/E1 MIB, DS3/E3 MIB).
+         The working group should consider the existing Internet-Draft SONET
+         MIB for its suitability in this respect.

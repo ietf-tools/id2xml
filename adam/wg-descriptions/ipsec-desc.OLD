@@ -1,0 +1,20 @@
+Rapid advances in communication technology have accentuated the need
+for security in the Internet. The IP Security Protocol Working Group
+(IPSEC) will develop mechanisms to protect client protocols of IP. A
+security protocol in the network layer will be developed to provide
+cryptographic security services that will flexibly support combinations
+of authentication, integrity, access control, and confidentiality.
+
+The protocol formats for the IP Authentication Header (AH) and IP
+Encapsulating Security Payload (ESP) will be independent of the
+cryptographic algorithm. The preliminary goals will specifically pursue
+host-to-host security followed by subnet-to-subnet and host-to-subnet
+topologies.
+
+Protocol and cryptographic techniques will also be developed to support
+the key management requirements of the network layer security. The
+Internet Key Management Protocol (IKMP) will be specified as an
+application layer protocol that is independent of the lower layer
+security protocol. The protocol will initially support public key-based
+techniques. Flexibility in the protocol will allow eventual support of
+Key Distribution Centers (KDC), such as are used by Kerberos.

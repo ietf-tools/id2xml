@@ -1,0 +1,8 @@
+There is significant interest in the use of an IP based Layer 2 device
+Control Protocol to manage and configure service provider access 
+network equipment. This BOF will present a summary of the problem 
+areas and requirements as identified by discussions in the DSL Forum. 
+A set of protocol solution proposals based on modifications and 
+extensions to the GSMPv3 protocol and items for future work will also 
+be presented. Based on the discussion, we will determine whether we 
+should form an IETF WG covering this topic.

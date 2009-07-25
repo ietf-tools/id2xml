@@ -1,0 +1,32 @@
+Internet layer configuration is defined as the configuration required 
+to support the operation of the Internet layer. This includes IP 
+address configuration, default gateway(s), name server configuration, 
+boot configuration (TFTP, NFS), service location and directory 
+configuration, mobility configuration, and time server configuration 
+(NTP).
+
+Configuration is typically performed insecurely today. For example, 
+DHCP is rarely secured due to the need for keys to be set up between 
+clients and servers. In other cases, such as in Mobile IPv6, tools for 
+secure configuration exist and their use is required, but there are 
+deployment barriers.
+
+As a result, Internet Area working groups are exploring alternative 
+solutions. These include use of EAP for use for key derivation, and 
+configuration. For example, the DHC WG has considered employment of 
+EAP-derived keys for use with DHCP security, as defined in RFC 3118 
+and 3315. The MIPv6 WG, in investigating the bootstrapping problem,
+has considered proposals involving use of IKEv2 with EAP, as well as 
+utilization of link layer EAP exchanges for configuration.
+
+The SEND working group defined a certificate-based authorization for 
+routers, where hosts prefer a router that has a certificate traceable 
+to a trusted root configured for the host. SEND also defined zero
+configuration mechanism for secure IP address configuration, based on 
+Cryptographically Generated Addresses (CGAs).
+
+This BOF will provide an overview of Internet layer secure 
+configuration needs, discussing the architectural issues and potential 
+solutions under discussion. The purpose of the BOF is to discuss a 
+common topic that touches several existing Working Groups, and it is 
+not expected that a new working group will be formed as a result.

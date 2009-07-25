@@ -1,0 +1,15 @@
+USENET news (commonly referred to as netnews) is a distributed
+messaging system, implemented as a software system that runs over
+a variety of network protocols (UUCP, NNTP).  The basic unit of
+transmission is the ``article''.  Articles are logically grouped
+(at creation time) into one or more ``newsgroups'', which are
+roughly categorized by content or subject matter.  Currently, all
+widely deployed news transmission protocols are either based over
+TCP or UUCP.
+ 
+The purpose of this meeting is to discuss using multicast IP
+datagrams for the dissemination of netnews articles, along with
+the challenges inherent in adapting connection oriented protocols
+to a connectionless, multicast model.  Particular care in defining
+the multicast news protocol at the packet level will be
+paramount to the success of this group.

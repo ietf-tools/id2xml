@@ -1,0 +1,54 @@
+Several types of access links in widespread use for Internet
+connectivity
+today have characteristics that affect the operation Internet protocols
+and
+services. Low-bandwidth, high latency links patched over telephone 
+lines
+via
+modems are one common example. Radio links in wireless networks (such 
+as
+GSM, IS-95, GPRS and 802.11) are another example. These links often 
+have
+undesirable characteristics such as high loss, high delay and low
+reliability.
+
+
+Transport intermediaries have been used to enhance the performance of
+problematic links in the past (see RFC 3135). This BoF investigates
+further
+work in support of transport intermediaries that provide assistance to
+access links, including (but not exclusively) wireless links, primarily
+in
+the areas of security protocol interaction with transport 
+intermediaries
+and
+response to changing link conditions. In particular, existing
+intermediaries
+used for these purposes interfere with IPSec and may weaken overall
+end-to-end security - work is therefore necessary to determine how to
+request, authenticate and authorize the services of intermediaries, and
+when
+possible to mitigate the interference of intermediaries in security.
+
+
+This work focuses on support for TCP initially but does not preclude
+consideration of other transport-layer protocols. The relationship of
+transport intermediaries to devices constrained by OPES and UNSAF is
+also
+critical to the architectural framework.
+
+
+Reading:
+
+
+http://www.ietf.org/internet-drafts/draft-faynberg-intermediary-transpo
+r
+t-00
+.txt
+(Note that a revised version of this draft will be available soon.)
+http://www.ietf.org/internet-drafts/draft-dawkins-trigtran-framework-00
+.
+txt
+http://www.ietf.org/internet-drafts/draft-dawkins-trigtran-probstmt-01.
+t
+xt

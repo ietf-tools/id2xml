@@ -1,0 +1,44 @@
+This is only an abstract not a submitted charter - md 6/29/92
+
+This BOF will give IETF attendees an opportunity to learn more about the
+OSF organization and the DCE technology.  OSF is a cooperative research
+and development organization chartered under the National Cooperative
+Research Act.  OSF has delivered technologies such as the OSF/Motif
+graphic user interface and the OSF/1 operating system.  OSF's most
+recent technology offering, the Distributed Computing Environment, will
+be of primary interest to attendees.  Since OSF is located in Cambridge,
+we expect to have a number of OSF DCE engineers on hand for the BOF.
+
+The OSF DCE provides a full function integrated platform for developing
+networked applications.  OSF DCE includes both a technology 
+specification,
+available for use by anyone (similar to an RFC), as well as a licensable
+implementation of the system in ANSI C for computers using the UNIX
+operating system.  Many leading computer system manufacturers are
+developing implementations of DCE for their computers.  Target OS
+platforms include OSF/1, AIX, UNIX SVR4, HP-UX, Solaris, Windows, VMS,
+MVS, as well as others.
+
+DCE provides services above the transport layer for use by applications.
+[The DCE implementation is written for the Internet protocol suite, but
+can be easily adapted to use OSI transport protocols.]  DCE is based on
+remote procedure calls, and provides servers and administrative
+tools for network credential management, global namespace management,
+and a distributed file system.  All services are integrated with
+threads, use consistent naming and security models, and are designed to
+scale to enterprise configurations in heterogeneous environments.
+
+In this BOF, we will provide status to those familiar with OSF and
+DCE, and introduce those unfamiliar with OSF and/or DCE to the
+current state of our work.  We also hope to clarify points which have
+sometimes been confused regarding OSF's purpose, methodology and results
+to date.  OSF's membership now numbers more than 300 organizations which
+work with OSF to deliver and enhance our system software offerings.
+We hope to work with the IETF community in areas of common interest.
+DCE relates to a number of IETF-relevant activities, including
+work on Kerberos, X.500, DNS, as well as popular distributed systems
+products such as NCS and AFS.  We will clarify these relationships
+in the BOF.
+ 
+[OSF's Distributed Management Environment, or DME, will likely be
+the subject of a future IETF BOF.]

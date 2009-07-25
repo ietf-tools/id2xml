@@ -1,0 +1,20 @@
+The RIP Working Group was formed from the RIP Version 2 Working
+Group, which was originally chartered to create the RIP-2 standard. 
+Since several other RIP-related efforts are also occuring within 
+the IETF, it was decided to create a single working group to handle 
+them all.
+
+The RIP Working Group is chartered to guide the following proposals 
+and develop the following projects through the IETF standards track:
+
+  - ``RIP Version 2'' (RFC 1723)
+
+  - ``RIP Version 2 MIB Extension'' (RFC 1724)
+
+  - ``Extensions to RIP to Support Demand Circuits'' (RFC 1582)
+
+  - ``RIP-II Cryptographic Authentication'' (Internet-Draft)
+
+Additionally, the RIP Working Group will handle the RIPng protocol 
+which, in its first incarnation, will contain the minimum modifications 
+to RIP-2 necessary to handle IPng.

@@ -1,0 +1,35 @@
+This working group will produce a document that defines MIB objects
+for use in monitoring and (possibly) controlling both high- and low-end 
+UPSs and related systems (e.g., power distribution systems or power 
+conditioning systems). Related devices may be addressed in this effort 
+to the extent that the primary focus on UPSs is not compromised.
+
+The MIB object definitions produced will be for use by SNMP and will be 
+consistent with existing SNMP standards and framework.
+
+At its discretion, the working group may fulfill its charter by the
+development of distinct MIB definitions for UPS systems of differing
+capabilities, but the number of MIB definitions produced by the
+working group will not exceed two.
+
+At its discretion, the working group may produce an additional document 
+defining traps that support the management of UPSs.
+
+Although the working group may choose to solicit input or expertise
+from other relevant standards bodies, no extant standards efforts or
+authorities are known with which alignment of this work is required.
+
+Because the structure of UPS implementations varies widely, the
+working group shall take special care that its definitions reflect a
+generic and consistent architectural model of UPS management rather
+than the structure of particular UPS implementations.
+
+It was decided (May-Aug 98) to take the UPS MIB off the standards
+track because of lack of initiative for the work required to allow the
+document to advance to Draft Standard status. (Namely, gathering data
+for and publishing an implementation/interoperability report. See RFC
+2026 for details.) The MIB has been widely implemented by UPS vendors,
+however, and the working group considers it useful for management. The
+plan to re-issue the MIB as an Informational RFC reflects a compomise
+which keeps the MIB available and "mordernizes" it to reflect changes
+in the SNMP management framework.

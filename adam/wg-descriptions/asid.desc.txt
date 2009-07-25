@@ -1,0 +1,53 @@
+There is a clear need to provide and deploy a well managed 
+Directory Service for the Internet. A so-called White Pages Directory 
+Service providing people and organizational information, is especially 
+long overdue.  While the ultimate goal is a general Directory Service 
+for the Internet, this is too ambitious a goal to be tackled by a 
+single working group. Therefore ASID will keep a tight focus on access 
+and synchronization protocols for an Internet White Pages Directory 
+Service.
+
+Other related working groups will be formed in the Applications Area  
+that will deal with other aspects of the Internet Directory Service.
+ 
+Currently there are various protocols under development in the 
+Internet that aim to provide such a service: Internet X.500, WHOIS++, 
+NETFIND, CSO, RWHOIS, etc.  To allow these services to evolve to a 
+ubiquitous Internet Directory Service, a hybrid system that allows 
+interaction between the various different services is a requirement.
+  
+The ASID Working Group will define, evolve, and standardize protocols,
+algorithms and access methods for a White Pages Directory Service on 
+the Internet.
+
+The following protocols (some still under development, some completed 
+by other IETF working groups) will be considered by the working group:
+ 
+ - Lightweight Directory Acces Protocols (LDAP and Connectionless 
+   LDAP)
+
+ - User Friendly Naming (UFN) and User Friendly Searching (UFS)
+
+ - The SOLO directory access and searching system
+
+ - The WHOIS++ directory service
+	  
+The following work items are handled by other groups, and as such are
+outside the scope of this group. However their results are important 
+to the development of a White Pages Directory Service, and will be taken
+into account:
+		
+ - The Hypertext Transfer Protocol (HTTP)
+
+ - The UR* definitions
+
+ - The NETFIND directory service
+		 
+The group will focus on harmonizing, evolving and developing protocols
+and algorithms that deal with access to and synchronization of Directory 
+Service, both ad hoc and standards-based, with a goal of converging here 
+possible towards a hybrid system that ties together various forms of 
+Directory Service.  Clearly, protocol-level integration is only part of 
+the solution.  But to keep this group tightly focused, harmonizing 
+directory information and service models will be tackled by other 
+working groups.

@@ -1,0 +1,49 @@
+The purpose of the NOTARY Working Group is to give the Internet e-mail
+user better tools to build a system where the sender of a message can
+find out what happened to it.
+
+Work items for this group:
+
+- Specify a reporting format that can be used for delivery,
+non-delivery and receipt reports. The format should conform to MIME,
+and be at least as informative as current examples of non-standardized
+non-delivery notifications. This format should be usable as-is in
+current e-mail products to replace the current, non-standardized and
+sometimes quite cryptic textual non-delivery reports.  The drafts by
+Keith Moore and Greg Vaudreuil are taken as a working basis.  (See
+the document list below for details.)
+
+- Specify a way for the sender to request that positive delivery
+reports be generated for a message sent via SMTP. The draft by
+Keith Moore is taken as a working basis.
+
+- Generate an Informational document that gives advice on how to handle
+delivery notifications (positive and negative) and requests for them at
+boundaries to other mail systems, such as X.400 and PC LANs.
+
+Relationship to X.400 and X.400 gateways:
+
+While the intent of this work includes specification of an
+acknowledgement system that can be translated to work across the
+821/822/MIME to X.400 boundary, the effort will focus on design from
+the former standpoint.  That will be followed by changes to the
+successor of RFC 1327 to match these features, but those changes will be
+made as part of the RFC 1327 revision process, not by this working 
+group.
+Of course, if any features specified by this working group turn out to 
+be
+impossible to accomodate in the RFC 1327 revision, that would be cause 
+for
+reviewing both sets of specifications.
+
+Additional items not on the agenda of this working group:
+
+- Specification of a way in which the sender can request that a receipt
+notification (``the recipient has read this message'') be sent upon
+receipt of the message. The document should identify the controversial
+aspects of such a function, and should attempt to specify the function
+in a way that minimizes surprise at both the sending and receiving end,
+even in the face of varying local policies.
+
+However, the group will, as part of its work, make a recommendation to
+the IESG where and how such work should be tackled.

@@ -1,0 +1,42 @@
+The Mail Extensions Working Group will review, refine as
+   needed, and then make a recommendation on standardization of several 
+   recent proposals for standards-track compatible extensions to SMTP
+   (via the Service Extensions mechanism), MIME (via new Content
+   Subtypes), and MIME-MHS (via MIME Content Subtypes and usage rules).
+ 
+   It will also act as the review body for several documents that
+   clarify and provide applicability statements about the use of
+   Internet mail: that work will ultimately lead to an update for the
+   mail-related section of RFC 1123.  Part of that effort involves
+   RARE WG-MSG documents that address the Internet's installed
+   electronic mail infrastructure.  Since such documents should not
+   be processed in RARE alone, this working group will act as the
+   IETF focus for reviewing them.
+ 
+   Initial drafts of all of the documents that the working group is
+   expected to review have already been, or will soon be, published.
+   The working group will be starting with documents that have been
+   prepared as individual (or spontaneous design team) contributions.
+   It is not expected to initiate new work. On the other hand, it is
+   expected to make explicit ``not ready for standardization'' or
+   ``inappropriate for standardization'' recommendations if that is
+   appropriate.   
+
+   The working group will be initialized with the following Internet-
+	Drafts or their successors, listed alphabetically.  A major 
+purpose
+	of its first meeting is to prune or add to this list.
+ 
+      draft-freed-ftbp-00.txt
+
+      draft-freed-smtp-pipeline-00.txt
+
+      draft-houttuin-mailservers-02.txt
+
+      draft-rare-msg-a-bombs-00.txt
+
+      draft-rare-msg-c-bombs-00.txt
+
+      draft-vaudreuil-smtp-binary-04.txt
+
+      draft-vaudreuil-smtp-stream-00.txt

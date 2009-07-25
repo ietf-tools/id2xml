@@ -1,0 +1,47 @@
+One of the areas of vulnerability for large scale Internet
+environments lies in the area of inter-domain routing. The basic
+security questions that can be posed regarding routing information
+are whether the originating Autonomous System is authorized to
+advertise an address prefix by the holder of that prefix, whether
+the originating AS is accurately identified by the originating
+Autonomous System Number in the advertisement, and the validity of
+both the address prefix and the Autonomous System Number. A related
+question concerns the level of trust than can be ascribed to
+attributes of a route object in terms of their authenticity,
+including consideration of the AS Path attribute.
+
+The Routing Protocol Security Group (RPSEC) has been chartered to
+document the security requirements for routing systems, and, in
+particular, to produce a document on BGP security requirements.
+
+The scope of work in the SIDR working group is to formulate an
+extensible architecture for an interdomain routing security
+framework. This framework must be capable of supporting incremental
+additions of functional components. The SIDR working group will 
+develop security mechanisms which fulfill those requirements which 
+have been agreed on by the RPSEC working group. In developing these 
+mechanisms, the SIDR working group will take practical deployability 
+into consideration. 
+
+The scope of work will include describing the use of certification
+objects for supporting the distribution of authorization and
+authentication information. Both hierarchic and distributed non-
+hierarchic trust systems are intended to be supported within this
+framework. The intended support of both forms of trust models is to
+allow for the use of this framework for routing security in diverse
+routing environments that have different underlying trust
+characteristics.
+
+The scope of work is limited to inter-domain router-to-router
+protocols only, for both unicast and multicast systems.
+
+The SIDR working group is charged with the following tasks:
+
+- Document an extensible interdomain routing security architecture
+
+- Document the use of certification objects within this secure
+routing architecture
+
+- Document specific routing functionality modules within this
+architecture that are designed to address specific secure routing
+requirements as they are determined by the RPSEC Working Group

@@ -1,0 +1,29 @@
+The Protocol Independent Multicast (PIM) Working Group has completed 
+the standardization of PIM with RFC 4601. The WG has determined there 
+is additional work to be accomplished and is chartered to standardize
+extensions to RFC 4601 - Protocol Independent Multicast Version 2 -
+Sparse Mode. These PIM extensions will involve reliability, resiliency,
+scalability, management, and security.
+
+The PIM WG will consider implications of VPN service on PIM when it's a
+component of that service or when PIM interfaces with that service at a
+VPN edge. If L2VPN or L3VPN WGs determine that support for multicast in
+L2VPNs and/or L3VPNs requires extensions to PIM, then such extensions
+could be developed within the PIM WG.
+
+Additional work on the PIM-BIDIR and BSR drafts may also be necessary 
+by the WG as these drafts progress through Standards Track.
+
+The working group will continue to specify the MIB modules required for
+PIM and its enhancements.
+
+The PIM WG will further enhance RFC4601 as an even more scalable,
+efficient and robust multicast routing protocol, which is capable of
+supporting thousands of groups, different types of multicast
+applications, and all major underlying layer-2 subnetwork technologies.
+We will accomplish these enhancements by submitting drafts, to the 
+IESG, involving reliable pim, pim join attributes and pim 
+authentication.
+
+The working group will initiate a new re-chartering effort if it is
+determined that a Version 3 of PIM is required.

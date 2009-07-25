@@ -1,0 +1,25 @@
+The NOC-Tools Working Group will update and revise their catalog to
+assist network managers in the selection and acquisition of diagnostic
+and analytic tools for TCP/IP Internets.
+
+- Update and revise the reference document that lists what tools are 
+available,
+  what they do, and where they can be obtained.
+
+- Identify additional tools available to assist network managers in 
+debugging 
+  and maintaining their networks that were inadvertently omitted in 
+previous 
+  NOCTools catalog.
+
+- Identify additional new or improved tools that have become apparent 
+since the
+  last compilation of the reference document.
+
+- Arrange for the central (or multi-point) archiving of these tools in 
+order to
+  increase their availability.
+
+- Establish procedures to ensure the ongoing maintenance of the 
+reference and 
+  the archive, and identify an organization willing to do it.

@@ -1,0 +1,14 @@
+The Chronos protocol Working Group is chartered to define a
+protocol for the management of calendars, appointments and schedules
+over the Internet.  In defining this protocol, several questions must
+be addressed.  The role of the calendar administrator must be defined.
+Differing levels of security need to be specified to allow maximum
+functionality yet still allow privacy and flexibility.  The scope of
+the protocol should also be evaluated; how much burden should we put
+on the server, on the client?  Additionally the behavior of multiple
+chronos servers must be analyzed.
+
+This protocol should be able to be developed and stabilized
+within 6-8 months, since there is already a draft specification to work
+from.  The process is subject to extension if many new features are
+added, or more revision is needed.

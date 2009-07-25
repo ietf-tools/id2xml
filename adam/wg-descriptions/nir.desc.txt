@@ -1,0 +1,30 @@
+As the network has grown, along with it there has been an increase in
+the number of software tools and applications to navigate the network
+and make use of the many, varied resources which are part of the
+network.  Within the past year and a half we have seen a wide spread
+adoption of tools such as the Archie servers, the Wide Area Information
+Servers (WAIS), the Internet Gopher, and the World Wide Web (WWW).  In
+addition to the acceptance of these tools, there are also diverse
+efforts to enhance and customize these tools to meet the needs of
+particular network communities.
+
+There are many organizations and associations that have recently begun
+to focus on the proliferating resources and tools for networked
+information retrieval (NIR).  The Networked Information Retrieval 
+Working
+Group
+will be a cooperative effort of three major players in the field of
+NIR: IETF, RARE, and the Coalition for Networked Information 
+specifically tasked to collect and disseminate information about the
+tools and to discuss and encourage cooperative development of current
+and future tools.
+
+The NIR Working Group intends to increase the useful base of
+information about NIR tools, their developers, interested organizations, 
+and other activities that relate to the production, dissemination, and 
+support of NIR tools, to produce documentation that will enable user 
+services organizations to provide better support for NIR tools, to 
+develop materials that will assist the support and training of end users 
+and to 
+evolve in the future as necessary to meet and anticipate changes in the 
+field (i.e., NIR tools, protocols, network topology, etc.).

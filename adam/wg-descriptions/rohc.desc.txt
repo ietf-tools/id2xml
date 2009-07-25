@@ -1,0 +1,78 @@
+Due to limited bandwidth, IP/UDP/RTP/TCP packets sent over cellular
+links benefit considerably from header compression. Existing header
+compression schemes (RFC 1144, RFC 2508) do not perform well over
+cellular links due to high error rates and long link roundtrip times,
+particularly as topologies and traffic patterns become more
+complex. In addition, existing schemes do not compress TCP options
+such as SACK or Timestamps.
+
+Another consequence of low bandwidth links is long session setup
+delays when text-based signaling protocols, such as SIP and SDP, are
+used. These delays can be significantly reduced by compressing not
+only the headers, but also the signaling information.
+
+The goal of ROHC is to develop generic header compression schemes that
+perform well over links with high error rates and long roundtrip
+times, as well as related signaling compression schemes. The schemes
+must perform well for cellular links built using technologies such as
+WCDMA, EDGE, and CDMA-2000. However, the schemes should also be
+applicable to other future link technologies with high loss and long
+roundtrip times. Ideally, it should be possible to compress over
+unidirectional links.
+
+Good performance includes both minimal loss propagation and minimal
+added delay. In addition to generic TCP and UDP/RTP compression,
+applications of particular interest are voice and low-bandwidth
+video.
+
+ROHC may develop multiple compression schemes, for example, some that
+are particularly suited to specific link layer technologies. Schemes
+in addition to those listed in the milestones below may be added in
+consultation with the area directors.
+
+A robust compression scheme must:
+
+* assure that the result after decompression is semantically identical
+  to the uncompressed original;
+
+* perform well when the end-to-end path involves more than one
+  cellular link;
+
+* support IPv4 and IPv6.
+
+* provide benefit in the presence of IPSEC.
+
+Creating more thorough requirements documents will be the first task
+of the WG for each of its specific areas of work, which are:
+
+* 0-byte improvements to RTP header compression
+
+* TCP header compression
+
+* Signaling compression
+
+* SCTP header compression
+
+In addition, the WG will work on MIBs for its compression schemes, as
+well as the sheperding of RFC3095 to draft standard.
+
+The working group shall maintain connections with other
+standardization organizations developing cellular technology for IP,
+such as 3GPP and 3GPP-2, to ensure that its output fulfills their
+requirements and will be put to good use.
+
+In addition, the WG should develop a solid understanding of the impact
+that specific error patterns have on the compression schemes, and
+document guidelines to Layer 2 designers regarding what Layer 2
+features work best to assist Layer 3 and Layer 4 header compression.
+This work is in coordination with the PILC WG.
+
+Some of the schemes developed in ROHC will be used in wider contexts
+than just the specific link technologies discussed.  The working group
+will ensure the applicability in particular of the TCP and signaling
+compression schemes to the general Internet.  This includes
+considering the applicability of the technologies under consideration
+to open-source implementations.
+
+Finally, working group documents will address interactions with IPSEC
+and other security implications.

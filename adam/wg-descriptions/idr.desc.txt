@@ -1,0 +1,67 @@
+The Inter-Domain Routing Working Group is chartered to standardize 
+and promote the Border Gateway Protocol Version 4 (BGP-4) [RFC 
+1771] capable of supporting policy based routing for TCP/IP 
+internets. 
+ 
+The objective is to promote the use of BGP-4 to support IP version 
+4 and IP version 6. The working group will continue to work on 
+improving the scalability of BGP. 
+ 
+The current tasks of the WG are limited to: 
+ 
+- Revise and clarify the base BGP4 document (RFC 1771). Note that 
+RFC 1771 no longer documents existing practice and one goal of the 
+update is document existing practice. Determine whether the document 
+can be advanced as full Standard or needs to recycle at Proposed 
+or Draft Standard. 
+ 
+- Submit updated base BGP4 MIB to accompany the revised base BGP4 
+document. 
+ 
+Once these tasks are finished (means WG consensus, WG Last Call, 
+AD Review, IETF Last Call, and IESG approval for publication), work 
+will progress on the following: 
+ 
+- Review and Evaluate Existing RFCs on AS Confederations and Route 
+Reflection. If changes are needed, create and advance revisions. 
+ 
+- Review and evaluate Multiprotocol BGP (RFC 2858) for advancement 
+as Draft Standard. 
+ 
+- Progress BGP Extended Communities along standards track. 
+ 
+- Extend BGP to support a 4-byte AS number, develop plan for 
+transitioning to usage of 4-byte AS numbers. Advance support for a 
+4-byte AS numbers along standards track. 
+ 
+- Produce BGP MIB v2 that includes support for AS Confederations, 
+Route Reflection, Communities, Multi-Protocol BGP, BGP Extended 
+Communities, support for 4-byte AS numbers. 
+ 
+- Progress along the IETF standards track a BGP-based mechanism 
+that allows a BGP speaker to send to its BGP peer a set of route 
+filters that the peer would use to constrain/filter its outbound 
+routing updates to the speaker. Currently defined in 
+draft-ietf-idr-route-filter-03.txt. 
+ 
+- Progress along standards track an Outbound Router Filter (ORF) 
+type for BGP, that can be used to perform aspath based route 
+filtering. The ORF-type will support aspath based route filtering 
+as well as regular expression based matching for address groups. 
+Currently defined in draft-ietf-idr-aspath-orf-00.txt. 
+ 
+- Progress a BGP Graceful Restart mechanism along standards track. 
+ 
+- Progress Subcodes for BGP Cease Notification Message along 
+standards 
+track. 
+ 
+- Progress AS-wide Unique BGP Identifier for BGP-4 along standards 
+track. 
+ 
+- Progress Dynamic Capability for BGP-4 along standards track.
+ 
+- Progress Flow Specification rules along standards track.
+ 
+Tasks for this working group are limited to those listed above; 
+new items to be added to the charter must be approved by the IESG.

@@ -1,0 +1,14 @@
+The IETF BEEP working group shall develop a standards-track application
+protocol framework for connection-oriented, asynchronous 
+request/response interactions.
+
+The framework must permit multiplexing of independent request/response
+streams over a single transport conneciton, supporting both textual and
+binary messages.
+
+The working group will use BXXP (as described in 
+draft-mrose-bxxp-framework and draft-mrose-bxxp-tcpmapping) as its 
+starting point.  Although not encouraged, non-backwards-compatible 
+changes to BXXP will be acceptable if the working group determines that 
+the changes are required to meet the group's technical objectives and 
+the group clearly documents the reasons for making them.

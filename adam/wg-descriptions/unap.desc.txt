@@ -1,0 +1,101 @@
+Network access technologies for wired and wireless mediums are
+evolving rapidly. With the rapid growth in the number and type of
+devices and terminals that support IP stacks and can access the
+Internet, users can potentially use a single device having the
+capability of attaching via different multiple access mediums and
+technologies to interface to the network.
+The model for providing the users' information to the
+network for authentication, authorization or accounting needs to be
+the same and NOT be tied in to the underlying access type.
+
+Currently the authentication mechanisms in PPP are being used for
+many wired access scenarios as well as some wireless access, which
+requires using PPP framing for the data packets. This is not viewed as
+the optimal solution in the cases where framing protocols already
+exist. Also, IEEE 802 is working on 802.1X which provides EAP 
+authentication limited to IEEE 802 link layers.
+
+The User Network AAA Protocol (UNAP) working group's primary task
+is to define a user network AAA protocol that allows:
+
+- A device (on behalf of a user) to authenticate to an agent  in the 
+  local network. The agent is called Authentication Agent in this 
+  charter.
+
+- The device to discover the IP address of the AA.
+
+- The AA to use either local mechanisms/knowledge, or the AAA
+  infrastructure, to authenticate the device.
+
+- Outside of the scope of the protocol, allows for the AA to install
+  access control mechanisms in the network, based on the results of
+  the AAA protocol exchanges. This follows the model of current Radius 
+  being able to provide filtering rules to NASes.
+
+The working group will also provide documentation on
+
+- Requirements placed on the protocol (in requirements draft)
+
+- Chosen approach for handling the security issues and which existing
+  security mechanisms that are chosen for the protocol. (in framework 
+  draft)
+
+- What assumptions the protocol is making on the AAA infrastructure e.g.
+  in terms of security. (in framework draft)
+- The relative location of the AA and any access control functions in
+  the network and how their location affects the performance and 
+  scalability   of the AA solution, as well as the tradeoffs in the 
+  level of access control enforcement. (in framework draft)
+
+- The relationship between the UNAP protocol and e.g. PPP and 802.1X
+  in deployment where both might be viewed as useful.
+  (in "interactions" draft)
+
+A naive view of a UNAP protocol would just be to define how to carry
+EAP (RFC 2284) messages in an IP based protocol. However, EAP makes
+certain assumptions about PPP like link-layers such as:
+
+- The link-layer is point-to-point i.e. a single NAS or Access Router
+  is involved in the EAP exchange. For UNAP there is a desire to be
+  able to support redundant ARs on multi-access link layers where 
+  inbound   and/or outbound packets might use more than one AR.
+
+- The link-layer providing a disconnect indication. UNAP should not 
+  make this assumption. The assumption affects both the ability to tell
+  when the session has ended from an accounting perspective, and it 
+  affects the frequency at which the device needs to be reauthenticated.
+
+A possible way to address the need for more frequent re-authentication
+is to have the first authentication, using the AAA infrastructure
+and the assumed shared secret between the device and its AAA home
+domain, create a security association between the device and the AA.
+Then re-authentication can be done using this security association
+without involving the AAA infrastructure. Note that this local security
+association is between a pair of entities: the device and the AA. It is
+not intended to be viewed as some general security association between
+the device and the operator of the access network. In fact, such general
+security associations are outside the scope of UNAP.
+
+The WG will not directly work on solutions relating to mobility of
+the device. However, it is noted that the ability to re-authenticate
+locally with the AA, can be an important element in allowing efficient
+handling of mobile devices.
+
+The UNAP protocol needs reliability and congestion control, taking into
+account that the UNAP protocol needs to be able to operate over
+multiple router hops. The congestion control principles are documented
+in RFC 2914.
+
+The WG will not invent new security protocols and mechanism but instead
+will use existing mechanisms. For example, already specified EAP
+methods. In particular, the WG will not define authentication 
+protocols, key distribution or key agreement protocols, or key derivation.
+
+The protocol must support both IPv4 and IPv6, but given that the
+MOBILEIP WG is building Mobile IPv4 specific solutions to this problem,
+the urgency for solutions are likely to be higher for IPv6. The protocol
+must not assume a particular method of IP address configuration. In
+particular, it must not interfere with standard techniques and 
+protocols like IPv6 stateless addrconf (including the temporary
+addresses specified RFC 3041) and DHCP. This implies that the UNAP
+needs to be independent of IP address configuration.

@@ -1,0 +1,47 @@
+The Millenium problem
+
+According to the trade press billions of dollars will be spend the
+upcoming three years on the year 2000 problem, also called the
+millenium problem (though the third millenium will only start in 2001).
+This problem consists of the fact that many software packages and some
+protocols use a two digit field for the year in a date field.  Most of
+the problems seem to be in administrative and financial programs, some
+of which have been written in archaic languages like Cobol. A lot of
+organizations are now starting to make an inventory of which software
+and tools they use will suffer from the millenium problem.
+
+....and the Internet
+
+With the increasing popularity of the Internet,
+more and more organizations start to use the Internet as a serious
+business tool.  This means that most organizations will want to analyse
+the millenium problems due to the use of Internet protocols and popular
+Internet software. In the trade press the first articles suggest that
+the Internet will collapse at midnight the 31st of december 1999.
+
+To counter these suggestions (that are obviously wrong) and to avoid
+that all over the Internet people will redo the same inventory over and
+over again the WG is to make an inventory of all important Internet
+protocols and their most popular implementations with respect to the
+millenium problem. Only software and protocols directly related to the
+Internet will be considered.
+
+The inventory will be published as an informational RFC. The RFC will
+contain:
+
+ o  Description of the year 2000 problems and when they will occur
+
+ o  Summary of possible solutions and timelines for those solutions
+
+ o  Inventory of the year 2000 problem in the most popular Internet
+    protocols and their most popular implementations
+
+ o  Suggested solutions to the problems noted in the inventory 
+
+ o  A disclaimer that the RFC does not pretend to be complete and that
+    the proposed solutions should be tested before being relied upon 
+(this
+    for the US readers).
+
+The WG will only meet once (in Memphis, April 1997), most of the work
+will be done via the mailinglist.

@@ -1,0 +1,37 @@
+The purpose of this working group is to define and develop a standard
+virtual router redundancy protocol for IPv4 and IPv6.  A virtual
+router redundancy protocol is a protocol which allows several 
+routers on a multiaccess link to utilize the same virtual IP address. 
+One router will be elected as a master with the other routers acting as
+backups in case of the failure of the master router.  The primary
+motivation to using a virtual router redundancy protocol is that host
+systems may be configured (manually or via DHCP) with a single default
+gateway, rather than running an active routing protocol.  The protocol
+should also support the ability to load share traffic when both routers
+are up.
+
+ The goals of this working group are:
+ 
+ 1. Define and develop a standard virtual router redundancy protocol
+    for IPv4 and IPv6.
+
+ 2. Develop VRRP MIB(s).
+
+ 3. Separate specifications will be developed for IPv4 and IPv6.
+
+ 4. Determine whether static (configuration based) load sharing is
+    adequate or if some amount of dynamic load sharing is required.
+
+ 5. Working group will examine security issues to determine what
+    security threats it is appropriate for the VRRP protocol to 
+    handle and include the appropriate mechanisms in the VRRP protocol.
+
+  6. The internet draft "Virtual Router Redundancy Protocol"
+     (draft-hinden-vrrp-00.txt) will be use as the basis of virtual
+     router redundancy protocol.  The working group will also consider 
+     other Internet-Drafts related to this topic allowing for issues 
+     regarding change control, security, running code, etc.
+
+   7. Intellectual property issues regarding the technology to
+      develop a virtual router redundancy protocol will be identified
+      and addressed.

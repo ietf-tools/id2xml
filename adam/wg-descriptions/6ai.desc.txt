@@ -1,0 +1,27 @@
+Therefore, it is the purpose of this BOF to discuss the formation 
+of an IETF WG to produce the following work items:
+
+1) A Best Current Practices (BCP) RFC describing how to obtain
+the Simple Gateway and Simple Security features of NAT without
+performing address translation.  This document is intended for home
+gateway manufacturers and other standards bodies that define home
+gateway functionality.
+
+2) A Standards-Track (PS) RFC that describes an IPv6 Network
+Address Translation mechanism that provides the Simple Security and
+Address Independence benefits of IPv4 NAT, while minimizing the
+problems caused by IPv4 NAT.  This solution is expected to involve a
+one-to-one, algorithmic address mapping mechanism with no port
+mapping.  It may or may not include a checksum-neutral mapping
+algorithm and/or a cryptographic mapping mechanism.
+
+3) Updates to the BEHAVE mechanisms (STUN, TURN, etc.), if needed, to
+allow applications to successfully traverse IPv6 NAT devices, as
+defined in (2).  Alternatively, this work could be chartered in
+BEHAVE and done in consultation with this group.
+
+4) An Informational RFC that describes the enterprise network
+requirements for Topology Hiding and Multihoming that are currently
+met by IPv4 NAT devices.  Once these requirements are well-understood,
+the WG may be rechartered to work on NAT-based or non-NAT-based
+solutions to these problems.

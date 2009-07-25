@@ -1,0 +1,26 @@
+This effort has the goal of designing a IPSEC-specific resource
+record for the domain name system (DNS) to replace the functionality
+of the IPSEC sub-type of the KEY resource record.
+
+The original DNSSEC specification explicitly specified flags on
+the KEY resource records for use by IPSEC. Experience has shown that
+this has operational problems. The DNSEXT working group is restricting
+the use of the KEY record to DNS uses only. Thus, IPSEC keying via
+DNS needs a new resource record.
+
+The scope of work is to identify what information is needed in an
+IPSEC-specific keying resource record. The content of the resource
+record are not limited to only the information that is in the DNS
+KEY record but may also contain useful IPSEC information information,
+such as that which is required for Opportunistic Encryption. Other
+possible uses are out of scope for this working group, since any
+reuse will require a careful analysis of the trust model and possible
+security interactions with IPsec.
+
+The WG will define the semantics of the record only in terms of
+how the data in the record can be used for initializing an IPSEC
+session. Questions of when it is appropriate to do so are regarded
+as policy issues that are out of scope for this WG.
+
+This effort is specific to providing IPSEC information in DNS.
+All other distribution channels are out of scope.

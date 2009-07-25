@@ -1,0 +1,60 @@
+With the Internet reaching out to more and more devices, people are
+increasingly expecting to have access to services at anytime, from
+anywhere and using any device. Such services are being developed using
+Web technologies such as XML and distributed across the network rather
+than resident on any one device.
+
+An example is a service to access flight arrival times, where the user
+interface expressed in XHTML is rendered on a client device, the
+application logic runs on a remote server and a technique as user
+interface remoting is used to keep the user interface synchronized with
+the application logic. What is currently lacking is a convenient means
+for continous fine grained synchronization rather than the one provided
+by a request/response protocol (e.g. HTTP) for Web pages, which occurs
+in between page loads. This would allow the user interface to reflect
+changes in application state and offer greater flexibility for
+applications to respond to user input events.
+
+The WiDeX (Widget Description Exchange Service) Working Group seeks to
+define a light weight mechanism used in an IP-based network for 
+remoting
+user interfaces where the user interface is represented in XML, and
+synchronization involves XML DOM events and XML DOM mutation/update
+operations.
+
+The WG will strive to preserve an extensible architecture so that the
+work possibly be useful in the future with other types of descriptive
+user interfaces beyond those specifically considered by the group.
+
+Specific topics that are NOT goals of this WG are:
+
+- XML representation of user interface objects.
+- Means to establish sessions and support for device coordination.
+
+The WiDeX service definition will define:
+
+- A mechanism for synchronizing distributed XML DOM objects by
+propagating DOM mutations/updates and DOM events.
+- A set of parameters that need to be negotiated by a service discovery
+and session setup mechanism in order to start the UI remoting session.
+- A framework that enables a mechanism for remoting user interfaces
+represented in XML format by using distributed XML DOM synchronization,
+and a service discovery and session setup mechanism as building blocks.
+
+Deliverables:
+
+- Requirements document.
+- Document specifying the framework for remoting user interfaces
+represented in XML format.
+- Document specifying the message formats for XML DOM events and 
+updates
+using XML in a way that is independent of the transport protocol.
+- Document(s) specifying normative binding(s) to at least one transport
+protocol.
+
+It is possible that work undertaken in other working groups and even
+other standards bodies (e.g. W3C) will be referenced by this working
+group. It is even possible that entire deliverables could be satisfied
+by the work of other working groups (e.g. discovery protocols). This
+working group will seek to maximize the use of existing specifications
+where applicable.

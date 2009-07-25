@@ -1,0 +1,73 @@
+The successful implementation and operation of IP based applications 
+often depends on some underlying performance measurement 
+infrastructure that helps service operators or network managers to 
+recognize when performance is unsatisfactory and identify problems 
+affecting service quality. Standardized performance metrics add the 
+desirable features of consistent implementation, interpretation, no 
+comparison. 
+
+The IETF has two Working Groups dedicated to the development of 
+performance metrics however each has strict limitations in their 
+charters: 
+
+- The Benchmarking Methodology WG has addressed a range of networking 
+technologies and protocols in their long history (such as IEEE 802.3, 
+ATM, Frame Relay, and Routing Protocols), but the charter strictly 
+limits their Performance characterizations to the laboratory 
+environment. 
+
+- The IP Performance Metrics WG has the mandate to develop metrics 
+applicable to the performance of Internet data delivery, but it is 
+specifically prohibited from developing metrics that characterize 
+traffic (such as a VoIP stream). 
+
+The IETF also has current and completed activities related to the 
+reporting of application performance metrics (e.g. RAQMON and RTCP XR) 
+and is also actively involved in the development of reliable transport 
+protocols which would affect the relationship between IP performance 
+and application performance. 
+
+Thus there is a gap in the currently chartered coverage of IETF WGs: 
+development of performance metrics for IP-based protocols and 
+applications that operate over UDP, TCP, SCTP, DCCP, Forward Error 
+Correction (FEC) and other robust transport protocols, and that can be 
+used to characterize traffic on live networks. 
+
+The working group will focus on the completion of two RFCs: 
+
+1. A PMOL framework and guidelines memo that will describe the 
+necessary elements of performance metrics of protocols and 
+applications transported over IETF-specified protocols (such as the 
+formal definition, purpose, and units of measure) and the various 
+types of metrics that characterize traffic on live networks (such as 
+metrics derived from other metrics, possibly on lower layers). The 
+framework will also address the need to specify the intended audience 
+and the motivation for the performance metrics. There will also be 
+guidelines for a performance metric development process that includes 
+entry criteria for new proposals (how a proposal might be evaluated 
+for possible endorsement by a protocol development working group), and 
+how an successful proposal will be developed. Also, it is recognized 
+that there are applications and protocols that do not need to use this 
+framework and can make use of simpler specific methods for determining 
+performance. 
+
+2. A proof-of-concept RFC defining performance metrics for SIP, based 
+on draft-malas-performance-metrics. This memo would serve as an 
+example of the framework and the PMOL development process in the IETF. 
+
+Discussion of new work proposals is strongly discouraged under the 
+initial charter of the PMOL WG, except to advise a protocol 
+development WG when they are evaluating a new work proposal for 
+related performance metrics. 
+
+The Working Group will work closely with the RAI and APPS areas, 
+performing early review of the documents with the two areas and 
+inviting their particpation in the WGLC. 
+
+The PMOL WG will also be guided by a document describing how memos 
+defining performance metrics are intended to advance along the IETF 
+Standards track (draft-bradner-metricstest). 
+
+PMOL WG will take advantage of expertise and seek to avoid overlap 
+with other standards development organizations, such as ETSI STQ, ITU-
+T SG 12, ATIS IIF, ATIS PRQC, and others.

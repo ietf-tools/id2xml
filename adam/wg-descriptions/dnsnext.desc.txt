@@ -1,0 +1,42 @@
+The purpose of this BOF is to get interested parties together to gauge
+consensus on which of several directions to go in next with the DNS
+_protocols_.  The direction could take one of three general paths:
+    1: Do nothing, wait for deployment and experience with the
+	DNSIND and DNSSEC protocols
+    2: Start work on some specific incremental improvements
+	(discussion will include which improvements, see below)
+    3: Redesign the protocols with the features of all the
+	add-ons integrated into the base protocol.
+There will be several presentations (as many as can be fit in, but
+with preference for at least one in each category).
+
+The organization of the name space (i.e. what TLDs exist, etc.) is out
+of scope.  The BOF is to discuss the protocol only.
+
+Specific areas that might be addressed  either as incremental
+improvements or included in a redesign (note, this list is largely
+based on one developed from suggestions at the DNSIND WG at the 35th
+IETF in LA in March 1996.
+ - Timed updates
+ - Indirect A records (to ease renumbering)
+ - CNAME for whole zones (to ease renaming)
+ - improved IN-ADDR.ARPA (e.g. bitwise delegation)
+ - Better support for autonomous DNS
+ - Internationalization
+ - A DNS "Host Requirements" spec (or two, one for implementations and
+	one for operations)
+ - Something like what DRUMS is doing for mail
+ - Extended queries (multiple questions, answer all or answer any)
+ - Decide on compression-of-new-types problem
+ - Make DNS more self-configurable
+	-automatic determination of zones
+	-Loadable RR types
+ - Fix the packet size limitation.
+ - Multi-party update of domains
+ - Multiple primaries with shared DB.
+ - Better representation for naming things other than hosts (i.e. 
+people)
+	-Primarily for storing keys (see next)
+ - Improved key management in DNS
+	-ability to store keys for any entity that might want one.
+ - Additional RRs to support Multicast

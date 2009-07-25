@@ -1,0 +1,23 @@
+The MHS-DS Working Group works on issues relating to Message Handling
+Services use of Directory Services.  The message handling services are
+primarily X.400, but issues relating to RFC 822 use of Directory and
+Directory support for RFC 822 and X.400 interworking are in the scope of
+the group.  Directory and Directory Services refer to the services
+based upon the CCITT X.500 recommendations and additional ISO
+standards, stable implementation agreements, and RFCs, as specified by
+the OSI-DS Working Group.  The major aims of the MHS-DS Working Group
+are:
+
+1. Define a set of specifications to enable effective, large-scale
+deployment of X.400.
+
+2. Study issues associated with supporting X.400 communities which lack
+access to X.500 Directory, and define requirements for tools which: (a)
+extract information from the X.500 Directory for use by non-X.500
+applications, and (b) upload information into the X.500 Directory.
+
+3. Coordinate a pilot project which deploys MHS information into the
+X.500 Directory and uses it to facilitate mail routing and address
+mapping.  The results of this pilot will be documented, and experience
+gained from the project will be fed back into the Internet
+specifications created by the working group.

@@ -1,0 +1,63 @@
+IP V4 Network Address Translation (NAT) has become an increasingly
+common function in the Internet for a variety of reasons. NATs are used
+to interconnect a private network consisting of unregistered IP
+addresses with a global IP network using limited number of registered
+IP addresses. NATs are also used to avoid address renumbering in a
+private network when topology outside the private network changes for
+variety of reasons. And, there are many other applications of NAT
+operation.
+
+A number of NAT deployments are currently in use and naturally, a large 
+number of internet applications work transparently with NATs. However, 
+there are applications for which NATs would fail and custom-specific 
+Application Level Gateways (ALGs) are required to perform translations 
+for those applications.
+
+NAT has the potential to interrupt end-to-end nature of Internet
+applications, thereby threatening end-to-end security and other
+end-to-end functions. In addition, NAT has topology restrictions and
+other constraints on the protocols and applications that run across
+NATs.  Thus NATs have a particular area of application and should not
+be considered a general solution.
+
+This working group will provide a forum to discuss applications of NAT
+operation, limitations to NAT, and impact of NAT operation on internet
+protocols and applications. The Working Group recognizes that NAT may
+interfere with protocols that use cryptographic protection for
+authentication, integrity or confidentiality.  The Working Group will
+NOT suggest changes in such protocols to make them NAT friendly when
+such modification will significantly reduce the security provided by 
+those protocols.  However, the Work Group will examine and discuss
+alternative solutions, and other new ideas relating to this issue.
+Broadly speaking, the objective of the work group is to come up with a
+series of documents in the following categories.
+
+The first category of documents will address what NAT is, how NAT works
+and applications of NAT operation in address conservation, prevention
+of address renumbering, load sharing and other areas.
+
+The second category of documents will address requirements of NAT and
+limitations to NAT operation.  Specifically, this will include a
+detailed list of applications which are known to have problems working
+over NATs.
+
+The third category of documents are Informational RFCs which will
+specify NAT friendly application and protocol design guidelines,
+interactions between NATs and applications such as DNS and protocols
+such as IP sec.  Particular emphasis will be placed on security issues.
+The Work group will also examine and discuss various alternative
+solutions, and other ideas to identify areas where NATs or other
+protocols and applications can be improved to overcome the shortcomings
+in interoperability or functionality.
+
+The fourth category of documents will deal with network management of
+NATs.
+
+Exploration of the use of NATs for load sharing is not within the scope
+of this working group.
+
+The goals and milestones section below lists just the subject matter of
+issues to be covered. This is done so deliberately because there may be
+some adjustments made to the packaging of the RFCs, while covering all
+of the contents below. The work group will decide how to group the
+contents into different RFCs.

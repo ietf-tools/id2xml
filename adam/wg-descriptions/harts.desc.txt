@@ -1,0 +1,18 @@
+In building a bridge between the Internet Engineering community and the
+Humanities and Arts' Research and Engineering communities, the HARTS
+Working Group has identified three goals to be pursued. The first goal
+is development of a FAQ (Frequently Asked Questions) regarding value
+and role of the arts in the Internet. Tasks for this include
+development of a document summarizing current issues regarding the arts
+community Internet with an accompanying survey designed to identify
+needs and concerns from the arts and humanities community. Survey
+results will be used to develop the FAQ.
+
+The second goal is to define tools for artists' organizations on the
+Internet which will focus on creating, viewing, and storage formats for
+arts humanities resources. This will include contributions regarding
+text, sound, still and motion images. It will address different
+operating systems, glossary of basic terminology and a bibliography.
+The third goal is to further define issues surrounding copyright and
+intellectual property, funding, and other support for arts humanities
+participation and any other needs identified by the survey.

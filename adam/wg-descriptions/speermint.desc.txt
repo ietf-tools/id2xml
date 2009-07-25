@@ -1,0 +1,93 @@
+The term "VoIP Peering" has historically been used to describe
+inter-provider network interconnect and the delivery of voice
+calls over interconnection points. While voice calls are the
+primary motivation for this today, other forms of real-time
+communications are and will continue to evolve as natural
+additions to such peering. Therefore, the focus of this working
+group is best generalized to describe calls as sessions, and to
+note that that such communications are inherently real-time in
+nature.
+
+SPEERMINT focuses architectures to identify, signal, and route
+delay-sensitive (real-time) communication sessions. These sessions
+use the SIP signaling protocol to enable peering between two or more
+administrative domains over IP networks. Where these domains peer,
+or meet, the establishment of trust, security, and a resistance to
+abuse and attack are all important considerations.
+
+Note that the term "peering" is used here to refer to
+the interconnection between application layer entities such as
+SIP servers, as opposed to interconnection at the IP network
+layer. However, in order to achieve real-time Session PEERing,
+both signaling and media flows must be taken into
+consideration. In addition, the working group recognizes that
+there will be use cases that require SPEERMINT to focus on the
+interaction between the application layer and lower network
+layers, or the dependence of specific application layer use
+cases on lower layers, so SPEERMINT will have to be prepared to
+solve these problems as they arise.
+
+More specifically, SPEERMINT focuses on real-time session
+routing architectures and their associated use cases.
+Deliverables here include the specification of the various
+types of application flows, such as signaling and media flows, in
+such networks, and includes both trunking and peer-to-peer
+flows. In addition, SPEERMINT considers and documents requirements
+for the feedback of operational conditions (e.g., congestion control)
+that enables the application of dynamic policy and recognizes
+that various mechanisms for achieving this should be studied as
+a potential part of any architecture. In future, as its initial
+work completes and the requirements become known, SPEERMINT may seek
+rechartering to consider various mechanism to support applying
+Quality of Service and/or traffic engineering mechanisms in an
+architecturally sound way in support of real-time Session
+PEERing. A charter discussion would consider how to work with
+with mechanisms developed by other working groups, selecting
+and integrating those, but as stated, first the initial milestones
+must be completed.
+
+The most focused deliverables of SPEERMINT are best current practices
+regarding exchange of real-time sessions among VoIP and other
+real-time application service providers and, in particular, how
+such calls are routed. SPEERMINT will recognize that some of these
+providers also control underlying access networks
+(facilities-based), while others do not (not facilities-based),
+and this fact may present various additional requirements or
+use cases for consideration. The working group will develop
+one or more use case documents to record the varieties of
+the practices, as well as use this recognition as a guide to
+maintaining the greatest possible separation of the application
+layer from lower layers.
+
+The SPEERMINT work plan is related to and distinct from the work
+plans of the ENUM and SIPPING working groups. While the
+the ENUM Working Group is primarily concerned
+with the structure and lookup of data for the translation of
+E.164 numbers into URIs (RFC3761), SPEERMINT is concerned with
+the use of the resulting URI data, as well as non-ENUM-derived
+URI data, for use in signaling and routing of real-time
+sessions. The SIPPING WG produced the original document in
+this area (RFC 3824). The future work in this area will be
+produced by SPEERMINT, but RFC 3427, the SIP change process will
+be followed as needed.
+
+Issues that are out of scope for SPEERMINT include: 
+
+o Interoperability, and NITS/profiling of existing protocols
+such as SIP, RTP, and SRTP,
+
+o SPIT prevention. Note, however, that other working groups
+may release relevant specifications that become required or
+are referenced by various SPEERMINT uses cases and BCPs,
+
+o Routing of sessions which are not signaled using SIP. In
+particular, SPEERMINT is constrained to consider only those
+scenarios in which call routing is signaled using the SIP
+protocol and addressed by SIP or SIPS URIs. E.164 numbers and
+other national or private formats may only be used as defined
+within the SIP protocols, and 
+
+o H.323
+
+In the goals and milestones, "submit" means to submit the document to 
+the IESG for publication.

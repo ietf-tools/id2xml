@@ -1,0 +1,24 @@
+The importance of running IP and ARP over Fibre Channels has reached a
+critical point wherein a standardized approach seems to be the only
+solution. Historically over the past few years, there have been a
+multitude of attempts and approaches to implementing IP and ARP over
+Fibre Channel (FC). This has resulted in islands of implementations
+with no interoperability. Several vendors from the Fibre Channel
+Association (FCA) have proposed taking this problem to the IETF with
+the intent of generating one "standard" specification.
+
+This working group will be responsible for standardizing a
+specification that will allow IP and ARP to ride over various Fibre
+Channel topologies, which may include point-to-point, Loop, and
+Fabric.
+
+The specification will include procedures and protocols for the
+broadcast of ARP packets between Fibre Channel devices and an
+encapsulation mechanism to carry IP payloads.
+
+Objectives:
+
+1. Specify a Standards Track procedure for broadcasting ARP packets
+   and resolving IP to FC MAC address and FC MAC to FC port address
+
+2. Specify a Standards Track encapsulation for carrying IP over FC.

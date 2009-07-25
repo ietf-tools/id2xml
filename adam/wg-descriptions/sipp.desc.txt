@@ -1,0 +1,50 @@
+Simple Internet Protocol Plus (SIPP) is one of the candidates being
+considered in the Internet Engineering Task Force (IETF) for the next
+version of the Internet Protocol (IP).  The current version of IP is
+usually referred to as IPv4.  The purpose of the working group is to
+finalize the SIPP and IPAE specifications, foster the early development
+and experimentation of this protocol, and to work toward having SIPP
+selected as the IETF's IPng.
+
+SIPP is a new version of IP which is designed to be an evolutionary step
+from IPv4.  It is a natural increment to IPv4.  It can be installed as a
+normal software upgrade in internet devices and is interoperable with the
+current IPv4.  Its deployment strategy is designed to not have any
+``flag'' days.  SIPP is designed to run well on high performance networks
+(e.g., ATM) and at the same time is still efficient for low bandwidth
+networks (e.g., wireless).  In addition, it provides a platform for new
+internet functionality that will be required in the near future.
+
+
+Background:
+
+The SIPP Working Group represents the evolution and merger of three
+different IETF working groups focused on developing an IPng.  The first
+was called IP Address Encapsulation (IPAE) and was chaired by Dave
+Crocker and Robert Hinden.  It proposed extensions to IPv4 which would
+carry larger addresses. Much of its work was focused on developing
+transition mechanisms.  Somewhat later Steve Deering proposed a new
+protocol evolved from IPv4 called the Simple Internet Protocol (SIP).  A
+working group was formed to work on this proposal which was chaired by
+Steve Deering and Christian Huitema.  SIP had 64-bit addresses, a
+simplified header, and options in separate extension headers.  After
+lengthy interaction between the two working groups, and the realization
+that IPAE and SIP had a number of common elements and the transition
+mechanisms developed for IPAE would apply to SIP, the groups decided to
+merge and concentrate their efforts.  The chairs of the new SIP Working
+Group were Steve Deering and Robert Hinden.  In parallel to SIP, Paul
+Francis (formerly Paul Tsuchiya) had founded a working group to develop
+the ``P'' Internet Protocol (PIP).  PIP was a new Internet Protocol based
+on a new architecture.  The motivation behind PIP was that the
+opportunity for introducing a new Internet Protocol does not come very
+often and given that opportunity important new features should be
+introduced.  PIP supported variable length addressing in 16-bit units,
+separation of addresses from identifiers, support for provider selection,
+mobility, and efficient forwarding.  It included a transition scheme
+similar to IPAE.  After considerable discussion among the leaders of the
+PIP and SIP Working Groups, they came to realize that the advanced
+features in PIP could be accomplished in SIP without changing the base
+SIP protocol, as well as keeping the IPAE transition mechanisms.  In
+essence, it was possible to keep the best features of each protocol.
+Based on this, the groups decided to merge their efforts.  The new
+protocol was called Simple Internet Protocol Plus (SIPP).

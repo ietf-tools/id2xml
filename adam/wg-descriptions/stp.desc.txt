@@ -1,0 +1,16 @@
+The proliferation of networking technologies and applications bring 
+new promises and challenges to the Internet. One such challenge is 
+how to develop and manage a heterogeneous and colossal networking
+environment? Specifically, how to manage a network that consists of
+IPv4, RFC1918, IPv6, IPSec, mobile IP, and a variety of applications
+that use multiple IP transports, TCP, UDP, and Multicast? The Secure
+Transport Proxy Working Group (STP) is chartered to specify a generic
+mechanism to proxy IP transports in a secure manner.
+
+The protocol will evolve from the existing work done by the
+Authenticated Firewall Traversal Working Group (AFT). It will focus 
+on transport proxy mechanisms that are secure, scalable, efficient 
+and flexible. The protocol will be specifically designed for
+bi-directional establishment of TCP, UDP and Multicast proxy channels
+over a heterogeneous network environment, enabling application 
+protocols to securely pass through firewalls.

@@ -1,0 +1,34 @@
+This working group addresses issues specific to intermediaries in
+the World Wide Web infrastructure, providing generic mechanisms which
+are useful in several application domains (proxies operated by access
+providers, content delivery surrogates, etc).
+
+Intermediaries are commonly deployed to help scale the WWW. Lack of
+mechanisms to control and communicate with them brings about
+scalability issues with intermediaries themselves, and lack of
+strong, scalable coherence mechanisms limits their adoption by both
+end users and content publishers.
+
+Furthermore, access providers who wish to provision caching proxies
+in their networks have no standardized mechanism to announce such
+devices to user agents. As a result, many access providers resort to
+the use of interception proxies, which break the end-to-end
+relationship between client and server at the transport layer,
+leading to undesired behaviors.
+
+Accordingly, the group's work items are to:
+
+1) Develop a resource update protocol.
+
+2) Gather requirements for an intermediary discovery and description
+   mechanism.
+
+It is expected that after requirements for intermediary discovery
+and description are gathered and evaluated, the working group will
+re-charter to continue that work.
+
+Issues pertaining to coordination between multiple administrative
+domains are explicitly out of scope in this group's work items. Work
+associated with the modification of messages by intermediaries is
+also out of scope. Additionally, this group will only address
+application-level (e.g., HTTP) intermediaries.

@@ -1,0 +1,60 @@
+Kerberos over the years has been ported to virtually every operating
+system. There are at least two open source versions, with numerous
+commercial versions based on these and other proprietary
+implementations. Kerberos evolution has continued in recent years, with
+the development of a new crypto framework, publication of a new version
+of the Kerberos specification, support for initial authentication using
+public keys, and numerous extensions developed in and out of the IETF.
+
+However, wider deployment and advances in technology bring with them
+both new challenges and new opportunities, particularly with regard to
+making initial authentication of users to the Kerberos system both
+convenient and secure. In addition, several key features remain undefined.
+
+The Kerberos Working Group will continue to improve the core Kerberos
+specification, develop extensions to address new needs and technologies
+related to improving the process of client authentication, and produce
+specifications for missing functionality.
+
+
+Specifically, the Working Group will:
+
+* Complete existing work:
+- ECC for PKINIT (draft-zhu-pkinit-ecc-03.txt)
+- Set/Change Password
+(draft-ietf-krb-wg-kerberos-set-passwd-05.txt)
+- Naming Constraints (draft-ietf-krb-wg-naming-02.txt)
+- Anonymity (draft-ietf-krb-wg-anon-03.txt)
+- Hash agility for GSS-KRB5
+(draft-ietf-krb-wg-gss-cb-hash-agility-00.txt)
+- Hash agility for PKINIT (draft-ietf-krb-wg-pkinit-alg-agility-01.txt)
+- Referrals (draft-ietf-krb-wg-kerberos-referrals-08.txt)
+
+* Prepare and advance a specification for an updated, backward-
+compatible version of the Kerberos version 5 protocol which supports
+non-ASCII principal and realm names, salt strings, and passwords;
+insures that those portions of the protocol which are not encrypted are
+nonetheless authenticated whenever possible; and enables future protocol
+revisions and extensions.
+
+* Develop extensions which reduce or eliminate exposure of Kerberos
+clients' long-term keys to attack and enable the use of alternate
+mechanisms for initial authentication. This task will comprise the
+following items:
+- A model and framework for preauthentication mechanisms
+- A mechanism for providing a protected channel for carrying
+preauthentication data and/or a reply key between a Kerberos
+client and KDC, within the KDC_REQ/KDC_REP exchange.
+- Support for One-Time Passwords
+- Support for hardware authentication tokens
+- Support for using TLS to secure communications with Kerberos KDCs.
+
+* Examine issues related to the current cross-realm model, produce a
+list of problems to be solved, and evaluate approaches to solving them.
+
+* Develop extensions to Kerberos and a GSS-API mechanism (IAKERB) to
+enable Kerberos clients to communicate with a KDC by using a GSS-API
+acceptor as a proxy.
+
+* Produce a data model for information needed by the KDC, and an LDAP
+schema for management of that data.

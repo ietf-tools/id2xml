@@ -1,0 +1,41 @@
+The purpose of this WG is to enable Remote Direct Data Placement (rddp)
+capabilities with IP transport protocols, in particular with
+SCTP. RDDP capabilities refer to the ability to place data directly
+from the NIC into application buffers, without intensive CPU
+usage. This strategy avoids the costs of data copying and enables
+using IP as a method for high speed buffer to buffer transfer,
+allowing IP to replace special purpose networks currently in use.
+Remote Direct Memory Access (RDMA) is an example of this concept.
+
+Conceptually, RDDP functionality can be viewed as consisting of two
+layers. First the direct data placement capability, which is
+accomplished through a tag and a lookup table on the NIC. Above this
+core functionality, an RDDP control protocol is needed to specify how
+the direct data placement can be used, for example READ and WRITE
+commands.
+
+The work of the WG is to accomplish four items:
+
+1) A (transport independent) protocol core to support direct data
+   placement from the NIC into specified memory, usually application
+   buffers.
+
+2) A (transport independent) protocol core layered on top of the direct
+   data placement protocol that specifies control of RDDP.
+
+3) A mapping of the direct data placement protocol onto SCTP,
+   for standards track, including a clear applicability statement
+   of the expected service from the mapping.
+
+4) A mapping of the direct data placement protocol onto TCP, for
+   informational, because TCP's service is a less good match to RDDP,
+   including an applicability statement of the issues regarding the
+   service available from the mapping.
+
+The working group will ensure that the resulting technology will be
+secure and will not enable new attacks on systems supporting RDDP.
+ 
+The WG will not modify existing Internet transport protocols, but
+may forward issues it discovers in such transport protocols that
+are not full Internet Standards to the appropriate IETF WGs for
+their consideration.

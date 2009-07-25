@@ -1,0 +1,77 @@
+A multihomed site is a site that has more than one connection to the
+public internet with those connections through either the same or
+different ISPs. Sites choose to multihome for several reasons,
+especially to improve fault tolerance, perform load balancing, etc.
+
+Multihoming today is done largely by having a site obtain a dedicated 
+block of address space and then advertising a route for its prefix 
+through each of its ISP connections. The address block may be from the
+so-called provider independent space, or may be a sub-allocation from
+one of its ISPs. A site's ISPs in turn advertise the prefix to some or
+all of their upstream connections and the route for the prefix may
+propagate to all of the routers connected to the default-free zone
+(DFZ). As the number of sites multihoming in this manner increase, the
+number of routes propagated throughout the DFZ increases and overall
+routing stability decreases because of the burden on convergence
+time. This WG will seek alternative approaches with better scaling
+properties. Specifically, the WG will prefer multihoming solutions
+that tend to minimise adverse impacts on the end-to-end routing system
+and limit the number of prefixes that need to be advertised in the
+Default-Free Zone (DFZ). Just as sites have multiple reasons to choose 
+multihoming, they may have multiple reasons to want to provide these 
+benefits more directly to hosts within their sites, for instance, 
+because some of those hosts may have network stacks capable of 
+detecting and surviving a provider/prefix change. Phasing in hosts 
+with 
+capabilities of multihoming might be part of the Multi6 solution 
+space. 
+In the course of this work, the WG may also study the deeper 
+underlying 
+questions of identity and location of services, hosts and sites as 
+they 
+directly affect multihoming.However, the working group is not 
+chartered 
+to make significant changes to the nature of IP addresses or to 
+inter-domain routing.
+
+This WG will consider the problem of how to multihome sites in
+IPv6. The multihoming approaches currently used in IPv4 can of course
+be used in IPv6, but IPv6 represents an opportunity for more scalable
+approaches. IPv6 differs from IPv4 in ways that may allow for
+different approaches to multihoming that are not immediately
+applicable to IPv4. For example, IPv6 has larger addresses, hosts
+support multiple addresses per interface, and relatively few IPv6
+address blocks have been given out (i.e., there are no issues with
+legacy allocations as in IPv4). Also, IPv6 deployment is at an early 
+stage, so modest enhancements to IPv6 could still be proposed.
+
+The WG has already produced a document, RFC 3582, on goals for IPv6 
+site multihoming architectures. It is recognised that this set of goals
+is ambitious and that some goals may conflict with others. The
+solution or solutions adopted may only be able to satisfy some of the
+goals presented there.
+
+The WG will take on the following tasks:
+========================================
+
+Produce a document describing how multihoming is done today in IPv4, 
+including an explanation of both the advantages and limitations of the
+approaches.
+
+Produce a document outlining practical questions to be considered
+when evaluating proposals meeting the RFC 3582 goals, including
+questions concerning upper layer protocols.
+
+Produce a document describing the security threats to be addressed
+by multihoming solutions.
+
+Solicit and evaluate specific proposals to multihoming in IPv6
+(both existing and new), extract and analyse common architectural 
+features, and select one or a small number of proposals for further 
+development. The architectural analysis will include applications 
+layer 
+considerations and transport layer considerations, as well as lower 
+layer issues.
+
+Development of specific solutions will require chartering of work
+in the appropriate Area or Areas.

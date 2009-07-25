@@ -1,0 +1,11 @@
+Work in several IETF working groups addresses issues relevant to remote 
+performance management.  These include the ippm, bmwg, rmonmib, and 
+disman working groups.  The purpose of this BOF is threefold.  First, 
+it 
+will help in assessing the need for additional work in the area not 
+already covered by existing work items.  Secondly, it will aid in 
+determining whether there is sufficient interest (and resources).  
+Finally, it will give interested parties an opportunity to voice their 
+views on what would be an appropriate home for this work, whether under 
+the existing charter of an existing WG, as an extension to some WG's 
+charter, or as a separate working group.

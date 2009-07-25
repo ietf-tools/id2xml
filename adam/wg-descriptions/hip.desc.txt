@@ -1,0 +1,77 @@
+The Host Identity Protocol (HIP) provides a method of separating the
+end-point identifier and locator roles of IP addresses. It introduces
+a new Host Identity (HI) name space, based on public keys. The public
+keys are typically, but not necessarily, self generated.
+
+The specifications for the architecture and protocol details for these
+mechanisms consist of:
+
+HIP Architecture (RFC 4423)
+Host Identity Protocol (RFC 5201)
+
+There are several publicly known interoperating implementations, some
+of which are open source.
+
+Currently, the HIP base protocol works well with any pair of
+co-operating end-hosts. However, to be more useful and more widely
+deployable, HIP needs some support from the existing infrastructure,
+including the DNS, and a new piece of infrastructure, called the HIP
+rendezvous server.
+
++-------------------------------------------------------+
+| The purpose of this Working Group is to define the |
+| minimal infrastructure elements that are needed for |
+| HIP experimentation on a wide scale. |
++-------------------------------------------------------+
+
+At this point, the missing elements for running such wide-scale
+experiments are a NAT traversal solution, a description on the
+interactions between legacy (i.e., HIP unaware) applications and HIP,
+and a native API for HIP. Additionally, the working group will
+specify, also in Experimental RFCs, how to build HIP-based
+overlays. HIP-based overlays have received a lot of attention in
+different fora and are seen as a key area for HIP experimentation
+where the benefits HIP brings may be most relevant.
+
+Note that even though the specifications are chartered for
+Experimental, it is understood that their quality and security
+properties should match the standards track requirements. The main
+purpose for producing Experimental documents instead of standards
+track ones are the unknown effects that the mechanisms may have on
+applications and on the Internet at large.
+
+In parallel to this working group, there is an IRTF Research Group
+with a broader scope that includes efforts both on developing the more
+forward looking aspects of the HIP architecture and on exploring the
+effects that HIP may have on the applications and the Internet.
+
+The following are charter items for the working group:
+
+o Specify how legacy (i.e., HIP unaware) applications can be made to
+work with HIP.
+
+o Specify a solution for HIP to traverse legacy (i.e., HIP unaware)
+NATs. This solution will be based on existing NAT traversal mechanisms
+such as ICE (Interactive Connectivity Establishment).
+
+o Specify a native HIP socket API.
+
+o Specify a framework to build HIP-based overlays. This framework will
+describe how HIP can perform some of the tasks needed to build an
+overlay and how technologies developed somewhere else (e.g., a peer
+protocol developed in the P2PSIP WG) can complement HIP by performing
+the tasks HIP was not designed to perform.
+
+o Specify how to generate ORCHIDs from other node identifiers
+including both cryptographic ones (leading to cryptographic
+delegation) and non-cryptographic ones (e.g., identifiers defined by a
+peer protocol).
+
+o Specify how to carry certificates in the base exchange. This was
+removed from the base HIP spec so that the mechanism is specified in a
+stand-alone spec.
+
+o Specify how to carry upper-layer data over specified HIP
+packets. These include some of the existing HIP packets and possibly
+new HIP packets (e.g., a HIP packet that occurs outside a HIP base
+exchange).

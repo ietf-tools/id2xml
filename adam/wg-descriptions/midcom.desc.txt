@@ -1,0 +1,87 @@
+As trusted third parties are increasingly being asked to make policy 
+decisions on behalf of the various entities participating in an 
+application's operation, a need has developed for applications to be 
+able to communicate their needs to the devices in the network that 
+provide transport policy enforcement. Examples of these devices
+include firewalls, network address translators (both within and 
+between 
+address families), signature management for intrusion detection
+systems, and multimedia buffer management. These devices are a subset
+of what can be referred to as 'middleboxes.'
+
+This working group will focus its attention on communication with 
+firewalls and network address translators (including translation
+between IPv6 and IPv4). Work will not preclude extensibility to other 
+categories of middle box.
+
+Decomposing applications requiring policy decisions by removing 
+application logic from the middle box and instead providing a 
+generalized communications interface provides a number of benefits, 
+including improved performance, lower software development and 
+maintenance costs, improved ability to support traversal of packet 
+filters by complex protocols, easier deployment of new applications, 
+and the ability to consolidate management functions. For example, by 
+moving stateful inspection of protocols such as H.323 and SIP out
+of firewalls, it is possible to improve performance and scalability 
+and 
+reduce development and costs.
+
+This working group will concern itself with an environment that 
+consists of:
+
+- one or more middle boxes in the data path
+
+- an external requesting entity
+
+- a policy entity for consultation purposes when the
+    requesting entity is untrusted.
+
+The requesting entity may be trusted or untrusted. In the case where 
+it 
+is trusted, the middle box will treat the request from the entity as 
+authoritative. In the case where it is not trusted, the intermediate 
+device will have to verify that it is authorized to complete the 
+request. That authorization could come from a separate or a built in
+policy server. 
+
+The primary focus of the working group will be the application of this 
+architecture to communicating requests between applications and 
+firewalls or NATs. This will not preclude other uses, and care will be 
+taken to ensure that the protocol is extensible.
+
+The working group will evaluate existing IETF protocols for their 
+applicability to this problem, using the framework and requirements 
+documents developed during the working group's first phase as criteria 
+for the evaluation. If a protocol is found to be suitable it will be 
+used as the basis for the development of a middlebox communication 
+protocol. In the unlikely case that one is not found to be suitable,
+the working group will undertake development of a new protocol.
+
+Discovery of middle boxes is out of scope.
+
+The deliverables will be
+
+o a document evaluating existing IETF protocols for their
+    suitability
+
+o a document specifying a middlebox communication protocol
+    or profile based on the results of the protocol evaluation.
+
+This working group will only deal with firewalls and network
+address translators.
+
+Ubiquitous deployment of midcom in all middleboxes could take many 
+years. In the interim, a solution is needed that allows applications 
+to 
+operate in the presence of midcom-unaware middleboxes. To support 
+this, 
+the midcom group will develop or document a protocol or approach that 
+allows clients to indirectly obtain address bindings from midcom-
+unaware middleboxes, through communications with server elements on 
+the 
+public side of the middlebox. The key goals for this effort are rapid 
+delivery of a simple solution (since it is an interim solution), 
+consistency with the midcom framework, and security. In particular, 
+any 
+proposed interim approaches will address (and document) the 
+architectural and pragmatic concerns described in [UNSAF].

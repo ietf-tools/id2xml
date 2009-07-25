@@ -1,0 +1,137 @@
+Network transport service providers and their users are
+seeking to rationalize their networks by migrating their
+existing services and platforms onto IP or MPLS enabled
+IP packet switched networks (PSN). This migration requires
+communications services that can emulate the essential
+properties of traditional communications links over a PSN.
+Some service providers wish to use MPLS technology to
+replace existing transport network infrastructure, relying
+upon pseudowire technology is an integral component of
+these network convergence architectures.
+
+Pseudowire Emulation Edge to Edge (PWE3) will specify the
+encapsulation, transport, control, management, interworking
+and security of services emulated over IETF-specified PSNs.
+
+A pseudowire emulates a point-to-point or point-to-multipoint
+link, and provides a single service which is perceived by
+its user as an unshared link or circuit of the chosen
+service. It is not intended that an emulated service will
+be indistinguishable from the service that is being emulated.
+The emulation need only be sufficient for the satisfactory
+operation of the service. Emulation necessarily involves a
+degree of cost-performance trade-off. In some cases it may
+be necessary to design more than one emulation mechanism in
+order to resolve these design conflicts. All emulated service
+definitions must include an applicability statement describing
+the faithfulness of the emulation.
+
+Switching, multiplexing, modification or other operation on
+the traditional service, unless required as part of the
+emulation, is out of the scope of the PWE3 WG.
+
+PWE3 will make use of existing IETF-specified mechanisms
+unless there are technical reasons why the existing mechanisms
+are insufficient or unnecessary.
+
+PWE3 operates "edge to edge" and will not exert control on
+the underlying PSN, other than to use any existing QoS or
+path control mechanism to provide the required connectivity
+between the endpoints of the PW.
+
+PWE3 will co-ordinate this with the AVT and TICTOC WGs.
+Where AVT or TICTOC require extensions to PWs to support
+time or frequency transfer this work will be undertaken by
+the PWE3 WG in co-ordination with the these WGs.
+
+A PW operating over a shared PSN does not necessarily have
+the same intrinsic security as a dedicated, purpose built,
+network. In some cases this is satisfactory, while in other
+cases it will be necessary to enhance the security of the PW
+to emulate the intrinsic security of the emulated service.
+PW specifications MUST include a description of how they
+are to be operated over a shared PSN with adequate security.
+PWE3 will work with the MPLS, L2VPN and other relevant WGs
+for definitions of common solutions for the secure operation
+of pseudowires.
+
+Whilst a service provider may traffic engineer their network
+in such a way that PW traffic will not cause significant
+congestion, a PW deployed by an end-user may cause
+congestion of the underlying PSN. Suitable congestion
+avoidance mechanisms are therefore needed to protect the
+Internet from the unconstrained deployment of PWs.  Congestion 
+avoidance may be more difficult with P2MP pseudowires than
+P2P pseudowires. The WG will consider both cases.
+
+PWE3 will work closely with the L2VPN WG to ensure a clear
+demarcation is defined for where PWE3 stops and L2VPN starts,
+in particular in defining point-multipoint (P2MP) PWs.
+
+PWE3 will work with MPLS and L2VPN to enhance the OAM suite
+for transport applications. PWE3 will coordinate very closely
+with any WG that is responsible for protocols which PWE3
+intends to extend (e.g., the MPLS WG for LDP), as well as
+foster interaction with WGs that intend to extend PWE3
+protocols.
+
+The IETF PWE3 WG is the design authority for pseudo-wire
+over IP/MPLS PSN technology. An entity or individual that
+wishes to propose extensions or changes to this technology
+must bring the corresponding proposals to the PWE3 WG that
+would treat them via a process similar to one described in
+RFC 4929 for the MPLS/GMPLS change process.
+
+WG Objectives:
+
+Specify the following PW types:
+
+Most of the initial specific PW types have been specified
+(e.g., Frame Realy, Ethernet, ATM). Investigation into
+and specification of a "generic PW" type and/or MPLS PW
+should be undertaken.
+
+PWE3 will specify a PW type for the special case where the
+access service payloads at both ends are known to consist
+entirely of IP packets. PWE3 will not specify mechanisms
+by which a PW connects two different access services
+unless the Network Layer protocol is IP or MPLS.
+
+Specify the control and management functions of chartered PW
+types, to include PW setup, configuration, maintenance and
+tear-down. The PWE3 WG will do this in its entirety for
+MPLS PSNs, and the L2TPEXT WG will develop the L2TP specifics
+for L2TPv3-based PWs.
+
+Specify Operations and Management (OAM) mechanisms for all
+PW types, suitable for operation over both IP/L2TPv3 and
+MPLS PSNs, and capable of providing the necessary
+interworking with the OAM mechanisms of the emulated
+service.
+
+Define requirements for and mechanisms to provide
+interconnection of PWs (to include inter-domain PWs).
+
+Define requirements for and mechanisms to provide
+protection and restoration of PWs.
+
+Publish document outlining PW-specific congestion avoidance
+and response guidelines.
+
+Publish document outlining PW-specific security
+considerations.
+
+Specify requirements and mechanisms for P2MP functionality
+for PWs. This work will be coordinated with the L2VPN and
+MPLS working groups.
+
+Publish requirements and specification for PW to take
+advantage of multiple PSN paths that exist between PEs.
+
+Publish requirements and specification for enhanced OAM.
+
+Include extensions to the PWE3 protocols and RFCs
+necessary to create an MPLS Transport Profile (MPLS-TP).
+The work on the MPLS TP needs to be coordinated between
+three primary working groups (MPLS, PWE3, L2VPN and CCAMP) that
+are chartered to do MPLS TP work.

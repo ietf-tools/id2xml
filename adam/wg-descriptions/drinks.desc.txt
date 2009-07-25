@@ -1,0 +1,63 @@
+The IETF has been working on various aspects of SIP-enabled Multimedia
+administrative domains among SIP Service Providers (SSP's). SSP's are
+entities that provide session services utilizing SIP signaling to their
+customers. In addition, the IETF has done significant work on data
+exchanges among various network elements.
+
+The DRINKS working group is chartered with a scope that is orthogonal to
+SPEERMINT and ENUM. The protocol work of DRINKS will be designed to
+build from the work of SPEERMINT and ENUM to identify and define the
+data structures and data exchange protocol(s) among SIP based Multimedia
+administrative domains.
+
+The ENUM working group is specifically chartered to develop protocols
+that involve the translation of E.164 numbers to URIs. While the
+SPEERMINT working group has been chartered to develop requirements and
+best current practices among real-time application SSPs and to describe
+how such services may best interconnect across administrative
+boundaries.
+
+These administrative domains may be of any practical size and could be
+any type of SSP, such as recognized telephony carriers, enterprises,
+end-user groups, or Federations. Data exchanges among these
+administrative domains may be bi-lateral or multi-lateral in nature, and
+could include bulk updates and/or more granular real-time updates.
+
+Administrative domains may exchange data through the use of an external
+registry to aggregate data from multiple administrative domains or
+multiple data providers into a single view.
+
+The DRINKS WG will provide details of how Session Establishment Data
+(SED) is collected, what comprises SED, how SED should be used to
+properly identify an optimal path to a destination SIP user agent
+(UA),either internally or externally to the SSP. In addition DRINKS will
+insure that the SED and the SIP session data is securely exchanged
+between the peering functions.
+
+Typical SED data might include:
+
++ Routes
+- Destination SIP/SIPS/TEL URI Egress and Ingress Routes
+- Relevant route names, identifiers, and services
+- Attributes affecting route selection
+- PSTN database information
+
++ Targets
+- Individual, ranges, or groups of user-agent identifiers
+- Target aggregation entities (e.g. service areas) and
+target-to-aggregate associations
+
++ Treatment Profiles
+- Priority
+- Location
+
+Potential SED Data types not in scope will be session rating or other
+billing or pricing information between SSP's
+
+The working group will draw upon expert advice and on-going consultation
+from the ENUM and SPEERMINT working groups, and also the XML
+Directorate.
+The working group will consider the reuse of elements of RFC 4114.
+
+The final work product(s) from this working group will utilize and be
+based on XML documents and XML document exchanges.

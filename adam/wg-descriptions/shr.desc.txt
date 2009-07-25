@@ -1,0 +1,35 @@
+
+        The Special-purpose Host Requirements Working Group is
+chartered to clarify application of the Host Requirements RFCs (1122
+and 1123) to systems that are technically hosts but are not intended
+to support general network applications.  These special-purpose hosts
+include, for example, terminal servers (a ``Telnet host''), or file
+servers (an ``FTP host'' or an ``NFS host'').
+
+        The Host Requirements RFCs address the typical,
+general-purpose system with a variety of applications and an open
+development environment, and give only passing consideration to
+special-purpose hosts.  As a result, suppliers of special-purpose
+hosts must bend the truth or make excuses when users evaluate their
+products against the Requirements RFCs.  Users must then decide
+whether such a product is in fact deficient or the requirements truly
+do not apply.  This process creates work and confusion, and undermines
+the value of the RFCs.  The commercial success of the Internet
+protocols and their use in increasingly unsophisticated environments
+exacerbates the problem.
+
+        The Working Group must define principles and examples for
+proper functional subsets of the general-purpose host and specifically
+state how such subsets affect the requirements.  The Working Group
+must determine the balance between an exhaustive list of specific
+special-purpose hosts and philosphy that remains subject to debate.
+For the most part, it should be possible to base decisions on existing
+experience and implementations.  The special-purpose requirements will
+be stated as differences from the existing RFCs, not replacements, and
+will refer rather than stand alone.
+
+        Since they define strict subsets of the Host Requirements
+RFCs, the Special-purpose Host Requirements appear to be an easier job
+and can be developed and stabilized within 8-12 months.  Most of the
+Group's business can be conducted over the Internet through email.
+

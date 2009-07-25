@@ -1,0 +1,34 @@
+The goal of the working group is to design, specify, implement and test a
+flexible new routing and addressing architecture suitable for very large
+scale internets.  The basic architecture for computation of routes will
+be based on distribution of network topology maps, with source-specified
+route selection, and unitary (i.e., not hop-by-hop) computation of routes.
+
+The architecture will provide a single homogeneous framework for all
+routing, including both inter-domain and intra-domain.  It will include a
+new network component naming abstraction hierarchy, starting from network
+attachment points, and based on actual connectivity, but taking into
+consideration policy requirements.  These new names will be variable
+length, with a variable number of levels of abstraction; they will not
+appear in most packets, though.
+
+Actual packet forwarding will be based both on retained non-critical
+state in the switches (via flow setup for long-lived communications), and
+both classical address-only, as well as source-route type instructions, in
+individual packets (for datagram applications which send only one, or a very
+few, packets).
+
+Although the general design and algorithms will be usable in any
+internetworking protocol family, the initial detailed protocol
+specifications and implementation are currently planned for deployment
+with IPv4, but support for another packet format may be substituted or
+added, depending on the situation in the Internet in the future.
+Interoperabilty with existing unmodified IPv4 hosts will be achieved by
+re-interpreting the existing source and destination fields in IPv4
+packets as endpoint identifiers.
+
+A substantial effort to take into account support for mobility,
+multicast and resource allocation will be made when designing the Nimrod
+architecture; provided that so doing is neither impossible because of
+incomplete work outside the scope of Nimrod, nor the cause of very
+substantial delays in the first iteration of the protocol design.

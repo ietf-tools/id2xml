@@ -1,0 +1,82 @@
+The term "VoIP Peering" has been used to describe many different  
+aspects of provider interconnect and the delivery of SIP call
+termination over that interconnection. Further, since VoIP peering 
+focuses on how to identify and route calls at the application level, 
+it does not (necessarily) involve the exchange of packet routing data. 
+Given that VoIP peering is about routing calls, it includes (among 
+other things) the accounting of costs that may be incurred in the use 
+of any of these routes, the actual transport protocol of those media 
+streams (or the details of those media streams), the IP network or 
+criteria for the transport IP network,the signaling protocol that is 
+used for transporting call-routing information, etc. Thus, given the 
+broad scope of the topic, this BOF proposes to focus on the following
+objectives:
+
+(i). To initiate long term discussion on VoIP Peering and Interconnect 
+among the Internet's operational community, with the goal of 
+understanding the existing and future requirements for VoIP Peering and
+Interconnect. In particular, since VoIP peering is really about how to 
+identify and route calls at the application level, it brings 
+requirements from both transport providers and application vendors, as 
+well as many other third parties. One possible outcome of this would 
+be to charter a VoIP Peering and Interconnect Working Group (area TBD).
+
+(ii). To address the near-term need to document the requirements and 
+associated use-cases for VoIP interconnect. Such requirements can be 
+used to inform protocol groups working on relevant protocol mechanisms.
+
+The focus of the proposed work will be on documenting VoIP Peering and 
+Interconnect use cases, defining their requirements, and describing 
+what can be done in support of those use-cases and requirements with 
+the Internet technology (and its dual, namely, what can't be done with 
+the Internet technology).
+
+Issues for voipeer include (but are not limited to):
+
+(a). Call Routing
+
+That is, how to figure out who to route calls to. Options include SIP, 
+ENUM (public v. private ENUM, carrier ENUM, etc). Further, several 
+protocols have been proposed to carry enhanced call routing 
+information, such as RFC3219 (TRIP). Are these necessary, and if so, 
+are there complexity concerns?
+
+(b). ENUM
+
+How ENUM is currently being deployed/used, what are the barriers to 
+deployment, if any, and how can we further facilitate its deployment. 
+Other related topics include number portability, as well as directory 
+and other enhanced routing requirements.
+
+
+(c). Security
+
+Includes topology and provider hiding, DoS prevention, authorization, 
+and VoIP Spam mitigation (e.g., SPIT).
+
+(d). Accounting
+
+That is, how to track calls made to and from each peer, including TOD, 
+duration, packets send and received, etc.
+
+(e). Audit
+
+Including how to determine where in the call path a fault lies, per-
+call accounting of call quality (most providers are looking for end-to-
+end call quality). Accounting of ASRs (and other PSTN call metrics, 
+for PSTN termination peers only).
+
+(f). PSTN Fallback
+
+Issues here include what to do if the IP network is congested, how to 
+do PSTN fallback, and interaction with call routing and IP network 
+congestion measurement and monitoring.=20
+
+(g). Feature Interoperability=20
+
+(h). Lawful Intercept
+
+Will be discussed within the IETF's RAVEN principles.
+
+(i). Interaction of (a)-(h) with current/future Session Border
+Controller (SBC) deployments

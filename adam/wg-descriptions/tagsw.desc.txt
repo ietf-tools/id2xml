@@ -1,0 +1,23 @@
+Tag switching BOF
+
+Numerous proposals have been made for mechanisms to efficiently
+support IP routing (or other network layer protocols) using layer 2
+forwarding technologies based on label swapping. If products using
+such techniques are to interoperate, then some aspects of the
+mechanism need to be standardized. These include: 
+
+ - the protocol which is used to bind forwarding labels to IP (or
+other network layer) forwarding information;
+
+ - the encapsulations for carrying IP packets over various layer 2
+links.
+
+The goal of this BOF is to establish whether there is interest in the
+IETF community in such a standardisation effort. If there is, the goal
+would be to produce a working group charter for standardisation of the
+binding protocol and encapsulations.
+
+Relevant Internet Drafts include:
+
+draft-rfced-info-rekhter-00.txt
+draft-doolan-tdp-spec-00.txt

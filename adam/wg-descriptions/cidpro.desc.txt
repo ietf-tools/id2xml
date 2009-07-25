@@ -1,0 +1,15 @@
+BGP begot BGPD, BGPD came together with ALE to beget CIDRD, CIDRD strayed
+from the true path and the question is should it beget or just begone.
+
+There is a widespread feeling that the CIDRD working group should be
+concluded.  It has met its goals and has become more of a general
+operations of the Internet catch-all.  The working group chairs and the
+IESG concur in this feeling and the working group will terminate after the
+fate of the document that it has in last call is determined.
+
+This BOF will explore the options for the future of the activities that the
+CIDRD working group has been supporting.  This discussion will include an
+examination of the role of the IETF in the operations of the Internet.
+
+Anyone who would like to be given time to speak at the session please send
+a request to sob@harvard.edu.

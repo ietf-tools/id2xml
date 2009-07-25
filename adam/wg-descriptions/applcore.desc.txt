@@ -1,0 +1,44 @@
+The IETF has traditionally developed application protocols directly on
+top of a raw TCP stream.  However, there is a growing set of problems
+which many application protocols have to solve regardless of what the
+protocols do.  This WG will identify the common problems that deployed
+IETF protocols have solved, identify the successes and failures that
+deployed IETF protocols made when addressing these problems and design
+a simple core protocol to address these problems.  This core protocol
+may then be used by future application protocols to simplify both the
+process of protocol design and the complexity of implementing
+multi-protocol clients or servers.
+
+In order to keep the WG in focus, the following items are explicitly
+out-of-scope:
+
+* Backwards compatibility with existing application protocols
+  Backwards compatibility often compromises correct design.  If this
+  WG is successful it will impact a great number of future protocols,
+  and thus the design errors which backwards compatibility might
+  dictate must be avoided.
+
+* Transport layers other than TCP/IP
+  This has been a rathole in too many other WGs.
+
+* Protocol models outside the traditional IETF client-server TCP
+  application protocol model.
+  The IETF doesn't have sufficient past experience in these areas.
+
+* New features
+  If a problem hasn't been solved in at least two deployed IETF
+  application protocols, then it is out-of-scope for the base core
+  protocol spec.  This does not preclude individuals or other groups
+  from doing extensions to the core protocol which might be used by
+  multiple future application protocols; it just limits the scope of
+  the core spec.
+
+* Normative references to other application protocols or non-public
+  specs. 
+  The core protocol has to stand by itself.  It may reference protocol
+  building blocks that have been used by several other application
+  protocols such as ABNF, language tags, UTF-8, domain names, URLs,
+  MIME, SASL, GSSAPI and TLS.  It must avoid normative references to
+  full application protocols such as ACAP, HTTP, IMAP, LDAP, and SMTP.
+  It must avoid normative references to any document which is not
+  freely and publicly available on the Internet.

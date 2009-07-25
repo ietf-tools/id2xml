@@ -1,0 +1,21 @@
+     The SNA NAU Services MIB Working Group is chartered to define a
+     set of managed objects for PU type 2.0, and LU type 1, 2, and 3
+     devices for SNA networks.  These objects will be the minimum
+     necessary to provide the ability to monitor and control those
+     devices, providing fault, configuration, and performance
+     management, and will be consistent with the SNMP framework and
+     existing SNMP standards.
+
+     The working group will consider existing enterprise-specific MIB
+     modules that define objects which support management of these
+     devices.  It will also make sure that its work is aligned with the
+     SNA DLC Services MIB Working Group, due to the close relationship
+     between the devices being worked on by the two groups.
+
+     The working group recognizes that managed objects for other
+     components (e.g., PU Type 4, PU Type 5, LU Types 1, 3, 4, 6.2
+     (APPC), APPN EN, APPN NN and APPI) may need to be identified in
+     the future.  These objects are out of scope for the current
+     charter; however, once the group completes its charter, a
+     new charter identifying some or all of these components may be
+     considered.

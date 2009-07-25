@@ -1,0 +1,25 @@
+Note: Working Group concluded on 10/14/96
+
+
+Widespread familiarity with global network services and competence in
+using them brings benefit to individual users, enriches the information
+skills and resources of the community and optimizes the return in
+investment in networked services.
+
+The Network Training Materials Working Group is chartered to enable the
+research community to make better use of the networked services.
+Towards this end, the working group will work to provide a mix of
+training materials for the broad academic community which will:
+(1) enable user support staff to train users to use the networked 
+services,
+and (2) provide users with self-paced learning material.  In the first
+instance, it will not deal with operational training.
+
+This working group is the IETF component of a joint TERENA/IETF group
+working on network training materials.
+
+The working group will create a catalogue of existing network training
+materials (using the IAFA style Data Elements where appropriate),
+identify the gaps in network training materials and work to identify
+the problems associated with hands on training workshops using
+networked services providing a real service.

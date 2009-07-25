@@ -1,0 +1,80 @@
+Broadband Wireless Access Networks address the inadequacies of low
+bandwidth wireless communication for user requirements such as high
+quality data/voice service, wide coverage, etc. The IEEE 802.16 Working
+Group on Broadband Wireless Access Standards develops standards and
+recommended practices to support the development and deployment of
+Broadband Wireless Metropolitan Area Networks.
+
+A particularity of IEEE 802.16 is that it does not include a rigid upper
+edge MAC service interface. Instead, it provides multiple "convergence
+sublayers (CS)" with the assumption that the choice and configuration of
+the upper edge will be done in accordance with the needs of a specific
+deployment environment (which might be DSL replacement, mobile access,
+802.11 or CDMA backhaul etc.).
+
+Specifically, immediately subsequent to network entry, an 802.16
+subscriber station has no capability whatsoever for data (as opposed to
+management) connectivity. Especially, in IP CS case, the criteria by
+which the Base Station (or other headend elements) sets up the 802.16
+MAC connections for data transport are not part of the 802.16 standard,
+and depend on the type of data services being offered (e.g., the set up
+of link layer connections will be different for IPv4 and IPv6 services).
+
+Additionally - as IEEE 802.16 is a point-to-multipoint network ? an
+802.16 subscriber station is not capable of multicasting (e.g., for
+neighbor discovery, ARP, IP multicasting services, etc.) or direct
+communication to the other nodes attached to the same Base Station
+within the same subnet (prefix).
+
+Unlike 3G or xDSL technologies, IEEE 802.16 is not part of an end-to-
+end system definition. Currently, the WiMAX Forum, and, in particular,
+its NWG (Network Working Group) is defining a network architecture based
+on IEEE 802.16.
+
+The principal objective of the 16ng working group is to specify the
+operation of IPv4 and IPv6 over IEEE 802.16, taking into account the
+IPv4, IPv6 and Ethernet Convergence Sublayers. The working group may
+issue recommendations to IEEE 802.16 and WiMax aiming at improving
+support for IP.
+
+The scope of this working group is as follows (WG Deliverables);
+
+- Produce "16ng Problem Statement, Goal and Requirement" to identify the
+specific gaps in the 802.16 MAC for IPv4/IPv6 support, describe possible
+network models (ie. point-to-point, broadcast etc.), and provide 16ng
+related terminology to be used for the base guideline while defining
+solution frameworks. [Informational RFC]
+
+- Produce "IPv6 over IEEE 802.16 Networks in conjunction with IPv6 CS"
+to define IPv6 operation including the transmission of IPv6 over IEEE
+802.16 link, Neighbor Discovery Protocol, Stateful (DHCPv6) and
+Stateless Address Configuration, Broadcast, Multicast, etc. [Proposed
+Standard RFC]
+
+- Produce "IPv6 over IEEE 802.16 Networks in conjunction with Ethernet
+CS" to define IPv6 operation including the transmission of IPv6 over
+IEEE 802.16 link, Neighbor Discovery Protocol, Stateful (DHCPv6) and
+Stateless Address Configuration, Broadcast, Multicast, etc. [Proposed
+Standard RFC]
+
+- Produce "IPv4 over IEEE 802.16 Networks in conjunction with IPv4 CS"
+to define IPv4 operation including the transmission of IPv4 over IEEE
+802.16 links, ARP operation, Stateful Address Configuration (DHCPv4),
+Broadcast, Multicast, etc [Proposed Standard RFC]
+
+- Produce "IPv4 over IEEE 802.16 Networks in conjunction with Ethernet
+CS" to define IPv4 operation including the transmission of IPv4 over
+IEEE 802.16 links, ARP operation, Stateful Address Configuration
+(DHCPv4), Broadcast, Multicast, etc [Proposed Standard RFC]
+
+- Produce "IP deployment over IEEE 802.16 Networks" to illustrate the IP
+deployment scenarios including IP CS and Ethernet CS considerations over
+IEEE 802.16 networks based on the WiMAX and WiBro. [Informational RFC]
+
+This working group will take dual stack operation into account in its
+specifications, and reuse existing specifications whenever reasonable
+and possible. The ability to negotiate the used Convergence Sublayer is
+required, as no single mandatory CS can be specified for the clients.
+Work based on the Ethernet CS needs to take into account
+interoperability with existing hosts and other devices that employ
+Ethernet? to allow bridging.

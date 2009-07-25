@@ -1,0 +1,87 @@
+Organizational Overview
+
+The CCAMP working group coordinates the work within the IETF
+defining a common control plane and a separate common measurement
+plane for physical path and core tunneling technologies of Internet
+and telecom service providers (ISPs and SPs), e.g. O-O and O-E-O
+optical switches, TDM Switches, Ethernet Switches, ATM and Frame
+Relay switches, IP encapsulation tunneling technologies, and MPLS
+in cooperation with the MPLS WG.
+
+In this context, measurement refers to the acquisition and
+distribution of attributes relevant to the setting up of tunnels
+and paths.
+
+CCAMP WG work scope includes:
+
+- Definition of protocol-independent metrics and parameters
+  (measurement attributes) for describing links and paths that are
+  required for routing and signaling. These will be developed in
+  conjunction with requests and requirements from other WGs to
+  ensure overall usefulness.
+
+- Definition of protocol(s) and extensions to them required for
+  link and path attribute measurement. Link Management Protocol
+  (LMP) is included here.
+
+- Functional specification of extensions for routing (OSPF, ISIS)
+  and signalling (RSVP-TE) required for path establishment.
+  Protocol formats and procedures that embody these extensions will
+  be done jointly with the WGs supervising those protocols.
+
+- Definition of the mechanisms required to determine the route and
+  properties of an established path (tunnel tracing).
+
+- Definition of management objects (e.g. as part of MIB modules) and 
+  OAM techniques relevant to the protocols and extensions specified 
+  within the WG.
+
+- Work on traffic-engineering GMPLS mechanisms and protocol
+  extensions to support source-controlled and explicitly-routed
+  Ethernet data paths for Ethernet data planes that are already
+  approved by an Standards Development Organization (SDO) with 
+  responsibility for the Ethernet data plane. It is expected that the 
+  primary SDO in this case is the IEEE. Note that the specification or 
+  modification of Ethernet data planes is out of scope.
+- Work on GMPLS mechanisms and protocol extensions to support the
+  transport profile of MPLS (MPLS-TP) in cooperation with the MPLS, 
+  L2VPN, and PWE3 Working Group and in coordination with the 
+  requirements expressed jointly by the IETF and ITU-T.
+
+
+CCAMP WG currently works on the following tasks:
+
+- Define how the properties of network resources gathered by a
+  measurement protocol can be distributed in existing routing
+  protocols, such as OSPF and IS-IS. CCAMP defines the generic
+  description of the properties and how they are distributed in
+  OSPF. The specifics of distribution within IS-IS are being
+  addressed in the ISIS WG.
+
+- Define signaling and routing mechanisms and extensions to allow
+  path and tunnel setup and maintenance across multiple domains,
+  where a domain may be an IGP area, an Autonomous System, or any
+  other region of topological visibility. To this end, work
+  cooperatively with the PCE and MPLS WGs.
+
+- Define abstract link and path properties needed for link and
+  path protection. Specify signalling mechanisms for path
+  protection, diverse routing and fast path restoration. Ensure
+  that multi-layer path protection and restoration functions are
+  achievable using the defined signalling, routing, and measurement
+  protocols, either separately or in combination.
+
+- Identify which requirements for signaling and routing for 
+  Automatically Switched Optical Network (ASON) are not currently met 
+  by protocols defined in CCAMP; based on these, define mechanisms to 
+  address these requirements.
+
+- Produce extensions to the CCAMP WG protocols and RFCs necessary
+  to create an MPLS Transport Profile (MPLS TP). The work on the
+  MPLS TP will be coordinated between the MPLS, L2VPN, PWE3, and CCAMP
+  working groups that are jointly chartered to do MPLS TP work.
+
+
+In doing this work, the WG will work closely with at least the
+following other WGs: MPLS, L2VPN, PWE3, ISIS, OSPF, IDR, L1VPN and PCE. 
+The WG will also cooperate with the ITU-T and the IEEE 802.1.

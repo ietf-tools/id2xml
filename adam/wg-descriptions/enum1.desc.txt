@@ -1,0 +1,49 @@
+This working group has defined a DNS-based architecture and protocol 
+[RFC2916] for mapping a telephone number to a set of attributes (e.g. 
+URI's) which can be used to contact a resource associated with that 
+number.
+
+Background: Telephone numbers now identify many different types of end 
+terminals, supporting many different services and protocols. Telephone 
+numbers are used to identify ordinary phones, fax machines, pagers,
+data modems, email clients, text terminals for the hearing impaired, 
+etc. A prospective caller may wish to discover which services and 
+protocols are supported by the terminal named by a given telephone 
+number. The caller may also require more information than just the 
+telephone number to communicate with the terminal.
+From the call recipient's perspective, the owner of the telephone
+number or device may wish to control what URI's, calling parties may 
+receive.
+
+The architecture must allow for different service providers, competing
+openly, to provision the data base of end point information required by
+clients to reach the desired the terminal device or service named by a
+telephone number.
+
+Working Group Revised Goals and Scope:
+
+1. The working group will, from a technical viewpoint describe how the
+   registry/registrar model used for DNS provisioning could be applied
+   to the global ENUM based branches of the DNS hierarchy and document 
+   various aspects of ENUM administrative / operational procedures 
+   within that context as Informational
+
+2. The working group will update RFC 2916 to reflect the ongoing
+   revision of RFC 2915.
+
+3. The working group will consider various aspects of privacy,
+   security, validation, authentication and provisioning of the global 
+   ENUM branches of the DNS including RFC 2915 (and revisions) records 
+   as Informational. Such documents could be used as models for various 
+   national implementations of RFC 2916 by the appropriate authorities 
+   over those portions of the global ENUM namespace.
+
+4. The Working Group will continue maintain contact and liaison with
+   appropriate standards bodies and groups in order to coordinate 
+   activities and provide appropriate technical input when required, in 
+   particular ITU Study Group 2 and other national ENUM administrative 
+   forums. The Working Group, in the sprit of technical exchange, will 
+   welcome technical information, updates etc.,  from various national 
+   ENUM administration forums, other standards bodies, as well as 
+   documentation on practical experiences with implementations of RFC 
+   2916.

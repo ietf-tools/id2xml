@@ -1,0 +1,14 @@
+The MPEG-2 Transport Stream provides a transmission network that has
+become widely use to support digital TV broadcast, including: DVB, DAB,
+ATSC, ISDB-T. These and related standards define a set of commercially
+available components that are increasingly being used  to provide a
+general-purpose packet transmission network.  MPEG-2 Transport networks
+are being used to build IP networks to supplement broadcast TV/audio
+services and also to provide one-way and two-way IP-only subnetworks. 
+
+
+The BOF will explore how the IETF might work to define documents that
+describe the protocols required to build a complete IPv4/IPv6
+unicast/multicast service, and the mappings that are needed to perform
+address resolution, etc. A set of Internet Drafts will be reviewed
+describing requirements, and some proposed protocols.

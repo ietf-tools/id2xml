@@ -1,0 +1,22 @@
+The Message Tracking Working Group will design a diagnostic protocol 
+for 
+a message originator to request information about the submission, 
+transport, and delivery of a message regardless of its delivery status.
+
+The group will produce two standards track documents: a message 
+tracking 
+model document and a protocol document. The model will state how 
+message 
+tracking is enabled, identify the entities involved, define how and 
+when 
+message tracking requests are issued and answered, define approaches 
+for 
+inter-domain message tracking, and address security issues. The 
+submission, transport, and delivery of RFC 822bis messages will be 
+tracked from the time such messages enter the messaging network up 
+until 
+the time they are discharged (e.g. to an IMAP server, to an end-user's 
+mailbox, or a proprietary mail system).
+
+The group will design one or more protocols to implement message 
+tracking as described above.

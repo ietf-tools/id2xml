@@ -1,0 +1,14 @@
+RFC2727 (BCP10) specifies the process by which the members of the IAB 
+and IESG are selected, confirmed, and recalled. It has been two years 
+and three nominating committees since the document was updated. The 
+experience has identified a number of areas where the process could be 
+both improved by additional clarifications and updated with additional 
+guidance.
+
+This working group will consider all such clarifications and 
+suggestions and produce a revision to RFC2727. However, the basic 
+mechanism of selection, confirmation, and recall will not be changed
+by this group. It is only concerned with the details of the current
+process.
+
+The input document will be draft-galvin-rfc2727bis-00.txt.

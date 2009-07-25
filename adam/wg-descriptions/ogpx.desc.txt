@@ -1,0 +1,51 @@
+Virtual Worlds (VWs) and other Massively Multi-Party Online Applications
+(MMOs) are of increasing interest to the Internet community. Innumerable
+examples exist of such applications, most using proprietary protocols.
+With their roots in games and social interaction, Virtual Worlds are now
+being used increasingly in business, education and information exchange.
+With a growing user base, creators of such systems are interested in
+developing a standard virtual worlds protocol to enable interoperability.
+
+The objective of the OGPX working group is to provide an
+application-layer wire protocol for Virtual Worlds to a) enable
+interoperability between applications, b) provide for access and
+exchange with other systems on the internet such as web services, e-mail
+and other information storage systems, c) allow network layers to
+recognize VW traffic and make routing decisions based on its
+characteristics. The Open Grid Protocol (OGP) describes semantics and
+protocol interaction for the virtual world, independent of transport,
+though bindings for carrying OGP over HTTP are defined.
+
+The core work of the group will be the production of the Open Grid
+Protocol suite (OGP), a set of application protocols to communicate and
+interact with the state of Virtual World applications. The Open Grid
+Protocol defines virtual worlds with the following assumptions:
+
+the Virtual World exists independent of the participating clients
+users have a single, unique presence in the virtual world
+the virtual world contains persistent objects 
+the virtual world may be partitioned 
+presence, state and simulation occur on authoritative hosts
+
+Foundational components of the Open Grid Protocol include the
+publication of: 1) the LLSD dynamic structured data system; an abstract
+type system for representing application layer objects along with
+serialization rules for protocol messages between these objects. 2) OGP
+Base, a messaging abstraction to support the unique needs of VW
+interactions. 3) Guidelines for using OAuth and PKIX compliant X.509
+infrastructure to authenticate protocol endpoints. The Open Grid
+Protocol makes use, wherever possible, of existing, established standards.
+
+The OGPX working group is not proposing the standardization of any one
+complete proprietary protocol, but to build on existing OGP related
+internet drafts:
+
+LLSD Dynamic Structure Data
+Open Grid Protocol : Base
+Open Grid Protocol : Authentication
+An additional deliverable describes the use of how OAuth or PKIX
+compliant digital certificates may be used with TLS to provide origin
+integrity in inter-host protocol interactions. Another deliverable is
+the specification for presence establishment in the virtual world based
+on the previous "OGP : Teleport" draft of the second life architecture
+working group.

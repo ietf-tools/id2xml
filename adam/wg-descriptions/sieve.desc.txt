@@ -1,0 +1,41 @@
+The SIEVE email filtering language is specified in RFC 5228, together
+with a number of extensions.
+
+The SIEVE working group is being re-chartered to:
+
+(1) Finish work on existing in-progress Working Group documents:
+    (a) Notify mailto (draft-ietf-sieve-notify-mailto)
+    (c) Mime loops (draft-ietf-sieve-mime-loop)
+    (d) Refuse/reject (draft-ietf-sieve-refuse-reject)
+
+(2) Finalize and publish the following SIEVE extensions as proposed
+standards:
+    (a) iHave (draft-freed-sieve-ihave)
+    (b) Notary (draft-freed-sieve-notary)
+    (c) SIEVE in XML (draft-freed-sieve-in-xml)
+    (d) Notify-sip (draft-melnikov-sieve-notify-sip-message)
+    (e) ManageSIEVE (draft-martin-managesieve)
+    (f) RegEx (draft-ietf-sieve-regex)
+    (g) Meta-data (draft-melnikov-sieve-imapext-metadata)
+    (h) Include/multi-script (draft-daboo-sieve-include)
+    (i) Address data (draft-melnikov-sieve-external-lists)
+    (j) Support for Sieve in IMAP (draft-ietf-lemonade-imap-sieve)
+
+Additional drafts may be added to this list, but only via a charter
+revision. There must also be demonstrable willingness in the SIEVE
+development community to actually implement a given extension before it
+can be added to this charter.
+
+(3) Work on a specification to describe how EAI/IDN issues should be
+handled in SIEVE.
+
+(4) Work on a "Benefits of SIEVE" guide for client and server vendors that:
+    (a) Describes the SIEVE protocol and its suite of extensions.
+    (b) Explains the benefits of server-side filtering in practical terms.
+    (c) Shows how client-side filtering can be migrated to SIEVE.
+
+(5) Produce one or more informational RFCs containing a set of test
+scripts and test email messages that are to be filtered by the scripts,
+and the expected results of that filtering. This will serve as the basis
+of a interoperability test suite to help determine the suitability of
+moving the base specification and selected extensions to Draft status.

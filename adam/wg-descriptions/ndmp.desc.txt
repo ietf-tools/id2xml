@@ -1,0 +1,54 @@
+ABSTRACT:
+The Network Data Management Protocol (NDMP) defines a network-based 
+mechanism and protocol for controlling backup, recovery, and other 
+transfers of data between primary and secondary storage.  The NDMP 
+architecture separates the network attached Data Management Application 
+(DMA), Data Servers and Tape Servers participating in archival or 
+recovery operations.  NDMP also provides low-level control of tape 
+devices and SCSI media changers. The XDR and TCP/IP protocols are 
+foundations for NDMP.  The key goals of NDMP include interoperability, 
+contemporary functionality, extensibility, internationalization, 
+security, and insuring data integrity.
+
+DESCRIPTION:
+The NDMP Working Group will enhance the protocol to provide generic
+support for widely desired new features and excise the biases that 
+limit 
+the protocol's interoperability.  The NDMP Working Group provides the 
+forum for the discussion and advancement of the NDMP standard.  The 
+objective of this NDMP Working Group is to advance the state of NDMP 
+standards by producing a version 5 specification and other NDMP version 
+5 standardization and protocol efforts, including a standard version 5
+extensions document.  
+
+NDMP version 5 will be submitted as an Internet Standards Track RFC. 
+The 
+first phase of working group activity is to produce a new requirements 
+document for NDMP version 5.  Such a requirements document will 
+describe 
+the limitations and deficiencies of current NDMP versions, propose 
+high-
+level solutions for improvements, and rate the importance of different 
+solutions.  Following the publication of this document, work will begin 
+on producing version 5 of the NDMP specification. It is anticipated 
+that 
+NDMP version 5 will emphasize the following features: 
+
+Restartability and Checkpoints 
+Improved Authentication 
+Firewall Compatibility 
+Internationalization 
+Generalization for Non-UNIX Environments 
+Data Management of Data Sets Beyond File Systems 
+Snapshot Management 
+Multi-source or Multi-destination Sessions 
+Standardization of Environment Variables 
+
+Further information on these objectives can be found in the document, 
+"Requirements for Network Data Management Protocol Version 5." 
+
+DELIVERABLES: 
+NDMP Version 5 Requirements Document 
+NDMP Core Protocol Version 5 Document 
+NDMP Standard Extensions Document 
+NDMP Version 5 Implementation Guidelines Document

@@ -1,0 +1,35 @@
+Draft 3/2 mw
+Two IETF BOF sessions on arts and humanities issues resulted in a 
+consensus by participants that the complexity of electronically 
+capturing, cataloguing and accessing arts and humanities content 
+requires expertise that is not widely available within the arts and 
+humanities community, but represents a significant need that could be 
+addressed by an IETF working group.  There is particular interest among 
+IETF members to define a methodology, tools, and guidelines for the 
+establishment of a clearinghouse (or multiple clearinghouses) that would 
+show by example how and why the Internet can effectively store and 
+showcase the wealth of information and resources comprising our world's 
+cultural heritage.  The IETF's assistance would help to enrich both the 
+arts and humanities and the broader community, and particularly help to 
+constitute an online community that enjoys access as both consumer and 
+producer of arts and humanities-based content.
+
+The working group's mission is to guide the development of the 
+infrastructure required in order that the arts and humanites community 
+may create complex resources widely accessible on the Internet.
+
+The goals of this working group include:
+
+1) facilitate the use of the Internet as a mechanism for the arts and 
+humanities to develop a knowledge base of research and information not 
+now widely accessible electronically.
+
+2) assist with the development of innovative technical tools (for 
+example, templates) for the production and consumption of information, 
+resources, and performance-based presentations that require unique 
+protocols for electronic storage and retrieval.
+
+3) define information content standards, any related technical 
+requirements, and training that will be necessary for key arts and 
+humanities constituencies to contribute information and resources to the 
+Internet.

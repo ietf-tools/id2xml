@@ -1,0 +1,13 @@
+The NISI Working Group will explore the requirements for common, shared
+Internet-wide network information services. The goal is to develop an
+understanding for what is required to implement an information services
+``infrastructure'' for the Internet.  The work will begin with existing
+NIC functions and services and should build upon work already being
+done within the Internet community. A primary goal of the group is to
+facilitate the development of relationships between NICs that will
+result in the presentation of a seamless user support service.  NISI
+will work with all NICs, including the InterNIC, to achieve the goal of
+a fully-functioning, cooperative mesh of worldwide NICs.  In addition
+to creating policies for interaction, NISI will address areas such as
+common information formats, methods of access, user interface, and
+issues relating to security and privacy of Internet databases.

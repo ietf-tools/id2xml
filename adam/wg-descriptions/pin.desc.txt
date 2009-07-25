@@ -1,0 +1,32 @@
+Current PSTN/Internet Interfaces (PINT) WG addresses connection 
+arrangements through which Internet applications can request and enrich 
+PSTN (Public Switched Telephone Network) telephony services. Some 
+Interworking services require Notification and requests for services 
+that come from PSTN/IN. Essentially, these requests will be "mirror 
+image" of PINT requests. To provide interoperability between PSTN and IP 
+networks, it  is very important to ensure notification to the IP network 
+of  the events happening in PSTN. PSTN/IN Call Flow is organized around 
+actions or collections of actions called Point-In-Call (PIC). Detection 
+Points (DPs), which are associated with the PICs, operate between the 
+PICs and can be the basis for Notification Events for Interworking with 
+IP network. IN furnishes "Network Intelligence" to PSTN. Similarly, it 
+can be utilized to initiate Notification Events to IP network.
+
+We are proposing new Working Group to be a "mirror image" of the PINT 
+WG, regarding direction of the requests for service and dealing with  
+Notification only. Like PINT, PIN will not deal with IP Telephony,  but  
+rather  provide requests for services and Notifications from PSTN/IN to 
+IP network in order to augment, extend and enrich PSTN. PIN WG would 
+focus on the PIN Protocol Requirements and Definition of Notification 
+Processing Language (NPL) - a possible extension to CPL, as well
+as defining connections of Services to the IN DPs. PIN protocol is a 
+specialized protocol used for communication between the  PIN Gateway and 
+PIN Servers, which may, potentially, be used for communications between 
+PIN Servers and PIN Clients. NPL will allow to build new Notification 
+Services and provide means to describe Notification Filters to screen 
+PSTN events. Notification Filter  example: Notification for an Attempt 
+to Enter Conference from a predefined number in the hours 9 through 17 
+only on weekends and holidays. It is quite possible that existing or 
+under development protocols (i.e. SIP, PIP, MGCP, etc.) are sufficient 
+to support PIN Services, but that determination is for further study by 
+the PIN WG.

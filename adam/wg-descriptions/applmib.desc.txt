@@ -1,0 +1,26 @@
+The Application MIB Working Group is chartered to define a set of
+managed objects for the monitoring and control of distributed
+applications. Specifically, these managed objects will focus on
+providing information about the configuration (including application
+dependencies and associations between applications), fault (including
+status information such as up, down, or degraded) and performance
+(including resource utilization) of distributed applications.
+
+The working group will only concern itself with the specification of
+MIB objects in the management areas defined above. It will not
+undertake to define details of implementation such as programming API's
+for the access to this information.
+
+The working group will consider existing MIB modules that define
+objects with similar functions or modules which can be used in
+conjunction with the Application MIB such as RFC 1514 (The Host
+Resources MIB) and RFC 1697 (The RDBMS-MIB).
+
+The activities of the working group will take place in two stages. The
+first will focus on the development of a System Application MIB which
+will not require applications to write additional instrumentation
+code.  This generic information will serve as a base for the follow-on
+Application MIB which will contain additional information that will
+require applications to write additional instrumentation. The schedule
+below describes the schedule for the development of the System
+Application MIB.

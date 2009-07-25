@@ -1,0 +1,26 @@
+Historically, each Internet application protocol has defined its own 
+set 
+ofb rules for exchanging control and data information. Although there 
+are a lot of similarities (e.g., dot-stuffing in SMTP and POP, octet 
+counts in HTTP and IMAP, 3-digit reply codes in FTP and SMTP), there 
+isn't a lot of reuse of design. As a result, designers of new 
+application protocols usually have to make the same set of design 
+decisions - over and over again - to deal with the same set of 
+trade-offs, but usually without the benefit of large amount of 
+institutional history.
+
+The BOF introduces a generic application protocol framework (called 
+BXXP) for connection-oriented, asynchronous, request-response 
+interactions over TCP. This particular subset of the problem supports a 
+large class of Internet applications, whilst providing solutions to 
+common design issues for those applications, including: framing, 
+segmentation, structuring, and multiplexing of messages, along with an 
+authentication and privacy over the transport.
+
+A framework requires a real-world proof of concept. Blocks is an 
+architecture for managing metadata and defines an exchange model for
+organizing information into navigation spaces. The Blocks system is the 
+model application for BXXP. The BOF introduces the issues of metadata 
+management and describes how the Blocks architecture addresses those 
+issues. As proof of completeness, the current Blocks implementation has 
+over 25TB of data and metadata spinning.

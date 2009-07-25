@@ -1,0 +1,14 @@
+The purpose of the BOF is to discuss the need for a working
+group to develop data representations and protocols that allow
+entities in different organizations to express and negotiate
+the conditions under which they will communicate for various
+network services.  The conditions are expected to include
+security-related mechanisms for authentication and integrity;
+the representations and protocols for accomplishing the
+negotiation are themselves security relevant and may be
+the subject of analysis.  The output of such a working group
+would be related to GSSAPI, IPSEC and IPSECOND, public key
+working groups, and DNSSEC; the BOF will explore whether or
+not the policy expression and negotiation are distinct enough
+from activities in the other groups to warrant the formation
+of a new WG.

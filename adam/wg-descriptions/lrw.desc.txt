@@ -1,0 +1,8 @@
+The LRW (Lightweight Reachability softWires) BOF is to discuss the 
+problem space of: discovery, control and encapsulation methods for 
+connecting IPv4 networks across IPv6 networks and IPv6 networks across 
+IPv4 networks. Due to the fact that some networks are mandated that 
+certain network functions must be IPv4 or IPv6 (e.g. due to financial 
+or political reasons); dynamic tunnels or 'softwires' are suited for 
+the inter-networking job.  The goal of the BOF is to form the LRW WG 
+that will work on these issues.

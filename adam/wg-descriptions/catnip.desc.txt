@@ -1,0 +1,26 @@
+CATNIP is a new version of the IP protocol, converged with a
+compressed form of CLNP, and a form of Novell IPX that permits
+general interoperation.  The objective is to provide common ground
+between the Internet, OSI, and the Novell protocols, as well as to
+advance the Internet technology to the scale and performance of the
+next generation of internetwork technology. CATNIP has been assigned
+the IP version number 7. The CATNIP proposal has evolved from the
+TP/IX protocol (RFC 1475) and the TUBA proposal (RFC 1347). 
+
+The working group is chartered to review the CATNIP protocol,
+evaluate issues arising during product development and deployment
+planning, and to document problems and explanations for any parts of
+the coexistance with IPv4 not covered directly in the CATNIP-IPv4
+interoperation design. 
+
+CATNIP includes definitions covering the same ground as the TUBA
+project, and within the charter of the TUBA Working Group. This will
+be handled by coordination with the TUBA Working Group. The intent is
+to arrive at complete alignment between the TUBA work and the CLNP
+component in CATNIP.
+
+The group will also continue to be the forum for development of the RAP
+protocol and the TCP extensions while in experimental status; this
+work will need to be moved to the Transport and Routing Area(s) if it
+is to be advanced; this work is outside the charter of the IPng Area.
+ 

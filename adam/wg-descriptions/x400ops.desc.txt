@@ -1,0 +1,14 @@
+X.400 management domains are being deployed today on the Internet. There 
+is a
+need for coordination of the various efforts to insure that they can
+interoperate and collectively provide an Internet-wide X.400 message 
+transfer
+service connected to the existing Internet mail service. The overall 
+goal of
+this group is to insure interoperability between Internet X.400 
+management
+domains and the existing Internet mail service. The specific task of 
+this
+group is to produce a document that specifies the requirements and 
+conventions
+of operational Internet PRMDs.

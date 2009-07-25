@@ -1,0 +1,22 @@
+PEM is the outgrowth of work by the Privacy and Security
+Research Group (PSRG) of the IRTF.  At the heart of PEM is a set of
+procedures for transforming RFC 822 messages in such a fashion as to
+provide integrity, data origin authenticity, and, optionally,
+confidentiality.  PEM may be employed with either symmetric or
+asymmetric cryptographic key distribution mechanisms.  Because the
+asymmetric (public-key) mechanisms are better suited to the large
+scale, heterogeneously administered environment characteristic of the
+Internet, to date only those mechanisms have been standardized.  The
+standard form adopted by PEM is largely a profile of the CCITT X.509
+(Directory Authentication Framework) recommendation.
+
+PEM is defined by a series of documents.  The first in the
+series defines the message processing procedures.  The second defines
+the public-key certification system adopted for use with PEM.
+The third provides definitions and identifiers for various
+algorithms used by PEM.  The fourth defines message formats and conventions for
+user registration, Certificate Revocation List (CRL) distribution,
+etc.  (The first three of these were previously issued as RFCs 1113,
+1114 and 1115.  All documents have been revised and are being issued
+first as Internet-Drafts.)
+

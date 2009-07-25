@@ -1,0 +1,13 @@
+The purpose of the storm BOF is to determine whether a working group
+should be formed for maintenance and update of these storage-related
+protocols based primarily on implementation experience.  This work
+is envisioned to encompass:
+
+- Implementation-driven revisions and updates to existing protocols
+	(i.e., updated RFCs that match the "running code").
+- Interoperability reports as needed for the resulting revised
+	protocols that are appropriate for Draft Standard RFC status.
+- Minor protocol changes or additions; this is anticipated to
+	include iSCSI features for SAM-4 compliance, some minor
+	iSER corrections/clarifications and an MPA startup change
+	needed to better support MPI applications.

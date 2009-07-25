@@ -1,0 +1,8 @@
+Draft Description 10/24/95 mw
+
+The popularity of the internet has created a ``land rush'' for domain names, resulting in higher registration request rates, overloads at the NIC, and many suggestions for new policies, mechanisms, and changes in the governance of the DNS name space.
+
+This BOF is designed to explore the role of the IETF in the future evolution of the domain name space.  This will include reports from the NSF policy workshop on the DNS which is to be held in Washington, DC on November 20, 1995, the
+ISOC/IAB plan for assuming responsibility for the domain space, and exploration of competing technical improvements to aid the solution of this political problem.
+
+Alternative proposals are encouraged, and to optimize the schedule, I request that those with specific proposals contact me in advance at pvm@home.net. 

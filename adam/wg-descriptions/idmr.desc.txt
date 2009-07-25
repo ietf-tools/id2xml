@@ -1,0 +1,12 @@
+The Internet-Draft Multicast Remnants (idmr) working group is chartered
+to finish certain parts of the work started in the Inter-Domain  
+multicast Routing (idmr) working group. The group is expected to live 
+only long enough to see the existing work items into the standards 
+track, and will not take on new work items.
+
+Some of the work previously done in IDMR has moved to the MAGMA working
+group.
+
+The specific work items are:
+
+DVMRP, DVMRP MIB, IGMPv3, Multicast Router Discovery.

@@ -1,0 +1,18 @@
+Many Internet protocols and applications which use the Internet employ
+public key technology for security purposes and require a public key
+infrastructure to manage public keys.
+
+The task of the working group will be to develop Internet standards
+for an IETF sponsored public key certificate format, associated
+signature and other formats, and key acquisition protocols.  The key
+certificate format and associated protocols are to be simple to
+understand, implement, and use. For purposes of the working group, the
+resulting formats and protocols are to be known as the Simple Public
+Key Infrastructure, or SPKI.
+
+The SPKI is intended to provide mechanisms to support security in a
+wide range of internet applications, including IPSEC protocols,
+encrypted electronic mail and WWW documents, payment protocols, and
+any other application which will require the use of public key
+certificates and the ability to access them. It is intended that the
+Simple Public Key Infrastructure will support a range of trust models.

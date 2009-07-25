@@ -1,0 +1,80 @@
+Group management protocols are crucial to the operation of multicast
+within the Internet, and there are some benefits in extending group
+management protocols to also be able to support anycast. These
+protocols allow hosts to inform routers of their membership status 
+within groups.  This working group will be responsible for developing 
+the functionalities required for group membership reporting and other 
+related actions.  This group will also address the initial 
+authentication and access control issues associated with anycast group 
+membership; this is likely to be limited to shared secrets and message 
+authentication codes (MACs) much like current routing protocol
+security.  Other aspects of Anycast, including architecture and
+routing, are outside the groups scope.
+
+The draft names listed below are the starting point for the work in 
+the 
+WG.
+
+MAGMA specifications will include:
+
+- Core IGMPv3/MLDv2 specifications.  These specifications will describe
+  the protocol used between hosts and routers to share group membership
+  information.  IGMPv3 and MLDv2 build on IGMPv2 and MLDv1 by adding
+  two types of source-specific filtering; "include" (in which the
+  system tells the router exactly which sources it desires) and 
+  "exclude" (in which the system tells the router that it does *not* 
+  desire a list of sources).
+
+  - IGMPv3: The IDMR working group has submitted this for Proposed 
+     Standard.
+     MAGMA takes ownership after publication as RFC.
+
+  - MLDv2: draft-vida-mld-v2-00.txt
+
+- Multicast Source Filtering API.  This specification describes the API
+  used to interact with IGMPv3 and MLDv2 to indicate source filters.
+  
+  - draft-ietf-idmr-msf-api-01.txt
+
+- Host determination of network group membership.  In a multicast
+  environment, systems may be interested in learning whether or not
+  there are any group members, in order to save the trouble of sending
+  data that nobody is listening to.
+
+   - Multicast Source Notification of Interest Protocol:
+     draft-ietf-idmr-msnip-00
+
+- Multicast forwarding in tree topologies using IGMP/MLD Proxying
+  - Create a single document from:
+    - draft-ietf-idmr-igmp-proxy-00
+
+    - draft-he-mixed-igmp-proxy-00
+
+- Source-Specific Multicast (SSM) consideration document.  This work
+  will describe the use of IGMPv3/MLDv2 in an SSM environment.
+  - draft-holbrook-idmr-igmpv3-ssm-01.txt
+
+- Considerations for "IGMP snooping" switches (switches that watch IGMP
+  exchanges in order to determine multicast forwarding behavior)
+
+- Multicast Router Discovery:
+  The MAGMA group has taken ownership of this draft over from IDMR.
+  It will be revised and submitted as a Proposed Standard.
+
+- Snooping Considerations: draft-ietf-magma-mrdisc-00.txt
+  (previous revisions draft-ietf-idmr-snoop-XX.txt)
+
+- Group management MIBs
+  - update RFC 2933 for IGMPv3
+  - update RFC 3019 for MLDv2
+
+- Interaction between IGMP/MLD and routing protocols
+  - draft-ietf-idmr-igmpv3-and-routing-00.txt
+
+- Extensions to MLD supporting anycast group memberships including
+  authentication and access control mechanisms
+  - draft-haberman-ipngwg-host-anycast-00.txt
+
+In addition, this working group will coordinate with other IETF working
+groups where multicast and anycast group management protocols are 
+utilized as well as coordinating with the Multicast Security WG.

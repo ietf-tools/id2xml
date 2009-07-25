@@ -1,0 +1,26 @@
+The purpose of the Open Network Computing Remote Procedure Call
+Working Group is to update the RFCs that
+describe ONC RPC to reflect the current state of the deployed and
+accepted technology, and submit them for Internet standardization.
+
+ONC RPC is currently described in ``RPC: Remote Procedure Call
+Protocol Specification Version 2'' (RFC 1057), and ``XDR: External
+Data Representation Standard'' (RFC 1014).
+
+The focus of the ONC-RPC Working Group is to document and standardize
+the current ONC RPC protocols. It is not the intent of this working group
+to develop extensions to these protocols. However, once these tasks are
+completed, discussions of future enhancements are expected. These
+discussions could lead to a follow on working group.
+
+Background:
+
+ONC RPC is a Remote Procedure Call technology that originated in Sun
+Microsystems in the early 1980s. ONC RPC was modelled on Xerox's
+Courier RPC protocols. It has been widely deployed on platforms from
+most major workstation vendors. It has been implemented on MS-DOS,
+Microsoft Windows, Microsoft Windows NT, Mac, VMS, MVS, and
+practically all flavors of UNIX, among others. Sun Microsystems plans
+to give the ownership of ONC RPC and change control over the ONC RPC
+protocols to the IETF.
+

@@ -1,0 +1,23 @@
+Discussions during 2002 have revealed a significant number of thoughts
+about problems that exist with the way the IETF operates. In advance of
+trying to change the IETF procedures and rules to deal with these
+problems, the IETF should have a clear, agreed description of what
+problems we are trying to solve.
+
+This group is charged with producing the document describing these
+problems. The analysis of the problem should seek out the root causes 
+of the problems as well as the perceived derivative problems.
+
+The intent is that the group will discuss issues on its mailing list,
+and that there will be an editing team to produce a clear concise
+problem statement on which the group has come to consensus and present
+to the IETF as a basis for an IETF consensus.
+
+As a second work item, the group will also produce a proposal for a
+process to develop solutions to the problems identified by this working
+group.
+
+It is not a part of this group's charter to propose solutions to the
+problems.
+
+The work items will be reviewed in IESG plenary at the IETF.

@@ -1,0 +1,26 @@
+A variety of delivery-time mechanisms for filtering and disposing 
+of messages have long been available for messages delivered via 
+SMTP. Such filtering schemes have become increasingly important with 
+the advent of increased volumes of mail and newer Internet-standard 
+mail access models with richer delivery capabilities. In this
+increasingly complex delivery loop, it is desirable to have an
+architecture-independent, interoperable filtering language for use 
+in the MTA delivery process written and adopted as an Internet 
+Standard.
+
+The working group will specify a simplified but generalizable 
+mail filtering language for filtering messages at the time of 
+final delivery. It is designed to be independent of protocol, 
+though clearly appropriate to RFC822/821 message handling, and
+implementable on either a mail client or mail server, though
+specifically intended for MTA delivery-side
+
+functionality.  It is meant to be extensible, simple, and independent 
+of access protocol, mail architecture, and operating system.
+
+Because there has been considerable past work on specific MTA 
+Filtering proposals, specifically the SIEVE draft, and there is 
+a considerable body of working implementation experience in this 
+area, the proposed Working Group anticipates fully completing 
+the proposed Internet Standard in a relatively timely manner as
+reflected in the goals and milestones.

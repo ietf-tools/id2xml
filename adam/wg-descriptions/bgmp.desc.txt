@@ -1,0 +1,29 @@
+As IP multicast is being more widely deployed and used, the
+existing multicast routing algorithms have demonstrated several
+limitations which make them unsuitable for deployment globally
+or among multiple provider domains.  Protocols like DVMRP and
+PIM Dense Mode that rely on broadcasting and pruning leave
+state in parts of the network that are not on the multicast
+delivery tree.  Protocols like CBT and PIM Sparse Mode use a
+centralized resource to learn of multicast sources.  Service
+providers are reluctant to maintain state for multicast groups
+that have no receivers in their domain or use a centralized
+resource in another domain that they cannot control.
+
+BGMP is a scalable multicast routing protocol which addresses
+these problems.  Like CBT and PIM Sparse Mode, BGMP chooses a
+global root for a delivery tree.  However, the root is a domain,
+not a single router, so if there is any path available to the
+domain connectivity can be maintained.  BGMP builds a bidirectional,
+shared tree of domains.  Similarly to the unicast EGP/IGP split,
+BGMP is used as the inter-domain or external protocol, while
+domains can run any multicast IGP internally (such as CBT or
+PIM Sparse Mode), and can build source-specific shortest-path
+distribution branches to supplant the shared tree where needed.
+
+The BGMP working group is chartered to complete the protocol
+specification and follow it through the Internet standards
+track.  It will also help to design a transition mechanism
+from MSDP (the Multicast Source Distribution Protocol, an
+interim interdomain solution that is unlikely to scale for
+the long term) to Internet-wide BGMP.

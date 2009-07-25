@@ -1,0 +1,29 @@
+It is desirable for an organization to have a fairly large campus with
+a single IP address prefix, a rich physical topology, where the network
+elements do not need to be configured, where endnodes can move around
+without changing their IP addresses, and where ARP and Neighbor 
+Discovery
+traffic can be confined.
+
+This functionality is often provided by bridges.
+However, bridges have disadvantages: routing is confined to a spanning
+tree (precluding pair-wise shortest paths), ARP and Neighbor Discovery
+packets must be carried across all the links, the header on which the
+spanning tree forwards has no hop count, spanning tree forwarding in the
+presence of temporary loops spawns exponential copies of packets, nodes
+can have only a single point of attachment, the spanning tree, in order
+to avoid temporary loops, is slow to start forwarding on new ports, and
+it is not possible to take advantage of the rich physical topology for
+capacity since the packet flows are restricted to following the spanning
+tree.
+
+Routers on the other hand avoid those disadvatages but have their own
+disadvantages: IP addresses are link specific so a host that moves must
+change its IP address, the routers must be configured with unique link
+prefixes for each of the attached links, and the block of IP address
+space can not be fully utilized because it must be partitioned across
+the different links.
+
+The BoF will explore combining the benefits of bridges and routers
+without requiring any changes on any of the hosts, IP routers, or
+bridges.  The design should support both IPv4 and IPv6.

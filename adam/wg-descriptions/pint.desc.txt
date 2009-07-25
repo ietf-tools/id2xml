@@ -1,0 +1,43 @@
+The PSTN/Internet Interfaces (PINT) WG addresses connection
+arrangements through which Internet applications can request and enrich
+PSTN (Public Switched Telephone Network) telephony services.  An
+example of such services is a Web-based Yellow Pages service with the
+ability to initiate PSTN calls between customers and suppliers.
+
+This working group has six main objectives:
+
+* Study architecture and protocols needed to support services in which a
+  user of the Internet requests initiation of a telephone (i.e., PSTN-
+  carried) call to a PSTN terminal (i.e., telephone, FAX machine).
+  The protocols are not to support any form of third-party call control 
+or,
+  for that matter, any type of call control; their role is rather to
+  securely carry call requests to the PSTN. Specific services to be
+  considered initially are Click-to-Dial, Click-to-Fax, 
+Click-to-Fax-Back,
+  and Web access to voice content delivered over the PSTN.
+
+* Produce an informational RFC that describes current practices for
+  supporting the services in question.
+
+* Based on the existing practice and agreed on improvements, develop a
+  standards track RFC that specifies a Service Support Transfer Protocol
+  (SSTP) between Internet applications or servers and PSTN Intelligent
+  Network Service Nodes (or any other node that implement the Service
+  Control Function).  SSTP is an application-specific transport protocol
+  operating over TCP.
+
+* Consider security issues relating to prividing functions of this
+  type. In particular understand any threats posed by this technology
+  and resolve them, and any other security issues in the proposed 
+standard.
+
+* Based on the existing practice and agreed on improvements, develop a
+  standards track RFC for a relevant MIB (SSTP MIB) to support the 
+service
+  management protocol between Internet applications and the PSTN Service
+  Management System. The SSTP MIB is to conform to SNMP standards.
+
+* Consider extensions of the above architecture and protocols to support 
+a
+  wider range of PSTN Intelligent Network (IN) based services.

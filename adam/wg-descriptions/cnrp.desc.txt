@@ -1,0 +1,68 @@
+For the purposes of this working group, a "common name" is a word
+or a phrase, without imposed syntactic structure, that may be
+associated with a resource.  These common names are expected to
+be used primarily by humans (as opposed to machine agents).  A common
+name "resolution service" handles these associations between common
+names and data (resources, information about resources, pointers to
+locations, etc).  A single common name may be associated with different
+data records, and more than one resolution service is expected to exist.
+Any common name may be used in any resolution service.  Common
+names are not URIs (Uniform Resource Identifiers) in that they
+lack the syntactic structure imposed by URIs; furthermore, unlike
+URNs, there is no requirement of uniqueness or persistence of the
+association between a common name and a resource.
+
+The working group will define a protocol for the parameterized
+resolution necessary to make common names useful.  "Resolution" is
+defined as the retrieval of data associated (a priori) with descriptors
+that match the input request.  "Parameterized" means the ability to
+have a multi-component descriptor.  Descriptors are not required to
+provide unique identification, therefore 0 or more records may be
+returned to meet a specific input query.
+
+Specific design considerations include
+
+o ensuring applicability across languages and charactersets
+  ("I18N")
+
+o support for federated services:  query referral
+
+o facilitating interoperability of CNRP services: e.g., providing
+  base query parameters needed to support common name resolution,
+  as well as the ability to introduce others (and standardize
+  them)
+
+o security:  authority, tracking origin of name
+
+The protocol will define:
+
+o client requests/server responses to identify the specific
+  parameters accepted and/or required on input requests
+
+o client request/server responses to identify properties to
+  be returned in the result set
+ 
+o expression of parameterized input query
+ 
+o expression of result sets
+
+o standard expression of error conditions
+
+
+Deliverables:
+
+o Document outlining the goals of common name resolution
+
+o Document specificying a protocol for common name resolution
+
+o Document defining a URI scheme for allowing common names to be 
+  embedded in documents
+
+Input documents:
+
+draft-popp-cnrp-00.txt, "A resolution protocol for Common Name 
+Namespaces", Nicolas Popp and Michael Mealling, February 1999.
+
+draft-popp-cnrp-goals-00.txt, "Context and Goals for Common Name
+Resolution", Larry Masinter, Michael Mealling, Nicolas Popp,
+Karen Sollins, June 1999.

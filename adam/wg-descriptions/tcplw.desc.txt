@@ -1,0 +1,15 @@
+The TCP Large Windows Working Group is chartered to produce a
+specification for the use of TCP on high-delay, high-bandwidth paths.
+To this end, this working group recommended ``TCP extensions for
+long-delay paths'' (RFC 1072), and ``TCP Extension for High-Speed
+Paths'' (RFC 1185)
+be published jointly as a Proposed Standard.  Deficiencies in
+the technical details of the documents were identified by the
+End-to-End Research Group of the IRTF.  Rather than progress the
+standard with known deficiencies, the IESG tasked the End-to-End
+Research Group to fix and merge these two documents into a single
+protocol specification document. This review was done on the 
+e2e-interest@isi.edu mailing list.
+
+The TCP Large Windows Working Group is being resurrected for a one
+time meeting, to review and if appropriate, approve this new document.

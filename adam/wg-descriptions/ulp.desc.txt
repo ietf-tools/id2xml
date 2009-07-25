@@ -1,0 +1,11 @@
+Network based logging services provide system administrators with
+an important tool for diagnosing a variety of problems.  There is
+no standard way to do logging.   We propose a single very simple
+protocol which will allow interoperable logging for the Internet.
+This protocol will include features for structuring log entries
+with fields which have standard definitions.  We would like to 
+define a standard API, string based protocol and message format
+for log entries.  We also will address internationalization of
+logs, how to transmit log entries securely.  Another important
+topic is how a logging protocol should interact with network 
+management.

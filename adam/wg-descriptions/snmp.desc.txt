@@ -1,0 +1,6 @@
+Oversee development of SNMP-related activity, especially the
+Internet-standard SMI and MIB.  This Working Group is ultimately
+responsible for providing workable solutions to the problems of
+network management for the Internet community.
+
+

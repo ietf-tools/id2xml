@@ -1,0 +1,39 @@
+Electronic Data Interchange (EDI) is a set of protocols for conducting
+highly structured inter-organization exchanges, such as for making
+purchases or initiating loan requests. The initial RFC1767 defined the
+method for packaging the EDI X12 and UN/EDIFACT transactions sets in a
+MIME envelope. However, several additional requirements for obtaining
+multi-vendor, inter-operable service, over and above how the EDI
+transactions are packaged, have come to light since the effort
+concluded. These currently revolve around security issues such as EDI
+transaction integrity, privacy and non-repudiation in various forms.
+Additional requirements that mimic many of the heading fields found in
+X.435 EDI messages (e.g.; Interchange Sender, Interchange Recipient,
+interchange Control Reference, Communications Agreement ID, and Syntax
+Identifier) are also needed to support exchanges by point-to-point, FTP
+and SMTP protocols. Many believe these heading fields are best
+described in XML. Standards in these and other areas are necessary to
+ensure inter-operability between EDI packages over Internet. Various
+technologies already exist for these additional features and the 
+primary
+requirement is to review and select a common set of components for use
+by the EDI community when it sends EDI over the Internet.
+
+Deliverables:
+
+AS1 - Applicability Statement describing how current Internet
+      standards can be used to achieve this functionality for MIME and
+      SMTP. Security supported is object signature and object based
+      encryption only. RFC3335.
+
+AS2 - Applicability Statement describing how current Internet
+      standards can be used to achieve this functionality for
+      Process-to-Process (real-time) EDI based on MIME and HTTP.
+      Security supported is object signature, and both session and
+      object encryption.(draft-ietf-ediint-as2-xx.txt)
+
+AS3 - Applicability Statement describing how current Internet
+      standards can be used to achieve the transfer of EDI or XML
+      data over internet in a secure manner based on FTP. Security
+      supported is object signature, and both session and object
+      encryption.(draft-ietf-ediint-as3-xx.txt)

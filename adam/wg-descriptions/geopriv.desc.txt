@@ -1,0 +1,42 @@
+The IETF has recognized that many applications are emerging that
+require geographic and civic location information about resources and
+entities, and that the representation and transmission of that
+information has significant privacy and security implications. We have
+created a suite of protocols that allow such applications to represent
+and transmit such location objects and to allow users to express
+policies on how these representations are exposed and used. The IETF
+has also begun working on creating applications that use these
+capabilities, for emergency services, general real-time communication,
+and other usages.
+
+The GEOPRIV working group is chartered to continue to develop and
+refine representations of location in Internet protocols, and to
+analyze the authorization, integrity, and privacy requirements that
+must be met when these representations of location are created,
+stored, and used. The group will create and refine mechanisms for the
+transmission of these representations that address the requirements
+that have been identified.
+
+The working group will work with other IETF working groups and other
+standards development organizations that are building applications
+that use location information to ensure that the requirements are well
+understood and met, and that no additional security or privacy issues
+related to location are left unaddressed as these location information
+is incorporated into other protocols.
+
+It remains a goal of the GEOPRIV working group to deliver
+specifications of broad applicability that will become mandatory to
+implement for IETF protocols that are location aware.
+
+This working group will not develop location-determining technology.
+However, the IETF acknowledges that information used in the location-
+determination process will in some cases need to be carried over the
+Internet. Where necessary, this working group will develop protocols
+or protocol extensions to encode location-determination data
+structures defined elsewhere. This working group will not develop
+technologies to directly address any particular regulatory
+requirements (e.g. 9-1-1). The group will continue to coordinate with
+any other IETF entities that are working on those problems to ensure
+the technologies created here meet the needs of those entities, and
+that the authorization, integrity, and privacy requirements on the
+mechanisms provided by these technologies continue to be met.

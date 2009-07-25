@@ -1,0 +1,81 @@
+Editor: David Arneson (arneson@ctron.com)
+
+The next generation of the Internet Protocol (IPv6) is intended to
+support Internet traffic for many years into the future by providing
+enhancements over the capabilities of the existing IPv4 service. The
+IPv6 MIB Working Group is producing specifications for the core
+functionality of that service, per recommendations of the IPng Area
+Directors as outlined at the July 1994 IETF and in ``The Recommendation
+for the IP Next Generation Protocol,'' RFC 1752, January 1995.
+
+The IPv6 MIB Working Group's charter falls into three broad
+categories:
+
+ - identify changes, if any, to existing standards track
+   SNMPv2 document
+
+ - potential changes to existing MIBs
+
+ - new and additional MIBs that are specific to the IP Next
+   Generation Protocol
+
+The IPv6 MIB Working Group is initially chartered to identify specific
+areas of work and their corresponding work items, within each of the
+abovementioned categories.
+
+To which end, if changes or additions to the standards track SNMPv2
+documents are identified, such changes will be communicated to and
+discused with the SNMPv2 Working Group. If, at a certain time, the
+SNMPv2 Working Group is inactive, this information will be communicated
+to the Network Management Area Director.
+
+Specification of a SNMPv2 Textual Convention for IPv6 addresses and the
+corresponding Transport Mappings to specify the Transport- Level
+address fall into this category. (As a result of an action item from
+the IPv6MIB BOF held in December 1994, these have already been
+communicated to the SNMPv2 Working Group.)
+
+As part of the second category, this working group will identify
+existing MIBs that will be impacted, some of which would need
+modifications to, at a minimum, include and reflect IPv6 addresses.
+Examples of these MIBs are:
+
+ - MIB-II
+
+ - Evolution of the Interfaces Group of MIB-II
+
+ - IP Forwarding Table MIB
+
+ - RIP Version 2 MIB Extensions
+
+ - OSPF Version 2 MIB
+
+ - IPCP MIB
+
+As part of its charter in this category, this working group will
+liaison and communicate with relevant working groups where these
+identified MIBs were developed. If, at a certain time, these said
+working groups are inactive, the appropriate Area Director will be
+apprised.
+
+Per the third category, this working group will identify a complete set
+of new and additional MIB modules, and their respective organization,
+in the following areas:
+
+ - IPv6 and associated ICMPv6 protocols
+
+ - IPv6 Neighbor Discovery
+
+ - IPv6 Tunneling and Mobility
+
+ - IPv6 Forwarding and Flows
+
+ - IPv6 Network Address Configuration and Resolution
+
+ - IPv6 Header Compression
+
+ - Network Layer Security Aspects
+
+In order to maintain compliance, this working group will liaison with
+other working groups within the Internet Area, such as the IPng and
+NGTRANS Working Groups.

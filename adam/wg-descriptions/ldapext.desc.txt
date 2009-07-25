@@ -1,0 +1,110 @@
+LDAPv3 defines an information model and an authentication model,
+allowing information to be protected via access control. But LDAPv3
+defines no standard representation or semantic for this access
+control information. This work item will be to define such a
+standard access control model.
+
+- Server-side sorting of search results - Paged retrieval of search
+  results
+
+In order to more efficiently support the assumptions of users
+viewing search results as a sorted, scrollable list, servers sort
+and provide a paged view onto search results. This work item will
+define the LDAPv3 message controls to allow a client to request a
+particular sort order, and to allow a client to retrieve search
+results one page at a time. The group will base its work on the
+following drafts:
+
+draft-ietf-asid-ldapv3-sorting-nn.txt
+draft-ietf-asid-ldapv3-simple-paged-nn.txt
+
+- Language tags
+
+LDAPv3 carries character data in UTF-8 format, allowing the full
+range of international characters to be represented. This work item
+will be to define attribute descriptions allowing the data returned
+from or input to an LDAPv3 directory to be tagged identifying the
+language of the data, and to define an LDAP message control allowing
+a client to specify a preferred language. The group will base its
+work on the following draft:
+
+draft-ietf-asid-ldapv3-lang-nn.txt
+
+- Dynamic directories
+
+LDAPv3 supports static directory information that persists in its
+value over a relatively long period of time until it is removed.
+Some applications (e.g., Internet conferencing) require dynamic
+information that changes often and persists only as long as it is
+being refreshed. The deliverable from this work item will be LDAPv3
+message controls and extended operations allowing the specification
+and refresh of dynamic directory information. The group will base
+its work on the following drafts:
+
+draft-ietf-asid-ldapv3ext-04.txt draft-ietf-asid-ldap-dynatt-nn.txt
+
+- Referral and knowledge reference maintenance
+
+LDAPv3 is defined as an access protocol in which referrals may be
+returned directing a client from one directory server to others. It
+does not specify how this referral information is represented in the
+directory. The deliverable from this work item is a document
+defining the mechanisms by which referrals (sometimes known as
+knowledge references) may be maintained in a server. The group will
+base its work on the following draft:
+
+draft-ietf-asid-ldapv3-referral-nn.txt
+
+- LDAP server discovery
+
+Like most other Internet protocols, LDAPv3 is silent on the
+bootstrapping issue of how a client locates an LDAP server to talk
+to. Yet this step is necessary for any client to successfully use
+the directory without a priori knowledge of the directory server
+address it should use. The group will work in conjunction with the
+SVRLOC group on defining the method by which LDAP clients discover
+LDAP servers, based on the following document:
+
+draft-ietf-svrloc-discovery-nn.txt
+
+- LDAP APIs
+
+LDAP has an associated de facto standard C API, defined in RFC 1823.
+The existence of this API has proved to be of great value in
+spurring LDAP client development. As new features are added in
+LDAPv3 and the extensions discussed elsewhere in this charter, the
+API will need to be updated to make these new protocol features
+available to clients. As application development in other languages,
+Java in particular, occurs, the need for a standard API increases.
+The deliverable from this work item will be documents updating RFC
+1823 for LDAPv3, documents defining API extensions to support
+protocol extensions, and a document defining a similar API for Java.
+The group will base its work on the following documents:
+
+draft-ietf-asid-ldap-c-api-nn.txt
+draft-ietf-asid-ldap-java-api-nn.txt
+draft-ietf-asid-ldapv3-api-ext-nn.txt
+
+- CLDAP
+
+LDAPv3 defines transport over TCP. In some situations, the overhead
+involved in setting up and tearing down TCP connections is
+prohibitive, requiring a lighter-weight transport. The deliverable
+from this work item will be a document defining transport of the
+LDAPv3 protocol over connectionless UDP transport. The group will
+expand on the work developed for LDAPv2 in RFC 1798.
+
+- Signed directory information
+
+In many environments clients require the ability to validiate the
+source and integrity of information provided by the directory. The
+deliverable will be a document describing an LDAP message control
+which allows for the retrieval of digitally signed information.
+
+Other areas such as deployment and schema definition and review will
+be handled by other groups. Other areas may be added after approval
+by the area directors if and when they turn out to be necessary for
+the deployment of LDAP and feasible for the group to tackle. In
+particular, replication may be considered for addition to the
+group's charter if and when a viable approach to the problem is
+demonstrated.

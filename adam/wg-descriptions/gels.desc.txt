@@ -1,0 +1,15 @@
+Generalized Multi-Protocol Label Switching (GMPLS) signaling and 
+routing is applicable to Layer 2 technologies. However, up to now, 
+very little attention has been given to the control of Ethernet 
+switches using GMPLS protocols in support of point-to-point paths.
+
+The purpose of this BoF is to determine interest in applying GMPLS to
+Ethernet LSR. As it is a non-objective of the IETF to initiate any
+Ethernet data plane work, the purpose of this BoF is also to highlight
+and discuss foreseen interactions with other SDOs, in particular, the
+IEEE 802.1, with respect to the data plane operations.
+
+This BOF will also discuss the consequent GMPLS control plane
+requirements and what extensions to existing GMPLS protocols may be
+required and whether there is cause and support for this work within 
+the IETF.

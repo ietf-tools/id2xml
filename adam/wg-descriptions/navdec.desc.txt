@@ -1,0 +1,35 @@
+This BOF will explore the possibility of establishing a navdec working 
+group.  The proposed charter for the working group follows:  
+
+The working group will develop an informational RFC detailing the 
+architecture and requirements for controlling PSTN (Public Switched
+Telephone Network) Media Gateways from external control elements such as 
+a media gateway controller. A PSTN media gateway is a network element 
+that provides conversion between the audio information carried on 
+telephone circuits and data packets carried over the Internet or over 
+other packet networks.  This work will be done in consultation with 
+other IETF working groups looking at similar issue.  The working group 
+will also ensure that good information conduits exist with groups in 
+other standards groups with expertise in the relevant PSTN technology.
+
+This working group will also define standards track protocol(s) for 
+controlling PSTN (Public Switched Telephone Network) Media Gateways from 
+external control elements such as a media gateway controller.
+
+Examples of PSTN media gateways are:
+  * Trunking gateways that interface between the telephone network and
+    a Voice over IP network. Such gateways typically manage a large
+    number of digital virtual circuits. 
+  * Access gateway that provide traditional analog or PRI line
+    interfaces to a Voice over IP network.
+  * Network Access Servers that can attach a "modem" to a telephone
+    circuit and provide data access to the Internet.
+
+This working group assumes a separation of call control where there is 
+call control "intelligence" outside the media gateways that is handled 
+by a media gateway controller. This allows for scalability and 
+simplified management: many media gateways within a domain can be 
+controlled by one media gateway controller.
+
+This group will NOT work on media gateway controller to media gateway 
+controller protocols, nor on media gateway to media gateway protocols.

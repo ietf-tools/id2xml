@@ -1,0 +1,36 @@
+The OSI upper-layer protocols (above transport) are rich in function
+and specified in large, complex and numerous documents. However, in
+supporting a particular application, the protocol actually used is only
+a subset of the whole. An implementation is not required to support
+features it never uses, and it is, or should be, possible to have
+relatively lightweight implementations specialized for a particular
+application or group of applications with similar requirements. The
+application protocol could be an OSI application layer standard or a
+protocol originally defined for TCP/IP or other environment. It will be
+easier to produce such implementations if the necessary protocol is
+described concisely in a single document.
+
+An implementation, of the mapping of X Window System protocol over OSI upper-layers, is based on this principle.
+
+The working group is chartered to produce two documents:
+
+``Skinny bits for byte-stream'': a specification of the bit
+sequences that implement the OSI upper-layer protocols (session,
+presentation and ACSE) as needed to support an application that
+requires simple connection, and byte-stream read and write. This will
+be based on the octet sequences needed to support X. This will not be
+expected to be provide a full equivalent of TCP, nor to cover specific
+standardized protocols.
+
+``Skinny bits for Directory'': a specification of the bit sequences
+needed for the Directory Access Protocol - in the same style as the
+byte-stream specification, but to include DAP. The level of functionality 
+of this is to be determined.
+
+An important aspect of the group's work is to find out if it is possible
+to produce useful and concise specifications of this kind. A  minor part
+is to think of better names.
+
+The group will also encourage the deployment of X/OSI implementations
+and interworking experiments with it.
+

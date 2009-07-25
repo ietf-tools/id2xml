@@ -1,0 +1,60 @@
+
+Mail and Directory Management (madman)
+--------------------------------------
+ 
+ Charter 
+ 
+ Chair(s):
+     Steve Kille  <S.Kille@isode.com>
+ 
+ Network Management Area Director(s) 
+     Marshall Rose  <mrose@dbc.mtview.ca.us>
+ 
+ Area Advisor
+     Marshall Rose  <mrose@dbc.mtview.ca.us>
+ 
+ Mailing lists: 
+     General Discussion:madman@innosoft.com
+     To Subscribe:      mailserv@innosoft.com
+         In Body:       subscribe ietf-madman <email address>
+     Archive:           innosoft.com:~/ietf-madman/archive.txt
+ 
+Description of Working Group:
+ 
+     The Mail and Directory Management Working Group is chartered to define
+     four MIB modules: one for generic application monitoring, one for
+     message relays (either SMTP or X.400 based), one for OSI
+     Directory service (X.500), and a fourth for message stores.  The
+     MIB modules will provide basic monitoring capabilities, and will be
+     consistent with the SNMP framework and existing SNMP standards.
+ 
+ Goals and Milestones: 
+ 
+     Done Post an Internet-Draft of the generic application monitoring MIB.    
+
+     Done Post an Internet-Draft of the message relay monitoring MIB.          
+
+     Done Post an Internet-Draft of the OSI X.500 Directory Service MIB.       
+
+   Jul 93 Submit the directory monitoring, message relay, and generic 
+          application MIBs to the IESG for consideration as Proposed Standards.
+
+   Jul 93 Post an Internet-Draft of the message store monitoring MIB.          
+
+   Nov 93 Submit the message store monitoring MIB to the IESG for consideration
+          as a Proposed Standard.                                              
+
+
+ Internet Drafts:
+
+  No Current Internet drafts.
+
+ Request For Comments:
+
+  RFC  Stat Published    Title 
+------- -- ---------- -----------------------------------------
+RFC1565 PS   Jan 94     Network Services Monitoring MIB                        
+ 
+RFC1566 PS   Jan 94     Mail Monitoring MIB                                    
+ 
+RFC1567 PS   Jan 94     X.500 Directory Monitoring MIB                         

@@ -1,0 +1,19 @@
+The goals of the BOF will be as follows:
+
+- Identify SS7 functions and related applications that potentially
+  interact with IP networks, for example:
+  - SS7 interface to control a Network Access
+    Server
+  - access to SS7 services/information
+
+- Discuss an initial architectural framework for these functions
+
+- Identify areas where new specifications or IETF activity is needed 
+  for areas such as, for example:
+  - protocol between SS7 gateway and NAS
+  - transport of signaling over IP
+  - other
+
+- Depending on the level of interest, decide to form a working group 
+  or continue discussions for the future.  If a working group is 
+  formed, agree on scope and mandate.

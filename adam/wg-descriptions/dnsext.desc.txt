@@ -1,0 +1,20 @@
+The DNS has a large installed base and repertoire of protocol
+specifications. The DNSEXT WG group will actively advance DNS
+protocol-related RFCs on the standards track while thoroughly
+reviewing further proposed extensions. The scope of the DNSEXT WG is
+confined to the DNS protocol, particularly changes that affect DNS
+protocols "on the wire" or the internal processing of DNS data. DNS
+operations are out of scope for the WG.
+
+The WG will limit itself to review of proposals for new extensions, 
+clarification to the DNS protocol, including DNSSEC, and review of
+DNS protocol related work which may originate elsewhere in the IETF,
+including AD-sponsored submissions or drafts in other working groups. 
+Adoption of new DNSEXT standards track working group items will require 
+changes to this charter. The WG does not intend to hold face to face 
+meetings, though may do so if deemed necessary for resolution of a 
+specific issue at hand.
+
+The DNSEXT WG will conduct the specified RFC2929bis review of RR
+templates as they are posted and also maintain a living ID of errata
+for the DNSSEC document set.

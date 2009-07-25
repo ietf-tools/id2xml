@@ -1,0 +1,132 @@
+The Generic Security Services API [RFC 2743, RFC 2744] provides an API
+for applications to set up security contexts and to use these contexts
+for per-message protection services. The Common Authentication
+Technology Next Generation Working Group (Kitten) will work on
+standardizing extensions and improvements to the core GSSAPI
+specification and language bindings that the IETF believes are 
+necessary
+based on experience using GSSAPI over the last 10 years. Extensions may
+be published as separate drafts or included in a GSSAPI version 3. 
+While
+version 2 of the GSSAPI may be clarified, no backward incompatible
+changes will be made to this version of the API.
+
+This working group is chartered to revise the GSSAPI v2 RFCs for the
+purpose of clarifying areas of ambiguity:
+o Use of channel bindings
+o Thread safety restrictions
+o C language utilization clarifications and recommendations
+(e.g., type utilization, name spaces)
+o Guidelines for GSS-API mechanism designers
+o Guidelines for GSS-API application protocol designers
+
+This working group is chartered to specify a non-backward compatible
+GSSAPI v3 including support for the following extensions:
+o Clarify the portable use of channel bindings and better specify
+channel bindings in a language-independent manner.
+o Specify thread safety extensions to allow multi-threaded applications
+to use GSSAPI
+o Definitions of channel bindings for TLS, IPSec, SSH and other
+cryptographic channels based on work started in the NFSV4 working
+group.
+o Define a GSSAPI extension to allow applications to store credentials.
+Discussions to be started based upon:
+o draft-williams-gss-store-deleg-creds-xx.txt
+o Extensions to solve problems posed by the Global Grid Forum's GSSAPI
+extensions document.
+o Extensions to deal with mechanism-specific extensibility in a
+multi-mechanism environment.
+o Extend the GSS-API to support authorization by portable GSS
+applications while also supporting mechanisms that do not have a
+single canonical name for each authentication identity.
+o Specify a Domain-based GSS service principal name consisting of:
+service name, host name, and domain name for use by application
+services hosted across multiple servers.
+o Extensions to support stackable GSSAPI mechanisms.
+o Define a Psuedo-Random Function for GSSAPI
+
+This working group is chartered to perform the following GSSAPI
+mechanism specification work:
+
+o Specify a GSSAPI v2/v3 Channel Conjunction Mechanism
+o Revise RFC 2748 (SPNEGO) to correct problems that make the
+specification unimplementable and to document the problems
+found in widely-deployed attempts to implement this spec.
+o Update the GSSAPI Java Language Bindings to match actual 
+implementation
+
+This working group is chartered to perform the following new GSSAPI
+Language Binding specification work:
+
+o Specify a language binding for C#
+
+DELIVERABLES
+
+Either: 
+o Clarifications to GSSAPIv2 (May 2005 to IESG)Informational
+[editor: TBD]
+Or:
+o Generic Security Service Application Program Interface Version 2, 
+Update 2
+[editor: TBD]
+o Generic Security Service API Version 2, Update 1 : C-bindings
+[editor: TBD]
+End:
+
+o The Channel Conjunction Mechanism (CCM) for the GSSAPI
+[editors: Mike Eisler/Nicolas Williams]
+(based on draft-ietf-nfsv4-ccm, which has been discussed previously in
+the NFSv4 WG)
+
+o On the Use of Channel Bindings to Secure Channels
+[editor: Nicolas Williams]
+(based on draft-ietf-nfsv4-channel-bindings, which has been discussed
+previously in the NFSv4 WG)
+
+o GSSAPIv3
+[editor: to be determined]
+
+o Stackable Generic Security Service Pseudo-mechanisms
+[editor: Nicolas Williams]
+draft-williams-gssapi-stackable-pseudo-mechs
+
+o GSS-APIv2 Extension for Storing Delegated Credentials
+[editor: Nicolas Williams]
+draft-williams-gssapi-store-deleg-creds
+
+o GSSAPI Mechanisms without a Unique Canonical Name
+[editor: Sam Hartman]
+draft-hartman-gss-naming
+
+o SPNEGO (RFC 2478) Revisions
+[editor: Wyllys Ingersoll / Larry Zhu]
+draft-zhu-spnego-2478bis
+
+o Guide to the GSS-APIv3
+[editor: Nicolas Williams]
+draft-williams-gssapi-v3-guide-to
+
+o Namespace Considerations and Registries for GSS-API Extensions
+[editor: Nicolas Williams]
+draft-williams-gssapi-extensions-iana
+
+o GSS-API Domain-Based Service Names and Name Type
+[editor: Nicolas Williams]
+draft-williams-gssapi-domain-based-names
+
+o GSS-API Domain-Based Service Names Mapping for the Kerberos V GSS
+Mechanism
+[editor: Nicolas Williams]
+draft-williams-krb5-gssapi-domain-based-names
+
+o A PRF API extension for the GSS-API
+[editor: Nicolas Williams]
+draft-williams-gssapi-prf
+
+o A PRF for the Kerberos V GSS-API Mechanism
+[editor: Nicolas Williams]
+draft-williams-krb5-gssapi-prf
+
+o Generic Security Service API Version 2 : Java & C# Bindings
+[editors: Larry Zhu / Corby Morris]
+draft-morris-java-gssapi-update-for-csharp

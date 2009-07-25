@@ -1,0 +1,145 @@
+IP mobility support for IPv4 nodes (hosts and routers) is specified in
+RFC3344. RFC 3344 mobility allows a node to continue using its
+"permanent" home address as it moves around the Internet. The Mobile
+IP protocols support transparency above the IP layer, including
+maintenance of active TCP connections and UDP port bindings. Besides
+the basic Mobile IPv4 (MIPv4) protocols, several other drafts deal
+with concerns such as optimization, security, extensions, AAA support,
+and deployment issues.
+
+MIPv4 is currently being deployed on a wide basis (e.g., in cdma2000
+networks). The scope of the deployment is on a fairly large scale and
+accordingly, the MIP4 WG will focus on deployment issues and on
+addressing known deficiencies and shortcomings in the protocol that
+have come up as a result of deployment experience. Specifically, the
+working group will complete the work items to facilitate interactions
+with AAA environments, interactions with enterprise environments when
+MIPv4 is used therein, and updating existing protocol specifications
+in accordance with deployment needs and advancing those protocols that
+are on the standards track.
+
+Work expected to be done by the MIP4 WG as proposed by this charter is
+as follows:
+
+1. MIPv4 has been a proposed standard for several years. It has been
+adopted by other standard development organizations and has been
+deployed commercially. One of the next steps for the WG is to advance
+the protocol to draft standard status. As part of advancing base
+Mobile IP specs to DS, the MIPv4 NAI RFC (2794) will be revised to
+reflect implementation experience.
+
+2. Work items that are pending from the previous Mobile IP WG, which
+will be completed by the MIP4 WG, are:
+
+- completion of the MIB for the revised base Mobile IP specification
+(2006bis)
+
+- regional registration draft.
+
+3. The MIP4 WG will also complete the work on MIPv4 interactions in
+VPN scenarios. This work will involve identifying the requirements and
+a solution development for MIPv4 operation in the presence of IPsec
+VPNs.
+
+4. Additionally, a proposal has been made for how MOBIKE could work
+together with MIPv4. This proposal does not describe any new protocol,
+but formulates a best current practice for deploying MOBIKE together
+with MIPv4. The working group will adopt and complete this document.
+
+5. Some issues have been raised with respect to RFC3519. These will be
+identified and addressed as appropriate, through errata, revision of
+RFC 3519, and/or supplemental documents as needed.
+
+6. It has been proposed that the FMIP protocol, which has been
+standardised for MIPv6 in the MIPSHOP working group, should also be
+published as an experimental protocol for MIPv4. A draft for this
+exists. The working group will take up and carry this work forward to
+publication
+
+7. An extension to carry generic strings in the Registration Reply
+message has been proposed. The purpose is to supply supplemental
+human-readable information intended to the MN user. The working group
+will complete the specification and applicability statement of such an
+extension.
+
+8. RADIUS attributes for MIP4. A set of RADIUS attributes has been
+proposed for MIPv4.
+
+The working group will first produce a requirements specification,
+describing how the work differs from the requirements in RFC 2977 and
+the functionality provided by RFC 4004 (the MIPv4 Diameter App). The
+reason why this first step is required is that RFC 3127 shows that
+full RFC 2977 functionality can't be provided by even a considerably
+extended RADIUS, so we need to match the requirements to what can be
+done within RADIUS.
+
+Provided the requirements work finds approval with ADs and RADEXT WG,
+the workgroup will complete the specification of MIPv4 RADIUS
+attributes, solicit feedback from the RADEXT WG, adjust, and submit
+this for publication. Note that the work may require extensions to the
+RADIUS attribute space which will be handled outside the MIP4 WG.
+
+9. MIPv4 Extension for Configuration Options.
+
+Several drafts have proposed extensions to help improve configuration
+of MIPv4 clients. The latest proposal is for a general configuration
+option extension which could carry information such as e.g., DNS
+address and DHCP server address. The working group will take on and
+complete one proposal for a configuration option extension.
+
+10. Dual-stack Support
+
+There have been several proposals for how to enable an IPv6 connection
+over a network that supports Mobile IPv4. A protocol enhancement to
+MIPv4 would allow for IPv6 support in a region where Mobile IPv4 has
+already been implemented and deployed. This would allow a dual stack
+mobile node to maintain IPv6 connectivity when using MIPv4. The
+solution would therefore be applicable only to networks that are
+not deploying Mobile IPv6.
+
+The working group will take on and complete one proposal for IPv6 over
+Mobile IPv4. This work is restricted to a small protocol extension
+similar to current Mobile IPv4 functionality. Support for advanced
+Mobile IPv6 functionality is strictly outside the scope.
+
+A problem statement covering both Mobile IPv4 and IPv6 dual-stack
+issues is expected to come out of MIP6 WG, and will not be developed
+in MIP4 WG.
+
+
+11. MIPv4 Moving Network Support
+
+The Network Mobility (nemo) working group deals with the problem of
+mobility of a whole network, such as might exist inside a vehicle,
+train, or airplane. The nemo working group has developed draft
+specifications for both IPv6 and IPv4 mobile networks. However, it has
+been recognized that the IPv4 version of the protocol can be viewed as
+an extension of the basic Mobile IPv4 protocol, and there is good 
+reason
+to do this extension in the mip4 working group. The working group will
+take on the MIPv4 network mobility internet draft and progress it along
+the standards track. In addition, the working group will take up
+extensions to the basic MIPv4 moving network support in the areas of
+dynamic prefix assignment and foreign agent support.
+
+
+12. Asynchronous Notification Mechanism
+
+In some situations, there is a need for Mobile IPv4 entities, such
+as the home agent, foreign agent and mobile node to send and
+receive asynchronous notification events related to the operation
+of the MIPv4 protocol. A couple of examples of such events are
+registration revocation from a home agent to a foreign agent in
+order to terminate the service (to release resources and end
+charging), and notification of pending HA shutdown and indication
+of alternative serving HA, from a HA to the mobile node.
+
+The base Mobile IP Specification [RFC3344] does not have a
+provision for this. A new MIPv4 message pair which would support
+asynchronous notifications, and a notification model describing
+how to use these messages has been proposed. The working group
+will take on the existing MIPv4 notification message draft as a
+starting point, review and update it as needed, and progress it as
+a standards track document. In addition, the working group will
+also consider defining specific usages of the notification message
+based on the examples in the current document.

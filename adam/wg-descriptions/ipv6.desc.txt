@@ -1,0 +1,64 @@
+The IPv6 working group is responsible for the specification and
+standardization of the Internet Protocol version 6 (IPv6). IPv6 
+provides
+a much larger global addresses space than its predecessor IPv4. This
+enables global end-to-end communication and restores valuable 
+properties
+of the IP architecture that have been lost in the IPv4 Internet. The 
+core
+IPv6 standards are widely implemented and are starting to see global
+deployment.
+
+The IPv6 working group was originally chartered by the IESG as the IP
+Next Generation (IPng) working group to implement the recommendations 
+of
+the IPng Area Directors as outlined at the July 1994 IETF meeting and 
+in
+"The Recommendation for the IP Next Generation Protocol," RFC1752,
+January 1995.
+
+The primary focus of the IPv6 w.g. is to complete the standardization 
+of
+the IPv6 protocols, and to review and update the IPv6 specifications
+based on implementation and deployment experience, and advancing them 
+on
+the standardization track as appropriate.
+
+The working group's work items are as follows:
+
+o Complete Prefix Delegation requirements and publish. Related
+  remaining work is:
+- Develop Proxy Neighbor Discovery solution for prefix delegation
+  and publish. This enables a simple site border router to
+  re-advertise downstream a prefix it hears on its upstream link.
+o Complete revision of IPv6 MIBs (combined IPv4/IPv6 versions) and
+  publish.
+o Complete "Default Router Preferences, More-Specific Routes, and "Load
+  Sharing" and publish.
+o Update to ICMPv6 (RFC2463) and publish.
+o Complete "Node Information Queries" and publish.
+o Update Auto Configuration (RFC2462) and Neighbor Discovery (RFC2461)
+  and publish.
+o Investigate approaches to optimize or eliminate Duplicate Address
+  Detection (DAD) to make reduce the delays incurred by DAD when there
+  is a change of network attachment points. Publish a document defining
+  DAD optimizations.
+o Update "Privacy Extensions for Stateless Autoconfiguration" document
+  (RFC3041) and publish.
+o Complete work on IPv6 Node Requirements and publish.
+o Complete work stemming from the working group decision to deprecate
+  site-local addressing. This includes:
+- Publish document deprecating the usage of Site-Local addressing.
+- Publish revision of the IPv6 Address Architecture that includes
+  the deprecation of site-local addressing.
+- Publish a replacement for site-local addresses that removes the
+  major limitations and allows for local allocations.
+o Update the IPv6 Address Architecture to resolve the issues raised in
+  the IAB response to the Robert Elz appeal and publish as a Draft
+  Standard.
+o Complete work on Scoped Addressing Architecture and publish.
+o Update IPv6 over PPP (RFC2472) and publish.
+o Complete work on "Link Scoped IPv6 Multicast Addresses" and publish.
+
+All new work items not listed above require the approval of the working
+group and IESG before they will be taken on by the working group.

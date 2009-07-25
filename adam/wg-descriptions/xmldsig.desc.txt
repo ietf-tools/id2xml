@@ -1,0 +1,307 @@
+INTRODUCTION:
+
+Digital signatures provide integrity, signature assurance and
+non-repudiatability over Web data. Such features are especially
+important for documents that represent commitments such as contracts,
+price lists, and manifests. In view of recent Web technology
+developments, the proposed work will address the digital signing of
+documents (any Web resource addressable by a URI) using XML syntax.
+This capability is critical for a variety of electronic commerce
+applications, including payment tools.
+
+MISSION STATEMENT:
+
+The mission of this working group is to develop an XML compliant syntax
+used for representing the signature of Web resources and portions of
+protocol messages (anything referencable by a URI) and procedures for
+computing and verifying such signatures. Such signatures may be able to
+provide data integrity, authentication, and/or non-repudiatability. The
+meaning of the signature may be extensible by a set of semantics
+specified separately.
+
+JOINT IETF / W3C COORDINATION:
+
+This effort is equally and strongly dependent on XML expertise and
+coordination, which is in the W3C, and Internet cryptographic expertise
+and coordination, which is in the Internet Engineering Task Force
+(IETF). Therefore, the working group will be a joint body operating
+simultaneously as an IETF WG and a W3C WG. Procedures may differ from
+the norm for either organization (IETF RFCs 2026 / 2418 & World Wide 
+Web
+Consortium Process Document). Details are give in the sections below.
+
+SCOPE:
+
+The core scope of this activity will be in specifying the necessary 
+data
+model, syntax, and processing to bind a cryptographic signature to a
+resource in XML. The working group will focus on:
+
+1. Creating a data model that permits XML-DSig to be an integral part
+   of developing metadata and object model technologies.
+
+2. Creating a extensible canonicalization framework. In addition,
+   specify application requirements over canonicalization. All
+   XML-DSig applications must be able to sign - at least - the binary
+   byte stream. The group may also require applications to support XML
+   syntax or Unicode canonicalization if those mechanisms are widely
+   understood and necessary. This group will coordinate its
+   requirements with activities delivering XML, RDF, or DOM
+   canonicalization mechanisms.
+
+3. Syntax and processing for XML signatures.
+
+4. Document the WG's position on signature semantics.  At the Chair's
+   discretion the WG may develop a (small) set of signature semantics.
+   Such a proposal would define common semantics relevant to signed
+   assertions about Web resources and their relationships in a schema
+   definition (XML/RDF) or link type definition (XLink).
+
+5. Defining the charter for subsequent work once (1-4) has been
+   achieved.
+
+REQUIREMENTS:
+
+The following requirements must be met by the WG:
+
+1. Define a simple signature XML syntax that is highly extensible. We
+   wish to create a simple digital signature syntax that can be used
+   with other application semantics (through XML-namespaces) so as to
+   create arbitrarily sophisticated assertion capabilities.
+
+2. Ensuring that applications can create and process composite/compound
+   documents consisting of XML and non-XML data as well as for
+   processing detached or external signature blocks and assertions.
+
+3. XML-DSig must be coordinated with and use the work product of other
+   mature XML technologies.
+
+4. XML-DSig syntax expresses data model semantics; we do not require
+   applications to make inferences on that data model.
+
+5. Mandatory portions of the specification must be implemented in at
+   least two independent implementations before being advanced to
+   Proposed Standard.
+
+CONTRAINTS:
+
+The working group will not address the following issues:
+
+1. Trust engines
+
+2. Public key infrastructure
+
+3. Trust management systems
+
+4. XML schemas for certificates
+
+DEMONSTRATION APPLICATIONS:
+
+It is hoped that the following applications being developed by members
+of the WG will provide a useful test of the completeness:
+
+1. Internet Open Trading Protocol v2.0
+
+2. [some document / web-page application TBD]
+
+3. Financial Services Mark Up Language v2.0
+
+DELIVERABLES:
+
+This working group will deliver the following:
+
+- - Informational RFC (W3C NOTE) further specifying the requirements 
+and
+    dependencies for the remaining deliverables.
+
+- - Proposed Standard RFC (W3C Recommendation) that defines a highly
+    extensible XML syntax and processing used for associating a
+    signature with XML data without semantic specification but having 
+    provisions for the inclusion of such specification.
+
+- - Optional Informational RFC (W3C NOTE) on signature semantics
+    labeling and, if appropriate, an additional (small) set of 
+    signature semantics in a schema definition (XML/RDF) or link type 
+    definition (XLink).
+
+- - Informational RFC (W3C NOTE) documenting a set of test cases for
+    interoperability testing and a report on interoperability results.
+
+- - If appropriate, charters for further work.
+
+COORDINATION WITH OTHER W3C GROUPS:
+
+A central characteristic of this activity is its dependencies on other
+XML working groups. The WG chair will likely be a member of the W3C XML
+Coordination Group. During W3C Last Call, the Chair will procure 
+reviews
+from the following W3C WGs before the specification will be advanced
+further:
+
+1. XML Syntax/Core WG: Canonicalizing XML which involves finding a
+   single or "canonical" version of every possible form of the same
+   document by reducing white space, mapping quote marks to a standard
+   form, etc. etc.) with a view to using that standard form for the
+   purpose of applying digital signature technology.
+
+2. XML Linking WG: The objective of the XML Linking Working Group is to
+   design advanced, scalable, and maintainable hyperlinking and
+   addressing functionality for XML
+
+3. XML Schema WG: The XML Schema Working Group is addressing means for
+   defining the structure, content and semantics of XML documents.
+
+4. Metadata CG: The RDF Model and Syntax provides a uniform and
+   interoperable means to exchange the metadata between programs and
+   across the Web. Furthermore, RDF provides a means for publishing
+   both a human-readable and a machine-understandable definition of the
+   property set itself.
+
+COMMUNICATIONS MECHANISMS:
+
+Working group members are expected to participate in an electronic
+mailing list, periodic teleconferences, and face-to-face meetings. The
+sole WG consensus venue is the mailing list.
+
+Group Home Page:
+
+In order to maintain shared context of the group and to provide access
+to the proceedings of the group, the Chair maintains a web page at
+http://www.w3.org/Signature.
+
+Active participants are expected to have ready access to this page and
+be familiar with its contents.
+
+Mailing List:
+
+Participants must subscribe to and particiapte in the
+w3c-ietf-xmldsig@w3.org mailing list.  The archive is
+http://lists.w3.org/Archives/Public/w3c-ietf-xmldsig.
+
+Teleconferences:
+
+There are expected to be teleconferences held every few weeks at a time
+set by the Chair. The exact frequency of calls will be determined by
+working group consensus.
+
+The Chair is responsible for producing an agenda at least 24 hours in
+advance of each call, posting it along with the call details to the
+mailing list, and causing minutes of the call to be posted promptly
+after the call.
+
+Face to Face Meetings:
+
+The working group will have a two day face to face meeting in or near
+September 1999 and meet at the July and November 1999 IETF meetings and
+may have additional physical meetings by consensus of the WG. Meeting
+notice, advance agenda, and posting of minutes shall follow W3C timing
+rules.
+
+Communication with the Public:
+
+This working group is public.
+
+IETF / W3C PROCESS SYNCHRONIZATION:
+
+WG documents will be dual published in both the IETF as Internet-Drafts
+or RFCs and in the W3C, via the web. Differing delays in the processes
+may cause skew in the appearance of a document in the two locations.
+
+When a document is subject to a Last Call in both organizations 
+(Working
+Group or IETF Last Call in the IETF, W3C Last Call or AC Review in the
+W3C) comments received in both venues must be considered and responded
+to. In effect, the Last Call period will be longer of the times allowed
+in the IETF and W3C.
+
+The rough equivalence between document types in the IETF and W3C (and
+minimum length of time in that state) is as follows:
+
+IETF -- W3C
+
+Working Group Internet Draft -- Working Draft
+
+Informational RFC -- Note
+
+Last Call (4w) -- Last Call (4w)
+
+Proposed Standard RFC(6m) -- Candidate Recomendation(4w),
+                             Proposed Recommendation(6w)
+
+Draft Standard RFC(4m) -- Recommendation
+
+Full Standard RFC -- Recommendation
+
+If a document is substantively changed such that it recycles to a lower
+status in either venue, the corresponding document classification in 
+the
+other venue should also change.
+
+IETF Last Calls for joint WG documents which are on the IETF standards
+track will be 4 weeks per the Variance section of RFC 2026.
+
+DECISON PROCEDURES AND APPEALS:
+
+The working group itself will operate by consensus as provided in the
+IETF rules.
+
+Appeals from decisions by the working group chair may be taken using
+either the W3C or the IETF appeals mechanisms. It is expected that
+these mechanisms will coordinate and differences are not anticipated.
+Nevertheless, if and when the appeal mechanisms of the W3C and IETF 
+come
+to irreconcilable decisions, the group will thereby cease to be a
+working group of either the W3C or the IETF and may not take further
+official action under the procedures of either organization without
+explicit rechartering.
+
+Should either the W3C or the IETF unilaterally terminate the Working
+Group status so far as that organization is concerned, the WG will
+continue to be a working group of the other organization.
+
+IPR DISCLOSURE:
+
+Working group members must disclose intellectual properties "that are
+reasonably and personally known" to be relevant to this WG in 
+accordance
+with IETF (RFC2026) and W3C procedure; including notice and disclosure
+of such information to the WG, <patent-issues@w3.org> and the IETF
+Executive Director.
+
+PARTICIPANTS:
+
+Participation in the working group is open.  Participation is expected 
+to take a minimum of 15% of the participants time.  The XML-DSig WG 
+will 
+be co-chaired by Donald Eastlake III (Motorola) and Jospeh Reagle 
+(W3C).
+Each co-chair is expected to devote 20% of his time to this activity.
+
+W3C Team
+
+The XML-DSig Staff Contact will be Joseph Reagle and his staff contact
+duties are expected to take 40% of his time.  The staff contact is 
+partly responsible to coordinating dependencies and requirements from 
+the W3C Director and other activities.  Further details on the Staff 
+Contact and Chair roles can be found in the W3C Guidebook for Working 
+Group Chairs.
+
+TIME TABLE:
+
+Once established, the Working Group can decide to parallelize more 
+tasks
+by forming subgroups. The Working Group can also decide to reschedule
+tasks that do not have to meet deadlines imposed by other groups.
+However, the schedule must fit into the total timeframe given below.
+
+Also, document dates may not be rescheduled without notifying the W3C
+Domain leaders, the W3C director, and the IETF Area Director. Note that
+delay of deliverables can be a reason for the Working Group to be
+terminated.
+
+The working group charter was updated in March 2000 as follows: 
+(1) The duration of the working group has been extended by four months. 
+
+(2) The Signature Semantics document will not likey be produced -- its 
+ 
+   production was optional and at the discretion of the Chairs.

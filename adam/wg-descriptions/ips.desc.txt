@@ -1,0 +1,134 @@
+There is significant interest in using IP-based networks to transport 
+block storage traffic. This group will pursue the pragmatic approach of
+encapsulating existing protocols, such as SCSI and Fibre Channel, in an
+IP-based transport or transports. The group will focus on the 
+transport 
+or transports and related issues (e.g., security, naming, discovery, 
+and
+configuration), as opposed to modifying existing protocols. Standards 
+for the protocols to be encapsulated are controlled by other standards
+organizations (e.g., T10 [SCSI] and T11 [Fibre Channel]). The WG cannot
+assume that any changes it desires will be made in these standards, and
+hence will pursue approaches that do not depend on such changes unless 
+they are unavoidable. In that case the WG will create a document to be 
+forwarded to the standards group responsible for the technology 
+explaining the issue and requesting the desired changes be considered. 
+The WG will endeavor to ensure high quality communications with these 
+standards organizations. The WG will consider whether a layered 
+architecture providing common transport, security, and/or other 
+functionality for its encapsulations is the best technical approach. 
+
+The protocols to be encapsulated expect a reliable transport, in that
+failure to deliver data is considered to be a rare event for which
+time-consuming recovery at higher levels is acceptable. This has
+implications for both the choice of transport protocols and design of 
+the encapsulation(s). The WG's encapsulations may require quality of 
+service assurances (e.g., bounded latency) to operate successfully; 
+the 
+WG will consider what assurances are appropriate and how to provide 
+them 
+in shared traffic environments (e.g., the Internet) based on existing 
+IETF QoS mechanisms such as Differentiated Services. 
+
+Use of IP-based transports raises issues that do not occur in the 
+existing transports for the protocols to be encapsulated. The WG's 
+protocol encapsulations will incorporate the following: 
+
+- Congestion control suitable for shared traffic network 
+  environments such as the Internet. 
+
+- Security including authentication, keyed cryptographic data 
+  integrity and confidentiality, sufficient to defend against threats
+  up to and including those that can be expected on a public network. 
+  Implementation of basic security functionality will be required, 
+  although usage may be optional.
+
+The WG will also address the following issues related to its protocol
+encapsulations:
+
+- Naming and discovery mechanisms for the encapsulated protocols on 
+  IP-based networks, including both discovery of resources (e.g., 
+  storage) for access by the discovering entity, and discovery for 
+  management. 
+
+- Management, including appropriate MIB definition(s) for the 
+  encapsulations. 
+
+- By agreement with the IESG, the WG will additionally develop MIB
+  definitions for the SCSI and Fiber Channel standards. 
+
+
+The WG specifications will allow the implementation of bridges and 
+gateways that connect to existing implementations of the encapsulated 
+protocols. The WG will preserve the approaches to discovery, 
+multi-pathing, booting, and similar issues taken by the protocols it 
+encapsulates to the extent feasible. 
+
+It may be necessary for traffic using the WG's encapsulations to pass
+through Network Address Translators (NATs) and/or firewalls in some
+circumstances; the WG will endeavor to design NAT- and 
+firewall-friendly protocols that do not dynamically select target 
+ports 
+or require Application Level Gateways. 
+
+Effective implementations of some IP transports for the encapsulated
+protocols are likely to require hardware acceleration; the WG will 
+consider issues concerning the effective implementation of its 
+protocols in hardware.
+
+The standard internet checksum is weaker than the checksums use by 
+other implementations of the protocols to be encapsulated. The WG will 
+consider what levels of data integrity assurance are required and how 
+they should be achieved. 
+
+The WG will produce requirements and specification documents for each
+protocol encapsulation, and may produce applicability statements. The
+requirements and specification documents will consider both disk and 
+tape devices, taking note of the variation in scale from single drives 
+to large disk arrays and tape libraries, although the requirements and 
+specifications need not encompass all such devices. 
+
+The WG will not work on: 
+
+- Extensions to existing protocols such as SCSI and Fibre Channel
+  beyond those strictly necessary for the use of IP-based transports. 
+
+- Modifications to internet transport protocols or approaches
+  requiring transport protocol options that are not widely supported,
+  although the WG may recommend use of such options for block storage 
+  traffic. 
+
+- Support for environments in which significant data loss or data
+  corruption is acceptable. 
+
+- File system protocols. 
+
+Operational Structure: 
+
+Keith McCloghrie (kzm@cisco.com) will serve as the MIB and Network 
+Management advisor for the WG. 
+
+Due to the scope of the task and the need for parallel progress on 
+multiple work items, the WG effort is organized as follows: 
+
+A technical coordinator will be identified and selected for each 
+protocol encapsulation adopted as a work item by the group. This 
+person 
+will be responsible for coordinating the technical efforts of the 
+group 
+with respect to that encapsulation, working with and motivating the 
+document editors, and evangelizing the group's work within both the 
+community and relevant external organizations such as T10 and T11. 
+
+In addition to the normal responsibilities of IETF working group 
+chairs, the IPS chairs are responsible for selection of coordinators, 
+identifying areas of technical commonality and building 
+cross-technology efforts within the group. 
+
+Coordinators for initially important encapsulations: 
+
+SCSI over IP (aka iSCSI): John Hufferd (hufferd@us.ibm.com) 
+
+Fibre Channel (FC-2) over IP: Murali Rajagopal (muralir@cox.net) 
+
+iFCP: Franco Travostino (travos@nortelnetworks.com)

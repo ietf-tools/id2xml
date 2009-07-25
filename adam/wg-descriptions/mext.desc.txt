@@ -1,0 +1,245 @@
+Mobile IPv6 specifies routing support which permits an IPv6 host to
+continue using its home address as it moves around the Internet,
+enabling continuity of sessions. Mobile IPv6 supports transparency
+above the IP layer, including maintenance of active transport level
+sessions. In addition, network mobility (NEMO) mechanisms built on top
+of Mobile IPv6 allow managing the mobility of an entire network, as it
+changes its point of attachment to the Internet. The base
+specifications consist of:
+
+o RFC 3775 (Mobile IPv6)
+o RFC 3963 (NEMO)
+o RFC 4877 (Mobile IPv6 Operation with IKEv2)
+
+The MEXT Working Group continues the work of the former MIP6, NEMO,
+and MONAMI6 Working Groups.
+
+The primary goal of MEXT will be to (A) enhance base IPv6 mobility by
+continuing work on developments that are required for wide-scale
+deployments and specific deployment scenarios. Additionally, (B) the
+working group will ensure that any issues identified by implementation
+and interoperability experience are addressed, and that the base
+specifications are maintained. (C) The group will also produce
+informational documentation, such as design rationale documents or
+description of specific issues within the protocol.
+
+Deployment considerations call for (A.1) solutions to enable
+dual-stack operation, (A.2) mechanisms to support high-availability
+home agents, (A.3) allowing the use of multiple interfaces in mobile
+nodes, (A.4) ways to employ Mobile IPv6 in the presence of firewalls,
+(A.5) address the specific needs of automotive and aviation
+communities for route optimisation in network mobility, (A.6)
+support for AAA is needed as a continuation of earlier work on
+bootstrapping, (A.7) revocation of binding, (A.8) generic
+notification message format and (A.9) extended DMSIP home
+network support .
+
+Work items related to large scale deployment include:
+
+(A.1) A Solution for Mobile IPv6 and NEMO session continuity for dual
+stack hosts which attach to IPv4 access networks. Additionally
+provide a mechanism for carrying IPv4 packets via the Home agent
+for Mobile IPv6 or NEMO capable dual-stack hosts.
+
+(A.2) A protocol based solution for enhancing the reliability of home
+agents and a method to force a host/router to switch home agents.
+
+A mechanism to force an MN to switch the HA that is currently
+serving it. This is required in deployments where the HA needs to
+be taken offline for maintenance.
+
+(A.3) Use of multiple interfaces.
+
+Today, the protocols do not provide suppport for simultaneous
+differentiated use of multiple access technologies. Several
+proposals exist for such support, and some of them have been
+implemented and tested.
+
+When a mobile host/router uses multiple network interfaces
+simultaneously, or when multiple prefixes are available on a
+single network interface, the mobile host/router would end up
+with multiple Care-of Addresses (CoAs). In addition, the Home
+Agent might be attached to multiple network interfaces, or to a
+single network interface with multiple prefixes, hence resulting
+in the option to use multiple IP addresses for the Home
+Agent. This could result in the possibility of using a multitude
+of bi-directional tunnels between pairs of {Home Agent address,
+CoA} and a number of associated issues: establishment, selection
+and modification of multiple simultaneous tunnels.
+
+The objective of the WG is to produce a clear problem statement
+and to produce standard track specifications to the problems
+associated with the simultaneous use of multiple addresses for
+either mobile hosts using Mobile IPv6 or mobile routers using
+NEMO Basic Support and their variants (FMIPv6, HMIPv6,
+etc). Where the effects of having multiple prefixes on a single
+interface is identical to the effects of having multiple
+interfaces each with a single prefix, the WG will consider a
+generalized approach to cater for multiple prefixes available to
+a mobile host/router.
+
+The WG uses existing tunneling mechanisms defined for Mobile
+IPv6. The involved nodes need to select which tunnel instance
+to use when multiple ones are available due to multiple
+addresses on either end. But the WG does not plan to define a
+new mechanism for this, but rather document how to use existing
+mechanisms based upon preferences or policies. In particular,
+the WG will consider that a tunnel is alive as long as packets
+can be exchanged with the corresponding peer. In addition, local
+information, such as interface up/down events, or other failure
+detection mechanisms can be used to quickly detect failure of
+tunnel(s).
+
+Deliverables related to this include
+
+- A document explaining the motivations for a node using multiple
+interfaces and the scenarios where it may end up with multiple
+global addresses on its interfaces [Informational]
+
+- An analysis document explaining what are the limitations for
+mobile hosts using multiple simultaneous Care-of Addresses and Home
+Agent addresses using Mobile IPv6, whether issues are specific to
+Mobile IPv6 or not [Informational].
+
+- A protocol extension to support the registration of multiple
+Care-of Addresses at a given Home Agent address [Standard
+Track].
+
+- A "Flow/binding policies exchange" solution for an exchange of
+policies from the mobile host/router to the Home Agent and from the
+Home Agent to the mobile host/router influencing the choice of the
+Care-of Address and Home Agent address. The solution involves two
+specifications, one for the policy format and another for its
+transport [both Standard Track].
+
+(A.4) Work on solutions to deal with firewalls and the problems that
+firewalls cause as identified in RFC 4487.
+
+(A.5) Route optimization of network mobility.
+
+Three use cases have been identified for this. These are called
+the Aviation case, the Automotive case, and the Personal Mobile
+Router (consumer electronics) case, though the actual technical
+problems are characterized by the type of movements and
+environments more than by the specific industry using the
+technology. The group will explore these cases to gather
+requirements and proceed with solving the open issues.
+
+(1) Airline and spacecraft community, who are deploying NEMO for
+control systems, as well as Internet connectivity and
+entertainment systems. This use case is characterized by fast (~
+1000 km/h) moving objects over large distances (across
+continents). The main technical problem is that tunneling-based
+solutions imply a roundtrip to another continent and that BGP
+based solutions imply significant churn in the global Internet
+routing table.
+
+(2) Automotive industry who are deploying NEMO for in-car
+communication, entertainment, and data gathering, possible
+control systems use, and communication to roadside devices. This
+use case is characterized by moderately fast (~ 100-300 km/h)
+moving objects that employ local or cellular networks for
+connectivity.
+
+(3) Personal Mobile Routers, which are consumer devices that
+allow the user to bring a NEMO network with the user while
+mobile, and communicate with peer NEMO Basic Support nodes
+and nodes served by them.
+
+After gathering the requirements for these types of deployments,
+the working group will evaluate what type of route optimization
+needs to be performed (if any), and formulate a solution to
+those problems.
+
+If no requirements for those scenarios can be collected by the
+deadline, it will be assumed that the work is premature, and
+that type of deployment will be dropped from the WG.
+
+The group will only consider airline and spacecraft solutions
+that combine tunneling solutions for small movements with either
+federated tunnel servers or slowly changing end host prefixes.
+The group will only consider personal mobile router requirements
+about optimized routes to another mobile router belonging to the
+same operator. The group will only consider automotive industry
+requirements to allow MR-attached hosts to directly access the
+network where MR has attached to. Work on automotive and
+personal mobile router solutions requires rechartering.
+
+The WG will not consider extensions to routing protocols. The
+group will not consider general multi-homing problems that are
+not related to the deployment and maintenance of Mobile IPv6 or
+NEMO Basic Support protocols. The group will also not consider
+general route optimization, or other problems that are not
+related to the deployment and maintenance of NEMO Basic Support
+protocols. Similarly, the group will not consider or rely on the
+results of general routing architecture, Internet architecture,
+or identifier-locator split issues that are discussed in
+separate, long term efforts elsewhere in the IETF. Finally, the
+group will not consider solutions that require changes from
+correspondent nodes in the general Internet
+
+(A.6) Bootstrapping mechanisms developed earlier in the MIP6 WG
+require AAA support for Mobile IPv6. Part of this work is
+already being done in the DIME WG, but the MEXT WG is chartered
+to complete a design for RADIUS.
+
+(A.7) Binding Revocation for IP Mobility: Define a binding revocation
+mechanism for Mobile IPv6 and its extensions. This mechanism can
+be used by any entity involved in the base Mobile IPv6 protocol or
+one of its extensions to request its corresponding entity to terminate
+either one, multiple or all binding cache entries.
+
+(A.8) Generic Notification Message for Mobile IPv6: A proposal for
+defining generic notification framework that can be used by the mobility
+entities for sending and receiving asynchronous notification messages
+was proposed and the same was adopted by the WG.
+
+(A.9) Extended DSMIPv6 Home Network Support: DSMIPv6 assumes
+the home network to be dual stack providing simultaneous IPv6 and
+IPv4 network access. It is proposed to extend DSMIPv6 to support
+home networks which provides IPv4, or IPv6 respectively, direct
+network access only, but where virtual IPv6 home network
+connectivity, or virtual IPv4 home network connectivity
+respectively, may be obtained by tunneling to the HA. The latter
+shall be obtained by DSMIPv6 operation using the v4HoA address as
+Care-of-address for the v6HoA address, and vice versa, the v6HoA
+address as care-of-address for the v4HoA address.
+
+Work items related to base specification maintenance include:
+
+(B.1) Create and maintain issue lists that are generated on the basis
+of implementation and interoperability experience. Address
+specific issues with specific updates or revisions of the base
+specification. One specific area of concern that should be
+analyzed and addressed relates to multilink subnets.
+
+This work item relates only to corrections and
+clarifications. The working group shall not revisit design
+decisions or change the protocol.
+
+(B.2) Update the IANA considerations of RFC 3775 to allow extensions for
+experimental purposes as well passing of optional vendor-specific
+information.
+
+(B.3) Finish working group documents that are currently in process, and
+submit for RFC. This includes prefix delegation protocol mechanism
+for network mobility, and a MIB for NEMO Basic Support.
+
+
+Work items related to informational documentation include:
+
+(C.1) Produce a design rationale that documents the historical
+thinking behind the introduction of an alternative security
+mechanism, the Authentication Protocol (RFC 4285).
+
+(C.2) Virtual Home Link configuration for Mobile IPv6: A proposal
+has been made on Mobile IPv6 home link configuration on
+virtual links. The proposal does not describe any new protocol, but
+provides the operational and configuration details and additionally
+provides implementation guidance for achieving this
+configuration.
+
+The group employs IPsec and IKE as a security mechanism. The group
+shall refrain, however, from making generic extensions to these
+protocols. Any proposed extension must be reviewed by the INT and SEC
+ADs before it can be accepted as a part of a work item.

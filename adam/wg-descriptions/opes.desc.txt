@@ -1,0 +1,62 @@
+The Internet facilitates the development of networked services at the
+application level that both offload origin servers and improve the
+user experience. Web proxies, for example, are commonly deployed to
+provide services such as Web caching, virus scanning, and request
+filtering. Lack of standardized mechanisms to trace and to control
+such intermediaries causes problems with respect to failure
+detection, data integrity, privacy, and security.
+
+The OPES Working Group has previously developed an architectural
+framework to authorize, invoke, and trace such application-level
+services for HTTP. The framework follows a one-party consent model,
+which requires that each service be authorized explicitly by at least
+one of the application-layer endpoints. It further requires that OPES
+services are reversible by mutual agreement of the application
+endpoints.
+
+In particular, the WG has developed a protocol suite for invocation
+and tracking of OPES services inside the net. The protocol suite
+includes a generic, application-agnostic protocol core (OCP Core)
+that is supplemented by profiles specific to the application-layer
+protocol used between the endpoints. So far, the WG has specified an
+OCP profile for HTTP, which supports OPES services that operate on
+HTTP messages.
+
+In a next step, the WG will specify one or more OCP profiles that
+will support OPES services operating on SMTP. In particular, the
+profile to be specified will enable an SMTP server (the OPES
+processor) to encapsulate and forward SMTP data and metadata to a
+callout server for additional processing. Several kinds of agents
+participate in SMTP exchanges, including MSA, MTA, MDA, and MUA. The
+first OCP/SMTP profile will address the needs of at least the MTA
+and/or MDA. More profiles may be needed to address other
+agent-specific needs, such as for LMTP and/or SUBMIT. The security
+and privacy concerns of SMTP must be carefully analyzed as part of
+the definition of the profile.
+
+In addition, the WG will define a rules language to control selection
+and invocation of services by an OPES processor. This includes a
+mechanism allowing an OPES processor to perform a runtime check of
+service parameters, leveraging existing interface description
+standards like WSDL, if possible, or OPES-specific description
+otherwise. Defining language(s) for implementing OPES services is out
+of the WG scope. The rules language will be based on previous work of
+the WG on a rules language named "P". The WG will have a design goal
+that the language be compatible with existing policy work within the
+IETF (e.g. IETF Policy Framework) and be able to interface with
+systems automating distribution of policies to multiple endpoints. It
+will be out of scope for this WG to develop the policy framework and
+specify multiple-endpoint policy distribution.
+
+The group's new work items can be listed as:
+
+- Develop a document about "Scenarios and Use Cases for
+OPES Services operating on SMTP".
+- Define profile(s) for OCP core that handle SMTP messages
+or parts thereof.
+- Define a rules language to control the selection and
+invocation of HTTP-based or SMTP-based OPES services.
+
+Each deliverable must follow the previously developed OPES
+architecture. As each deliverable is developed, it must address the
+IAB considerations specified in RFC 3238.

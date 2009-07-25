@@ -1,0 +1,24 @@
+The USER-DOC Working Group will prepare a bibliography of on-line and
+hard copy documents/reference materials/training tools addressing
+general networking information and ``how to use the Internet''.
+(Target audience: those individuals who provide services to end users
+and end users themselves.)
+
+\begin{itemize}
+\item
+   Identify and categorize useful documents/reference
+     materials/training tools.
+\item
+   Publish both an on-line and hard copy of this bibliography.
+\item
+   Develop and implement procedures to maintain and update the
+     bibliography.  Identify the organization or individual(s) who will 
+accept
+     responsibility for this effort.
+\item
+   As a part of the update process, identify new materials for
+     inclusion into the active bibliography.
+\item
+   Set up procedures for periodic review of the bibliograhy by USWG.
+
+\end{itemize}

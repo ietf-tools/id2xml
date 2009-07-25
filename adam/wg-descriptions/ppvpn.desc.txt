@@ -1,0 +1,66 @@
+This working group is responsible for defining and specifying a limited 
+number of sets of solutions for supporting provider-provisioned virtual 
+private networks (PPVPNs). The work effort will include the development 
+of a framework document, a service requirements document and several 
+individual technical  approach documents that group technologies 
+together to specify specific VPN service offerings. The framework will 
+define the common components and pieces that are needed to build and 
+deploy a PPVPN. Deployment scenarios will include provider-managed VPN 
+components located on customer premises.
+
+The service requirement document will detail the requirements 
+individual PPVPN approaches must satisfy from a Service Provider (SP)
+perspective.  Particular attention will be placed on SP requirements
+for security, privacy, scalability and manageability considering such
+factors as Service Provider's projections for number, complexity, and
+rate of change of customer VPNs over the next several years. The
+working group will make specific efforts to solicit this information
+from SPs. The service requirements document is not intended to define
+the requirements that all approaches must satisfy.  Rather, it is
+intended to become a "checklist" of requirements, not all of which
+will necessarily be required in all deployment scenarios. A goal of
+the requirements document is to provide a consistent way to evaluate
+and document how well each individual approach satisfies the
+individual requirements.
+
+The effort will produce a small number of approaches that are based
+on collections of individual technologies that already exist (see
+below for specifics). The goal is to foster interoperability among
+implementations of a specific approach. Standardization of specific
+approaches will be gauged on (I)SP support.  Note that it is not a
+goal of this WG to develop new protocols or extend existing
+ones. Rather, the purpose is to document and identify gaps and
+shortcomings in individual approaches with regards to the
+requirements. In the case that specific work items are identified,
+such work will be done in an appropriate WG.  Taking on specific
+protocol work items in this WG will require rechartering.
+
+The working group is expected to consider at least three specific
+approaches including BGP-VPNs (e.g. RFC 2547), virtual routers and
+port-based VPNs (i.e., where the SP provides a Layer 2 interface,
+such as Frame Relay or ATM, to the VPN customer, while using IP-based
+mechanisms in the provider infrastructure to improve scalability and
+configurability over traditional L2 networks).  Multiple approaches
+are being developed as each approach has particular characteristics
+and differing scope of applicability.
+
+The working group will consider inter-AS (SP) VPN interconnects so
+that VPNs are able to span multiple ASs (SPs).
+
+Each technical approach document will include an evaluation of how
+well it meets the requirements defined in the requirements
+document. In addition, technical approach documents will address
+scalability and manageability issues as well as their operational
+aspects. Individual approach documents will also analyze the threat
+and security aspects of PPVPNs and include appropriate
+mandatory-to-implement technologies and management mechanisms to
+ensure adequate security and privacy of user data in a VPN
+environment. This analysis will include cryptographic security from
+customer site to customer site using IPSEC.
+
+An applicability statement will be developed for each approach that
+describes the environments in which the approaches are suitable for
+deployment, including analysis of scaling impact of the approach on
+SPs and threat analysis.
+
+Coordination with the IETF PWE3 and ITU-T efforts will be ensured.

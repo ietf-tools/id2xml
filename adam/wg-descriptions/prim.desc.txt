@@ -1,0 +1,45 @@
+The purpose of this working group is to produce a set of protocols for
+Presence and Instant Messaging services, which will minimally satisfy
+the IMPP Model and Requirements [RFC2778/2779]. In June 2000 the IMPP
+WG produced various Internet-Drafts with several protocols falling in
+the same group due to very similar architectures. Four of those
+proposals were combined into a new one called PRIM (Presence and
+Instant Messaging) following the WG chairs recommendation to proceed
+with proposals from that group.  The PRIM working group emerged from
+this collaborative activity.
+
+The working group will generate a set of standard track documents for
+the PRIM specifications.  It will specify the protocols and data
+formats for the Presence and Instant Messaging services using a
+minimalist approach, complying with RFC 2779 and with CPIM, without
+adding implementation complexities. BCP 41 will be the basis for
+working group consideration of the transport implications of the PRIM 
+designs with respect to network congestion
+
+These protocols will take existing architecture and widely-deployed
+Presence and Instant Messaging services on the Internet as an intra-
+domain basis, and use CPIM over TCP for inter-domain exchange of
+presence information and instant messages.
+
+The working group will work in collaboration with the IMPP WG to finish
+the CPIM specifications.
+
+The PRIM specification documents will include the following:
+
+o The inter-domain server-server protocol specification for the
+  Presence/Instant Messaging services, which map the CPIM specification
+  being developed by the IMPP working group over TCP.  This
+  specification defines protocols for subscription/notification and
+  instant messaging.
+
+o The client-server protocol specification for the Presence service.
+  This specification defines a protocol to subscribe to a presence
+  entity (presentity), to send a change notification to a watcher, and
+  to control the presentity and presence information distribution.
+
+o The client-server protocol specification for the Instant Messaging
+  service.  This specification defines a protocol to send and receive
+  instant messages between a client and a server.
+
+The PRIM proposal (draft-mazzoldi-prim-impp-01.txt) will serve as the
+starting point for the discussions in this WG.

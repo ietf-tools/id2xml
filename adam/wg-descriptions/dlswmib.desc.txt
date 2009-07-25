@@ -1,0 +1,18 @@
+The DLSw MIB Working Group is chartered to define a set of managed
+objects for devices that support Data Link Switching (DLSw) version 1.
+DLSw is a method for encapsulating SNA (System Network Architecture) or
+NetBIOS (Network Basic Input Output Services) traffic in TCP/IP. DLSw
+is intended to aid in the transport of SNA and NetBIOS traffic across
+WANs. The objects will be the minimum necessary to provide the ability
+to monitor and control DLSw devices, supporting fault isolation,
+configuration and performance management. The set of objects will be
+consistent with the SNMP framework and existing SNMP standards.
+
+The working group will consider existing enterprise-specific MIB
+modules that define objects which support management of these devices.
+
+The working group recognizes that managed objects for later versions of
+DLSw  may need to be identified in the future.  These objects are out
+of scope for the current (i.e., 1995) charter; however, once the
+working group completes its charter, a new charter identifying some or
+all of these components may be considered.

@@ -1,0 +1,27 @@
+This working group is chartered to standardize a set of managed
+objects representing logical and physical entities and the
+relationships between them. Logical entities can occur when a
+single agent supports multiple instances of one MIB, such as
+RFCs 1493, 1525, or 1850 where each instance represents a
+single (logical) device/entity. Physical entities are the actual
+physical components on which the logical entities operate;
+typically, the physical components exist in a hierarchy.
+
+The set of objects will be consistent with the SNMP framework and
+existing SNMP standards.
+
+The scope of the defined managed objects should allow an NMS to
+interrogate a standard SNMP context and thereby discover what
+logical and physical entities exist, how to access the MIB
+information of each logical entity, and the relationships between
+the various entities. The MIB should support both a single agent
+or multiple agents in one physical entity.
+
+The WG will also standardize a set of managed objects representing
+sensor entities.  Sensor entities are physical entities that report
+a value based on external conditions, such as temperature sensors, 
+power monitors, etc.  The Sensor Entity MIB will augment the basic 
+Entity MIB to allow an NMS to obtain the value reported by a sensor.
+This MIB will not contain internal support for alarms or
+thresholds, but should work with standard alarm and threshold MIBs,
+such as RMON-2.

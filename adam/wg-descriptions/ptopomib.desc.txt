@@ -1,0 +1,41 @@
+Document Editor: Gilbert Ho (Gilbert_Ho@3mail.3com.com)
+
+
+The goals of this working group are:
+
+   o to agree on and document the common framework/model for
+     discussing physical topology
+   o to standardize a set of managed objects that provide physical
+     topology information
+   o to document media specific mechanisms to communicate topology
+     information.
+
+The managed objects should provide sufficient information to allow a
+management workstation to navigate across a set of agents in order to
+learn the topology of arbitrarily large networks, and these objects
+should be as independent as possible from the specific underlying
+networking media which comprise the network. These objects will be the
+minimum necessary to provide the ability to support the physical
+topology discovery, and will be consistent with the SNMP framework and
+existing SNMP standards.
+ 
+In defining these objects, it is anticipated that the working group
+will leverage existing work for representing port-based information,
+such as in the Repeater MIB (RFC 1516 or later) and may also leverage
+work in the entity MIB for describing logical and physical
+relationships.
+ 
+The working group will define the general requirements for topology
+mechanisms in order to support the proposed MIB.  It will also identify
+existing topology mechanisms for common LAN media types and may propose
+new topology mechanisms for LAN media types where required.  It is a
+goal of the common topology MIB to allow the use of either standard or
+proprietary topology mechanisms within the underlying media.
+ 
+At this time, it is not a goal of the working group to support the
+collection or representation of logical topology information, such as
+VLAN configuration or subnet structure.  It is anticipated that this
+could be an area for future work items, so some consideration will be
+given to extensibility of the models and to the MIB.  However, this
+consideration must not be allowed to impede progress on the primary
+focus of physical connectivity.

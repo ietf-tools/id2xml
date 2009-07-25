@@ -1,0 +1,23 @@
+The purpose of the BOF is to discuss the recent formation of the 
+Interent Assignment Hierarchy Coalition (IAHC), present its work 
+to date and thoughts for making progress, and to solicit comments 
+and respond to questions from the IETF community.
+
+From the IAHC's charter:
+
+The Domain Name System (DNS) is an essential component in the 
+Internet's operational infrastructure.  Designed for locating 
+machines on the Internet, it maps between their human-friendly 
+names and their transport (IP) addresses.  Machine names are a 
+series of textual fields, representing a registration and lookup 
+hierarchy.  Each registry in the hiearchy is delegated authority 
+from the registry above.  A number of "Top Level Domain" (TLD) 
+registries already exist: one for each country, and a small number 
+which are international (iTLD) such as .com, .org and .net.  For 
+more than ten years the set of TLD registries was stable and 
+sufficient.  The recent explosive commercialization of the Internet 
+has produced a requirement for enhanced assignment procedures.  
+A complicating factor is that the human-friendly quality of Domain 
+Name strings has also made them commercially valuable.  The IAHC 
+is an international multi- organization effort, for specifying and 
+implementing policies and procedures relating to iTLD.

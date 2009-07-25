@@ -1,0 +1,40 @@
+The Mobile IP working group has defined basic mobility and associated
+specifications for IPv4 and is at the verge of finishing the base
+specification for IPv6.
+
+
+It is now a good time to look at the activities of the working group
+and how to better structure future efforts.  Upon doing so, it is
+evident that beyond their superficial resemblance, mobility for IPv4
+and IPv6 differ considerably.  They are very different with respect to
+their underlying technologies, deployment issues and levels of
+maturity.  MIPv4 has been a proposed standard for several years, has
+been adopted by other standard development organizations and has been
+deployed commercially.  The basic specifications for MIPv6, on the
+other hand, are just now being finalized.  Whereas for MIPv4 the more
+pressing issues at this moment are to further ease its deployment, for
+MIPv6 the more urgent work is still on finalizing protocol details and
+mechanisms of a more basic nature. This leads to a two-pronged approach
+in which the basic idea is to divide the current working group into two
+new ones: one concentrating on IPv4 mobility and the other on IPv6
+mobility.
+
+
+This purpose of this BOF is to discuss this proposal and to seek IETF
+input on how each of the resultant working groups should be chartered.
+
+
+Another issue to be discussed is to figure out how to best determine
+when items should be adopted by the working group(s). As an example,
+when items are more of a research nature, it may be best not to
+pursue them in the IETF as other organizations may be better suited
+for this. Other potential criteria to apply are the existence
+of independent implementations and/or deployment plans as  a measure
+of interest in a given proposal.
+
+
+The chairs also seek feedback on how best to interface with other
+working groups, both within the IETF (e.g., to tackle ND optimizations
+with IPv6) and elsewhere (e.g., to coordinate work on movement 
+detection
+with the IEEE).

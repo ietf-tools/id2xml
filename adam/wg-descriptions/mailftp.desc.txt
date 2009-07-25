@@ -1,0 +1,7 @@
+Electronic mail often provides the only means of data transfer between
+two systems.  Hence it would be convenient to specify standard mechanisms
+for file transmission and retrieval using Internet standard electronic mail
+as a base.  This BOF wil report on efforts along this line, motivated by
+the need to synchronize various X.400 operations tables, and will develop
+a plan for specifying a general mechanism to support file access transfer
+and synchronization using Internet mail. 10/19/93 mw

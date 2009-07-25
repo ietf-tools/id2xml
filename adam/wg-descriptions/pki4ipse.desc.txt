@@ -1,0 +1,57 @@
+IPsec has been standardized for over 5 years, and the use of PKI X.509 
+certificates have been specified within the IPsec standards for the 
+same rime. However, very few IPsec deployments use certificates. One 
+reason is the lack of a certificate profile or description about how 
+the various elements of a PKI ought to be constructed and how the 
+contents ought to be populated for use with IPsec. In addition, the 
+handling of certificates in various IPsec use cases requires better 
+description. The lack of such specifications has yielded PKI systems 
+whose support for IPsec applications is too obscure, complex, and 
+often 
+feature incomplete. Also, support within the IPsec systems for 
+interaction with the PKI is often equally complex and incomplete, 
+leaving deployers without interoperability.
+
+Within IPsec VPNs, the PKI supports authentication of peers through 
+digital signatures during security association establishment using 
+IKE. 
+To date, SCEP and "cut-and-paste" techniques are more commonly used to 
+accomplish end entity certificate acquisition for IPsec VPN usage, but 
+are better suited to small VPN deployments, and are out of scope for 
+this solution. A robust certificate management scheme is needed to 
+empower operators in large scale deployment and management efforts. 
+Multiple competing and incomplete protocols for certificate 
+acquisition, renewal and revocation exist today.  Deployers struggle 
+to 
+get products that support these technologies to work together nicely 
+in 
+order to accomplish their goals.
+
+The protocol and PKI operational usages are considered in order to 
+define a common, single set of methods (which forces interoperability) 
+between PKI systems and IPsec systems for large-scale deployments. The 
+requirements address the entire lifecycle for PKI usage within IPsec 
+transactions:
+pre-authorization of certificate issuance, enrollment process 
+(certificate request and retrieval), certificate renewals and changes, 
+revocation, validation and repository lookups. They enable an IPsec 
+operator to:
+   - authorize batches of certificate issuances based on locally 
+defined
+     criteria
+   - provision PKI-based user and/or machine identity to IPsec peers, 
+on
+     large scale
+   - set the corresponding gateway and/or client authorization policy
+     for remote access and site-to-site connections
+   - establish automatic renewal for certificates
+   - ensure timely revocation information is available and retrievable 
+Requirements for both the IPsec and the PKI products will be 
+addressed. 
+The goal is to create a set of requirements from which a specification 
+document will be derived. The requirements are carefully designed to 
+achieve security without compromising ease of management and 
+deployment, even where the deployment involves tens of thousands of 
+IPsec users and devices. These requirements will be used to identify a 
+specific protocol that may be leveraged to accomplish such large-scale 
+deployments.

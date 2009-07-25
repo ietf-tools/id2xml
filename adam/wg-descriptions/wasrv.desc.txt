@@ -1,0 +1,38 @@
+There are a variety of remote remote services available on the 
+Internet.  These include file servers, telephony gateways, white pages, 
+and many others.  They are currently very difficult to discover.  Often 
+the name or network address of the service must be explicitely 
+configured with a client system.  
+ 
+There are a variety of protocols available which could ease the 
+configuration of wide area services.  These would primarily function 
+through the use of storing a pointer to the service indirectly 
+and providing a resolution service (URN, DNS, LDAP, etc.)  None of them 
+are currently being used to solve the problem of wide area service 
+location, though each is used to solve specific service look-up 
+problems.
+ 
+WASRV will specify the required architectures and protocols to make it 
+much easier to discover remote services.  In particular, we will seek to 
+define a mechanism which allows automatic configuration of clients which 
+are only aware of the attributes of a server they need in advance, not 
+its location.  The more dynamic and decentralized this service is, the 
+better.
+
+Participants in the WASRV BOF are encouraged to read an internet draft 
+discussing the problem and suggesting directions for a solution to it:
+   
+   Rosenberg, Guttman, Moats, Schulzrinne, "WASRV Architectural
+   Principles", draft-rosenberg-wasrv-arch-00.txt
+ 
+Participants may also wish to read proposed solutions to the WASRV 
+problem:
+ 
+   Rosenberg, Suter, Schulzrinne, "Wide Area Service Location",
+   draft-ietf-svrloc-wasrv-01.txt
+ 
+   Moats, Hamilton, Leach, "Finding Stuff (How to discover services)",
+   draft-ietf-svrloc-discovery-05.txt
+ 
+   Moats, Hamilton, "Advertising Services (Providing information to
+   support service discovery)", draft-ietf-svrloc-advertising-03.txt

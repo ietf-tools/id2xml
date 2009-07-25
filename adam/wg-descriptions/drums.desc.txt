@@ -1,0 +1,19 @@
+The goal of this working group is to develop and review revised
+versions of RFC 821 and RFC 822, incorporating the revisions in RFC
+974, RFC 1123, and RFC 1651.
+
+In addition, the group will review other RFCs related to messaging, and
+determine the applicability of each of these to the future direction of
+the messaging in the Internet. The group may choose to incorporate,
+deprecate, or write applicability statements for such documents, as
+necessary to produce a clear statement of requirements for overall
+interoperability of Internet electronic mail.
+
+The documents produced by the working group are intended to be
+submitted to the IESG for consideration as Internet Standards.
+
+Items appropriate for inclusion in documents produced by the working
+group include corrections, clarifications, and amplifications to
+reflect existing practice or to address problems which have been
+identified through experience with Internet mail protocols. New
+functionality is expressly inappropriate.

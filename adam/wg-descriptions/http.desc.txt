@@ -1,0 +1,51 @@
+Note: This working group is jointly chartered by the Applications Area
+      and the Transport Services Area.
+
+The HTTP Working Group will work on the specification of the Hypertext
+Transfer Protocol (HTTP). HTTP is a data access protocol currently run
+over TCP and is the basis of the World-Wide Web. The initial work will
+be to document existing practice and short-term extensions. Subsequent
+work will be to extend and revise the protocol. Directions which have
+already been mentioned include:
+
+ o improved efficiency,
+ o extended operations,
+ o extended negotiation,
+ o richer metainformation, and
+ o ties with security protocols.
+
+Note: the HTTP working group will not address HTTP security extensions
+as these are expected to be the topic of another working group.
+
+Background information
+
+The initial specification of the HTTP protocol was kept in hypertext
+form and a snapshot circulated as an Internet draft between 11/93 and
+5/94. A revision of the specification by Berners-Lee, Fielding and
+Frystyk Nielsen has been circulated as an Internet draft between 11/94
+and 5/95. An overview of the state of the specifications and a
+repository of pointers to HTTP resources may be found at
+
+  http://www.w3.org/hypertext/WWW/Protocols/Overview.html
+
+Once established, the working group will expand and complete that
+document to reflect HTTP/1.0 as it has been implemented by World-Wide
+Web clients and servers prior to November 1994. The resulting
+specification of HTTP/1.0 will be published for review as an
+Internet-Draft and, if deemed appropriate, will be submitted to the
+IESG for consideration as a Proposed Standard or Informational RFC.
+
+In parallel with the above effort, the working group will consider
+enhancements/restrictions to the current practice in order to form a
+specification of the HTTP protocol suitable for eventual consideration
+as a proposed standard.
+
+Also in parallel with the above efforts, the working group will engage
+in defining (or selecting from various definitions) a next-generation
+protocol for hypertext transfer (HTTPng).
+
+A description of HTTP/1.0 as it is generally practiced currently on the
+Internet has been submitted to become an Informational RFC. The working
+group is considering enhancements/restrictions to the current practice
+in order to form a specification of the HTTP protocol suitable for
+eventual consideration as a proposed standard.

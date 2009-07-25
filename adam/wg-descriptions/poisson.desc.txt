@@ -1,0 +1,61 @@
+The POISED working group in 1993-1994 established the basis of the IETF
+process in its current form. Poised95 established a base set of 
+documents to describe the essentials of the IETF process. POISSON is 
+concerned with documenting issues relevant to the IETF process.
+
+The name POISSON:
+
+The tricky part of describing the IETF process, certainly in the fast
+changing world of the Internet, is that when you describe the process in
+too much detail, the IETF loses its flexibility, when you describe to
+little it becomes unmanageable. This is therefore a slippery subject, 
+hence the name POISSON, which is French for fish. The French word also 
+serves to indicate the international aspect of the WG.
+
+Furthermore the IETF operates by consensus, which sometimes seems to 
+have a POISSON distribution.
+
+The POISSON WG will work on the following items in 1999:
+
+- Review of copyright issues as described in RFC2026,
+  that describes the Internet standards proces.
+
+- Drafting of an agreement for registration and assignment of protocol
+  parameters as performed by the IANA.
+
+  The WG will focus on the operational and technical aspects of the
+  contract. The IETF lawyer will be asked to add the necessary legal
+  phrases.
+
+- Discuss the relationship between IETF and ICANN.
+  Should the IETF be participating in ICANN at all? If so, as
+  part of the ICANN PSO?
+  Under which conditions?
+
+  An RFC detailing the position will be published if the WG
+  decides that the IETF should not be part of the ICANN PSO.
+  RFC on proposed ICANN PSO bylaws will be produced if the WG
+  consensus is in favor of joining the PSO. Furthermore, in the latter
+  case an RFC will be produced that describes how ICANN PSO
+  officers (on behalf of the IETF) are to be selected.
+
+- Discuss an update of the Nominations Committee document RFC-2282, if
+  and when the current NomCom has suggestions for changes.
+
+Furthermore, the POISSON WG will review documents that are related to 
+the IETF standards process (but that will not be produced by the POISSON 
+WG itself) when available. Such documents may include:
+
+- IETF Charter; This needs to be written by the IETF chair. It is
+essentially a short mission statement like document that contains
+references to other Poised documents for further details.
+
+- IESG Charter; This document will be written by the IESG.
+
+- IAB Charter; The IAB needs to revise its charter (RFC1601).
+
+- Proposals related to standards publishing.
+
+Last but not least, Poisson will serve as a generic platform where the
+IAB and IESG can discuss policy questions if there is the need for
+consensus polling.

@@ -1,0 +1,13 @@
+This BOF describes the ``Experiment in Remote Printing'' which was
+launched on the operational Internet computer network on July 16.
+The experiment allows e-mail users of X.400 or SMTP-based systems
+or of commercial systems such as MCI Mail to use the Internet as
+a way of reaching fax machines around the world.
+
+This BOF describes how remote printer servers may deploy their services
+and discusses operational implications of this service.  The BOF discusses
+at length the financial and commercial model that allows distributed
+service providers around the world to treat the fax service as a 
+profit center or other form of operational, organizational resource.
+
+Draft submitted 9/7/93 mw

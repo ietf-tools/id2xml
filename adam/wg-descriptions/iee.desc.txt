@@ -1,0 +1,26 @@
+We propose a BOF/ proto-WG session for the Vancouver IETF to discuss
+internationalization of email addresses, including a supporting SMTP
+Extension and the required internationalization of email headers,
+expressing the latter in UTF-8. A design team based in the Joint
+Engineering Team, consisting of specialists from CNNIC, JPNIC/JPRS,
+KRNIC, and TWNIC plus some invited specialists have prepared and
+posted key base documents for this work.
+
+Internationalization of email addresses is the key next step in
+moving the Internet from its base in ASCII-only identifiers.
+People's desire to use their names, correctly spelled, in email
+address local-parts is far stronger than the desire to use
+internationalized domain names, already standardized by the IETF.
+
+The goal of this work is to pursue, via a WG and IETF processes,
+one possible approach to email internationalization, carrying it
+through to a series of Experimental specifications. Once those
+specifications exist, implementations will be created and tested.
+If the results of that work are satisfactory, a reconstituted WG
+will be proposed to standardize the approach.
+
+The longer session is proposed in order to start community review
+on the documents and strategy themselves, rather than just
+establishing interest (which is already clear from the JET effort
+and an earlier effort/mailing list that operated under the "IMAA"
+label) and reviewing the proposed charter.

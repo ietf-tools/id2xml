@@ -1,0 +1,14 @@
+The Integration of Internet Information Resources Working Group (IIIR)
+is chartered to facilitate interoperability between Internet
+information services, and to develop, specify, and align protocols
+designed to integrate the plethora of Internet information services
+(WAIS, ARCHIE, Prospero, etc.) into a single ``virtually unified
+information service'' (VUIS). Such protocols would include, but are not
+limited to, update protocols for distributed servers, a ``query routing
+protocol'' to pass queries between existing services, protocols for
+gateways between existing and future services, and standard exchange
+formats (perhaps based on Z39.50) for cross-listing specific
+information.
+
+Also, where necessary, IIIR will create technical documentation for
+protocols used for information services in the Internet.

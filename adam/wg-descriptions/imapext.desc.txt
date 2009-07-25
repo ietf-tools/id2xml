@@ -1,0 +1,16 @@
+The IETF IMAP extensions Working Group shall revise and publish
+standards-track extensions to IMAP4 for performing the following
+functions:
+
+1. Sorting, threading, and viewing (to be dealt with by one or more 
+   mechanisms)
+
+2. Access Control Lists
+
+3. Message-level annotations
+
+Revising the base IMAP4rev1 specification is out of the scope of this
+WG. However, this WG will ensure that whatever extensions it does
+propose do not worsen any existing problems in the base specification
+of IMAP, nor do they make any such problems harder to address in the
+future.

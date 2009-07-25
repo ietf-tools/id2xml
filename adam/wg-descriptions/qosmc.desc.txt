@@ -1,0 +1,56 @@
+For some time, SC 6 and ITU-T SG 7 have been developing specifications 
+for multi-party communications in what would traditionally be labelled 
+the Transport layer -- that is, above the Network layer, and of a 
+general nature to support a range of different kinds of application. The 
+two major features of the work that go beyond traditional Transport 
+protocols are multicast operation, and the provision of means to 
+express, negotiate and maintain the quality of service of communication 
+in a multi-party environment. 
+
+The multicast provision considered is biased towards relatively small
+groups of communicating participants. In the current and near-term
+marketplace, we would also expect deployment and use of such protocols 
+to be biased towards the intranet environment, more than the global 
+Internet; in the longer term, that bias might very well change.
+
+In parallel with development of the protocol specifications, there have
+been two implementation projects (in Germany and Korea) that are now 
+able to demonstrate the effectiveness of the approach that has been 
+adopted.
+
+Early work, now completed, on ECTS (Enhanced Communications Transport
+Service) has been used to focus and direct the protocol development. We
+have tried to identify, and so avoid re-inventing, existing protocols 
+which could meet some of the needs (eg RTP); and conversely, to identify 
+gaps where new protocols need to be developed. Related work has 
+identified the requirement for associated, ancillary, protocols -- 
+possibly generic, possibly related to particular kinds of application 
+area -- and some experimental work in these areas has been carried out.
+
+The resulting protocol development work -- labelled ECTP -- deals with 
+two main areas: firstly, a set of protocol functions that provide a 
+framework for control of multicast conversations, including negotiation 
+of a wide range of possible quality of service values, and consequent 
+selection of suitable bearer protocols at or just above the Network 
+layer for the actual data transfer; and secondly, development of a 
+specific multicast bearer protocol offering a range of reliability 
+options. 
+
+The BOF is envisaged as the first of a possible two-stage introduction 
+of this SG 7 and SC 6 work to the wider development arena of the IETF. 
+We hope and expect to stimulate wider interest and participation in 
+further developing some strands of the technical work, including some 
+that would take advantage of IETF work such as RTP. To facilitate this 
+we intend to set up a dedicated e-mail exploder (ie separate from the 
+existing sc6wg7 exploder, which will continue to be used for other WG 7 
+business). According to the results of such activity, we would hope to 
+generate a further BOF session at a subsequent IETF meeting, with a view 
+to pursuing well identified work items in a suitably chartered new 
+Working Group.
+
+Other outcomes are recognised as being possible. There may not be enough
+interest; there may be interest, but in development areas that turn out 
+to fit in existing Working Groups. (For example, some of the work that 
+has been contributed on associated protocols, for information and 
+context, clearly belongs within the intended (future) scope of MMUSIC, 
+and would be pursued in that forum at the appropriate time.)

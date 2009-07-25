@@ -1,0 +1,46 @@
+The IETF WG on Differentiated Services (diff-serv) has been meeting now 
+for 
+over a year now and has made excellent progress. The framework, 
+architecture, 
+DS Field definition, and format for traffic conditoners document, and 
+most
+importantly , two PHB definitions have been specified.
+
+So what is the problem?
+
+The Integrated Services WG (int-serv) (with its related groups such as 
+ISSLL and RSVP and others), has also defined a set of protocols and 
+mechanisms for enhanced services in the Internet. The difference between 
+the 
+int-serv and diff-serv approaches is that int-serv (at least the 
+Guaranteed 
+and Controlled Load services) is amenable to analysis. Effective 
+bandwidth 
+calcualations, and the thesis by Parekh shows how the admission tests 
+for leaky
+bucket characterised traffic and delay bound for the path can be
+calculated. The difficulty with IS has been in designing
+implementations that scale (hence a great deal of work in state
+aggregation in RSVP, and in fast generalized port specification
+classifiers, as well as  the work on efficient queue data structures
+and insert/retrieve algorithms, such as WF2Q and approximations such
+as SFQ). Indeed, there are network QoS calculi (by Rene Cruz and also
+by Jean-Yves le Boudec).
+
+Meanwhile, with diff-serv, the difference is that there can be no
+obvious analytic theory of diff-serv. A path can be constructed out of
+a sequence of hops each with a PHB and some associated SLA. However,
+the service (and provisioning of service) necessarily depend on the
+actual network topology and traffic conditions that prevail.
+
+This is a positive aspect of diff-serv, since it gives providers (and
+router vendors) a lot of design freedom in how they deploy actual
+services (and associated tarrif structures).
+
+However, to evaluate a diff-serv PHB is now a complex task, and
+requires simulation or measurement. To date, only modest simulations
+and measurements have been carried out.
+
+[Aside: of course the exact same argument
+applies to figuring out call blocking
+probabilities in int-serv type networks]

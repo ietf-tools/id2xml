@@ -1,0 +1,13 @@
+Many different registry formats and access protocols ((r)whois(++)) for
+Internet registries exist right now but cannot cooperate together. RIDE
+explores the technical aspects and possibilities for an exchange schema
+for at least Internet IP, routing and domain registries. This schema 
+will
+allow any Internet registry technology to work together with others for
+most basic operations that are interesting from a global perspective. 
+The
+schema will be kept as simple as possible to allow for a minimal effort
+for supporting RIDE in the current existing registry technologies. Work
+has already commenced on a draft on the data types that were considered
+most urgent right now (domain and personal data). More information is
+available at: http://www.ISI.EDU/~davidk/ride.

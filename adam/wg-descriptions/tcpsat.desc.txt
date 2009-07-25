@@ -1,0 +1,40 @@
+Satellites are being used to extend the Global Internet geographically
+and will be more ubiquitous in the next decade with the deployment of
+several proposed services capable of providing greater than T1 access
+to individual users anywhere in the world.
+
+Yet, satellite links have a unique combination of characteristics that
+can affect the throughput of TCP traffic. Because of the high-bandwidth
+delay product, slow start and congestion control algorithms behave much
+differently when the path includes a satellite link than exclusively
+terrestrial ones.
+
+
+The TCP over Satellite Working Group shall produce an informational RFC
+which describes the issues affecting TCP throughput over satellite
+links. It identifies the domains in which each issue applies, including
+network topology, satellite orbit (LEO, MEO, GEO), and link rates;
+fixes, both protocol and implementation, that ameliorate reduced
+throughput; and areas for further research. The purpose of including
+this information is to direct the research community to the areas in
+which show promise, not to perform the research or even advocate the
+results.
+
+Scope:
+
+The scope of this working group will include consideration of the
+following for inclusion in the Informational RFC:
+
+ o Transport layer issues affecting TCP over
+   satellite links
+ o Existing TCP options
+ o Compliant implementations which have some known
+   improved performance over satellite links
+ o Recommendation of well understood protocol changes
+ o Identification of protocol changes that are potentially promising
+   but require more further investigation in order to be well understood
+
+SECURITY
+
+The working group will consider in depth security issues that are
+relevant, describing risks and indicating how they may be addressed.

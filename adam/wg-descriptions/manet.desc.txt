@@ -1,0 +1,35 @@
+The purpose of the MANET working group is to standardize IP routing
+protocol functionality suitable for wireless routing application within
+both static and dynamic topologies with increased dynamics due to node
+motion or other factors.
+
+Approaches are intended to be relatively lightweight in nature, 
+suitable
+for multiple hardware and wireless environments, and address scenarios
+where MANETs are deployed at the edges of an IP infrastructure. Hybrid
+mesh infrastructures (e.g., a mixture of fixed and mobile routers)
+should also be supported by MANET specifications and management 
+features.
+
+Using mature components from previous work on experimental reactive and
+proactive protocols, the WG will develop two Standards track routing
+protocol specifications:
+
+- Reactive MANET Protocol (RMP)
+- Proactive MANET Protocol (PMP)
+
+If significant commonality between RMRP and PMRP protocol modules is
+observed, the WG may decide to go with a converged approach. Both IPv4
+and IPv6 will be supported. Routing security requirements and issues
+will also be addressed.
+
+The MANET WG will also develop a scoped forwarding protocol that can
+efficiently flood data packets to all participating MANET nodes. The
+primary purpose of this mechanism is a simplified best effort multicast
+forwarding function. The use of this protocol is intended to be applied
+ONLY within MANET routing areas and the WG effort will be limited to
+routing layer design issues.
+
+The MANET WG will pay attention to the OSPF-MANET protocol work within
+the OSPF WG and IRTF work that is addressing research topics related to
+MANET environments.

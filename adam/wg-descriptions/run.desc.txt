@@ -1,0 +1,5 @@
+Reflecting the needs of the Internet community, the IETF sees a need to
+create an  guide for Internet users about mass unsolicited email and
+Netnews postings.  The Working Group will develop an FYI RFC on
+mass unsolicited email and posts, as well as an FYI RFC on responsible
+advertising.

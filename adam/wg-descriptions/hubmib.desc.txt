@@ -1,0 +1,40 @@
+The Ethernet Interfaces and Hub MIB WG is Chartered to define
+a set of managed objects that instrument devices, MAUs and
+interfaces that conform to the IEEE 802.3 standard for Ethernet.
+This set of objects should be largely compliant with, and even
+draw from IEEE 802.3, although there is no requirement that any
+specific object be present or absent.
+
+Close coordination with hardware standards development in
+IEEE 802.3 will be followed. The WG chair will support the
+communication with IEEE 802.3. When objects are added that
+require hardware support, IEEE 802.3 shall be informed,
+so that they consider to add them to their draft/standard.
+
+The MIB object definitions produced will be for use by SNMP and
+will be adequately consistent with other SNMP objects, standards
+and conventions.
+
+The working group will work on the following MIB modules
+for the IEEE 802.3ah (Ethernet First Mile) interfaces and
+devices:
+
+- Ethernet First Mile (EFM) MIB common attributes, OAM operations and 
+  statistics
+
+- Copper EFM MIB
+
+- Ethernet Passive Optical Networks (EPON) MIB
+
+The base for the definition of the managed objects in these
+MIB modules will be the management-related clauses in IEEE
+802.3ah specification. The working group will also take
+into consideration management objects defined by other
+Working Groups in the IETF (ADSL MIB for example), or other
+standard bodies (G.983.2), will avoid work duplication,
+and describe the relationship with these specifications.
+
+The working group will also work on a revision of the MAU MIB
+so that it refers a IANA maintained TC for MAU types. This
+will allow to add new MAU types in the future as the Ethernet
+evolution requires without re-opening the MAU MIB RFC each time.

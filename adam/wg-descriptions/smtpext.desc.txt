@@ -1,0 +1,12 @@
+The SMTP Extensions Working Group is chartered to develop extensions to 
+the
+base SMTP protocol (RFC821) to facilitate the more efficient 
+transmission of 8
+bit text and binary data.  Among the extensions to be considered to SMTP 
+are the
+elimination of the ASCII text character restriction and line length 
+restriction
+to allow the sending of arbitrary 8 bit character sets, and the 
+definition of
+mechanisms to facilitate binary transmission, and extensions to the
+negotiation sequence to facilitate batch transmission.

@@ -1,0 +1,18 @@
+Thare are a number of short mail-related individual submissions which
+appear not to require the review of a full working group, but would
+benefit from some review and a sense of rough concensus.  Each draft
+on the agenda will be allocated a fixed (and enforced) time limit for a
+brief presentation and technical debate.  At the end of the time
+limit, the rough concensus of the room will be measured to see if the
+draft in question should go standards track expediously, standards
+track with revisions, experimental, punt to WG, defer or discourage.
+
+The success of this effort is likely to depend on the number of
+participants who read the drafts in advance.  Most of these drafts are
+short.  Draft authors are requested to prepare one overhead
+transparency to summarize their proposals.  Some of the drafts listed
+below could get IESG approval prior to the BOF, in which case they
+will be dropped from the agenda.  The purpose of including drafts in
+last call on the list is that if they're not approved by the time the
+BOF occurs, then the BOF may give review feedback to ADs which could
+help speed approval.

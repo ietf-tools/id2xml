@@ -1,0 +1,74 @@
+The goal of this working group is to define and develop an extensible
+DAV Searching and Locating protocol as an application of HTTP.  The
+working group will define protocol elements that enable server-executed
+queries to locate resources based upon their property values and text
+content as expressed by the DAV data model.
+
+Problem Definition
+
+WEBDAV and HTTP enable client-side searching by defining a simple set of
+mechanisms (the PROPFIND and GET methods) to locate those resources
+meeting client-defined criteria. These mechanisms can be inefficient, do
+not adequately deal with some simple content-based queries, and do not
+take advantage of the advanced querying and caching capabilities of
+modern storage systems.
+
+The DASL Protocol will enable a HTTP/1.1 compliant scheme for
+server-side searching to address these limitations. The working group
+will define the following for a server-side searching mechanism:
+
+- How to express the search: the syntax and semantics of a query
+
+- How to focus the query by identifying its scope
+
+- How to discover the search capability of a resource.
+
+- The syntax for the search results
+
+
+Working Group Scope
+
+A generalized search mechanism is a broad problem space. It encompasses
+a variety of object models, typing schemes, and media. By focusing on a
+subset of this space, the problem of locating resources based on
+property values and text content, the working group will leverage much
+of the existing work that has been done on querying under simple
+property and resource models.
+
+In-Scope items include:
+
+- typing
+
+- comparisons (greater than,greater than or equal to, less than, 
+  less than or equal to, !=, ==)
+
+- internationalized content
+
+- text content matching
+
+- dealing with arbitrary XML values
+
+Out-of-scope items include:
+
+- definitions of well-known properties
+
+- server-to-server communication protocols
+
+- cross-language comparisons
+
+- searching for non-text content (images, video, audio, etc.)
+
+- client control of server administration (e.g. indexing)
+
+Deliverables
+
+The final output of this working group is expected to be two documents:
+
+(1) A requirements document, that describes the high-level functional
+requirements for DASL, including rationale. This will be an
+Informational document.
+
+(2) A protocol specification describing the additions to HTTP (new
+methods, headers, request bodies, and response bodies) needed to
+implement the DASL requirements. This will be a Standards Track
+document.

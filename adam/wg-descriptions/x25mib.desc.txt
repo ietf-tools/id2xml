@@ -1,0 +1,54 @@
+This Working Group will produce a set of three documents that describe
+the Management Information Base for X.25.  The first document will
+specify the objects for the X.25 Link Layer. The second document will
+specify the objects for the X.25 Packet Layer.  The third document will
+specify the objects for managing IP over X.25.  The Working Group need
+not consider the Physical Layer because the ``Definition of Managed
+Objects for RS-232-like Hardware Devices'' already defines sufficient
+objects for the Physical Layer of a traditional X.25 stack.  Any
+changes needed at the Physical Layer will be addressed as part of that
+activity.
+
+The X.25 object definitions will be based on ISO documents 7776 and
+8208 however nothing should preclude their use on other similar or
+interoperable protocols (i.e., implementations based on CCITT
+specifications).
+
+The objects in the Link and Packet Layer documents, along with the
+RS-232-like document, should work together to define the objects
+necessary to manage a traditional X.25 stack.  These objects will be
+independent of any client using the X.25 service.  Both of these
+documents assume the interface table as defined in MIB-II contains
+entries for the Link and Packet Layer interfaces.  Thus these documents
+will define tables of media specific objects which will have a one to
+one mapping with interfaces of ifType ddn-x25, rfc877-x25, or lapb.
+The objects for the IP to X.25 convergence functions will be defined
+analogously with the ipNetToMedia objects in MIB II.
+
+The Working Group will endeavor to make each layer independent from
+other layers.  The Link Layer will be independent of any Packet Layer
+protocol above it and should be capable of managing an ISO 7776 (or
+similar) Link Layer provider serving any client.  Likewise the X.25
+Packet Layer objects should be independent of the Link Layer below it
+and should be capable of managing an ISO 8208 (or similar) Packet Layer
+serving any client.
+
+The Working Group will also produce a third document specifying the
+objects for managing IP traffic over X.25.  These objects will reside
+in their own table but will be associated with the X.25 interfaces used
+by IP.  These objects will not address policy decisions or other
+implementation specific operations associated with X.25 connection
+management decisions except as explicitly described in existing
+standards.  These objects will manage the packet flow between IP and
+the X.25 Packet Layer specifically including observation of packet
+routing and diagnosis of error conditions.  Progress on the Link and
+Packet Layer documents will not depend on progress of the IP over X.25
+document.  The IP over X.25 document will proceed on a time available basis after work on the Link and Packet Layer documents and as such the Link and Packet Layers may be completed before the IP over X.25 work.
+
+All documents produced will be for use by SNMP and will be consistent
+with other SNMP objects, conventions, and definitions (such as Concise
+MIB format).  To the extent feasible, the object definitions will be
+consistent with other network management definitions.  In particular
+ISO/IEC CD 10733 will be considered when defining the objects for the
+X.25 Packet Layer.
+

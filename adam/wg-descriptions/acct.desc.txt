@@ -1,0 +1,32 @@
+The Internet Accounting Working Group has the goal of producing
+standards for the generation of accounting data within the Internet
+that can be used to support a wide range of management and cost
+allocation policies.  The introduction of a common set of tools and
+interpretations should ease the implementation of organizational
+policies for Internet components and make them more equitable in a
+multi-vendor environment.
+
+In the following accounting model, this Working Group is primarily
+concerned with defining standards for the Meter function and
+recommending protocols for the Collector function.  Individual
+accounting applications (billing applications) and organizational
+policies will not be addressed, although examples should be provided.
+
+Meter $<$--$>$ Collector $<$--$>$ Application $<$--$>$ Policy
+
+First, examine a wide range of existing and hypothetical policies to
+understand what set of information is required to satisfy usage
+reporting requirements.  Next, evaluate existing mechanisms to generate
+this information and define the specifications of each accounting
+parameter to be generated.  Determine the requirements for local storage
+and how parameters may be aggregated.  Recommend a data collection
+protocol and internal formats for processing by accounting applications.
+
+This will result in an Internet-Draft suitable for experimental
+verification and implementation.
+
+In parallel with the definition of the draft standard, develop a suite
+of test scenarios to verify the model.  Identify candidates for
+prototyping and implementation.
+
+\newpage

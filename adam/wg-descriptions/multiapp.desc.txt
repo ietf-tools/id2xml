@@ -1,0 +1,52 @@
+Draft Charter 6/2/93 - mdw 
+
+The ready availability of user-friendly multimedia authoring tools such
+as Authorware Professional, Asymmetrix Multimedia Toolbook, Macromind
+Director and many more, has stimulated much interest in multimedia
+within the user community.  Sophisticated interactive multimedia
+applications are being developed in many disparate subjects and for a
+wide range of purposes.  Users are now beginning to ask us, as network
+technologists, ``how can I make my multimedia application available to
+others across the network?''.
+
+In a parallel development, existing client-server network information
+retrieval tools are being enhanced with multimedia handling features. 
+Gopher+ for instance has been designed with multimedia data firmly in
+mind.  The World Wide Web project is currently defining a new version of
+its hypertext markup language, to be called HMML - HyperMedia Markup
+Language - which includes multimedia support.
+
+A third strand of activity is the emergence of network technologies
+capable of carrying audio and video data across the network, initially
+driven by multimedia conferencing applications.  Network technologies
+such as ATM and protocols such as RTP are potentially capable of
+handling isochronous multimedia data in an effective way. 
+
+This BOF session will focus on issues which link these three strands. 
+Particular questions to be addressed are:
+
+* What are user requirements in terms of responsiveness, and what 
+demands
+  this places on the network and server system, and how these might
+  be mitigated.
+
+* The prospects for making existing interactive multimedia applications
+  available over the network - e.g., by writing conversion tools from
+  proprietary formats to a suitable open format.
+
+* To what extent can existing network information retrieval tools such 
+as
+  Gopher, WWW, WAIS be used for sophisticated multimedia applications?
+  What about the tools emerging from the research community such as
+  AthenaMuse 2 (MIT), Microcosm (U of Southampton), HyperG (U of Graz)?
+  Do we need another tool, or can we build on what we have?
+
+* How can such tools be enhanced to take advantage of isochronous
+  data streams?
+
+* What relevance do standards such as HyTime and MHEG have?
+
+The BOF is intended to test interest in the subject, to define issues
+that need resolving, and to see whether a working group can be formed to 
+work on
+those issues.

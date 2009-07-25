@@ -1,0 +1,63 @@
+The primary purpose of this working group will be to address the 
+transport of packet-based PSTN signaling over IP Networks, taking into 
+account functional and performance requirements of the PSTN signaling. 
+ 
+For interworking with PSTN, IP networks will need to transport 
+signaling 
+such as Q.931 or SS7 ISUP messages between IP nodes such as a 
+Signaling 
+Gateway and Media Gateway Controller or Media Gateway.
+
+ Examples of such transport include:
+
+  - transport of signaling between a Signaling Gateway and Media 
+Gateway
+    or Media Gateway Controller
+  - transport of signaling ("backhaul") from a Media Gateway to a Media
+    Gateway Controller
+  - transport of TCAP between a Signaling Gateway and other IP nodes
+
+ Applications include:
+
+  - Internet dial-up remote access
+  - IP telephony interworking with PSTN
+  - Other services as identified
+
+
+Specific goals are:
+
+1. Architecture and Performance Requirements: The working group will
+   produce an informational RFC identifying functionality and
+   performance requirements to support signaling over IP. Signaling
+   messages have very stringent loss and delay requirements in the 
+   existing telephone networks that need to be supported.
+
+2- Transport: The working group will produce a standards track
+   proposal or proposals defining transport of signaling protocols
+   using SCTP, based on the requirements identified above.
+
+
+These proposals will identify the method of encapsulation of different
+signaling protocols.  This will include differentiating between 
+different protocols being carried, and what components are 
+transported, 
+translated or terminated at the SG.  Security and resilience must be 
+addressed.
+
+Note: TCAP is a transaction protocol with different functions and
+      requirements than call control signaling.  This will need to be
+      taken into account in its mapping to IP networks.
+
+      This work will be done in conjunction with other IETF working
+      groups looking at similar issues.  The working group will also 
+      ensure that good information conduits exist with groups in other
+      standards groups with expertise in the relevant signaling 
+      protocols or in the network requirements for the transport of 
+the 
+      relevant signaling protocols.
+
+The group will make use of existing IETF QoS and security technology 
+and
+will not address creation of new QoS or security functions for IP
+networks. Nor will the working group work on defining new call control 
+or device control protocols.

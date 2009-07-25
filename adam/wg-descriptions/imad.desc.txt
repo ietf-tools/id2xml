@@ -1,0 +1,7 @@
+First, this BoF is not necessarily intended to result in a new 
+working group. Rather, the intention is to stimulate some new thinking 
+around the IPv4 Multicast Address Architecture and Allocation problem
+(s). Specifically, allocation architectures, the causes for the land 
+grab (e.g., no lightweight service discovery protocol), and to clean 
+up the various older allocation strategies that, while documented in 
+various RFCs, have never been widely deployed on the public Internet.

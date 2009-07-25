@@ -1,0 +1,31 @@
+The Security Policy Working Group (SPWG) is chartered to create a proposed
+Internet Security Policy for review, possible modification, and
+possible adoption by the Internet Activities Board.  The SPWG will
+focus on both technical and administrative issues related to security,
+including integrity, authentication and confidentiality controls, and
+the administration of hosts and networks.
+
+Among the issues to be considered in this Working Group are:
+
+\begin{itemize}
+
+\item
+   Responsibilities and obligations of users, database
+     administrators, host operators, and network managers.
+
+\vspace{.2in}
+\item
+   Technical controls which provide protection from disruption of
+     service, unauthorized modification of data, unauthorized disclosure
+     of information and unauthorized use of facilities.
+
+\vspace{.2in}
+\item
+   Organizational requirements for host, local network, regional
+     network and backbone network operators.
+
+\vspace{.2in}
+\item
+   Incident handling procedures for various Internet components.
+
+\end{itemize}

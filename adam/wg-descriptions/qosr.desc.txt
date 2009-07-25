@@ -1,0 +1,19 @@
+This working group is chartered to define a framework and techniques
+for Quality of Service (QoS) Routing in the Internet. QoS Routing
+allows the network to determine a path that supports the QoS needs of
+one or more flows in the network. The path chosen may not be the
+"traditional shortest path" that is typically computed based on current
+metrics and policies. The group's work will focus on how to select and
+maintain packet forwarding paths capable of meeting specific service
+class objectives. In particular, the techniques will specify what
+extensions and adaptations to routing and QoS setup protocols are
+required to support QoS routing and new packet handling techniques that
+may be needed to avoid packet loops for QoS flows. While it is not
+intended, this may also spawn the development of new routing protocols
+that can specifically address QoS routing. The WG will identify topics
+and issues in QOS routing which require additional research.
+ 
+The WG needs to work closely with other routing protocol working groups
+such as OSPF, IDR, BGP, and IDMR. A close relationship with the
+RSVP,IntServ, and ISSLL working groups is also needed to understand the
+QoS signalling and specification.

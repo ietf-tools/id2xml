@@ -1,0 +1,30 @@
+     The goal of the Authorization and Access Control Working Group 
+     is to develop guidelines and an Application Programming Interface
+     (API) through which network accessible applications can uniformly
+     specify access control information.  This API will allow applications
+     to make access control decisions when clients are not local users,
+     might not be members of a common organization, and often not known to
+     the service or application in advance.
+
+     Several authentication mechanisms are in place on the Internet, but
+     most applications are written with local applications in mind and no
+     guidelines exist for supporting authorization and access control based
+     on the output of such authentication mechanisms.  The CAT Working
+     Group developed the GSS-API, a common API to support authentication.
+     The AAC Working Group will develop a common API that accepts the
+     identity of a client (perhaps the output of the GSS-API), a reference
+     to an object to be accessed, and optionally an indication of the
+     operation to be performed.  The API will return a list of authorized
+     operations or a yes/no answer that can be easily used by the
+     application.
+
+     A second, longer term purpose of the working group will be to
+     examine evolving mechanisms and architectures for authorization in
+     distributed systems and to establish criteria which enable
+     interworking of confidence and trust across systems.  The working
+     group will develop additional goals and milestones related to
+     this purpose and will submit a revised charter once the appropriate
+     goals and milestones are determined.  To the extent possible this
+     additional work will encourage evolution toward credential formats
+     that more readily allow support for or translation across multiple
+     mechanisms.  

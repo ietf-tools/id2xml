@@ -1,0 +1,93 @@
+Low power and Lossy networks (LLNs) are made up of many
+embedded devices with limited power, memory, and processing
+resources. They are interconnected by a variety of links, such as
+IEEE 802.15.4, Bluetooth, Low Power WiFi, wired or other low
+power PLC (Powerline Communication) links. LLNs are transitioning
+to an end-to-end IP-based solution to avoid the problem of
+non-interoperable networks interconnected by protocol translation
+gateways and proxies.
+
+Generally speaking, LLNs have at least five distinguishing
+characteristics:
+- LLNs operate with a hard, very small bound on state.
+- In most cases, LLN optimize for saving energy.
+- Typical traffic patterns are not simply unicast flows (e.g. in some
+cases most if not all traffic can be point to multipoint).
+- In most cases, LLNs will be employed over link layers with  
+restricted frame-sizes, thus a routing protocol for LLNs should be
+specifically
+adapted for such link layers.
+- LLN routing protocols have to be very careful when trading off
+efficiency for generality; many LLN nodes do not have resources to  
+waste.
+
+These specific properties cause LLNs to have specific routing
+requirements.
+
+Existing routing protocols such as OSPF, IS-IS, AODV, and OLSR have  
+been evaluated by the working group and have in their current form been  
+found to not satisfy all of these specific routing requirements.
+
+The Working Group is focused on routing issues for LLN.
+
+There is a wide scope of application areas for LLNs, including  
+industrial monitoring, building automation (HVAC, lighting, access
+control,  
+fire), connected homes, healthcare, environmental monitoring, urban sensor
+networks (e.g. Smart Grid), asset tracking. The Working Group focuses
+on routing solutions for a subset of these: industrial, connected  
+home, building and urban sensor networks for which routing requirements have
+been specified. These application-specific routing requirement  
+documents will be used for protocol design.
+
+The Working Group focuses only on IPv6 routing architectural framework
+for these application scenarios. The Framework will take into  
+consideration various aspects including high reliability in the presence
+of time  
+varying loss characteristics and connectivity while permitting low-power  
+operation with very modest memory and CPU pressure in networks
+potentially comprising
+a very large number (several thousands) of nodes.
+
+The Working Group will pay particular attention to routing security  
+and manageability (e.g., self routing configuration) issues. It will  
+also need to consider the transport characteristic the routing protocol  
+messages will experience. Mechanisms that protect an LLN from congestion
+collapse or
+that establish some degree of fairness between concurrent  
+communication sessions are out of scope of the Working Group. It is
+expected that
+upper-layer applications utilizing LLNs define appropriate mechanisms.
+The solution must include unicast and multicast considerations.
+
+Work Items:
+
+- Specification of routing metrics used in path calculation. This
+includes static and dynamic link/node attributes required for routing in
+LLNs.
+
+- Provide an architectural framework for routing and path selection at
+ Layer 3 (Routing for LLN Architecture) that addresses such issues as
+ whether LLN routing require a distributed and/or centralized path
+computation models, whether additional hierarchy is necessary and how it
+is  
+applied.
+
+ Manageability will be considered with each approach, along with  
+various trade-offs for maintaining low power operation, including the  
+presence of non-trivial loss and networks with a very large number of nodes.
+
+- Produce a routing security framework for routing in LLNs.
+
+- Protocol work: The Working Group will consider specific routing  
+requirements from the four application documents collectively, and
+specify either  
+a new protocol or extend an existing routing protocol in cooperation
+with the  
+relevant Working Group.
+If requirements from the four target application areas cannot be met  
+with a single protocol, the WG may choose to specify or extend more than
+one  
+protocol (this will require a recharter of the WG).
+
+- Documentation of applicability statement of ROLL routing protocols.

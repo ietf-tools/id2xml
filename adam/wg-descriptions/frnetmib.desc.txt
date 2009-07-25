@@ -1,0 +1,47 @@
+The Frame Relay Service MIB Working Group is chartered to define a set 
+of managed objects which will be useful for customer network management 
+of a provider's Frame Relay Service. The working group will consider 
+existing definitions, including the Frame Relay Forum's work in this 
+area. The objects defined by the working group will be consistent with 
+the SNMP framework.
+
+The working group will coordinate with both the Frame Relay Forum,
+the ATM MIB Working Group, and other relevant groups.
+
+The working group is chartered to complete four tasks:
+
+a) consider revisions to the FRS MIB (currently published as a
+   Proposed Standard in RFC 1604) in light of implementation experience,
+   changes to the interface MIBs (e.g. IF-MIB, DS1-MIB, DS3-MIB,
+   FR-DTE-MIB, creation of the DS0 and DS0 Bundle MIB modules), and
+   evolution of the relevant non-IETF standards,
+
+b) prepare a Recommendation to the Area Director as to the
+   appropriate disposition of the (updated) FRS MIB, i.e. that it be
+   advanced to Draft Standard status or that it cycle at Proposed
+   Status,
+
+c) develop a set of managed objects to provide the instrumentation
+   required to manage switched-virtual circuits in a frame-relay
+   environment.
+
+d) develop a set of managed objects to provide the instrumentation
+   required to manage connections that terminate on a mixture of ATM and
+   Frame Relay interfaces, i.e. interworked connections. These objects
+   will be the minimum necessary to provide the ability to monitor and
+   control interworked connections and shall use existing definitions
+   (e.g. IF-MIB, FRS-MIB, ATM-MIB, etc.) to instrument the interfaces
+   and the "native" parts of the connections.
+
+e) develop a set of managed object for the management of Frame Relay
+   Service Level Definitions.
+
+f) consider other closely related future work items.
+
+In all cases, the working group will keep the Frame Relay and ATM
+Forums and the ATM MIB WG informed of its progress and will actively
+solicit their input.
+
+All output of the group will be consistent with the existing SNMPv2c
+framework and standards, including the SNMPv2c Structure of
+Management Information (SMI).

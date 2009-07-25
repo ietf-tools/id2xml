@@ -1,0 +1,57 @@
+IPsec has been standardized for over 5 years, and the use of
+X.509 certificates have been specified within the IPsec
+standards for the same time. However, very few IPsec
+deployments use certificates. One reason is the lack of a
+clear description of how X.509 certificates should be used
+with IPsec. Another is the lack of a simple, scalable, and
+clearly specified way for IPsec systems to obtain certificates
+and perform other certificate lifecycle operations with PKI systems.
+
+THE WG WILL DELIVER:
+
+1) A standards-track document that gives specific
+     instructions on how X.509 certificates should be
+     handled with respect to the IKEv1 and IKEv2 protocols.
+     This document will include a certificate profile, addressing
+     which fields in the certificate should have which
+     values and how those values should be handled. This effort is
+     the WG's primary priority.
+
+2) An informational document identifying and describing
+     requirements for a profile of a certificate management protocol to
+     handle PKI enrolment as well as certificate lifecycle interactions
+     between IPsec VPN systems and PKI systems. Enrolment is defined
+     as certificate request and retrieval. Certificate lifecycle
+     interactions is defined as certificate renewals/changes, 
+     evocation, validation, and repository lookups.
+
+         These requirements will be designed so that they meet
+         the needs of enterprise scale IPsec VPN deployments.
+
+Once the above to items enter WG last call, we will begin work on:
+
+3) A standards-track document describing a detailed
+     profile of the CMC (Certificate Management Messages over CMS
+     protocol, RFC 2797 at this writing) that meets the requirements
+     laid out in the requirements document. Profile documents for other
+     enrolment and/or management protocols may also be created.
+
+SCOPE
+The working group will focus on the needs of enterprise scale
+IPsec VPN deployments. Gateway-to-gateway access (tunnel and transport
+mode) and end-user remote access to a gateway (either tunnel or
+transport mode) are both in scope.
+
+NON-GOALS
+
+User-to-user IPsec connections will be considered, but are not 
+explicitly in scope. We will consider the requirements for this 
+scenario only until doing so significantly slows the progress of the
+explicitly scoped items, at which point it will be dropped.
+
+Specification of communications between an IPsec administrative
+function and IPsec systems is explicitly out of scope.
+
+Purely PKI to PKI issues will not be addressed. Cross-certification 
+will not be addressed. Long term non-repudiation will also not be 
+addressed.

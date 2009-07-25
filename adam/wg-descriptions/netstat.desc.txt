@@ -1,0 +1,4 @@
+  The Network Status Reports Working Group reports on the status
+  of various parts of the Internet.  The group is semi-pertinent,
+  and therefore does not have goals and milestones like other
+  working groups do.

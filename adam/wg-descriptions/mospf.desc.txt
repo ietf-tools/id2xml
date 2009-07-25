@@ -1,0 +1,5 @@
+This working group will extend the OSPF routing protocol so that it
+will be able to efficiently route IP multicast packets. This will
+produce a new (multicast) version of the OSPF protocol, which will be
+as compatible as possible with the present version (packet formats and
+most of the algorithms will hopefully remain unaltered).

@@ -1,0 +1,37 @@
+
+The Network Access Server Requirements Working Group has as its primary
+goal, to identify functions and services that should be present in IP
+Network Access Servers (NASs) and to specify the standards that
+provide for these functions and services.  The term ``Network Access
+Server'' is used instead of the more conventional term ``Terminal Server''
+as it more accurately describes the functions of interest to this
+group.  A ``Network Access Server'' is a device that provides for the
+attachment of both traditional ``dumb terminals'' and terminal emulators
+as well as workstations, PCs or routers utilizing a serial line
+framing protocol such as PPP or SLIP.  A NAS is viewed as a device that
+sits on the boundary of an IP network, providing serial line points of
+attachment to the network.  A NAS is not necessarily a separate
+physical entity; for example, a host system supporting serial line
+attachments is viewed as providing NAS functionality and should abide
+by NAS requirements.
+
+This group will adopt (or define, if need be) a set of standard
+protocols to meet the needs of organizations providing network access.
+The immediate needs to be addressed by the group are in the areas of
+authentication, authorization, and accounting. In general, this
+group will select a set of existing standards as requirements for a
+NAS.  If necessary, the group will identify areas of need where
+Internet standards do not already exist and new standardization efforts
+may be required.
+
+Initially the group will independently investigate the two cases of
+character and frame-oriented access to the NAS.  This investigation
+will be aimed at determining what work is being done, or needs to be
+done, in this and other working groups in order to be able to define
+the set of NAS requirements.  While the ultimate goal of this group is
+to produce a NAS requirements document, it may be necessary to define
+standards as well.  This initial investigation will help determine what
+the goals of this group need to be.  The group will also work with
+appropriate working groups to define required NAS standards that fall
+into the areas of these other groups.
+

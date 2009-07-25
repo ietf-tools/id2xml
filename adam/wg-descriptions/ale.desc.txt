@@ -1,0 +1,31 @@
+The primary purpose of the Address Lifetime Expectations Working Group
+is to develop an estimate for the remaining lifetime of the IPv4
+address space based on currently known and available technologies. The
+members of the working group will consider whether more stringent
+address allocation and utilization policies might provide additional
+time and, if so, recommend such policies. The working group will also
+investigate whether it is worthwhile to mount a serious effort to
+reclaim addresses and/or to renumber significant portions of the
+Internet.  It will also weigh the benefit of other potential options
+against their expected cost and notify the responsible working groups
+or area directors of those  proposals the ALE group considers worthy of
+further attention.
+
+The working group will have several ongoing activities which will
+result in reports to the IETF community and the IPng Area Directors.
+One ongoing activity is to produce monthly predictions of the address
+space exhaustion timeframe, assessing the accuracy of these predictions
+and the data on which they are based.  The group will also project the
+impact of various policy compliance data and possible policy
+recommendations.
+
+Another ongoing activity is to monitor the perceived utilization of
+address space and identify sources of poor utilization, set address
+utilization goals and to itemize possible policies to improve
+utilization.
+
+The group will also monitor the number of routes present in the
+Internet backbones, and identify sources of poor aggregation within the
+network, (in conjunction with the BGP Deployment Working Group), and make
+necessary recommendations to insure continued operations.
+

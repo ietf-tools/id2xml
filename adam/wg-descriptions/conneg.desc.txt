@@ -1,0 +1,22 @@
+A number of Internet application protocols need to indicate recipient
+capabilities, characteristics, and preferences when the resources they
+handle can vary in form.  This working group will finalize registration 
+procedures for distinguishing attributes which cause the media delivered 
+to vary in form.  The registration of these "media features" will 
+provide a supplement to the MIME registration of media types and enable 
+the development of a cross-protocol vocabulary for exchanging 
+information on recipient capabilities, characteristics, and
+preferences.  Since these distinguishing attributes commonly occur in
+related sets, this working group will also describe at least one
+method for referring to composite media feature sets.  Experimental
+methods for using these features and feature sets within specific
+protocol contexts may be developed within this group or within the
+groups standardizing the relevant protocols.
+
+The working group is aware of applications which desire to negotiate
+what content is delivered as well as the form in which it is
+delivered.  As much as possible, the group will endeavor to create a
+framework for exchange sturdy enough to handle the later addition of
+this type of negotiation.  It will not, however, address this need
+directly nor will it limit its design choices based on the possible
+later addition of this negotiation.

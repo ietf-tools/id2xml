@@ -1,0 +1,20 @@
+The DoD INTERNET TCP/IP protocol suite has developed into a de facto
+industry standard for heterogenous packet switching computer networks.
+In the US, several hundreds of INTERNET networks are connected
+together; however the situation is completely different in Europe.
+
+\vspace{.15in}
+The only network which could be used as a backbone to allow
+interoperation between the many local area networks in Europe, now
+subscribing to the DoD INTERNET TCP/IP protocol suite, would be the
+system of Public Data Networks (PDN). However, so far, no algorithms
+have been provided to dynamically route INTERNET datagrams through
+X.25 public data networks.  Therefore, the goals of the Public Data
+Network Routing Working Group are the development, definition and
+specification of required routing and gateway algorithms for an
+improved routing of INTERNET datagrams through the system of X.25
+Public Data Networks (PDN) to allow worldwide interoperation between
+TCP/IP networks in various countries.  In addition, the application
+and/or modification of the developed algorithms to interconnect local
+TCP/IP networks via ISDN (Integrated Services Digital Network) will be
+considered.

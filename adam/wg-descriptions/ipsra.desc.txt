@@ -1,0 +1,107 @@
+The work of the IPSec working group is almost concluded at the time
+this charter is being written.  The IPSEC working group has produced
+three proposed-standard protocols: AH, ESP, and IKE.
+
+When the IPSec WG considered requirements for the protocols it
+produced, inadequate attention was given to the support for so-called
+"road warriors"-- remote users that use personal portable computing
+devices, or who use Internet "kiosks" to access private networks on the
+other side of an IPSEC gateway.  Such users will typically connect to
+the Internet at a point most convenient to them at the time of
+connection:
+
+   o Dial-in to a local ISP
+
+   o Wireless or wired LAN access at a conference, hotel or airport
+
+There are some fundamental differences, that are relevant to IPSec
+usage, between these remote access scenarios and scenarios where both
+parties reside in fixed locations:
+
+-  The authenticated entity must be a human user, i.e. human
+    interaction is required during the authentication process.
+
+-  In each session the remote access entity interacts with at least two
+    access points- the Internet access point and the organization entry
+    point. The authentication must be established between the remote
+    access entity and the entry point to its organization (and not into
+    the ISP).
+
+-  The remote access entity wishes to connect to its organization's
+    distributed network. This network might be large and complex and
+    with multiple remote access entry points.  Although the user
+    physical location is not changing during the remote access session,
+    he might use different entry points during the same session.
+
+-  In the above scenario, the entry points don't have information on
+    all the entities that are allowed to access the network. When the
+    remote access begins the entry point should obtain information on
+    the remote access entity that will enable it to grant secure access
+    to the network. This information might be credentials supplied by
+    the remote access entity itself, or information supplied by some
+    other server.
+
+-  Several human users can share the same physical machine.
+
+-  The remote access entity doesn't have its configuration information.
+    This information must be transported securely to the remote access
+    implementation after the entity's identity has been authenticated.
+
+-  There are systems that rely on different identities for access
+    control - examples are IP address, users names and others. Most of
+    the time the user's remote access implementation won't have this
+    information available to it before the connection begins.
+    Organizations will not change their access control systems. Hence
+    this information must be conveyed securely to the remote access's
+    implementation after the authentication.
+
+IKE supports four authentication methods; one method is based on pre-
+shared secrets, while the other three are all public-key variants, with
+various desirable properties.  The use of pre-shared secrets scales
+very badly, requiring O(N**2) keys to be managed to provide effective
+security.  The authentication methods based on public-key technology
+assume, to a certain extent, that the organization involved has
+deployed its own public-key infrastructure for authentication of
+individual human users. This assumption is taking much longer to reach
+fruition than one would hope.
+
+Most organizations have legacy authentication systems that are adequate
+for providing authentication of individual human users (OTP,
+username/password, hardware authentication tokens, etc).  Most
+organizations insist on the ability to continue to to support such
+legacy authentication mechanisms as they deploy an IPSEC infrastructure
+at the perimeter of their networks.
+
+The goals of this working group are:
+
+- to define a remote access architecture. The entities participating
+   in the remote access and their relationships will be defined in a
+   framework document. This document will be published as an 
+   Informational RFC.
+
+- to define a standard mechanism to accomplish human user
+   authentication to an IPSec device running IKE, using legacy
+   authentication mechanisms. One of the goals of introducing this
+   mechanism is to allow for an easy migration path to PKI. The
+   mechanism will be published as a standards-track protocol document.
+
+- to define a standard mechanism to convey user configuration
+   information from user's own private network to its local IPSec
+   implementation. This mechanism will be published as a 
+standards-track
+   protocol document.
+
+- to provide a standard mechanism to convey user information required
+   for access control from the user's own private network to its local
+   IPSec implementation,  while answering the special requirements of
+   remote access users. This mechanism will be published as a 
+standards-
+   track protocol document.
+
+- to work closely with the MOBILEIP Working Group so that the
+   respective protocols work together.
+
+The WG strongly prefers mechanisms that require no changes to AH, ESP
+or IKE protocols. If such changes are deemed necessary, the IPSec WG is
+contracted to carry out such changes. Pursuing this approach is most
+likely to produce mechanisms that are easy to implement and deploy.

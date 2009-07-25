@@ -1,0 +1,48 @@
+The Transport Area receives occasional proposals for the development
+and publication of RFCs dealing with transport topics that are not in
+scope of an existing working group or do not justify the formation of
+a new working group. TSVWG will serve as the forum for developing
+such work items in the IETF.
+
+The TSVWG mailing list is an open discussion forum for such work
+items, when they arise. The working group meets if there are active
+proposals that require discussion. The working group milestones are
+updated as needed to reflect the current work items and their
+associated milestones.
+
+The currently active TSVWG work items mostly fall under the following
+topics:
+
+(A) Maintenance of the Stream Control Transmission Protocol (SCTP),
+which involves bug fixes to the SCTP specifications and their
+progression along the standards track. This work item also includes a
+small number of modular extensions to SCTP. Currently, these include
+SCTP-ADDIP, SCTP-AUTH and SCTP-PADDING, as well as socket API and
+threat analysis documents. In order to maintain stable
+specifications, additional work on SCTP in TSVWG requires Area
+Director approval.
+
+(B) Maintenance of the Resource Reservation Protocol (RSVP), which
+involves bug fixes to the RSVP specifications and their progression
+along the standards track. This work item may also include a small
+number of extensions to RSVP or advisory documents to address
+specific application scenarios. In order to maintain stable
+specifications, additional work on RSVP in TSVWG requires Area
+Director approval.
+
+(C) Maintenance of IP Differentiated Services (DiffServ) mechanisms,
+which involves mostly advisory documents on the use of DiffServ in
+specific application scenarios. Other work items related to DiffServ
+require Area Director approval.
+
+(D) Selected other work items, which are mostly in TSVWG for historic
+reasons. These include an extended statistics MIB for TCP and the
+quick-start mechanism for TCP and IP. Additional work that does not
+fall under one of the above topics in TSVWG must satisfy four
+conditions: (1) WG consensus on the suitability and projected quality
+of the proposed work item. (2) A core group of WG participants with
+sufficient energy and expertise to advance the work item according to
+the proposed schedule. (3) Commitment from the WG as a whole to
+provide sufficient and timely review of the proposed work item. (4)
+Agreement by the ADs, who, depending on the scope of the proposed
+work item, may decide that an IESG review is needed first.

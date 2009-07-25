@@ -1,0 +1,25 @@
+The Network Fax Working Group is chartered to explore issues
+involved with the transmission and receipt of facsimilies across TCP/IP
+networks and to develop recommended standards for facsimile
+transmission across the Internet.  The Group is also intended to serve
+as a coordinating forum for people doing experimentation in this area
+to attempt to maximize the possibility for interoperability among
+network fax projects.
+
+Among the issues that need to be resolved are what actual
+protocol(s) will be used to do the actual data transmission
+between hosts, architectural models for the integration of fax
+machines into the existing internet, what types of data encoding
+should be supported, how IP host address to phone number conversion
+should be done and associated issues of routing, and development of a
+gateway system that will allow existing Group 3 and Group 4 fax
+machines to operate in a network environment.
+
+It is expected that the output of the Working Group will be one
+or more RFC's documenting recommended solutions to the above questions
+and possibly also describing some actual implementations.  The life of
+the Working Group is expected to be 18-24 months.
+
+It is also hoped that some fax vendors, as well as the
+networking community and fax gateway developers, will be brought into
+the effort.

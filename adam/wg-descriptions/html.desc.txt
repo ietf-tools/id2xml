@@ -1,0 +1,86 @@
+Note on Mailing Lists
+
+  General discussion about HTML is normally carried out on the 
+`www-html'
+  list, which should be used for anything which is not the work of this
+  group.
+
+   Address:  www-html@w3.org
+
+   To subscribe:  www-html-request@w3.org
+
+   Archive: 
+http://gummo.stanford.edu/html/hypermail/www-html-1994q2.index.html
+
+
+Description
+
+  The HTML Working Group is chartered firstly to describe, and secondly 
+to
+  develop, the HyperText Markup Language (HTML).  The group's work is to 
+be
+  based on existing practice on the Internet, and will make due 
+reference
+  to the SGML standard.
+ 
+  The group will build upon a working specification originally written 
+by
+  Tim Berners-Lee, much work done by Dan Connolly in editing and 
+testing,
+  the recent editing of Karen Muldrow, and the HTMLPlus specification
+  edited by Dave Raggett.  The working group takes over the work of the
+  informal HTML Implementors Group which met at the WWW94 conference in
+  Geneva, the HTML workshop at that conference, and an informal meeting 
+and
+  an IETF BOF in Toronto in July 94.
+   
+  The HTML standard will provide a format for hypertext files of wide
+  applicability, and particularly as a mandatory common format for all
+  WorldWide Web applications.
+   
+  The standard will specify the relationships between HTML and other
+  standards and practices such as URIs, HTTP, MIME and SGML.
+   
+Focus
+ 
+  The working group will have a strong focus to:
+   
+    o Describe existing features before developing new features
+
+    o Base specification on existing practice
+
+    o Express the relationship of HTML to URIs, MIME, SGML, HyTime and
+      HTTP
+
+    o Define conformance levels
+
+    o Define transition possibilities and compatibilities between
+      versions and levels
+
+  The working group will work in two stages.
+ 
+  Descriptive specification
+
+    The first priority will be to complete the specfication of existing
+    practice on the Internet, defining it in terms which make 
+development
+    of new features as straightforward as possible.  This specification
+    will cover HTML up to that which has been called level 2 (i.e.,
+    including basic features, highlighting, images and forms).  During 
+this
+    period discussion of new features should not be carried out on the
+    working group mailing list.
+                         
+  Development 
+ 
+    Once the descriptive specification is submitted to the standards
+    process, the group will work on development of HTML, taking on the 
+work
+    known as HTMLPlus.  This work will include formats for tables, 
+figures
+    and mathematical formulae.
+
+    In the absence of other proposals, the working group will terminate
+    having produced its milestones and the RFCs having achieved 
+standards
+    status.

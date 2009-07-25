@@ -1,0 +1,58 @@
+Routing table growth has been an issue of much concern.  Many have 
+talked about temporary methods to alleviate the drain on Internet 
+resources. In response to these discussions, aggregation and filtering 
+techniques to reduce the amount of routing information carried by 
+routers with global knowledge started to be considered.
+
+The purpose of the Prefix Taxonomy Ongoing Measurement & Inter Network
+Experiment WG is to consider and measure the problem of routing table
+growth and possible interim methods for reducing the impact of routing
+table resource consumption within a network and the global Internet.  
+The first step of the WG is to define the impacts on routing resource
+consumption and to identify the problems facing routing scalability.
+
+The next step is to develop suggestions for filtering and aggregating
+prefixes to reduce an individual network's routing table size and route
+processing load and to suggest possible knobs that result in the least 
+loss of reachability if such methods are determined to be feasible in 
+addressing the problem.  This work may possibly define a framework for 
+larger efforts to address the problems facing interdomain routing 
+scalability.
+
+GOALS:
+
+1) To provide a clear definition of the problems facing Internet
+   Routing Scaling today.  This includes routing table size and route
+   processing load.
+
+2) To provide a taxonomy to describe prefix information for peer 
+review.
+
+3) To collate measurements of routing table scaling data and publish a
+   reference list.
+
+4) To discuss and document methods of filtering/aggregating prefix
+   information and to discuss and document what support from protocols
+   or vendor knobs that might be helpful in doing this.  In addition,
+   to suggest policy guidelines to RIRs, LIRs and/or ISPs for
+   allocations and aggregations,etc. that may be useful.
+
+5) To determine the long and short term effects of 
+filtering/aggregating
+   prefixes to reduce router resource consumption.
+
+6) To develop methods of controlling policy information propagation in
+   order to limit the need for propagation of prefix sub-aggregates.
+
+Some Relevant References:
+
+http://www.antc.uoregon.edu/route-views/
+http://www.pch.net/routing/BGP_table_size.html
+http://moat.nlanr.net/AS
+http://www.pch.net/documents/data/routing-tables/route-views.oregon-ix.
+n
+et/
+http://www.employees.org/~tbates/cidr-report.html
+http://www.telstra.net/ops/bgp/index.html
+http://www.apnic.net/stats/bgp
+http://www.merit.edu/ipma

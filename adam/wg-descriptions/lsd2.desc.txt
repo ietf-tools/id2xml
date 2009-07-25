@@ -1,0 +1,11 @@
+The purpose of this BOF is to examine the question of deploying
+LDAP services beyond the context of a single service provider.
+
+Issues that can arise include:
+
+- Methods of finding LDAP services
+- Bindings between LDAP services and LDAP servers
+- Cross-service searches
+- Adaptations to differing schemas
+
+Some approaches that are being tried in practice are presented.

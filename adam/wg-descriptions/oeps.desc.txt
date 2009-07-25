@@ -1,0 +1,10 @@
+The proxy services area defines protocols and API's that enable proxies 
+extend their services beyond protocol relays and caching.  The working 
+group will develop documents defining the architecture, policy model and 
+elements, and terminology. Protocols for delivering new services and 
+policies related to their execution will be defined and developed.  
+Other protocols, allowing the services to communicate information about 
+the protocol elements of the proxied protocol, will be developed. A 
+security architecture for the administration of proxies with third party 
+services will be defined. The API to core services, such as protocol 
+control and use, will be defined.

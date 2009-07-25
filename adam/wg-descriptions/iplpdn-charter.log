@@ -1,0 +1,30 @@
+This is TeX, C Version 3.14t3 (format=lplain 93.1.13)  3 JUN 1993 16:07
+**latemp.tex
+(latemp.tex
+LaTeX Version 2.09 <7 Dec 1989>
+(/usr/local/lib/tex/inputs/nri.tex) (/usr/local/lib/tex/inputs/report.sty
+Document Style `report' <13 Nov 89>.
+(/usr/local/lib/tex/inputs/rep12.sty)
+\descriptionmargin=\dimen99
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+ (/usr/local/lib/tex/inputs/titlepage.sty))
+No file latemp.aux.
+(latemp.aux) ) 
+Here is how much of TeX's memory you used:
+ 169 strings out of 13499
+ 1708 string characters out of 225385
+ 26612 words of memory out of 262141
+ 2118 multiletter control sequences out of 9500
+ 18996 words of font info for 72 fonts, out of 72000 for 255
+ 14 hyphenation exceptions out of 607
+ 12i,1n,15p,158b,25s stack positions out of 300i,40n,60p,3000b,4000s
+
+No pages of output.

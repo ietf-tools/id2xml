@@ -1,0 +1,48 @@
+Erik Nordmark (nordmark@eng.sun.com) is the Technical Advisor.
+
+The Internet network-layer and transport-layer protocols are
+designed to accommodate a very wide range of networking
+technologies and characteristics.  Nevertheless, experience has shown 
+that the particular properties of different network links can have a 
+significant impact on the performance of Internet protocols operating 
+over those links, and on the performance of connections along paths 
+that 
+include such links.  This is especially of concern to the wireless 
+networking community.
+
+The PILC working group will produce several BCP/Informational
+documents.  The first document will discuss considerations for 
+link-layer designers from the perspective of best supporting existing 
+IETF protocols will be produced.  The next document will discuss the 
+capabilities, limitations and pitfalls of 'performance enhancing 
+proxies' (PEPs), that is, active network elements that modify or splice 
+end-to-end flows in an attempt to enhance the performance they attain 
+in 
+the face of particular link characteristics.  The remaining documents 
+will either discuss the impact and mitigations for a problematic
+link-layer characteristic (or group of closely related 
+characteristics), 
+or provide overviews of which other PILC documents apply to particular 
+problem domains.
+
+As one of its first work items, the WG will review an existing
+I-D on considerations for "long, thin" networks (one of the salient
+characteristics of terrestrial wireless links).  This will be
+published as a preliminary assessment of the problem domain, to
+be refined by later PILC documents.
+
+All documents will identify which of their considerations remain
+research topics versus which are established as advanced
+development.  Research topics will be explicitly flagged as not
+part of any recommendations.  All documents will also identify
+any security implications associated with their considerations.
+
+The working group will also serve as a forum for discussing
+possible modifications to IETF protocols to improve performance
+in environments with problematic link characteristics - however,
+not to the detriment of performance and stability in the general
+Internet, nor to undermine existing security models.
+
+It is incumbent upon the chairs to ensure that the WG maintains
+good communications with other groups interested in related
+technology issues, such as wireless forums.

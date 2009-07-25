@@ -1,0 +1,51 @@
+  The demand for Internet teleconferencing has arrived, yet an
+  infrastructure to support this demand is barely in place.  Multimedia
+  session control, defined as the management and coordination of
+  multiple sessions and their multiple users in multiple media (e.g.,
+  audio, video), is one component of the infrastructure.  The
+  Multiparty Multimedia Session Control Working Group is chartered to
+  design and specify a protocol to perform these functions.
+  
+  The protocol will provide negotiation for session membership,
+  underlying communication topology and media configuration.  In
+  particular, the protocol will support a user initiating a multimedia
+  multiparty session with other users (``calling'' other users) over the
+  Internet by allowing a teleconferencing application on one workstation
+  to explicitly rendezvous with teleconferencing applications running on
+  remote workstations.  Defining a standard protocol will enable
+  session-level interoperability between different teleconferencing
+  implementations.
+  
+  The focus of the working group is to design a session negotiation
+  protocol that is tailored to support tightly-controlled conferences.
+  The MBONE currently carries primarily loosely-controlled sessions,
+  i.e., sessions with little to no interaction among members and with no
+  arbitration facility, security, or coordination of quality-of-service
+  options for time-critical media.  Users may learn of available sessions
+  using the ``sd'' utility or other out of band mechanisms (e.g., email).
+  However, there is clearly also a need for tightly-controlled sessions
+  that provide mechanisms for directly contacting other users to initiate
+  a session and for negotiating conference parameters such as membership,
+  media encodings and encryption keys.  In addition, these sessions
+  should support renegotiation during a session, for example to add or
+  delete members or change the media encoding.  It is possible that the
+  protocol will, in the limiting case, also support loosely-controlled
+  sessions.
+  
+  The main goal of the working group will be to specify the session
+  control protocol for use within teleconferencing software over the
+  Internet.  The working group will focus on the aspects of the session
+  control problem that are well understood, while keeping an eye on
+  evolving research issues.  Toward this end, the working group has made
+  an inventory of existing conferencing systems and their session control
+  protocols.  The working group will document the requirements of the
+  existing prototypes as a basis for the protocol development.  The
+  working group will iteratively refine the protocol based on
+  implementation and operational experience.
+
+  Furthermore, the working group will coordinate with other efforts
+  related to multimedia conferencing, such as directory services
+  for cataloguing users and conferences, the RTP and RTCP protocols
+  developed by the Audio/Video Transport Working Group, resource
+  reservation and management at the network level, and schemes for
+  multicast address allocation.  

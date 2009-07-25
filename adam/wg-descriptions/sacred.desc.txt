@@ -1,0 +1,68 @@
+The credentials used in a public key infrastructure (PKI) typically
+consist of a public/private key pair, a corresponding certificate
+or certificate chain and some trust or root certification authority
+information. They are usually stored on a desktop or laptop system
+as part of an application specific store. Currently, support for
+credential export/import is uneven and end users need to get too
+involved with the mechanics of creating and maintaining their PKI
+credentials.
+
+Application specific stores also mean that users cannot easily use the 
+same credential in multiple applications or on multiple devices. In 
+effect, today, credentials aren't portable. PKIs that use hardware 
+tokens (e.g., smart cards, PCMCIA cards) do allow for portability of 
+the 
+user's credentials, however, most systems do not use hardware tokens, 
+but would benefit if similar portability features were available. 
+Ideally, users would be able to use a common set of credentials with 
+their desktop and laptop PCs, PDAs, cell phones, and other 
+Internet-ready devices. Even where hardware tokens are used, there may 
+also be substantial benefit derived from using credential portability 
+protocols in support of management functions such as, for example, 
+installation, token recovery (e.g. locked PIN), or token replacement.
+
+There are at least two possible solutions for providing credential
+portability.  The first involves the use of a "credential server".
+Credentials are uploaded to the server by one device (e.g., a desktop
+computer); they can be stored there and downloaded when needed by the
+same or a different device (e.g., a mobile phone, PDA, or laptop
+computer).
+
+A second solution involves the "direct" transfer of credentials from
+one device to another (e.g., from a mobile phone to a PDA).  Although
+there may be servers involved in the transfer, in security terms the
+transfer is direct - that is, there is no "credential server" that 
+takes
+an active part in securing the exchanges.
+
+While it might be possible that a single protocol can be developed for
+both types of solution, two different protocols may be needed: one for
+interacting with a "credential server"; and the other to facilitate the
+"direct" transfer of credentials.
+
+Security is at a premium for this working group; only authorized
+clients should be allowed to download credentials; credentials must be
+protected against eavesdropping and active attacks; attackers
+must not be able to successfully replace an entity's credentials at a
+credential server; etc. In general, the security provided by such
+systems will be less than is provided in systems using hardware
+tokens, as the hardware tokens tend to be more resistant to improper
+inspection and modification.  However, in many environments,
+the security offered will be sufficient.
+
+Availability is also at a premium. Credentials must be available
+to many different types of client with different characteristics in
+terms of processing power, storage and network connectivity.
+
+The working group will produce:
+
+1) An informational document(s) describing and identifying the detailed
+   requirements for any protocol in this area, along with an 
+   architectural view of any such protocol.
+
+2) A standards-track document(s) describing the details of the adopted 
+   or developed protocol.
+
+The WG will specifically take into account the requirements of the
+IPSRA WG, and the protocols selected by this WG should provide a
+solution for a subset of those requirements.

@@ -1,0 +1,41 @@
+Draft Charter 5/10/93 md
+
+The goal of this BOF is to seek rough consensus on how to progress in the 
+decision process about the next generation of IP.
+
+A set of decision criteria has been established (see Internet-Draft
+draft-partridge-ipv7-criteria-01.txt) and the BOF will not re-discuss
+them.  A set of four candidates for IPng has emerged (IPv7, PIP, SIP, TUBA
+in alphabetical order) and the BOF will not discuss their details or merits.
+Very short-term measures (CIDR) and very long-term measures will not be 
+discussed.
+
+The topics to be discussed include:
+
+
+- Who is qualified to decide on behalf of the Internet community?  Another
+  way to ask the question: should there be a decision point, or can we let
+  the market decide?
+
+- What procedures (analysis, bake-off, etc.) should be used to evaluate
+  each candidate against the criteria?
+
+- Whether, when and how to open up the IPng discussion among the Internet
+  user community (broadly defined to include WAN and LAN network operators
+  as well as end users)?  How does this community interact with the
+  decision takers?
+
+- What timescale is realistic for the decision process?  There is a 
+  subsidiary technical discussion here: if the Internet truly runs out
+  of addresses in year N,
+
+	- when (year N-x) should the decision me made?
+
+	- when (year N-y) should the software be ready for field test?
+
+	- what is the latest time (N-z) to start the transition?
+
+- Does the decision process need specific financial or manpower support?
+
+With the goal of being able to write and Internet-Draft on the decison process
+after the BOF. 

@@ -1,0 +1,57 @@
+The DNS Working Group is concerned with the design, operation, and
+evolution of the Domain Name System within the Internet.  As the Internet
+continues to grow, we expect to serve as a focal point for work on scaling
+problems within the current framework, work on protocol evolution as new
+mechanisms become necessary, and documentation of current practice for DNS
+implementors and administrators.  We are also responsible for oversight of
+DNS activities by other groups within the IETF to the extent that we
+review the impact such work will have on the DNS and make recomendations
+to the working groups and IESG as necessary.  Since some of these are
+ongoing tasks, we do not expect the working group to disband anytime soon.
+
+Several issues are of particular concern at this time:
+
+Scaling:  The DNS is the victim of its own success.  The global DNS
+namespace has grown to the point where administering the top levels of
+the tree is nearly as much work as the old NIC host table used to be.
+We need to work on ways to distribute the load.  Some of the solutions
+are likely to be technical, some political or economic; we still treat
+the top-level DNS service the way we did when DARPA was footing the
+bill, and the funding for that service is in the process of going away.
+
+Security:  The DNS is a zero-security system; it is not even as
+strong as the IP layer above which it operates.  As a result,
+accidental spoofing (cache pollution) is an all-too-frequent occurance.
+We need to make the DNS more robust against accidental corruption, and
+must provide at least an optional authentication mechanism for that
+portion of the community that wants one.  At the same time, we must not
+cripple the existing system by drasticly increasing its bandwidth
+consumption or by mandating use of cryptographic techniques that would
+preclude worldwide distribution of DNS software.  The global DNS
+database is exactly that, an existing world-wide database representing
+hosts on six continents and (at least) forty-five countries.  A
+solution that does not take this into account is not acceptable.
+
+Management:  The group has a draft document describing MIB extensions to
+manage the DNS.  It also needs to specify a standard way to dynamically
+create and destroy DNS records; SNMP may be an appropriate tool for
+this task, but we haven't yet specified enough of the details to know
+for certain.  The impact that a dynamic update
+mechanism will have on the DNS needs to be examined, with particular attention
+given to security
+and scaling issues.
+
+IPng/Routing:  As the fur starts flying in the battle between the IPng
+proponants and the new-routing-architecture proponants, it is expected that
+groups on both sides will need some amount of support from the DNS.
+Such support is likely to be minimal and straightforward, but these proposals 
+are likely to need ``rush service'' for whatever support they
+require.  So the working group needs to monitor these activities, stay
+involved, and generally do what it can to make sure that DNS support is
+not a bottleneck.
+
+The DNS Working Group also needs to examine the impact that any proposed IPng
+system would have on the DNS, since the DNS database and protocols have
+special provision for IP addresses.
+
+

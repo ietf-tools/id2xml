@@ -1,0 +1,19 @@
+1. To consider the creation of a new IETF working group within the 
+Applications Area titled "Digital Identity Exchange". The proposed 
+charter for such a working group is attached, named ‘draft-merrells-
+dix-charter.txt’.
+
+2. To discuss and hone the scope of a DIX working group.
+
+3. To discuss the architectural requirements that derive from the laws 
+of identity identified by ‘The Identity Gang’ at ‘The Berkman Center 
+for Internet & Society, Harvard Law School’.
+
+4. To discuss existing architectural implementations within the 
+context of these requirements. An individual submission Internet Draft 
+that describes one such implementation is attached, names ‘draft-
+merrells-dix-01.txt’
+
+5. To determine if there is enough interest and commitment to form a 
+Working Group and if so to then discuss what the specific goals and 
+milestones of that working group would be.

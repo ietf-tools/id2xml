@@ -1,0 +1,12 @@
+This working group is chartered to review the MIBs produced by the
+madman group while in the Network Management Area (RFCs 1565, 1566,
+and 1567 which were produced in January, 1994).
+
+The aim of this re-activation is to review and update these MIBs in
+the light of operational experience. This will lead to editorial and
+clarification changes, and updates driven by operational requirements
+based on experience.
+
+There have been a number of commerical and research implementations of
+these MIBs. The MIBs have also been adopted by the Electronic Mail
+Association, who have made input to the MADMAN work.

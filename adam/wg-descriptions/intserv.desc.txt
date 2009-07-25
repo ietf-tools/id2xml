@@ -1,0 +1,68 @@
+Recent experiments demonstrate the capability of packet switching
+protocols to support Integrated Services --- the transport of audio,
+video, real-time, and classical data traffic within a single network
+infrastructure.  These experiments suggest that expanding the Internet
+service model would better meet the needs of these diverse applications.
+The purpose of this working group is to specify this enhanced service 
+model and then to define and standardize certain interfaces and 
+requirements necessary to implement the new service model.
+ 
+The working group will focus on defining a minimal set of global
+requirements which transition the Internet into a robust
+integrated-service communications infrastructure.  Enhancements to
+individual protocols (e.g., adding additional routing information to
+routing protocols, or choosing IP queueing disciplines for routers)
+will be left to other working groups, except in those rare cases where
+detailed definitions of behavior are critical to the success of the
+enhanced architecture.
+ 
+Extending the Internet service model raises a series of questions.
+The working group will focus on the three problems listed below:
+ 
+(1) Clearly defining the services to be provided. The first task 
+    faced by this working group is to define and document the enhanced 
+    Internet service model.
+ 
+(2) Defining the application service, router scheduling and (general)
+    subnet interfaces.  The working group must define at least three
+    high-level interfaces: that expressing the application's end-to-end
+    requirements, that defining what information is made available to
+    individual routers within the network, and the additional
+    expectations (if any) the enhanced service model has for subnet 
+    technologies. The working group will define these abstract 
+    interfaces, and will coordinate with and advise IP over "subnet" 
+    working groups (such as IP over ATM) in this.
+
+(3) Developing router validation requirements which can ensure that
+    the proper service is provided.  We assume that the Internet will
+    continue to contain a heterogeneous set of routers, running 
+    different routing protocols and using different forwarding 
+    algorithms.  The working group will seek to define a minimal set of 
+    additional router requirements which ensure that the Internet can
+    support the new  service model. Rather than presenting specific 
+    scheduling and admission control algorithms which must be supported, 
+    these requirements will likely take the form of behavioral tests
+    which measure the capabilities of routers in the integrated 
+    services environment. This approach is used because no single
+    algorithm seems likely to be appropriate in all circumstances at 
+    This time.  The working group will coordinate with the Benchmarking 
+    Working Group (BMWG).
+ 
+We expect to generate three RFCs as a product of performing these tasks.
+ 
+An important aspect of this working group's charter is in coordination
+with the development of IP Next Generation.  The working group will
+be reviewed in November 1995 to determine if it should be re-chartered
+as is or modified to reflect IPng developments, in particular, but also
+operational and commercial developments.  The IESG deems the great
+significance of this working group to merit this unusual review.
+ 
+In addition, because many of the integrated services concepts are new,
+the working group may produce Informational RFCs explaining specific
+algorithms that may be appropriate in certain circumstances, and may 
+host some educational meetings to assist both IETF members and members 
+of the larger Internet community to understand the proposed enhancements 
+to IP.
+ 
+The working group proposes to hold regular meetings beyond those held at
+the IETF meetings.

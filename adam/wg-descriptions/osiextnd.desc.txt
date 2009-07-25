@@ -1,0 +1,18 @@
+Draft Charter 6/25/93 mdw
+
+The Internet Society is in the process of arranging a liaison relationship
+with ISO/IEC JTC1, which will provide a mechanism through which the IETF
+could create and modify International Standards including OSI standards.
+
+The purpose of this BOF is to begin to define the scope of work to be done
+in the IETF for the purposes of extending OSI standards for use in the
+Internet, in anticipation of the establishment of this liaison relationship.
+Likely areas of work include extensions to CLNP and its associated routing
+protocols.
+
+It is expected that work done in this area will be fed into the traditional
+standards community.
+
+One or more working groups may be created to pursue technical work in this
+area; alternatively, the work may be done in existing working groups
+(TUBA, NOOP, et. al.).

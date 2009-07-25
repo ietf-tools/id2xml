@@ -1,6 +1,8 @@
 ietfdb (2.28)
 
   * Show full name in document comment log.  From Pasi.
+
+  * Optimize meeting agenda page to use less SQL queries.  From Pasi.
 	
 ietfdb (2.27)
 

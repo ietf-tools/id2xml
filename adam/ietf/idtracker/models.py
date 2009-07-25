@@ -425,10 +425,13 @@ class Rfc(models.Model):
 	    self._idinternal_cache = None
 	self._idinternal_cached = True
 	return self._idinternal_cache
-    # return set of RfcObsolete objects obsoleted by this RFC
-    def obsoletes(self): # return a set of Rfc objects for this group
+
+    # return set of RfcObsolete objects obsoleted or updated by this RFC
+    def obsoletes(self): 
         return RfcObsolete.objects.filter(rfc=self.rfc_number)
-    def obsoleted_by(self): # return a set of Rfc objects for this group
+
+    # return set of RfcObsolete objects obsoleting or updating this RFC
+    def obsoleted_by(self): 
         return RfcObsolete.objects.filter(rfc_acted_on=self.rfc_number)
 
     class Meta:

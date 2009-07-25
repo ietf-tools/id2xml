@@ -50,12 +50,9 @@ def ipr_contact_form_callback(field, **kwargs):
 # Classes
 # ----------------------------------------------------------------    
 
-# Get a form class which renders fields using a given template
-CustomForm = ietf.utils.makeFormattingForm(template="ipr/formfield.html")
-
 # Get base form classes for our models
-BaseIprForm = forms.form_for_model(models.IprDetail, form=CustomForm, formfield_callback=ipr_detail_form_callback)
-BaseContactForm = forms.form_for_model(models.IprContact, form=CustomForm, formfield_callback=ipr_contact_form_callback)
+BaseIprForm = forms.form_for_model(models.IprDetail, formfield_callback=ipr_detail_form_callback)
+BaseContactForm = forms.form_for_model(models.IprContact, formfield_callback=ipr_contact_form_callback)
 
 # Some subclassing:
 
@@ -199,7 +196,6 @@ def new(request, type, update=None, submitter=None):
                 if licensing_option in (None, ''):
                     raise forms.ValidationError, 'This field is required.'
             return licensing_option
-
 
     # If we're POSTed, but we got passed a submitter, it was the
     # POST of the "get updater" form, so we don't want to validate

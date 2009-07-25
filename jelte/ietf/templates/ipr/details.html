@@ -6,6 +6,7 @@
 		   {% if section_list.third_party %}
 		   {% endif %}
 
+{% load field_item %}
 
 {% extends "base.html" %}
 {% block title %}IPR Details - {{ ipr.title }}{% endblock %}
@@ -222,7 +223,7 @@
 	 </tr>
 	 <tr class="{% cycle row_parity %}">
 	    {% block section1_data %}
-	    <td class="fixwidth">Legal Name:</td>	<td><b> {{ ipr.legal_name }} </b></td>
+	    <td class="fixwidth">Legal Name:</td>	<td>{% field_item ipr.fields.legal_name %}<b> {{ ipr.legal_name }} </b></td>
 	    {% endblock %}
 	 </tr>
       </table>
@@ -238,14 +239,14 @@
 	    Patent Holder's Contact for License Application
 	    </th>
 	 </tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td><b>{{ ipr.holder_contact.name }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td><b>{{ ipr.holder_contact.title }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td><b>{{ ipr.holder_contact.department }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td><b>{{ ipr.holder_contact.address1 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td><b>{{ ipr.holder_contact.address2 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td><b>{{ ipr.holder_contact.telephone }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td><b>{{ ipr.holder_contact.fax }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td><b>{{ ipr.holder_contact.email }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td>{% field_item ipr.holder_contact.fields.name %}<b>{{ ipr.holder_contact.name }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td>{% field_item ipr.holder_contact.fields.title %}<b>{{ ipr.holder_contact.title }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td>{% field_item ipr.holder_contact.fields.department %}<b>{{ ipr.holder_contact.department }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td>{% field_item ipr.holder_contact.fields.address1 %}<b>{{ ipr.holder_contact.address1 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td>{% field_item ipr.holder_contact.fields.address2 %}<b>{{ ipr.holder_contact.address2 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td>{% field_item ipr.holder_contact.fields.telephone %}<b>{{ ipr.holder_contact.telephone }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td>{% field_item ipr.holder_contact.fields.fax %}<b>{{ ipr.holder_contact.fax }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td>{% field_item ipr.holder_contact.fields.email %}<b>{{ ipr.holder_contact.email }}</b></td></tr>
       </table>
    </blockquote>
    {% endif %}
@@ -261,14 +262,14 @@
 	    </th>
 	 </tr>
 	 {% if ipr.ietf_contact.name %}
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td><b>{{ ipr.ietf_contact.name }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td><b>{{ ipr.ietf_contact.title }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td><b>{{ ipr.ietf_contact.department }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td><b>{{ ipr.ietf_contact.address1 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td><b>{{ ipr.ietf_contact.address2 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td><b>{{ ipr.ietf_contact.telephone }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td><b>{{ ipr.ietf_contact.fax }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td><b>{{ ipr.ietf_contact.email }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td>{% field_item ipr.ietf_contact.fields.name %}<b>{{ ipr.ietf_contact.name }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td>{% field_item ipr.ietf_contact.fields.title %}<b>{{ ipr.ietf_contact.title }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td>{% field_item ipr.ietf_contact.fields.department %}<b>{{ ipr.ietf_contact.department }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td>{% field_item ipr.ietf_contact.fields.address1 %}<b>{{ ipr.ietf_contact.address1 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td>{% field_item ipr.ietf_contact.fields.address2 %}<b>{{ ipr.ietf_contact.address2 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td>{% field_item ipr.ietf_contact.fields.telephone %}<b>{{ ipr.ietf_contact.telephone }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td>{% field_item ipr.ietf_contact.fields.fax %}<b>{{ ipr.ietf_contact.fax }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td>{% field_item ipr.ietf_contact.fields.email %}<b>{{ ipr.ietf_contact.email }}</b></td></tr>
 	 {% else %}
 	 <tr class="{% cycle row_parity %}"><td colspan="2"><i>No information submitted</i></td></tr>
 	 {% endif %}
@@ -341,11 +342,11 @@
 		  please provide the following information:</td>
 	       </tr>
 	       <tr><td class="fixwidth">Patent, Serial, Publication, Registration,
-			 or Application/File number(s):	</td><td><b>{{ ipr.patents }}</b></td></tr>
+			 or Application/File number(s):	</td><td>{% field_item ipr.fields.patents %}<b>{{ ipr.patents }}</b></td></tr>
 	    </tbody>
-	    <tr class="{% cycle row_parity %}"><td>Date(s) granted or applied for:	</td><td><b>{{ ipr.date_applied }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td>Country:				</td><td><b>{{ ipr.country }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td>Additional Notes:		</td><td><b>{{ ipr.notes }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td>Date(s) granted or applied for:	</td><td>{% field_item ipr.fields.date_applied %}<b>{{ ipr.date_applied }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td>Country:				</td><td>{% field_item ipr.fields.country %}<b>{{ ipr.country }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td>Additional Notes:		</td><td>{% field_item ipr.fields.notes %}<b>{{ ipr.notes }}</b></td></tr>
 	    <tr class="{% cycle row_parity %}">
 	       <td colspan="2">
 		     {% if section_list.form_legend %}
@@ -533,14 +534,14 @@
 	       {% endif %}
 	    </tbody>
 	    {% endif %}
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td><b>{{ ipr.submitter.name }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td><b>{{ ipr.submitter.title }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td><b>{{ ipr.submitter.department }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td><b>{{ ipr.submitter.address1 }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td><b>{{ ipr.submitter.address2 }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td><b>{{ ipr.submitter.telephone }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td><b>{{ ipr.submitter.fax }}</b></td></tr>
-	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td><b>{{ ipr.submitter.email }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td>{% field_item ipr.submitter.fields.name %}<b>{{ ipr.submitter.name }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td>{% field_item ipr.submitter.fields.title %}<b>{{ ipr.submitter.title }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td>{% field_item ipr.submitter.fields.department %}<b>{{ ipr.submitter.department }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td>{% field_item ipr.submitter.fields.address1 %}<b>{{ ipr.submitter.address1 }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td>{% field_item ipr.submitter.fields.address2 %}<b>{{ ipr.submitter.address2 }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td>{% field_item ipr.submitter.fields.telephone %}<b>{{ ipr.submitter.telephone }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td>{% field_item ipr.submitter.fields.fax %}<b>{{ ipr.submitter.fax }}</b></td></tr>
+	    <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td>{% field_item ipr.submitter.fields.email %}<b>{{ ipr.submitter.email }}</b></td></tr>
 	    {% else %}
 	    <tr class="{% cycle row_parity %}"><td colspan="2"><i>No information submitted</i></td></tr>
 	    {% endif %}

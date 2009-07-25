@@ -199,6 +199,15 @@ def rfcnospace(string):
     else:
         return string
 
+@register.filter(name='rfcurl')
+def rfclink(string):
+    """
+    This takes just the RFC number, and turns it into the
+    URL for that RFC.
+    """
+    string = str(string);
+    return "http://tools.ietf.org/html/rfc" + string;
+
 @register.filter(name='dashify')
 def dashify(string):
     """

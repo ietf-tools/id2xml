@@ -7,11 +7,7 @@ from django.template import RequestContext, Context, loader
 register = template.Library()
 
 @register.simple_tag
-def field_item(menu_field):
-    return loader.render_to_string("ipr/formfield.html", { 'field': menu_field })
-
-@register.simple_tag
-def field_item2(form, field_name):
+def field_item(form, field_name):
     # the 'form' we get here does not always have fields (when looking at
     # an existing IPR for instance)
     if hasattr(form, "fields"):

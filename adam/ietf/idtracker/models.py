@@ -840,7 +840,7 @@ class IETFWG(models.Model):
     def choices():
 	return [(wg.group_acronym_id, wg.group_acronym.acronym) for wg in IETFWG.objects.all().filter(group_type__type='WG').select_related().order_by('acronym.acronym')]
     choices = staticmethod(choices)
-    def gro(self):
+    def area_acronym(self):
         areas = AreaGroup.objects.filter(group__exact=self.group_acronym)
         if areas:
             return areas[areas.count()-1].area.area_acronym

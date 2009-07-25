@@ -1,3 +1,6 @@
+
+  * Fixed bug in wg-dir.html to support additional area URLs properly
+
   * Added new rfcurl filter to eliminate hardcoded references to RFC URLs
     primarily in the liaisons and drafts pages.
 

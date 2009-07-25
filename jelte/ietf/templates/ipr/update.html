@@ -27,14 +27,14 @@
 	    Contact Information for Submitter of this Update.
 	    </th>
 	 </tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td>{% field_item form.fields.name %}<b>{{ form.name }} <span class="required">*</span></b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td>{% field_item form.fields.title %}<b>{{ form.title }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td>{% field_item form.fields.department %}<b>{{ form.department }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td>{% field_item form.fields.address1 %}<b>{{ form.address1 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td>{% field_item form.fields.address2 %}<b>{{ form.address2 }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td>{% field_item form.fields.telephone %}<b>{{ form.telephone }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td>{% field_item form.fields.fax %}<b>{{ form.fax }}</b></td></tr>
-	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td>{% field_item form.fields.email %}<b>{{ form.email }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Name:</td>		<td>{% field_item2 form 'name' %}<b>{{ form.name }} <span class="required">*</span></b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Title:</td>		<td>{% field_item2 form 'title' %}<b>{{ form.title }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Department:</td>	<td>{% field_item2 form 'department' %}<b>{{ form.department }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address1:</td>	<td>{% field_item2 form 'address1' %}<b>{{ form.address1 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Address2:</td>	<td>{% field_item2 form 'address2' %}<b>{{ form.address2 }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Telephone:</td>	<td>{% field_item2 form 'telephone' %}<b>{{ form.telephone }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Fax:</td>		<td>{% field_item2 form 'fax' %}<b>{{ form.fax }}</b></td></tr>
+	 <tr class="{% cycle row_parity %}"><td class="fixwidth">Email:</td>		<td>{% field_item2 form 'email' %}<b>{{ form.email }}</b></td></tr>
       </table>
    </blockquote>
       <p>

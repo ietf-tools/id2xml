@@ -93,7 +93,7 @@
       <tr id="{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.acronym|lower}}">	 <td><a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{session.info.room_id.room_name|slugify}}">{{ session.info.room_id.room_name}}</a></td>
 	 {% if session.info.area %}
 	 <td>
-	    {% if session.info.isWG %}<a href="http://www.ietf.org/html.charters/{{ session.info.acronym|lower }}-charter.html">{%endif%}
+	    {% if session.info.isWG %}<a href="http://www.ietf.org/dyn/wg/charter/{{ session.info.acronym|lower }}-charter.html">{%endif%}
 	       {{ session.info.acronym|lower }}
 	    {% if session.info.isWG %}</a>{%endif%}
 	 </td>

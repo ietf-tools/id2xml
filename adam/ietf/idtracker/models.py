@@ -852,10 +852,12 @@ class IETFWG(models.Model):
             return areas[areas.count()-1].area.areadirector_set.all()
         else:
             return None
-    def chairs(self):
+    def chairs(self): # return a set of WGChair objects for this work group
         return WGChair.objects.filter(group_acronym__exact=self.group_acronym)
-    def secretaries(self):
+    def secretaries(self): # return a set of WGSecretary objects for this group
         return WGSecretary.objects.filter(group_acronym__exact=self.group_acronym)
+    def milestones(self): # return a set of GoalMilestone objects for this group
+        return GoalMilestone.objects.filter(group_acronym__exact=self.group_acronym)
     def charter_text(self):
        return "This is a stub implementation for returning the charter for "+self.group_acronym.acronym
     class Meta:

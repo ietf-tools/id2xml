@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2009, All Rights Reserved #}
+
+{% block title %} {{ wg.group_acronym.name }} Charter  {% endblock %}
+
+{% block content %}
+<h1>{{wg.group_acronym.name}} ({{wg}})</h1>
+
+<p>Last Modified: {{ wg.last_modified_date }}</p>
+
+<h2>Chair{{ chairs.size|pluralize:": ,s:" }}</h2>
+<ul>
+{% for chair in chairs %}
+  <li><a href="mailto:{{ chair.person.email.1 }}">{{ chair.person }}</a></li>
+{% endfor %}
+</ul>
+
+<h2>Area Directors:</h2>
+<ul>
+{% for ad in ads %}
+  <li><a href="mailto:{{ ad.person.email.1 }}">{{ ad.person }}</a></li>
+{% endfor %}
+</ul>
+
+{% if advisor %}
+<h2>Area Advisor:</h2>
+<ul>
+  <li><a href="mailto:{{ advisor.person.email.1 }}">{{ advisor.person }}</a></li>
+</ul>
+{% endif %}
+
+{% if secretary %}
+<h2>Secretar{{ secretary.size|pluralize:"y: ,ies:" }}</h2>
+<ul>
+{% for secretary in secretary %}
+  <li><a href="mailto:{{ secretary.person.email.1 }}">{{ secretary.person }}</a></li>
+</ul>
+{% endfor %}
+{% endif %}
+
+<h2>Mailing List:</h2>
+<table>
+<tr><td>General Discussion:</td><td> {{ list.email }}</td></tr>
+<tr><td>To Subscribe:</td><td> {{ list.subscribe_url }}</td></tr>
+<tr><td>Archive:</td><td> {{ list.archive_url }}</td></tr>
+</table>
+
+<h2>Description of Working Group:</h2>
+{{ charter }}
+
+<h2>Goals and Milestones:</h2>
+<table>
+{% for milestone in milestones %}
+  <tr><td>{{ milestone.deadline }}</td><td>{{ milestone.name }}</td></tr>
+{% endfor %}
+<table>
+
+<h2>Internet-Drafts:</h2>
+<ul>
+{% for draft in drafts %}
+  <li><a href="{{draft.url}}">{{draft.name}}</a> ({{ draft.size }} bytes)</li>
+{% endfor %}
+</ul>
+
+{% if rfcs %}
+<h2>No Requests for Comments</h2>
+{% else %}
+<h2>Requests for Comments:</h2>
+<ul>
+{% for rfc in rfcs %}
+  <li><a href="{{rfc.url}}">{{rfc.name}}</a> ({{ rfc.size }} bytes)</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}

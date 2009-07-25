@@ -100,7 +100,7 @@
   {% endfor %}
 
   {% for obs in rfc.obsoleted_by%}
-    - {%ifequal obs.action 'Obsoletes'%}<font color="red">Obsoleted by{%else%}<font color="orange">Updated by{%endifequal%} RFC{{obs.rfc_acted_on_id}}
+    - {%ifequal obs.action 'Obsoletes'%}<font color="red">Obsoleted by{%else%}<font color="orange">Updated by{%endifequal%} RFC{{obs.rfc_id}}
   {% endfor %}
 
 </td></tr>

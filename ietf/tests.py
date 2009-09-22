@@ -20,14 +20,42 @@ from django.core import management
 import ietf.urls
 from ietf.utils import log, mail
 
+# This is needed so that "manage.py test ietf.UrlTestCase" works
+if django.VERSION[0] > 0:
+    # "ietf" is not a real application (because it doesn't have models.py),
+    # but let's make it look like one
+    settings.INSTALLED_APPS = settings.INSTALLED_APPS + ['ietf']
+    import types
+    import ietf
+    ietf.models = types.ModuleType('ietf.models')
+    # Fixture loading code uses the directory of this file, not the actual file
+    ietf.models.__file__ = ietf.settings.__file__
+    
+
 startup_database = settings.DATABASE_NAME  # The startup database name, before changing to test_...
 
-def run_tests(module_list, verbosity=0, extra_tests=[]):
-    # If we're testing just one module's tests, don't
-    # add the urls tests.
-    if len(module_list) > 1:
-	module_list.append(ietf.urls)
-    ietf.utils.mail.test_mode=True
+# Test that test/r5106.patch has been applied. This is not written
+# as normal test case, because it needs to be run before Django's
+# test framework takes over. This test applies only to Django 0.96,
+# and can be removed once we transition to 1.x.
+def test_django_foreignkey_patch():
+    if django.VERSION[0] > 0:
+        return
+    try:
+        t = django.core.management._get_sql_model_create(ietf.idtracker.models.GoalMilestone)
+    except KeyError, f:
+        if str(f.args) == "('ForeignKey',)":
+            raise Exception("Django 0.96 patch in test/r5106.patch not installed?")
+        else:
+            raise
+
+def run_tests(module_list, verbosity=0, extra_tests=[], interactive=True):
+    test_django_foreignkey_patch()
+    if django.VERSION[0] == 0:
+        module_list.append(ietf.urls)
+    else:
+        if len(module_list) == 0:
+            module_list = ('ietf',)
     # If we append 'ietf.tests', we get it twice, first as itself, then
     # during the search for a 'tests' module ...
     return django.test.simple.run_tests(module_list, verbosity, extra_tests)
@@ -219,7 +247,10 @@ def module_setup(module):
     settings.DATABASE_NAME = startup_database
     # Install updated fixtures:
     # Also has the side effect of creating the database connection.
-    management.syncdb(verbosity=1, interactive=False)
+    if django.VERSION[0] == 0:
+        management.syncdb(verbosity=1, interactive=False)
+    else:
+        management.call_command('syncdb', verbosity=1,noinput=True)
     connection.close()
     settings.DATABASE_NAME = module.testdb
     connection.cursor()
@@ -425,7 +456,7 @@ class UrlTestCase(TestCase):
                         note("     200 %s" % (master))
                     except urllib.URLError, e:
                         note("     Error retrieving %s: %s" % (master, e))
-                    except urllib.BadStatusLine, e:
+                    except urllib.HTTPError, e:
                         note("     Error retrieving %s: %s" % (master, e))
                     try:
                         if goodhtml and response.content:

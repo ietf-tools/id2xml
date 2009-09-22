@@ -31,9 +31,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from ietf.idtracker.models import InternetDraft, IETFWG, Area, IDInternal
+from ietf.idtracker.models import InternetDraft, IETFWG, Area, IDInternal, BallotInfo
 from ietf.idrfc.models import RfcIndex, RfcEditorQueue, DraftVersions
 from ietf.idrfc.idrfc_wrapper import BallotWrapper, IdWrapper, RfcWrapper
 from ietf.idrfc import markup_txt
@@ -148,7 +148,7 @@ def document_comments(request, name):
             info['by'] = m.group(2)
         else:
             info['text'] = comment.comment_text
-            info['by'] = comment.get_username()
+            info['by'] = comment.get_fullname()
         info['textSnippet'] = truncatewords_html(format_textarea(fill(info['text'], 80)), 25)
         info['snipped'] = info['textSnippet'][-3:] == "..."
         info['commentNumber'] = commentNumber

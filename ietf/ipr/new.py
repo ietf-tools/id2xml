@@ -14,48 +14,60 @@ from ietf.utils import log
 from ietf.utils.mail import send_mail
 from ietf.ipr.view_sections import section_table
 from ietf.idtracker.models import Rfc, InternetDraft
+import django
 
 # ----------------------------------------------------------------
-# Callback methods for special field cases.
-# ----------------------------------------------------------------
-
-def ipr_detail_form_callback(field, **kwargs):
-    if field.name == "licensing_option":
-        return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False, **kwargs)
-    if field.name in ["is_pending", "applies_to_all"]:
-        return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False, **kwargs)
-    if field.name in ["rfc_number", "id_document_tag"]:
-        log(field.name)
-        return forms.CharFieldField(required=False, **kwargs)
-    return field.formfield(**kwargs)
-
-def ipr_contact_form_callback(field, **kwargs):
-    phone_re = re.compile(r'^\+?[0-9 ]*(\([0-9]+\))?[0-9 -]+$')
-    error_message = """Phone numbers may have a leading "+", and otherwise only contain
-                numbers [0-9]; dash, period or space; parentheses, and an optional
-                extension number indicated by 'x'. """
-
-    if field.name in ['ipr', 'contact_type']:
-	return None
-    if field.name == "telephone":
-        return forms.RegexField(phone_re, error_message=error_message, **kwargs)
-    if field.name == "fax":
-        return forms.RegexField(phone_re, error_message=error_message, required=False, **kwargs)
-    return field.formfield(**kwargs)
-    # TODO:
-    #   Add rfc existence validation for RFC field
-    #   Add draft existence validation for Drafts field
-
-# ----------------------------------------------------------------
-# Classes
+# Create base forms from models
 # ----------------------------------------------------------------    
 
-# Get a form class which renders fields using a given template
-CustomForm = ietf.utils.makeFormattingForm(template="ipr/formfield.html")
+phone_re = re.compile(r'^\+?[0-9 ]*(\([0-9]+\))?[0-9 -]+$')
+phone_error_message = """Phone numbers may have a leading "+", and otherwise only contain numbers [0-9]; dash, period or space; parentheses, and an optional extension number indicated by 'x'."""
 
-# Get base form classes for our models
-BaseIprForm = forms.form_for_model(models.IprDetail, form=CustomForm, formfield_callback=ipr_detail_form_callback)
-BaseContactForm = forms.form_for_model(models.IprContact, form=CustomForm, formfield_callback=ipr_contact_form_callback)
+if django.VERSION[0] == 0:
+
+    def ipr_detail_form_callback(field, **kwargs):
+        if field.name == "licensing_option":
+            return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False, **kwargs)
+        if field.name in ["is_pending", "applies_to_all"]:
+            return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False, **kwargs)
+        if field.name in ("rfc_number", "id_document_tag", 'legacy_url_0','legacy_url_1','legacy_title_1','legacy_url_2','legacy_title_2'):
+            return None
+        return field.formfield(**kwargs)
+
+    def ipr_contact_form_callback(field, **kwargs):
+        if field.name in ('ipr', 'contact_type'):
+            return None
+        if field.name == "telephone":
+            return forms.RegexField(phone_re, error_message=phone_error_message, **kwargs)
+        if field.name == "fax":
+            return forms.RegexField(phone_re, error_message=phone_error_message, required=False, **kwargs)
+        return field.formfield(**kwargs)
+        # TODO:
+        #   Add rfc existence validation for RFC field
+        #   Add draft existence validation for Drafts field
+
+    # Get base form classes for our models
+    BaseIprForm = forms.form_for_model(models.IprDetail, formfield_callback=ipr_detail_form_callback)
+    BaseContactForm = forms.form_for_model(models.IprContact, formfield_callback=ipr_contact_form_callback)
+    
+else:
+    # Django 1.x
+    
+    from django.forms import ModelForm
+    class BaseIprForm(ModelForm):
+        licensing_option = forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False)
+        is_pending = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
+        applies_to_all = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
+        class Meta:
+            model = models.IprDetail
+            exclude = ('rfc_document', 'id_document_tag', 'legacy_url_0','legacy_url_1','legacy_title_1','legacy_url_2','legacy_title_2')
+            
+    class BaseContactForm(ModelForm):
+        telephone = forms.RegexField(phone_re, error_message=phone_error_message)
+        fax = forms.RegexField(phone_re, error_message=phone_error_message, required=False)
+        class Meta:
+            model = models.IprContact
+            exclude = ('ipr', 'contact_type')
 
 # Some subclassing:
 
@@ -70,11 +82,6 @@ class ContactForm(BaseContactForm):
 
     def add_prefix(self, field_name):
         return self.prefix and ('%s_%s' % (self.prefix, field_name)) or field_name
-    def clean(self, *value):
-        if value:
-            return self.full_clean()
-        else:
-            return self.clean_data
 
 
 # ----------------------------------------------------------------
@@ -101,11 +108,11 @@ def new(request, type, update=None, submitter=None):
         stdonly_license = forms.BooleanField(required=False)
         hold_contact_is_submitter = forms.BooleanField(required=False)
         ietf_contact_is_submitter = forms.BooleanField(required=False)
-        if "holder_contact" in section_list:
+        if section_list.get("holder_contact", False):
             holder_contact = ContactForm(prefix="hold")
-        if "ietf_contact" in section_list:
+        if section_list.get("ietf_contact", False):
             ietf_contact = ContactForm(prefix="ietf")
-        if "submitter" in section_list:
+        if section_list.get("submitter", False):
             submitter = ContactForm(prefix="subm")
         def __init__(self, *args, **kw):
             contact_type = {1:"holder_contact", 2:"ietf_contact", 3:"submitter"}
@@ -121,8 +128,8 @@ def new(request, type, update=None, submitter=None):
             kwnoinit = kw.copy()
             kwnoinit.pop('initial', None)
             for contact in ["holder_contact", "ietf_contact", "submitter"]:
-                if contact in section_list:
-                    self.base_fields[contact] = ContactForm(prefix=contact[:4], initial=contact_initial.get(contact, {}), *args, **kwnoinit)
+                if section_list.get(contact, False):
+                    setattr(self, contact, ContactForm(prefix=contact[:4], initial=contact_initial.get(contact, {}), *args, **kwnoinit))
             rfclist_initial = ""
             if update:
                 rfclist_initial = " ".join(["RFC%d" % rfc.document_id for rfc in update.rfcs.all()])
@@ -131,9 +138,9 @@ def new(request, type, update=None, submitter=None):
             if update:
                 draftlist_initial = " ".join([draft.document.filename + (draft.revision and "-%s" % draft.revision or "") for draft in update.drafts.all()])
             self.base_fields["draftlist"] = forms.CharField(required=False, initial=draftlist_initial)
-            if "holder_contact" in section_list:
+            if section_list.get("holder_contact", False):
                 self.base_fields["hold_contact_is_submitter"] = forms.BooleanField(required=False)
-            if "ietf_contact" in section_list:
+            if section_list.get("ietf_contact", False):
                 self.base_fields["ietf_contact_is_submitter"] = forms.BooleanField(required=False)
             self.base_fields["stdonly_license"] = forms.BooleanField(required=False)
 
@@ -187,26 +194,29 @@ def new(request, type, update=None, submitter=None):
                     drafts.append("%s-%s" % (filename, id.revision))
                 return " ".join(drafts)
             return ""
-        def clean_holder_contact(self):
-            return self.holder_contact.full_clean()
-        def clean_ietf_contact(self):
-            return self.ietf_contact.full_clean()
-        def clean_submitter(self):
-            return self.submitter.full_clean()
         def clean_licensing_option(self):
             licensing_option = self.clean_data['licensing_option']
             if section_list.get('licensing', False):
                 if licensing_option in (None, ''):
                     raise forms.ValidationError, 'This field is required.'
             return licensing_option
-
+        def is_valid(self):
+            if not BaseIprForm.is_valid(self):
+                return False
+            for contact in ["holder_contact", "ietf_contact", "submitter"]:
+                if hasattr(self, contact) and getattr(self, contact) != None and not getattr(self, contact).is_valid():
+                    return False
+            return True
 
     # If we're POSTed, but we got passed a submitter, it was the
     # POST of the "get updater" form, so we don't want to validate
     # this one.  When we're posting *this* form, submitter is None,
     # even when updating.
-    if request.method == 'POST' and not submitter:
-        data = request.POST.copy()
+    if (request.method == 'POST' or '_testpost' in request.REQUEST) and not submitter:
+        if request.method == 'POST':
+            data = request.POST.copy()
+        else:
+            data = request.GET.copy()
         data["submitted_date"] = datetime.now().strftime("%Y-%m-%d")
         data["third_party"] = section_list["third_party"]
         data["generic"] = section_list["generic"]
@@ -294,8 +304,10 @@ def new(request, type, update=None, submitter=None):
             send_mail(request, settings.IPR_EMAIL_TO, ('IPR Submitter App', 'ietf-ipr@ietf.org'), 'New IPR Submission Notification', "ipr/new_update_email.txt", {"ipr": instance, "update": update})
             return render("ipr/submitted.html", {"update": update}, context_instance=RequestContext(request))
         else:
-            if form.ietf_contact_is_submitter:
-                form.ietf_contact_is_submitter_checked = "checked"
+            if 'ietf_contact_is_submitter' in data:
+                form.ietf_contact_is_submitter_checked = True
+            if 'hold_contact_is_submitter' in data:
+                form.hold_contact_is_submitter_checked = True
 
             for error in form.errors:
                 log("Form error for field: %s: %s"%(error, form.errors[error]))
@@ -310,7 +322,7 @@ def new(request, type, update=None, submitter=None):
         form.unbound_form = True
 
     # ietf.utils.log(dir(form.ietf_contact_is_submitter))
-    return render("ipr/details.html", {"ipr": form, "section_list":section_list, "debug": debug}, context_instance=RequestContext(request))
+    return render("ipr/details_edit.html", {"ipr": form, "section_list":section_list, "debug": debug}, context_instance=RequestContext(request))
 
 def update(request, ipr_id=None):
     """Update a specific IPR disclosure"""
@@ -331,10 +343,13 @@ def update(request, ipr_id=None):
     if not(request.POST.has_key('legal_name')):
 	class UpdateForm(BaseContactForm):
 	    def __init__(self, *args, **kwargs):
-		self.base_fields["update_auth"] = forms.BooleanField("I am authorized to update this IPR disclosure, and I understand that notification of this update will be provided to the submitter of the original IPR disclosure and to the Patent Holder's Contact.")
-		super(UpdateForm, self).__init__(*args, **kwargs)
+                super(UpdateForm, self).__init__(*args, **kwargs)
+                self.fields["update_auth"] = forms.BooleanField()
+                
 	if request.method == 'POST':
 	    form = UpdateForm(request.POST)
+        elif '_testpost' in request.REQUEST:
+            form = UpdateForm(request.GET)
 	else:
 	    form = UpdateForm()
 

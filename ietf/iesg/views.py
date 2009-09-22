@@ -117,8 +117,8 @@ def agenda_docs(date, next_agenda):
         matches = IDInternal.objects.filter(telechat_date=date, primary_flag=1, agenda=1)
     else:
         matches = IDInternal.objects.filter(telechat_date=date, primary_flag=1)
-    idmatches = matches.filter(rfc_flag=0).order_by('ballot_id')
-    rfcmatches = matches.filter(rfc_flag=1).order_by('ballot_id')
+    idmatches = matches.filter(rfc_flag=0).order_by('ballot')
+    rfcmatches = matches.filter(rfc_flag=1).order_by('ballot')
     res = {}
     for id in list(idmatches)+list(rfcmatches):
         section_key = "s"+get_doc_section(id)
@@ -198,7 +198,7 @@ def discusses(request):
                     except RfcIndex.DoesNotExist:
                         # NOT QUITE RIGHT, although this should never happen
                         pass
-            if len(draft) > 0 and draft[0].draft.id_document_tag not in ids:
+            if len(draft) > 0 and not draft[0].rfc_flag and draft[0].draft.id_document_tag not in ids:
                 ids.add(draft[0].draft.id_document_tag)
                 doc = IdWrapper(draft=draft[0])
                 if doc.in_ietf_process() and doc.ietf_process.has_active_iesg_ballot():
@@ -212,8 +212,8 @@ def telechat_agenda_documents(request):
     telechats = []
     for date in dates:
         matches = IDInternal.objects.filter(telechat_date=date,primary_flag=1,agenda=1)
-        idmatches = matches.filter(rfc_flag=0).order_by('ballot_id')
-        rfcmatches = matches.filter(rfc_flag=1).order_by('ballot_id')
+        idmatches = matches.filter(rfc_flag=0).order_by('ballot')
+        rfcmatches = matches.filter(rfc_flag=1).order_by('ballot')
         res = {}
         for id in list(idmatches)+list(rfcmatches):
             section_key = "s"+get_doc_section(id)
@@ -228,3 +228,9 @@ def telechat_agenda_documents(request):
         telechats.append({'date':date, 'docs':res})
     return direct_to_template(request, 'iesg/agenda_documents.html', {'telechats':telechats})
                                                                                                         
+def telechat_agenda_scribe_template(request):
+    date = TelechatDates.objects.all()[0].date1
+    docs = agenda_docs(date, True)
+    return render_to_response('iesg/scribe_template.html', {'date':str(date), 'docs':docs}, context_instance=RequestContext(request) )
+    
+    

@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.conf import settings
 from ietf.proceedings.models import WgMeetingSession, Proceeding, MeetingTime, NonSession, IESGHistory, SessionConflict, Meeting, MeetingHours,MeetingVenue,Switches
 from ietf.idtracker.models import IRTF, IETFWG, WGSecretary, WGChair, SessionRequestActivities,IRTFChair
 from ietf.meeting.forms import MeetingSession
@@ -22,7 +23,9 @@ def show_html_materials(request, meeting_num=None):
     cut_off_date = proceeding.sub_cut_off_date
     cor_cut_off_date = proceeding.c_sub_cut_off_date
     now = datetime.date.today()
-    if now > cor_cut_off_date:
+    if settings.SERVER_MODE != 'production' and '_testoverride' in request.REQUEST:
+        pass
+    elif now > cor_cut_off_date:
         return render("meeting/list_closed.html",{'meeting_num':meeting_num,'begin_date':begin_date, 'cut_off_date':cut_off_date, 'cor_cut_off_date':cor_cut_off_date}, context_instance=RequestContext(request))
     sub_began = 0
     if now > begin_date:
@@ -47,7 +50,7 @@ def current_materials(request):
 
 def get_plenary_agenda(meeting_num, id):
     try:
-        plenary_agenda_file = "/a/www/ietf/proceedings/%s" % WgMeetingSession.objects.get(meeting=meeting_num,group_acronym_id=id).agenda_file()
+        plenary_agenda_file = settings.AGENDA_PATH + WgMeetingSession.objects.get(meeting=meeting_num,group_acronym_id=id).agenda_file()
         try:
             f = open(plenary_agenda_file)
             plenary_agenda = f.read()
@@ -58,35 +61,47 @@ def get_plenary_agenda(meeting_num, id):
     except WgMeetingSession.DoesNotExist:
         return "The Plenary has not been scheduled"
 
-def html_agenda(request, num=None):
+def agenda_info(num=None):
     if not num:
         num = list(Meeting.objects.all())[-1].meeting_num
-    timeslots = MeetingTime.objects.filter(meeting=num).order_by("day_id", "time_desc")
+    timeslots = MeetingTime.objects.select_related().filter(meeting=num).order_by("day_id", "time_desc")
     update = get_object_or_404(Switches,id=1)
     meeting=get_object_or_404(Meeting, meeting_num=num)
     venue = get_object_or_404(MeetingVenue, meeting_num=num)
-    ads = list(IESGHistory.objects.filter(meeting=num))
+    ads = list(IESGHistory.objects.select_related().filter(meeting=num))
     if not ads:
-        ads = list(IESGHistory.objects.filter(meeting=str(int(num)-1)))
+        ads = list(IESGHistory.objects.select_related().filter(meeting=str(int(num)-1)))
     ads.sort(key=(lambda item: item.area.area_acronym.acronym))
     plenaryw_agenda = get_plenary_agenda(num, -1)
     plenaryt_agenda = get_plenary_agenda(num, -2)
-    return render("meeting/agenda.html",
-        {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
-            "ops_plenary_agenda":plenaryw_agenda, "tech_plenary_agenda":plenaryt_agenda, },
-        RequestContext(request))
 
-def text_agenda(request, num):
-    timeslots = MeetingTime.objects.filter(meeting=num).order_by("day_id", "time_desc")
-    update = get_object_or_404(Switches,id=1)
-    meeting=get_object_or_404(Meeting, meeting_num=num)
-    venue = get_object_or_404(MeetingVenue, meeting_num=num)
-    ads = list(IESGHistory.objects.filter(meeting=num))
-    if not ads:
-        ads = list(IESGHistory.objects.filter(meeting=str(int(num)-1)))
-    ads.sort(key=(lambda item: item.area.area_acronym.acronym))
+    return timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
+    
+def html_agenda(request, num=None):
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+    if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
+        user_agent = "iPhone"
+    elif 'HTTP_USER_AGENT' in request.META:
+        user_agent = request.META["HTTP_USER_AGENT"]
+    else:
+        user_agent = ""
+    #print user_agent
+    if "iPhone" in user_agent:
+        template = "meeting/m_agenda.html"
+    else:
+        template = "meeting/agenda.html"
+    return render(template,
+            {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
+                "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },
+            RequestContext(request))
+
+def text_agenda(request, num=None):
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+    plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
+    plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
     return HttpResponse(render_to_string("meeting/agenda.txt",
-        {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads},
+        {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
+            "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },
         RequestContext(request)), mimetype="text/plain")
 
 def show_schedule(request):
@@ -234,3 +249,4 @@ def schedule_group(request, meeting_num=None, group_id=None):
         except ObjectDoesNotExist:
             meetingform = MeetingSession({'group_acronym_id': group.group_acronym_id, 'session_id': 'new'})
             return render("meeting/schedule_group.html", {'meeting_num': meeting_num, 'group': group, 'is_new': True, 'meetingform': meetingform, 'conflicts': conflicts, 'last_session': scheduling.last_group_session(meeting_num, group_id) }, context_instance=RequestContext(request) )
+

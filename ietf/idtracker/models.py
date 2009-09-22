@@ -1,5 +1,8 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+import os.path
+import datetime
+
 from django.conf import settings
 from django.db import models
 from ietf.utils import FKAsOneToOne
@@ -95,7 +98,7 @@ class Area(models.Model):
 	pass
 
 class AreaURL(models.Model):
-    area = models.ForeignKey(Area, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=1, null=True, related_name='urls')
+    area = models.ForeignKey(Area, edit_inline=models.STACKED, num_in_admin=1, null=True, related_name='urls')
     url = models.URLField(maxlength=255, db_column='url_value', core=True)
     url_label = models.CharField(maxlength=255, db_column='url_label')
     def __str__(self):
@@ -295,9 +298,15 @@ class PersonOrOrgInfo(models.Model):
         self.last_name_key = self.last_name.upper()
         super(PersonOrOrgInfo, self).save()
     def __str__(self):
+        # For django.VERSION 0.96
 	if self.first_name == '' and self.last_name == '':
 	    return self.affiliation()
         return "%s %s" % ( self.first_name or "<nofirst>", self.last_name or "<nolast>")
+    def __unicode__(self):
+        # For django.VERSION 1.x
+	if self.first_name == '' and self.last_name == '':
+	    return unicode(self.affiliation())
+        return u"%s %s" % ( self.first_name or u"<nofirst>", self.last_name or u"<nolast>")
     def email(self, priority=1, type='INET'):
 	name = str(self)
 	try:
@@ -464,6 +473,15 @@ class Rfc(models.Model):
 	    self._idinternal_cache = None
 	self._idinternal_cached = True
 	return self._idinternal_cache
+
+    # return set of RfcObsolete objects obsoleted or updated by this RFC
+    def obsoletes(self): 
+        return RfcObsolete.objects.filter(rfc=self.rfc_number)
+
+    # return set of RfcObsolete objects obsoleting or updating this RFC
+    def obsoleted_by(self): 
+        return RfcObsolete.objects.filter(rfc_acted_on=self.rfc_number)
+
     class Meta:
         db_table = 'rfcs'
 	verbose_name = 'RFC'
@@ -627,7 +645,12 @@ class IDInternal(models.Model):
     def comments(self):
 	# would filter by rfc_flag but the database is broken. (see
 	# trac ticket #96) so this risks collisions.
-	return self.documentcomment_set.all().order_by('-comment_date','-comment_time','-id')
+	# return self.documentcomment_set.all().order_by('-date','-time','-id')
+        #
+        # the obvious code above doesn't work with django.VERSION 1.0/1.1
+        # because "draft" isn't a true foreign key (when rfc_flag=1 the
+        # related InternetDraft object doesn't necessarily exist).
+        return DocumentComment.objects.filter(document=self.draft_id).order_by('-date','-time','-id')
     def ballot_set(self):
 	return IDInternal.objects.filter(ballot=self.ballot_id).order_by('-primary_flag')
     def ballot_primary(self):
@@ -906,6 +929,26 @@ class IETFWG(models.Model):
             return areas[areas.count()-1].area.areadirector_set.all()
         else:
             return None
+    def chairs(self): # return a set of WGChair objects for this work group
+        return WGChair.objects.filter(group_acronym__exact=self.group_acronym)
+    def secretaries(self): # return a set of WGSecretary objects for this group
+        return WGSecretary.objects.filter(group_acronym__exact=self.group_acronym)
+    def milestones(self): # return a set of GoalMilestone objects for this group
+        return GoalMilestone.objects.filter(group_acronym__exact=self.group_acronym)
+    def rfcs(self): # return a set of Rfc objects for this group
+        return Rfc.objects.filter(group_acronym__exact=self.group_acronym)
+    def drafts(self): # return a set of Rfc objects for this group
+        return InternetDraft.objects.filter(group__exact=self.group_acronym)
+    def charter_text(self): # return string containing WG description read from file
+        # get file path from settings. Syntesize file name from path, acronym, and suffix
+        try:
+            filename = os.path.join(settings.IETFWG_DESCRIPTIONS_PATH, self.group_acronym.acronym) + ".desc.txt"
+            desc_file = open(filename)
+            desc = desc_file.read()
+        except BaseException:    
+            desc =  'Error Loading Work Group Description'
+        return desc
+                  
     class Meta:
         db_table = 'groups_ietf'
 	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it

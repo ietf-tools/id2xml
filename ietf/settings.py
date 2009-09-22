@@ -20,6 +20,7 @@ IETF_DOMAIN = 'ietf.org'
 ADMINS = (
     ('IETF Django Developers', 'django-project@' + IETF_DOMAIN),
     ('GMail Tracker Archive', 'ietf.tracker.archive+errors@gmail.com'),
+    ('Henrik Levkowetz', 'henrik@levkowetz.com'),
 )
 
 # Server name of the tools server
@@ -96,6 +97,7 @@ MIDDLEWARE_CLASSES = (
     'ietf.middleware.SMTPExceptionMiddleware',
     'ietf.middleware.RedirectTrailingPeriod',
     'django.middleware.transaction.TransactionMiddleware',
+#    'django.middleware.cache.CacheMiddleware',
 )
 
 ROOT_URLCONF = 'ietf.urls'
@@ -124,7 +126,6 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.humanize',
-    'ietf.agenda',
     'ietf.announcements',
     'ietf.idindex',
     'ietf.idsubmit',
@@ -134,6 +135,7 @@ INSTALLED_APPS = (
     'ietf.ipr',
     'ietf.liaisons',
     'ietf.mailinglists',
+    'ietf.meeting',
     'ietf.my',
     'ietf.proceedings',
     'ietf.redirects',
@@ -162,13 +164,23 @@ TEST_RUNNER = 'ietf.tests.run_tests'
 
 TEST_REFERENCE_URL_PREFIX = os.environ.get("IETFDB_REF_PREFIX","") or 'https://datatracker.ietf.org/'
 
-IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR'
-
 # Override this in settings_local.py if needed
+# *_PATH variables ends with a slash/ .
 INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
 RFC_PATH = '/a/www/ietf-ftp/rfc/'
+AGENDA_PATH = '/a/www/www6s/proceedings/'
+IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR/'
+# Path to Work Group Description Text Files
+IETFWG_DESCRIPTIONS_PATH = '/a/www/www6s/wg-descriptions/'
+
+# External page top and bottom, which gives a html page the current menubar
+# and footer used in the current web-page design
+EXTERNAL_PAGE_TOP = '/a/www/www6s/scripts/templates/top-page'
+EXTERNAL_PAGE_BOT = '/a/www/www6s/scripts/templates/bottom-page'
 
 # Override this in settings_local.py if needed
+CACHE_MIDDLEWARE_SECONDS = 300
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
 if SERVER_MODE == 'production':
     CACHE_BACKEND= 'file://'+'/a/www/ietf-datatracker/cache/'
 else:
@@ -187,3 +199,4 @@ YUI_URL = "https://ajax.googleapis.com/ajax/libs/yui"
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *
+

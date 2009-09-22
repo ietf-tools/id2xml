@@ -1,6 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 import textwrap
+import django
 from django import template
 from django.utils.html import escape, fix_ampersands, linebreaks
 from django.template.defaultfilters import linebreaksbr
@@ -20,6 +21,14 @@ def expand_comma(value):
     Adds a space after each comma, to allow word-wrapping of
     long comma-separated lists."""
     return value.replace(",", ", ")
+
+@register.filter(name='format_charter')
+def format_charter(value):
+    return value.replace("\n\n", "</p><p>").replace("\n","<br/>\n")
+
+@register.filter(name='indent')
+def indent(value):
+    return value.replace("\n", "\n  ");
 
 @register.filter(name='parse_email_list')
 def parse_email_list(value):
@@ -199,6 +208,15 @@ def rfcnospace(string):
     else:
         return string
 
+@register.filter(name='rfcurl')
+def rfclink(string):
+    """
+    This takes just the RFC number, and turns it into the
+    URL for that RFC.
+    """
+    string = str(string);
+    return "http://tools.ietf.org/html/rfc" + string;
+
 @register.filter(name='dashify')
 def dashify(string):
     """
@@ -260,6 +278,14 @@ def truncatemore(text, arg):
         words.append(format % link)
     return ' '.join(words)
 
+@register.filter(name='trunc')
+def trunc(text, arg):
+    num = int(arg)
+    if len(text) > num:
+        return text[:num-1]+"&hellip;"
+    else:
+        return text
+    
 @register.filter(name="wrap_long_lines")
 def wrap_long_lines(text):
     """Wraps long lines without loosing the formatting and indentation
@@ -302,6 +328,12 @@ def equal(x, y):
 @register.filter
 def in_group(user, groups):
     return user and user.is_authenticated() and bool(user.groups.filter(name__in=groups.split(',')).values('name'))
+
+# DJANGO_096: a dummy safe filter for Django 0.96
+if django.VERSION[0] == 0:
+    @register.filter
+    def safe(x):
+        return x
 
 def _test():
     import doctest

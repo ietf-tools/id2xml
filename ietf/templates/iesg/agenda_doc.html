@@ -1,4 +1,4 @@
-{# 
+{% comment %} 
 Copyright (C) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
 
@@ -30,10 +30,11 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#}
-{#
+{% endcomment %}
+{% comment %}
 Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
-#}
+{% endcomment %}
+{% load ietf_filters %}
 
 {% if forloop.first %}
 <table><tr><th>Area</th><th>Date</th></tr>
@@ -52,7 +53,7 @@ Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
 <a href="{{ doc.obj.document.doclink }}">{{doc.obj.document.filename}}</a>
 <a href="http://tools.ietf.org/rfc/{{ doc.obj.document.filename }}">[txt]</a>
 {% else %}
-<a href="{{ doc.obj.document.doclink_current }}">{{doc.obj.document.displayname_current}}</a>
+<a href="{{ doc.obj.document.doclink_current }}">{{doc.obj.document.displayname_current|safe}}</a>
 <!--       <a href="http://www.ietf.org/internet-draft/{{ doc.obj.document.filename }}-{{ doc.obj.document.revision }}.txt">[txt]</a> -->
 <a href="http://tools.ietf.org/id/{{ doc.obj.document.filename }}-{{ doc.obj.document.revision }}.txt">[txt]</a>
 {% endif %}
@@ -76,7 +77,7 @@ Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
    <ul>
    {% for ipr in doc.obj.draft.ipr.all %}
       {% ifequal ipr.ipr.status 1 %}
-      <li><a href="/ipr/{{ ipr.ipr.ipr_id }}/">{{ ipr.ipr.title }}</a></li>
+      <li><a href="/ipr/{{ ipr.ipr.ipr_id }}/">{{ ipr.ipr.title|escape }}</a></li>
       {% endifequal %}
    {% endfor %}
    </ul>

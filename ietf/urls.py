@@ -1,8 +1,9 @@
 # Copyright The IETF Trust 2007, 2009, All Rights Reserved
 
+import django
 from django.conf.urls.defaults import patterns, include, handler404, handler500
 
-from ietf.iesg.feeds import IESGMinutes, IESGAgenda
+from ietf.iesg.feeds import IESGAgenda
 from ietf.idtracker.feeds import DocumentComments, InLastCall
 from ietf.ipr.feeds import LatestIprDisclosures
 from ietf.proceedings.feeds import LatestWgProceedingsActivity
@@ -11,13 +12,11 @@ from ietf.liaisons.feeds import Liaisons
 from ietf.idtracker.sitemaps import IDTrackerMap, DraftMap
 from ietf.liaisons.sitemaps import LiaisonMap
 from ietf.ipr.sitemaps import IPRMap
-from ietf.iesg.sitemaps import IESGMinutesMap
 from ietf.announcements.sitemaps import NOMCOMAnnouncementsMap
 
 from django.conf import settings
 
 feeds = {
-    'iesg-minutes': IESGMinutes,
     'iesg-agenda': IESGAgenda,
     'last-call': InLastCall,
     'comments': DocumentComments,
@@ -31,7 +30,6 @@ sitemaps = {
     'drafts': DraftMap,
     'liaison': LiaisonMap,
     'ipr': IPRMap,
-    'iesg-minutes': IESGMinutesMap,
     'nomcom-announcements': NOMCOMAnnouncementsMap,
 }
 
@@ -59,14 +57,11 @@ urlpatterns = patterns('',
 
       (r'^$', 'ietf.redirects.views.redirect'),
 
-    # Uncomment this for admin:
-     (r'^admin/', include('django.contrib.admin.urls')),
-
      # Uncomment this for review pages:
-     (r'^review/$', 'ietf.utils.views.review'),
-     (r'^review/all/$', 'ietf.utils.views.all'),
-     (r'^review/(?P<page>[0-9a-f]+)/$', 'ietf.utils.views.review'),
-     (r'^review/top/(?P<page>[0-9a-f]+)/$', 'ietf.utils.views.top'),
+     #(r'^review/$', 'ietf.utils.views.review'),
+     #(r'^review/all/$', 'ietf.utils.views.all'),
+     #(r'^review/(?P<page>[0-9a-f]+)/$', 'ietf.utils.views.review'),
+     #(r'^review/top/(?P<page>[0-9a-f]+)/$', 'ietf.utils.views.top'),
 
      # Google webmaster tools verification url
      (r'^googlea30ad1dacffb5e5b.html', 'django.views.generic.simple.direct_to_template', { 'template': 'googlea30ad1dacffb5e5b.html' }),
@@ -81,6 +76,12 @@ urlpatterns = patterns('',
      # /account/.
      (r'^accounts/(?P<dir>\w+)/', 'django.views.generic.simple.redirect_to', { 'url': '/account/%(dir)s/' }),
 )
+
+# New admin site works differently, and needs work                       
+if django.VERSION[0] == 0:
+    urlpatterns += patterns('',
+        (r'^admin/', include('django.contrib.admin.urls')),
+        )
 
 if settings.SERVER_MODE in ('development', 'test'):
     urlpatterns += patterns('',

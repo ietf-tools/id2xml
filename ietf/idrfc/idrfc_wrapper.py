@@ -35,6 +35,7 @@ from ietf.idrfc.models import RfcIndex, RfcEditorQueue, DraftVersions
 import re
 from datetime import date, timedelta
 from django.utils import simplejson
+from django.db.models import Q
 import types
 
 BALLOT_ACTIVE_STATES = ['In Last Call',
@@ -52,7 +53,7 @@ def jsonify_helper(obj, keys):
                 v = v()
             if v == None:
                 pass
-            elif isinstance(v, (types.StringType, types.IntType, types.BooleanType, types.LongType, types.ListType)):
+            elif isinstance(v, (types.StringType, types.IntType, types.BooleanType, types.LongType, types.ListType, types.UnicodeType)):
                 result[k] = v
             elif isinstance(v, date):
                 result[k] = str(v)
@@ -170,8 +171,13 @@ class IdWrapper:
             else:
                 return "Replaced"
         elif self.draft_status == "Active":
-            if self.in_ietf_process() and self.ietf_process.main_state != "Dead":
-                if self.ietf_process.main_state == "In Last Call":
+            if self.in_ietf_process():
+                if self.ietf_process.main_state == "Dead":
+                    # Many drafts in "Dead" state are not dead; they're
+                    # just not currently under IESG processing. Show
+                    # them as "I-D Exists (IESG: Dead)" instead...
+                    return "I-D Exists (IESG: "+self.ietf_process.state+")"
+                elif self.ietf_process.main_state == "In Last Call":
                     return self.ietf_process.state + " (ends "+str(self._idinternal.document().lc_expiration_date)+")"
                 else:
                     return self.ietf_process.state
@@ -278,7 +284,7 @@ class RfcWrapper:
         if self.in_ietf_process():
             s = self.ietf_process.main_state
             if not s in ["RFC Published", "AD is watching", "Dead"]:
-                return "RFC %d (%s)<br/>%s (to %s)" % (self.rfc_number, self.maturity_level, s, self.ietf_process.intended_maturity_level())
+                return "RFC %d (%s)<br/>%s (to %s)" % (self.rfc_number, self.maturity_level, self.ietf_process.state, self.ietf_process.intended_maturity_level())
         return "RFC %d (%s)" % (self.rfc_number, self.maturity_level)
 
     def ad_name(self):
@@ -301,7 +307,6 @@ class IetfProcessData:
     main_state = None
     sub_state = None
     state = None
-    state_date = None
     _ballot = None
     def __init__(self, idinternal):
         self._idinternal = idinternal
@@ -313,7 +318,6 @@ class IetfProcessData:
         else:
             self.sub_state = None
             self.state = self.main_state
-        self.state_date = i.event_date
     
     def has_iesg_ballot(self):
         try:
@@ -359,11 +363,22 @@ class IetfProcessData:
         else:
             return None
 
+    def state_date(self):
+        try:
+            return self._idinternal.comments().filter(
+                Q(comment_text__istartswith="Draft Added by ")|
+                Q(comment_text__istartswith="State Changes to ")|
+                Q(comment_text__istartswith="Sub state has been changed to ")|
+                Q(comment_text__istartswith="State has been changed to ")).order_by('-id')[0].date
+        except IndexError:
+            # should never happen -- return an obviously bogus date
+            return date(1990,1,1)
+
     def to_json_helper(self):
         result = {'main_state':self.main_state,
                   'sub_state':self.sub_state,
                   'state':self.state,
-                  'state_date':str(self.state_date),
+                  'state_date':str(self.state_date()),
                   'has_iesg_ballot':self.has_iesg_ballot(),
                   'has_active_iesg_ballot':self.has_active_iesg_ballot(),
                   'ad_name':self.ad_name(),

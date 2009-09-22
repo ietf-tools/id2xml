@@ -13,32 +13,40 @@ import datetime
 #    an interim attribute first)
 class ResolveAcronym(object):
     def acronym(self):
+        if hasattr(self, '_acronym_acronym'):
+            return self._acronym_acronym
 	try:
 	    interim = self.interim
 	except AttributeError:
 	    interim = False
 	if self.irtf:
-	    acronym = IRTF.objects.get(pk=self.group_acronym_id).acronym
+	    o = IRTF.objects.get(pk=self.group_acronym_id)
 	else:
-	    acronym = Acronym.objects.get(pk=self.group_acronym_id).acronym
+            o = Acronym.objects.get(pk=self.group_acronym_id)
+        self._acronym_acronym = o.acronym
+        self._acronym_name = o.name
+        acronym = self._acronym_acronym
 	if interim:
 	    return "i" + acronym
-	return acronym
+        else:
+            return acronym
     def acronym_lower(self):
         return self.acronym().lower()
     def acronym_name(self):
+        if not hasattr(self, '_acronym_name'):
+            self.acronym()
         try:
             interim = self.interim
         except AttributeError:
             interim = False
-        if self.irtf:
-            acronym_name = IRTF.objects.get(pk=self.group_acronym_id).name
-        else:
-            acronym_name = Acronym.objects.get(pk=self.group_acronym_id).name
+        acronym_name = self._acronym_name
         if interim:
             return acronym_name + " (interim)"
-        return acronym_name
+        else:
+            return acronym_name
     def area(self):
+        if hasattr(self, '_area'):
+            return self._area
         if self.irtf:
             area = "irtf"
         elif self.group_acronym_id < 0  and self.group_acronym_id > -3:
@@ -47,9 +55,10 @@ class ResolveAcronym(object):
             area = ""
         else:
             try:
-                area = AreaGroup.objects.get(group=self.group_acronym_id).area.area_acronym.acronym
+                area = AreaGroup.objects.select_related().get(group=self.group_acronym_id).area.area_acronym.acronym
             except AreaGroup.DoesNotExist:
                 area = ""
+        self._area = area
         return area
     def area_name(self):
         if self.irtf:
@@ -67,29 +76,55 @@ class ResolveAcronym(object):
     def isWG(self):
         if self.irtf:
               return False
-        else:
+        if not hasattr(self,'_ietfwg'):
             try:
-                g_type_id = IETFWG.objects.get(pk=self.group_acronym_id).group_type_id == 1
-                if g_type_id == 1:
-                    return True
-                else:
-                    return False
+                self._ietfwg = IETFWG.objects.get(pk=self.group_acronym_id)
             except IETFWG.DoesNotExist:
-                return False
+                self._ietfwg = None
+        if self._ietfwg and self._ietfwg.group_type_id == 1:
+            return True
+        else:
+            return False
     def group_type_str(self):
         if self.irtf:
-              return ""
+            return ""
         else:
-            try:
-                g_type_id = IETFWG.objects.get(pk=self.group_acronym_id).group_type_id 
-                if g_type_id == 1:
-                    return "WG"
-                elif g_type_id == 3:
-                    return "BOF"
-                else:
-                    return ""
-            except IETFWG.DoesNotExist:
+            self.isWG()
+            if not self._ietfwg:
                 return ""
+            elif self._ietfwg.group_type_id == 1:
+                return "WG"
+            elif self._ietfwg.group_type_id == 3:
+                return "BOF"
+            else:
+                return ""
+
+TIME_ZONE_CHOICES = (
+    (0, 'UTC'),
+    (-1, 'UTC -1'),
+    (-2, 'UTC -2'),
+    (-3, 'UTC -3'),
+    (-4, 'UTC -4 (Eastern Summer)'),
+    (-5, 'UTC -5 (Eastern Winter)'),
+    (-6, 'UTC -6'),
+    (-7, 'UTC -7'),
+    (-8, 'UTC -8 (Pacific Winter)'),
+    (-9, 'UTC -9'),
+    (-10, 'UTC -10 (Hawaii Winter)'),
+    (-11, 'UTC -11'),
+    (+12, 'UTC +12'),
+    (+11, 'UTC +11'),
+    (+10, 'UTC +10 (Brisbane)'),
+    (+9, 'UTC +9'),
+    (+8, 'UTC +8 (Perth Winter)'),
+    (+7, 'UTC +7'),
+    (+6, 'UTC +6'),
+    (+5, 'UTC +5'),
+    (+4, 'UTC +4'),
+    (+3, 'UTC +3 (Moscow Winter)'),
+    (+2, 'UTC +2 (Western Europe Summer'),
+    (+1, 'UTC +1 (Western Europe Winter)'),
+)
 
 class Meeting(models.Model):
     meeting_num = models.IntegerField(primary_key=True)
@@ -98,6 +133,7 @@ class Meeting(models.Model):
     city = models.CharField(blank=True, maxlength=255)
     state = models.CharField(blank=True, maxlength=255)
     country = models.CharField(blank=True, maxlength=255)
+    time_zone = models.IntegerField(null=True, blank=True, choices=TIME_ZONE_CHOICES)
     ack = models.TextField(blank=True)
     agenda_html = models.TextField(blank=True)
     agenda_text = models.TextField(blank=True)
@@ -105,7 +141,7 @@ class Meeting(models.Model):
     overview1 = models.TextField(blank=True)
     overview2 = models.TextField(blank=True)
     def __str__(self):
-	return "IETF %d" % (self.meeting_num)
+	return "IETF %s" % (self.meeting_num)
     def get_meeting_date (self,offset):
         return self.start_date + datetime.timedelta(days=offset) 
     def num(self):
@@ -113,6 +149,7 @@ class Meeting(models.Model):
     class Meta:
         db_table = 'meetings'
     class Admin:
+        list_display= ('meeting_num', 'start_date', 'city', 'state', 'country', 'time_zone')
 	pass
 
 class MeetingVenue(models.Model):
@@ -120,7 +157,7 @@ class MeetingVenue(models.Model):
     break_area_name = models.CharField(maxlength=255)
     reg_area_name = models.CharField(maxlength=255)
     def __str__(self):
-	return "IETF %d" % (self.meeting_num_id)
+	return "IETF %s" % (self.meeting_num_id)
     class Meta:
         db_table = 'meeting_venues'
     class Admin:
@@ -144,11 +181,13 @@ class NonSession(models.Model):
     show_break_location = models.BooleanField()
     def __str__(self):
 	if self.day_id:
-	    return "%s %s %s @%d" % ((self.meeting.start_date + datetime.timedelta(self.day_id)).strftime('%A'), self.time_desc, self.non_session_ref, self.meeting_id)
+	    return "%s %s %s @%s" % ((self.meeting.start_date + datetime.timedelta(self.day_id)).strftime('%A'), self.time_desc, self.non_session_ref, self.meeting_id)
 	else:
-	    return "** %s %s @%d" % (self.time_desc, self.non_session_ref, self.meeting_id)
+	    return "** %s %s @%s" % (self.time_desc, self.non_session_ref, self.meeting_id)
     class Meta:
 	db_table = 'non_session'
+    class Admin:
+        pass
 
 class SessionStatus(models.Model):
     status_id = models.IntegerField(primary_key=True)
@@ -166,7 +205,7 @@ class Proceeding(models.Model):
     pr_from_date = models.DateField(null=True, blank=True)
     pr_to_date = models.DateField(null=True, blank=True)
     def __str__(self):
-	return "IETF %d" % (self.meeting_num_id)
+	return "IETF %s" % (self.meeting_num_id)
     class Meta:
         db_table = 'proceedings'
 	ordering = ['?']	# workaround for FK primary key
@@ -178,7 +217,7 @@ class SessionConflict(models.Model):
     conflict_gid = models.ForeignKey(Acronym, raw_id_admin=True, related_name='conflicts_with_set', db_column='conflict_gid')
     meeting_num = models.ForeignKey(Meeting, db_column='meeting_num')
     def __str__(self):
-	return "At IETF %d, %s conflicts with %s" % ( self.meeting_num_id, self.group_acronym.acronym, self.conflict_gid.acronym)
+	return "At IETF %s, %s conflicts with %s" % ( self.meeting_num_id, self.group_acronym.acronym, self.conflict_gid.acronym)
     class Meta:
         db_table = 'session_conflicts'
     class Admin:
@@ -209,7 +248,7 @@ class MeetingTime(models.Model):
     time_desc = models.CharField(maxlength=100)
     meeting = models.ForeignKey(Meeting, db_column='meeting_num', unique=True)
     day_id = models.IntegerField()
-    session_name = models.ForeignKey(SessionName)
+    session_name = models.ForeignKey(SessionName,null=True)
     def __str__(self):
 	return "[%d] |%s| %s" % (self.meeting_id, (self.meeting.start_date + datetime.timedelta(self.day_id)).strftime('%A'), self.time_desc)
     def sessions(self):
@@ -241,8 +280,11 @@ class MeetingTime(models.Model):
     def meeting_date(self):
         return self.meeting.get_meeting_date(self.day_id)
     def registration(self):
+        if hasattr(self, '_reg_info'):
+            return self._reg_info
         reg = NonSession.objects.get(meeting=self.meeting, day_id=self.day_id, non_session_ref=1)
         reg.name = reg.non_session_ref.name
+        self._reg_info = reg
 	return reg
     def reg_info(self):
 	reg_info = self.registration()
@@ -324,6 +366,8 @@ class WgMeetingSession(models.Model, ResolveAcronym):
     def __str__(self):
 	return "%s at %s" % (self.acronym(), self.meeting)
     def agenda_file(self,interimvar=0):
+        if hasattr(self, '_agenda_file'):
+            return self._agenda_file
         irtfvar = 0
         if self.irtf:
             irtfvar = self.group_acronym_id 
@@ -335,10 +379,15 @@ class WgMeetingSession(models.Model, ResolveAcronym):
                     interimvar = 0
         try:
             filename = WgAgenda.objects.get(meeting=self.meeting, group_acronym_id=self.group_acronym_id,irtf=irtfvar,interim=interimvar).filename
-            dir = Proceeding.objects.get(meeting_num=self.meeting).dir_name
+            if self.meeting_id in WgMeetingSession._dirs:
+                dir = WgMeetingSession._dirs[self.meeting_id]
+            else:
+                dir = Proceeding.objects.get(meeting_num=self.meeting).dir_name
+                WgMeetingSession._dirs[self.meeting_id]=dir
             retvar = "%s/agenda/%s" % (dir,filename) 
         except WgAgenda.DoesNotExist:
             retvar = ""
+        self._agenda_file = retvar
         return retvar
     def minute_file(self,interimvar=0):
         irtfvar = 0
@@ -385,6 +434,7 @@ class WgMeetingSession(models.Model, ResolveAcronym):
         db_table = 'wg_meeting_sessions'
     class Admin:
 	pass
+    _dirs = {}
 
 class WgAgenda(models.Model, ResolveAcronym):
     meeting = models.ForeignKey(Meeting, db_column='meeting_num')
@@ -393,7 +443,7 @@ class WgAgenda(models.Model, ResolveAcronym):
     irtf = models.BooleanField()
     interim = models.BooleanField()
     def __str__(self):
-	return "Agenda for %s at IETF %d" % (self.acronym(), self.meeting_id)
+	return "Agenda for %s at IETF %s" % (self.acronym(), self.meeting_id)
     class Meta:
         db_table = 'wg_agenda'
     class Admin:
@@ -406,7 +456,7 @@ class Minute(models.Model, ResolveAcronym):
     irtf = models.BooleanField()
     interim = models.BooleanField()
     def __str__(self):
-	return "Minutes for %s at IETF %d" % (self.acronym(), self.meeting_id)
+	return "Minutes for %s at IETF %s" % (self.acronym(), self.meeting_id)
     class Meta:
         db_table = 'minutes'
     class Admin:
@@ -462,7 +512,7 @@ class Slide(models.Model, ResolveAcronym):
     def file_loc(self):
         dir = Proceeding.objects.get(meeting_num=self.meeting).dir_name
         if self.slide_type_id==1:
-            return "%s/slides/%s-%s/sld1.htm" % (dir,self.acronym(),self.slide_num)
+            #return "%s/slides/%s-%s/sld1.htm" % (dir,self.acronym(),self.slide_num)
             return "%s/slides/%s-%s/%s-%s.htm" % (dir,self.acronym(),self.slide_num,self.acronym(),self.slide_num)
         else:
             if self.slide_type_id == 2:
@@ -483,7 +533,7 @@ class Slide(models.Model, ResolveAcronym):
 
 class WgProceedingsActivities(models.Model, ResolveAcronym):
     id = models.AutoField(primary_key=True)
-    group_acronym_id = models.IntegerField(null=True, blank=True)
+    #group_acronym_id = models.IntegerField(null=True, blank=True)
     group_acronym = models.ForeignKey(Acronym, raw_id_admin=True)
 
     meeting = models.ForeignKey(Meeting, db_column='meeting_num')

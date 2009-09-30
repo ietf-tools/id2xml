@@ -1,0 +1,46 @@
+
+ * A lot of different tables having to do with various kinds of documents
+   have been unified in one Document class, which will record the details of
+   almost any ietf documents, including Drafts/RFCs, Charters, Agendas, etc.,
+   and probably also IPR Statements and Liaison statements.  Documents are now
+   any text which is reasonably standalone and for which versioning makes
+   sense.
+
+ * Several separate tables having to do with groups (Areas, WGs, RGs, etc.)
+   have been unified in one Group class, which has provisions for hierarchies,
+   so will model Area -> WG (even -> Design Team, if desired) better than the
+   current mass of tables.
+
+ * A lot of date and date/time fields in the current tables have been
+   replaced with ond history table for Document and one for Group,
+   respectively.  This will provide equivalent data without a lot of date/time
+   specific fields in the base table, and also a much more comprehensive
+   history for both Documents and Groups.
+
+ * A Message class will replace a whole bunch of different message-like
+   objects or tables in the current database.  In particular, all of the
+   following will be replaced with the Message table/object: announcements,
+   iesg-comments, ballot-positions.
+
+ * Tables matching the Trac tables whose' functionality overlaps the current
+   datatracker functionality has been included, to make it possible to
+   integrate Trac support for document issue tracking with other datatracker
+   functionality.
+
+ * Ballots are represented as a collection of messages which map against the
+   various steps a ballot may go through.  Ballot positions for a ballot is
+   registered as Messages related to the document in question, with dates
+   between the initiation time and closing time of the ballot.
+
+ * What's not covered so far is IPR disclosures, Meetings, and Liaison
+   statements.  IPR disclosures and Liaison statements will most likely also
+   be just documents, but the work is not done to review and integrate these.
+   Meetings will need a separate set of tables to be designed.  Henrik will
+   make a proposal which will be the starting point for discussions with Glen
+   about this part of the desing.
+
+ * Tables in the redesign: 16 major, 7 auxiliary (which provide names for
+   states etc.)  Replaced old tables: 43
+
+ * There remains 39 tables which are related to IPR, Liaison and Meetings.
+   These still have to be considered and integrated as indicated above.

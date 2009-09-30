@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./manage.py validate && ./manage.py sql doc names person group > tables.sql
+./graph-models --exclude=DocType,DocState,StdStatus,MsgType,RoleName,GroupState,GroupType > models.png

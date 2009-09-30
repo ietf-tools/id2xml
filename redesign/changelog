@@ -1,0 +1,22 @@
+ietfdb (3.00.01)
+
+  * First public draft for comments.  Does not cover ballots, 
+    IPR, meetings, announcements or liaisons.
+
+  * _A lot_ of various special-purpose tables has been
+    eliminated, and replaced by document-history and group-history
+    tables.  The same is true for a lot of date/time fields in old
+    tables.
+
+  * This version replaces 35 tables in the previous version with
+    9 main tables, plus 7 auxiliary tables which provide names for
+    states etc. (DocState, DocType, GroupState, ...)
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  06 Nov 2008 17:20:49
+
+ietfdb (3.00.00)
+
+  * First version, produced during the stay in Fremont, June 2008
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  27 Jun 2008
+

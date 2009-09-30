@@ -1,0 +1,982 @@
+# -*- python-mode -*-
+
+# # email is not used; the announced_from text is Foo Bar <foo@bar.com>
+# class AnnouncedFrom(models.Model):
+#     announced_from_id = models.AutoField(primary_key=True)
+#     announced_from = models.CharField(blank=True, maxlength=255, db_column='announced_from_value')
+#     email = models.CharField(blank=True, maxlength=255, db_column='announced_from_email', editable=False)
+#     permission = models.ManyToManyField(Permission, limit_choices_to={'codename__endswith':'announcedfromperm'}, filter_interface=models.VERTICAL, verbose_name='Permission Required', blank=True)
+
+# class AnnouncedTo(models.Model):
+#     announced_to_id = models.AutoField(primary_key=True)
+#     announced_to = models.CharField(blank=True, maxlength=255, db_column='announced_to_value')
+#     email = models.CharField(blank=True, maxlength=255, db_column='announced_to_email')
+
+# class Announcement(models.Model):
+#     announcement_id = models.AutoField(primary_key=True)
+#     announced_by = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True, db_column='announced_by')
+#     announced_date = models.DateField(null=True, blank=True)
+#     announced_time = models.CharField(blank=True, maxlength=20)
+#     text = models.TextField(blank=True, db_column='announcement_text')
+#     announced_from = models.ForeignKey(AnnouncedFrom)
+#     cc = models.CharField(blank=True, maxlength=255)
+#     subject = models.CharField(blank=True, maxlength=255)
+#     extra = models.TextField(blank=True)
+#     announced_to = models.ForeignKey(AnnouncedTo)
+#     nomcom = models.BooleanField()
+#     nomcom_chair = models.ForeignKey(ChairsHistory, null=True, blank=True)
+#     manually_added = models.BooleanField(db_column='manualy_added')
+#     other_val = models.CharField(blank=True, maxlength=255)
+
+# class ScheduledAnnouncement(models.Model):
+#     mail_sent = models.BooleanField()
+#     to_be_sent_date = models.DateField(null=True, blank=True)
+#     to_be_sent_time = models.CharField(blank=True, maxlength=50)
+#     scheduled_by = models.CharField(blank=True, maxlength=100)
+#     scheduled_date = models.DateField(null=True, blank=True)
+#     scheduled_time = models.CharField(blank=True, maxlength=50)
+#     subject = models.CharField(blank=True, maxlength=255)
+#     to_val = models.CharField(blank=True, maxlength=255)
+#     from_val = models.CharField(blank=True, maxlength=255)
+#     cc_val = models.TextField(blank=True)
+#     body = models.TextField(blank=True)
+#     actual_sent_date = models.DateField(null=True, blank=True)
+#     actual_sent_time = models.CharField(blank=True, maxlength=50)
+#     first_q = models.IntegerField(null=True, blank=True)
+#     second_q = models.IntegerField(null=True, blank=True)
+#     note = models.TextField(blank=True)
+#     content_type = models.CharField(blank=True, maxlength=255)
+#     replyto = models.CharField(blank=True, maxlength=255)
+#     bcc_val = models.CharField(blank=True, maxlength=255)
+
+# alphabet = [chr(65 + i) for i in range(0, 26)]
+# orgs_dict = {
+# 	'iab': { 'name': 'IAB' },
+# 	'iana': { 'name': 'IANA' },
+# 	'iasa': { 'name': 'IASA' },
+# 	'iesg': { 'name': 'IESG' },
+# 	'irtf': { 'name': 'IRTF' },
+# 	'proto': { 'name': 'PROTO' },
+# 	'rfc-editor': { 'name': 'RFC Editor', 'prefixes': [ 'rfc-editor', 'rfced' ] },
+# 	'tools': { 'name': 'Tools' },
+# }
+# orgs_keys = orgs_dict.keys()
+# for o in orgs_keys:
+#     orgs_dict[o]['key'] = o
+# orgs_keys.sort()
+# orgs = [orgs_dict[o] for o in orgs_keys]
+
+# class Acronym(models.Model):
+#     acronym_id = models.AutoField(primary_key=True)
+#     acronym = models.CharField(maxlength=12)
+#     name = models.CharField(maxlength=100)
+#     name_key = models.CharField(maxlength=50, editable=False)
+# 
+
+class AreaStatus(models.Model):
+    status_id = models.AutoField(primary_key=True)
+    status = models.CharField(maxlength=25, db_column='status_value')
+
+# I think equiv_group_flag is historical.
+# class IDState(models.Model):
+#     document_state_id = models.AutoField(primary_key=True)
+#     state = models.CharField(maxlength=50, db_column='document_state_val')
+#     equiv_group_flag = models.IntegerField(null=True, blank=True)
+#     description = models.TextField(blank=True, db_column='document_desc')
+
+class IDNextState(models.Model):
+    cur_state = models.ForeignKey(IDState, related_name='nextstate')
+    next_state = models.ForeignKey(IDState, related_name='prevstate', core=True)
+    condition = models.CharField(blank=True, maxlength=255)
+
+# class IDSubState(models.Model):
+#     sub_state_id = models.AutoField(primary_key=True)
+#     sub_state = models.CharField(maxlength=55, db_column='sub_state_val')
+#     description = models.TextField(blank=True, db_column='sub_state_desc')
+
+# class Area(models.Model):
+#     ACTIVE=1
+#     area_acronym = models.ForeignKey(Acronym, primary_key=True, unique=True)
+#     start_date = models.DateField(auto_now_add=True)
+#     concluded_date = models.DateField(null=True, blank=True)
+#     status = models.ForeignKey(AreaStatus)
+#     comments = models.TextField(blank=True)
+#     last_modified_date = models.DateField(auto_now=True)
+#     extra_email_addresses = models.TextField(blank=True)
+
+# class IDStatus(models.Model):
+#     status_id = models.AutoField(primary_key=True)
+#     status = models.CharField(maxlength=25, db_column='status_value')
+
+# class IDIntendedStatus(models.Model):
+#     intended_status_id = models.AutoField(primary_key=True)
+#     intended_status = models.CharField(maxlength=25, db_column='status_value')
+
+# class InternetDraft(models.Model):
+#     id_document_tag = models.AutoField(primary_key=True)
+#     title = models.CharField(maxlength=255, db_column='id_document_name')
+#     id_document_key = models.CharField(maxlength=255, editable=False)
+#     group = models.ForeignKey(Acronym, db_column='group_acronym_id')
+#     filename = models.CharField(maxlength=255, unique=True)
+#     revision = models.CharField(maxlength=2)
+#     revision_date = models.DateField()
+#     file_type = models.CharField(maxlength=20)
+#     txt_page_count = models.IntegerField()
+#     local_path = models.CharField(maxlength=255, blank=True)
+#     start_date = models.DateField()
+#     expiration_date = models.DateField()
+#     abstract = models.TextField()
+#     dunn_sent_date = models.DateField()
+#     extension_date = models.DateField(null=True, blank=True)
+#     status = models.ForeignKey(IDStatus)
+#     intended_status = models.ForeignKey(IDIntendedStatus)
+#     lc_sent_date = models.DateField(null=True, blank=True)
+#     lc_changes = models.CharField(maxlength=3)
+#     lc_expiration_date = models.DateField(null=True, blank=True)
+#     b_sent_date = models.DateField(null=True, blank=True)
+#     b_discussion_date = models.DateField(null=True, blank=True)
+#     b_approve_date = models.DateField(null=True, blank=True)
+#     wgreturn_date = models.DateField(null=True, blank=True)
+#     rfc_number = models.IntegerField(null=True, blank=True, db_index=True)
+#     comments = models.TextField(blank=True)
+#     last_modified_date = models.DateField()
+#     replaced_by = models.ForeignKey('self', db_column='replaced_by', raw_id_admin=True, blank=True, null=True, related_name='replaces_set')
+#     replaces = FKAsOneToOne('replaces', reverse=True)
+#     review_by_rfc_editor = models.BooleanField()
+#     expired_tombstone = models.BooleanField()
+#     idinternal = FKAsOneToOne('idinternal', reverse=True, query=models.Q(rfc_flag = 0))
+
+# class PersonOrOrgInfo(models.Model):
+#     person_or_org_tag = models.AutoField(primary_key=True)
+#     record_type = models.CharField(blank=True, maxlength=8)
+#     name_prefix = models.CharField(blank=True, maxlength=10)
+#     first_name = models.CharField(blank=True, maxlength=20)
+#     first_name_key = models.CharField(blank=True, maxlength=20, editable=False)
+#     middle_initial = models.CharField(blank=True, maxlength=4)
+#     middle_initial_key = models.CharField(blank=True, maxlength=4, editable=False)
+#     last_name = models.CharField(blank=True, maxlength=50)
+#     last_name_key = models.CharField(blank=True, maxlength=50, editable=False)
+#     name_suffix = models.CharField(blank=True, maxlength=10)
+#     date_modified = models.DateField(null=True, blank=True, auto_now=True)
+#     modified_by = models.CharField(blank=True, maxlength=8)
+#     date_created = models.DateField(auto_now_add=True)
+#     created_by = models.CharField(blank=True, maxlength=8)
+#     address_type = models.CharField(blank=True, maxlength=4)
+
+# could use a mapping for user_level
+class IESGLogin(models.Model):
+    USER_LEVEL_CHOICES = (
+	(0, 'Secretariat'),
+	(1, 'IESG'),
+	(2, 'ex-IESG'),
+	(3, 'Level 3'),
+	(4, 'Comment Only(?)'),
+    )
+    id = models.AutoField(primary_key=True)
+    login_name = models.CharField(blank=True, maxlength=255)
+    password = models.CharField(maxlength=25)
+    user_level = models.IntegerField(choices=USER_LEVEL_CHOICES)
+    first_name = models.CharField(blank=True, maxlength=25)
+    last_name = models.CharField(blank=True, maxlength=25)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True)
+    pgp_id = models.CharField(blank=True, maxlength=20)
+    default_search = models.IntegerField(null=True)
+
+# class AreaDirector(models.Model):
+#     area = models.ForeignKey(Area, db_column='area_acronym_id', edit_inline=models.STACKED, num_in_admin=2, null=True)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
+
+# RFC tables
+
+# class RfcIntendedStatus(models.Model):
+#     NONE=5
+#     intended_status_id = models.AutoField(primary_key=True)
+#     status = models.CharField(maxlength=25, db_column='status_value')
+
+# class RfcStatus(models.Model):
+#     status_id = models.AutoField(primary_key=True)
+#     status = models.CharField(maxlength=25, db_column='status_value')
+
+# class Rfc(models.Model):
+#     ONLINE_CHOICES=(('YES', 'Yes'), ('NO', 'No'))
+#     rfc_number = models.IntegerField(primary_key=True)
+#     title = models.CharField(maxlength=200, db_column='rfc_name')
+#     rfc_name_key = models.CharField(maxlength=200, editable=False)
+#     group_acronym = models.CharField(blank=True, maxlength=8)
+#     area_acronym = models.CharField(blank=True, maxlength=8)
+#     status = models.ForeignKey(RfcStatus, db_column="status_id")
+#     intended_status = models.ForeignKey(RfcIntendedStatus, db_column="intended_status_id", default=RfcIntendedStatus.NONE)
+#     fyi_number = models.CharField(blank=True, maxlength=20)
+#     std_number = models.CharField(blank=True, maxlength=20)
+#     txt_page_count = models.IntegerField(null=True, blank=True)
+#     online_version = models.CharField(choices=ONLINE_CHOICES, maxlength=3, default='YES')
+#     rfc_published_date = models.DateField(null=True, blank=True)
+#     proposed_date = models.DateField(null=True, blank=True)
+#     draft_date = models.DateField(null=True, blank=True)
+#     standard_date = models.DateField(null=True, blank=True)
+#     historic_date = models.DateField(null=True, blank=True)
+#     lc_sent_date = models.DateField(null=True, blank=True)
+#     lc_expiration_date = models.DateField(null=True, blank=True)
+#     b_sent_date = models.DateField(null=True, blank=True)
+#     b_approve_date = models.DateField(null=True, blank=True)
+#     comments = models.TextField(blank=True)
+#     last_modified_date = models.DateField()
+
+# class RfcAuthor(models.Model):
+#     rfc = models.ForeignKey(Rfc, unique=True, db_column='rfc_number', related_name='authors', edit_inline=models.TABULAR)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
+
+# class RfcObsolete(models.Model):
+#     rfc = models.ForeignKey(Rfc, db_column='rfc_number', raw_id_admin=True, related_name='updates_or_obsoletes')
+#     action = models.CharField(maxlength=20, core=True)
+#     rfc_acted_on = models.ForeignKey(Rfc, db_column='rfc_acted_on', raw_id_admin=True, related_name='updated_or_obsoleted_by')
+
+## End RFC Tables
+
+# class BallotInfo(models.Model):   # Added by Michael Lee
+#     ballot = models.AutoField(primary_key=True, db_column='ballot_id')
+#     active = models.BooleanField()
+#     an_sent = models.BooleanField()
+#     an_sent_date = models.DateField(null=True, blank=True)
+#     an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent') 
+#     defer = models.BooleanField(null=True, blank=True)
+#     defer_by = models.ForeignKey(IESGLogin, db_column='defer_by', related_name='deferred')
+#     defer_date = models.DateField(null=True, blank=True)
+#     approval_text = models.TextField(blank=True)
+#     last_call_text = models.TextField(blank=True)
+#     ballot_writeup = models.TextField(blank=True)
+#     ballot_issued = models.IntegerField(null=True, blank=True)
+
+# Class IDInternal(models.Model):
+#     """
+#     An IDInternal represents a document that has been added to the
+#     I-D tracker.  It can be either an Internet Draft or an RFC.
+#     The table has only a single primary key field, meaning that
+#     there is the danger of RFC number collision with low-numbered
+#     Internet Drafts.
+# 
+#     Since it's most common to be an Internet Draft, the draft
+#     field is defined as a FK to InternetDrafts.  One side effect
+#     of this is that select_related() will only work with
+#     rfc_flag=0.
+# 
+#     When searching where matches may be either I-Ds or RFCs,
+#     you cannot use draft__ as that will cause an INNER JOIN
+#     which will limit the responses to I-Ds.
+#     """
+#     draft = models.ForeignKey(InternetDraft, primary_key=True, unique=True, db_column='id_document_tag')
+#     rfc_flag = models.IntegerField(null=True)
+#     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
+#     primary_flag = models.IntegerField(blank=True, null=True)
+#     group_flag = models.IntegerField(blank=True)
+#     token_name = models.CharField(blank=True, maxlength=25)
+#     token_email = models.CharField(blank=True, maxlength=255)
+#     note = models.TextField(blank=True)
+#     status_date = models.DateField(null=True)
+#     email_display = models.CharField(blank=True, maxlength=50)
+#     agenda = models.IntegerField(null=True, blank=True)
+#     cur_state = models.ForeignKey(IDState, db_column='cur_state', related_name='docs')
+#     prev_state = models.ForeignKey(IDState, db_column='prev_state', related_name='docs_prev')
+#     assigned_to = models.CharField(blank=True, maxlength=25)
+#     mark_by = models.ForeignKey(IESGLogin, db_column='mark_by', related_name='marked')
+#     job_owner = models.ForeignKey(IESGLogin, db_column='job_owner', related_name='documents')
+#     event_date = models.DateField(null=True)
+#     area_acronym = models.ForeignKey(Area)
+#     cur_sub_state = models.ForeignKey(IDSubState, related_name='docs', null=True, blank=True)
+#     prev_sub_state = models.ForeignKey(IDSubState, related_name='docs_prev', null=True, blank=True)
+#     returning_item = models.IntegerField(null=True, blank=True)
+#     telechat_date = models.DateField(null=True, blank=True)
+#     via_rfc_editor = models.IntegerField(null=True, blank=True)
+#     state_change_notice_to = models.CharField(blank=True, maxlength=255)
+#     dnp = models.IntegerField(null=True, blank=True)
+#     dnp_date = models.DateField(null=True, blank=True)
+#     noproblem = models.IntegerField(null=True, blank=True)
+#     resurrect_requested_by = models.ForeignKey(IESGLogin, db_column='resurrect_requested_by', related_name='docsresurrected', null=True, blank=True)
+#     approved_in_minute = models.IntegerField(null=True, blank=True)
+
+## This is handled by ballot history comments.
+# class DocumentComment(models.Model):
+#     BALLOT_CHOICES = (
+# 	(1, 'discuss'),
+# 	(2, 'comment'),
+#     )
+#     document = models.ForeignKey(IDInternal)
+#     rfc_flag = models.IntegerField(null=True, blank=True)
+#     public_flag = models.IntegerField()
+#     date = models.DateField(db_column='comment_date')
+#     time = models.CharField(db_column='comment_time', maxlength=20)
+#     version = models.CharField(blank=True, maxlength=3)
+#     comment_text = models.TextField(blank=True)
+#     created_by = models.ForeignKey(IESGLogin, db_column='created_by', null=True)
+#     result_state = models.ForeignKey(IDState, db_column='result_state', null=True, related_name="comments_leading_to_state")
+#     origin_state = models.ForeignKey(IDState, db_column='origin_state', null=True, related_name="comments_coming_from_state")
+#     ballot = models.IntegerField(null=True, choices=BALLOT_CHOICES)
+
+# class Position(models.Model):
+#     ballot = models.ForeignKey(BallotInfo, raw_id_admin=True, related_name='positions')
+#     ad = models.ForeignKey(IESGLogin, raw_id_admin=True)
+#     yes = models.IntegerField(db_column='yes_col')
+#     noobj = models.IntegerField(db_column='no_col')
+#     abstain = models.IntegerField()
+#     approve = models.IntegerField()
+#     discuss = models.IntegerField()
+#     recuse = models.IntegerField()
+
+# ## This could be handled by document comments
+# class IESGComment(models.Model):
+#     ballot = models.ForeignKey(BallotInfo, raw_id_admin=True, related_name="comments")
+#     ad = models.ForeignKey(IESGLogin, raw_id_admin=True)
+#     date = models.DateField(db_column="comment_date")
+#     revision = models.CharField(maxlength=2)
+#     active = models.IntegerField()
+#     text = models.TextField(blank=True, db_column="comment_text")
+
+# class IESGDiscuss(models.Model):
+#     ballot = models.ForeignKey(BallotInfo, raw_id_admin=True, related_name="discusses")
+#     ad = models.ForeignKey(IESGLogin, raw_id_admin=True)
+#     date = models.DateField(db_column="discuss_date")
+#     revision = models.CharField(maxlength=2)
+#     active = models.IntegerField()
+#     text = models.TextField(blank=True, db_column="discuss_text")
+
+# class IDAuthor(models.Model):
+#     document = models.ForeignKey(InternetDraft, db_column='id_document_tag', related_name='authors', edit_inline=models.TABULAR, raw_id_admin=True)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
+#     author_order = models.IntegerField()
+
+# PostalAddress, EmailAddress and PhoneNumber are edited in
+#  the admin for the Rolodex.
+# must decide which field is/are core.
+# class PostalAddress(models.Model):
+#     address_type = models.CharField(maxlength=4)
+#     address_priority = models.IntegerField(null=True)
+#     person_or_org = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', edit_inline=models.STACKED, num_in_admin=1)
+#     person_title = models.CharField(maxlength=50, blank=True)
+#     affiliated_company = models.CharField(maxlength=70, blank=True)
+#     aff_company_key = models.CharField(maxlength=70, blank=True, editable=False)
+#     department = models.CharField(maxlength=100, blank=True)
+#     staddr1 = models.CharField(maxlength=40, core=True)
+#     staddr2 = models.CharField(maxlength=40, blank=True)
+#     mail_stop = models.CharField(maxlength=20, blank=True)
+#     city = models.CharField(maxlength=20, blank=True)
+#     state_or_prov = models.CharField(maxlength=20, blank=True)
+#     postal_code = models.CharField(maxlength=20, blank=True)
+#     country = models.CharField(maxlength=20, blank=True)
+
+# class EmailAddress(models.Model):
+#     person_or_org = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', edit_inline=models.TABULAR, num_in_admin=1)
+#     type = models.CharField(maxlength=4, db_column='email_type')
+#     priority = models.IntegerField(db_column='email_priority')
+#     address = models.CharField(maxlength=255, core=True, db_column='email_address')
+#     comment = models.CharField(blank=True, maxlength=255, db_column='email_comment')
+
+# class PhoneNumber(models.Model):
+#     person_or_org = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', edit_inline=models.TABULAR, num_in_admin=1)
+#     phone_type = models.CharField(maxlength=3)
+#     phone_priority = models.IntegerField()
+#     phone_number = models.CharField(blank=True, maxlength=255, core=True)
+#     phone_comment = models.CharField(blank=True, maxlength=255)
+#     class Meta:
+#         db_table = 'phone_numbers'
+# 	#unique_together = (('phone_priority', 'person_or_org'), )
+
+### Working Groups
+
+# class WGType(models.Model):
+#     group_type_id = models.AutoField(primary_key=True)
+#     type = models.CharField(maxlength=25, db_column='group_type')
+
+# class WGStatus(models.Model):
+#     status_id = models.AutoField(primary_key=True)
+#     status = models.CharField(maxlength=25, db_column='status_value')
+
+# class IETFWG(models.Model):
+#     ACTIVE = 1
+#     group_acronym = models.ForeignKey(Acronym, primary_key=True, unique=True, editable=False)
+#     group_type = models.ForeignKey(WGType)
+#     proposed_date = models.DateField(null=True, blank=True)
+#     start_date = models.DateField(null=True, blank=True)
+#     dormant_date = models.DateField(null=True, blank=True)
+#     concluded_date = models.DateField(null=True, blank=True)
+#     status = models.ForeignKey(WGStatus)
+#     area_director = models.ForeignKey(AreaDirector, null=True)
+#     meeting_scheduled = models.CharField(blank=True, maxlength=3)
+#     email_address = models.CharField(blank=True, maxlength=60)
+#     email_subscribe = models.CharField(blank=True, maxlength=120)
+#     email_keyword = models.CharField(blank=True, maxlength=50)
+#     email_archive = models.CharField(blank=True, maxlength=95)
+#     comments = models.TextField(blank=True)
+#     last_modified_date = models.DateField()
+#     meeting_scheduled_old = models.CharField(blank=True, maxlength=3)
+#     area = FKAsOneToOne('areagroup', reverse=True)
+
+# class WGChair(models.Model):
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+#     group_acronym = models.ForeignKey(IETFWG, edit_inline=models.TABULAR)
+
+# class WGEditor(models.Model):
+#     group_acronym = models.ForeignKey(IETFWG, edit_inline=models.TABULAR)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+#     class Meta:
+#         db_table = 'g_editors'
+# 	verbose_name = "WG Editor"
+
+# Note: there is an empty table 'g_secretary'.
+# This uses the 'g_secretaries' table but is called 'GSecretary' to
+# match the model naming scheme.
+# class WGSecretary(models.Model):
+#     group_acronym = models.ForeignKey(IETFWG, edit_inline=models.TABULAR)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, unique=True, core=True)
+
+# class WGTechAdvisor(models.Model):
+#     group_acronym = models.ForeignKey(IETFWG, edit_inline=models.TABULAR)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True, core=True)
+
+# class AreaGroup(models.Model):
+#     area = models.ForeignKey(Area, db_column='area_acronym_id', related_name='areagroup', core=True)
+#     group = models.ForeignKey(IETFWG, db_column='group_acronym_id', edit_inline=models.TABULAR, num_in_admin=1, max_num_in_admin=1, unique=True)
+
+class GoalMilestone(models.Model):
+    DONE_CHOICES = (
+        ('Done', 'Done'),
+        ('No', 'Not Done'),
+    )
+    gm_id = models.AutoField(primary_key=True)
+    group_acronym = models.ForeignKey(IETFWG, raw_id_admin=True)
+    description = models.TextField()
+    expected_due_date = models.DateField()
+    done_date = models.DateField(null=True, blank=True)
+    done = models.CharField(blank=True, choices=DONE_CHOICES, maxlength=4)
+    last_modified_date = models.DateField()
+
+class WGRoleTest(TestCase):
+    fixtures = ['wgtest']
+
+
+
+#### end wg stuff
+
+# class Role(models.Model):
+#     '''This table is named 'chairs' in the database, as its original
+#     role was to store "who are IETF, IAB and IRTF chairs?".  It has
+#     since expanded to store roles, such as "IAB Exec Dir" and "IAD",
+#     so the model is renamed.
+#     '''
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+#     role_name = models.CharField(maxlength=25, db_column='chair_name')
+#     # This __str__ makes it odd to use as a ForeignKey.
+
+# class ChairsHistory(models.Model):
+#     chair_type = models.ForeignKey(Role)
+#     present_chair = models.BooleanField()
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+#     start_year = models.IntegerField()
+#     end_year = models.IntegerField(null=True, blank=True)
+
+#
+# IRTF RG info
+# class IRTF(models.Model):
+#     irtf_id = models.AutoField(primary_key=True)
+#     acronym = models.CharField(blank=True, maxlength=25, db_column='irtf_acronym')
+#     name = models.CharField(blank=True, maxlength=255, db_column='irtf_name')
+#     charter_text = models.TextField(blank=True)
+#     meeting_scheduled = models.BooleanField(null=True, blank=True)
+
+# class IRTFChair(models.Model):
+#     irtf = models.ForeignKey(IRTF, edit_inline=models.STACKED, num_in_admin=2, core=True)
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+
+# Not a model, but it's related.
+# This is used in the view to represent documents
+# in "I-D Exists".
+#
+# class DocumentWrapper(object):
+#     '''A wrapper for a document, used to synthesize I-D Exists.'''
+#     document = None
+#     synthetic = True
+#     job_owner = "Not Assigned Yet"
+#     docstate = "I-D Exists"
+#     cur_state = "I-D Exists"
+#     cur_state_id = 100
+#     primary_flag = 1
+
+# class TelechatMinutes(models.Model):
+#     telechat_date = models.DateField(null=True, blank=True)
+#     telechat_minute = models.TextField(blank=True)
+#     exported = models.IntegerField(null=True, blank=True)
+
+class UserMap(models.Model):
+    """
+    This is a 1:1 mapping of django-user -> IETF user.
+    This can't represent the users in the existing tool that
+    have multiple accounts with multiple privilege levels: they
+    need extra IETF users.
+
+    It also contains a text field for the user's hashed htdigest
+    password.  In order to allow logging in with either username
+    or email address, we need to store two hashes.  One is in the
+    user model's password field, the other is here.
+    """
+    user = models.ForeignKey(User, raw_id_admin=True, core=True)
+    # user should have unique=True, but that confuses the
+    # admin edit_inline interface.
+    person = models.ForeignKey(PersonOrOrgInfo, edit_inline=models.STACKED, num_in_admin=1, max_num_in_admin=1, unique=True, null=True)
+    email_htdigest = models.CharField(maxlength=32, blank=True, null=True)
+    rfced_htdigest = models.CharField(maxlength=32, blank=True, null=True)
+
+
+######################################################
+# legacy per-tool access tables.
+# ietf.idtracker.models.IESGLogin is in the same vein.
+
+# class LegacyLiaisonUser(models.Model):
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', primary_key=True, raw_id_admin=True)
+#     login_name = models.CharField(maxlength=255)
+#     password = models.CharField(maxlength=25)
+#     user_level = models.IntegerField(null=True, blank=True)
+#     comment = models.TextField(blank=True)
+# 
+# class LegacyWgPassword(models.Model):
+#     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', primary_key=True, raw_id_admin=True)
+#     password = models.CharField(blank=True, maxlength=255)
+#     secrete_question_id = models.IntegerField(null=True, blank=True)
+#     secrete_answer = models.CharField(blank=True, maxlength=255)
+#     is_tut_resp = models.IntegerField(null=True, blank=True)
+#     irtf_id = models.IntegerField(null=True, blank=True)
+#     comment = models.TextField(blank=True)
+#     login_name = models.CharField(blank=True, maxlength=100)
+
+
+LICENSE_CHOICES = (
+    (1, 'a) No License Required for Implementers.'),
+    (2, 'b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.'),
+    (3, 'c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.'),
+    (4, 'd) Licensing Declaration to be Provided Later (implies a willingness'
+        ' to commit to the provisions of a), b), or c) above to all implementers;'
+        ' otherwise, the next option "Unwilling to Commit to the Provisions of'
+        ' a), b), or c) Above". - must be selected).'),
+    (5, 'e) Unwilling to Commit to the Provisions of a), b), or c) Above.'),
+    (6, 'f) See Text Below for Licensing Declaration.'),
+)
+STDONLY_CHOICES = (
+    (0, ""),
+    (1,  "The licensing declaration is limited solely to standards-track IETF documents."),
+)
+SELECT_CHOICES = (
+    ("0", 'NO'),
+    ("1", 'YES'),
+    ("2", 'NO'),
+)
+STATUS_CHOICES = (
+    ( 0, "Waiting for approval" ), 
+    ( 1, "Approved and Posted" ), 
+    ( 2, "Rejected by Administrator" ), 
+    ( 3, "Removed by Request" ), 
+)
+# not clear why this has both an ID and selecttype
+# Also not clear why a table for "YES" and "NO".
+class IprSelecttype(models.Model):
+    type_id = models.AutoField(primary_key=True)
+    is_pending = models.IntegerField(unique=True, db_column="selecttype")
+    type_display = models.CharField(blank=True, maxlength=15)
+
+class IprLicensing(models.Model):
+    licensing_option = models.AutoField(primary_key=True)
+    value = models.CharField(maxlength=255, db_column='licensing_option_value')
+
+
+class IprDetail(models.Model):
+    ipr_id = models.AutoField(primary_key=True)
+    title = models.CharField(blank=True, db_column="document_title", maxlength=255)
+
+    # Legacy information fieldset
+    legacy_url_0 = models.CharField(blank=True, db_column="old_ipr_url", maxlength=255)
+    legacy_url_1 = models.CharField(blank=True, db_column="additional_old_url1", maxlength=255)
+    legacy_title_1 = models.CharField(blank=True, db_column="additional_old_title1", maxlength=255)
+    legacy_url_2 = models.CharField(blank=True, db_column="additional_old_url2", maxlength=255)
+    legacy_title_2 = models.CharField(blank=True, db_column="additional_old_title2", maxlength=255)
+
+    # Patent holder fieldset
+    legal_name = models.CharField("Legal Name", db_column="p_h_legal_name", maxlength=255)
+
+    # Patent Holder Contact fieldset
+    # self.contact.filter(contact_type=1)
+
+    # IETF Contact fieldset
+    # self.contact.filter(contact_type=3)
+    
+    # Related IETF Documents fieldset
+    rfc_number = models.IntegerField(null=True, editable=False, blank=True)	# always NULL
+    id_document_tag = models.IntegerField(null=True, editable=False, blank=True)	# always NULL
+    other_designations = models.CharField(blank=True, maxlength=255)
+    document_sections = models.TextField("Specific document sections covered", blank=True, maxlength=255, db_column='disclouser_identify')
+
+    # Patent Information fieldset
+    patents = models.TextField("Patent Applications", db_column="p_applications", maxlength=255)
+    date_applied = models.CharField(maxlength=255)
+    country = models.CharField(maxlength=100)
+    notes = models.TextField("Additional notes", db_column="p_notes", blank=True)
+    is_pending = models.IntegerField("Unpublished Pending Patent Application", blank=True, choices=SELECT_CHOICES, db_column="selecttype")
+    applies_to_all = models.IntegerField("Applies to all IPR owned by Submitter", blank=True, choices=SELECT_CHOICES, db_column="selectowned")
+
+    # Licensing Declaration fieldset
+    #licensing_option = models.ForeignKey(IprLicensing, db_column='licensing_option')
+    licensing_option = models.IntegerField(null=True, blank=True, choices=LICENSE_CHOICES)
+    lic_opt_a_sub = models.IntegerField(editable=False, choices=STDONLY_CHOICES)
+    lic_opt_b_sub = models.IntegerField(editable=False, choices=STDONLY_CHOICES)
+    lic_opt_c_sub = models.IntegerField(editable=False, choices=STDONLY_CHOICES)
+    comments = models.TextField("Licensing Comments", blank=True)
+    lic_checkbox = models.BooleanField("All terms and conditions has been disclosed")
+
+
+    # Other notes fieldset
+    other_notes = models.TextField(blank=True)
+
+    # Generated fields, not part of the submission form
+    # Hidden fields
+    third_party = models.BooleanField()
+    generic = models.BooleanField()
+    comply = models.BooleanField()
+
+    status = models.IntegerField(null=True, blank=True, choices=STATUS_CHOICES)
+    submitted_date = models.DateField(blank=True)
+    update_notified_date = models.DateField(null=True, blank=True)
+
+
+class IprContact(models.Model):
+    TYPE_CHOICES = (
+	('1', 'Patent Holder Contact'),
+	('2', 'IETF Participant Contact'),
+	('3', 'Submitter Contact'),
+    )
+    contact_id = models.AutoField(primary_key=True)
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, edit_inline=True, related_name="contact")
+    contact_type = models.IntegerField(choices=TYPE_CHOICES)
+    name = models.CharField(maxlength=255, core=True)
+    title = models.CharField(blank=True, maxlength=255)
+    department = models.CharField(blank=True, maxlength=255)
+    address1 = models.CharField(blank=True, maxlength=255)
+    address2 = models.CharField(blank=True, maxlength=255)
+    telephone = models.CharField(maxlength=25, core=True)
+    fax = models.CharField(blank=True, maxlength=25)
+    email = models.EmailField(maxlength=255, core=True)
+
+
+class IprDraft(models.Model):
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, edit_inline=True, related_name='drafts')
+    document = models.ForeignKey(InternetDraft, db_column='id_document_tag', raw_id_admin=True, core=True, related_name="ipr")
+    revision = models.CharField(maxlength=2)
+
+class IprNotification(models.Model):
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True)
+    notification = models.TextField(blank=True)
+    date_sent = models.DateField(null=True, blank=True)
+    time_sent = models.CharField(blank=True, maxlength=25)
+
+class IprRfc(models.Model):
+    ipr = models.ForeignKey(IprDetail, edit_inline=True, related_name='rfcs')
+    document = models.ForeignKey(Rfc, db_column='rfc_number', raw_id_admin=True, core=True, related_name="ipr")
+
+class IprUpdate(models.Model):
+    id = models.IntegerField(primary_key=True)
+    ipr = models.ForeignKey(IprDetail, raw_id_admin=True, related_name='updates')
+    updated = models.ForeignKey(IprDetail, db_column='updated', raw_id_admin=True, related_name='updated_by')
+    status_to_be = models.IntegerField(null=True, blank=True)
+    processed = models.IntegerField(null=True, blank=True)
+    class Meta:
+        db_table = 'ipr_updates'
+    class Admin:
+	pass
+
+
+class LiaisonPurpose(models.Model):
+    purpose_id = models.AutoField(primary_key=True)
+    purpose_text = models.CharField(blank=True, maxlength=50)
+
+class FromBodies(models.Model):
+    from_id = models.AutoField(primary_key=True)
+    body_name = models.CharField(blank=True, maxlength=35)
+    poc = models.ForeignKey(PersonOrOrgInfo, db_column='poc', raw_id_admin=True, null=True)
+    is_liaison_manager = models.BooleanField()
+    other_sdo = models.BooleanField()
+    email_priority = models.IntegerField(null=True, blank=True)
+
+class LiaisonDetail(models.Model):
+    detail_id = models.AutoField(primary_key=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    submitted_date = models.DateField(null=True, blank=True)
+    last_modified_date = models.DateField(null=True, blank=True)
+    from_id = models.IntegerField(null=True, blank=True)
+    to_body = models.CharField(blank=True, maxlength=255)
+    title = models.CharField(blank=True, maxlength=255)
+    response_contact = models.CharField(blank=True, maxlength=255)
+    technical_contact = models.CharField(blank=True, maxlength=255)
+    purpose_text = models.TextField(blank=True, db_column='purpose')
+    body = models.TextField(blank=True)
+    deadline_date = models.DateField(null=True, blank=True)
+    cc1 = models.TextField(blank=True)
+    # unclear why cc2 is a CharField, but it's always
+    # either NULL or blank.
+    cc2 = models.CharField(blank=True, maxlength=50)
+    submitter_name = models.CharField(blank=True, maxlength=255)
+    submitter_email = models.CharField(blank=True, maxlength=255)
+    by_secretariat = models.IntegerField(null=True, blank=True)
+    to_poc = models.CharField(blank=True, maxlength=255)
+    to_email = models.CharField(blank=True, maxlength=255)
+    purpose = models.ForeignKey(LiaisonPurpose)
+    replyto = models.CharField(blank=True, maxlength=255)
+
+class SDOs(models.Model):
+    sdo_id = models.AutoField(primary_key=True)
+    sdo_name = models.CharField(blank=True, maxlength=255)
+
+class LiaisonManagers(models.Model):
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    email_priority = models.IntegerField(null=True, blank=True, core=True)
+    sdo = models.ForeignKey(SDOs, edit_inline=models.TABULAR, num_in_admin=1)
+
+class LiaisonsInterim(models.Model):
+    title = models.CharField(blank=True, maxlength=255)
+    submitter_name = models.CharField(blank=True, maxlength=255)
+    submitter_email = models.CharField(blank=True, maxlength=255)
+    submitted_date = models.DateField(null=True, blank=True)
+    from_id = models.IntegerField(null=True, blank=True)
+
+class Uploads(models.Model):
+    file_id = models.AutoField(primary_key=True)
+    file_title = models.CharField(blank=True, maxlength=255, core=True)
+    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', raw_id_admin=True)
+    file_extension = models.CharField(blank=True, maxlength=10)
+    detail = models.ForeignKey(LiaisonDetail, raw_id_admin=True, edit_inline=models.TABULAR, num_in_admin=1)
+
+class ImportedMailingList(models.Model):
+    group_acronym = models.ForeignKey(Acronym, null=True)
+    acronym = models.CharField(maxlength=255, db_column='list_acronym')
+    name = models.CharField(blank=True, maxlength=255, db_column='list_name')
+    domain = models.CharField(blank=True, maxlength=25, db_column='list_domain')
+
+class Domain(models.Model):
+    domain = models.CharField("Mailing List Domain Name", maxlength=100)
+    approvers = models.ManyToManyField(Role, filter_interface=models.HORIZONTAL)
+
+class MailingList(models.Model):
+    SUBSCRIPTION_CHOICES = (
+	(1, 'Confirm'),
+	(2, 'Approval'),
+	(3, 'Confirm+Approval'),
+    )
+    MAILTYPE_MAP = {
+        'newwg': 1,
+	'movewg': 2,
+	'closewg': 5,
+	'newnon': 4,
+	'movenon': 3,
+	'closenon': 6,
+    }
+    MAILTYPE_CHOICES = (
+	(1, 'Create new WG email list at ietf.org'),
+	(2, 'Move existing WG email list to ietf.org'),
+	(3, 'Move existing non-WG email list to selected domain'),
+	(4, 'Create new non-WG email list at selected domain'),
+	(5, 'Close existing WG email list at ietf.org'),
+	(6, 'Close existing non-WG email list at selected domain'),
+    )
+    # I don't understand the reasoning behind 2 vs 3.
+    # this is set in the javascript and not editable,
+    # so I think there's a 1:1 mapping from mail_type -> mail_cat.
+    # The existing database doesn't help much since many
+    # mail_cat values are NULL.
+    MAILCAT_CHOICES = (
+	(1, 'WG Mailing List'),
+	(2, 'Non-WG Mailing List'),
+	(3, 'Close Non-WG Mailing List'),
+    )
+    POSTWHO_CHOICES = (
+        (1, 'List members only'),
+	(2, 'Open'),
+    )
+    YESNO_CHOICES = (
+        (0, 'NO'),
+        (1, 'YES'),
+    ) # for integer "boolean" fields
+    mailing_list_id = models.CharField('Unique ID', primary_key=True, maxlength=25, editable=False)
+    request_date = models.DateField(default=datetime.now, editable=False)
+    requestor = models.CharField("Requestor's full name", maxlength=250)
+    requestor_email = models.EmailField("Requestor's email address", maxlength=250)
+    mlist_name = models.CharField('Email list name', maxlength=250)
+    short_desc = models.CharField('Short description of the email list', maxlength=250)
+    long_desc = models.TextField('Long description of the email list')
+    # admins is a VARCHAR but can have multiple lines.
+    admins = models.TextField('Mailing list administrators (one address per line)', maxlength=250)
+    initial_members = models.TextField('Enter email address(es) of initial subscriber(s) (one address per line) (optional)', blank=True, db_column='initial')
+    welcome_message = models.TextField('Provide a welcome message for initial subscriber(s)(optional)', blank=True)
+    welcome_new = models.TextField('Provide a welcome message for new subscriber(s)(optional)', blank=True)
+    subscription = models.IntegerField('What steps are required for subscription?', choices=SUBSCRIPTION_CHOICES)
+    post_who = models.IntegerField('Messages to this list can be posted by', choices=POSTWHO_CHOICES)
+    post_admin = models.IntegerField('Do postings need to be approved by an administrator?', default=0, choices=YESNO_CHOICES)
+    archive_private = models.IntegerField('Are the archives private?', default=0, choices=YESNO_CHOICES)
+    archive_remote = models.TextField('Provide specific information about how to access and move the existing archive (optional)', blank=True)
+    add_comment = models.TextField(blank=True)
+    mail_type = models.IntegerField(choices=MAILTYPE_CHOICES)
+    mail_cat = models.IntegerField(choices=MAILCAT_CHOICES)
+    auth_person = models.ForeignKey(PersonOrOrgInfo, db_column='auth_person_or_org_tag', raw_id_admin=True)
+    approved = models.BooleanField()
+    approved_date = models.DateField(null=True, blank=True)
+    reason_to_delete = models.TextField(blank=True)
+    domain_name = models.CharField(maxlength=10)
+    require_tmda = models.IntegerField("Require TMDA", default=0, choices=YESNO_CHOICES)
+
+class NonWgMailingList(models.Model):
+    id = models.CharField(primary_key=True, maxlength=35)
+    s_name = models.CharField("Submitter's Name", blank=True, maxlength=255)
+    s_email = models.EmailField("Submitter's Email Address", blank=True, maxlength=255)
+    list_name = models.CharField("Mailing List Name", unique=True, maxlength=255)
+    list_url = models.CharField("List URL", maxlength=255)
+    admin = models.TextField("Administrator(s)' Email Address(es)", blank=True)
+    purpose = models.TextField(blank=True)
+    area = models.ForeignKey(Area, db_column='area_acronym_id', null=True)
+    subscribe_url = models.CharField("Subscribe URL", blank=True, maxlength=255)
+    subscribe_other = models.TextField("Subscribe Other", blank=True)
+    # Can be 0, 1, -1, or what looks like a person_or_org_tag, positive or neg.
+    # The values less than 1 don't get displayed on the list of lists.
+    status = models.IntegerField()
+    ds_name = models.CharField(blank=True, maxlength=255)
+    ds_email = models.EmailField(blank=True, maxlength=255)
+    msg_to_ad = models.TextField(blank=True)
+
+class ResolveAcronym(object):
+
+class Meeting(models.Model):
+    meeting_num = models.IntegerField(primary_key=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    city = models.CharField(blank=True, maxlength=255)
+    state = models.CharField(blank=True, maxlength=255)
+    country = models.CharField(blank=True, maxlength=255)
+    ack = models.TextField(blank=True)
+    agenda_html = models.TextField(blank=True)
+    agenda_text = models.TextField(blank=True)
+    future_meeting = models.TextField(blank=True)
+    overview1 = models.TextField(blank=True)
+    overview2 = models.TextField(blank=True)
+
+class MeetingVenue(models.Model):
+    meeting_num = models.ForeignKey(Meeting, db_column='meeting_num', unique=True)
+    break_area_name = models.CharField(maxlength=255)
+    reg_area_name = models.CharField(maxlength=255)
+
+class NonSessionRef(models.Model):
+    name = models.CharField(maxlength=255)
+
+class NonSession(models.Model):
+    non_session_id = models.AutoField(primary_key=True)
+    day_id = models.IntegerField(blank=True, null=True)
+    non_session_ref = models.ForeignKey(NonSessionRef)
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    time_desc = models.CharField(blank=True, maxlength=75)
+
+class Proceeding(models.Model):
+    meeting_num = models.ForeignKey(Meeting, db_column='meeting_num', unique=True, primary_key=True)
+    dir_name = models.CharField(blank=True, maxlength=25)
+    sub_begin_date = models.DateField(null=True, blank=True)
+    sub_cut_off_date = models.DateField(null=True, blank=True)
+    frozen = models.IntegerField(null=True, blank=True)
+    c_sub_cut_off_date = models.DateField(null=True, blank=True)
+    pr_from_date = models.DateField(null=True, blank=True)
+    pr_to_date = models.DateField(null=True, blank=True)
+
+class SessionConflict(models.Model):
+    group_acronym = models.ForeignKey(Acronym, raw_id_admin=True, related_name='conflicts_set')
+    conflict_gid = models.ForeignKey(Acronym, raw_id_admin=True, related_name='conflicts_with_set', db_column='conflict_gid')
+    meeting_num = models.ForeignKey(Meeting, db_column='meeting_num')
+
+class SessionName(models.Model):
+    session_name_id = models.AutoField(primary_key=True)
+    session_name = models.CharField(blank=True, maxlength=255)
+
+class MeetingRoom(models.Model):
+    room_id = models.AutoField(primary_key=True)
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    room_name = models.CharField(maxlength=255)
+
+class WgMeetingSession(models.Model, ResolveAcronym):
+    session_id = models.AutoField(primary_key=True)
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    group_acronym_id = models.IntegerField()
+    irtf = models.BooleanField()
+    num_session = models.IntegerField()
+    length_session1 = models.CharField(blank=True, maxlength=100)
+    length_session2 = models.CharField(blank=True, maxlength=100)
+    length_session3 = models.CharField(blank=True, maxlength=100)
+    conflict1 = models.CharField(blank=True, maxlength=255)
+    conflict2 = models.CharField(blank=True, maxlength=255)
+    conflict3 = models.CharField(blank=True, maxlength=255)
+    conflict_other = models.TextField(blank=True)
+    special_req = models.TextField(blank=True)
+    number_attendee = models.IntegerField(null=True, blank=True)
+    approval_ad = models.IntegerField(null=True, blank=True)
+    status_id = models.IntegerField(null=True, blank=True)
+    ts_status_id = models.IntegerField(null=True, blank=True)
+    requested_date = models.DateField(null=True, blank=True)
+    approved_date = models.DateField(null=True, blank=True)
+    requested_by = models.ForeignKey(PersonOrOrgInfo, raw_id_admin=True, db_column='requested_by')
+    scheduled_date = models.DateField(null=True, blank=True)
+    last_modified_date = models.DateField(null=True, blank=True)
+    ad_comments = models.TextField(blank=True)
+    sched_room_id1 = models.ForeignKey(MeetingRoom, db_column='sched_room_id1', null=True, blank=True, related_name='here1')
+    sched_time_id1 = models.ForeignKey(MeetingTime, db_column='sched_time_id1', null=True, blank=True, related_name='now1')
+    sched_date1 = models.DateField(null=True, blank=True)
+    sched_room_id2 = models.ForeignKey(MeetingRoom, db_column='sched_room_id2', null=True, blank=True, related_name='here2')
+    sched_time_id2 = models.ForeignKey(MeetingTime, db_column='sched_time_id2', null=True, blank=True, related_name='now2')
+    sched_date2 = models.DateField(null=True, blank=True)
+    sched_room_id3 = models.ForeignKey(MeetingRoom, db_column='sched_room_id3', null=True, blank=True, related_name='here3')
+    sched_time_id3 = models.ForeignKey(MeetingTime, db_column='sched_time_id3', null=True, blank=True, related_name='now3')
+    sched_date3 = models.DateField(null=True, blank=True)
+    special_agenda_note = models.CharField(blank=True, maxlength=255)
+    combined_room_id1 = models.ForeignKey(MeetingRoom, db_column='combined_room_id1', null=True, blank=True, related_name='here4')
+    combined_time_id1 = models.ForeignKey(MeetingTime, db_column='combined_time_id1', null=True, blank=True, related_name='now4')
+    combined_room_id2 = models.ForeignKey(MeetingRoom, db_column='combined_room_id2', null=True, blank=True, related_name='here5')
+    combined_time_id2 = models.ForeignKey(MeetingTime, db_column='combined_time_id2', null=True, blank=True, related_name='now5')
+
+class WgAgenda(models.Model, ResolveAcronym):
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    group_acronym_id = models.IntegerField()
+    filename = models.CharField(maxlength=255)
+    irtf = models.BooleanField()
+    interim = models.BooleanField()
+
+class Minute(models.Model, ResolveAcronym):
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    group_acronym_id = models.IntegerField()
+    filename = models.CharField(blank=True, maxlength=255)
+    irtf = models.BooleanField()
+    interim = models.BooleanField()
+
+# It looks like Switches was meant for something bigger, but
+# is only used for the agenda generation right now so we'll
+# put it here.
+class Switches(models.Model):
+    name = models.CharField(maxlength=100)
+    val = models.IntegerField(null=True, blank=True)
+    updated_date = models.DateField(null=True, blank=True)
+    updated_time = models.TimeField(null=True, blank=True)
+
+
+class Slide(models.Model, ResolveAcronym):
+    SLIDE_TYPE_CHOICES=(
+	('1', '(converted) HTML'),
+	('2', 'PDF'),
+	('3', 'Text'),
+	('4', 'PowerPoint'),
+	('5', 'Microsoft Word'),
+    )
+    meeting = models.ForeignKey(Meeting, db_column='meeting_num')
+    group_acronym_id = models.IntegerField(null=True, blank=True)
+    slide_num = models.IntegerField(null=True, blank=True)
+    slide_type_id = models.IntegerField(choices=SLIDE_TYPE_CHOICES)
+    slide_name = models.CharField(blank=True, maxlength=255)
+    irtf = models.BooleanField()
+    interim = models.BooleanField()
+    order_num = models.IntegerField(null=True, blank=True)
+    in_q = models.IntegerField(null=True, blank=True)
+

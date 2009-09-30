@@ -5,6 +5,9 @@
 # http://code.djangoproject.com/wiki/SplitSettings
 
 import os
+import sys
+sys.path.append("/home/henrik/src/db/new/")
+
 import syslog
 syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 
@@ -14,21 +17,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-# Domain name of the IETF
-IETF_DOMAIN = 'ietf.org'
-
 ADMINS = (
-    ('IETF Django Developers', 'django-project@' + IETF_DOMAIN),
+    ('IETF Django Developers', 'django-project@ietf.org'),
     ('GMail Tracker Archive', 'ietf.tracker.archive+errors@gmail.com'),
 )
 
-# Server name of the tools server
-TOOLS_SERVER = 'tools.' + IETF_DOMAIN
-
 # Override this in the settings_local.py file:
-SERVER_EMAIL = 'Django Server <django-project@' + TOOLS_SERVER + '>'
+SERVER_EMAIL = 'Django Server<django-project@ietf.org>'
 
-DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@' + IETF_DOMAIN + '>'
+
+DEFAULT_FROM_EMAIL = 'IETF Secretariat <ietf-secretariat-reply@ietf.org>'
 
 MANAGERS = ADMINS
 
@@ -37,7 +35,7 @@ DATABASE_NAME = 'ietf'         # Or path to database file if using sqlite3.
 DATABASE_USER = 'ietf'       # Not used with sqlite3.
 #DATABASE_PASSWORD = 'playing' # Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+#DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -91,11 +89,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
+
 #    'ietf.middleware.PrettifyMiddleware',
     'ietf.middleware.SQLLogMiddleware',
     'ietf.middleware.SMTPExceptionMiddleware',
     'ietf.middleware.RedirectTrailingPeriod',
-    'django.middleware.transaction.TransactionMiddleware',
 )
 
 ROOT_URLCONF = 'ietf.urls'
@@ -104,7 +103,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    BASE_DIR + "/templates"
+    BASE_DIR + "/templates",
+    BASE_DIR + "/../ietf/templates",
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -123,27 +123,11 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.humanize',
-    'ietf.agenda',
-    'ietf.announcements',
-    'ietf.idindex',
-    'ietf.idtracker',
-    'ietf.ietfauth',
-    'ietf.iesg',
-    'ietf.ipr',
-    'ietf.liaisons',
-    'ietf.mailinglists',
-    'ietf.my',
-    'ietf.proceedings',
-    'ietf.redirects',
-
     'redesign.person',
-    'redesign.doc',
     'redesign.name',
     'redesign.group',
+    'redesign.doc',
 #    'redesign.issue',
-    
-# not yet merged from the Vancouver branch    
-#    'ietf.wgcharter',
 )
 
 INTERNAL_IPS = (

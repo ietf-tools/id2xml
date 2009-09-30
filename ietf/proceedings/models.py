@@ -105,7 +105,7 @@ class Meeting(models.Model):
     overview1 = models.TextField(blank=True)
     overview2 = models.TextField(blank=True)
     def __str__(self):
-	return "IETF %d" % (self.meeting_num)
+	return "IETF %s" % (self.meeting_num)
     def get_meeting_date (self,offset):
         return self.start_date + datetime.timedelta(days=offset) 
     def num(self):
@@ -120,7 +120,7 @@ class MeetingVenue(models.Model):
     break_area_name = models.CharField(maxlength=255)
     reg_area_name = models.CharField(maxlength=255)
     def __str__(self):
-	return "IETF %d" % (self.meeting_num_id)
+	return "IETF %s" % (self.meeting_num_id)
     class Meta:
         db_table = 'meeting_venues'
     class Admin:

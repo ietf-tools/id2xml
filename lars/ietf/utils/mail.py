@@ -114,7 +114,7 @@ def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
     return send_mail_text(request, to, frm, subject, txt, *args, **kwargs)
 
 def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=None, bcc=None):
-    msg = MIMEText(txt)
+    msg = MIMEText(txt.encode('UTF-8'), 'plain', 'UTF-8')
     if isinstance(frm, tuple):
 	frm = formataddr(frm)
     if isinstance(to, list) or isinstance(to, tuple):

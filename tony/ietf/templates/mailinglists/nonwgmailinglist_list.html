@@ -63,7 +63,7 @@ page.</p>
 {% for list in object_list %}
 <tr>
 <td><a href="{{ list.list_url|add_scheme }}">{% firstof list.list_name list.list_url %}</a></td>
-<td>{{ list.admin|make_one_per_line }}</td>
+<td>{{ list.admin|make_one_per_line|escape }}</td>
 <td>{{ list.purpose|truncatewords:"20"|escape }}</td>
 <td>{{ list.area }}</td>
 <td>{% if list.subscribe_url %}

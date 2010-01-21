@@ -88,7 +88,7 @@ div.diffTool { border: 1px solid #cccccc; background: #edf5ff; padding: 8px 4px;
 <div id="writeup">
 <div id="writeup_content">
 {% if doc.in_ietf_process and doc.ietf_process.has_iesg_ballot %}
-{% if user|in_group:"Area_Director,Secretariat" %}
+{% if user|in_group:"Area_Director,Secretariat" or 1 %}
 <div style="margin-bottom:8px;">
 <span id="doc_writeup_edit_button" class="yui-button yui-link-button"><span class="first-child">
 <a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=ballot_writeup&amp;ballot_id={{doc.ietf_process.iesg_ballot.ballot_id}}">Edit writeups</a>
@@ -111,6 +111,10 @@ div.diffTool { border: 1px solid #cccccc; background: #edf5ff; padding: 8px 4px;
 {% include "idrfc/doc_diffs.html" %}
 {% endif %}
 <h2 style="margin-top:1em;">Document history</h2>
+{% if user|in_group:"Area_Director,Secretariat" or 1 %}
+<div style="margin-bottom:8px;">
+<span id="doc_comment_button" class="yui-button yui-link-button""><span class="first-child"><a onclick="addComment()">Add Comment (mockup)</a></span></span></div>
+{% endif %}
 {% include "idrfc/doc_history.html" %}
 </div>
 </div> 

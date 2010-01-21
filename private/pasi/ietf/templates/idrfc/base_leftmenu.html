@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% load wg_menu %} 
 {% load ietf_filters %}
 <ul>
-{% if user|in_group:"Area_Director" %}
+{% if user|in_group:"Area_Director" or 1 %}
 <li class="sect first">AD Dashboard</li>
   <li><a href="/doc/ad/{{user.get_profile.person.first_name|lower}}.{{user.get_profile.person.last_name|lower}}/">My Documents</a></li>
   <li><a href="/iesg/agenda/documents/">Next Telechat</a></li>

@@ -14,6 +14,8 @@ from ietf.liaisons.sitemaps import LiaisonMap
 from ietf.ipr.sitemaps import IPRMap
 from ietf.announcements.sitemaps import NOMCOMAnnouncementsMap
 
+from ietf.idrfc.views import main
+
 from django.conf import settings
 
 feeds = {
@@ -53,7 +55,7 @@ urlpatterns = patterns('',
       (r'^doc/', include('ietf.idrfc.urls')),
       (r'^wg/', include('ietf.wginfo.urls')),
 
-      (r'^$', 'ietf.redirects.views.redirect'),
+      (r'^$', main),
 
      # Google webmaster tools verification url
      (r'^googlea30ad1dacffb5e5b.html', 'django.views.generic.simple.direct_to_template', { 'template': 'googlea30ad1dacffb5e5b.html' }),

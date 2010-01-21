@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+// Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 // All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 //
 // Redistribution and use in source and binary forms, with or without
@@ -75,4 +75,76 @@ function showBallot(draftName, trackerId) {
 }
 function editBallot(trackerId) {
     window.open("https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=open_ballot&id_document_tag="+trackerId);
+}
+
+IETF.Dialog = function(id, userConfig) {
+    IETF.Dialog.superclass.constructor.call(this, id, {
+        visible:false, draggable:false, close:true, modal:true, 
+        fixedcenter:true, constraintoviewport:true, 
+	keylisteners:new YAHOO.util.KeyListener(document, {keys:27}, {fn:function() { this.hide(); }, scope:this, correctScope:true})
+	});
+    this.cfg.applyConfig(userConfig);
+    this.render("ietf-extras");
+};
+YAHOO.lang.extend(IETF.Dialog, YAHOO.widget.Dialog);
+
+function editData() {
+    var handleSubmit = function() {
+        IETF.editDialog.hide();
+    }; 
+    if (!IETF.editDialog) {
+      var buttons = [{text:"Save", handler:handleSubmit},
+		     {text:"Cancel", handler:function() { this.hide(); },
+		      isDefault:true}];
+      IETF.editDialog = new IETF.Dialog("doc_edit_dialog", {
+	      width:"700px", buttons: buttons});
+      IETF.editDialog.setHeader("Edit State");
+      IETF.editDialog.setBody('<div><label style="width:130px;float:left;">Intended status:</label><select style="width:150px;"><option value="1" >BCP</option><option value="2" >Draft Standard</option><option value="3" >Experimental</option><option value="5" >Informational</option><option value="6" selected>Proposed Standard</option></select></div><div style="margin-top:4px;"><label style="width:130px;float:left;">Responsible AD:</label><select style="width:150px;"><option value="49" >Arkko, Jari</option><option value="59" >Bonica, Ron</option><option value="51" selected>Callon, Ross</option></select></div><div  style="margin-top:4px;"><label style="width:130px;float:left;">Notice emails:</label><input type="text" style="width:530px;" value="ipsecme-chairs@tools.ietf.org, draft-ietf-ipsecme-aes-ctr-ikev2@tools.ietf.org"/></div><div  style="margin-top:4px;"><label style="width:130px;float:left;">IESG Note:</label><textarea rows="2" style="width:530px;">Foo Bar (foo.bar@example.org) is the document shepherd.</textarea></div><div  style="margin-top:4px;"><label style="width:130px;float:left;">Telechat date:</label><select><option value="49" >(not on agenda)</option><option value="59" >2010-01-21</option><option value="51" selected>2010-02-04</option></select> <input type="checkbox"/> Returning item</div>');
+    }
+    IETF.editDialog.show();
+}
+
+function changeState() {
+    var handleSubmit = function() {
+        this.hide();
+    }; 
+    if (!IETF.stateDialog) {
+      var buttons = [
+          {text:"Save", handler:handleSubmit},
+          {text:"Cancel", handler:function () {this.hide();}, isDefault:true}];
+      IETF.stateDialog = new IETF.Dialog("doc_state_dialog", {
+            width:"350px", buttons: buttons});
+      IETF.stateDialog.setHeader("Change State");
+      IETF.stateDialog.setBody('<div><label style="width:130px;float:left;">State:</label><select style="width:200px;"><option value="10" >Publication Requested</option> <option value="11">AD Evaluation</option> <option value="12" >Expert Review</option><option value="15" >Last Call Requested</option><option value="16" >In Last Call</option><option value="18" >Waiting for Writeup</option><option value="19" >Waiting for AD Go-Ahead</option><option value="20" >IESG Evaluation</option><option value="21" >IESG Evaluation - Defer</option><option value="27" >Approved-announcement to be sent</option></select></div><div><label style="width:130px;float:left;">Substate:</label><select style="width:200px;"><option value=0>(none)</option><option value=1 >Point Raised - writeup needed</option><option value=2 >AD Followup</option>  <option value=3 >External Party</option>  <option value=5 >Revised ID Needed</option></select></div><div style="margin-top:8px;"><img src="http://tools.ietf.org/images/22x22/actions/next.png" style="vertical-align:middle;"/> <a href="">To AD Evaluation::Revised ID Needed</a><br/><img src="http://tools.ietf.org/images/22x22/actions/next.png" style="vertical-align:middle;"/> <a href="">To IETF Last Call</a></div>');
+    }
+    IETF.stateDialog.show();
+}
+
+function addComment() {
+    var handleSubmit = function() {
+	this.hide();
+    }; 
+    if (!IETF.commentDialog) {
+	var buttons = [{text:"Add Comment", handler:handleSubmit},
+          {text:"Cancel", handler:function () {this.hide();}, isDefault:true}];
+	IETF.commentDialog = new IETF.Dialog("doc_comment_dialog", {width:"560px", buttons:buttons});
+	IETF.commentDialog.setHeader("Add Comment");
+	IETF.commentDialog.setBody('<textarea rows="2" style="width:530px;"></textarea>');
+    }
+    IETF.commentDialog.show();
+}
+
+function editPosition() {
+    var handleSubmit = function() {
+
+    }; 
+    if (!IETF.positionDialog) {
+      var buttons = [{text:"Save+Send Email", handler:handleSubmit},{text:"Save", handler:handleSubmit},
+          {text:"Cancel", handler:function () {this.hide();}, isDefault:true}];
+      IETF.positionDialog = new IETF.Dialog("doc_position_dialog", {
+	      width:"630px", buttons: buttons});
+      IETF.positionDialog.setHeader("Change Position");
+      IETF.positionDialog.setBody('<div><input type="radio" name="position" value="Yes"/> Yes <input type="radio" name="position" value="No Objection" checked="checked"/> No Objection <input type="radio" name="position" value="Discuss"/> Discuss    <input type="radio" name="position" value="Abstain"/> Abstain <input type="radio" name="position" value="Recuse"/> Recuse <input type="radio" name="position" value=""/> No record </div><div style="margin-top:8px;"><label>Discuss text:</label><br /><textarea name="discussText" style="width: 600px; height:150px; font-family:monospace;"></textarea><br/><label>Comment text:</label><br /><textarea style="width: 600px; height:150px; font-family:monospace;" name="commentText"></textarea></div>');
+    }
+    IETF.positionDialog.show();
 }

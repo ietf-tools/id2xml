@@ -35,11 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <table class="ietf-ballot"><tr valign="top"><td class="left">
 
 {% if doc_ballot_edit_button %}
-{% if user|in_group:"Area_Director,Secretariat" %}
+{% if user|in_group:"Area_Director,Secretariat" or 1 %}
 <div style="margin-top:8px; margin-bottom:8px;">
-<span id="doc_ballot_button" class="yui-button yui-link-button"><span class="first-child">
-<a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=open_ballot&amp;id_document_tag={% if info.is_rfc %}{{doc.rfc_number}}{% else %}{{doc.tracker_id}}{% endif %}">Edit position</a>
-</span></span></div>
+<span id="doc_position_button" class="yui-button yui-link-button"><span class="first-child"><a onclick="editPosition()">Edit position (mockup)</a></span></span>
+</div>
 {% endif %}{# user in_group #}
 {% endif %}
 

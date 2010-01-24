@@ -1,5 +1,7 @@
 #!/opt/local/bin/perl
 
+use Data::Dumper;
+
 # This is a hand edited version of the output of select body_name,poc from from_bodies
 
 %bodies=(
@@ -159,28 +161,17 @@ while ($_ = <INPUT>) {
     while ($links=~/\s*<a href="(.*?)"\s*>(.*?)<\/A>\s*/gi)
     { 
       $link = $1; 
-      if ($link=~/itut-ls-dismanwg-liaison-reply/) { $link=~s/reply/reply.pdf/;}
       $desc = $2; 
+      if ($link=~/itut-ls-dismanwg-liaison-reply/) { $link=~s/reply/reply.pdf/;}
+      @pair = ($link, $desc); 
+#      print "happy\n";
+      push (@{$linkset[$index]},[@pair]); # Weep for the kittens
     }
-
-    if ($link=~/itut-ls-dismanwg-liaison-reply/) { $link=~s/reply/reply.pdf/;}
-# AM HERE - look for more than one link
-
-    @funk = split(/href/i, $links);
-    if ($#funk>1) {die $links;} 
-
-
 
     $date[$index] = $date;
     $from[$index] = $cols[1];
     $to[$index] = $cols[2];
-    $link[$index] = $link;
-    @junk = split '/',$link; 
-    $f=pop @junk; 
-    @decomp=split '\.',$f;
-    if (@decomp>1) {$ext[$index] = ".".(pop @decomp);} else {$ext[$index]="";}
-    $basename[$index] = join '.',@decomp;
-    $desc[$index] = $desc;
+
 
 
     $index++;
@@ -209,17 +200,25 @@ for ($i=0;$i<$index;$i++)
 # Print out rows to add to Uploads
 
 # Print out rows to add to liason_detail
-$liaison_detail_insert_index = 615; # leaves some unused indexes
-$uploads_insert_index = 740; # leaves some unused indexes
+$liaison_detail_insert_index = 635; # leaves some unused indexes
+$uploads_insert_index = 755; # leaves some unused indexes
 for ($i=0;$i<$index;$i++)
 {
-   $safedesc=$desc[$i];
-   $safedesc=~s/'/''/g;
-   print SQLOUT "insert into uploads (file_id,file_title,file_extension,detail_id) values ($uploads_insert_index,\'$safedesc\',\"$ext[$i]\",$liaison_detail_insert_index);\n";
+   foreach $linkthing (@{$linkset[$i]})
+   {
+     $safedesc=@{$linkthing}[1];
+     $safedesc=~s/'/''/g;
+     @junk = split '/',@{$linkthing}[0]; 
+     $f=pop @junk; 
+     @decomp=split '\.',$f;
+     if (@decomp>1) {$ext = ".".(pop @decomp);} else {$ext="";}
+     $basename = join '.',@decomp;
+     print SQLOUT "insert into uploads (file_id,file_title,file_extension,detail_id) values ($uploads_insert_index,\'$safedesc\',\"$ext\",$liaison_detail_insert_index);\n";
+     $name_to_file_no{@{$linkthing}[0]}=$uploads_insert_index;
+     $uploads_insert_index++;
+   }
    print SQLOUT "insert into liaison_detail (detail_id,submitted_date,from_id,to_body,by_secretariat,submitter_email,submitter_name) ".
                              "values ($liaison_detail_insert_index,\"$date[$i]\",$bodies{$from[$i]},\"$to[$i]\",1,NULL,\"$to[$i]\");\n";
-   $name_to_file_no{$link[$i]}=$uploads_insert_index;
-   $uploads_insert_index++;
    $liaison_detail_insert_index++;
 }
 
@@ -230,14 +229,23 @@ open (SHOUT,">stufftodo.sh");
 # Print out shell commands to move and back-link old statements
 for ($i=0;$i<$index;$i++)
 {
-  if ($link[$i]=~/w3.org/)
+  foreach $linkthing (@{$linkset[$i]})
   {
-    print SHOUT "echo '<html><body><t>See $link[$i]</t></body></html>' > file$name_to_file_no{$link[$i]}$ext[$i]\n";
-  }
-  else
-  {
-    print SHOUT "mv $basename[$i]$ext[$i] file$name_to_file_no{$link[$i]}$ext[$i]\n";
-    print SHOUT "ln -s file$name_to_file_no{$link[$i]}$ext[$i] $basename[$i]$ext[$i]\n";
+     $link = @{$linkthing}[0];
+     @junk = split '/',$link; 
+     $f=pop @junk; 
+     @decomp=split '\.',$f;
+     if (@decomp>1) {$ext = ".".(pop @decomp);} else {$ext="";}
+     $basename = join '.',@decomp;
+    if ($link=~/w3.org/)
+    {
+      print SHOUT "echo '<html><body><t>See $link</t></body></html>' > file$name_to_file_no{$link}$ext\n";
+    }
+    else
+    {
+      print SHOUT "mv $basename$ext file$name_to_file_no{$link}$ext\n";
+      print SHOUT "ln -s file$name_to_file_no{$link}$ext $basename$ext\n";
+    }
   }
 }
 

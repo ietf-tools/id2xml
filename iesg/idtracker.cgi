@@ -12,7 +12,7 @@
 #
 #####################################################
 
-use lib '/a/www/ietf-datatracker/release';
+use lib '/home/henrik/src/db/legacy/iesg';
 use CGI;
 use IETF;
 use GEN_DBUTIL_NEW;
@@ -28,7 +28,7 @@ my $db_name = "ietf";
 
 $test_url_part = "";
 
-$SOURCE_DIR = "/a/www/ietf-datatracker/release";
+$SOURCE_DIR = "/home/henrik/src/db/legacy/iesg";
 $INTERNAL_DIR = "/a/www/www6/iesg/internal";
 $EVAL_DIR = "/a/www/www6/iesg/evaluation";
 $WEB_DIR = "/a/www/www6";
@@ -65,13 +65,13 @@ $table_header_640 = qq{<table cellpadding="1" cellspacing="0" border="0" width="
 $TEST_MESSAGE = "This is a test message.\nPlease ignore this message.\n";
 $IETF_EMAIL = "iesg-secretary\@ietf.org";
 
-$TRACKER_URL="https://datatracker.ietf.org/cgi-bin/idtracker.cgi";
+$TRACKER_URL="https://merlot.tools.ietf.org/cgi-bin/idtracker.cgi";
 
 
-$SEC_TRACKER_URL="https://datatracker.ietf.org/cgi-bin/idtracker.cgi";
+$SEC_TRACKER_URL="https://merlot.tools.ietf.org/cgi-bin/idtracker.cgi";
 
 
-$TRACKER_PUB_URL="https://datatracker.ietf.org/";
+$TRACKER_PUB_URL="https://merlot.tools.ietf.org/";
 $error_msg = qq{
 <h2>There is a fatal error occured while processing your request</h2>
 };
@@ -2288,7 +2288,7 @@ groups_ietf b where a.filename='$filename' and a.group_acronym_id=b.group_acrony
     my $iprlinks = "\n\nThe following IPR Declarations may be related to this I-D:\n\n";
     for my $array_ref (@iprList) {
     my ($ipr) = @$array_ref;
-     $iprlinks .= "https://datatracker.ietf.org/ipr/$ipr/ \r\n";
+     $iprlinks .= "https://merlot.tools.ietf.org/ipr/$ipr/ \r\n";
      }
   }
   else
@@ -2358,7 +2358,7 @@ sub do_resurrect {
   $text = qq{
 As you requested, the Internet-Draft $filename has been resurrected.
 
-ID Tracker URL: https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=view_id&dTag=$id_document_tag&rfc_flag=0
+ID Tracker URL: https://merlot.tools.ietf.org/cgi-bin/idtracker.cgi?command=view_id&dTag=$id_document_tag&rfc_flag=0
                                                                                          
 <EOM>
 };
@@ -2384,7 +2384,7 @@ sub resurrect {
   my $subject = "I-D Resurrection Request";
   $text = qq{I-D that is requested to be resurrected: $filename
 Requested by: $name <$email>
-ID Tracker URL: https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=view_id&dTag=$id_document_tag&rfc_flag=$rfc_flag&ballot_id=$ballot_id
+ID Tracker URL: https://merlot.tools.ietf.org/cgi-bin/idtracker.cgi?command=view_id&dTag=$id_document_tag&rfc_flag=$rfc_flag&ballot_id=$ballot_id
 
 <EOM>
 };
@@ -2693,7 +2693,7 @@ $form_header
    $next_state_option_str
    </select> with sub state in   
    $sub_state_select_str 
-   <a href="https://datatracker.ietf.org/public/states_table.cgi"> Show States Table</a>
+   <a href="https://merlot.tools.ietf.org/public/states_table.cgi"> Show States Table</a>
    <br>
    or<br>
    $next_state_buttons_str
@@ -5218,7 +5218,7 @@ sub clear_agenda {
 sub view_agenda {
   my $q = shift;
   my $date = db_select($dbh,"select date1 from telechat_dates");
-  my $html_txt = `/a/www/ietf-datatracker/release/gen_agenda_summary.pl $date $test_mode`;
+  my $html_txt = `/home/henrik/src/db/legacy/iesg/gen_agenda_summary.pl $date $test_mode`;
   $html_txt = html_bracket($html_txt);
   return "<pre> $html_txt </pre>";
 }

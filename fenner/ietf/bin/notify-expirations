@@ -2,6 +2,10 @@
 
 import datetime
 
+from ietf import settings
+from django.core import management
+management.setup_environ(settings)
+
 from ietf.idtracker.models import InternetDraft,IDAuthor,WGChair
 from ietf.utils.mail import send_mail_subj
 

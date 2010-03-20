@@ -36,19 +36,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% load ietf_filters %}
 {% load ballot_icon %}
 
-{% block wg_titledetail %}Milestones{% endblock %}
+{% block wg_titledetail %}Add a Document to a Milestone{% endblock %}
 
 {% block wg_content %}
 
-<table border='1' class="ietf-table ietf-doctable" style="margin-top:16px;">
-<tr><th class="date">Due Date</th><th class="milestone">Milestone</th><th class="doc">Document</th><th class="status" colspan="2">Status</th></tr> 
+{%if request.POST %}
+  <br/>
+  <b><font size="+1">
+  {% ifequal request.POST.action 'Add' %}Added{% endifequal %}
+  {% ifequal request.POST.action 'Remove' %}Removed{% endifequal %}
+  '{{ draft }}'
+  {% ifequal request.POST.action 'Add' %}to{% endifequal %}
+  {% ifequal request.POST.action 'Remove' %}from{% endifequal %}
+  milestone '{{ ms.description|escape }}'
+  </font></b>
+{% endif %}
+
+<table class="ietf-table ietf-doctable" style="margin-top:16px;">
+<tr><th class="date">Due Date</th><th class="milestone">Milestone</th><th class="doc">Document</th><th width="120px">Modify</th></tr> 
 {% for milestone in wg.milestones %}
   <tr class="{% cycle oddrow,evenrow %}">
-      <td class="date" 
-      {% ifnotequal milestone.drafts.all|length 0 %}
-        rowspan='{{ milestone.drafts.all|length }}'
-      {% endifnotequal %}
-      >
+      <td class="date">
         {% ifequal milestone.done 'Done' %} Done
         {% else %}
         {%ifequal milestone.expected_due_date.month 1 %}Jan{% endifequal %}
@@ -66,42 +74,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         {{ milestone.expected_due_date.year }}
         {% endifequal %}
       </td>
-      <td 
-      {% ifnotequal milestone.drafts.all|length 0 %}
-        rowspan='{{ milestone.drafts.all|length }}'
-      {% endifnotequal %}
-      >{{ milestone.description|escape }}</td>
-
-      {% ifnotequal milestone.drafts.all|length 0 %}
-        {% for draft in milestone.drafts.all %}
-          {% for doc in docs %}
-            {% ifequal draft.filename doc.id.draft_name %}
-              <td><a href="/doc/{{doc.id.draft_name}}/">{{doc.id.draft_name_and_revision}}</a></td>
-{% comment %}
-  This needs to be replaced with Pasi's new, improved status module.
-{% endcomment %}
-<td class="status">{{ doc.friendly_state|safe }}
-{% if not doc.rfc %}{{ doc.id|state_age_colored|safe }}{% endif %}
-{% if doc.rfc %}
-{% if doc.rfc.obsoleted_by %}<br />Obsoleted by {{ doc.rfc.obsoleted_by|urlize_ietf_docs }}{%endif %}
-{% if doc.rfc.updated_by %}<br />Updated by {{ doc.rfc.updated_by|urlize_ietf_docs }}{%endif %}
-{% if doc.rfc.has_errata %}<br /><a href="http://www.rfc-editor.org/errata_search.php?rfc={{doc.rfc.rfc_number}}" rel="nofollow">Errata</a>{% endif %}
-{% else %}
-  {% if doc.id.rfc_editor_state %}<br />RFC Editor State: <a href="http://www.rfc-editor.org/queue2.html#{{doc.id.draft_name}}">{{ doc.id.rfc_editor_state|escape }}</a>{% endif %}
-{% endif %}
-</td>
-<td class="ballot">
-{% if doc.rfc and doc.rfc.in_ietf_process and doc.rfc.ietf_process.has_active_iesg_ballot %}{% ballot_icon doc.rfc %}{% else %}{% if doc.id %}{% ballot_icon doc.id %}{%endif%}{%endif%}</td>
-              {% ifnotequal milestone.drafts.all|length 1 %}
-                </tr><tr>
-              {% endifnotequal %}
-            {% endifequal %}
+      <form method="POST">
+        <input type="hidden" name="milestone_id" value="{{milestone.gm_id}}"/>
+        <td>{{ milestone.description|escape }}</td>
+        <td><select name="id_document_tag">
+          {% for id in wg.drafts %}
+            <option value="{{id.id_document_tag}}">{{id}}</option>
           {% endfor %}
-        {% endfor %}
-      {% else %}
-        <td><i>None Entered</i></td>
-        <td>&nbsp;</td>
-      {% endifnotequal %}
+        </select></td>
+        <td><center>
+          <input type="Submit" name="action" value="Add"/>
+          <input type="Submit" name="action" value="Remove"/>
+        </center></td>
+      </form>
     </tr>
   {% endfor %}
 <table>

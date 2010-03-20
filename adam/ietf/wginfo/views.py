@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from ietf.idtracker.models import Area, IETFWG
+from ietf.idtracker.models import Area, IETFWG, GoalMilestone, InternetDraft
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.http import HttpResponse
@@ -98,3 +98,17 @@ def wg_milestones(request, acronym):
         raise ValueError("form did not validate")
     (docs,meta) = search_query(form.cleaned_data)
     return render_to_response('wginfo/wg_milestones.html', {'wg': wg, 'selected':'milestones', 'docs':docs, 'meta':meta}, RequestContext(request))
+
+def wg_milestones_change_doc(request, acronym):
+    wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
+    ms = None
+    draft = None
+    if request.method == 'POST':
+        ms = GoalMilestone.objects.get(gm_id=request.POST['milestone_id'])
+        draft = InternetDraft.objects.get(id_document_tag=request.POST['id_document_tag'])
+        if request.POST['action'] == 'Remove':
+            ms.drafts.remove(draft)
+        else:
+            ms.drafts.add(draft)
+        ms.save()
+    return render_to_response('wginfo/wg_milestones_change_doc.html', {'wg': wg, 'request' : request, 'draft': draft, 'ms': ms, 'selected':'milestones_change_doc'}, RequestContext(request))

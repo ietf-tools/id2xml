@@ -926,6 +926,8 @@ class GoalMilestone(models.Model):
     done_date = models.DateField(null=True, blank=True)
     done = models.CharField(blank=True, choices=DONE_CHOICES, max_length=4)
     last_modified_date = models.DateField()
+    def drafts(self): # return a set of Rfc objects for this goal/milestone
+        return InternetDraft.objects.filter(filename='draft-ietf-sipcore-199')
     def __str__(self):
 	return self.description
     class Meta:

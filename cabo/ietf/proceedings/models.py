@@ -94,6 +94,8 @@ class ResolveAcronym(object):
                 return ""
             elif self._ietfwg.group_type_id == 1:
                 return "WG"
+            elif self._ietfwg.group_type_id == 2:
+                return "BOF"    # This is a "PWG" -- maybe it should be "Pre-WG"
             elif self._ietfwg.group_type_id == 3:
                 return "BOF"
             else:

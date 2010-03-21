@@ -39,6 +39,7 @@ from ietf.proceedings.models import Meeting, WgMeetingSession, WgAgenda
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.http import HttpResponse
+from django.conf import settings
 
 def wg_summary_acronym(request):
     areas = Area.active_areas()

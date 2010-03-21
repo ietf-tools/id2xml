@@ -152,14 +152,13 @@ def wg_meeting(request, acronym=None, num=None):
     for slide in slides:
         slide.filename = slide.file_loc()
 
-    # this prefix only works for matthijs!
-    prefix = "/home/matje/svn/codesprint/matthijs/data/"
+    prefix = settings.AGENDA_PATH
     agenda_file = session.agenda_file()
-    if agenda_file:
+    if agenda_file and prefix:
         agenda_file = prefix + agenda_file
     agenda_text = wg_agenda_text(agenda_file)
     minutes_file = session.minute_file()
-    if minutes_file:
+    if minutes_file and prefix:
         minutes_file = prefix + minutes_file
     minutes_text = wg_minutes_text(minutes_file)
     template = "wginfo/wg_meeting.html"

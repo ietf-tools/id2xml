@@ -1,4 +1,4 @@
-{% extends "idrfc/base.html" %}
+{% extends "wginfo/wg_base.html" %}
 {% comment %}
 Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
@@ -33,39 +33,78 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% endcomment %}
 {% load ietf_filters %}
-{% block title %}{{wg.group_acronym.name}} ({{wg.group_acronym.acronym}}) - {% block wg_titledetail %}{% endblock %}{% endblock %}
-
-{% block morecss %}
-.ietf-navset {
-    background:#214197 url(/images/yui/sprite.png) repeat-x left -1400px;
-    color:white;
-    border:1px solid black;
-    padding:4px;
-}
-.ietf-navset .selected { font-weight:bold; padding: 0 3px; }
-.ietf-navset a, .ietf-navset a:visited { color: white; padding:0 3px; }
-
-.ietf-wg-details { background:#edf5ff; border:1px solid #cccccc; float:right; padding: 4px;margin-top:16px; margin-left: 16px; }
-.ietf-wg-details tr { vertical-align: top; }
-.ietf-concluded-wg {background-color: #F8F8D0; }
-{% endblock morecss %}
-
-{% block content %}
-<div {% if concluded %}class="ietf-concluded-wg"{% endif %}>
-<h1>{{wg.group_acronym.name}} ({{wg.group_acronym.acronym}}){% if concluded %}<br/>(concluded WG){% endif %}</h1>
-
-<div class="ietf-navset">
-{% ifequal selected "documents" %}<span class="selected">Documents</span>{% else %}<a href="/wg/{{wg}}/">Documents</a>{% endifequal %} | 
-{% ifequal selected "charter" %}<span class="selected">Charter</span>{% else %}<a href="/wg/{{wg}}/charter/">Charter</a>{% endifequal %} | 
-{% ifequal selected "meeting" %}<span class="selected">Meetings</span>{% else %}<a href="/wg/{{wg}}/meeting/">Meetings</a>{% endifequal %} | 
-{% if wg.clean_email_archive|startswith:"http:" or wg.clean_email_archive|startswith:"ftp:" %}
-<a href="{{ wg.clean_email_archive }}">List Archive</a> | 
-{% endif %}
-<a href="http://tools.ietf.org/wg/{{wg}}/">Tools WG Page</a>
-</div>
+{% block wg_titledetail %}Meeting{% endblock %}
 
 {% block wg_content %}
+
+<div class="ietf-wg-details">
+<table>
+<tr>
+<td colspan="2">
+<b>Previous Meetings</b>
+</td>
+</tr>
+
+{% for sess in sessions %}
+
+<tr>
+<td colspan=2">
+<a href="/wg/{{ wg.group_acronym.acronym }}/meeting/{{ sess.meeting.num }}/">IETF {{ sess.meeting.num }} Meeting</a>
+</td>
+</tr>
+
+{% endfor %}
+
+</table>
+</div>
+
+<h2>IETF {{ meeting.num }} Meeting</h2>
+
+<p>
+<b>Location and Time</b> <br />
+{% if session.sched_time_id1 %}
+Date: {{ meeting_date }} <br />
+Time: {{ session.sched_time_id1.time_desc }} <br />
+{% endif %}
+{% if session.sched_room_id1 %}
+Room: {{ session.sched_room_id1.room_name }} <br />
+{% endif %}
+
+{% if combined_sessions %}
+Combined sessions: [TO DO] <br />
+{% endif %}
+
+iCal:
+<a href="http://tools.ietf.org/wg/{{ wg.group_acronym.acronym }}/ietf-{{ meeting.num }}-{{ wg.group_acronym.acronym }}.ics">
+ietf-{{ meeting.num }}-{{ wg.group_acronym.acronym }}.ics
+</a>
+<br />
+<br />
+
+<b>Remote Access</b> <br />
+Live Audio Stream:
+see <a href="http://tools.ietf.org/{{ wg.group_acronym.acronym }}/agenda">Tools WG Page</a> (only available during the session) <br />
+Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg.group_acronym.acronym }} chatroom</a> <br />
+<br />
+
+<b>Slides</b> <br />
+
+{% for slide in slides %}
+<a href="{{ slide.filename }}">{{ slide.slide_name }}</a> <br />
+{% endfor %}
+</p>
+
+<h2>IETF {{ meeting.num }} Minutes</h2>
+
+<p>
+{{ minutes|escape|linebreaks|urlize|urlize_ietf_docs }}
+</p>
+
+<h2>IETF {{ meeting.num }} Agenda</h2>
+
+<p>
+{{ agenda|escape|linebreaks|urlize|urlize_ietf_docs }}
+</p>
+
 {% endblock wg_content %}
 
-</div>
-{% endblock content %}

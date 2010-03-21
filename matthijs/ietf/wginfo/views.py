@@ -33,6 +33,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from ietf.idtracker.models import Area, IETFWG
+from ietf.proceedings.models import Meeting, WgMeetingSession, WgAgenda
+# MeetingTime, MeetingVenue, IESGHistory, Proceeding, Switches, WgProceedingsActivities
+
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.http import HttpResponse
@@ -89,3 +92,78 @@ def wg_charter2(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
     return render_to_response('wginfo/wg_charter.html', {'wg': wg, 'concluded':concluded, 'selected':'charter'}, RequestContext(request))
+
+def meeting_info(num=None, acronym=None):
+    if num:
+        meetings = [ num ]
+    else:
+        if acronym:
+            meetings = list(Meeting.objects.all())
+        else:
+            meetings = list(Meeting.objects.all())
+        meetings.reverse()
+        meetings = [ meeting.meeting_num for meeting in meetings ]
+
+    for n in meetings:
+        try:
+            meeting= Meeting.objects.get(meeting_num=n)
+            break
+        except (Meeting.DoesNotExist):
+            continue
+    else:
+        raise Http404("No agenda for meeting %s available" % num)
+
+    return meeting
+
+def wg_text(filename=None, typestr="file"):
+    if not filename:
+        text = "Sorry, no "+ typestr +" available as of today. Either no meeting was held, or the document has not yet been submitted."
+    else:
+        try:
+            text_file = open(filename)
+            text = text_file.read()
+        except BaseException:
+            text =  'Error loading work group ' + typestr
+
+    return text
+
+def wg_agenda_text(filename=None):
+    return wg_text(filename, "agenda")
+
+def wg_minutes_text(filename=None):
+    return wg_text(filename, "minutes")
+
+def wg_meeting(request, acronym=None, num=None):
+    wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
+    concluded = (wg.status_id != 1)
+    sessions = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id)
+    for sess in sessions:
+        session = sess
+
+    if session and session.sched_time_id1:
+        sess_meeting_date = session.sched_time_id1.meeting_date()
+
+    if not num:
+        meeting = meeting_info(session.meeting.num)
+    else:
+        meeting = meeting_info(num)
+ 
+    slides = session.slides()
+    for slide in slides:
+        slide.filename = slide.file_loc()
+
+    # this prefix only works for matthijs!
+    prefix = "/home/matje/svn/codesprint/matthijs/data/"
+    agenda_file = session.agenda_file()
+    if agenda_file:
+        agenda_file = prefix + agenda_file
+    agenda_text = wg_agenda_text(agenda_file)
+    minutes_file = session.minute_file()
+    if minutes_file:
+        minutes_file = prefix + minutes_file
+    minutes_text = wg_minutes_text(minutes_file)
+    template = "wginfo/wg_meeting.html"
+    return render_to_response(template,
+            {'wg':wg, 'concluded':concluded, 'meeting':meeting, 'session':session, 'sessions':sessions,
+                'agenda':agenda_text, 'agenda_file':agenda_file, 'minutes':minutes_text, 'minutes_file':minutes_file,
+                'meeting_date':sess_meeting_date, 'slides':slides, 'selected':'meeting'}, RequestContext(request))

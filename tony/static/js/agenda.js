@@ -108,7 +108,8 @@ function showcolortransfer()
     if (colortransfer && colortransferurl) {
 	var url = "" + window.location;
 	// alert("url=" + url);
-	if (url.indexOf("?")) url = url.substr(0, url.indexOf("?"));
+	if (url.indexOf("?") >= 0) url = url.substr(0, url.indexOf("?"));
+	if (url == "") url = "THIS-PAGE'S-URL";
 	url += "?colors=" + get_colortransfer_parm_string();
 	colortransferurl.innerHTML = "" + url;
         Element.toggle(colortransfer);

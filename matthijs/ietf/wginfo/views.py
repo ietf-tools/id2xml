@@ -138,14 +138,16 @@ def wg_meeting(request, acronym=None, num=None):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
     sessions = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id)
-    for sess in sessions:
-        session = sess
+    if not num:
+        session = list(sessions)[-1]
+    else:
+        session = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id, meeting__meeting_num=num).get()
 
     if session and session.sched_time_id1:
         sess_meeting_date = session.sched_time_id1.meeting_date()
 
     if not num:
-        meeting = meeting_info(session.meeting.num)
+        meeting = meeting_info(session.meeting.meeting_num)
     else:
         meeting = meeting_info(num)
  

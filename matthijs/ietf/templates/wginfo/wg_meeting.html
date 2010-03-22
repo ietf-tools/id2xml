@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <tr>
 <td colspan=2">
-<a href="/wg/{{ wg.group_acronym.acronym }}/meeting/{{ sess.meeting.num }}/">IETF {{ sess.meeting.num }} Meeting</a>
+<a href="/wg/{{ wg.group_acronym.acronym }}/meeting/{{ sess.meeting.meeting_num }}/">IETF {{ sess.meeting.num }} Meeting</a>
 </td>
 </tr>
 
@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </table>
 </div>
 
-<h2>IETF {{ meeting.num }} Meeting</h2>
+<h2>IETF {{ meeting.meeting_num }} Meeting</h2>
 
 <p>
 <b>Location and Time</b> <br />
@@ -75,8 +75,8 @@ Combined sessions: [TO DO] <br />
 {% endif %}
 
 iCal:
-<a href="http://tools.ietf.org/wg/{{ wg.group_acronym.acronym }}/ietf-{{ meeting.num }}-{{ wg.group_acronym.acronym }}.ics">
-ietf-{{ meeting.num }}-{{ wg.group_acronym.acronym }}.ics
+<a href="http://tools.ietf.org/wg/{{ wg.group_acronym.acronym }}/ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics">
+ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics
 </a>
 <br />
 <br />
@@ -94,13 +94,13 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 {% endfor %}
 </p>
 
-<h2>IETF {{ meeting.num }} Minutes</h2>
+<h2>IETF {{ meeting.meeting_num }} Minutes</h2>
 
 <p>
 {{ minutes|escape|linebreaks|urlize|urlize_ietf_docs }}
 </p>
 
-<h2>IETF {{ meeting.num }} Agenda</h2>
+<h2>IETF {{ meeting.meeting_num }} Agenda</h2>
 
 <p>
 {{ agenda|escape|linebreaks|urlize|urlize_ietf_docs }}

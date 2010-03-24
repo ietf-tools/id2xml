@@ -155,7 +155,7 @@ def wg_meeting(request, acronym=None, num=None):
     for slide in slides:
         slide.filename = slide.file_loc()
 
-    prefix = settings.AGENDA_PATH
+    prefix = settings.AGENDA_PATH + unicode(meeting.meeting_num) + "/"
     agenda_file = session.agenda_file()
     if agenda_file and prefix:
         agenda_file = prefix + agenda_file

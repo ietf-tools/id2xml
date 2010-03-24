@@ -1,0 +1,78 @@
+{% extends "idrfc/base.html" %}
+{# Copyright The IETF Trust 2010, All Rights Reserved #}
+{% block title %}
+{% if name %}
+{{ name }} statistics
+{% else %}
+Statistics for all RFCs
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if name %}
+<h1>{{ name }} statistics</h1>
+{% else %}
+<h1>Statistics for all RFCs</h1>
+{% endif %}
+
+Statistics of {{ rfc.count }} RFCs.
+
+{% if rfcstatus %}
+<h2>RFC statistics per RFC status</h2>
+
+<table class="ietf-table">
+  <tr><th>Status</th><th>Number of RFCs</th><th colspan="2">%</th></tr>
+  {% for s in rfcstatus %}
+    {% if s.count %}
+    <tr class="{% cycle oddrow,evenrow %}">
+      <td> {{ s.name }} </td>
+      <td> {{ s.count }}  </td>
+      <td> {{ s.procent }}% </td>
+      <td><IMG SRC="/images/graph16x16.png" ALT="{{ s.procent }}" HEIGHT="16" WIDTH="{{ s.promil }}"> </td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if rfcyears %}
+<h2>RFC statistics per publication year</h2>
+
+<table class="ietf-table">
+  <tr><th>Year</th><th>Number of RFCs</th><th colspan="2">%</th></tr>
+  {% for y in rfcyears %}
+    <tr class="{% cycle oddrow,evenrow %}">
+      <td> {{ y.year }} </td>
+      <td> {{ y.count }}  </td>
+      <td> {{ y.procent }}% </td>
+      <td> <IMG SRC="/images/graph16x16.png" ALT="{{ y.procent }}" HEIGHT="16" WIDTH="{{ y.promil }}"> </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if rfcstatusyears %}
+<h2>RFC statistics per publication year and RFC status</h2>
+
+<table class="ietf-table">
+  <tr><th width="5%">Year</th>
+  {% for s in rfcmirrorstatus %}
+    <th width="10%">{{ s }}</th>
+  {% endfor %}
+  </tr>
+  {% for y in rfcstatusyears %}
+    <tr class="{% cycle oddrow,evenrow %}">
+    {% for s in y %}
+      {% ifequal s.name "Standard" %}
+        <th> {{ s.year }} </th>
+      {% endifequal %}
+      <td> {{ s.count }}  </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}
+
+  

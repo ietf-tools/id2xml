@@ -156,16 +156,25 @@ def wg_meeting(request, acronym=None, num=None):
         slide.filename = slide.file_loc()
 
     prefix = settings.AGENDA_PATH
+
     agenda_file = session.agenda_file()
     if agenda_file and prefix:
         agenda_file = prefix + agenda_file
     agenda_text = wg_agenda_text(agenda_file)
+    agenda_type = "text";
+    if agenda_file[-5:] == ".html":
+        agenda_type = "html";
+
     minutes_file = session.minute_file()
     if minutes_file and prefix:
         minutes_file = prefix + minutes_file
     minutes_text = wg_minutes_text(minutes_file)
+    minutes_type = "text";
+    if minutes_file[-5:] == ".html":
+        minutes_type = "html";
+
     template = "wginfo/wg_meeting.html"
     return render_to_response(template,
             {'wg':wg, 'concluded':concluded, 'meeting':meeting, 'session':session, 'sessions':sessions,
-                'agenda':agenda_text, 'agenda_file':agenda_file, 'minutes':minutes_text, 'minutes_file':minutes_file,
+                'agenda':agenda_text, 'agenda_type':agenda_type, 'minutes':minutes_text, 'minutes_type':minutes_type,
                 'meeting_date':sess_meeting_date, 'slides':slides, 'selected':'meeting'}, RequestContext(request))

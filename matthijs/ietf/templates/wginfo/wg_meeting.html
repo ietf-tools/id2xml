@@ -97,13 +97,21 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 <h2>IETF {{ meeting.meeting_num }} Minutes</h2>
 
 <p>
+{% ifequal minutes_type "html" %}
+{{ minutes|safe }}
+{% else %}
 {{ minutes|escape|linebreaks|urlize|urlize_ietf_docs }}
+{% endifequal %}
 </p>
 
 <h2>IETF {{ meeting.meeting_num }} Agenda</h2>
 
 <p>
+{% ifequal agenda_type "html" %}
+{{ agenda|safe }}
+{% else %}
 {{ agenda|escape|linebreaks|urlize|urlize_ietf_docs }}
+{% endifequal %}
 </p>
 
 {% endblock wg_content %}

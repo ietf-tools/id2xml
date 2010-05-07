@@ -7,6 +7,7 @@ import re
 from django.conf import settings
 from django.db import models
 from ietf.utils import FKAsOneToOne
+from ietf.utils.broken_foreign_key import BrokenForeignKey
 
 class Acronym(models.Model):
     acronym_id = models.AutoField(primary_key=True)
@@ -149,7 +150,7 @@ class InternetDraft(models.Model):
     rfc_number = models.IntegerField(null=True, blank=True, db_index=True)
     comments = models.TextField(blank=True,null=True)
     last_modified_date = models.DateField()
-    replaced_by = models.ForeignKey('self', db_column='replaced_by', blank=True, null=True, related_name='replaces_set')
+    replaced_by = BrokenForeignKey('self', db_column='replaced_by', blank=True, null=True, related_name='replaces_set')
     replaces = FKAsOneToOne('replaces', reverse=True)
     review_by_rfc_editor = models.BooleanField()
     expired_tombstone = models.BooleanField()
@@ -214,7 +215,7 @@ class InternetDraft(models.Model):
 
     class Meta:
         db_table = "internet_drafts"
-
+        
 class PersonOrOrgInfo(models.Model):
     person_or_org_tag = models.AutoField(primary_key=True)
     record_type = models.CharField(blank=True, null=True, max_length=8)
@@ -290,7 +291,7 @@ class IESGLogin(models.Model):
     user_level = models.IntegerField(choices=USER_LEVEL_CHOICES)
     first_name = models.CharField(blank=True, max_length=25)
     last_name = models.CharField(blank=True, max_length=25)
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', unique=True)
+    person = BrokenForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', unique=True, null_values=(0, 888888), null=True)
     pgp_id = models.CharField(blank=True, null=True, max_length=20)
     default_search = models.NullBooleanField()
     def __str__(self):
@@ -432,7 +433,7 @@ class BallotInfo(models.Model):   # Added by Michael Lee
     active = models.BooleanField()
     an_sent = models.BooleanField()
     an_sent_date = models.DateField(null=True, blank=True)
-    an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent', null=True) 
+    an_sent_by = models.ForeignKey(IESGLogin, db_column='an_sent_by', related_name='ansent', null=True)
     defer = models.BooleanField(blank=True)
     defer_by = models.ForeignKey(IESGLogin, db_column='defer_by', related_name='deferred', null=True)
     defer_date = models.DateField(null=True, blank=True)
@@ -503,6 +504,12 @@ class BallotInfo(models.Model):   # Added by Michael Lee
     class Meta:
         db_table = 'ballot_info'
 
+def format_document_state(state, substate):
+    if substate:
+        return state.state + "::" + substate.sub_state
+    else:
+        return state
+
 class IDInternal(models.Model):
     """
     An IDInternal represents a document that has been added to the
@@ -547,8 +554,8 @@ class IDInternal(models.Model):
     job_owner = models.ForeignKey(IESGLogin, db_column='job_owner', related_name='documents')
     event_date = models.DateField(null=True)
     area_acronym = models.ForeignKey(Area)
-    cur_sub_state = models.ForeignKey(IDSubState, related_name='docs', null=True, blank=True)
-    prev_sub_state = models.ForeignKey(IDSubState, related_name='docs_prev', null=True, blank=True)
+    cur_sub_state = BrokenForeignKey(IDSubState, related_name='docs', null=True, blank=True, null_values=(0, -1))
+    prev_sub_state = BrokenForeignKey(IDSubState, related_name='docs_prev', null=True, blank=True, null_values=(0, -1))
     returning_item = models.IntegerField(null=True, blank=True)
     telechat_date = models.DateField(null=True, blank=True)
     via_rfc_editor = models.IntegerField(null=True, blank=True)
@@ -556,7 +563,7 @@ class IDInternal(models.Model):
     dnp = models.IntegerField(null=True, blank=True)
     dnp_date = models.DateField(null=True, blank=True)
     noproblem = models.IntegerField(null=True, blank=True)
-    resurrect_requested_by = models.ForeignKey(IESGLogin, db_column='resurrect_requested_by', related_name='docsresurrected', null=True, blank=True)
+    resurrect_requested_by = BrokenForeignKey(IESGLogin, db_column='resurrect_requested_by', related_name='docsresurrected', null=True, blank=True)
     approved_in_minute = models.IntegerField(null=True, blank=True)
     def __str__(self):
         if self.rfc_flag:
@@ -594,10 +601,13 @@ class IDInternal(models.Model):
     def ballot_others(self):
 	return IDInternal.objects.filter(models.Q(primary_flag=0)|models.Q(primary_flag__isnull=True), ballot=self.ballot_id)
     def docstate(self):
-	if self.cur_sub_state_id > 0:
-	    return "%s::%s" % ( self.cur_state.state, self.cur_sub_state.sub_state )
-	else:
-	    return self.cur_state.state
+        return format_document_state(self.cur_state, self.cur_sub_state)
+    def change_state(self, state, sub_state):
+        self.prev_state = self.cur_state
+        self.cur_state = state
+        self.prev_sub_state_id = self.cur_sub_state_id
+        self.cur_sub_state = sub_state
+        
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'
@@ -610,18 +620,20 @@ class DocumentComment(models.Model):
     document = models.ForeignKey(IDInternal)
     # NOTE: This flag is often NULL, which complicates its correct use...
     rfc_flag = models.IntegerField(null=True, blank=True)
-    public_flag = models.IntegerField()
-    date = models.DateField(db_column='comment_date')
-    time = models.CharField(db_column='comment_time', max_length=20)
+    public_flag = models.BooleanField()
+    date = models.DateField(db_column='comment_date', default=datetime.date.today)
+    time = models.CharField(db_column='comment_time', max_length=20, default=lambda: datetime.datetime.now().strftime("%H:%M:%S"))
     version = models.CharField(blank=True, max_length=3)
     comment_text = models.TextField(blank=True)
     # NOTE: This is not a true foreign key -- it sometimes has values 
     # (like 999) that do not exist in IESGLogin. So using select_related()
     # will break!    
-    created_by = models.ForeignKey(IESGLogin, db_column='created_by', null=True)
-    result_state = models.ForeignKey(IDState, db_column='result_state', null=True, related_name="comments_leading_to_state")
+    created_by = BrokenForeignKey(IESGLogin, db_column='created_by', null=True, null_values=(0, 999))
+    result_state = BrokenForeignKey(IDState, db_column='result_state', null=True, related_name="comments_leading_to_state", null_values=(0, 99))
     origin_state = models.ForeignKey(IDState, db_column='origin_state', null=True, related_name="comments_coming_from_state")
     ballot = models.IntegerField(null=True, choices=BALLOT_CHOICES)
+    def __str__(self):
+        return "\"%s...\" by %s" % (self.comment_text[:20], self.get_author())
     def get_absolute_url(self):
 	# use self.document.rfc_flag, since
 	# self.rfc_flag is not always set properly.
@@ -630,17 +642,17 @@ class DocumentComment(models.Model):
 	else:
 	    return "/idtracker/%s/comment/%d/" % (self.document.draft.filename, self.id)
     def get_author(self):
-	if self.created_by_id and self.created_by_id != 999:
-	    return self.created_by.__str__()
+	if self.created_by:
+	    return str(self.created_by)
 	else:
 	    return "(System)"
     def get_username(self):
-	if self.created_by_id and self.created_by_id != 999:
+	if self.created_by:
 	    return self.created_by.login_name
 	else:
 	    return "(System)"
     def get_fullname(self):
-	if self.created_by_id and self.created_by_id != 999:
+	if self.created_by:
 	    return self.created_by.first_name + " " + self.created_by.last_name
 	else:
 	    return "(System)"
@@ -650,7 +662,7 @@ class DocumentComment(models.Model):
 	return datetime.datetime.combine( self.date, datetime.time( * [int(s) for s in self.time.split(":")] ) )
     class Meta:
         db_table = 'document_comments'
-
+        
 class Position(models.Model):
     ballot = models.ForeignKey(BallotInfo, related_name='positions')
     ad = models.ForeignKey(IESGLogin)

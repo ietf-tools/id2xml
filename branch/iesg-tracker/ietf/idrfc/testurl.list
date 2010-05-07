@@ -77,6 +77,3 @@
 
 # Test case for missing publication date
 200	/doc/search/?oldDrafts=on&name=ppvpn
-
-# Editing document metadata 
-200     /doc/draft-ietf-mipshop-pfmipv6/edit/state/

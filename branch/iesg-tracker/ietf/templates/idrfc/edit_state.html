@@ -1,0 +1,23 @@
+<form action="" method="POST">
+  <table>
+    {{ form.as_table }}
+  </table>
+
+  <div class="actions">
+    <a href="../../">Back</a>
+    <input type="submit" value="Save"/>
+  </div>
+</form>
+
+{% if next_states %}
+<div class="next-states">
+  {% for n in next_states %}
+  <form action="" method="POST">
+    <input type="hidden" name="state" value="{{ n.next_state.document_state_id }}" />
+    <input type="hidden" name="substate" value="" />
+    <input type="submit" value="{{ n.next_state.state }}" />
+  <form>
+  {% endfor %}
+</div>
+{% endif %}
+  

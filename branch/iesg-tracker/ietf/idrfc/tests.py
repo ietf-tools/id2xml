@@ -32,11 +32,74 @@
 
 import unittest
 import StringIO
+import django.test
+from pyquery import PyQuery
+
+from ietf.idrfc.models import *
+from ietf.idtracker.models import *
 from ietf.utils.test_utils import SimpleUrlTestCase, RealDatabaseTest
+from ietf.utils.test_runner import mail_outbox
 
 class IdRfcUrlTestCase(SimpleUrlTestCase):
     def testUrls(self):
         self.doTestUrls(__file__)
+
+class ChangeStateTestCase(django.test.TestCase):
+    fixtures = ['iesglogins', 'status', 'states', 'substates', 'idinternals', 'internetdrafts']
+
+    def test_change_state(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+
+        state = draft.idinternal.cur_state
+        substate = draft.idinternal.cur_sub_state
+        next_states = IDNextState.objects.filter(cur_state=draft.idinternal.cur_state)
+        # unauthorized get
+        r = self.client.get("/doc/draft-ietf-mipshop-pfmipv6/edit/state/")
+        self.assertEquals(r.status_code, 302)
+        self.assertTrue("/accounts/login" in r['Location'])
+
+        
+        self.client.login(remote_user="klm")
+
+        # normal get
+        r = self.client.get("/doc/draft-ietf-mipshop-pfmipv6/edit/state/")
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form select[name=state]')), 1)
+        self.assertEquals(len(q('form select[name=substate]')), 1)
+
+        if next_states:
+            self.assertTrue(len(q('.next-states form input[type=hidden]')) > 0)
+
+            
+        # faulty post
+        r = self.client.post("/doc/draft-ietf-mipshop-pfmipv6/edit/state/",
+                             dict(state="123456789", substate="987654531"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form ul.errorlist')) > 0)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.cur_state, state)
+
+        
+        # change state
+        comments_before = draft.idinternal.comments().count()
+        
+        r = self.client.post("/doc/draft-ietf-mipshop-pfmipv6/edit/state/",
+                             dict(state="15", substate=""))
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.prev_state, state)
+        self.assertEquals(draft.idinternal.prev_sub_state, substate)
+        self.assertEquals(draft.idinternal.cur_state.document_state_id, 15)
+        self.assertEquals(draft.idinternal.cur_sub_state, None)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("State changed" in draft.idinternal.comments()[0].comment_text)
+        self.assertTrue(mail_outbox)
+        self.assertTrue("State Update Notice" in mail_outbox[0]['Subject'])
+        
+
 
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 

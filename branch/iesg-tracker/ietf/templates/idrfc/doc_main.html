@@ -83,6 +83,9 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
 {% block doc_metabuttons %}
 {% if user|in_group:"Area_Director,Secretariat" %}
 <div style="padding-bottom:2px;">
+  {% if doc.in_ietf_process %}
+  <span id="doc_edit_state_button" class="yui-button yui-link-button" style="margin-left:2px;"><span class="first-child"><a href="edit/state/">Change state</a></span></span>
+  {% endif%}
 <span id="doc_edit_button" class="yui-button yui-link-button" style="margin-left:2px;"><span class="first-child">{% if doc.in_ietf_process %}
 <a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=view_id&amp;{% if info.is_rfc %}dTag={{doc.rfc_number}}&amp;rfc_flag=1{% else %}dTag={{doc.tracker_id}}{% endif %}" rel="nofollow" target="_blank">Edit state (IESG Tracker)</a>
 {% else %}

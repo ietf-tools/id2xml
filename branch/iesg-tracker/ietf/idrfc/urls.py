@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django.conf.urls.defaults import patterns
-from ietf.idrfc import views_doc, views_search, views
+from ietf.idrfc import views_doc, views_search, views_edit, views
 
 urlpatterns = patterns('',
     (r'^/?$', views_search.search_main),
@@ -41,5 +41,6 @@ urlpatterns = patterns('',
     (r'^(?P<name>[^/]+)/$', views_doc.document_main),
     (r'^(?P<name>[^/]+)/_debug.data$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
-    (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad)
+    (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad),
+    (r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state),
 )

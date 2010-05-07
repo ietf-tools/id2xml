@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="17914" model="idtracker.idinternal">
+        <field type="IntegerField" name="rfc_flag">0</field>
+        <field to="idtracker.ballotinfo" name="ballot" rel="ManyToOneRel">3175</field>
+        <field type="IntegerField" name="primary_flag">1</field>
+        <field type="IntegerField" name="group_flag">0</field>
+        <field type="CharField" name="token_name">Jari Arkko</field>
+        <field type="CharField" name="token_email">jari.arkko@piuha.net</field>
+        <field type="TextField" name="note">On the May 6th agenda to solicit one additional vote (Discusses cleared)&lt;br&gt;Vijay Devarapalli (vijay@wichorus.com) is the document shepherd.</field>
+        <field type="DateField" name="status_date"><None></None></field>
+        <field type="CharField" name="email_display">Jari Arkko</field>
+        <field type="IntegerField" name="agenda">1</field>
+        <field to="idtracker.idstate" name="cur_state" rel="ManyToOneRel">11</field>
+        <field to="idtracker.idstate" name="prev_state" rel="ManyToOneRel">10</field>
+        <field type="CharField" name="assigned_to"></field>
+        <field to="idtracker.iesglogin" name="mark_by" rel="ManyToOneRel">49</field>
+        <field to="idtracker.iesglogin" name="job_owner" rel="ManyToOneRel">49</field>
+        <field type="DateField" name="event_date">2010-05-06</field>
+        <field to="idtracker.area" name="area_acronym" rel="ManyToOneRel">1052</field>
+        <field to="idtracker.idsubstate" name="cur_sub_state" rel="ManyToOneRel"><None></None></field>
+        <field to="idtracker.idsubstate" name="prev_sub_state" rel="ManyToOneRel"><None></None></field>
+        <field type="IntegerField" name="returning_item">1</field>
+        <field type="DateField" name="telechat_date">2010-05-06</field>
+        <field type="IntegerField" name="via_rfc_editor">0</field>
+        <field type="CharField" name="state_change_notice_to">mipshop-chairs@tools.ietf.org, draft-ietf-mipshop-pfmipv6@tools.ietf.org</field>
+        <field type="IntegerField" name="dnp">0</field>
+        <field type="DateField" name="dnp_date"><None></None></field>
+        <field type="IntegerField" name="noproblem">0</field>
+        <field to="idtracker.iesglogin" name="resurrect_requested_by" rel="ManyToOneRel"><None></None></field>
+        <field type="IntegerField" name="approved_in_minute">1</field>
+    </object>
+</django-objects>

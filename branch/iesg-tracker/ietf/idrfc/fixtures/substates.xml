@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="1" model="idtracker.idsubstate">
+        <field type="CharField" name="sub_state">Point Raised - writeup needed</field>
+        <field type="TextField" name="description">IESG discussions on the document have raised some issues that need
+to be brought to the attention of the authors/WG, but those issues
+have not been written down yet. (It is common for discussions during
+a telechat to result in such situations. An AD may raise a possible
+issue during a telechat and only decide as a result of that
+discussion whether the issue is worth formally writing up and
+bringing to the attention of the authors/WG).  A document stays in
+the "Point Raised - Writeup Needed" state until *ALL* IESG comments
+that have been raised have been documented.</field>
+    </object>
+    <object pk="2" model="idtracker.idsubstate">
+        <field type="CharField" name="sub_state">AD Followup</field>
+        <field type="TextField" name="description">A generic substate indicating that the shepherding AD has the action
+item to determine appropriate next steps. In particular, the
+appropriate steps (and the corresponding next state or substate)
+depend entirely on the nature of the issues that were raised and can
+only be decided with active involvement of the shepherding AD.
+Examples include:
+
+    - if another AD raises an issue, the shepherding AD may first
+      iterate with the other AD to get a better understanding of the
+      exact issue. Or, the shepherding AD may attempt to argue that
+      the issue is not serious enough to bring to the attention of the
+      authors/WG.
+
+    - if a documented issue is forwarded to a WG, some further
+      iteration may be needed before it can be determined whether a
+      new revision is needed or whether the WG response to an issue
+      clarifies the issue sufficiently.
+
+    - when a new revision appears, the shepherding AD will first look
+      at the changes to determine whether they believe all outstanding
+      issues have been raised satisfactorily, prior to asking the ADs
+      who raised the original issues to verify the changes.
+</field>
+    </object>
+    <object pk="3" model="idtracker.idsubstate">
+        <field type="CharField" name="sub_state">External Party</field>
+        <field type="TextField" name="description">The document is awaiting review or input from an external party (i.e, someone other than the shepherding AD, the authors, or the WG). See the "note" field for more details on who has the action.</field>
+    </object>
+    <object pk="5" model="idtracker.idsubstate">
+        <field type="CharField" name="sub_state">Revised ID Needed</field>
+        <field type="TextField" name="description">An updated ID is needed to address the issues that have been raised.</field>
+    </object>
+</django-objects>

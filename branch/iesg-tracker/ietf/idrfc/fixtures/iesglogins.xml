@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="100" model="idtracker.iesglogin">
+        <field type="CharField" name="login_name">klm</field>
+        <field type="CharField" name="password">deleted</field>
+        <field type="IntegerField" name="user_level">0</field>
+        <field type="CharField" name="first_name">Karen</field>
+        <field type="CharField" name="last_name">Moreland</field>
+        <field to="idtracker.personororginfo" name="person" rel="ManyToOneRel"><None></None></field>
+        <field type="CharField" name="pgp_id"></field>
+        <field type="NullBooleanField" name="default_search">0</field>
+    </object>
+</django-objects>

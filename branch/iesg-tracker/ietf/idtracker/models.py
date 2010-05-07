@@ -10,6 +10,8 @@ from ietf.utils import FKAsOneToOne
 from ietf.utils.broken_foreign_key import BrokenForeignKey
 
 class Acronym(models.Model):
+    INDIVIDUAL_SUBMITTER = 1027
+    
     acronym_id = models.AutoField(primary_key=True)
     acronym = models.CharField(max_length=12)
     name = models.CharField(max_length=100)
@@ -34,6 +36,8 @@ class AreaStatus(models.Model):
 
 # I think equiv_group_flag is historical.
 class IDState(models.Model):
+    LAST_CALL_REQUESTED = 15
+    
     document_state_id = models.AutoField(primary_key=True)
     state = models.CharField(max_length=50, db_column='document_state_val')
     equiv_group_flag = models.IntegerField(null=True, blank=True)
@@ -155,6 +159,8 @@ class InternetDraft(models.Model):
     review_by_rfc_editor = models.BooleanField()
     expired_tombstone = models.BooleanField()
     idinternal = FKAsOneToOne('idinternal', reverse=True, query=models.Q(rfc_flag = 0))
+    def __str__(self):
+        return self.filename
     def save(self):
         self.id_document_key = self.title.upper()
         super(InternetDraft, self).save()
@@ -162,8 +168,6 @@ class InternetDraft(models.Model):
         return self.filename
     def group_acronym(self):
 	return self.group.acronym
-    def __str__(self):
-        return self.filename
     def idstate(self):
 	idinternal = self.idinternal
 	if idinternal:
@@ -820,7 +824,7 @@ class WGStatus(models.Model):
 
 class IETFWG(models.Model):
     ACTIVE = 1
-    group_acronym = models.ForeignKey(Acronym, primary_key=True, unique=True, editable=False)
+    group_acronym = models.OneToOneField(Acronym, primary_key=True, editable=False)
     group_type = models.ForeignKey(WGType)
     proposed_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)

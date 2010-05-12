@@ -128,6 +128,14 @@ class ChangeStateTestCase(django.test.TestCase):
         # ballot writeup
         self.assertTrue("Technical Summary" in draft.idinternal.ballot.ballot_writeup)
 
+        # mail notice
+        self.assertTrue(mail_outbox)
+        self.assertTrue("Last Call:" in mail_outbox[-1]['Subject'])
+
+        # comment
+        self.assertTrue("Last Call was requested" in draft.idinternal.comments()[0].comment_text)
+
+        
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 

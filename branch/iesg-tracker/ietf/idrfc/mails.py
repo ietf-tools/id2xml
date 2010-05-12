@@ -131,6 +131,7 @@ def generate_approval_mail(request, doc):
                             )
 
 def generate_approval_mail_rfc_editor(request, doc):
+    # FIXME: need unit test for this function
     full_status = full_intended_status(doc.intended_status)
     status = full_status.replace("a ", "").replace("an ", "")
     disapproved = doc.idinternal.cur_state_id in IDState.DO_NOT_PUBLISH_STATES

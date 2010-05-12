@@ -37,6 +37,7 @@ class AreaStatus(models.Model):
 # I think equiv_group_flag is historical.
 class IDState(models.Model):
     LAST_CALL_REQUESTED = 15
+    DO_NOT_PUBLISH_STATES = (33, 34)
     
     document_state_id = models.AutoField(primary_key=True)
     state = models.CharField(max_length=50, db_column='document_state_val')
@@ -166,6 +167,8 @@ class InternetDraft(models.Model):
         super(InternetDraft, self).save()
     def displayname(self):
         return self.filename
+    def file_tag(self):
+        return "<%s-%s.txt>" % (self.filename, self.revision_display())
     def group_acronym(self):
 	return self.group.acronym
     def idstate(self):
@@ -295,6 +298,7 @@ class IESGLogin(models.Model):
     user_level = models.IntegerField(choices=USER_LEVEL_CHOICES)
     first_name = models.CharField(blank=True, max_length=25)
     last_name = models.CharField(blank=True, max_length=25)
+    # this could be a OneToOneField but the unique constraint is violated in the data (for person_or_org_tag=188)
     person = BrokenForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', unique=True, null_values=(0, 888888), null=True)
     pgp_id = models.CharField(blank=True, null=True, max_length=20)
     default_search = models.NullBooleanField()
@@ -384,6 +388,8 @@ class Rfc(models.Model):
 	return "RFC"
     def revision_display(self):
 	return "RFC"
+    def file_tag(self):
+        return "RFC %s" % self.rfc_number
     _idinternal_cache = None
     _idinternal_cached = False
     def idinternal(self):
@@ -588,7 +594,7 @@ class IDInternal(models.Model):
 	else:
 	    return self.draft
     def public_comments(self):
-	return self.comments().filter(public_flag=1)
+	return self.comments().filter(public_flag=True)
     def comments(self):
 	# would filter by rfc_flag but the database is broken. (see
 	# trac ticket #96) so this risks collisions.

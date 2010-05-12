@@ -33,6 +33,8 @@
 import unittest
 import StringIO
 import django.test
+from django.core.urlresolvers import reverse as urlreverse
+
 from pyquery import PyQuery
 
 from ietf.idrfc.models import *
@@ -45,7 +47,7 @@ class IdRfcUrlTestCase(SimpleUrlTestCase):
         self.doTestUrls(__file__)
 
 class ChangeStateTestCase(django.test.TestCase):
-    fixtures = ['iesglogins', 'status', 'states', 'substates', 'idinternals', 'internetdrafts']
+    fixtures = ['base', 'draft']
 
     def test_change_state(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
@@ -53,8 +55,10 @@ class ChangeStateTestCase(django.test.TestCase):
         state = draft.idinternal.cur_state
         substate = draft.idinternal.cur_sub_state
         next_states = IDNextState.objects.filter(cur_state=draft.idinternal.cur_state)
+        url = urlreverse('doc_change_state', kwargs=dict(name=draft.filename))
+        
         # unauthorized get
-        r = self.client.get("/doc/draft-ietf-mipshop-pfmipv6/edit/state/")
+        r = self.client.get(url)
         self.assertEquals(r.status_code, 302)
         self.assertTrue("/accounts/login" in r['Location'])
 
@@ -62,7 +66,7 @@ class ChangeStateTestCase(django.test.TestCase):
         self.client.login(remote_user="klm")
 
         # normal get
-        r = self.client.get("/doc/draft-ietf-mipshop-pfmipv6/edit/state/")
+        r = self.client.get(url)
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEquals(len(q('form select[name=state]')), 1)
@@ -73,7 +77,7 @@ class ChangeStateTestCase(django.test.TestCase):
 
             
         # faulty post
-        r = self.client.post("/doc/draft-ietf-mipshop-pfmipv6/edit/state/",
+        r = self.client.post(url,
                              dict(state="123456789", substate="987654531"))
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
@@ -85,21 +89,44 @@ class ChangeStateTestCase(django.test.TestCase):
         # change state
         comments_before = draft.idinternal.comments().count()
         
-        r = self.client.post("/doc/draft-ietf-mipshop-pfmipv6/edit/state/",
-                             dict(state="15", substate=""))
+        r = self.client.post(url,
+                             dict(state="12", substate=""))
         self.assertEquals(r.status_code, 302)
 
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
         self.assertEquals(draft.idinternal.prev_state, state)
         self.assertEquals(draft.idinternal.prev_sub_state, substate)
-        self.assertEquals(draft.idinternal.cur_state.document_state_id, 15)
+        self.assertEquals(draft.idinternal.cur_state.document_state_id, 12)
         self.assertEquals(draft.idinternal.cur_sub_state, None)
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("State changed" in draft.idinternal.comments()[0].comment_text)
         self.assertTrue(mail_outbox)
         self.assertTrue("State Update Notice" in mail_outbox[0]['Subject'])
-        
 
+        
+    def test_make_last_call(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+
+        self.client.login(remote_user="klm")
+        url = urlreverse('doc_change_state', kwargs=dict(name=draft.filename))
+
+        self.assertRaises(BallotInfo.DoesNotExist, lambda: draft.idinternal.ballot)
+        r = self.client.post(url,
+                             dict(state="15", substate=""))
+        self.assertContains(r, "Your request to issue the Last Call")
+
+        # last call text
+        self.assertTrue("The IESG has received" in draft.idinternal.ballot.last_call_text)
+        self.assertTrue(draft.title in draft.idinternal.ballot.last_call_text)
+        self.assertTrue(draft.idinternal.get_absolute_url() in draft.idinternal.ballot.last_call_text)
+
+        # approval text
+        self.assertTrue("The IESG has approved" in draft.idinternal.ballot.approval_text)
+        self.assertTrue(draft.title in draft.idinternal.ballot.approval_text)
+        self.assertTrue(draft.idinternal.get_absolute_url() in draft.idinternal.ballot.approval_text)
+
+        # ballot writeup
+        self.assertTrue("Technical Summary" in draft.idinternal.ballot.ballot_writeup)
 
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 

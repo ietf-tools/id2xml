@@ -30,7 +30,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 from ietf.idrfc import views_doc, views_search, views_edit, views
 
 urlpatterns = patterns('',
@@ -38,9 +38,9 @@ urlpatterns = patterns('',
     (r'^search/$', views_search.search_results),
     (r'^all/$', views_search.all),
     (r'^active/$', views_search.active),
-    (r'^(?P<name>[^/]+)/$', views_doc.document_main),
+    url(r'^(?P<name>[^/]+)/$', views_doc.document_main, {}, name="doc_view"),
     (r'^(?P<name>[^/]+)/_debug.data$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
     (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad),
-    (r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state),
+    url(r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state, {}, name='doc_change_state'),
 )

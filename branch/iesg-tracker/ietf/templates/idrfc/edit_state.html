@@ -9,8 +9,11 @@
   </div>
 </form>
 
+<p><a href="{% url help_states %}">State table</a></p>
+
 {% if next_states %}
 <div class="next-states">
+  <div>Or go directly to</div>
   {% for n in next_states %}
   <form action="" method="POST">
     <input type="hidden" name="state" value="{{ n.next_state.document_state_id }}" />
@@ -20,4 +23,3 @@
   {% endfor %}
 </div>
 {% endif %}
-  

@@ -23,3 +23,12 @@
   {% endfor %}
 </div>
 {% endif %}
+
+<div class="prev-state">
+  <div>Or revert to previous state</div>
+  <form action="" method="POST">
+    <input type="hidden" name="state" value="{{ doc.idinternal.prev_state_id }}" />
+    <input type="hidden" name="substate" value="{{ doc.idinternal.prev_sub_state_id|default_if_none:"" }}" />
+    <input type="submit" value="Back to {{ prev_state_formatted }}" />
+  <form>
+</div>

@@ -9,12 +9,28 @@ from django.utils.html import strip_tags
 from ietf.utils.mail import send_mail
 from ietf.idtracker.models import *
 
-def send_doc_state_changed_email(request, doc, text):
+def email_state_changed(request, doc, text):
     to = [x.strip() for x in doc.idinternal.state_change_notice_to.replace(';', ',').split(',')]
     send_mail(request, to, None,
-              "ID Tracker State Update Notice: %s" % doc.filename,
+              "ID Tracker State Update Notice: %s" % doc.file_tag(),
               "idrfc/state_changed_email.txt",
               dict(text=text,
+                   url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
+
+def html_to_text(html):
+    return strip_tags(html.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("<br>", "\n"))
+    
+def email_owner(request, doc, owner, changed_by, text):
+    if not owner or not changed_by or owner == changed_by:
+        return
+
+    to = u"%s <%s>" % owner.person.email()
+    send_mail(request, to,
+              "DraftTracker Mail System <iesg-secretary@ietf.org>",
+              "%s updated by %s" % (doc.file_tag(), changed_by),
+              "idrfc/changes_by_other.txt",
+              dict(text=html_to_text(text),
+                   doc=doc,
                    url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
 
 def full_intended_status(intended_status):

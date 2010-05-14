@@ -15,6 +15,7 @@ setup_environ(settings)
 from django.core.serializers import serialize
 from django.db.models import Q 
 from idtracker.models import *
+from iesg.models import *
 
 def output(name, qs):
     try:
@@ -36,11 +37,14 @@ broken_logins = ('bthorson', 'members', 'iab')
 base.extend(area_directors)
 base.extend(PersonOrOrgInfo.objects.filter(areadirector__in=area_directors))
 base.extend(IESGLogin.objects.filter(Q(login_name="klm") | Q(person__in=[a.person for a in area_directors])).exclude(login_name__in=broken_logins))
+base.extend(EmailAddress.objects.filter(person_or_org__areadirector__in=area_directors, priority=1))
 base.extend(IDStatus.objects.all())
 base.extend(IDIntendedStatus.objects.all())
 base.extend(IDSubState.objects.all())
 base.extend(IDState.objects.all())
 base.extend(WGType.objects.all())
+base.extend(TelechatDates.objects.all())
+base.extend(Acronym.objects.filter(acronym_id=Acronym.INDIVIDUAL_SUBMITTER))
 
 output("base", base)
 

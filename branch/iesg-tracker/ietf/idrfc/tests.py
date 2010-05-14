@@ -32,6 +32,8 @@
 
 import unittest
 import StringIO
+from datetime import date, timedelta
+
 import django.test
 from django.core.urlresolvers import reverse as urlreverse
 
@@ -100,8 +102,9 @@ class ChangeStateTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.cur_sub_state, None)
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("State changed" in draft.idinternal.comments()[0].comment_text)
-        self.assertTrue(mail_outbox)
+        self.assertTrue(len(mail_outbox) == 2)
         self.assertTrue("State Update Notice" in mail_outbox[0]['Subject'])
+        self.assertTrue(draft.filename in mail_outbox[1]['Subject'])
 
         
     def test_make_last_call(self):
@@ -134,6 +137,68 @@ class ChangeStateTestCase(django.test.TestCase):
 
         # comment
         self.assertTrue("Last Call was requested" in draft.idinternal.comments()[0].comment_text)
+
+class EditInfoTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft']
+
+    def test_edit_info(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+
+        url = urlreverse('doc_edit_info', kwargs=dict(name=draft.filename))
+        
+        # unauthorized get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 302)
+        self.assertTrue("/accounts/login" in r['Location'])
+
+        
+        self.client.login(remote_user="klm")
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form select[name=intended_status]')), 1)
+        self.assertEquals(len(q('form input[name=via_rfc_editor]')), 1)
+
+        prev_job_owner = draft.idinternal.job_owner
+        # faulty post
+        r = self.client.post(url, dict(job_owner="123456789"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form ul.errorlist')) > 0)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.job_owner, prev_job_owner)
+
+        # edit info
+        comments_before = draft.idinternal.comments().count()
+        draft.group = Acronym.objects.get(acronym_id=Acronym.INDIVIDUAL_SUBMITTER)
+        draft.save()
+        new_job_owner = IESGLogin.objects.exclude(id__in=[IESGLogin.objects.get(login_name="klm").id, draft.idinternal.job_owner_id])[0]
+        new_group = Acronym.objects.filter(area__status=Area.ACTIVE)[0]
+
+        r = self.client.post(url,
+                             dict(intended_status=str(draft.intended_status_id),
+                                  status_date=str(date.today() + timedelta(2)),
+                                  group=str(new_group.acronym_id),
+                                  via_rfc_editor="1",
+                                  job_owner=new_job_owner.id,
+                                  state_change_notice_to="test@example.com",
+                                  note="",
+                                  telechat_date="",
+                                  ))
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.group, new_group)
+        self.assertTrue(draft.idinternal.via_rfc_editor)
+        self.assertEquals(draft.idinternal.job_owner, new_job_owner)
+        self.assertEquals(draft.idinternal.note, "")
+        self.assertTrue(not draft.idinternal.agenda)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 2)
+        self.assertTrue("cleared" in draft.idinternal.comments()[0].comment_text)
+        self.assertTrue(len(mail_outbox) == 1)
+        self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
 
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>

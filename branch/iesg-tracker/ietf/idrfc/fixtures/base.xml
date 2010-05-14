@@ -820,6 +820,216 @@
         <field type="CharField" name="pgp_id"></field>
         <field type="NullBooleanField" name="default_search"><None></None></field>
     </object>
+    <object pk="20054" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">104942</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">lars.eggert@nokia.com</field>
+        <field type="CharField" name="comment">Email Address</field>
+    </object>
+    <object pk="1311" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2324</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">sob@harvard.edu</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="3312" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">4763</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">kostick@qsun.att.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="5889" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">188</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">scoya@ietf.org</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="1311" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2324</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">sob@harvard.edu</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="15740" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">101568</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">rbonica@juniper.net</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="3209" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2372</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">hagens@mci.net</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="5692" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2744</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">dcrocker@brandenburg.com</field>
+        <field type="CharField" name="comment">this address is his 1st preference</field>
+    </object>
+    <object pk="12146" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">19790</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">tim.polk@nist.gov</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="1511" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2329</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">stbryant@cisco.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="17371" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">103264</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">alex.zinin@alcatel-lucent.com</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="4739" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">5376</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">housley@vigilsec.com</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="9949" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">17253</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">ietfdbh@comcast.net</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="1336" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2515</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">mankin@psg.com</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="4246" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">4817</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">mo@uu.net</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="13322" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">21072</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">jari.arkko@piuha.net</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="3060" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">4356</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">april.marine@nominum.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="1310" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">6842</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">bertietf@bwijnen.net</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="563" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2723</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">rcallon@juniper.net</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="1631" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2853</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">fred.baker@cisco.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="3900" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">6699</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">dromasca@avaya.com</field>
+        <field type="CharField" name="comment">Email</field>
+    </object>
+    <object pk="2985" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">773</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">oran@cisco.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="11854" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">19483</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">turners@ieca.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="20468" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">106956</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">noreply@ietf.org</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="19416" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">105907</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">stpeter@stpeter.im</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="17645" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">103539</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">gonzalo.camarillo@ericsson.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="3589" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">2348</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">rdroms.ietf@gmail.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="17797" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">103961</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">rjsparks@nostrum.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="18108" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">104198</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">adrian.farrel@huawei.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
+    <object pk="16306" model="idtracker.emailaddress">
+        <field to="idtracker.personororginfo" name="person_or_org" rel="ManyToOneRel">102154</field>
+        <field type="CharField" name="type">INET</field>
+        <field type="IntegerField" name="priority">1</field>
+        <field type="CharField" name="address">alexey.melnikov@isode.com</field>
+        <field type="CharField" name="comment"></field>
+    </object>
     <object pk="1" model="idtracker.idstatus">
         <field type="CharField" name="status">Active</field>
     </object>
@@ -1062,5 +1272,15 @@ withdrawn, etc.)</field>
     </object>
     <object pk="5" model="idtracker.wgtype">
         <field type="CharField" name="type">TEAM</field>
+    </object>
+    <object pk="2010-05-06" model="iesg.telechatdates">
+        <field type="DateField" name="date2">2010-05-20</field>
+        <field type="DateField" name="date3">2010-06-03</field>
+        <field type="DateField" name="date4">2010-06-17</field>
+    </object>
+    <object pk="1027" model="idtracker.acronym">
+        <field type="CharField" name="acronym">none</field>
+        <field type="CharField" name="name">Individual Submissions</field>
+        <field type="CharField" name="name_key">INDIVIDUAL SUBMISSIONS</field>
     </object>
 </django-objects>

@@ -232,17 +232,26 @@ def edit_info(request, name):
                 doc.idinternal.note = r['note']
 
 
-            if doc.idinternal.agenda != bool(r['telechat_date']):
-                if r['telechat_date']:
+            on_agenda = bool(r['telechat_date'])
+
+            updated_internal_item = False
+            if doc.idinternal.returning_item != bool(r['returning_item']):
+                doc.idinternal.returning_item = bool(r['returning_item'])
+                updated_internal_item = True
+
+            # update returning item
+            if on_agenda and doc.idinternal.agenda and r['telechat_date'] != doc.idinternal.telechat_date and not updated_internal_item:
+                doc.idinternal.returning_item = True
+                
+            if doc.idinternal.agenda != on_agenda:
+                if on_agenda:
                     add_document_comment(request, doc, "Placed on agenda for telechat - %s" % r['telechat_date'])
                 else:
                     add_document_comment(request, doc, "Removed from agenda for telechat")
-                doc.idinternal.agenda = bool(r['telechat_date'])
-            elif r['telechat_date'] and r['telechat_date'] != doc.idinternal.telechat_date:
+                doc.idinternal.agenda = on_agenda
+            elif on_agenda and r['telechat_date'] != doc.idinternal.telechat_date:
                 add_document_comment(request, doc, entry % ("Telechat date", r['telechat_date'], doc.idinternal.telechat_date))
                 doc.idinternal.telechat_date = r['telechat_date']
-
-            doc.idinternal.returning_item = bool(r['returning_item'])
 
             if in_group(request.user, 'Secretariat'):
                 doc.idinternal.via_rfc_editor = bool(r['via_rfc_editor'])
@@ -265,6 +274,7 @@ def edit_info(request, name):
                     state_change_notice_to=doc.idinternal.state_change_notice_to,
                     note=dehtmlify_textarea_text(doc.idinternal.note),
                     telechat_date=initial_telechat_date,
+                    returning_item=doc.idinternal.returning_item,
                     )
         form = EditInfoForm(initial=init)
 
@@ -273,12 +283,11 @@ def edit_info(request, name):
     if not in_group(request.user, 'Secretariat'):
         form.standard_fields = [x for x in form.standard_fields if x.name != "via_rfc_editor"]
         
-    # group only if none has been assigned yet
-    if doc.group_id == Acronym.INDIVIDUAL_SUBMITTER:
+    # show group only if none has been assigned yet
+    if doc.group_id != Acronym.INDIVIDUAL_SUBMITTER:
         form.standard_fields = [x for x in form.standard_fields if x.name != "group"]
         
     # FIXME: check expired
-    # FIXME: returning_item
 
     return render_to_response('idrfc/edit_info.html',
                               dict(form=form,

@@ -200,6 +200,47 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertTrue(len(mail_outbox) == 1)
         self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
 
+
+class RequestResurrectTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft']
+
+    def test_request_resurrect(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        self.assertEquals(draft.status.status, "Expired")
+        self.assertTrue(not draft.idinternal.resurrect_requested_by)
+        
+        
+        url = urlreverse('doc_request_resurrect', kwargs=dict(name=draft.filename))
+        
+        # unauthorized get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 302)
+        self.assertTrue("/accounts/login" in r['Location'])
+
+
+        login_as = "rhousley"
+        self.client.login(remote_user=login_as)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form input[type=submit]')), 1)
+
+
+        # request resurrect
+        comments_before = draft.idinternal.comments().count()
+        
+        r = self.client.post(url, dict())
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        self.assertEquals(draft.idinternal.resurrect_requested_by, IESGLogin.objects.get(login_name=login_as))
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("Resurrection" in draft.idinternal.comments()[0].comment_text)
+        self.assertTrue(len(mail_outbox) == 1)
+        self.assertTrue("Resurrection" in mail_outbox[0]['Subject'])
+
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 

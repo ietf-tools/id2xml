@@ -1,4 +1,4 @@
 Last Call Request has been submitted for
-{% for d in docs %}{{ d.file_tag }}
+{% for d in docs %}{{ d.file_tag|safe }}
 {% endfor %}
-{{ doc_url }}
+{{ doc_url|safe }}

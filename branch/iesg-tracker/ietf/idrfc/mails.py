@@ -174,4 +174,13 @@ def send_last_call_request(request, doc, ballot):
               dict(docs=docs,
                    doc_url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
 
-    
+def email_resurrect_requested(request, doc, by):
+    to = "I-D Administrator <internet-drafts@ietf.org>"
+    fro = u"%s <%s>" % by.person.email()
+    send_mail(request, to, fro,
+              "I-D Resurrection Request",
+              "idrfc/resurrect_request_email.txt",
+              dict(doc=doc,
+                   by=fro,
+                   url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
+

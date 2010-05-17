@@ -50,10 +50,13 @@ output("base", base)
 
 
 # specific draft
+draftdata = []
 d = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-draftdata = [d, d.idinternal, d.group, d.group.ietfwg]
+draftdata.extend([d, d.idinternal, d.group, d.group.ietfwg])
 ags = AreaGroup.objects.filter(group__exact=d.group.ietfwg.group_acronym)
 draftdata.extend(ags)
 draftdata.extend([a.area for a in ags])
 draftdata.extend([a.area.area_acronym for a in ags])
+d = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+draftdata.extend([d, d.idinternal])
 output("draft", draftdata)

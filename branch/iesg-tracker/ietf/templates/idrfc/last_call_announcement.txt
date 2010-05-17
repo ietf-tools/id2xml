@@ -18,4 +18,4 @@ Implementation Report can be accessed at
 http://www.ietf.org/iesg/implementation.html
 {% endif %}
 IESG discussion can be tracked via
-{{ doc_url }}
+{{ doc_url|safe }}

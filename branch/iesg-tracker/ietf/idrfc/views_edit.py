@@ -52,6 +52,8 @@ def make_last_call(request, doc):
 @group_required('Area_Director','Secretariat')
 def change_state(request, name):
     doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal or doc.status.status == "Expired":
+        raise Http404()
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 
@@ -100,8 +102,6 @@ def change_state(request, name):
 
     next_states = IDNextState.objects.filter(cur_state=doc.idinternal.cur_state)
     prev_state_formatted = format_document_state(doc.idinternal.prev_state, doc.idinternal.prev_sub_state)
-
-    # FIXME: check expired
 
     return render_to_response('idrfc/change_state.html',
                               dict(form=form,
@@ -168,12 +168,11 @@ class EditInfoForm(forms.Form):
         return self.cleaned_data['note'].replace('\n', '<br>').replace('\r', '').replace('  ', '&nbsp; ')
 
 
-
-from ietf.idtracker.templatetags.ietf_filters import format_textarea
-
 @group_required('Area_Director','Secretariat')
 def edit_info(request, name):
     doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal or doc.status.status == "Expired":
+        raise Http404()
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 
@@ -287,10 +286,28 @@ def edit_info(request, name):
     if doc.group_id != Acronym.INDIVIDUAL_SUBMITTER:
         form.standard_fields = [x for x in form.standard_fields if x.name != "group"]
         
-    # FIXME: check expired
-
     return render_to_response('idrfc/edit_info.html',
                               dict(form=form,
                                    user=request.user,
                                    login=login),
+                              context_instance=RequestContext(request))
+
+
+@group_required('Area_Director','Secretariat')
+def request_resurrect(request, name):
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal or doc.status.status != "Expired":
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    if request.method == 'POST':
+        email_resurrect_requested(request, doc, login)
+        add_document_comment(request, doc, "Resurrection was requested")
+        doc.idinternal.resurrect_requested_by = login
+        doc.idinternal.save()
+        return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+  
+    return render_to_response('idrfc/request_resurrect.html',
+                              dict(doc=doc),
                               context_instance=RequestContext(request))

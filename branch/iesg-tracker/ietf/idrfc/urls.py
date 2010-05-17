@@ -44,4 +44,5 @@ urlpatterns = patterns('',
     (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad),
     url(r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state, {}, name='doc_change_state'),
     url(r'^(?P<name>[^/]+)/edit/info/$', views_edit.edit_info, {}, name='doc_edit_info'),
+    url(r'^(?P<name>[^/]+)/edit/resurrect/$', views_edit.request_resurrect, {}, name='doc_request_resurrect'),
 )

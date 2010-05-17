@@ -12,5 +12,5 @@ Subject: {{ action_type }} Action: '{{ doc.title }}' to {{ status }}
 {{ contacts }}
 
 A URL of this {{ doc_type }} is:
-{{ doc_url }}
+{{ doc_url|safe }}
 {% endfilter %}

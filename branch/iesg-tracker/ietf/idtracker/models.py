@@ -679,7 +679,7 @@ class Position(models.Model):
     yes = models.IntegerField(db_column='yes_col')
     noobj = models.IntegerField(db_column='no_col')
     abstain = models.IntegerField()
-    approve = models.IntegerField()
+    approve = models.IntegerField(default=0) # doesn't appear to be used anymore?
     discuss = models.IntegerField()
     recuse = models.IntegerField()
     def __str__(self):

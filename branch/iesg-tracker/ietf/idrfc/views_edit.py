@@ -337,3 +337,80 @@ def add_comment(request, name):
                               dict(doc=doc,
                                    form=form),
                               context_instance=RequestContext(request))
+
+BALLOT_CHOICES = (("yes", "Yes"),
+                  ("noobj", "No Objection"),
+                  ("discuss", "Discuss"),
+                  ("abstain", "Abstain"),
+                  ("recuse", "Recuse"),
+                  ("", "No Record"),
+                  )
+
+def position_to_ballot_choice(position):
+    for v, label in BALLOT_CHOICES:
+        if v and getattr(position, v):
+            return v
+    return ""
+
+def position_label(position_value):
+    return dict(BALLOT_CHOICES).get(position_value, "")
+    
+class EditPositionForm(forms.Form):
+    position = forms.ChoiceField(choices=BALLOT_CHOICES, widget=forms.RadioSelect)
+    discuss_text = forms.CharField(required=False, widget=forms.Textarea)
+    comment_text = forms.CharField(required=False, widget=forms.Textarea)
+
+@group_required('Area_Director','Secretariat')
+def edit_position(request, name):
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    if request.method == 'POST':
+        form = EditPositionForm(request.POST)
+        if form.is_valid():
+            vote = form.cleaned_data['position']
+            try:
+                pos = Position.objects.get(ballot=doc.idinternal.ballot, ad=login)
+                # mark discuss as cleared (quirk from old system)
+                if pos.discuss:
+                    pos.discuss = -1
+            except Position.DoesNotExist:
+                pos = Position(ballot=doc.idinternal.ballot, ad=login)
+                pos.discuss = 0
+                
+            old_vote = position_to_ballot_choice(pos)
+            
+            pos.yes = pos.noobj = pos.abstain = pos.recuse = 0
+            if vote:
+                setattr(pos, vote, 1)
+
+            if pos.id:
+                pos.save()
+                add_document_comment(request, doc, "[Ballot Position Update] Position for %s has been changed to %s from %s" % (pos.ad, position_label(vote), position_label(old_vote)))
+            elif vote:
+                pos.save()
+                add_document_comment(request, doc, "[Ballot Position Update] New position, %s, has been recorded" % position_label(vote))
+
+            IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=pos.ad).update(active=False)
+
+            # FIXME: discuss and comments
+                
+            #email_owner(request, doc, doc.idinternal.job_owner, login, "A new comment added by %s" % login)
+            doc.idinternal.event_date = date.today()
+            doc.idinternal.save()
+            return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+    else:
+        initial = {}
+        pos = Position.objects.filter(ballot=doc.idinternal.ballot, ad=login)
+        if pos:
+            initial['position'] = position_to_ballot_choice(pos[0])
+            
+        form = EditPositionForm(initial=initial)
+  
+    return render_to_response('idrfc/edit_position.html',
+                              dict(doc=doc,
+                                   form=form),
+                              context_instance=RequestContext(request))

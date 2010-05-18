@@ -42,8 +42,10 @@ urlpatterns = patterns('',
     (r'^(?P<name>[^/]+)/_debug.data$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
     (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad),
+
     url(r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state, {}, name='doc_change_state'),
     url(r'^(?P<name>[^/]+)/edit/info/$', views_edit.edit_info, {}, name='doc_edit_info'),
     url(r'^(?P<name>[^/]+)/edit/resurrect/$', views_edit.request_resurrect, {}, name='doc_request_resurrect'),
-    url(r'^(?P<name>[^/]+)/edit/addcomment/$', views_edit.add_comment, {}, name='doc_add_comment'),                       
+    url(r'^(?P<name>[^/]+)/edit/addcomment/$', views_edit.add_comment, {}, name='doc_add_comment'),
+    url(r'^(?P<name>[^/]+)/edit/position/$', views_edit.edit_position, {}, name='doc_edit_position'),
 )

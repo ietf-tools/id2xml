@@ -49,7 +49,7 @@ base.extend(Acronym.objects.filter(acronym_id=Acronym.INDIVIDUAL_SUBMITTER))
 output("base", base)
 
 
-# specific draft
+# specific drafts
 draftdata = []
 d = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
 draftdata.extend([d, d.idinternal, d.group, d.group.ietfwg])
@@ -60,3 +60,7 @@ draftdata.extend([a.area.area_acronym for a in ags])
 d = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
 draftdata.extend([d, d.idinternal])
 output("draft", draftdata)
+
+# specific ballot info
+d = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+output("ballot", [d.idinternal.ballot]) 

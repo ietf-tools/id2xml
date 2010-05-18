@@ -223,7 +223,7 @@ class AddCommentTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
 
     def test_add_comment(self):
-        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
         url = urlreverse('doc_add_comment', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
@@ -244,6 +244,55 @@ class AddCommentTestCase(django.test.TestCase):
         self.assertTrue(len(mail_outbox) == 1)
         self.assertTrue("updated" in mail_outbox[0]['Subject'])
         self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
+
+class EditPositionTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft', 'ballot']
+
+    def test_edit_position(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_edit_position', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "rhousley", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form input[name=position]')) > 0)
+        self.assertEquals(len(q('form textarea[name=comment_text]')), 1)
+
+        # vote
+        comments_before = draft.idinternal.comments().count()
+        self.assertTrue(not Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley"))
+        
+        r = self.client.post(url, dict(position="discuss",
+                                       discuss="This is a discussion test.",
+                                       comment="This is a test."))
+        self.assertEquals(r.status_code, 302)
+
+        pos = Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley")[0]
+        #self.assertTrue("This is a discussion test." in pos.discuss) FIXME
+        #self.assertTrue("This is a test." in pos.comment)
+        self.assertTrue(pos.discuss)
+        self.assertTrue(not (pos.yes or pos.noobj or pos.abstain or pos.recuse))
+        
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("New position" in draft.idinternal.comments()[0].comment_text)
+
+        # recast vote
+        comments_before = draft.idinternal.comments().count()
+        r = self.client.post(url, dict(position="noobj"))
+        self.assertEquals(r.status_code, 302)
+
+        pos = Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley")[0]
+        self.assertTrue(pos.noobj)
+        self.assertTrue(not (pos.yes or pos.abstain or pos.recuse))
+        self.assertTrue(pos.discuss == -1)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("Position" in draft.idinternal.comments()[0].comment_text)        
+        
+        #self.assertTrue(len(mail_outbox) == 1)
+        #self.assertTrue("updated" in mail_outbox[0]['Subject'])
+        #self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
         
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>

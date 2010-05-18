@@ -1,0 +1,30 @@
+<style>
+  form.position-form .position ul {
+    padding: 0;
+    margin: 0;
+  }  
+  form.position-form .position li {
+    list-style-type: none;
+    float: left;
+    padding-right: 10px;
+  }
+  form.position-form .discuss-text {
+    clear: left;
+  }
+</style>
+
+<form class="position-form" action="" method="POST">
+  <div class="position">{{ form.position }}</div>
+
+  <div class="discuss-text">{{ form.discuss_text.label_tag }}:</div>
+  {{ form.discuss_text }}
+  
+  <div class="comment-text">{{ form.comment_text.label_tag }}:</div>
+  <div>{{ form.comment_text }}</div>
+
+  <div class="actions">
+    <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
+    <input type="submit" value="Save"/>
+  </div>
+</form>
+

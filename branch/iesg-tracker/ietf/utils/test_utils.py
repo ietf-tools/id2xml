@@ -213,5 +213,5 @@ def login_testing_unauthorized(tc, remote_user, url):
     tc.assertEquals(r.status_code, 302)
     tc.assertTrue("/accounts/login" in r['Location'])
 
-    tc.client.login(remote_user="klm")
+    tc.client.login(remote_user=remote_user)
     

@@ -41,7 +41,7 @@ from pyquery import PyQuery
 
 from ietf.idrfc.models import *
 from ietf.idtracker.models import *
-from ietf.utils.test_utils import SimpleUrlTestCase, RealDatabaseTest
+from ietf.utils.test_utils import SimpleUrlTestCase, RealDatabaseTest, login_testing_unauthorized
 from ietf.utils.test_runner import mail_outbox
 
 class IdRfcUrlTestCase(SimpleUrlTestCase):
@@ -53,19 +53,12 @@ class ChangeStateTestCase(django.test.TestCase):
 
     def test_change_state(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_change_state', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
 
         state = draft.idinternal.cur_state
         substate = draft.idinternal.cur_sub_state
         next_states = IDNextState.objects.filter(cur_state=draft.idinternal.cur_state)
-        url = urlreverse('doc_change_state', kwargs=dict(name=draft.filename))
-        
-        # unauthorized get
-        r = self.client.get(url)
-        self.assertEquals(r.status_code, 302)
-        self.assertTrue("/accounts/login" in r['Location'])
-
-        
-        self.client.login(remote_user="klm")
 
         # normal get
         r = self.client.get(url)
@@ -143,16 +136,8 @@ class EditInfoTestCase(django.test.TestCase):
 
     def test_edit_info(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-
         url = urlreverse('doc_edit_info', kwargs=dict(name=draft.filename))
-        
-        # unauthorized get
-        r = self.client.get(url)
-        self.assertEquals(r.status_code, 302)
-        self.assertTrue("/accounts/login" in r['Location'])
-
-        
-        self.client.login(remote_user="klm")
+        login_testing_unauthorized(self, "klm", url)
 
         # normal get
         r = self.client.get(url)
@@ -209,17 +194,10 @@ class RequestResurrectTestCase(django.test.TestCase):
         self.assertEquals(draft.status.status, "Expired")
         self.assertTrue(not draft.idinternal.resurrect_requested_by)
         
-        
         url = urlreverse('doc_request_resurrect', kwargs=dict(name=draft.filename))
-        
-        # unauthorized get
-        r = self.client.get(url)
-        self.assertEquals(r.status_code, 302)
-        self.assertTrue("/accounts/login" in r['Location'])
-
-
         login_as = "rhousley"
-        self.client.login(remote_user=login_as)
+        
+        login_testing_unauthorized(self, login_as, url)
 
         # normal get
         r = self.client.get(url)
@@ -241,6 +219,32 @@ class RequestResurrectTestCase(django.test.TestCase):
         self.assertTrue(len(mail_outbox) == 1)
         self.assertTrue("Resurrection" in mail_outbox[0]['Subject'])
 
+class AddCommentTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft']
+
+    def test_add_comment(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        url = urlreverse('doc_add_comment', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form textarea[name=comment]')), 1)
+
+        # request resurrect
+        comments_before = draft.idinternal.comments().count()
+        
+        r = self.client.post(url, dict(comment="This is a test."))
+        self.assertEquals(r.status_code, 302)
+
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("This is a test." in draft.idinternal.comments()[0].comment_text)
+        self.assertTrue(len(mail_outbox) == 1)
+        self.assertTrue("updated" in mail_outbox[0]['Subject'])
+        self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
+        
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 

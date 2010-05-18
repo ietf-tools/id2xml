@@ -19,9 +19,9 @@ class ChangeStateForm(forms.Form):
     state = forms.ModelChoiceField(IDState.objects.all(), empty_label=None, required=True)
     substate = forms.ModelChoiceField(IDSubState.objects.all(), required=False)
 
-def add_document_comment(request, doc, text):
+def add_document_comment(request, doc, text, include_by=True):
     login = IESGLogin.objects.get(login_name=request.user.username)
-    if not 'Earlier history' in text:
+    if include_by:
         text += " by %s" % login
 
     c = DocumentComment()
@@ -310,4 +310,30 @@ def request_resurrect(request, name):
   
     return render_to_response('idrfc/request_resurrect.html',
                               dict(doc=doc),
+                              context_instance=RequestContext(request))
+
+class AddCommentForm(forms.Form):
+    comment = forms.CharField(required=True, widget=forms.Textarea)
+
+@group_required('Area_Director','Secretariat')
+def add_comment(request, name):
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    if request.method == 'POST':
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
+            c = form.cleaned_data['comment']
+            add_document_comment(request, doc, c, include_by=False)
+            email_owner(request, doc, doc.idinternal.job_owner, login, "A new comment added by %s" % login)
+            return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+    else:
+        form = AddCommentForm()
+  
+    return render_to_response('idrfc/add_comment.html',
+                              dict(doc=doc,
+                                   form=form),
                               context_instance=RequestContext(request))

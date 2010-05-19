@@ -288,11 +288,31 @@ class EditPositionTestCase(django.test.TestCase):
         self.assertTrue(not (pos.yes or pos.abstain or pos.recuse))
         self.assertTrue(pos.discuss == -1)
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
-        self.assertTrue("Position" in draft.idinternal.comments()[0].comment_text)        
+        self.assertTrue("Position" in draft.idinternal.comments()[0].comment_text)
         
-        #self.assertTrue(len(mail_outbox) == 1)
-        #self.assertTrue("updated" in mail_outbox[0]['Subject'])
-        #self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
+    def test_send_ballot_comment(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_send_ballot_comment', kwargs=dict(name=draft.filename))
+        login_as = "rhousley"
+        login_testing_unauthorized(self, login_as, url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form input[name="cc"]')) > 0)
+
+        # send
+        IESGComment.objects.create(ballot=draft.idinternal.ballot,
+                                   ad=IESGLogin.objects.get(login_name=login_as),
+                                   text="Test!", date=date.today(),
+                                   revision=draft.revision_display(), active=1)
+        
+        r = self.client.post(url, dict(cc="test@example.com", cc_state_change="1"))
+        self.assertEquals(r.status_code, 302)
+
+        self.assertTrue(len(mail_outbox) == 1)
+        self.assertTrue("COMMENT" in mail_outbox[0]['Subject'])
         
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>

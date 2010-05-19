@@ -2,11 +2,13 @@ import re, os
 from datetime import datetime, date, time, timedelta
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
+from django.core.urlresolvers import reverse as urlreverse
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from django import forms
 from django.utils.html import strip_tags
 
+from ietf.utils.mail import send_mail_text
 from ietf.ietfauth.decorators import group_required
 from ietf.idtracker.templatetags.ietf_filters import in_group
 from ietf.idtracker.models import *
@@ -356,7 +358,16 @@ def position_to_ballot_choice(position):
 
 def position_label(position_value):
     return dict(BALLOT_CHOICES).get(position_value, "")
-    
+
+def get_ballot_info(ballot, area_director):
+    pos = Position.objects.filter(ballot=ballot, ad=area_director)
+    pos = pos[0] if pos else None
+    discuss = IESGDiscuss.objects.filter(ballot=ballot, ad=area_director)
+    discuss = discuss[0] if discuss else None
+    comment = IESGComment.objects.filter(ballot=ballot, ad=area_director)
+    comment = comment[0] if comment else None
+    return (pos, discuss, comment)
+
 class EditPositionForm(forms.Form):
     position = forms.ChoiceField(choices=BALLOT_CHOICES, widget=forms.RadioSelect)
     discuss_text = forms.CharField(required=False, widget=forms.Textarea)
@@ -370,16 +381,7 @@ def edit_position(request, name):
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 
-    pos = Position.objects.filter(ballot=doc.idinternal.ballot, ad=login)
-    if pos:
-        pos = pos[0]
-            
-    discuss = IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=login)
-    if discuss:
-        discuss = discuss[0]
-    comment = IESGComment.objects.filter(ballot=doc.idinternal.ballot, ad=login)
-    if comment:
-        comment = comment[0]
+    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, login)
 
     if request.method == 'POST':
         form = EditPositionForm(request.POST)
@@ -440,11 +442,12 @@ def edit_position(request, name):
                 if comment.text:
                     add_document_comment(request, doc, comment.text, ballot=DocumentComment.BALLOT_COMMENT)
             
-                
-            #email_owner(request, doc, doc.idinternal.job_owner, login, "A new comment added by %s" % login)
             doc.idinternal.event_date = date.today()
             doc.idinternal.save()
-            return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+            if request.POST.get("send_mail"):
+                return HttpResponseRedirect(urlreverse("doc_send_ballot_comment", kwargs=dict(name=doc.filename)))
+            else:
+                return HttpResponseRedirect(doc.idinternal.get_absolute_url())
     else:
         initial = {}
         if pos:
@@ -464,3 +467,48 @@ def edit_position(request, name):
                                    discuss=discuss,
                                    comment=comment),
                               context_instance=RequestContext(request))
+
+@group_required('Area_Director','Secretariat')
+def send_ballot_comment(request, name):
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, login)
+    
+    subj = []
+    d = ""
+    if pos and pos.discuss == 1 and discuss and discuss.text:
+        d = discuss.text
+        subj.append("DISCUSS")
+    c = ""
+    if comment and comment.text:
+        c = comment.text
+        subj.append("COMMENT")
+
+    subject = "%s: %s" % (" and ".join(subj), doc.file_tag())
+    body = render_to_string("idrfc/ballot_comment_mail.txt",
+                            dict(discuss=d, comment=c))
+    frm = u"%s <%s>" % login.person.email()
+    to = "iesg@iesg.org"
+        
+    if request.method == 'POST':
+        cc = [x.strip() for x in request.POST.get("cc", "").split(',') if x.strip()]
+        if request.POST.get("cc_state_change") and doc.idinternal.state_change_notice_to:
+            cc.extend(doc.idinternal.state_change_notice_to.split(','))
+
+        send_mail_text(request, to, frm, subject, body, cc=", ".join(cc))
+            
+        return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+  
+    return render_to_response('idrfc/send_ballot_comment.html',
+                              dict(doc=doc,
+                                   subject=subject,
+                                   body=body,
+                                   frm=frm,
+                                   to=to,
+                                   can_send=d or c),
+                              context_instance=RequestContext(request))
+
+

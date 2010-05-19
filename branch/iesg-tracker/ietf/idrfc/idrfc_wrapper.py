@@ -30,7 +30,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, IESGDiscuss, IESGLogin, DocumentComment
+from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, IESGDiscuss, IESGLogin, DocumentComment, Acronym
 from ietf.idrfc.models import RfcEditorQueue
 import re
 from datetime import date
@@ -138,6 +138,19 @@ class IdWrapper:
     def in_ietf_process(self):
         return self.ietf_process != None
     
+    def submission(self):
+        if self._idinternal and self._idinternal.via_rfc_editor:
+            return "Via IRTF or RFC Editor"
+
+        if self._draft.group_id == Acronym.INDIVIDUAL_SUBMITTER:
+            return "Individual"
+        
+        a = self.group_acronym()
+        if a:
+            return "WG <%s>" % a
+
+        return ""
+        
     def file_types(self):
         return self._draft.file_type.split(",")
 

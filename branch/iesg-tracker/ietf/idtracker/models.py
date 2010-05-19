@@ -623,9 +623,11 @@ class IDInternal(models.Model):
 	verbose_name = 'IDTracker Draft'
 
 class DocumentComment(models.Model):
+    BALLOT_DISCUSS = 1
+    BALLOT_COMMENT = 2
     BALLOT_CHOICES = (
-	(1, 'discuss'),
-	(2, 'comment'),
+	(BALLOT_DISCUSS, 'discuss'),
+	(BALLOT_COMMENT, 'comment'),
     )
     document = models.ForeignKey(IDInternal)
     # NOTE: This flag is often NULL, which complicates its correct use...
@@ -701,7 +703,7 @@ class IESGComment(models.Model):
     ad = models.ForeignKey(IESGLogin)
     date = models.DateField(db_column="comment_date")
     revision = models.CharField(max_length=2)
-    active = models.IntegerField()
+    active = models.IntegerField() # doesn't appear to be used
     text = models.TextField(blank=True, db_column="comment_text")
     def __str__(self):
 	return "Comment text by %s on %s" % ( self.ad, self.ballot )

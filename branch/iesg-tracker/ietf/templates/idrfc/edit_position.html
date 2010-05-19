@@ -16,10 +16,10 @@
 <form class="position-form" action="" method="POST">
   <div class="position">{{ form.position }}</div>
 
-  <div class="discuss-text">{{ form.discuss_text.label_tag }}:</div>
+  <div class="discuss-text">{{ form.discuss_text.label_tag }}: {% if discuss %}(last edited {{ discuss.date }}){% endif %}</div>
   {{ form.discuss_text }}
   
-  <div class="comment-text">{{ form.comment_text.label_tag }}:</div>
+  <div class="comment-text">{{ form.comment_text.label_tag }}: {% if comment %}(last edited {{ comment.date }}){% endif %}</div>
   <div>{{ form.comment_text }}</div>
 
   <div class="actions">

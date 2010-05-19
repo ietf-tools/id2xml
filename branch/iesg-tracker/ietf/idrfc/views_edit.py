@@ -19,7 +19,7 @@ class ChangeStateForm(forms.Form):
     state = forms.ModelChoiceField(IDState.objects.all(), empty_label=None, required=True)
     substate = forms.ModelChoiceField(IDSubState.objects.all(), required=False)
 
-def add_document_comment(request, doc, text, include_by=True):
+def add_document_comment(request, doc, text, include_by=True, ballot=None):
     login = IESGLogin.objects.get(login_name=request.user.username)
     if include_by:
         text += " by %s" % login
@@ -30,6 +30,8 @@ def add_document_comment(request, doc, text, include_by=True):
     c.version = doc.revision_display()
     c.comment_text = text
     c.created_by = login
+    if ballot:
+        c.ballot = ballot
     c.rfc_flag = doc.idinternal.rfc_flag
     c.save()
 
@@ -368,16 +370,28 @@ def edit_position(request, name):
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 
+    pos = Position.objects.filter(ballot=doc.idinternal.ballot, ad=login)
+    if pos:
+        pos = pos[0]
+            
+    discuss = IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=login)
+    if discuss:
+        discuss = discuss[0]
+    comment = IESGComment.objects.filter(ballot=doc.idinternal.ballot, ad=login)
+    if comment:
+        comment = comment[0]
+
     if request.method == 'POST':
         form = EditPositionForm(request.POST)
         if form.is_valid():
-            vote = form.cleaned_data['position']
-            try:
-                pos = Position.objects.get(ballot=doc.idinternal.ballot, ad=login)
+            # save the vote
+            clean = form.cleaned_data
+            vote = clean['position']
+            if pos:
                 # mark discuss as cleared (quirk from old system)
                 if pos.discuss:
                     pos.discuss = -1
-            except Position.DoesNotExist:
+            else:
                 pos = Position(ballot=doc.idinternal.ballot, ad=login)
                 pos.discuss = 0
                 
@@ -389,14 +403,43 @@ def edit_position(request, name):
 
             if pos.id:
                 pos.save()
-                add_document_comment(request, doc, "[Ballot Position Update] Position for %s has been changed to %s from %s" % (pos.ad, position_label(vote), position_label(old_vote)))
+                if vote != old_vote:
+                    add_document_comment(request, doc, "[Ballot Position Update] Position for %s has been changed to %s from %s" % (pos.ad, position_label(vote), position_label(old_vote)))
             elif vote:
                 pos.save()
                 add_document_comment(request, doc, "[Ballot Position Update] New position, %s, has been recorded" % position_label(vote))
 
-            IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=pos.ad).update(active=False)
+            # save discuss
+            if (discuss and clean['discuss_text'] != discuss.text) or (clean['discuss_text'] and not discuss):
+                if not discuss:
+                    discuss = IESGDiscuss(ballot=doc.idinternal.ballot, ad=login)
 
-            # FIXME: discuss and comments
+                discuss.text = clean['discuss_text']
+                discuss.date = date.today()
+                discuss.revision = doc.revision_display()
+                discuss.active = True
+                discuss.save()
+
+                if discuss.text:
+                    add_document_comment(request, doc, discuss.text, ballot=DocumentComment.BALLOT_DISCUSS)
+
+            if pos.discuss < 1:
+                IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=pos.ad).update(active=False)
+
+            # similar for comment
+            if (comment and clean['comment_text'] != comment.text) or (clean['comment_text'] and not comment):
+                if not comment:
+                    comment = IESGComment(ballot=doc.idinternal.ballot, ad=login)
+
+                comment.text = clean['comment_text']
+                comment.date = date.today()
+                comment.revision = doc.revision_display()
+                comment.active = True
+                comment.save()
+
+                if comment.text:
+                    add_document_comment(request, doc, comment.text, ballot=DocumentComment.BALLOT_COMMENT)
+            
                 
             #email_owner(request, doc, doc.idinternal.job_owner, login, "A new comment added by %s" % login)
             doc.idinternal.event_date = date.today()
@@ -404,13 +447,20 @@ def edit_position(request, name):
             return HttpResponseRedirect(doc.idinternal.get_absolute_url())
     else:
         initial = {}
-        pos = Position.objects.filter(ballot=doc.idinternal.ballot, ad=login)
         if pos:
-            initial['position'] = position_to_ballot_choice(pos[0])
+            initial['position'] = position_to_ballot_choice(pos)
+
+        if discuss:
+            initial['discuss_text'] = discuss.text
+
+        if comment:
+            initial['comment_text'] = comment.text
             
         form = EditPositionForm(initial=initial)
   
     return render_to_response('idrfc/edit_position.html',
                               dict(doc=doc,
-                                   form=form),
+                                   form=form,
+                                   discuss=discuss,
+                                   comment=comment),
                               context_instance=RequestContext(request))

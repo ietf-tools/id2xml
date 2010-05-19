@@ -265,18 +265,18 @@ class EditPositionTestCase(django.test.TestCase):
         self.assertTrue(not Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley"))
         
         r = self.client.post(url, dict(position="discuss",
-                                       discuss="This is a discussion test.",
-                                       comment="This is a test."))
+                                       discuss_text="This is a discussion test.",
+                                       comment_text="This is a test."))
         self.assertEquals(r.status_code, 302)
 
-        pos = Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley")[0]
-        #self.assertTrue("This is a discussion test." in pos.discuss) FIXME
-        #self.assertTrue("This is a test." in pos.comment)
+        pos = Position.objects.get(ballot=draft.idinternal.ballot, ad__login_name="rhousley")
+        self.assertTrue("This is a discussion test." in IESGDiscuss.objects.get(ballot=draft.idinternal.ballot, ad__login_name="rhousley").text)
+        self.assertTrue("This is a test." in IESGComment.objects.get(ballot=draft.idinternal.ballot, ad__login_name="rhousley").text)
         self.assertTrue(pos.discuss)
         self.assertTrue(not (pos.yes or pos.noobj or pos.abstain or pos.recuse))
         
-        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
-        self.assertTrue("New position" in draft.idinternal.comments()[0].comment_text)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 3)
+        self.assertTrue("New position" in draft.idinternal.comments()[2].comment_text)
 
         # recast vote
         comments_before = draft.idinternal.comments().count()

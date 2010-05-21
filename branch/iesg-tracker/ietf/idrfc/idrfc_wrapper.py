@@ -107,7 +107,7 @@ class IdWrapper:
         self.latest_revision = self._draft.revision_display()
         self.title = self._draft.title
         self.tracker_id = self._draft.id_document_tag
-        self.resurrect_requested_by = self._idinternal.resurrect_requested_by
+        self.resurrect_requested_by = self._idinternal.resurrect_requested_by if self._idinternal else None
         self.publication_date = self._draft.revision_date
         if not self.publication_date:
             # should never happen -- but unfortunately it does. Return an

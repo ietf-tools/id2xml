@@ -502,7 +502,11 @@ class BallotInfo(models.Model):   # Added by Michael Lee
 	    needed = 1
 	have = yes + noobj + discuss
 	if have < needed:
-	    answer += "Needs %d more positions. " % (needed - have)
+            more = needed - have
+            if more == 1:
+                answer += "Needs %d more position. " % more
+            else:
+                answer += "Needs %d more positions. " % more
 	else:
 	    answer += "Has enough positions to pass"
 	    if discuss:

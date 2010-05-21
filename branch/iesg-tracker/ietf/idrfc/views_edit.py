@@ -1,3 +1,5 @@
+# views for editing the metadata on Internet Drafts
+
 import re, os
 from datetime import datetime, date, time, timedelta
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -16,10 +18,6 @@ from ietf.iesg.models import *
 #from ietf.idrfc.idrfc_wrapper import BallotWrapper, IdWrapper, RfcWrapper
 from ietf import settings
 from ietf.idrfc.mails import *
-
-class ChangeStateForm(forms.Form):
-    state = forms.ModelChoiceField(IDState.objects.all(), empty_label=None, required=True)
-    substate = forms.ModelChoiceField(IDSubState.objects.all(), required=False)
 
 def add_document_comment(request, doc, text, include_by=True, ballot=None):
     login = IESGLogin.objects.get(login_name=request.user.username)
@@ -51,10 +49,38 @@ def make_last_call(request, doc):
 
     send_last_call_request(request, doc, ballot)
     add_document_comment(request, doc, "Last Call was requested")
+
+def log_state_changed(request, doc, by):
+    change = u"State changed to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (
+        doc.idinternal.docstate(),
+        format_document_state(doc.idinternal.prev_state, doc.
+                              idinternal.prev_sub_state),
+        by)
+
+    c = DocumentComment()
+    c.document = doc.idinternal
+    c.public_flag = True
+    c.version = doc.revision_display()
+    c.comment_text = change
+    c.created_by = by
+    c.result_state = doc.idinternal.cur_state
+    c.origin_state = doc.idinternal.prev_state
+    c.rfc_flag = doc.idinternal.rfc_flag
+    c.save()
+
+    email_state_changed(request, doc, strip_tags(change))
+
+    return change
+
     
+class ChangeStateForm(forms.Form):
+    state = forms.ModelChoiceField(IDState.objects.all(), empty_label=None, required=True)
+    substate = forms.ModelChoiceField(IDSubState.objects.all(), required=False)
 
 @group_required('Area_Director','Secretariat')
 def change_state(request, name):
+    """Change state of Internet Draft, notifying parties as necessary
+    and logging the change as a comment."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal or doc.status.status == "Expired":
         raise Http404()
@@ -69,25 +95,11 @@ def change_state(request, name):
             internal = doc.idinternal
             if state != internal.cur_state or sub_state != internal.cur_sub_state:
                 internal.change_state(state, sub_state)
-
-                change = u"State changed to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (internal.docstate(), format_document_state(internal.prev_state, internal.prev_sub_state), login)
-                
-                c = DocumentComment()
-                c.document = internal
-                c.public_flag = True
-                c.version = doc.revision_display()
-                c.comment_text = change
-                c.created_by = login
-                c.result_state = internal.cur_state
-                c.origin_state = internal.prev_state
-                c.rfc_flag = internal.rfc_flag
-                c.save()
-
                 internal.event_date = date.today()
                 internal.mark_by = login
                 internal.save()
 
-                email_state_changed(request, doc, strip_tags(change))
+                change = log_state_changed(request, doc, login)
                 email_owner(request, doc, internal.job_owner, login, change)
 
                 if internal.cur_state.document_state_id == IDState.LAST_CALL_REQUESTED:
@@ -105,7 +117,8 @@ def change_state(request, name):
         form = ChangeStateForm(initial=init)
 
     next_states = IDNextState.objects.filter(cur_state=doc.idinternal.cur_state)
-    prev_state_formatted = format_document_state(doc.idinternal.prev_state, doc.idinternal.prev_sub_state)
+    prev_state_formatted = format_document_state(doc.idinternal.prev_state,
+                                                 doc.idinternal.prev_sub_state)
 
     return render_to_response('idrfc/change_state.html',
                               dict(form=form,
@@ -156,6 +169,9 @@ class EditInfoForm(forms.Form):
         choices.insert(0, ("", "(not on agenda)"))
 
         self.fields['telechat_date'].choices = choices
+
+        # returning item is rendered non-standard
+        self.standard_fields = [x for x in self.visible_fields() if x.name not in ('returning_item',)]
     
     def clean_status_date(self):
         d = self.cleaned_data['status_date']
@@ -174,6 +190,8 @@ class EditInfoForm(forms.Form):
 
 @group_required('Area_Director','Secretariat')
 def edit_info(request, name):
+    """Edit various Internet Draft attributes, notifying parties as
+    necessary and logging changes as document comments."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal or doc.status.status == "Expired":
         raise Http404()
@@ -191,9 +209,14 @@ def edit_info(request, name):
             r = form.cleaned_data
             entry = "%s has been changed to <b>%s</b> from <b>%s</b>"
             orig_job_owner = doc.idinternal.job_owner
+
+            # update various attributes, we need to keep track of what
+            # we're doing
             
             if r['intended_status'] != doc.intended_status:
-                changes.append(entry % ("Intended Status", r['intended_status'], doc.intended_status))
+                changes.append(entry % ("Intended Status",
+                                        r['intended_status'],
+                                        doc.intended_status))
                 doc.intended_status = r['intended_status']
 
             if r['status_date'] != doc.idinternal.status_date:
@@ -218,10 +241,12 @@ def edit_info(request, name):
                                         doc.idinternal.state_change_notice_to))
                 doc.idinternal.state_change_notice_to = r['state_change_notice_to']
 
-            # coalesce some of the changes into one comment
+            # coalesce some of the changes into one comment, mail them below
             if changes:
                 add_document_comment(request, doc, "<br>".join(changes))
-                
+
+            # handle note (for some reason the old Perl code didn't
+            # include that in the changes)
             if r['note'] != doc.idinternal.note:
                 if not r['note']:
                     if doc.idinternal.note:
@@ -234,32 +259,40 @@ def edit_info(request, name):
                     
                 doc.idinternal.note = r['note']
 
-
             on_agenda = bool(r['telechat_date'])
 
-            updated_internal_item = False
+            returning_item_changed = False
             if doc.idinternal.returning_item != bool(r['returning_item']):
                 doc.idinternal.returning_item = bool(r['returning_item'])
-                updated_internal_item = True
+                returning_item_changed = True
 
-            # update returning item
-            if on_agenda and doc.idinternal.agenda and r['telechat_date'] != doc.idinternal.telechat_date and not updated_internal_item:
+            # auto-update returning item
+            if (not returning_item_changed and
+                on_agenda and doc.idinternal.agenda
+                and r['telechat_date'] != doc.idinternal.telechat_date):
                 doc.idinternal.returning_item = True
-                
+
+            # update agenda
             if doc.idinternal.agenda != on_agenda:
                 if on_agenda:
-                    add_document_comment(request, doc, "Placed on agenda for telechat - %s" % r['telechat_date'])
+                    add_document_comment(request, doc,
+                                         "Placed on agenda for telechat - %s" % r['telechat_date'])
                 else:
-                    add_document_comment(request, doc, "Removed from agenda for telechat")
+                    add_document_comment(request, doc,
+                                         "Removed from agenda for telechat")
                 doc.idinternal.agenda = on_agenda
             elif on_agenda and r['telechat_date'] != doc.idinternal.telechat_date:
-                add_document_comment(request, doc, entry % ("Telechat date", r['telechat_date'], doc.idinternal.telechat_date))
+                add_document_comment(request, doc, entry %
+                                     ("Telechat date",
+                                      r['telechat_date'],
+                                      doc.idinternal.telechat_date))
                 doc.idinternal.telechat_date = r['telechat_date']
 
             if in_group(request.user, 'Secretariat'):
                 doc.idinternal.via_rfc_editor = bool(r['via_rfc_editor'])
-                
-            doc.idinternal.token_name = doc.idinternal.email_display = str(doc.idinternal.job_owner)
+
+            doc.idinternal.email_display = str(doc.idinternal.job_owner)
+            doc.idinternal.token_name = str(doc.idinternal.job_owner)
             doc.idinternal.token_email = doc.idinternal.job_owner.person.email()[1]
             doc.idinternal.mark_by = login
             doc.idinternal.event_date = date.today()
@@ -281,13 +314,11 @@ def edit_info(request, name):
                     )
         form = EditInfoForm(initial=init)
 
-    form.standard_fields = [x for x in form.visible_fields() if x.name not in ('returning_item',)]
-
     if not in_group(request.user, 'Secretariat'):
         form.standard_fields = [x for x in form.standard_fields if x.name != "via_rfc_editor"]
         
-    # show group only if none has been assigned yet
     if doc.group_id != Acronym.INDIVIDUAL_SUBMITTER:
+        # show group only if none has been assigned yet
         form.standard_fields = [x for x in form.standard_fields if x.name != "group"]
         
     return render_to_response('idrfc/edit_info.html',
@@ -299,6 +330,7 @@ def edit_info(request, name):
 
 @group_required('Area_Director','Secretariat')
 def request_resurrect(request, name):
+    """Request resurrect of expired Internet Draft."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal or doc.status.status != "Expired":
         raise Http404()
@@ -321,6 +353,7 @@ class AddCommentForm(forms.Form):
 
 @group_required('Area_Director','Secretariat')
 def add_comment(request, name):
+    """Add comment to Internet Draft."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal:
         raise Http404()
@@ -332,7 +365,8 @@ def add_comment(request, name):
         if form.is_valid():
             c = form.cleaned_data['comment']
             add_document_comment(request, doc, c, include_by=False)
-            email_owner(request, doc, doc.idinternal.job_owner, login, "A new comment added by %s" % login)
+            email_owner(request, doc, doc.idinternal.job_owner, login,
+                        "A new comment added by %s" % login)
             return HttpResponseRedirect(doc.idinternal.get_absolute_url())
     else:
         form = AddCommentForm()
@@ -362,10 +396,13 @@ def position_label(position_value):
 def get_ballot_info(ballot, area_director):
     pos = Position.objects.filter(ballot=ballot, ad=area_director)
     pos = pos[0] if pos else None
+    
     discuss = IESGDiscuss.objects.filter(ballot=ballot, ad=area_director)
     discuss = discuss[0] if discuss else None
+    
     comment = IESGComment.objects.filter(ballot=ballot, ad=area_director)
     comment = comment[0] if comment else None
+    
     return (pos, discuss, comment)
 
 class EditPositionForm(forms.Form):
@@ -375,6 +412,7 @@ class EditPositionForm(forms.Form):
 
 @group_required('Area_Director','Secretariat')
 def edit_position(request, name):
+    """Vote and edit discuss and comment on Internet Draft for area director."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal:
         raise Http404()
@@ -423,12 +461,15 @@ def edit_position(request, name):
                 discuss.save()
 
                 if discuss.text:
-                    add_document_comment(request, doc, discuss.text, ballot=DocumentComment.BALLOT_DISCUSS)
+                    add_document_comment(request, doc, discuss.text,
+                                         ballot=DocumentComment.BALLOT_DISCUSS)
 
             if pos.discuss < 1:
                 IESGDiscuss.objects.filter(ballot=doc.idinternal.ballot, ad=pos.ad).update(active=False)
 
-            # similar for comment
+            # similar for comment (could share code with discuss, but
+            # it's maybe better to coalesce them in the model instead
+            # than doing a clever hack here)
             if (comment and clean['comment_text'] != comment.text) or (clean['comment_text'] and not comment):
                 if not comment:
                     comment = IESGComment(ballot=doc.idinternal.ballot, ad=login)
@@ -440,7 +481,8 @@ def edit_position(request, name):
                 comment.save()
 
                 if comment.text:
-                    add_document_comment(request, doc, comment.text, ballot=DocumentComment.BALLOT_COMMENT)
+                    add_document_comment(request, doc, comment.text,
+                                         ballot=DocumentComment.BALLOT_COMMENT)
             
             doc.idinternal.event_date = date.today()
             doc.idinternal.save()
@@ -470,6 +512,7 @@ def edit_position(request, name):
 
 @group_required('Area_Director','Secretariat')
 def send_ballot_comment(request, name):
+    """Email Internet Draft ballot discuss/comment for area director."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal:
         raise Http404()
@@ -491,7 +534,7 @@ def send_ballot_comment(request, name):
     body = render_to_string("idrfc/ballot_comment_mail.txt",
                             dict(discuss=d, comment=c))
     frm = u"%s <%s>" % login.person.email()
-    to = "iesg@iesg.org"
+    to = "iesg@ietf.org"
         
     if request.method == 'POST':
         cc = [x.strip() for x in request.POST.get("cc", "").split(',') if x.strip()]
@@ -511,4 +554,62 @@ def send_ballot_comment(request, name):
                                    can_send=d or c),
                               context_instance=RequestContext(request))
 
+
+@group_required('Area_Director','Secretariat')
+def defer_ballot(request, name):
+    """Signal post-pone of Internet Draft ballot, notifying relevant parties."""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+    telechat_date = TelechatDates.objects.all()[0].date2
+
+    if request.method == 'POST':
+        doc.idinternal.ballot.defer = True
+        doc.idinternal.ballot.defer_by = login
+        doc.idinternal.ballot.defer_date = date.today()
+        doc.idinternal.ballot.save()
+        
+        doc.idinternal.change_state(IDState.objects.get(document_state_id=IDState.IESG_EVALUATION_DEFER), None)
+        doc.idinternal.agenda = True
+        doc.idinternal.telechat_date = telechat_date
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+
+        email_ballot_deferred(request, doc, login, telechat_date)
+        
+        log_state_changed(request, doc, login)
+
+        return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+  
+    return render_to_response('idrfc/defer_ballot.html',
+                              dict(doc=doc,
+                                   telechat_date=telechat_date),
+                              context_instance=RequestContext(request))
+
+@group_required('Area_Director','Secretariat')
+def undefer_ballot(request, name):
+    """Delete deferral of Internet Draft ballot."""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+    
+    if request.method == 'POST':
+        doc.idinternal.ballot.defer = False
+        doc.idinternal.ballot.save()
+        
+        doc.idinternal.change_state(IDState.objects.get(document_state_id=IDState.IESG_EVALUATION), None)
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+
+        log_state_changed(request, doc, login)
+        
+        return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+  
+    return render_to_response('idrfc/undefer_ballot.html',
+                              dict(doc=doc),
+                              context_instance=RequestContext(request))
 

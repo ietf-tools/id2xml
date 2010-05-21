@@ -83,6 +83,7 @@ class ChangeStateTestCase(django.test.TestCase):
         
         # change state
         comments_before = draft.idinternal.comments().count()
+        mailbox_before = len(mail_outbox)
         
         r = self.client.post(url,
                              dict(state="12", substate=""))
@@ -95,9 +96,9 @@ class ChangeStateTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.cur_sub_state, None)
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("State changed" in draft.idinternal.comments()[0].comment_text)
-        self.assertTrue(len(mail_outbox) == 2)
-        self.assertTrue("State Update Notice" in mail_outbox[0]['Subject'])
-        self.assertTrue(draft.filename in mail_outbox[1]['Subject'])
+        self.assertEquals(len(mail_outbox), mailbox_before + 2)
+        self.assertTrue("State Update Notice" in mail_outbox[-2]['Subject'])
+        self.assertTrue(draft.filename in mail_outbox[-1]['Subject'])
 
         
     def test_make_last_call(self):
@@ -106,6 +107,8 @@ class ChangeStateTestCase(django.test.TestCase):
         self.client.login(remote_user="klm")
         url = urlreverse('doc_change_state', kwargs=dict(name=draft.filename))
 
+        mailbox_before = len(mail_outbox)
+        
         self.assertRaises(BallotInfo.DoesNotExist, lambda: draft.idinternal.ballot)
         r = self.client.post(url,
                              dict(state="15", substate=""))
@@ -125,7 +128,7 @@ class ChangeStateTestCase(django.test.TestCase):
         self.assertTrue("Technical Summary" in draft.idinternal.ballot.ballot_writeup)
 
         # mail notice
-        self.assertTrue(mail_outbox)
+        self.assertTrue(len(mail_outbox) > mailbox_before)
         self.assertTrue("Last Call:" in mail_outbox[-1]['Subject'])
 
         # comment
@@ -157,6 +160,7 @@ class EditInfoTestCase(django.test.TestCase):
 
         # edit info
         comments_before = draft.idinternal.comments().count()
+        mailbox_before = len(mail_outbox)
         draft.group = Acronym.objects.get(acronym_id=Acronym.INDIVIDUAL_SUBMITTER)
         draft.save()
         new_job_owner = IESGLogin.objects.exclude(id__in=[IESGLogin.objects.get(login_name="klm").id, draft.idinternal.job_owner_id])[0]
@@ -180,10 +184,9 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.job_owner, new_job_owner)
         self.assertEquals(draft.idinternal.note, "")
         self.assertTrue(not draft.idinternal.agenda)
-        self.assertEquals(draft.idinternal.comments().count(), comments_before + 2)
-        self.assertTrue("cleared" in draft.idinternal.comments()[0].comment_text)
-        self.assertTrue(len(mail_outbox) == 1)
-        self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 3)
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        self.assertTrue(draft.filename in mail_outbox[-1]['Subject'])
 
 
 class RequestResurrectTestCase(django.test.TestCase):
@@ -208,6 +211,7 @@ class RequestResurrectTestCase(django.test.TestCase):
 
         # request resurrect
         comments_before = draft.idinternal.comments().count()
+        mailbox_before = len(mail_outbox)
         
         r = self.client.post(url, dict())
         self.assertEquals(r.status_code, 302)
@@ -216,8 +220,8 @@ class RequestResurrectTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.resurrect_requested_by, IESGLogin.objects.get(login_name=login_as))
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("Resurrection" in draft.idinternal.comments()[0].comment_text)
-        self.assertTrue(len(mail_outbox) == 1)
-        self.assertTrue("Resurrection" in mail_outbox[0]['Subject'])
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        self.assertTrue("Resurrection" in mail_outbox[-1]['Subject'])
 
 class AddCommentTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
@@ -235,15 +239,16 @@ class AddCommentTestCase(django.test.TestCase):
 
         # request resurrect
         comments_before = draft.idinternal.comments().count()
+        mailbox_before = len(mail_outbox)
         
         r = self.client.post(url, dict(comment="This is a test."))
         self.assertEquals(r.status_code, 302)
 
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("This is a test." in draft.idinternal.comments()[0].comment_text)
-        self.assertTrue(len(mail_outbox) == 1)
-        self.assertTrue("updated" in mail_outbox[0]['Subject'])
-        self.assertTrue(draft.filename in mail_outbox[0]['Subject'])
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        self.assertTrue("updated" in mail_outbox[-1]['Subject'])
+        self.assertTrue(draft.filename in mail_outbox[-1]['Subject'])
 
 class EditPositionTestCase(django.test.TestCase):
     fixtures = ['base', 'draft', 'ballot']
@@ -303,6 +308,7 @@ class EditPositionTestCase(django.test.TestCase):
         self.assertTrue(len(q('form input[name="cc"]')) > 0)
 
         # send
+        mailbox_before = len(mail_outbox)
         IESGComment.objects.create(ballot=draft.idinternal.ballot,
                                    ad=IESGLogin.objects.get(login_name=login_as),
                                    text="Test!", date=date.today(),
@@ -311,8 +317,58 @@ class EditPositionTestCase(django.test.TestCase):
         r = self.client.post(url, dict(cc="test@example.com", cc_state_change="1"))
         self.assertEquals(r.status_code, 302)
 
-        self.assertTrue(len(mail_outbox) == 1)
-        self.assertTrue("COMMENT" in mail_outbox[0]['Subject'])
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        self.assertTrue("COMMENT" in mail_outbox[-1]['Subject'])
+        
+        
+class DeferBallotTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft', 'ballot']
+
+    def test_defer_ballot(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_defer_ballot', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "rhousley", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+
+        # defer
+        self.assertTrue(not draft.idinternal.ballot.defer)
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url, dict())
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue(draft.idinternal.ballot.defer)
+        self.assertTrue(draft.idinternal.cur_state_id == IDState.IESG_EVALUATION_DEFER)
+        
+        self.assertEquals(len(mail_outbox), mailbox_before + 2)
+        self.assertTrue("Deferred" in mail_outbox[-2]['Subject'])
+        self.assertTrue(draft.file_tag() in mail_outbox[-2]['Subject'])
+
+    def test_undefer_ballot(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_undefer_ballot', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "rhousley", url)
+
+        draft.idinternal.ballot.defer = True
+        draft.idinternal.ballot.save()
+        
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+
+        # undefer
+        self.assertTrue(draft.idinternal.ballot.defer)
+        
+        r = self.client.post(url, dict())
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue(not draft.idinternal.ballot.defer)
+        self.assertTrue(draft.idinternal.cur_state_id == IDState.IESG_EVALUATION)
         
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>

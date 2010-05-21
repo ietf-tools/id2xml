@@ -37,6 +37,8 @@ class AreaStatus(models.Model):
 # I think equiv_group_flag is historical.
 class IDState(models.Model):
     LAST_CALL_REQUESTED = 15
+    IESG_EVALUATION = 20
+    IESG_EVALUATION_DEFER = 21
     DO_NOT_PUBLISH_STATES = (33, 34)
     
     document_state_id = models.AutoField(primary_key=True)

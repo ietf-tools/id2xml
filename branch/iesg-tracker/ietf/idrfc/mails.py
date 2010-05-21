@@ -165,10 +165,10 @@ def generate_approval_mail_rfc_editor(request, doc):
 
 def send_last_call_request(request, doc, ballot):
     to = "iesg-secretary@ietf.org"
-    fro = '"DraftTracker Mail System" <iesg-secretary@ietf.org>'
-    docs = doc.idinternal.ballot_set()
+    frm = '"DraftTracker Mail System" <iesg-secretary@ietf.org>'
+    docs = [d.document() for d in doc.idinternal.ballot_set()]
     
-    send_mail(request, to, fro,
+    send_mail(request, to, frm,
               "Last Call: %s" % doc.file_tag(),
               "idrfc/last_call_request.txt",
               dict(docs=docs,
@@ -176,11 +176,20 @@ def send_last_call_request(request, doc, ballot):
 
 def email_resurrect_requested(request, doc, by):
     to = "I-D Administrator <internet-drafts@ietf.org>"
-    fro = u"%s <%s>" % by.person.email()
-    send_mail(request, to, fro,
+    frm = u"%s <%s>" % by.person.email()
+    send_mail(request, to, frm,
               "I-D Resurrection Request",
               "idrfc/resurrect_request_email.txt",
               dict(doc=doc,
-                   by=fro,
+                   by=frm,
                    url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
 
+def email_ballot_deferred(request, doc, by, telechat_date):
+    to = "iesg@ietf.org"
+    frm = "DraftTracker Mail System <iesg-secretary@ietf.org>"
+    send_mail(request, to, frm,
+              "IESG Deferred Ballot notification: %s" % doc.file_tag(),
+              "idrfc/ballot_deferred_email.txt",
+              dict(doc=doc,
+                   by=by,
+                   telechat_date=telechat_date))

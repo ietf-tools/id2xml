@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django.conf.urls.defaults import patterns, url
-from ietf.idrfc import views_doc, views_search, views_edit, views
+from ietf.idrfc import views_doc, views_search, views_edit, views_ballot, views
 
 urlpatterns = patterns('',
     (r'^/?$', views_search.search_main),
@@ -47,8 +47,8 @@ urlpatterns = patterns('',
     url(r'^(?P<name>[^/]+)/edit/info/$', views_edit.edit_info, {}, name='doc_edit_info'),
     url(r'^(?P<name>[^/]+)/edit/resurrect/$', views_edit.request_resurrect, {}, name='doc_request_resurrect'),
     url(r'^(?P<name>[^/]+)/edit/addcomment/$', views_edit.add_comment, {}, name='doc_add_comment'),
-    url(r'^(?P<name>[^/]+)/edit/position/$', views_edit.edit_position, {}, name='doc_edit_position'),
-    url(r'^(?P<name>[^/]+)/edit/deferballot/$', views_edit.defer_ballot, {}, name='doc_defer_ballot'),
-    url(r'^(?P<name>[^/]+)/edit/undeferballot/$', views_edit.undefer_ballot, {}, name='doc_undefer_ballot'),
-    url(r'^(?P<name>[^/]+)/edit/sendballotcomment/$', views_edit.send_ballot_comment, {}, name='doc_send_ballot_comment'),
+    url(r'^(?P<name>[^/]+)/edit/position/$', views_ballot.edit_position, {}, name='doc_edit_position'),
+    url(r'^(?P<name>[^/]+)/edit/deferballot/$', views_ballot.defer_ballot, {}, name='doc_defer_ballot'),
+    url(r'^(?P<name>[^/]+)/edit/undeferballot/$', views_ballot.undefer_ballot, {}, name='doc_undefer_ballot'),
+    url(r'^(?P<name>[^/]+)/edit/sendballotcomment/$', views_ballot.send_ballot_comment, {}, name='doc_send_ballot_comment'),
 )

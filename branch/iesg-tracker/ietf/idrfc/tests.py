@@ -294,6 +294,30 @@ class EditPositionTestCase(django.test.TestCase):
         self.assertTrue(pos.discuss == -1)
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("Position" in draft.idinternal.comments()[0].comment_text)
+
+    def test_edit_position_as_secretary(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_edit_position', kwargs=dict(name=draft.filename))
+        url += "?ad=rhousley"
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form input[name=position]')) > 0)
+
+        # vote for rhousley
+        comments_before = draft.idinternal.comments().count()
+        self.assertTrue(not Position.objects.filter(ballot=draft.idinternal.ballot, ad__login_name="rhousley"))
+        
+        r = self.client.post(url, dict(position="discuss"))
+        self.assertEquals(r.status_code, 302)
+
+        pos = Position.objects.get(ballot=draft.idinternal.ballot, ad__login_name="rhousley")
+        self.assertTrue(pos.discuss)
+        self.assertTrue(not (pos.yes or pos.noobj or pos.abstain or pos.recuse))
+
         
     def test_send_ballot_comment(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")

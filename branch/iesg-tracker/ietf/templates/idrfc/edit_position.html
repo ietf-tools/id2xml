@@ -2,16 +2,31 @@
   form.position-form .position ul {
     padding: 0;
     margin: 0;
-  }  
+  }
+  
   form.position-form .position li {
     list-style-type: none;
     float: left;
     padding-right: 10px;
   }
+  
   form.position-form .discuss-text {
     clear: left;
+    padding-top: 20px
+  }
+
+  form.position-form #id_discuss_text,
+  form.position-form #id_comment_text {
+    width: 700px;
+    height: 300px;
+  }
+
+  form.position-form .comment-text {
+    margin-top: 20px;
   }
 </style>
+
+<h3>Change position for {{ ad }}</h3>
 
 <form class="position-form" action="" method="POST">
   <div class="position">{{ form.position }}</div>
@@ -20,7 +35,7 @@
   {{ form.discuss_text }}
   
   <div class="comment-text">{{ form.comment_text.label_tag }}: {% if comment %}(last edited {{ comment.date }}){% endif %}</div>
-  <div>{{ form.comment_text }}</div>
+  {{ form.comment_text }}
 
   <div class="actions">
     <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>

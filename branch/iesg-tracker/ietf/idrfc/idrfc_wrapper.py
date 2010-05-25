@@ -625,13 +625,16 @@ class BallotWrapper:
                                   'comment_date':c.date,
                                   'comment_revision':str(c.revision),
                                   'ad_name':str(c.ad),
+                                  'ad_username': c.ad.login_name,
                                   'position':'No Record',
                                   'is_old_ad':False})
                 ads.add(str(c.ad))
         if self.ballot_active:
             for ad in IESGLogin.active_iesg():
                 if str(ad) not in ads:
-                    positions.append({"ad_name":str(ad), "position":"No Record"})
+                    positions.append(dict(ad_name=str(ad),
+                                          ad_username=ad.login_name,
+                                          position="No Record"))
         self._positions = positions
 
     def position_for_ad(self, ad_name):
@@ -696,7 +699,9 @@ def create_position_object(ballot, position, all_comments):
             p = v
     if not p:
         p = "No Record"
-    r = {"ad_name":str(position.ad), "position":p}
+    r = dict(ad_name=str(position.ad),
+             ad_username=position.ad.login_name, 
+             position=p)
     if not position.ad.is_current_ad():
         r['is_old_ad'] = True
         

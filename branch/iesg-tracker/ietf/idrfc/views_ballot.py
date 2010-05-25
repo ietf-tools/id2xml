@@ -63,9 +63,16 @@ def edit_position(request, name):
     if not doc.idinternal:
         raise Http404()
 
-    login = IESGLogin.objects.get(login_name=request.user.username)
+    ad = login = IESGLogin.objects.get(login_name=request.user.username)
 
-    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, login)
+    # if we're in the Secretariat, we can select an AD to act as stand-in for
+    if not in_group(request.user, "Area_Director"):
+        ad_username = request.GET.get('ad')
+        if not ad_username:
+            raise Http404()
+        ad = get_object_or_404(IESGLogin, login_name=ad_username)
+        
+    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, ad)
 
     if request.method == 'POST':
         form = EditPositionForm(request.POST)
@@ -78,7 +85,7 @@ def edit_position(request, name):
                 if pos.discuss:
                     pos.discuss = -1
             else:
-                pos = Position(ballot=doc.idinternal.ballot, ad=login)
+                pos = Position(ballot=doc.idinternal.ballot, ad=ad)
                 pos.discuss = 0
                 
             old_vote = position_to_ballot_choice(pos)
@@ -98,7 +105,7 @@ def edit_position(request, name):
             # save discuss
             if (discuss and clean['discuss_text'] != discuss.text) or (clean['discuss_text'] and not discuss):
                 if not discuss:
-                    discuss = IESGDiscuss(ballot=doc.idinternal.ballot, ad=login)
+                    discuss = IESGDiscuss(ballot=doc.idinternal.ballot, ad=ad)
 
                 discuss.text = clean['discuss_text']
                 discuss.date = date.today()
@@ -118,7 +125,7 @@ def edit_position(request, name):
             # than doing a clever hack here)
             if (comment and clean['comment_text'] != comment.text) or (clean['comment_text'] and not comment):
                 if not comment:
-                    comment = IESGComment(ballot=doc.idinternal.ballot, ad=login)
+                    comment = IESGComment(ballot=doc.idinternal.ballot, ad=ad)
 
                 comment.text = clean['comment_text']
                 comment.date = date.today()
@@ -153,7 +160,8 @@ def edit_position(request, name):
                               dict(doc=doc,
                                    form=form,
                                    discuss=discuss,
-                                   comment=comment),
+                                   comment=comment,
+                                   ad=ad),
                               context_instance=RequestContext(request))
 
 @group_required('Area_Director','Secretariat')

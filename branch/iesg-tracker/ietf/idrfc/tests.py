@@ -368,7 +368,70 @@ class DeferBallotTestCase(django.test.TestCase):
 
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
         self.assertTrue(not draft.idinternal.ballot.defer)
-        self.assertTrue(draft.idinternal.cur_state_id == IDState.IESG_EVALUATION)
+        self.assertEquals(draft.idinternal.cur_state_id, IDState.IESG_EVALUATION)
+
+class ApproveBallotTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft', 'ballot']
+
+    def test_approve_ballot(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_approve_ballot', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue("Send out the announcement" in q('input[type=submit]')[0].get('value'))
+        self.assertEquals(len(q('pre')), 1)
+
+        # approve
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url, dict())
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.cur_state_id, IDState.APPROVED_ANNOUNCEMENT_SENT)
+        
+        self.assertEquals(len(mail_outbox), mailbox_before + 4)
+
+        self.assertTrue("Protocol Action" in mail_outbox[-2]['Subject'])
+        # the IANA copy
+        self.assertTrue("Protocol Action" in mail_outbox[-1]['Subject'])
+
+class MakeLastCallTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft', 'ballot']
+
+    def test_make_last_call(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_make_last_call', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('input[name=last_call_sent_date]')), 1)
+
+        # make last call
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url,
+                             dict(last_call_sent_date=q('input[name=last_call_sent_date]')[0].get("value"),
+                                  last_call_expiration_date=q('input[name=last_call_expiration_date]')[0].get("value")
+                                  ))
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.cur_state_id, IDState.IN_LAST_CALL)
+        
+        self.assertEquals(len(mail_outbox), mailbox_before + 4)
+
+        self.assertTrue("Last Call" in mail_outbox[-4]['Subject'])
+        # the IANA copy
+        self.assertTrue("Last Call" in mail_outbox[-3]['Subject'])
+
         
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>

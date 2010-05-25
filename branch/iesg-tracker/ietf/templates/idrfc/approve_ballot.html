@@ -1,0 +1,33 @@
+<style>
+  div.announcement {
+    overflow-x: auto;
+    overflow-y: scroll;
+    background-color: #eee;
+    width: 800px;
+    height: 400px;
+    border: 1px solid #bbb;
+  }
+</style>
+
+<h3>Approve Ballot</h3>
+
+<div>IETF announcement:</div>
+
+<div class="announcement">
+<pre>{{ announcement }}</pre>
+</div>
+
+<form action="" method="POST">
+  <div class="actions">
+    <a href="{% url doc_prepare_last_call name=doc.filename %}">Back</a>
+    {% ifequal action "to_announcement_list" %}
+    <input type="submit" value="Send out the announcement and close ballot"/>
+    {% endifequal %}
+    {% ifequal action "to_rfc_editor" %}
+    <input type="submit" value="Send message to the RFC Editor and close ballot"/>
+    {% endifequal %}
+    {% ifequal action "do_not_publish" %}
+    <input type="submit" value="Send message to the RFC Editor (DNP) and close ballot"/>
+    {% endifequal %}    
+  </div>
+</form>

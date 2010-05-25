@@ -6,7 +6,7 @@ from datetime import datetime, date, time, timedelta
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from ietf.utils.mail import send_mail
+from ietf.utils.mail import send_mail, send_mail_text
 from ietf.idtracker.models import *
 
 def email_state_changed(request, doc, text):
@@ -77,7 +77,7 @@ def generate_last_call_announcement(request, doc):
     return render_to_string("idrfc/last_call_announcement.txt",
                             dict(doc=doc,
                                  doc_url=request.build_absolute_uri(doc.idinternal.get_absolute_url()),
-                                 expiration_date=expiration_date.strftime("%B %-d, %Y"),
+                                 expiration_date=expiration_date.strftime("%Y-%m-%d"), #.strftime("%B %-d, %Y"),
                                  cc=", ".join("<%s>" % e for e in cc),
                                  group=group,
                                  docs=docs,
@@ -136,7 +136,7 @@ def generate_approval_mail(request, doc):
     return render_to_string("idrfc/approval_mail.txt",
                             dict(doc=doc,
                                  doc_url=request.build_absolute_uri(doc.idinternal.get_absolute_url()),
-                                 cc=", ".join(cc),
+                                 cc=",\n    ".join(cc),
                                  docs=docs,
                                  doc_type=doc_type,
                                  made_by=made_by,
@@ -147,7 +147,6 @@ def generate_approval_mail(request, doc):
                             )
 
 def generate_approval_mail_rfc_editor(request, doc):
-    # FIXME: need unit test for this function
     full_status = full_intended_status(doc.intended_status)
     status = full_status.replace("a ", "").replace("an ", "")
     disapproved = doc.idinternal.cur_state_id in IDState.DO_NOT_PUBLISH_STATES
@@ -193,3 +192,25 @@ def email_ballot_deferred(request, doc, by, telechat_date):
               dict(doc=doc,
                    by=by,
                    telechat_date=telechat_date))
+
+def email_ballot(request, doc):
+    to = "iesg@ietf.org"
+    # FIXME: fill in
+
+def email_iana(request, doc, to, msg):
+    # fix up message and send message to IANA for each in ballot set
+    import email
+    parsed_msg = email.message_from_string(msg.encode("utf-8"))
+
+    for i in doc.idinternal.ballot_set():
+        extra = {}
+        extra["Reply-To"] = "noreply@ietf.org"
+        extra["X-IETF-Draft-string"] = i.document().filename
+        extra["X-IETF-Draft-revision"] = i.document().revision_display()
+    
+        send_mail_text(request, "To: IANA <%s>" % to,
+                       parsed_msg["From"], parsed_msg["Subject"],
+                       parsed_msg.get_payload(),
+                       extra=extra,
+                       bcc="fenner@research.att.com")
+

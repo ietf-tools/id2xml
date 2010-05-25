@@ -1,0 +1,19 @@
+<h3>Make Last Call for Internet Draft{{ docs|pluralize }}</h3>
+
+<p>Make last call for following draft{{ docs|pluralize }}:</p>
+
+{% for d in docs %}
+<div>{{ d.file_tag }} ({{ d.group.acronym }}) - {{ d.intended_status.intended_status }}</div>
+{% endfor %}
+
+<form style="margin-top:20px" action="" method="POST">
+  <table>
+    {{ form.as_table }}
+  </table>
+
+  <div class="actions">
+    <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
+    <input type="reset">
+    <input type="submit" value="Make Last Call"/>
+  </div>
+</form>

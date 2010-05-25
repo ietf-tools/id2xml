@@ -124,7 +124,7 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
 {% if user|in_group:"Area_Director,Secretariat" %}
 <div style="margin-bottom:8px;">
 <span id="doc_writeup_edit_button" class="yui-button yui-link-button"><span class="first-child">
-<a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=ballot_writeup&amp;ballot_id={{doc.ietf_process.iesg_ballot.ballot_id}}">Edit writeups</a>
+<a href="{% url doc_prepare_last_call name=doc.draft_name %}">Prepare Last Call</a>
 </span></span></div>
 {% endif %}{# user in_group #}
 ---- following is a DRAFT of message to be sent AFTER approval ---

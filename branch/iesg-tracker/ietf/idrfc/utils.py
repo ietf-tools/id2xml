@@ -17,23 +17,28 @@ def add_document_comment(request, doc, text, include_by=True, ballot=None):
     c.rfc_flag = doc.idinternal.rfc_flag
     c.save()
 
+def generate_ballot(request, doc):
+    ballot = BallotInfo()
+    ballot.ballot = doc.idinternal.ballot_id
+    ballot.active = False
+    ballot.last_call_text = generate_last_call_announcement(request, doc)
+    ballot.approval_text = generate_approval_mail(request, doc)
+    ballot.ballot_writeup = render_to_string("idrfc/ballot_writeup.txt")
+    ballot.save()
+    doc.idinternal.ballot = ballot
+    return ballot
+    
 def make_last_call(request, doc):
     try:
         ballot = doc.idinternal.ballot
     except BallotInfo.DoesNotExist:
-        ballot = BallotInfo()
-        ballot.ballot = doc.idinternal.ballot_id
-        ballot.active = False
-        ballot.last_call_text = generate_last_call_announcement(request, doc)
-        ballot.approval_text = generate_approval_mail(request, doc)
-        ballot.ballot_writeup = render_to_string("idrfc/ballot_writeup.txt")
-        ballot.save()
+        ballot = generate_ballot(request, doc)
 
     send_last_call_request(request, doc, ballot)
     add_document_comment(request, doc, "Last Call was requested")
 
 def log_state_changed(request, doc, by):
-    change = u"State changed to <b>%s</b> from <b>%s</b> by <b>%s</b>" % (
+    change = u"State changed to <b>%s</b> from <b>%s</b> by %s" % (
         doc.idinternal.docstate(),
         format_document_state(doc.idinternal.prev_state, doc.
                               idinternal.prev_sub_state),
@@ -53,3 +58,5 @@ def log_state_changed(request, doc, by):
     email_state_changed(request, doc, strip_tags(change))
 
     return change
+
+       

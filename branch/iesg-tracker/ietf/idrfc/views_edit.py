@@ -1,4 +1,5 @@
-# changing metadata and commenting on Internet Drafts for IESG members
+# changing state and metadata and commenting on Internet Drafts for
+# Area Directors and Secretariat
 
 import re, os
 from datetime import datetime, date, time, timedelta
@@ -10,12 +11,12 @@ from django.template import RequestContext
 from django import forms
 from django.utils.html import strip_tags
 
+from ietf import settings
 from ietf.utils.mail import send_mail_text
 from ietf.ietfauth.decorators import group_required
 from ietf.idtracker.templatetags.ietf_filters import in_group
 from ietf.idtracker.models import *
 from ietf.iesg.models import *
-from ietf import settings
 from ietf.idrfc.mails import *
 from ietf.idrfc.utils import *
 
@@ -322,4 +323,5 @@ def add_comment(request, name):
                               dict(doc=doc,
                                    form=form),
                               context_instance=RequestContext(request))
+
 

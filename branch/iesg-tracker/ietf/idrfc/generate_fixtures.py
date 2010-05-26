@@ -59,6 +59,8 @@ draftdata.extend([a.area for a in ags])
 draftdata.extend([a.area.area_acronym for a in ags])
 d = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
 draftdata.extend([d, d.idinternal])
+d = InternetDraft.objects.get(filename="draft-ah-rfc2141bis-urn")
+draftdata.extend([d, d.group, d.group.ietfwg])
 output("draft", draftdata)
 
 # specific ballot info

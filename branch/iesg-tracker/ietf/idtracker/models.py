@@ -36,6 +36,7 @@ class AreaStatus(models.Model):
 
 # I think equiv_group_flag is historical.
 class IDState(models.Model):
+    PUBLICATION_REQUESTED = 10
     LAST_CALL_REQUESTED = 15
     IN_LAST_CALL = 16
     IESG_EVALUATION = 20
@@ -559,7 +560,7 @@ class IDInternal(models.Model):
     rfc_flag = models.IntegerField(null=True)
     ballot = models.ForeignKey(BallotInfo, related_name='drafts', db_column="ballot_id")
     primary_flag = models.IntegerField(blank=True, null=True)
-    group_flag = models.IntegerField(blank=True)
+    group_flag = models.IntegerField(blank=True, default=0)
     token_name = models.CharField(blank=True, max_length=25)
     token_email = models.CharField(blank=True, max_length=255)
     note = models.TextField(blank=True)
@@ -923,6 +924,10 @@ class WGChair(models.Model):
 class WGEditor(models.Model):
     group_acronym = models.ForeignKey(IETFWG)
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', unique=True)
+    def __str__(self):
+	return "%s (%s)" % (self.person, self.role())
+    def role(self):
+	return "%s Editor" % self.group_acronym
     class Meta:
         db_table = 'g_editors'
 	verbose_name = "WG Editor"

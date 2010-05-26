@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django import forms
 from django.utils.html import strip_tags
+from django.db.models import Max
 
 from ietf import settings
 from ietf.utils.mail import send_mail_text
@@ -51,7 +52,7 @@ def change_state(request, name):
                 email_owner(request, doc, internal.job_owner, login, change)
 
                 if internal.cur_state.document_state_id == IDState.LAST_CALL_REQUESTED:
-                    make_last_call(request, doc)
+                    request_last_call(request, doc)
 
                     return render_to_response('idrfc/last_call_requested.html',
                                               dict(doc=doc),
@@ -83,8 +84,8 @@ def parse_telechat_date(s):
 
 class EditInfoForm(forms.Form):
     intended_status = forms.ModelChoiceField(IDIntendedStatus.objects.all(), empty_label=None, required=True)
-    status_date = forms.DateField(required=False)
-    group = forms.ModelChoiceField(Acronym.objects.filter(area__status=Area.ACTIVE), label="Area acronym", required=False)
+    status_date = forms.DateField(required=False, help_text="Format is YYYY-MM-DD")
+    area_acronym = forms.ModelChoiceField(Area.active_areas(), required=True, empty_label=None)
     via_rfc_editor = forms.BooleanField(required=False, label="Via IRTF or RFC Editor")
     job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level__in=(1, 2)).order_by('user_level', 'last_name'), label="Responsible AD", empty_label=None, required=True)
     state_change_notice_to = forms.CharField(max_length=255, label="Notice emails", help_text="Separate email addresses with commas", required=False)
@@ -93,23 +94,31 @@ class EditInfoForm(forms.Form):
     returning_item = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
+        old_ads = kwargs.pop('old_ads')
+        
         super(self.__class__, self).__init__(*args, **kwargs)
 
-        # separate active ADs from inactive
-        choices = []
-        objects = IESGLogin.objects.in_bulk([t[0] for t in self.fields['job_owner'].choices])
-        separated = False
-        for t in self.fields['job_owner'].choices:
-            if objects[t[0]].user_level != 1 and not separated:
-                choices.append(("", "----------------"))
-                separated = True
-            choices.append(t)
-        self.fields['job_owner'].choices = choices
+        job_owners = IESGLogin.objects.in_bulk([t[0] for t in self.fields['job_owner'].choices])
+        if old_ads:
+            # separate active ADs from inactive
+            choices = []
+            separated = False
+            for t in self.fields['job_owner'].choices:
+                if job_owners[t[0]].user_level != 1 and not separated:
+                    choices.append(("", "----------------"))
+                    separated = True
+                choices.append(t)
+            self.fields['job_owner'].choices = choices
+        else:
+            # remove old ones
+            self.fields['job_owner'].choices = filter(
+                lambda t: job_owners[t[0]].user_level == 1,
+                self.fields['job_owner'].choices)
         
         # telechat choices
         today = date.today()
         dates = TelechatDates.objects.all()[0].dates()
-        init = self.fields['telechat_date'].initial
+        init = kwargs['initial']['telechat_date']
         if init and init not in dates:
             dates.insert(0, init)
 
@@ -118,9 +127,16 @@ class EditInfoForm(forms.Form):
 
         self.fields['telechat_date'].choices = choices
 
+        if kwargs['initial']['area_acronym'] == Acronym.INDIVIDUAL_SUBMITTER:
+            # default to "gen"
+            kwargs['initial']['area_acronym'] = 1008
+        else:
+            # hide area acronym if one has been assigned already
+            del self.fields['area_acronym']
+        
         # returning item is rendered non-standard
         self.standard_fields = [x for x in self.visible_fields() if x.name not in ('returning_item',)]
-    
+
     def clean_status_date(self):
         d = self.cleaned_data['status_date']
         if d:
@@ -136,61 +152,97 @@ class EditInfoForm(forms.Form):
         return self.cleaned_data['note'].replace('\n', '<br>').replace('\r', '').replace('  ', '&nbsp; ')
 
 
+def get_initial_state_change_notice(doc):
+    # set change state notice to something sensible
+    receivers = []
+    if doc.group_id == Acronym.INDIVIDUAL_SUBMITTER:
+        for a in doc.authors.all():
+            # maybe it would be more appropriate to use a.email() ?
+            e = a.person.email()[1]
+            if e:
+                receivers.append(e)
+    else:
+        receivers.append("%s-chairs@%s" % (doc.group.acronym, settings.TOOLS_SERVER))
+        for editor in doc.group.ietfwg.wgeditor_set.all():
+            e = editor.person.email()[1]
+            if e:
+                receivers.append(e)
+
+    receivers.append("%s@%s" % (doc.filename, settings.TOOLS_SERVER))
+    return ", ".join(receivers)
+
+def get_new_ballot_id():
+    return IDInternal.objects.aggregate(Max('ballot'))['ballot__max'] + 1
+    
 @group_required('Area_Director','Secretariat')
 def edit_info(request, name):
     """Edit various Internet Draft attributes, notifying parties as
     necessary and logging changes as document comments."""
     doc = get_object_or_404(InternetDraft, filename=name)
-    if not doc.idinternal or doc.status.status == "Expired":
+    if doc.status.status == "Expired":
         raise Http404()
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 
-    initial_telechat_date = doc.idinternal.telechat_date if doc.idinternal.agenda else None
+    new_document = False
+    if not doc.idinternal:
+        new_document = True
+        doc.idinternal = IDInternal(draft=doc,
+                                    rfc_flag=type(doc) == Rfc,
+                                    cur_state_id=IDState.PUBLICATION_REQUESTED,
+                                    prev_state_id=IDState.PUBLICATION_REQUESTED,
+                                    state_change_notice_to=get_initial_state_change_notice(doc),
+                                    primary_flag=1,
+                                    area_acronym_id=doc.group_id,
+                                    # would be better to use NULL to
+                                    # signify an empty ballot
+                                    ballot_id=get_new_ballot_id(),
+                                    )
+
+    if doc.idinternal.agenda:
+        initial_telechat_date = doc.idinternal.telechat_date
+    else:
+        initial_telechat_date = None
 
     if request.method == 'POST':
         form = EditInfoForm(request.POST,
+                            old_ads=False,
                             initial=dict(telechat_date=initial_telechat_date,
-                                         group=doc.group_id))
+                                         area_acronym=doc.idinternal.area_acronym_id))
         if form.is_valid():
             changes = []
             r = form.cleaned_data
             entry = "%s has been changed to <b>%s</b> from <b>%s</b>"
+            if new_document:
+                # Django barfs in the diff below because these fields
+                # can't be NULL
+                doc.idinternal.job_owner = r['job_owner']
+                doc.idinternal.area_acronym = r['area_acronym']
+                
+                replaces = doc.replaces_set.all()
+                if replaces:
+                    c = "Earlier history may be found in the Comment Log for <a href=\"%s\">%s</a>" % (replaces[0], replaces[0].idinternal.get_absolute_url())
+                    add_document_comment(request, doc, c, include_by=False)
+                    
             orig_job_owner = doc.idinternal.job_owner
 
-            # update various attributes, we need to keep track of what
-            # we're doing
-            
-            if r['intended_status'] != doc.intended_status:
-                changes.append(entry % ("Intended Status",
-                                        r['intended_status'],
-                                        doc.intended_status))
-                doc.intended_status = r['intended_status']
-
-            if r['status_date'] != doc.idinternal.status_date:
-                changes.append(entry % ("Status date",
-                                        r['status_date'],
-                                        doc.idinternal.status_date))
-                doc.idinternal.status_date = r['status_date']
-
-            if 'group' in r and r['group'] and r['group'] != doc.group and doc.group_id == Acronym.INDIVIDUAL_SUBMITTER:
-                changes.append(entry % ("Area acronym", r['group'], doc.group))
-                doc.group = r['group']
-                
-            if r['job_owner'] != doc.idinternal.job_owner:
-                changes.append(entry % ("Responsible AD",
-                                        r['job_owner'],
-                                        doc.idinternal.job_owner))
-                doc.idinternal.job_owner = r['job_owner']
-
-            if r['state_change_notice_to'] != doc.idinternal.state_change_notice_to:
-                changes.append(entry % ("State Change Notice email list",
-                                        r['state_change_notice_to'],
-                                        doc.idinternal.state_change_notice_to))
-                doc.idinternal.state_change_notice_to = r['state_change_notice_to']
+            # update the attributes, keeping track of what we're doing
 
             # coalesce some of the changes into one comment, mail them below
-            if changes:
+            def diff(obj, attr, name):
+                v = getattr(obj, attr)
+                if r[attr] != v:
+                    changes.append(entry % (name, r[attr], v))
+                    setattr(obj, attr, r[attr])
+
+            diff(doc, 'intended_status', "Intended Status")
+            diff(doc.idinternal, 'status_date', "Status Date")
+            if 'area_acronym' in r and r['area_acronym']:
+                diff(doc.idinternal, 'area_acronym', 'Area acronym')
+            diff(doc.idinternal, 'job_owner', 'Responsible AD')
+            diff(doc.idinternal, 'state_change_notice_to', "State Change Notice email list")
+
+            if changes and not new_document:
                 add_document_comment(request, doc, "<br>".join(changes))
 
             # handle note (for some reason the old Perl code didn't
@@ -245,29 +297,30 @@ def edit_info(request, name):
             doc.idinternal.mark_by = login
             doc.idinternal.event_date = date.today()
 
-            if changes:
+            if changes and not new_document:
                 email_owner(request, doc, orig_job_owner, login, "\n".join(changes))
+            if new_document:
+                add_document_comment(request, doc, "Draft added in state %s" % doc.idinternal.cur_state.state)
+                
             doc.idinternal.save()
             doc.save()
             return HttpResponseRedirect(doc.idinternal.get_absolute_url())
     else:
         init = dict(intended_status=doc.intended_status_id,
                     status_date=doc.idinternal.status_date,
-                    group=doc.group_id,
+                    area_acronym=doc.idinternal.area_acronym_id,
                     job_owner=doc.idinternal.job_owner_id,
                     state_change_notice_to=doc.idinternal.state_change_notice_to,
                     note=dehtmlify_textarea_text(doc.idinternal.note),
                     telechat_date=initial_telechat_date,
                     returning_item=doc.idinternal.returning_item,
                     )
-        form = EditInfoForm(initial=init)
+
+        form = EditInfoForm(old_ads=False, initial=init)
 
     if not in_group(request.user, 'Secretariat'):
         form.standard_fields = [x for x in form.standard_fields if x.name != "via_rfc_editor"]
-        
-    if doc.group_id != Acronym.INDIVIDUAL_SUBMITTER:
-        # show group only if none has been assigned yet
-        form.standard_fields = [x for x in form.standard_fields if x.name != "group"]
+
         
     return render_to_response('idrfc/edit_info.html',
                               dict(form=form,
@@ -280,8 +333,11 @@ def edit_info(request, name):
 def request_resurrect(request, name):
     """Request resurrect of expired Internet Draft."""
     doc = get_object_or_404(InternetDraft, filename=name)
-    if not doc.idinternal or doc.status.status != "Expired":
+    if doc.status.status != "Expired":
         raise Http404()
+
+    if not doc.idinternal:
+        doc.idinternal = IDInternal(draft=doc, rfc_flag=type(doc) == Rfc)
 
     login = IESGLogin.objects.get(login_name=request.user.username)
 

@@ -164,12 +164,12 @@ class EditInfoTestCase(django.test.TestCase):
         draft.group = Acronym.objects.get(acronym_id=Acronym.INDIVIDUAL_SUBMITTER)
         draft.save()
         new_job_owner = IESGLogin.objects.exclude(id__in=[IESGLogin.objects.get(login_name="klm").id, draft.idinternal.job_owner_id])[0]
-        new_group = Acronym.objects.filter(area__status=Area.ACTIVE)[0]
+        new_area = Area.active_areas()[0]
 
         r = self.client.post(url,
                              dict(intended_status=str(draft.intended_status_id),
                                   status_date=str(date.today() + timedelta(2)),
-                                  group=str(new_group.acronym_id),
+                                  area_acronym=str(new_area.area_acronym_id),
                                   via_rfc_editor="1",
                                   job_owner=new_job_owner.id,
                                   state_change_notice_to="test@example.com",
@@ -179,7 +179,7 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertEquals(r.status_code, 302)
 
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        self.assertEquals(draft.group, new_group)
+        self.assertEquals(draft.idinternal.area_acronym, new_area)
         self.assertTrue(draft.idinternal.via_rfc_editor)
         self.assertEquals(draft.idinternal.job_owner, new_job_owner)
         self.assertEquals(draft.idinternal.note, "")
@@ -187,6 +187,47 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 3)
         self.assertEquals(len(mail_outbox), mailbox_before + 1)
         self.assertTrue(draft.filename in mail_outbox[-1]['Subject'])
+
+    def test_add_draft(self):
+        draft = InternetDraft.objects.get(filename="draft-ah-rfc2141bis-urn")
+        url = urlreverse('doc_edit_info', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form select[name=intended_status]')), 1)
+        self.assertEquals(len(q('form input[name=via_rfc_editor]')), 1)
+        self.assertTrue('@' in q('form input[name=state_change_notice_to]')[0].get('value'))
+
+        # add
+        mailbox_before = len(mail_outbox)
+
+        job_owner = IESGLogin.objects.filter(user_level=1)[0]
+        area = Area.active_areas()[0]
+
+        r = self.client.post(url,
+                             dict(intended_status=str(draft.intended_status_id),
+                                  status_date=str(date.today() + timedelta(2)),
+                                  area_acronym=str(area.area_acronym_id),
+                                  via_rfc_editor="1",
+                                  job_owner=job_owner.id,
+                                  state_change_notice_to="test@example.com",
+                                  note="This is a note",
+                                  telechat_date="",
+                                  ))
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ah-rfc2141bis-urn")
+        self.assertEquals(draft.idinternal.area_acronym, area)
+        self.assertTrue(draft.idinternal.via_rfc_editor)
+        self.assertEquals(draft.idinternal.job_owner, job_owner)
+        self.assertEquals(draft.idinternal.note, "This is a note")
+        self.assertTrue(not draft.idinternal.agenda)
+        self.assertEquals(draft.idinternal.comments().count(), 3)
+        self.assertTrue("Draft added" in draft.idinternal.comments()[0].comment_text)
+        self.assertEquals(len(mail_outbox), mailbox_before)
 
 
 class RequestResurrectTestCase(django.test.TestCase):

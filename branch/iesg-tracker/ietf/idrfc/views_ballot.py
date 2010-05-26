@@ -326,7 +326,7 @@ def prepare_last_call(request, name):
 
                     change = log_state_changed(request, doc, login)
                     email_owner(request, doc, doc.idinternal.job_owner, login, change)
-                    make_last_call(request, doc)
+                    requiest_last_call(request, doc)
 
                     return render_to_response('idrfc/last_call_requested.html',
                                               dict(doc=doc),

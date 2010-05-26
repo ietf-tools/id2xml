@@ -28,7 +28,7 @@ def generate_ballot(request, doc):
     doc.idinternal.ballot = ballot
     return ballot
     
-def make_last_call(request, doc):
+def request_last_call(request, doc):
     try:
         ballot = doc.idinternal.ballot
     except BallotInfo.DoesNotExist:

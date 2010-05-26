@@ -1,10 +1,19 @@
 {% load ietf_filters %}
+<style>
+  form.edit-info #id_state_change_notice_to {
+    width: 600px;
+  }
+  form.edit-info #id_note {
+    width: 600px;
+    height: 150px;
+  }
+</style>
 
-<form action="" method="POST">
+<form class="edit-info" action="" method="POST">
   <table>
     {% for field in form.standard_fields %}
     <tr>
-      <td>{{ field.label_tag }}:</td>
+      <th>{{ field.label_tag }}:</th>
       <td>{{ field }}
       {% ifequal field.name "telechat_date" %}{{ form.returning_item }} {{ form.returning_item.label_tag }} {{ form.returning_item.errors }}{% endifequal %}
       {% ifequal field.name "job_owner" %}

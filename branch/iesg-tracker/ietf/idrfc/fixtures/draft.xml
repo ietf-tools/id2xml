@@ -184,4 +184,81 @@ provided.</field>
         <field to="idtracker.iesglogin" name="resurrect_requested_by" rel="ManyToOneRel"><None></None></field>
         <field type="IntegerField" name="approved_in_minute">1</field>
     </object>
+    <object pk="19892" model="idtracker.internetdraft">
+        <field type="CharField" name="title">Uniform Resource Name (URN) Syntax</field>
+        <field type="CharField" name="id_document_key">UNIFORM RESOURCE NAME (URN) SYNTAX</field>
+        <field to="idtracker.acronym" name="group" rel="ManyToOneRel">1027</field>
+        <field type="CharField" name="filename">draft-ah-rfc2141bis-urn</field>
+        <field type="CharField" name="revision">00</field>
+        <field type="DateField" name="revision_date">2010-03-25</field>
+        <field type="CharField" name="file_type">.txt</field>
+        <field type="IntegerField" name="txt_page_count">18</field>
+        <field type="CharField" name="local_path"><None></None></field>
+        <field type="DateField" name="start_date">2010-03-25</field>
+        <field type="DateField" name="expiration_date"><None></None></field>
+        <field type="TextField" name="abstract">Uniform Resource Names (URNs) are intended to serve as persistent,
+location-independent, resource identifiers.  This document serves as
+the foundation of the 'urn' URI Scheme according to RFC 3986 and sets
+forward the canonical syntax for URNs, which subdivides URNs into
+"namespaces".  A discussion of both existing legacy and new
+namespaces and requirements for URN presentation and transmission are
+presented.  Finally, there is a discussion of URN equivalence and how
+to determine it.  This document supersedes RFC 2141.
+
+The requirements and procedures for URN Namespace registration
+documents are currently set forth in RFC 3406, which is also expected
+to be updated by an independent, revised specification soon.
+
+Discussion
+
+This draft version has been obtained by importing the text from RFC
+2141 into modern tools and making a first round of updating steps.
+It is intended to serve as one of the starting points for an effort
+to bring URN RFCs in alignment with STD 63, STD 68, BCP 26, and the
+requirements from emerging distributed national and international URN
+resolution systems, and advance them on the IETF Standards Track.
+
+Until a more specific mailing list is established, comments are
+welcome on the uri-review@ietf.org mailing list (or sent to the
+document editor).</field>
+        <field type="DateField" name="dunn_sent_date"><None></None></field>
+        <field type="DateField" name="extension_date"><None></None></field>
+        <field to="idtracker.idstatus" name="status" rel="ManyToOneRel">1</field>
+        <field to="idtracker.idintendedstatus" name="intended_status" rel="ManyToOneRel">8</field>
+        <field type="DateField" name="lc_sent_date"><None></None></field>
+        <field type="CharField" name="lc_changes"><None></None></field>
+        <field type="DateField" name="lc_expiration_date"><None></None></field>
+        <field type="DateField" name="b_sent_date"><None></None></field>
+        <field type="DateField" name="b_discussion_date"><None></None></field>
+        <field type="DateField" name="b_approve_date"><None></None></field>
+        <field type="DateField" name="wgreturn_date"><None></None></field>
+        <field type="IntegerField" name="rfc_number"><None></None></field>
+        <field type="TextField" name="comments"><None></None></field>
+        <field type="DateField" name="last_modified_date">2010-03-25</field>
+        <field to="idtracker.internetdraft" name="replaced_by" rel="ManyToOneRel"><None></None></field>
+        <field type="BooleanField" name="review_by_rfc_editor">0</field>
+        <field type="BooleanField" name="expired_tombstone">0</field>
+    </object>
+    <object pk="1027" model="idtracker.acronym">
+        <field type="CharField" name="acronym">none</field>
+        <field type="CharField" name="name">Individual Submissions</field>
+        <field type="CharField" name="name_key">INDIVIDUAL SUBMISSIONS</field>
+    </object>
+    <object pk="1027" model="idtracker.ietfwg">
+        <field to="idtracker.wgtype" name="group_type" rel="ManyToOneRel">4</field>
+        <field type="DateField" name="proposed_date"><None></None></field>
+        <field type="DateField" name="start_date"><None></None></field>
+        <field type="DateField" name="dormant_date"><None></None></field>
+        <field type="DateField" name="concluded_date"><None></None></field>
+        <field to="idtracker.wgstatus" name="status" rel="ManyToOneRel">1</field>
+        <field to="idtracker.areadirector" name="area_director" rel="ManyToOneRel">112</field>
+        <field type="CharField" name="meeting_scheduled">NO</field>
+        <field type="CharField" name="email_address"></field>
+        <field type="CharField" name="email_subscribe"></field>
+        <field type="CharField" name="email_keyword"></field>
+        <field type="CharField" name="email_archive"></field>
+        <field type="TextField" name="comments">This is here so that 'none' can be entered in, for example, idform.</field>
+        <field type="DateField" name="last_modified_date">2002-06-24</field>
+        <field type="CharField" name="meeting_scheduled_old">NO</field>
+    </object>
 </django-objects>

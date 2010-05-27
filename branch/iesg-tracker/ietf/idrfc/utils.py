@@ -60,3 +60,36 @@ def log_state_changed(request, doc, by):
     return change
 
        
+def update_telechat(request, idinternal, new_telechat_date, new_returning_item=None):
+    on_agenda = bool(new_telechat_date)
+
+    if new_returning_item == None:
+        new_returning_item = idinternal.returning_item
+    
+    returning_item_changed = False
+    if idinternal.returning_item != bool(new_returning_item):
+        idinternal.returning_item = bool(new_returning_item)
+        returning_item_changed = True
+
+    # auto-update returning item
+    if (not returning_item_changed and
+        on_agenda and idinternal.agenda
+        and new_telechat_date != idinternal.telechat_date):
+        idinternal.returning_item = True
+
+    # update agenda
+    doc = idinternal.document()
+    if idinternal.agenda != on_agenda:
+        if on_agenda:
+            add_document_comment(request, doc,
+                                 "Placed on agenda for telechat - %s" % new_telechat_date)
+        else:
+            add_document_comment(request, doc,
+                                 "Removed from agenda for telechat")
+        idinternal.agenda = on_agenda
+    elif on_agenda and new_telechat_date != idinternal.telechat_date:
+        add_document_comment(request, doc,
+                             "Telechat date has been changed to <b>%s</b> from <b>%s</b>" %
+                             (new_telechat_date,
+                              idinternal.telechat_date))
+        idinternal.telechat_date = new_telechat_date

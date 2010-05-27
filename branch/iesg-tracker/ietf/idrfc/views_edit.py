@@ -79,9 +79,6 @@ def change_state(request, name):
 def dehtmlify_textarea_text(s):
     return s.replace("<br>", "\n").replace("<b>", "").replace("</b>", "").replace("  ", " ")
 
-def parse_telechat_date(s):
-    return date(*tuple(int(x) for x in s.split('-')))
-
 class EditInfoForm(forms.Form):
     intended_status = forms.ModelChoiceField(IDIntendedStatus.objects.all(), empty_label=None, required=True)
     status_date = forms.DateField(required=False, help_text="Format is YYYY-MM-DD")
@@ -90,7 +87,7 @@ class EditInfoForm(forms.Form):
     job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level__in=(1, 2)).order_by('user_level', 'last_name'), label="Responsible AD", empty_label=None, required=True)
     state_change_notice_to = forms.CharField(max_length=255, label="Notice emails", help_text="Separate email addresses with commas", required=False)
     note = forms.CharField(widget=forms.Textarea, label="IESG note", required=False)
-    telechat_date = forms.TypedChoiceField(coerce=parse_telechat_date, empty_value=None, required=False)
+    telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False)
     returning_item = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -116,14 +113,14 @@ class EditInfoForm(forms.Form):
                 self.fields['job_owner'].choices)
         
         # telechat choices
-        today = date.today()
         dates = TelechatDates.objects.all()[0].dates()
         init = kwargs['initial']['telechat_date']
         if init and init not in dates:
             dates.insert(0, init)
 
-        choices = [(d, d.strftime("%Y-%m-%d")) for d in dates]
-        choices.insert(0, ("", "(not on agenda)"))
+        choices = [("", "(not on agenda)")]
+        for d in dates:
+            choices.append((d, d.strftime("%Y-%m-%d")))
 
         self.fields['telechat_date'].choices = choices
 
@@ -259,34 +256,8 @@ def edit_info(request, name):
                     
                 doc.idinternal.note = r['note']
 
-            on_agenda = bool(r['telechat_date'])
-
-            returning_item_changed = False
-            if doc.idinternal.returning_item != bool(r['returning_item']):
-                doc.idinternal.returning_item = bool(r['returning_item'])
-                returning_item_changed = True
-
-            # auto-update returning item
-            if (not returning_item_changed and
-                on_agenda and doc.idinternal.agenda
-                and r['telechat_date'] != doc.idinternal.telechat_date):
-                doc.idinternal.returning_item = True
-
-            # update agenda
-            if doc.idinternal.agenda != on_agenda:
-                if on_agenda:
-                    add_document_comment(request, doc,
-                                         "Placed on agenda for telechat - %s" % r['telechat_date'])
-                else:
-                    add_document_comment(request, doc,
-                                         "Removed from agenda for telechat")
-                doc.idinternal.agenda = on_agenda
-            elif on_agenda and r['telechat_date'] != doc.idinternal.telechat_date:
-                add_document_comment(request, doc, entry %
-                                     ("Telechat date",
-                                      r['telechat_date'],
-                                      doc.idinternal.telechat_date))
-                doc.idinternal.telechat_date = r['telechat_date']
+            update_telechat(request, doc.idinternal,
+                            r['telechat_date'], r['returning_item'])
 
             if in_group(request.user, 'Secretariat'):
                 doc.idinternal.via_rfc_editor = bool(r['via_rfc_editor'])

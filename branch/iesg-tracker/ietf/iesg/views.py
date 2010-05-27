@@ -41,10 +41,13 @@ from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.template import RequestContext, Context, loader
 from django.shortcuts import render_to_response
 from django.conf import settings
+from django import forms
 from ietf.iesg.models import TelechatDates, TelechatAgendaItem, WGAction
 from ietf.idrfc.idrfc_wrapper import IdWrapper, RfcWrapper
 from ietf.idrfc.models import RfcIndex
+from ietf.idrfc.utils import update_telechat
 from ietf.ietfauth.decorators import group_required
+from ietf.idtracker.templatetags.ietf_filters import in_group
 import datetime 
 
 def date_threshold():
@@ -223,23 +226,71 @@ def agenda_documents_txt(request):
     c = Context({'docs':docs})
     return HttpResponse(t.render(c), mimetype='text/plain')
 
+class RescheduleForm(forms.Form):
+    telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False)
+    clear_returning_item = forms.BooleanField(initial=False, required=False)
+
+    def __init__(self, *args, **kwargs):
+        dates = kwargs.pop('telechat_dates')
+        
+        super(self.__class__, self).__init__(*args, **kwargs)
+
+        # telechat choices
+        init = kwargs['initial']['telechat_date']
+        if init and init not in dates:
+            dates.insert(0, init)
+
+        choices = [("", "(not on agenda)")]
+        for d in dates:
+            choices.append((d, d.strftime("%Y-%m-%d")))
+
+        self.fields['telechat_date'].choices = choices
+
+def handle_reschedule_form(request, idinternal, dates):
+    initial = dict(
+        telechat_date=idinternal.telechat_date if idinternal.agenda else None)
+
+    formargs = dict(telechat_dates=dates,
+                    prefix="%s" % idinternal.draft_id,
+                    initial=initial)
+    if request.method == 'POST':
+        form = RescheduleForm(request.POST, **formargs)
+        if form.is_valid():
+            update_telechat(request, idinternal,
+                            form.cleaned_data['telechat_date'])
+            if form.cleaned_data['clear_returning_item']:
+                idinternal.returning_item = False
+            idinternal.event_date = datetime.date.today()
+            idinternal.save()
+    else:
+        form = RescheduleForm(**formargs)
+
+    form.show_clear = idinternal.returning_item
+    return form
+
 def agenda_documents(request):
     dates = TelechatDates.objects.all()[0].dates()
+    idinternals = list(IDInternal.objects.filter(telechat_date__in=dates,primary_flag=1,agenda=1).order_by('rfc_flag', 'ballot'))
+    for i in idinternals:
+        i.reschedule_form = handle_reschedule_form(request, i, dates)
+
+    # some may have been taken off the schedule by the reschedule form
+    idinternals = filter(lambda x: x.agenda, idinternals)
+        
     telechats = []
     for date in dates:
-        matches = IDInternal.objects.filter(telechat_date=date,primary_flag=1,agenda=1)
-        idmatches = matches.filter(rfc_flag=0).order_by('ballot')
-        rfcmatches = matches.filter(rfc_flag=1).order_by('ballot')
+        matches = filter(lambda x: x.telechat_date == date, idinternals)
         res = {}
-        for id in list(idmatches)+list(rfcmatches):
-            section_key = "s"+get_doc_section(id)
+        for i in matches:
+            section_key = "s" + get_doc_section(i)
             if section_key not in res:
                 res[section_key] = []
-            if not id.rfc_flag:
-                w = IdWrapper(draft=id)
+            if not i.rfc_flag:
+                w = IdWrapper(draft=i)
             else:
-                ri = RfcIndex.objects.get(rfc_number=id.draft_id)
+                ri = RfcIndex.objects.get(rfc_number=i.draft_id)
                 w = RfcWrapper(ri)
+            w.reschedule_form = i.reschedule_form
             res[section_key].append(w)
         telechats.append({'date':date, 'docs':res})
     return direct_to_template(request, 'iesg/agenda_documents.html', {'telechats':telechats, 'hide_telechat_date':True})

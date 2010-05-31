@@ -328,3 +328,38 @@ def discusses(request):
             pass
     return direct_to_template(request, 'iesg/discusses.html', {'docs':res})
 
+
+class TelechatDatesForm(forms.ModelForm):
+    class Meta:
+        model = TelechatDates
+        fields = ['date1', 'date2', 'date3', 'date4']
+
+@group_required('Secretariat')
+def telechat_dates(request):
+    dates = TelechatDates.objects.all()[0]
+
+    if request.method == 'POST':
+        if request.POST.get('rollup_dates'):
+            TelechatDates.objects.all().update(
+                date1=dates.date2, date2=dates.date3, date3=dates.date4,
+                date4=dates.date4 + datetime.timedelta(days=14))
+            form = TelechatDatesForm(instance=dates)
+        else:
+            form = TelechatDatesForm(request.POST, instance=dates)
+            if form.is_valid():
+                form.save(commit=False)
+                TelechatDates.objects.all().update(date1 = dates.date1,
+                                                  date2 = dates.date2,
+                                                  date3 = dates.date3,
+                                                  date4 = dates.date4)
+    else:
+        form = TelechatDatesForm(instance=dates)
+
+    from django.contrib.humanize.templatetags import humanize
+    for f in form.fields:
+        form.fields[f].label = "Date " + humanize.ordinal(form.fields[f].label[4])
+        form.fields[f].thursday = getattr(dates, f).isoweekday() == 4
+        
+    return render_to_response("iesg/telechat_dates.html",
+                              dict(form=form),
+                              context_instance=RequestContext(request))

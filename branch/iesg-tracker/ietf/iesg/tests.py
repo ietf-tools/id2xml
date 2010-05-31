@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse as urlreverse
 from pyquery import PyQuery
 
 from ietf.idrfc.models import RfcIndex
+from datetime import timedelta
 from ietf.idtracker.models import *
 from ietf.iesg.models import TelechatDates
 from ietf.utils.test_utils import SimpleUrlTestCase, RealDatabaseTest, canonicalize_feed, login_testing_unauthorized
@@ -50,6 +51,47 @@ class RescheduleOnAgendaTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
         self.assertTrue("Telechat" in draft.idinternal.comments()[0].comment_text)
 
+
+class ManageTelechatDatesTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft']
+
+    def test_set_dates(self):
+        dates = TelechatDates.objects.all()[0]
+        url = urlreverse('ietf.iesg.views.telechat_dates')
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form input[name=date1]')), 1)
+
+        new_date = dates.date1 + timedelta(days=7)
+        
+        r = self.client.post(url, dict(date1=new_date.isoformat(),
+                                       date2=new_date.isoformat(),
+                                       date3=new_date.isoformat(),
+                                       date4=new_date.isoformat(),
+                                       ))
+        self.assertEquals(r.status_code, 200)
+
+        dates = TelechatDates.objects.all()[0]
+        self.assertTrue(dates.date1 == new_date)
+
+    def test_rollup_dates(self):
+        dates = TelechatDates.objects.all()[0]
+        url = urlreverse('ietf.iesg.views.telechat_dates')
+        login_testing_unauthorized(self, "klm", url)
+
+        old_date2 = dates.date2
+        new_date = dates.date4 + timedelta(days=14)
+        r = self.client.post(url, dict(rollup_dates="1"))
+        self.assertEquals(r.status_code, 200)
+
+        dates = TelechatDates.objects.all()[0]
+        self.assertTrue(dates.date4 == new_date)
+        self.assertTrue(dates.date1 == old_date2)
+        
 
 class IesgUrlTestCase(SimpleUrlTestCase):
     def testUrls(self):

@@ -38,10 +38,11 @@ urlpatterns = patterns('',
     (r'^search/$', views_search.search_results),
     (r'^all/$', views_search.all),
     (r'^active/$', views_search.active),
+    url(r'^ad/(?P<name>[^/]+)/$', views_search.by_ad, name="doc_search_by_ad"),
+                       
     url(r'^(?P<name>[^/]+)/$', views_doc.document_main, name="doc_view"),
     (r'^(?P<name>[^/]+)/_debug.data$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
-    (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad),
 
     url(r'^(?P<name>[^/]+)/edit/state/$', views_edit.change_state, name='doc_change_state'),
     url(r'^(?P<name>[^/]+)/edit/info/$', views_edit.edit_info, name='doc_edit_info'),

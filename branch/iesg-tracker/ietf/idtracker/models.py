@@ -283,6 +283,8 @@ class PersonOrOrgInfo(models.Model):
         except AssertionError:
             return "PersonOrOrgInfo with multiple priority-%d addresses!" % priority
         return "%s" % ( postal.affiliated_company or postal.department or "???" )
+    def full_name_as_key(self):
+        return self.first_name.lower() + "." + self.last_name.lower()
     class Meta:
         db_table = 'person_or_org_info'
         ordering = ['last_name']

@@ -58,6 +58,7 @@ urlpatterns += patterns('',
         (r'^agenda/documents.txt$', views.agenda_documents_txt),
         (r'^agenda/documents/$', views.agenda_documents),
         (r'^discusses/$', views.discusses),
+        (r'^telechatdates/$', views.telechat_dates),
 )
 
 if settings.SERVER_MODE != 'production':

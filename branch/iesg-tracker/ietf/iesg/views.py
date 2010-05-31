@@ -37,9 +37,10 @@ from ietf.idtracker.models import IDInternal, InternetDraft,AreaGroup, Position,
 from django.views.generic.list_detail import object_list
 from django.views.generic.simple import direct_to_template
 from django.views.decorators.vary import vary_on_cookie
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.core.urlresolvers import reverse as urlreverse
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.template import RequestContext, Context, loader
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from django import forms
 from ietf.iesg.models import TelechatDates, TelechatAgendaItem, WGAction
@@ -362,4 +363,70 @@ def telechat_dates(request):
         
     return render_to_response("iesg/telechat_dates.html",
                               dict(form=form),
+                              context_instance=RequestContext(request))
+
+
+@group_required('Secretariat')
+def working_group_actions(request):
+    current_items = WGAction.objects.order_by('status_date')
+
+    # FIXME: parse files
+    
+    return render_to_response("iesg/working_group_actions.html",
+                              dict(current_items=current_items),
+                              context_instance=RequestContext(request))
+
+class EditWGActionForm(forms.ModelForm):
+    token_name = forms.ChoiceField()
+    telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False)
+
+    class Meta:
+        model = WGAction
+        fields = ['status_date', 'token_name', 'category', 'note']
+
+    def __init__(self, *args, **kwargs):
+        super(self.__class__, self).__init__(*args, **kwargs)
+
+        # token name choices
+        self.fields['token_name'].choices = [(p.first_name, p.first_name) for p in IESGLogin.active_iesg().order_by('first_name')]
+        
+        # telechat choices
+        dates = TelechatDates.objects.all()[0].dates()
+        init = kwargs['initial']['telechat_date']
+        if init and init not in dates:
+            dates.insert(0, init)
+
+        choices = [("", "(not on agenda)")]
+        for d in dates:
+            choices.append((d, d.strftime("%Y-%m-%d")))
+
+        self.fields['telechat_date'].choices = choices
+        
+        
+@group_required('Secretariat')
+def edit_working_group_action(request, wga_id):
+    wga = get_object_or_404(WGAction, pk=wga_id)
+
+    initial = dict(telechat_date=wga.telechat_date if wga.agenda else None)
+
+    if request.method == 'POST':
+        if "delete" in request.POST:
+            wga.delete()
+            return HttpResponseRedirect(urlreverse('iesg_working_group_actions'))
+
+        form = EditWGActionForm(request.POST, instance=wga, initial=initial)
+        if form.is_valid():
+            form.save(commit=False)
+            wga.agenda = bool(form.cleaned_data['telechat_date'])
+            if wga.agenda:
+                wga.telechat_date = form.cleaned_data['telechat_date']
+            wga.save()
+            return HttpResponseRedirect(urlreverse('iesg_working_group_actions'))
+    else:
+        form = EditWGActionForm(instance=wga, initial=initial)
+        
+
+    return render_to_response("iesg/edit_working_group_action.html",
+                              dict(wga=wga,
+                                   form=form),
                               context_instance=RequestContext(request))

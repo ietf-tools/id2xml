@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% if user|in_group:"Secretariat" %}
 <li class="sect first">Secretariat</li>
   <li><a href="{% url ietf.iesg.views.telechat_dates %}">Telechat Dates</a></li>
+  <li><a href="{% url iesg_working_group_actions %}">Working Groups</a></li>
 {% endif %}
 <li class="sect{% if not user|in_group:"Area_Director,Secretariat" %} first{% endif %}">Working Groups</li>
 

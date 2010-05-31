@@ -66,3 +66,8 @@ output("draft", draftdata)
 # specific ballot info
 d = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
 output("ballot", [d.idinternal.ballot]) 
+
+
+# specific WG actions
+wgas = WGAction.objects.all()
+output("wgactions", list(wgas) + list(Acronym.objects.filter(wgaction__in=wgas)))

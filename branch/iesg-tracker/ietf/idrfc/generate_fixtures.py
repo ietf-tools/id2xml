@@ -70,4 +70,4 @@ output("ballot", [d.idinternal.ballot])
 
 # specific WG actions
 wgas = WGAction.objects.all()
-output("wgactions", list(wgas) + list(Acronym.objects.filter(wgaction__in=wgas)))
+output("wgactions", list(wgas) + list(Acronym.objects.filter(wgaction__in=wgas)) + [Acronym.objects.get(acronym="sieve")])

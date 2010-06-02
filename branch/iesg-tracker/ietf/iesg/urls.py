@@ -60,6 +60,7 @@ urlpatterns += patterns('',
         (r'^discusses/$', views.discusses),
         (r'^telechatdates/$', views.telechat_dates),
         url(r'^wgactions/$', views.working_group_actions, name="iesg_working_group_actions"),
+        url(r'^wgactions/add/$', views.edit_working_group_action, { 'wga_id': None }, name="iesg_add_working_group_action"),
         url(r'^wgactions/(?P<wga_id>\d+)/$', views.edit_working_group_action, name="iesg_edit_working_group_action"),
 )
 

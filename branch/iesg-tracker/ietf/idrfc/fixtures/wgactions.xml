@@ -39,4 +39,9 @@
         <field type="CharField" name="name">SIP Overload Control</field>
         <field type="CharField" name="name_key">SIP OVERLOAD CONTROL</field>
     </object>
+    <object pk="1389" model="idtracker.acronym">
+        <field type="CharField" name="acronym">sieve</field>
+        <field type="CharField" name="name">Sieve Mail Filtering Language</field>
+        <field type="CharField" name="name_key">SIEVE MAIL F</field>
+    </object>
 </django-objects>

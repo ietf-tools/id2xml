@@ -32,8 +32,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import codecs
-from ietf.idtracker.models import IDInternal, InternetDraft,AreaGroup, Position, IESGLogin
+import codecs, re, os, glob
+from ietf.idtracker.models import IDInternal, InternetDraft,AreaGroup, Position, IESGLogin, Acronym
 from django.views.generic.list_detail import object_list
 from django.views.generic.simple import direct_to_template
 from django.views.decorators.vary import vary_on_cookie
@@ -365,15 +365,89 @@ def telechat_dates(request):
                               dict(form=form),
                               context_instance=RequestContext(request))
 
+def parse_wg_action_file(path):
+    f = open(path, 'r')
+    
+    line = f.readline()
+    while line and not line.strip():
+        line = f.readline()
 
-@group_required('Secretariat')
+    # name
+    m = re.search(r'([^\(]*) \(', line)
+    if not m:
+        return None
+    name = m.group(1)
+
+    # acronym
+    m = re.search(r'\((\w+)\)', line)
+    if not m:
+        return None
+    acronym = m.group(1)
+
+    # date
+    line = f.readline()
+    m = re.search(r'(\d{4})-(\d{2})-(\d{2})', line)
+    while line and not m:
+        line = f.readline()
+        m = re.search(r'(\d{4})-(\d{2})-(\d{2})', line)
+
+    last_updated = None
+    if m:
+        try:
+            last_updated = datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except:
+            pass
+
+    # token
+    line = f.readline()
+    while line and not 'area director' in line.lower():
+        line = f.readline()
+
+    line = f.readline()
+    line = f.readline()
+    m = re.search(r'\s*(\w+)\s*', line)
+    token = ""
+    if m:
+        token = m.group(1)
+
+    return dict(filename=os.path.basename(path), name=name, acronym=acronym,
+                status_date=last_updated, token=token)
+
+def get_possible_wg_actions():
+    res = []
+    charters = glob.glob(os.path.join(settings.IESG_WG_EVALUATION_DIR, '*-charter.txt'))
+    for path in charters:
+        d = parse_wg_action_file(path)
+        if d:
+            res.append(d)
+            
+    res.sort(key=lambda x: x['status_date'])
+
+    return res
+
+
+@group_required('Area_Director', 'Secretariat')
 def working_group_actions(request):
-    current_items = WGAction.objects.order_by('status_date')
+    current_items = WGAction.objects.order_by('status_date').select_related()
 
-    # FIXME: parse files
+    if request.method == 'POST' and in_group(request.user, 'Secretariat'):
+        filename = request.POST.get('filename')
+        if filename and filename in os.listdir(settings.IESG_WG_EVALUATION_DIR):
+            if 'delete' in request.POST:
+                os.unlink(os.path.join(settings.IESG_WG_EVALUATION_DIR, filename))
+            if 'add' in request.POST:
+                d = parse_wg_action_file(os.path.join(settings.IESG_WG_EVALUATION_DIR, filename))
+                qstr = "?" + "&".join("%s=%s" % t for t in d.iteritems())
+                return HttpResponseRedirect(urlreverse('iesg_add_working_group_action') + qstr)
+    
+
+    skip = [c.group_acronym.acronym for c in current_items]
+    possible_items = filter(lambda x: x['acronym'] not in skip,
+                            get_possible_wg_actions())
     
     return render_to_response("iesg/working_group_actions.html",
-                              dict(current_items=current_items),
+                              dict(current_items=current_items,
+                                   possible_items=possible_items),
                               context_instance=RequestContext(request))
 
 class EditWGActionForm(forms.ModelForm):
@@ -405,7 +479,23 @@ class EditWGActionForm(forms.ModelForm):
         
 @group_required('Secretariat')
 def edit_working_group_action(request, wga_id):
-    wga = get_object_or_404(WGAction, pk=wga_id)
+    if wga_id != None:
+        wga = get_object_or_404(WGAction, pk=wga_id)
+    else:
+        wga = WGAction()
+        try:
+            wga.group_acronym = Acronym.objects.get(acronym=request.GET.get('acronym'))
+        except Acronym.DoesNotExist:
+            pass
+        
+        wga.token_name = request.GET.get('token')
+        try:
+            d = datetime.datetime.strptime(request.GET.get('status_date'), '%Y-%m-%d').date()
+        except:
+            d = datetime.date.today()
+        wga.status_date = d
+        wga.telechat_date = TelechatDates.objects.all()[0].date1
+        wga.agenda = True
 
     initial = dict(telechat_date=wga.telechat_date if wga.agenda else None)
 
@@ -418,6 +508,8 @@ def edit_working_group_action(request, wga_id):
         if form.is_valid():
             form.save(commit=False)
             wga.agenda = bool(form.cleaned_data['telechat_date'])
+            if wga.category in (11, 21):
+                wga.agenda = False
             if wga.agenda:
                 wga.telechat_date = form.cleaned_data['telechat_date']
             wga.save()

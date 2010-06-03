@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db import models
 from ietf.utils import FKAsOneToOne
 from ietf.utils.broken_foreign_key import BrokenForeignKey
+from ietf.utils.cached_lookup_field import CachedLookupField
 
 class Acronym(models.Model):
     INDIVIDUAL_SUBMITTER = 1027
@@ -293,10 +294,14 @@ class PersonOrOrgInfo(models.Model):
 
 # could use a mapping for user_level
 class IESGLogin(models.Model):
+    SECRETARIAT_LEVEL = 0
+    AD_LEVEL = 1
+    INACTIVE_AD_LEVEL = 2
+    
     USER_LEVEL_CHOICES = (
-	(0, 'Secretariat'),
-	(1, 'IESG'),
-	(2, 'ex-IESG'),
+	(SECRETARIAT_LEVEL, 'Secretariat'),
+	(AD_LEVEL, 'IESG'),
+	(INACTIVE_AD_LEVEL, 'ex-IESG'),
 	(3, 'Level 3'),
 	(4, 'Comment Only(?)'),
     )
@@ -382,6 +387,10 @@ class Rfc(models.Model):
     b_approve_date = models.DateField(null=True, blank=True)
     comments = models.TextField(blank=True)
     last_modified_date = models.DateField()
+    
+    idinternal = CachedLookupField(lookup=lambda self: IDInternal.objects.get(draft=self.rfc_number, rfc_flag=1))
+    group = CachedLookupField(lookup=lambda self: Acronym.objects.get(acronym=self.group_acronym))
+    
     def __str__(self):
 	return "RFC%04d" % ( self.rfc_number )        
     def save(self):
@@ -398,17 +407,6 @@ class Rfc(models.Model):
 	return "RFC"
     def file_tag(self):
         return "RFC %s" % self.rfc_number
-    _idinternal_cache = None
-    _idinternal_cached = False
-    def idinternal(self):
-	if self._idinternal_cached:
-	    return self._idinternal_cache
-	try:
-	    self._idinternal_cache = IDInternal.objects.get(draft=self.rfc_number, rfc_flag=1)
-	except IDInternal.DoesNotExist:
-	    self._idinternal_cache = None
-	self._idinternal_cached = True
-	return self._idinternal_cache
 
     # return set of RfcObsolete objects obsoleted or updated by this RFC
     def obsoletes(self): 

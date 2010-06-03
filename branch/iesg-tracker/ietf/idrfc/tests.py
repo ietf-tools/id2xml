@@ -435,6 +435,154 @@ class DeferBallotTestCase(django.test.TestCase):
         self.assertTrue(not draft.idinternal.ballot.defer)
         self.assertEquals(draft.idinternal.cur_state_id, IDState.IESG_EVALUATION)
 
+class BallotWriteupsTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft', 'ballot']
+
+    def test_edit_last_call_text(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('textarea[name=last_call_text]')), 1)
+        self.assertEquals(len(q('input[type=submit][value*="Save Last Call"]')), 1)
+
+        # subject error
+        r = self.client.post(url, dict(
+                last_call_text="Subject: test\r\nhello\r\n\r\n",
+                save_last_call_text="1"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('ul.errorlist')) > 0)
+
+        # save
+        r = self.client.post(url, dict(
+                last_call_text="This is a simple test.",
+                save_last_call_text="1"))
+        self.assertEquals(r.status_code, 200)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue("This is a simple test" in draft.idinternal.ballot.last_call_text)
+
+        # test regenerate
+        r = self.client.post(url, dict(
+                last_call_text="This is a simple test.",
+                regenerate_last_call_text="1"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue("Subject: Last Call" in draft.idinternal.ballot.last_call_text)
+
+    def test_request_last_call(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url, dict(
+                last_call_text=draft.idinternal.ballot.last_call_text,
+                send_last_call_request="1"))
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.cur_state_id, IDState.LAST_CALL_REQUESTED)
+
+        self.assertEquals(len(mail_outbox), mailbox_before + 3)
+
+        self.assertTrue("Last Call" in mail_outbox[-1]['Subject'])
+
+    def test_edit_ballot_writeup(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('textarea[name=ballot_writeup]')), 1)
+        self.assertEquals(len(q('input[type=submit][value*="Save Ballot Writeup"]')), 1)
+
+        # save
+        r = self.client.post(url, dict(
+                ballot_writeup="This is a simple test.",
+                save_ballot_writeup="1"))
+        self.assertEquals(r.status_code, 200)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue("This is a simple test" in draft.idinternal.ballot.ballot_writeup)
+
+    def test_issue_ballot(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "rhousley", url)
+
+        draft.idinternal.ballot.ballot_issued = False
+        draft.idinternal.ballot.save()
+        active = IESGLogin.objects.filter(user_level=1)
+        Position.objects.create(ad=active[0], yes=1, noobj=0, discuss=0, abstain=0, recuse=0, ballot=draft.idinternal.ballot)
+        Position.objects.create(ad=active[1], yes=0, noobj=1, discuss=0, abstain=0, recuse=0, ballot=draft.idinternal.ballot)
+        Position.objects.create(ad=active[2], yes=0, noobj=1, discuss=-1, abstain=0, recuse=0, ballot=draft.idinternal.ballot)
+        Position.objects.create(ad=active[3], yes=0, noobj=0, discuss=0, abstain=1, recuse=0, ballot=draft.idinternal.ballot)
+        Position.objects.create(ad=active[4], yes=0, noobj=0, discuss=0, abstain=0, recuse=1, ballot=draft.idinternal.ballot)
+        inactive = IESGLogin.objects.filter(user_level=2)
+        Position.objects.create(ad=inactive[0], yes=1, noobj=0, discuss=0, abstain=0, recuse=0, ballot=draft.idinternal.ballot)
+        IESGDiscuss.objects.create(ad=active[0], active=True, date=datetime.date.today(), text="test " * 20, ballot=draft.idinternal.ballot)
+        IESGComment.objects.create(ad=active[0], active=True, date=datetime.date.today(), text="test " * 20, ballot=draft.idinternal.ballot)
+        IESGDiscuss.objects.create(ad=active[1], active=True, date=datetime.date.today(), text="test " * 20, ballot=draft.idinternal.ballot)
+        IESGComment.objects.create(ad=active[2], active=True, date=datetime.date.today(), text="test " * 20, ballot=draft.idinternal.ballot)        
+
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url, dict(
+                ballot_writeup=draft.idinternal.ballot.ballot_writeup,
+                approval_text=draft.idinternal.ballot.approval_text,
+                issue_ballot="1"))
+        self.assertEquals(r.status_code, 200)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+
+        self.assertTrue(draft.idinternal.ballot.ballot_issued)
+        self.assertEquals(len(mail_outbox), mailbox_before + 2)
+        self.assertTrue("Evaluation:" in mail_outbox[-2]['Subject'])
+
+
+    def test_edit_approval_text(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('textarea[name=approval_text]')), 1)
+        self.assertEquals(len(q('input[type=submit][value*="Save Approval"]')), 1)
+
+        # subject error
+        r = self.client.post(url, dict(
+                last_call_text="Subject: test\r\nhello\r\n\r\n",
+                save_last_call_text="1"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('ul.errorlist')) > 0)
+
+        # save
+        r = self.client.post(url, dict(
+                approval_text="This is a simple test.",
+                save_approval_text="1"))
+        self.assertEquals(r.status_code, 200)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue("This is a simple test" in draft.idinternal.ballot.approval_text)
+
+        # test regenerate
+        r = self.client.post(url, dict(
+                approval_text="This is a simple test.",
+                regenerate_approval_text="1"))
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertTrue("Subject: Protocol Action" in draft.idinternal.ballot.approval_text)
+        
 class ApproveBallotTestCase(django.test.TestCase):
     fixtures = ['base', 'draft', 'ballot']
 

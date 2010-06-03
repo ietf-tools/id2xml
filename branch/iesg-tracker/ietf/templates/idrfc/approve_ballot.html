@@ -19,7 +19,7 @@
 
 <form action="" method="POST">
   <div class="actions">
-    <a href="{% url doc_prepare_last_call name=doc.filename %}">Back</a>
+    <a href="{% url doc_ballot_writeups name=doc.filename %}">Back</a>
     {% ifequal action "to_announcement_list" %}
     <input type="submit" value="Send out the announcement and close ballot"/>
     {% endifequal %}

@@ -2,7 +2,7 @@ From: The IESG <iesg-secretary@ietf.org>
 To: IETF-Announce <ietf-announce@ietf.org>{% if cc %}
 CC: {{ cc|safe }}{% endif %}
 Reply-To: ietf@ietf.org
-Subject: Last Call: {{ doc.filename }} ({{ doc.title }}) to {{ status }}
+Subject: Last Call: {{ doc.file_tag|safe }} ({{ doc.title }}) to {{ status }}
 
 {% filter wordwrap:73 %}
 The IESG has received a request from {{ group }} to consider the following document{{ docs|pluralize }}:{% for d in docs %}

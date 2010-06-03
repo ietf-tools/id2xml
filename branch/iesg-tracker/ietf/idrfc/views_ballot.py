@@ -297,7 +297,7 @@ class ApprovalTextForm(forms.ModelForm):
         return self.cleaned_data["approval_text"].replace("\r", "")
 
 @group_required('Area_Director','Secretariat')
-def prepare_last_call(request, name):
+def ballot_writeups(request, name):
     """Editing of ballot write-ups, sending last calls, ..."""
     doc = get_object_or_404(InternetDraft, filename=name)
     if not doc.idinternal:
@@ -313,7 +313,7 @@ def prepare_last_call(request, name):
     last_call_form = LastCallTextForm(instance=ballot)
     ballot_writeup_form = BallotWriteupForm(instance=ballot)
     approval_text_form = ApprovalTextForm(instance=ballot)
-    
+
     if request.method == 'POST':
         if "save_last_call_text" in request.POST or "send_last_call_request" in request.POST:
             last_call_form = LastCallTextForm(request.POST, instance=ballot)
@@ -322,12 +322,15 @@ def prepare_last_call(request, name):
                 ballot.save()
 
                 if "send_last_call_request" in request.POST:
-                    doc.idinternal.change_state(IDState.objects.get(document_state_id=IDState.IESG_EVALUATION), None)
-
+                    doc.idinternal.change_state(IDState.objects.get(document_state_id=IDState.LAST_CALL_REQUESTED), None)
+                    
                     change = log_state_changed(request, doc, login)
                     email_owner(request, doc, doc.idinternal.job_owner, login, change)
-                    requiest_last_call(request, doc)
+                    request_last_call(request, doc)
 
+                    doc.idinternal.event_date = date.today()
+                    doc.idinternal.save()
+                    
                     return render_to_response('idrfc/last_call_requested.html',
                                               dict(doc=doc),
                                               context_instance=RequestContext(request))
@@ -352,7 +355,7 @@ def prepare_last_call(request, name):
                 ballot.ballot_writeup = ballot_writeup_form.cleaned_data["ballot_writeup"]
                 ballot.approval_text = approval_text_form.cleaned_data["approval_text"]
                 ballot.active = True
-                ballot.issued = True
+                ballot.ballot_issued = True
                 ballot.save()
 
                 if not Position.objects.filter(ballot=ballot, ad=login):
@@ -363,12 +366,23 @@ def prepare_last_call(request, name):
                     pos.noobj = pos.abstain = pos.approve = pos.discuss = pos.recuse = 0
                     pos.save()
 
-                #email_ballot(request, doc)
-                # FIXME: notify_iesg
-                # FIXME: send_iana_message
+                msg = generate_issue_ballot_mail(request, doc)
+                send_mail_preformatted(request, msg)
+
+                email_iana(request, doc, 'drafts-eval@icann.org', msg)
                 
+                doc.b_sent_date = date.today()
+                doc.save()
+
                 add_document_comment(request, doc, "Ballot has been issued")
                     
+                doc.idinternal.event_date = date.today()
+                doc.idinternal.save()
+                    
+                return render_to_response('idrfc/ballot_issued.html',
+                                          dict(doc=doc),
+                                          context_instance=RequestContext(request))
+                
 
         if "save_approval_text" in request.POST:
             approval_text_form = ApprovalTextForm(request.POST, instance=ballot)            
@@ -392,9 +406,7 @@ def prepare_last_call(request, name):
     docs_with_invalid_status = [d.document().file_tag() for d in doc.idinternal.ballot_set() if "None" in d.document().intended_status.intended_status or "Request" in d.document().intended_status.intended_status]
     need_intended_status = ", ".join(docs_with_invalid_status)
 
-    # FIXME: write test
-    
-    return render_to_response('idrfc/prepare_last_call.html',
+    return render_to_response('idrfc/ballot_writeups.html',
                               dict(doc=doc,
                                    ballot=ballot,
                                    last_call_form=last_call_form,

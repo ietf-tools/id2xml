@@ -84,7 +84,7 @@ class EditInfoForm(forms.Form):
     status_date = forms.DateField(required=False, help_text="Format is YYYY-MM-DD")
     area_acronym = forms.ModelChoiceField(Area.active_areas(), required=True, empty_label=None)
     via_rfc_editor = forms.BooleanField(required=False, label="Via IRTF or RFC Editor")
-    job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level__in=(1, 2)).order_by('user_level', 'last_name'), label="Responsible AD", empty_label=None, required=True)
+    job_owner = forms.ModelChoiceField(IESGLogin.objects.filter(user_level__in=(IESGLogin.AD_LEVEL, IESGLogin.INACTIVE_AD_LEVEL)).order_by('user_level', 'last_name'), label="Responsible AD", empty_label=None, required=True)
     state_change_notice_to = forms.CharField(max_length=255, label="Notice emails", help_text="Separate email addresses with commas", required=False)
     note = forms.CharField(widget=forms.Textarea, label="IESG note", required=False)
     telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False)
@@ -101,7 +101,7 @@ class EditInfoForm(forms.Form):
             choices = []
             separated = False
             for t in self.fields['job_owner'].choices:
-                if job_owners[t[0]].user_level != 1 and not separated:
+                if job_owners[t[0]].user_level != IESGLogin.AD_LEVEL and not separated:
                     choices.append(("", "----------------"))
                     separated = True
                 choices.append(t)
@@ -109,7 +109,7 @@ class EditInfoForm(forms.Form):
         else:
             # remove old ones
             self.fields['job_owner'].choices = filter(
-                lambda t: job_owners[t[0]].user_level == 1,
+                lambda t: job_owners[t[0]].user_level == IESGLogin.AD_LEVEL,
                 self.fields['job_owner'].choices)
         
         # telechat choices

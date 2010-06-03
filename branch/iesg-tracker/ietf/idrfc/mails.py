@@ -34,7 +34,7 @@ def email_owner(request, doc, owner, changed_by, text):
                    url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
 
 def full_intended_status(intended_status):
-    s = intended_status.intended_status
+    s = str(intended_status)
     # FIXME: this should perhaps be defined in the db
     if "Informational" in s:
         return "an Informational RFC"
@@ -54,8 +54,6 @@ def full_intended_status(intended_status):
         return "a %s" % s
     
 def generate_last_call_announcement(request, doc):
-    # FIXME: not tested with an RFC
-
     status = full_intended_status(doc.intended_status).replace("a ", "").replace("an ", "")
     
     expiration_date = date.today() + timedelta(days=14)
@@ -88,8 +86,6 @@ def generate_last_call_announcement(request, doc):
                             )
 
 def generate_approval_mail(request, doc):
-    # FIXME: not tested with an RFC
-
     if doc.idinternal.cur_state_id in IDState.DO_NOT_PUBLISH_STATES or doc.idinternal.via_rfc_editor:
         return generate_approval_mail_rfc_editor(request, doc)
     
@@ -193,10 +189,62 @@ def email_ballot_deferred(request, doc, by, telechat_date):
                    by=by,
                    telechat_date=telechat_date))
 
-def email_ballot(request, doc):
-    to = "iesg@ietf.org"
-    # FIXME: fill in
+def generate_issue_ballot_mail(request, doc):
+    full_status = full_intended_status(doc.intended_status)
+    status = full_status.replace("a ", "").replace("an ", "")
 
+    ads = IESGLogin.objects.filter(user_level__in=(IESGLogin.AD_LEVEL, IESGLogin.INACTIVE_AD_LEVEL)).order_by('user_level', 'last_name')
+    positions = dict((p.ad_id, p) for p in doc.idinternal.ballot.positions.all())
+    
+    # format positions
+    ad_positions = []
+    for ad in ads:
+        p = positions.get(ad.id)
+        if not p:
+            continue
+
+        def formatted(val):
+            if val > 0:
+                return "[ X ]"
+            elif val < 0:
+                return "[ . ]"
+            else:
+                return "[   ]"
+
+        fmt = u"%-21s%-10s%-11s%-9s%-10s" % (
+            unicode(ad)[:21],
+            formatted(p.yes),
+            formatted(p.noobj),
+            formatted(p.discuss),
+            "[ R ]" if p.recuse else formatted(p.abstain),
+            )
+        ad_positions.append((ad, fmt))
+        
+    active_ad_positions = filter(lambda t: t[0].user_level == IESGLogin.AD_LEVEL, ad_positions)
+    inactive_ad_positions = filter(lambda t: t[0].user_level == IESGLogin.INACTIVE_AD_LEVEL, ad_positions)
+
+    # arrange discusses and comments
+    ad_feedback = []
+    discusses = dict((p.ad_id, p) for p in doc.idinternal.ballot.discusses.all())
+    comments = dict((p.ad_id, p) for p in doc.idinternal.ballot.comments.all())
+    for ad in ads:
+        d = discusses.get(ad.id)
+        c = comments.get(ad.id)
+        if ad.user_level != IESGLogin.AD_LEVEL or not (c or d):
+            continue
+
+        ad_feedback.append((ad, d, c))
+    
+    return render_to_string("idrfc/issue_ballot_mail.txt",
+                            dict(doc=doc,
+                                 doc_url=request.build_absolute_uri(doc.idinternal.get_absolute_url()),
+                                 status=status,
+                                 active_ad_positions=active_ad_positions,
+                                 inactive_ad_positions=inactive_ad_positions,
+                                 ad_feedback=ad_feedback
+                                 )
+                            )
+    
 def email_iana(request, doc, to, msg):
     # fix up message and send message to IANA for each in ballot set
     import email

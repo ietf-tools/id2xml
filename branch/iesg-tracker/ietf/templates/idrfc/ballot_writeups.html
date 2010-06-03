@@ -29,7 +29,7 @@
     <input type="submit" name="save_last_call_text" value="Save Last Call Text" />
     <input type="submit" name="regenerate_last_call_text" value="Regenerate Last Call Text" />
     {% if can_request_last_call and not need_intended_status %}
-    <input type="submit" name="send_last_call_request" value="Save and Request Last Call" />
+    <input style="margin-left: 8px" type="submit" name="send_last_call_request" value="Save and Request Last Call" />
     {% endif %}
   </div>
 </form>
@@ -49,7 +49,7 @@
   <div class="actions">
     <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
     <input type="submit" name="save_ballot_writeup" value="Save Ballot Writeup" />
-    <input type="submit" name="issue_ballot" value="Save and {% if ballot.issued %}Re-{% endif %}Issue Ballot" />
+    <input style="margin-left: 8px" type="submit" name="issue_ballot" value="Save and {% if ballot.ballot_issued %}Re-{% endif %}Issue Ballot" />
   </div>
 </form>
 

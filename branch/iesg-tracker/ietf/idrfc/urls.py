@@ -52,7 +52,7 @@ urlpatterns = patterns('',
     url(r'^(?P<name>[^/]+)/edit/deferballot/$', views_ballot.defer_ballot, name='doc_defer_ballot'),
     url(r'^(?P<name>[^/]+)/edit/undeferballot/$', views_ballot.undefer_ballot, name='doc_undefer_ballot'),
     url(r'^(?P<name>[^/]+)/edit/sendballotcomment/$', views_ballot.send_ballot_comment, name='doc_send_ballot_comment'),
-    url(r'^(?P<name>[^/]+)/edit/preparelastcall/$', views_ballot.prepare_last_call, name='doc_prepare_last_call'),
+    url(r'^(?P<name>[^/]+)/edit/ballotwriteups/$', views_ballot.ballot_writeups, name='doc_ballot_writeups'),
     url(r'^(?P<name>[^/]+)/edit/approveballot/$', views_ballot.approve_ballot, name='doc_approve_ballot'),
     url(r'^(?P<name>[^/]+)/edit/makelastcall/$', views_ballot.make_last_call, name='doc_make_last_call'),
 )

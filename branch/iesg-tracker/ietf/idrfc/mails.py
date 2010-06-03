@@ -179,6 +179,16 @@ def email_resurrect_requested(request, doc, by):
                    by=frm,
                    url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
 
+def email_resurrection_completed(request, doc):
+    to = u"%s <%s>" % doc.idinternal.resurrect_requested_by.person.email()
+    frm = "I-D Administrator <internet-drafts-reply@ietf.org>"
+    send_mail(request, to, frm,
+              "I-D Resurrection Completed - %s" % doc.file_tag(),
+              "idrfc/resurrect_completed_email.txt",
+              dict(doc=doc,
+                   by=frm,
+                   url=request.build_absolute_uri(doc.idinternal.get_absolute_url())))
+
 def email_ballot_deferred(request, doc, by, telechat_date):
     to = "iesg@ietf.org"
     frm = "DraftTracker Mail System <iesg-secretary@ietf.org>"

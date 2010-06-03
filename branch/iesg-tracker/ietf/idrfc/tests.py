@@ -230,7 +230,7 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertEquals(len(mail_outbox), mailbox_before)
 
 
-class RequestResurrectTestCase(django.test.TestCase):
+class ResurrectTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
 
     def test_request_resurrect(self):
@@ -264,6 +264,36 @@ class RequestResurrectTestCase(django.test.TestCase):
         self.assertEquals(len(mail_outbox), mailbox_before + 1)
         self.assertTrue("Resurrection" in mail_outbox[-1]['Subject'])
 
+    def test_resurrect(self):
+        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        self.assertEquals(draft.status.status, "Expired")
+        draft.idinternal.resurrect_requested_by = IESGLogin.objects.get(login_name="rhousley")
+        draft.idinternal.save()
+        
+        url = urlreverse('doc_resurrect', kwargs=dict(name=draft.filename))
+        
+        login_testing_unauthorized(self, "klm", url)
+
+        # normal get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form input[type=submit]')), 1)
+
+        # request resurrect
+        comments_before = draft.idinternal.comments().count()
+        mailbox_before = len(mail_outbox)
+        
+        r = self.client.post(url, dict())
+        self.assertEquals(r.status_code, 302)
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mip6-cn-ipsec")
+        self.assertEquals(draft.idinternal.resurrect_requested_by, None)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertTrue("completed" in draft.idinternal.comments()[0].comment_text)
+        self.assertEquals(draft.status.status, "Active")
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        
 class AddCommentTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
 

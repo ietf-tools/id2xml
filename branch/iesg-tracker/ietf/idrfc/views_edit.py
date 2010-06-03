@@ -323,6 +323,33 @@ def request_resurrect(request, name):
                               dict(doc=doc),
                               context_instance=RequestContext(request))
 
+@group_required('Secretariat')
+def resurrect(request, name):
+    """Resurrect expired Internet Draft."""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if doc.status.status != "Expired":
+        raise Http404()
+
+    if not doc.idinternal:
+        doc.idinternal = IDInternal(draft=doc, rfc_flag=type(doc) == Rfc)
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    if request.method == 'POST':
+        if doc.idinternal.resurrect_requested_by:
+            email_resurrection_completed(request, doc)
+        add_document_comment(request, doc, "Resurrection was completed")
+        doc.idinternal.resurrect_requested_by = None
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+        doc.status = IDStatus.objects.get(status="Active")
+        doc.save()
+        return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+  
+    return render_to_response('idrfc/resurrect.html',
+                              dict(doc=doc),
+                              context_instance=RequestContext(request))
+
 class AddCommentForm(forms.Form):
     comment = forms.CharField(required=True, widget=forms.Textarea)
 

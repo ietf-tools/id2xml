@@ -87,6 +87,9 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
 {% if not doc.resurrect_requested_by %}
 <span id="doc_request_resurrect_button" class="yui-button yui-link-button" style="margin-left:2px;"><span class="first-child"><a href="{% url doc_request_resurrect name=doc.draft_name %}">Request resurrect</a></span></span>
 {% endif %}
+{% if user|in_group:"Secretariat" %}
+<span id="doc_resurrect_button" class="yui-button yui-link-button" style="margin-left:2px;"><span class="first-child"><a href="{% url doc_resurrect name=doc.draft_name %}">Resurrect</a></span></span>
+{% endif %}
 {% else %}
 {% if doc.in_ietf_process %}
 <span id="doc_edit_state_button" class="yui-button yui-link-button" style="margin-left:2px;"><span class="first-child"><a href="{% url doc_change_state name=doc.draft_name %}">Change state</a></span></span>

@@ -1,3 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Defer ballot for {{ doc }}{% endblock %}
+
+{% block content %}
+<h1>Defer ballot for {{ doc }}</h1>
+
 <form action="" method="POST">
   <p>Defer the ballot for {{ doc.file_tag }}?</p>
 
@@ -8,4 +15,4 @@
     <input type="submit" value="Defer ballot"/>
   </div>
 </form>
-
+{% endblock %}

@@ -1,13 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Edit info on {{ doc }}{% endblock %}
+
+{% block morecss %}
+form.edit-info #id_state_change_notice_to {
+  width: 600px;
+}
+form.edit-info #id_note {
+  width: 600px;
+  height: 150px;
+}
+form.edit-info .actions {
+  padding-top: 20px;
+}
+{% endblock %}
+
+{% block content %}
 {% load ietf_filters %}
-<style>
-  form.edit-info #id_state_change_notice_to {
-    width: 600px;
-  }
-  form.edit-info #id_note {
-    width: 600px;
-    height: 150px;
-  }
-</style>
+<h1>Edit info on {{ doc }}</h1>
 
 <form class="edit-info" action="" method="POST">
   <table>
@@ -25,10 +35,13 @@
       {{ field.errors }}</td>
     </tr>
     {% endfor %}
+    <tr>
+      <td></td>
+      <td class="actions">
+        <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
+        <input type="submit" value="Save"/>
+      </td>
+    </tr>
   </table>
-
-  <div class="actions">
-    <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
-    <input type="submit" value="Save"/>
-  </div>
 </form>
+{% endblock %}

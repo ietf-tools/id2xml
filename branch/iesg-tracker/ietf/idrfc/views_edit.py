@@ -294,7 +294,8 @@ def edit_info(request, name):
 
         
     return render_to_response('idrfc/edit_info.html',
-                              dict(form=form,
+                              dict(doc=doc,
+                                   form=form,
                                    user=request.user,
                                    login=login),
                               context_instance=RequestContext(request))

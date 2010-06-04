@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{% block title %}{{ title_prefix }} Working Group Actions{% endblock %}
+
+{% block title %}Working Group Actions{% endblock %}
+
 {% block morecss %}
 .working-group-action .name,
 .working-group-action .edit {
@@ -9,9 +11,9 @@
   margin-left: 10px;
 }
 {% endblock %}
+
 {% block content %}
 {% load ietf_filters %}
-
 <h1>Working Group Actions</h1>
 
 <p>These are the submitted WG descriptions and milestones for all
@@ -59,7 +61,6 @@ an IESG Telechat agenda.</p>
   </tr>
 {% endfor %}
 </table>
-
 {% endblock %}
 
 {% block content_end %}

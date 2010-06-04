@@ -1,12 +1,26 @@
-<h3>Email DISCUSS and COMMENT text to IESG list</h3>
+{% extends "base.html" %}
 
-<form action="" method="POST">
+{% block title %}Email Discuss and Comment text for {{ ad }} to IESG list{% endblock %}
+
+{% block morecss %}
+form.send-ballot pre {
+  margin: 0;
+  padding: 4px;
+  border-top: 4px solid #eee;
+  border-bottom: 4px solid #eee;
+}
+{% endblock %}
+
+{% block content %}
+<h1>Email Discuss and Comment text for {{ ad }} to IESG list</h1>
+
+<form class="send-ballot" action="" method="POST">
   <table>
-    <tr><td>From:</td> <td>{{ frm }}</td></tr>
-    <tr><td>To:</td> <td>{{ to }}</td></tr>
+    <tr><th>From:</th> <td>{{ frm }}</td></tr>
+    <tr><th>To:</th> <td>{{ to }}</td></tr>
     <tr>
-      <td>Cc:<br/>
-      <span class="help">separated by comma</span></td>
+      <th>Cc:<br/>
+      <span class="help">separated<br/> by comma</span></th>
       <td><input type="text" name="cc" value="" size="75" /><br/>
       {% if doc.idinternal.state_change_notice_to %}
       <label>
@@ -16,16 +30,18 @@
       {% endif %}
       </td>
     </tr>
-    <tr><td>Subject:</td> <td>{{ subject }}</td></tr>
+    <tr><th>Subject:</th> <td>{{ subject }}</td></tr>
     <tr>
-      <td>Body:</td>
+      <th>Body:</th>
       <td><pre>{{ body }}</pre></td>
     </tr>
+    <tr>
+      <td></td>
+      <td class="actions">
+        <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
+        <input type="submit" value="Send"/>
+      </td>
+    </tr>
   </table>
-
-  <div class="actions">
-    <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
-    <input type="submit" value="Send"/>
-  </div>
 </form>
-
+{% endblock %}

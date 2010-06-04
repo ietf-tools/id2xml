@@ -140,7 +140,10 @@ def edit_position(request, name):
             doc.idinternal.event_date = date.today()
             doc.idinternal.save()
             if request.POST.get("send_mail"):
-                return HttpResponseRedirect(urlreverse("doc_send_ballot_comment", kwargs=dict(name=doc.filename)))
+                qstr = ""
+                if request.GET.get('ad'):
+                    qstr = "?ad=%s" % request.GET.get('ad')
+                return HttpResponseRedirect(urlreverse("doc_send_ballot_comment", kwargs=dict(name=doc.filename)) + qstr)
             else:
                 return HttpResponseRedirect(doc.idinternal.get_absolute_url())
     else:
@@ -171,8 +174,15 @@ def send_ballot_comment(request, name):
     if not doc.idinternal:
         raise Http404()
 
-    login = IESGLogin.objects.get(login_name=request.user.username)
-    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, login)
+    ad = login = IESGLogin.objects.get(login_name=request.user.username)
+    # if we're in the Secretariat, we can select an AD to act as stand-in for
+    if not in_group(request.user, "Area_Director"):
+        ad_username = request.GET.get('ad')
+        if not ad_username:
+            raise Http404()
+        ad = get_object_or_404(IESGLogin, login_name=ad_username)
+
+    pos, discuss, comment = get_ballot_info(doc.idinternal.ballot, ad)
     
     subj = []
     d = ""
@@ -187,7 +197,7 @@ def send_ballot_comment(request, name):
     subject = "%s: %s" % (" and ".join(subj), doc.file_tag())
     body = render_to_string("idrfc/ballot_comment_mail.txt",
                             dict(discuss=d, comment=c))
-    frm = u"%s <%s>" % login.person.email()
+    frm = u"%s <%s>" % ad.person.email()
     to = "iesg@ietf.org"
         
     if request.method == 'POST':
@@ -205,6 +215,7 @@ def send_ballot_comment(request, name):
                                    body=body,
                                    frm=frm,
                                    to=to,
+                                   ad=ad,
                                    can_send=d or c),
                               context_instance=RequestContext(request))
 

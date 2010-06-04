@@ -235,7 +235,8 @@ def generate_issue_ballot_mail(request, doc):
 
     # arrange discusses and comments
     ad_feedback = []
-    discusses = dict((p.ad_id, p) for p in doc.idinternal.ballot.discusses.all())
+    discusses = dict((p.ad_id, p) for p in doc.idinternal.ballot.discusses.all()
+                     if p.ad_id in positions and positions[p.ad_id].discuss == 1)
     comments = dict((p.ad_id, p) for p in doc.idinternal.ballot.comments.all())
     for ad in ads:
         d = discusses.get(ad.id)

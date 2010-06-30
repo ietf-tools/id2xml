@@ -39,7 +39,7 @@ import stat
 import sys
 import time
 
-version = "v0.11"
+version = "0.13"
 program = os.path.basename(sys.argv[0])
 progdir = os.path.dirname(sys.argv[0])
 
@@ -50,6 +50,25 @@ progdir = os.path.dirname(sys.argv[0])
 
 opt_debug = False
 opt_timestamp = False
+opt_trace = False
+
+# The following is an alias list for short forms which starts with a
+# different letter than the long form.
+
+longform = {
+    "Beth": "Elizabeth",
+    "Bill": "William",
+    "Bob": "Robert",
+    "Dick": "Richard",
+    "Fred": "Alfred",
+    "Jerry": "Gerald",
+    "Liz": "Elizabeth",
+    "Lynn": "Carolyn",
+    "Ned": "Edward" ,
+    "Ted":"Edward",
+}
+longform = dict([ (short+" ", longform[short]+" ") for short in longform ])
+
 
 # ----------------------------------------------------------------------
 # Functions
@@ -352,46 +371,52 @@ class Draft():
                     start = 0
                     col = None
                     # Find start of author info for this author (if any).
-                    # Scan forward from the end of the file, looking for a match to  authpath
-                    for j in range(len(self.lines)-1, 15, -1):
-                      try:
-                        if re.search(authpat, self.lines[j].strip()):
-                            start = j
-                            line = self.lines[j]
-                            _debug( " ==>   " + line.strip())
-                            # The author info could be formatted in multiple columns...
-                            columns = re.split("(    +)", line)
-                            # _debug( "Columns:" + columns; sys.stdout.flush())
-                            # Find which column:
-                            #_debug( "Col range:" + range(len(columns)); sys.stdout.flush())
+                    # Scan from the end of the file, looking for a match to  authpath
+                    try:
+                        for j in range(len(self.lines)-1, 15, -1):
+                            line = self.lines[j].strip()
+                            forms = [ line ] + [ line.replace(short, longform[short]) for short in longform if short in line ]
+                            for line in forms:
+                                try:
+                                    if re.search(authpat, line):
+                                        start = j
+                                        _debug( " ==>   " + line.strip())
+                                        # The author info could be formatted in multiple columns...
+                                        columns = re.split("(    +)", line)
+                                        # _debug( "Columns:" + columns; sys.stdout.flush())
+                                        # Find which column:
+                                        #_debug( "Col range:" + range(len(columns)); sys.stdout.flush())
 
-                            cols = [ c for c in range(len(columns)) if re.search(authpat+r"$", columns[c].strip()) ]
-                            if cols:
-                                col = cols[0]
-                                if not (start, col) in found_pos:
-                                    found_pos += [ (start, col) ]
-                                    _debug( "Col:   %d" % col)
-                                    beg = len("".join(columns[:col]))
-                                    _debug( "Beg:   %d '%s'" % (beg, "".join(columns[:col])))
-                                    _debug( "Len:   %d" % len(columns))
-                                    if col == len(columns) or col == len(columns)-1:
-                                        end = None
-                                        _debug( "End1:  %s" % end)
-                                    else:
-                                        end = beg + len("".join(columns[col:col+2]))
-                                        _debug( "End2:  %d '%s'" % (end, "".join(columns[col:col+2])))
-                                    _debug( "Cut:   '%s'" % line[beg:end])
-                                    author = re.search(authpat, columns[col].strip()).group(1)
-                                    if author in companies:
-                                        authors[i] = None
-                                    else:
-                                        authors[i] = author
-                                    #_debug( "Author: %s: %s" % (author, authors[author]))
-                                    break
-                      except AssertionError, e:
-                          sys.stderr.write("filename: "+self.filename+"\n")
-                          sys.stderr.write("authpat: "+authpat+"\n")
-                          raise
+                                        cols = [ c for c in range(len(columns)) if re.search(authpat+r"$", columns[c].strip()) ]
+                                        if cols:
+                                            col = cols[0]
+                                            if not (start, col) in found_pos:
+                                                found_pos += [ (start, col) ]
+                                                _debug( "Col:   %d" % col)
+                                                beg = len("".join(columns[:col]))
+                                                _debug( "Beg:   %d '%s'" % (beg, "".join(columns[:col])))
+                                                _debug( "Len:   %d" % len(columns))
+                                                if col == len(columns) or col == len(columns)-1:
+                                                    end = None
+                                                    _debug( "End1:  %s" % end)
+                                                else:
+                                                    end = beg + len("".join(columns[col:col+2]))
+                                                    _debug( "End2:  %d '%s'" % (end, "".join(columns[col:col+2])))
+                                                _debug( "Cut:   '%s'" % line[beg:end])
+                                                author = re.search(authpat, columns[col].strip()).group(1)
+                                                if author in companies:
+                                                    authors[i] = None
+                                                else:
+                                                    authors[i] = author
+                                                #_debug( "Author: %s: %s" % (author, authors[author]))
+                                                # We need to exit 2 for loops -- a break isn't sufficient:
+                                                raise StopIteration("Found Author")
+                                except AssertionError, e:
+                                    sys.stderr.write("filename: "+self.filename+"\n")
+                                    sys.stderr.write("authpat: "+authpat+"\n")
+                                    raise
+                    except StopIteration:
+                        pass
                     if start and col != None:
                         break
                 if not authors[i]:
@@ -445,6 +470,9 @@ class Draft():
                             column = line[beg:end].strip()
                         except:
                             column = line
+                        column = re.sub(" *\(at\) *", "@", column)
+                        column = re.sub(" *\(dot\) *", ".", column)
+
 
         #                 if re.search("^\w+: \w+", column):
         #                     keyword = True
@@ -456,10 +484,10 @@ class Draft():
 
                         #_debug( "  Column text :: " + column)
                         _debug("3: authors[%s]: %s" % (i, authors[i]))
-                        emailmatch = re.search("[-A-Za-z0-9_.+]+(@| *\(at\) *)[-A-Za-z0-9_.]+", column)
+                        
+                        emailmatch = re.search("[-A-Za-z0-9_.+]+@[-A-Za-z0-9_.]+", column)
                         if emailmatch and not "@" in authors[i]:
                             email = emailmatch.group(0).lower()
-                            email = re.sub(" *\(at\) *", "@", email)
                             authors[i] = "%s <%s>" % (authors[i], email)
                 else:
                     authors[i] = None
@@ -506,8 +534,9 @@ def _printmeta(timestamp, fn):
         _warn("Could not find file: '%s'" % (filename))
         return
 
-    t = time.time()
-    sys.stderr.write("%-58s" % fn[:-4])
+    if opt_trace:
+        t = time.time()
+        sys.stderr.write("%-58s" % fn[:-4])
 
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime(os.stat(filename)[stat.ST_MTIME]))
     text = _gettext(filename)
@@ -525,14 +554,15 @@ def _printmeta(timestamp, fn):
 
     _output(fields)
 
-    sys.stderr.write("%5.1f\n" % ((time.time() - t)))
+    if opt_trace:
+        sys.stderr.write("%5.1f\n" % ((time.time() - t)))
 
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
 
 def _main():
-    global opt_debug, opt_timestamp, files
+    global opt_debug, opt_timestamp, opt_trace, files
     # set default values, if any
     # ----------------------------------------------------------------------
     # Option processing
@@ -545,14 +575,14 @@ def _main():
     options = options.strip()
 
     # with ' < 1:' on the next line, this is a no-op:
-    if len(sys.argv) <= 1:
+    if len(sys.argv) < 1:
         vars = globals()
         vars.update(locals())
         print __doc__ % vars
         sys.exit(1)
 
     try:
-        opts, files = getopt.gnu_getopt(sys.argv[1:], "dhtv", ["debug", "help", "timestamp", "version",])
+        opts, files = getopt.gnu_getopt(sys.argv[1:], "dhtTv", ["debug", "help", "timestamp", "trace", "version",])
     except Exception, e:
         print "%s: %s" % (program, e)
         sys.exit(1)
@@ -562,13 +592,17 @@ def _main():
         if   opt in ["-d", "--debug"]:  # Output debug information
             opt_debug = True
         elif opt in ["-h", "--help"]:   # Output this help text, then exit
-            print __doc__ % globals()
+            vars = globals()
+            vars.update(locals())
+            print __doc__ % vars
             sys.exit(1)
         elif opt in ["-v", "--version"]: # Output version information, then exit
             print program, version
             sys.exit(0)
         elif opt in ["-t", "--timestamp"]: # Emit leading timestamp information 
             opt_timestamp = True
+        elif opt in ["-T", "--trace"]: # Emit trace information while working
+            opt_trace = True
 
     if not files:
         files = [ "-" ]

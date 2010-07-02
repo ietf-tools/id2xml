@@ -1,0 +1,1 @@
+New Version Notification - {{ submission.filename }}-{{ submission.revision }}.txt

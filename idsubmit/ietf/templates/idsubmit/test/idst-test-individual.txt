@@ -1,0 +1,278 @@
+
+
+
+Network Working Group                                        A. Nonymous
+Internet-Draft                                           {% now "F" %} {% now "j" %}, {% now "Y" %}
+Intended status: Standards Track
+Expires: February 25, 2009
+
+
+                               An Example
+                 draft-nonymous-idst-submission-00.txt
+
+Status of this Memo
+
+   This Internet-Draft is submitted to IETF in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on February 25, 2009.
+
+Copyright Notice
+
+   Copyright (c) {% now "Y" %} IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+
+
+
+
+
+
+Nonymous                Expires February 25, 2009               [Page 1]
+
+Internet-Draft                 An Example                    {% now "F" %} {% now "Y" %}
+
+
+Abstract
+
+   An example.
+
+
+Table of Contents
+
+   1.  Requirements notation . . . . . . . . . . . . . . . . . . . . . 3
+   2.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 5
+   Intellectual Property and Copyright Statements  . . . . . . . . . . 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nonymous                Expires February 25, 2009               [Page 2]
+
+Internet-Draft                 An Example                    {% now "F" %} {% now "Y" %}
+
+
+1.  Requirements notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC2119.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nonymous                Expires February 25, 2009               [Page 3]
+
+Internet-Draft                 An Example                    {% now "F" %} {% now "Y" %}
+
+
+2.  Security Considerations
+
+   None.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nonymous                Expires February 25, 2009               [Page 4]
+
+Internet-Draft                 An Example                    {% now "F" %} {% now "Y" %}
+
+
+Author's Address
+
+   Anon Y. Mous
+
+   Email: anon@example.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Nonymous                Expires February 25, 2009               [Page 5]

@@ -1,0 +1,139 @@
+{% extends "idsubmit/base.html" %}
+{% block maincontent %}
+
+{% load idsubmitTags %}
+
+<!-- Body content starts-->
+<div align="left">
+<center>
+<table border="0" vspace="0">
+<tr valign="top">
+<td height="550" >
+<p>
+    <font face="Arial" size="4">
+    <strong>Adjust External Meta-Data</strong>
+    </font>
+</p>
+
+<form action="{% url ietf.idsubmit.views.adjust_form submission.submission_id %}" method="post" name="aform">
+<input type="hidden" name="redirect" value="1" />
+<p>
+    <strong>Document</strong>: 
+    {% for file_type in submission.get_file_type_list %}
+    <a href="{{ staging_url }}/{{ submission.filename }}-{{ submission.revision }}{{file_type}}">{{ submission.filename }}-{{ submission.revision }}{{file_type}}</a>
+    {% ifequal file_type ".txt" %}
+    <a href="/idsubmit/viewfirsttwo/{{ submission.submission_id }}">[View First Two Pages]</a>
+    {% endifequal %}
+    <br>
+    {% endfor %}
+    <table border="0">
+        <tr>
+            <td><font face="Arial" size="2">Submission Date:</font></td>
+            <td>{% now "Y-m-j" %}</td>
+        </tr>
+        <tr>
+           <td><font face="Arial" size="2">WG ID:</font></td>
+           <td>
+               <input type="hidden" name="group" value="{{ submission.group.name }}" />
+               {{ submission.group.name }}
+           </td>
+        </tr>
+        <tr>
+            <td><font face="Arial" size="2">File Size:</font></td>
+            <td> {{ submission.filesize }} </td>
+        </tr>
+    </table>
+</p>
+<hr>
+{% if submission.warning_message %}
+  <strong>Error message(s) from initial validating:</strong>
+  <ul>
+  {{ submission.warning_message }}
+  </ul>
+</hr>
+{% endif %}
+<table border="0" width="700">
+    <tr>
+        <td><font face="Arial" size="2"><strong>Adjust Data:</strong></font></td>
+    </tr>
+{% for field in form %}
+    <tr bgcolor="#ddddff">
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}{% ifequal field.name "abstract" %}<br>{% endifequal %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %} 
+    </td>
+    </tr>
+{% ifequal field.name "abstract" %}
+{# Insert the submitter stuff after the abstract field to match the original look and feel. #}
+    <tr bgcolor="#ddddff">
+    <td><font face="Arial" size="2">Submitter:</font></td>
+    <td>
+            If you are one of the authors, then please click a button by your name to automatically fill in the submitter's information as requested below.  Otherwise, Please manually enter your information.<br>
+            {% for author in submission.authors.all %}
+            <input type="button" name="ab{{ forloop.counter }}" value="{{ author.first_name|slice:":1" }}. {{ author.last_name }}" onClick="document.aform.lname.value='{{ author.last_name }}';document.aform.fname.value='{{ author.first_name }}';document.aform.submitter_email.value='{{ author.email_address }}';" />
+            {% endfor %}
+    </td>
+    </tr>
+{% for field in submitter_form %}
+    <tr bgcolor="#ddddff">
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %} 
+    </td>
+    </tr>
+{% endfor %}
+{% endifequal %}
+{% endfor %}
+</table>
+<hr>
+<p>
+<font face="Arial" size="2">Authors</font>
+<p>[Clear all fields in a row to delete it]</p>
+<table border="0" width="700">
+    <tr bgcolor="#ddddff">
+         <td align="center">&nbsp;</td>
+         <td align="center" width="150">
+             <font face="Arial" size="2"><strong>Given Name</strong></font>
+         </td>
+         <td align="center" width="150">
+             <font face="Arial" size="2"><strong>Family Name</strong></font>
+         </td>
+         <td align="center">
+             <font face="Arial" size="2"><strong>Email</strong></font>
+         </td>
+    </tr>
+    {% for form in author_forms %}
+    <tr bgcolor="#ddddff">
+        <td>&nbsp; &nbsp; Author {{ forloop.counter }}:</td>
+        <td>
+            {{ form.first_name }}
+        </td>
+        <td>
+            {{ form.last_name }}
+        </td>
+        <td>
+            {{ form.email_address }}
+            {% if form.email_address.errors %}<font face="Arial" size="2" color="red">{{ form.email_address.errors.as_text }}</font>{% endif %} 
+            {% if form.non_field_errors %}<font face="Arial" size="2" color="red">{{ form.non_field_errors.as_text }}</font>{% endif %} 
+        </td>
+    </tr>
+
+{% endfor %}
+    </table>
+</p>
+<input type="submit" align="middle" value="Submit for manual posting" name="manual_post">
+</form>      
+      <!-- InstanceEndEditable -->        
+    </td>
+   </tr>
+</table>
+</center>
+</div>
+<form action="{% url ietf.idsubmit.views.cancel_draft submission.submission_id %}" method="get" name="cform">
+Cancel this submission: <input type="submit" value="Cancel" onClick="return window.confirm('Do you really want to cancel this submission?');">
+</form>
+
+<!-- Body content ends-->
+{% endblock %}

@@ -1,0 +1,4 @@
+Please follow the link below to complete your I-D submission.
+
+http://{{ site.domain }}{% url ietf.idsubmit.views.verify_key submission_id,auth_key %}
+

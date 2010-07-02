@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+program=${0##*/}
+progdir=${0%/*}
+
+if [ "$program" != "$progdir" ];
+then
+    cd $progdir
+fi
+
+# Compare recent metadata
+export DJANGO_SETTINGS_MODULE=ietf.settings
+export PYTHONPATH=`dirname $PWD`
+./compare-recent-metadata

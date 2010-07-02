@@ -1,0 +1,46 @@
+--NextPart
+
+{% filter wordwrap:72 %}A New Internet-Draft is available from the on-line Internet-Drafts directories.  {% ifnotequal submission.group.acronym "none" %}This draft is a work item of the {{ submission.group.acronym }} Working Group of the IETF.{% endifnotequal %}
+{% endfilter %}
+
+	Title           : {{submission.title}}
+	Author(s)       : {{authors}}
+	Filename        : {{submission.filename}}-{{submission.revision}}.txt
+	Pages           : {{submission.txt_page_count}}
+	Date            : {{submission.submission_date}}
+
+{{submission.abstract}}
+
+A URL for this Internet-Draft is:
+http://www.ietf.org/internet-drafts/{{submission.filename}}-{{submission.revision}}.txt
+
+To remove yourself from the I-D Announcement list, send a message to
+i-d-announce-request@ietf.org with the word unsubscribe in the body of 
+the message.
+You can also visit https://www1.ietf.org/mailman/listinfo/I-D-announce
+to change your subscription settings.
+
+Internet-Drafts are also available by anonymous FTP. Login with the 
+username "anonymous" and a password of your e-mail address. After 
+logging in, type "cd internet-drafts" and then
+	"get {{submission.filename}}-{{submission.revision}}.txt".
+
+A list of Internet-Drafts directories can be found in
+http://www.ietf.org/shadow.html
+or ftp://ftp.ietf.org/ietf/1shadow-sites.txt
+
+Below is the data which will enable a MIME compliant mail reader
+implementation to automatically retrieve the ASCII version of the
+Internet-Draft.
+
+--NextPart
+Content-Type: Message/External-body;
+	name="{{submission.filename}}-{{submission.revision}}.txt";
+	site="ftp.ietf.org";
+	access-type="anon-ftp";
+	directory="internet-drafts"
+
+Content-Type: text/plain
+Content-ID:     <{% now "Y-m-dH:i:s" %}.I-D@ietf.org>
+
+--NextPart--

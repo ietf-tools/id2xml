@@ -1,0 +1,28 @@
+
+
+Manual Posting Requested for following Internet-Draft:
+
+I-D Submission Tool URL: http://{{ tracker_url }}
+
+
+
+Filename:          {{ submission.filename }}
+Version:           {{ submission.revision }}
+Staging URL:       {{ file_url }}
+Title:             {{ submission.title }}
+Creation_date:     {{ submission.creation_date }}
+WG ID:             {{ submission.group }}
+Number_of_pages:   {{ submission.txt_page_count }}
+Abstract:
+{{ submission.abstract }}
+
+Submitter: {{ submission.submitter }} <{{ submission.submitter.email.1 }}>
+comment to the secretariat: {{ submission.comment_to_sec }}
+
+Author(s):
+{% for author in submission.authors.all %}
+    {{ author.last_name }} {{ author.first_name }} {{ author.email_address }}
+{% endfor %}
+
+----------------------------------
+

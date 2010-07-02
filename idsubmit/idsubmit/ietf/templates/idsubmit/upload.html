@@ -1,0 +1,65 @@
+{% extends "idsubmit/base.html" %}
+{% block maincontent %}
+       <table border="0" width="657" vspace="0">
+         <tr valign="top">
+            <td width="651">
+            <!-- InstanceBeginEditable name="Body text" -->
+         <font face="Arial" size="2">
+	  {% if cutoff_msg %}
+	 <div class="cutoff">
+	 The pre-meeting cutoff date for new documents (i.e.,
+	 version -00 Internet-Drafts)
+          {% ifequal cutoff_msg "first_warning" %}will be{% else %}was{% endifequal %}
+	 {{ first_cut_off_time|date:"l, Y-m-d" }} at
+	 {{ first_cut_off_time|date:"P (T)"}}{% ifequal cutoff_msg "first_warning" %} (in
+	 {{ first_cut_off_time|timeuntil }}){% endifequal %}.
+	  {% ifequal cutoff_msg "first_warning" %}After that time, you{% else %}You{% endifequal %}
+	 will not be able to submit a new document until
+	 {{ ietf_monday|date:"l, Y-m-d" }}, at midnight.<br>
+	  {% ifequal cutoff_msg "second_ietf" %}
+         The I-D submission tool will be shut down at
+         {{ second_cut_off_time|date:"P (T)" }} today (in
+	 {{ second_cut_off_time|timeuntil }}),
+         and reopened at midnight ({{ ietf_monday|date:"T" }}),
+         {{ ietf_monday|date:"Y-m-d" }}.
+	  {% else %}
+	 You can still submit a version -01 or higher Internet-Draft
+	 until {{ second_cut_off_time|date:"P (T)" }},
+	 {{ second_cut_off_time|date:"Y-m-d" }}.
+	  {% endifequal %}
+	 </div>
+          {% endif %}
+
+         <p>This page is used to submit IETF Internet-Drafts to the Internet-Draft repository. The list of current Internet-Drafts can be accessed at <a href="http://www.ietf.org/ietf/1id-abstracts.txt">http://www.ietf.org/ietf/1id-abstracts.txt</a></p>
+         <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF), its areas, and its working groups. Note that other groups may also distribute working documents as Internet-Drafts.</p>
+         <p>Internet-Drafts are draft documents, and are valid for a maximum of six months. They may be updated, replaced, or obsoleted by other documents at any time.</p>
+         <p>If you run into problems when submitting an Internet-Draft using this and the following pages, you may alternatively submit your draft by email to<a href="mailto:internet-drafts@ietf.org"> internet-drafts@ietf.org</a>. However, be advised that manual processing always takes additional time.</p>
+         </font>
+         <hr color="#999999">
+           </td></tr>
+           <tr bgcolor="#ddddff"><td>
+         <font face="Arial" size="4"><strong>Upload a draft</strong></font>
+           <form action="." method="post" enctype="multipart/form-data">
+           <table width="600">
+{% for field in form %}
+    <tr>
+    <td>
+        <font face="Arial" size="2">{{ field.label_tag }}</font>
+    </td>
+    <td>{{ field }}{% if field.help_text %}{{ field.help_text }}{% endif %}{% if field.errors %}<font face="Arial" size="2" color="red">{{ field.errors.as_text }}</font>{% endif %}
+    </td>
+    </tr>
+{% endfor %}
+           </table>
+<font color="red">* Required</font>         
+<p> 
+           <input type="submit" value="Upload" name="upload">
+         </p>
+         </form>
+         <!-- InstanceEndEditable -->        
+          </td>
+         </tr>
+      </table>
+
+
+{% endblock %}

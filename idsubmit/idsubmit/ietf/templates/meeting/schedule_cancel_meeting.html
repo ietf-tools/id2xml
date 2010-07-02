@@ -1,0 +1,24 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+
+{% extends "base.html" %}
+
+{% block title %}IETF Meeting Session Request Tool{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://www.ietf.org/css/base.css" />
+{% endblock %}
+
+{% block content %}
+<p>
+<blockquote>
+<h2><center>IETF Meeting Session Request Tool</center></h2>
+
+<h2>IETF {{meeting_num}}</h2>
+<hr>
+</p>
+<h2>The request to cancel a session of <i>{{group.group_acronym.acronym}}</i> for IETF {{meeting_num}} is now submitted.</h2>
+
+{% endblock %}
+{% block local_footer %}
+{% include "meeting/local_footer.html" %}
+{% endblock %}

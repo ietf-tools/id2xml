@@ -1,0 +1,48 @@
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% extends "base.html" %}
+
+{% block title %}IETF Meeting Session Request Tool{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://www.ietf.org/css/base.css" />
+{% endblock %}
+
+{% block content %}
+<p>
+<blockquote>
+<h2><center>IETF Meeting Session Request Tool</center></h2>
+
+<h2>IETF {{meeting_num}}</h2>
+<hr>
+</p>
+
+<p>
+<li><h3>Request New Session</h3>
+<b>The list below includes those working groups that you currently chair. You can click on an acronym to initiate a request for a new session at the upcoming IETF meeting, or to send a notification that the group does not plan to meet.
+</b>
+<ul>
+{% for group in unscheduled_groups %}
+<li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> {% if group.no_meeting %}<font color="#cc0000">(Currently, this group does not plan to hold a session at IETF {{meeting_num}})</font></li>{% endif %}
+{% endfor %}
+</ul>
+</li>
+<li><h3>Edit/Cancel Previously Requested Sessions</h3>
+<b>The list below includes those working groups for which you or your co-chair has requested sessions at the upcoming IETF meeting. You can click on an acronym to initiate changes to a session, or cancel a session.</b>
+
+<ul>
+{% if scheduled_groups %}
+{% for group in scheduled_groups %}
+<li><a href="{{group.group_acronym_id}}">{{group.group_acronym.acronym}}</a> - {% if group.meeting_session.ts_status %}First Two Session: {{group.meeting_session.status.status}}, Third Session: {{group.meeting_session.ts_status.status}}{% else %} {{group.meeting_session.status.status}}{% endif %}</li>
+{% endfor %}
+{% else %}
+<i>NONE</i>
+{% endif %}
+</ul>
+</li>
+</p><p>
+</p>
+{% endblock %}
+{% block local_footer %}
+{% include "meeting/local_footer.html" %}
+{% endblock %}
+</blockquote>

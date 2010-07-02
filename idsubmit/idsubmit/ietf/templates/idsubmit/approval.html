@@ -1,0 +1,60 @@
+{# Copyright The IETF Trust 2007,2008, All Rights Reserved #}
+{% extends "base.html" %}
+{% block title %} IETF Internet-Draft Initial Version Approval Tool {% endblock %}
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://www.ietf.org/css/base.css" />
+{% endblock %}
+{% block content %}
+  <h2>IETF Internet-Draft Initial Version Approval Tool</h2>
+
+  <p>
+    You have logged in as {% if user %} {{ user.first_name }} {{ user.last_name }} {% endif %}
+  </p>
+
+  {% if errors %}
+  <p>
+    <em>
+      Failed to process the form: {{ message }}
+    </em>
+  <p>
+  {% endif %}
+  
+  <form action="{% url ietf.idsubmit.approval_views.approval %}" method="post">
+    {{ form.as_p }}
+    <input type="submit" value="Approve Internet-Draft"/>
+  </form>
+
+{% if pending_submissions.count %}
+  <h3>Internet-Drafts Pending Approval</h3>
+  <table border="1" summary="This table lists the Initial Internet-Drafts 
+			     that have been submitted but not yet
+			     published, and are pending on approval">
+    <tr>
+      <th>Draft name</th>
+      <th>Submission date</th>
+    </tr>
+    {% for submission in pending_submissions %}
+    <tr>
+      <td>{{ submission.filename }}
+          <a href="{% url ietf.idsubmit.approval_views.approval submission.filename %}">[approve]</a></td>
+      <td>{{ submission.submission_date }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endif %}
+
+  <h3>Approved Internet-Drafts</h3>
+  <table border="1" summary="This table lists the Initial Internet-Drafts 
+			     that you have pre-approved">
+    <tr>
+      <th>Draft name</th>
+      <th>Approval Date</th>
+    </tr>
+    {% for approval in user.idapproveddetail_set.all %}
+    <tr>
+      <td>{{ approval.filename }}</td>
+      <td>{{ approval.approved_date }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

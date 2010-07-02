@@ -1,0 +1,18 @@
+{# Copyright The IETF Trust 2009, All Rights Reserved #}
+{% extends "base.html" %}
+{% block title %} IETF Internet-Draft Initial Version Approval Tool {% endblock %}
+{% block content %}
+  <h2>IETF Internet-Draft Initial Version Approval Tool</h2>
+{% if created %}
+  <p>
+  Your approval was recorded; however, there was no pending draft submission
+  found.  If this is not a pre-approval and there is a pending
+  submission, please contact the secretariat for help.
+  </p>
+{% else %}
+  <p>
+  The draft was already approved by {{ approval.approved_person }} on
+  {{ approval.approved_date }}.
+  </p>
+{% endif %}
+{% endblock %}

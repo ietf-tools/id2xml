@@ -1,3 +1,0 @@
-{% filter wordwrap:72 %}This message is to notify you that submission of an Internet-Draft, {{ submission.filename }}-{{ submission.revision }} was cancelled on {% now "l, F j, Y \a\t P (T)" %} by a user whose computer has an IP address of {{ remote_ip }}.{% endfilter %}
-
-The IETF Secretariat.

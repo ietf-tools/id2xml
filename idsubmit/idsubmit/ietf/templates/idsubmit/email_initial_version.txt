@@ -1,1 +1,0 @@
-The initial version of {{ submission.filename }} has been approved by {{ approver }}.

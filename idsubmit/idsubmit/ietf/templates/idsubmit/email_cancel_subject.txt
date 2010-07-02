@@ -1,1 +1,0 @@
-Submission of {{ submission.filename }}-{{ submission.revision }} has been Cancelled

@@ -34,13 +34,14 @@ from django.conf.urls.defaults import patterns
 from ietf.idrfc import views_doc, views_search, views
 
 urlpatterns = patterns('',
-    (r'^test/$', views.test),
     (r'^/?$', views_search.search_main),
     (r'^search/$', views_search.search_results),
+    (r'^all/$', views_search.all),
+    (r'^active/$', views_search.active),
     (r'^(?P<name>[^/]+)/$', views_doc.document_main),
-    (r'^(?P<name>[^/]+)/_debug.data$', views_doc.document_debug),
-    (r'^(?P<name>[^/]+)/_comments.data$', views_doc.document_comments),
+    (r'^(?P<name>[^/]+)/doc.json$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
-    (r'^(?P<name>[^/]+)/_versions.data$', views_doc.document_versions),
+    (r'^(?P<name>[^/]+)/ballot.tsv$', views_doc.ballot_tsv),
+    (r'^(?P<name>[^/]+)/ballot.json$', views_doc.ballot_json),
     (r'^ad/(?P<name>[^/]+)/$', views_search.by_ad)
 )

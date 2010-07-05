@@ -35,7 +35,6 @@ from django.core import management
 management.setup_environ(settings)
 from django import db
 
-import re
 import urllib2
 from datetime import datetime
 import socket
@@ -59,6 +58,7 @@ try:
     log("url: "+URL)
                     
     log("downloading...")
+    socket.setdefaulttimeout(30)
     response = urllib2.urlopen(URL)
     #log("got \n"+str(response.info()))
     log("parsing...")

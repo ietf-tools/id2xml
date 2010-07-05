@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,60 +43,57 @@ class RfcEditorQueue(models.Model):
     )
     draft = models.OneToOneField(InternetDraft, db_column="id_document_tag", related_name="rfc_editor_queue_state",primary_key=True)
     date_received = models.DateField()
-    state = models.CharField(maxlength=200, blank=True, null=True)
+    state = models.CharField(max_length=200, blank=True, null=True)
     # currently, queue2.xml does not have this information, so
     # this field will be NULL (but we could get it from other sources)
     state_date = models.DateField(blank=True,null=True)
     stream = models.IntegerField(choices=STREAM_CHOICES)
+    auth48_url =  models.CharField(max_length=200, blank=True, null=True)
+    rfc_number = models.IntegerField(null=True)
     def __str__(self):
         return "RfcEditorQueue"+str([self.draft, self.date_received, self.state, self.state_date, self.stream])
     class Meta:
         db_table = "rfc_editor_queue_mirror"
-    class Admin:
-        pass
 
 class RfcEditorQueueRef(models.Model):
     source = models.ForeignKey(InternetDraft, db_column="source", related_name="rfc_editor_queue_refs")
-    destination = models.CharField(maxlength=200)
+    destination = models.CharField(max_length=200)
     in_queue = models.BooleanField()
     direct = models.BooleanField()
     class Meta:
         db_table = "rfc_editor_queue_mirror_refs"
-    class Admin:
-        pass
 
 class RfcIndex(models.Model):
     rfc_number = models.IntegerField(primary_key=True)
-    title = models.CharField(maxlength=250)
-    authors = models.CharField(maxlength=250)
+    title = models.CharField(max_length=250)
+    authors = models.CharField(max_length=250)
     rfc_published_date = models.DateField()
-    current_status = models.CharField(maxlength=50,null=True)
-    updates = models.CharField(maxlength=200,blank=True,null=True)
-    updated_by = models.CharField(maxlength=200,blank=True,null=True)
-    obsoletes = models.CharField(maxlength=200,blank=True,null=True)
-    obsoleted_by = models.CharField(maxlength=200,blank=True,null=True)
-    also = models.CharField(maxlength=50,blank=True,null=True)
-    draft = models.CharField(maxlength=200,null=True)
+    current_status = models.CharField(max_length=50,null=True)
+    updates = models.CharField(max_length=200,blank=True,null=True)
+    updated_by = models.CharField(max_length=200,blank=True,null=True)
+    obsoletes = models.CharField(max_length=200,blank=True,null=True)
+    obsoleted_by = models.CharField(max_length=200,blank=True,null=True)
+    also = models.CharField(max_length=50,blank=True,null=True)
+    draft = models.CharField(max_length=200,null=True)
     has_errata = models.BooleanField()
+    stream = models.CharField(max_length=15,blank=True,null=True)
+    wg = models.CharField(max_length=15,blank=True,null=True)
+    file_formats = models.CharField(max_length=20,blank=True,null=True)
     def __str__(self):
         return "RfcIndex"+str(self.rfc_number)
     class Meta:
         db_table = "rfc_index_mirror"
-    class Admin:
-        pass
 
 class DraftVersions(models.Model):
     # Django does not support multi-column primary keys, so
     # we can't use filename+revision. But the key for this table
     # does not really matter, so we'll have an 'id' field
     id = models.AutoField(primary_key=True)
-    filename = models.CharField(maxlength=200, db_index=True)
-    revision = models.CharField(maxlength=2)
+    filename = models.CharField(max_length=200, db_index=True)
+    revision = models.CharField(max_length=2)
     revision_date = models.DateField()
     def __str__(self):
-        return "DraftVersions"+filename+revision+str(revision_date)
+        return "DraftVersions"+self.filename+self.revision+str(self.revision_date)
     class Meta:
         db_table = "draft_versions_mirror"
-    class Admin:
-        pass
     

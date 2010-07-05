@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,11 +30,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from ietf.idtracker.models import InternetDraft, Rfc, IDInternal, BallotInfo, IESGDiscuss, IESGComment, Position, IESGLogin
-from ietf.idrfc.models import RfcIndex, RfcEditorQueue, DraftVersions
+from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, IESGDiscuss, IESGLogin, DocumentComment
+from ietf.idrfc.models import RfcEditorQueue
 import re
-from datetime import date, timedelta
-from django.utils import simplejson
+from datetime import date
+from django.utils import simplejson as json
 from django.db.models import Q
 import types
 
@@ -85,6 +85,7 @@ class IdWrapper:
     ietf_process = None
     
     def __init__(self, draft):
+        self.id = self
         if isinstance(draft, IDInternal):
             self._idinternal = draft
             self._draft = self._idinternal.draft
@@ -103,10 +104,14 @@ class IdWrapper:
             else:
                 # Handle incorrect database entries
                 self.draft_status = "Expired"
-        self.latest_revision = self._draft.revision
+        self.latest_revision = self._draft.revision_display()
         self.title = self._draft.title
         self.tracker_id = self._draft.id_document_tag
         self.publication_date = self._draft.revision_date
+        if not self.publication_date:
+            # should never happen -- but unfortunately it does. Return an
+            # obviously bogus date
+            self.publication_date = date(1990,1,1)
 
     def rfc_editor_state(self):
         try:
@@ -188,7 +193,8 @@ class IdWrapper:
             return self.draft_status
 
     def abstract(self):
-        return self._draft.abstract
+        return self._draft.clean_abstract()
+
     # TODO: ugly hack
     def authors(self):
         return self._draft.authors
@@ -205,11 +211,16 @@ class IdWrapper:
         else:
             return None
 
+    def get_absolute_url(self):
+        return "/doc/"+self.draft_name+"/"
+    def displayname_with_link(self):
+        return '<a href="%s">%s</a>' % (self.get_absolute_url(), self.draft_name_and_revision())
+
     def to_json(self):
         result = jsonify_helper(self, ['draft_name', 'draft_status', 'latest_revision', 'rfc_number', 'title', 'tracker_id', 'publication_date','rfc_editor_state', 'replaced_by', 'replaces', 'in_ietf_process', 'file_types', 'group_acronym', 'stream_id','friendly_state', 'abstract', 'ad_name'])
         if self.in_ietf_process():
-            result['ietf_process'] = self.ietf_process.to_json_helper()
-        return simplejson.dumps(result, indent=2)
+            result['ietf_process'] = self.ietf_process.dict()
+        return json.dumps(result, indent=2)
 
 # ---------------------------------------------------------------------------
 
@@ -226,11 +237,13 @@ class RfcWrapper:
     publication_date = None
     maturity_level = None
     ietf_process = None
+    draft_name = None
     
     def __init__(self, rfcindex, rfc=None, idinternal=None):
         self._rfcindex = rfcindex
         self._rfc = rfc
         self._idinternal = idinternal
+        self.rfc = self
 
         if not self._idinternal:
             try:
@@ -248,6 +261,16 @@ class RfcWrapper:
         if not self.maturity_level:
             self.maturity_level = "Unknown"
             
+        ids = InternetDraft.objects.filter(rfc_number=self.rfc_number)
+        if len(ids) >= 1:
+            self.draft_name = ids[0].filename
+        elif self._rfcindex and self._rfcindex.draft:
+            # rfcindex occasionally includes drafts that were not
+            # really submitted to IETF (e.g. April 1st)
+            ids = InternetDraft.objects.filter(filename=self._rfcindex.draft)
+            if len(ids) > 0:
+                self.draft_name = self._rfcindex.draft
+            
     def _rfc_doc_list(self, name):
         if (not self._rfcindex) or (not self._rfcindex.__dict__[name]):
             return None
@@ -264,21 +287,29 @@ class RfcWrapper:
         return self._rfc_doc_list("updated_by")
     def updates(self):
         return self._rfc_doc_list("updates")
+    def also(self):
+        return self._rfc_doc_list("also")
     def has_errata(self):
         return self._rfcindex and (self._rfcindex.has_errata > 0)
+    def stream_name(self):
+        if not self._rfcindex:
+            return None
+        else:
+            x = self._rfcindex.stream
+            if x == "INDEPENDENT":
+                return "Independent Submission Stream"
+            elif x == "LEGACY":
+                return "Legacy Stream"
+            else:
+                return x+" Stream"
 
     def in_ietf_process(self):
         return self.ietf_process != None
 
     def file_types(self):
-        # Not really correct, but the database doesn't
-        # have this data for RFCs yet
-        return [".txt"]
-
-    # TODO:
-    # also/bcp_number/std_number/fyi_number
-    # group_acronym
-    # ad_name
+        types = self._rfcindex.file_formats
+        types = types.replace("ascii","txt")
+        return ["."+x for x in types.split(",")]
 
     def friendly_state(self):
         if self.in_ietf_process():
@@ -294,11 +325,16 @@ class RfcWrapper:
             # TODO: get AD name of the draft
             return None
 
+    def get_absolute_url(self):
+        return "/doc/rfc%d/" % (self.rfc_number,)
+    def displayname_with_link(self):
+        return '<a href="%s">RFC %d</a>' % (self.get_absolute_url(), self.rfc_number)
+
     def to_json(self):
-        result = jsonify_helper(self, ['rfc_number', 'title', 'publication_date', 'maturity_level', 'obsoleted_by','obsoletes','updated_by','updates','has_errata','file_types','in_ietf_process', 'friendly_state'])
+        result = jsonify_helper(self, ['rfc_number', 'title', 'publication_date', 'maturity_level', 'obsoleted_by','obsoletes','updated_by','updates','also','has_errata','stream_name','file_types','in_ietf_process', 'friendly_state'])
         if self.in_ietf_process():
-            result['ietf_process'] = self.ietf_process.to_json_helper()
-        return simplejson.dumps(result, indent=2)
+            result['ietf_process'] = self.ietf_process.dict()
+        return json.dumps(result, indent=2)
 
 # ---------------------------------------------------------------------------
 
@@ -343,15 +379,14 @@ class IetfProcessData:
             self._ballot = BallotWrapper(self._idinternal)
         return self._ballot
 
+    # don't call this unless has_[active_]iesg_ballot returns True
+    def iesg_ballot_needed( self ):
+	standardsTrack = 'Standard' in self.intended_maturity_level() or \
+			self.intended_maturity_level() == "BCP"
+	return self.iesg_ballot().ballot.needed( standardsTrack )
+
     def ad_name(self):
-        name = self._idinternal.token_name
-        # Some old documents have token name as "Surname, Firstname";
-        # newer ones have "Firstname Surname"
-        m = re.match(r'^(\w+), (\w+)$', name)
-        if m:
-            return m.group(2)+" "+m.group(1)
-        else:
-            return name
+        return str(self._idinternal.job_owner)
 
     def iesg_note(self):
         if self._idinternal.note:
@@ -369,12 +404,13 @@ class IetfProcessData:
                 Q(comment_text__istartswith="Draft Added by ")|
                 Q(comment_text__istartswith="State Changes to ")|
                 Q(comment_text__istartswith="Sub state has been changed to ")|
-                Q(comment_text__istartswith="State has been changed to ")).order_by('-id')[0].date
+                Q(comment_text__istartswith="State has been changed to ")|
+                Q(comment_text__istartswith="IESG has approved and state has been changed to")).order_by('-id')[0].date
         except IndexError:
             # should never happen -- return an obviously bogus date
             return date(1990,1,1)
 
-    def to_json_helper(self):
+    def dict(self):
         result = {'main_state':self.main_state,
                   'sub_state':self.sub_state,
                   'state':self.state,
@@ -382,11 +418,15 @@ class IetfProcessData:
                   'has_iesg_ballot':self.has_iesg_ballot(),
                   'has_active_iesg_ballot':self.has_active_iesg_ballot(),
                   'ad_name':self.ad_name(),
-                  'intended_maturity_level':self.intended_maturity_level()}
+                  'intended_maturity_level':self.intended_maturity_level(),
+                  'telechat_date':self.telechat_date()}
+        if result['telechat_date']:
+            result['telechat_date'] = str(result['telechat_date'])
+            result['telechat_returning_item'] = self.telechat_returning_item()
         if self.iesg_note():
             result['iesg_note'] = self.iesg_note()
         if self.has_iesg_ballot():
-            result['iesg_ballot'] = self.iesg_ballot().to_json_helper()
+            result['iesg_ballot'] = self.iesg_ballot().dict()
         return result
 
     def intended_maturity_level(self):
@@ -407,9 +447,20 @@ class IetfProcessData:
                 s = None
         return s
 
-    # intended_maturity_level(self):
-    # telechat_date, on_telechat_agenda, returning_telechat_item
-    # state_change_notice_to?
+    def telechat_date(self):
+        # return date only if it's on upcoming agenda
+        if self._idinternal.agenda:
+            return self._idinternal.telechat_date
+        else:
+            return None
+        
+    def telechat_returning_item(self):
+        # should be called only if telechat_date() returns non-None
+        return bool(self._idinternal.returning_item)
+
+    def state_change_notice_to(self):
+        return self._idinternal.state_change_notice_to
+
     # comment_log?
 
 # ---------------------------------------------------------------------------
@@ -434,6 +485,18 @@ class IdRfcWrapper:
         else:
             return self.id.friendly_state()
 
+    def get_absolute_url(self):
+        if self.rfc:
+            return self.rfc.get_absolute_url()
+        else:
+            return self.id.get_absolute_url()
+
+    def comment_count(self):
+        if self.rfc:
+            return DocumentComment.objects.filter(document=self.rfc.rfc_number,rfc_flag=1).count()
+        else:
+            return DocumentComment.objects.filter(document=self.id.tracker_id).exclude(rfc_flag=1).count()
+
     def ad_name(self):
         if self.rfc:
             s = self.rfc.ad_name()
@@ -448,6 +511,14 @@ class IdRfcWrapper:
             return self.rfc.publication_date
         else:
             return self.id.publication_date
+
+    def telechat_date(self):
+        if self.rfc and self.rfc.in_ietf_process():
+            return self.rfc.ietf_process.telechat_date()
+        elif self.id and self.id.in_ietf_process():
+            return self.id.ietf_process.telechat_date()
+        else:
+            return None
         
     def view_sort_group(self):
         if self.rfc:
@@ -474,39 +545,13 @@ class IdRfcWrapper:
         else:
             return "3"
 
-#     def debug_data(self):
-#         s = ""
-#         if self.draft:
-#             s = s + "draft("+self.draft.filename+","+str(self.draft.id_document_tag)+","+str(self.draft.rfc_number)+")"
-#         if self.idinternal:
-#             s = s + ",idinternal()"
-#         if self._rfc:
-#             s = s + ",rfc("+str(self._rfc.rfc_number)+")"
-#         if self.rfcIndex:
-#             s = s + ",rfcIndex("+str(self.rfcIndex.rfc_number)+")"
-#         if self.rfc_idinternal:
-#             s = s + ",rfc_idinternal("+str(self.rfc_idinternal.draft_id)+")"
-#         return s
-
-            
-#     if idinternal:
-#         o['stateChangeNoticeTo'] = idinternal.state_change_notice_to
-#         if idinternal.returning_item > 0:
-#             o['telechatReturningItem'] = True
-#         if idinternal.telechat_date:
-#             o['telechatDate'] = str(idinternal.telechat_date)
-#             o['onTelechatAgenda'] = (idinternal.agenda > 0)
-#
-
 # ---------------------------------------------------------------------------
 
 class BallotWrapper:
     _idinternal = None
     ballot = None
     ballot_active = False
-
     _positions = None
-
     position_values = ["Discuss", "Yes", "No Objection", "Abstain", "Recuse", "No Record"]
 
     def __init__(self, idinternal):
@@ -516,6 +561,7 @@ class BallotWrapper:
             self.ballot_active = self.ballot.ballot_issued and (str(idinternal.cur_state) in BALLOT_ACTIVE_STATES) and str(idinternal.draft.status)=="Active";
         else:
             self.ballot_active = self.ballot.ballot_issued and (str(idinternal.cur_state) in BALLOT_ACTIVE_STATES)
+        self._ballot_set = None
 
     def approval_text(self):
         return self.ballot.approval_text
@@ -531,6 +577,15 @@ class BallotWrapper:
         return self.ballot.defer_by
     def deferred_date(self):
         return self.ballot.defer_date
+    def is_ballot_set(self):
+        if not self._ballot_set:
+            self._ballot_set = self._idinternal.ballot_set()
+        return len(list(self._ballot_set)) > 1
+    def ballot_set_other(self):
+        if not self.is_ballot_set():
+            return []
+        else:
+            return self._ballot_set.exclude(draft=self._idinternal)
     
     def _init(self):
         try:
@@ -541,13 +596,24 @@ class BallotWrapper:
             ads = set()
 
         positions = []
-        for p in self.ballot.positions.all():
-            po = create_position_object(self.ballot, p)
+        all_comments = self.ballot.comments.all().select_related('ad')
+        for p in self.ballot.positions.all().select_related('ad'):
+            po = create_position_object(self.ballot, p, all_comments)
             #if not self.ballot_active:
             #    if 'is_old_ad' in po:
             #        del po['is_old_ad']
             ads.add(str(p.ad))
             positions.append(po)
+        for c in all_comments:
+            if (str(c.ad) not in ads) and c.ad.is_current_ad():
+                positions.append({'has_text':True,
+                                  'comment_text':c.text,
+                                  'comment_date':c.date,
+                                  'comment_revision':str(c.revision),
+                                  'ad_name':str(c.ad),
+                                  'position':'No Record',
+                                  'is_old_ad':False})
+                ads.add(str(c.ad))
         if self.ballot_active:
             for ad in IESGLogin.active_iesg():
                 if str(ad) not in ads:
@@ -585,8 +651,27 @@ class BallotWrapper:
     def get_texts(self):
         return [p for p in self.position_list() if ('has_text' in p) and p['has_text']]
 
-    def to_json_helper(self):
-        return {}
+    def dict(self):
+        summary = {}
+        for key in self.position_values:
+            tag = key.lower().replace(" ", "_")
+            summary[tag] = [ pos["ad_name"] for pos in self.get(key) ]
+        positions = self.position_list()
+        for i in range(len(positions)):
+            for key in ["comment_date", "discuss_date", ]:
+                if key in positions[i]:
+                    positions[i][key] = positions[i][key].strftime("%Y-%m-%d")
+        return {
+            "active": self.is_active(),
+            "approval_text": self.approval_text(),
+            "ballot_writeup": self.ballot_writeup(),
+            "ballot_id": self.ballot_id(),
+            "deferred_by": unicode(self.deferred_by()),
+            "deferred_date": self.deferred_date() and self.deferred_date().strftime("%Y-%m-%d") ,
+            "positions": positions,
+            "summary": summary,
+            "was_deferred": self.was_deferred(),
+        }
 
 def position_to_string(position):
     positions = {"yes":"Yes",
@@ -604,7 +689,7 @@ def position_to_string(position):
         p = "No Record"
     return p
 
-def create_position_object(ballot, position):
+def create_position_object(ballot, position, all_comments):
     positions = {"yes":"Yes",
                  "noobj":"No Objection",
                  "discuss":"Discuss",
@@ -624,15 +709,16 @@ def create_position_object(ballot, position):
     if len(was) > 0:
         r['old_positions'] = was
 
-    try:
-        comment = ballot.comments.get(ad=position.ad)
-        if comment and comment.text: 
-            r['has_text'] =  True
-            r['comment_text'] = comment.text
-            r['comment_date'] = comment.date
-            r['comment_revision'] = str(comment.revision)
-    except IESGComment.DoesNotExist:
-        pass
+    comment = None
+    for c in all_comments:
+        if c.ad == position.ad:
+            comment = c
+            break
+    if comment and comment.text: 
+        r['has_text'] =  True
+        r['comment_text'] = comment.text
+        r['comment_date'] = comment.date
+        r['comment_revision'] = str(comment.revision)
 
     if p == "Discuss":
         try:

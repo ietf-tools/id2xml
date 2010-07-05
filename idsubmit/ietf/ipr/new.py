@@ -3,7 +3,7 @@
 import re
 import models
 import ietf.utils
-import django.newforms as forms
+from django import forms
 
 from datetime import datetime
 from django.shortcuts import render_to_response as render, get_object_or_404
@@ -14,60 +14,30 @@ from ietf.utils import log
 from ietf.utils.mail import send_mail
 from ietf.ipr.view_sections import section_table
 from ietf.idtracker.models import Rfc, InternetDraft
-import django
 
 # ----------------------------------------------------------------
 # Create base forms from models
 # ----------------------------------------------------------------    
 
-phone_re = re.compile(r'^\+?[0-9 ]*(\([0-9]+\))?[0-9 -]+$')
+phone_re = re.compile(r'^\+?[0-9 ]*(\([0-9]+\))?[0-9 -]+( ?x ?[0-9]+)?$')
 phone_error_message = """Phone numbers may have a leading "+", and otherwise only contain numbers [0-9]; dash, period or space; parentheses, and an optional extension number indicated by 'x'."""
 
-if django.VERSION[0] == 0:
+from django.forms import ModelForm
 
-    def ipr_detail_form_callback(field, **kwargs):
-        if field.name == "licensing_option":
-            return forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False, **kwargs)
-        if field.name in ["is_pending", "applies_to_all"]:
-            return forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False, **kwargs)
-        if field.name in ("rfc_number", "id_document_tag", 'legacy_url_0','legacy_url_1','legacy_title_1','legacy_url_2','legacy_title_2'):
-            return None
-        return field.formfield(**kwargs)
-
-    def ipr_contact_form_callback(field, **kwargs):
-        if field.name in ('ipr', 'contact_type'):
-            return None
-        if field.name == "telephone":
-            return forms.RegexField(phone_re, error_message=phone_error_message, **kwargs)
-        if field.name == "fax":
-            return forms.RegexField(phone_re, error_message=phone_error_message, required=False, **kwargs)
-        return field.formfield(**kwargs)
-        # TODO:
-        #   Add rfc existence validation for RFC field
-        #   Add draft existence validation for Drafts field
-
-    # Get base form classes for our models
-    BaseIprForm = forms.form_for_model(models.IprDetail, formfield_callback=ipr_detail_form_callback)
-    BaseContactForm = forms.form_for_model(models.IprContact, formfield_callback=ipr_contact_form_callback)
-    
-else:
-    # Django 1.x
-    
-    from django.forms import ModelForm
-    class BaseIprForm(ModelForm):
-        licensing_option = forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False)
-        is_pending = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
-        applies_to_all = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
-        class Meta:
-            model = models.IprDetail
-            exclude = ('rfc_document', 'id_document_tag', 'legacy_url_0','legacy_url_1','legacy_title_1','legacy_url_2','legacy_title_2')
-            
-    class BaseContactForm(ModelForm):
-        telephone = forms.RegexField(phone_re, error_message=phone_error_message)
-        fax = forms.RegexField(phone_re, error_message=phone_error_message, required=False)
-        class Meta:
-            model = models.IprContact
-            exclude = ('ipr', 'contact_type')
+class BaseIprForm(ModelForm):
+    licensing_option = forms.IntegerField(widget=forms.RadioSelect(choices=models.LICENSE_CHOICES), required=False)
+    is_pending = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
+    applies_to_all = forms.IntegerField(widget=forms.RadioSelect(choices=((1, "YES"), (2, "NO"))), required=False)
+    class Meta:
+        model = models.IprDetail
+        exclude = ('rfc_document', 'id_document_tag') # 'legacy_url_0','legacy_url_1','legacy_title_1','legacy_url_2','legacy_title_2')
+        
+class BaseContactForm(ModelForm):
+    telephone = forms.RegexField(phone_re, error_message=phone_error_message)
+    fax = forms.RegexField(phone_re, error_message=phone_error_message, required=False)
+    class Meta:
+        model = models.IprContact
+        exclude = ('ipr', 'contact_type')
 
 # Some subclassing:
 
@@ -151,14 +121,14 @@ def new(request, type, update=None, submitter=None):
                 # would like to put this in rfclist to get the error
                 # closer to the fields, but clean_data["draftlist"]
                 # isn't set yet.
-                rfclist = self.clean_data.get("rfclist", None)
-                draftlist = self.clean_data.get("draftlist", None)
-                other = self.clean_data.get("other_designations", None)
+                rfclist = self.cleaned_data.get("rfclist", None)
+                draftlist = self.cleaned_data.get("draftlist", None)
+                other = self.cleaned_data.get("other_designations", None)
                 if not rfclist and not draftlist and not other:
                     raise forms.ValidationError("One of the Document fields below must be filled in")
-            return self.clean_data
+            return self.cleaned_data
         def clean_rfclist(self):
-            rfclist = self.clean_data.get("rfclist", None)
+            rfclist = self.cleaned_data.get("rfclist", None)
             if rfclist:
                 rfclist = re.sub("(?i) *[,;]? *rfc[- ]?", " ", rfclist)
                 rfclist = rfclist.strip().split()
@@ -170,7 +140,7 @@ def new(request, type, update=None, submitter=None):
                 rfclist = " ".join(rfclist)
             return rfclist
         def clean_draftlist(self):
-            draftlist = self.clean_data.get("draftlist", None)
+            draftlist = self.cleaned_data.get("draftlist", None)
             if draftlist:
                 draftlist = re.sub(" *[,;] *", " ", draftlist)
                 draftlist = draftlist.strip().split()
@@ -195,7 +165,7 @@ def new(request, type, update=None, submitter=None):
                 return " ".join(drafts)
             return ""
         def clean_licensing_option(self):
-            licensing_option = self.clean_data['licensing_option']
+            licensing_option = self.cleaned_data['licensing_option']
             if section_list.get('licensing', False):
                 if licensing_option in (None, ''):
                     raise forms.ValidationError, 'This field is required.'
@@ -239,14 +209,16 @@ def new(request, type, update=None, submitter=None):
             # Save IprDetail
             instance = form.save(commit=False)
 
+	    legal_name_genitive = data['legal_name'] + "'" if data['legal_name'].endswith('s') else data['legal_name'] + "'s"
             if type == "generic":
-                instance.title = """%(legal_name)s's General License Statement""" % data
+                instance.title = legal_name_genitive + " General License Statement" 
             if type == "specific":
-                data["ipr_summary"] = get_ipr_summary(form.clean_data)
-                instance.title = """%(legal_name)s's Statement about IPR related to %(ipr_summary)s""" % data
+                data["ipr_summary"] = get_ipr_summary(form.cleaned_data)
+                instance.title = legal_name_genitive + """ Statement about IPR related to %(ipr_summary)s""" % data
             if type == "third-party":
-                data["ipr_summary"] = get_ipr_summary(form.clean_data)
-                instance.title = """%(ietf_name)s's Statement about IPR related to %(ipr_summary)s belonging to %(legal_name)s""" % data
+                data["ipr_summary"] = get_ipr_summary(form.cleaned_data)
+		ietf_name_genitive = data['ietf_name'] + "'" if data['ietf_name'].endswith('s') else data['ietf_name'] + "'s"
+                instance.title = ietf_name_genitive + """ Statement about IPR related to %(ipr_summary)s belonging to %(legal_name)s""" % data
 
             # A long document list can create a too-long title;
             # saving a too-long title raises an exception,
@@ -273,7 +245,7 @@ def new(request, type, update=None, submitter=None):
                     del cdata["contact_is_submitter"]
                 except KeyError:
                     pass
-                contact = models.IprContact(**cdata)
+                contact = models.IprContact(**dict([(str(a),b) for a,b in cdata.items()]))
                 contact.save()
                 # store this contact in the instance for the email
                 # similar to what views.show() does
@@ -290,13 +262,13 @@ def new(request, type, update=None, submitter=None):
 #                    log("Invalid contact: %s" % contact)
 
             # Save IprDraft(s)
-            for draft in form.clean_data["draftlist"].split():
+            for draft in form.cleaned_data["draftlist"].split():
                 id = InternetDraft.objects.get(filename=draft[:-3])
                 iprdraft = models.IprDraft(document=id, ipr=instance, revision=draft[-2:])
                 iprdraft.save()
 
             # Save IprRfc(s)
-            for rfcnum in form.clean_data["rfclist"].split():
+            for rfcnum in form.cleaned_data["rfclist"].split():
                 rfc = Rfc.objects.get(rfc_number=int(rfcnum))
                 iprrfc = models.IprRfc(document=rfc, ipr=instance)
                 iprrfc.save()
@@ -358,7 +330,7 @@ def update(request, ipr_id=None):
                 log("Form error for field: %s: %s"%(error, form.errors[error]))
 	    return render("ipr/update.html", {"form": form, "ipr": ipr, "type": type}, context_instance=RequestContext(request))
 	else:
-	    submitter = form.clean_data
+	    submitter = form.cleaned_data
 
     return new(request, type, ipr, submitter)
 
@@ -379,3 +351,6 @@ def get_ipr_summary(data):
         ipr = ", ".join(ipr[:-1]) + ", and " + ipr[-1]
 
     return ipr
+
+# changes done by convert-096.py:changed newforms to forms
+# cleaned_data

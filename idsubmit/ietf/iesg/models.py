@@ -35,20 +35,20 @@
 from django.db import models
 from ietf.idtracker.models import Acronym
 
-class TelechatMinutes(models.Model):
-    telechat_date = models.DateField(null=True, blank=True)
-    telechat_minute = models.TextField(blank=True)
-    exported = models.IntegerField(null=True, blank=True)
-    def get_absolute_url(self):
-	return "/iesg/telechat/%d/" % self.id
-    def __str__(self):
-	return "IESG Telechat Minutes for %s" % self.telechat_date
-    class Meta:
-        db_table = 'telechat_minutes'
-        verbose_name = "Telechat Minute Text"
-        verbose_name_plural = "Telechat Minutes"
-    class Admin:
-	pass
+# This table is not used by any code right now, and according to Glen,
+# probably not currently (Aug 2009) maintained by the secretariat.
+#class TelechatMinutes(models.Model):
+#    telechat_date = models.DateField(null=True, blank=True)
+#    telechat_minute = models.TextField(blank=True)
+#    exported = models.IntegerField(null=True, blank=True)
+#    def get_absolute_url(self):
+#	return "/iesg/telechat/%d/" % self.id
+#    def __str__(self):
+#	return "IESG Telechat Minutes for %s" % self.telechat_date
+#    class Meta:
+#        db_table = 'telechat_minutes'
+#        verbose_name = "Telechat Minute Text"
+#        verbose_name_plural = "Telechat Minutes"
 
 class TelechatDates(models.Model):
     date1 = models.DateField(primary_key=True, null=True, blank=True)
@@ -72,27 +72,27 @@ class TelechatDates(models.Model):
     class Meta:
         db_table = "telechat_dates"
         verbose_name = "Next Telechat Date"
-    class Admin:
-        pass
 
 class TelechatAgendaItem(models.Model):
     TYPE_CHOICES = (
         (1, "Working Group News"),
         (2, "IAB News"),
-        (3, "Management Items")
+        (3, "Management Item")
         )
+    TYPE_CHOICES_DICT = dict(TYPE_CHOICES)
     id = models.AutoField(primary_key=True, db_column='template_id')
     text = models.TextField(blank=True, db_column='template_text')
     type = models.IntegerField(db_column='template_type', choices=TYPE_CHOICES)
-    title = models.CharField(maxlength=255, db_column='template_title')
+    title = models.CharField(max_length=255, db_column='template_title')
     #The following fields are apparently not used
     #note = models.TextField(null=True,blank=True)
     #discussed_status_id = models.IntegerField(null=True, blank=True)
     #decision = models.TextField(null=True,blank=True)
+    def __unicode__(self):
+        type_name = self.TYPE_CHOICES_DICT.get(self.type, str(self.type))
+        return u'%s: %s' % (type_name, self.title)
     class Meta:
         db_table = 'templates'
-    class Admin:
-        pass
 
 class WGAction(models.Model):
     CATEGORY_CHOICES = (
@@ -107,7 +107,7 @@ class WGAction(models.Model):
     note = models.TextField(blank=True,null=True)
     status_date = models.DateField()
     agenda = models.BooleanField("On Agenda")
-    token_name = models.CharField(maxlength=25)
+    token_name = models.CharField(max_length=25)
     category = models.IntegerField(db_column='pwg_cat_id', choices=CATEGORY_CHOICES, default=11)
     telechat_date = models.DateField() #choices = [(x.telechat_date,x.telechat_date) for x in Telechat.objects.all().order_by('-telechat_date')])
     def __str__(self):
@@ -116,6 +116,3 @@ class WGAction(models.Model):
         db_table = 'group_internal'
         ordering = ['-telechat_date']
         verbose_name = "WG Action"
-    class Admin:
-        pass
-

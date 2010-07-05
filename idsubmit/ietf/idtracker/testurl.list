@@ -1,30 +1,31 @@
 200	/idtracker/help/state/		
 200	/idtracker/help/state/12/	
 200	/idtracker/help/substate/1/	
-200	/idtracker/help/ballot/		
-200	/idtracker/help/evaluation/	
-200	/idtracker/feedback/		
-200	/idtracker/feedback/?cat=bugs	
+301	/idtracker/help/evaluation/	
 200	/idtracker/status/
 200	/idtracker/status/last-call/	
 
-200	/idtracker/rfc3847/
+301	/idtracker/rfc3847/
 301	/idtracker/12689/		
-200	/idtracker/draft-ietf-isis-link-attr/	
-200 	/idtracker/draft-ietf-isis-link-attr/comment/65232/	
-200	/idtracker/comment/65232/	
-200 	/idtracker/ballot/1760/	
-200	/idtracker/
+301	/idtracker/draft-ietf-isis-link-attr/	
+301 	/idtracker/draft-ietf-isis-link-attr/comment/65232/	
+301	/idtracker/draft-eronen-tls-psk/ # no IESG information
+301	/idtracker/comment/65232/	
+301 	/idtracker/ballot/1760/	
+404	/idtracker/ballot/1723/ # dangling ballot, does not link to any doc
+301	/idtracker/
 200	/feed/comments/draft-ietf-isis-link-attr/
 200	/feed/comments/rfc3373/
-200	/idtracker/?search_group_acronym=&search_job_owner=0&search_rfcnumber=&search_status_id=&sub_state_id=6&search_cur_state=&search_button=SEARCH&search_filename=bgp-m&search_area_acronym=	
 200	/feed/last-call/
 
 # An RFC with no matching value in InternetDrafts.  This tests
 # subtle cases of using the draft relation when it's not appropriate.
 # See ticket #218.
-200	/idtracker/rfc2444/
+301     /idtracker/rfc2444/
 200	/feed/comments/rfc2444/
 
-200	/sitemap-drafts.xml
-200	/sitemap-idtracker.xml
+# Test case for missing comment time (bug fixed in changeset 1733)
+200     /feed/comments/draft-ietf-msec-newtype-keyid/
+
+200,heavy	/sitemap-drafts.xml
+200,heavy	/sitemap-idtracker.xml

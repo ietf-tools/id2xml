@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,43 +31,55 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from django import template
-from ietf.idtracker.models import BallotInfo
+from ietf.idtracker.models import IDInternal, BallotInfo
 from ietf.idrfc.idrfc_wrapper import position_to_string, BALLOT_ACTIVE_STATES
 from ietf.idtracker.templatetags.ietf_filters import in_group, timesince_days
 
 register = template.Library()
 
 def get_user_adid(context):
-    if 'user' in context and in_group(context['user'], "iesg"):
-        try:
-            usermap = context['user'].usermap_set.all()[0]
-            person = usermap.person
-            iesglogin = person.iesglogin_set.all()[0] 
-            adId = iesglogin.id
-            return adId
-        except:
-            pass
-    return None
+    if 'user' in context and in_group(context['user'], "Area_Director"):
+        return context['user'].get_profile().iesg_login_id()
+    else:
+        return None
 
 def get_user_name(context):
     if 'user' in context and context['user'].is_authenticated():
-        try:
-            usermap = context['user'].usermap_set.all()[0]
-            person = usermap.person
-            if person:
-                return str(person)
-        except:
-            pass
+        person = context['user'].get_profile().person()
+        if person:
+            return str(person)
     return None
     
 def render_ballot_icon(context, doc):
-    if doc.in_ietf_process() and doc.ietf_process.has_active_iesg_ballot():
-        ballot = doc._idinternal.ballot
+    if isinstance(doc,IDInternal):
+        try:
+            ballot = doc.ballot
+            if not ballot.ballot_issued:
+                return ""
+        except BallotInfo.DoesNotExist:
+            return ""
+        if str(doc.cur_state) not in BALLOT_ACTIVE_STATES:
+            return ""
+        if doc.rfc_flag:
+            name = doc.document().filename()
+        else:
+            name = doc.document().filename
+        tracker_id = doc.draft_id
     else:
-        return ""
+        if doc.in_ietf_process() and doc.ietf_process.has_active_iesg_ballot():
+            ballot = doc._idinternal.ballot
+        else:
+            return ""
+        if doc.is_rfc_wrapper:
+            name = "rfc"+str(doc.rfc_number)
+            tracker_id = doc.rfc_number
+        else:
+            name = doc.draft_name
+            tracker_id = doc.tracker_id
     adId = get_user_adid(context)
     red = 0
     green = 0
+    yellow = 0
     gray = 0
     blank = 0
     my = None
@@ -78,17 +90,22 @@ def render_ballot_icon(context, doc):
             green = green + 1
         elif (p['pos'].discuss > 0):
             red = red + 1
-        else:
+        elif (p['pos'].abstain > 0):
+            yellow = yellow + 1
+        elif (p['pos'].recuse > 0):
             gray = gray + 1
+        else:
+            blank = blank + 1
         if adId and (p['ad'].id == adId):
             my = position_to_string(p['pos'])
-    if doc.is_rfc_wrapper:
-        return render_ballot_icon2("rfc"+str(doc.rfc_number), doc.rfc_number, red,green,gray,blank,my)+"<!-- adId="+str(adId)+" my="+str(my)+"-->"
-    else:
-        return render_ballot_icon2(doc.draft_name, doc.tracker_id, red,green,gray,blank,my)+"<!-- adId="+str(adId)+" my="+str(my)+"-->"
+    return render_ballot_icon2(name, tracker_id, red,yellow,green,gray,blank, my, adId)+"<!-- adId="+str(adId)+" my="+str(my)+"-->"
 
-def render_ballot_icon2(draft_name, tracker_id, red,green,gray,blank,my):
-    res = '<table class="ballot_icon" title="IESG Evaluation Record (click to show more)" onclick="showBallot(\'' + draft_name + '\',' + str(tracker_id) + ')">'
+def render_ballot_icon2(draft_name, tracker_id, red,yellow,green,gray,blank, my,adId):
+    if adId:
+        res_cm = ' oncontextmenu="editBallot('+str(tracker_id)+');return false;"'
+    else:
+        res_cm = ''
+    res = '<table class="ballot_icon" title="IESG Evaluation Record (click to show more)" onclick="showBallot(\'' + draft_name + '\',' + str(tracker_id) + ')"'+res_cm+'>'
     for y in range(3):
         res = res + "<tr>"
         for x in range(5):
@@ -97,6 +114,10 @@ def render_ballot_icon2(draft_name, tracker_id, red,green,gray,blank,my):
                 c = "ballot_icon_red"
                 red = red - 1
                 myMark = (my == "Discuss")
+            elif yellow > 0:
+                c = "ballot_icon_yellow"
+                yellow = yellow - 1
+                myMark = (my == "Abstain")
             elif green > 0:
                 c = "ballot_icon_green"
                 green = green - 1
@@ -104,7 +125,7 @@ def render_ballot_icon2(draft_name, tracker_id, red,green,gray,blank,my):
             elif gray > 0:
                 c = "ballot_icon_gray"
                 gray = gray - 1
-                myMark = (my == "Abstain") or (my == "Recuse")
+                myMark = (my == "Recuse")
             else:
                 c = ""
                 myMark = (y == 2) and (x == 4) and (my == "No Record")
@@ -139,7 +160,7 @@ def my_position(doc, user):
     user_name = get_user_name({'user':user})
     if not user_name:
         return None
-    if not in_group(user, "iesg"):
+    if not in_group(user, "Area_Director"):
         return None
     if not doc.in_ietf_process():
         return None
@@ -160,16 +181,37 @@ def state_age_colored(doc):
     if main_state in ["Dead","AD is watching","RFC Published"]:
         return ""
     days = timesince_days(doc.ietf_process.state_date())
-    goal = 0
-    if sub_state == "Revised ID Needed":
-        goal = 30
+    # loosely based on 
+    # http://trac.tools.ietf.org/group/iesg/trac/wiki/PublishPath
+    if main_state == "In Last Call":
+        goal1 = 30
+        goal2 = 30
     elif main_state == "RFC Ed Queue":
-        goal = 60
-    elif main_state == "In Last Call":
-        goal = 30
+        goal1 = 60
+        goal2 = 120
+    elif main_state in ["Last Call Requested", "Approved-announcement to be sent"]:
+        goal1 = 4
+        goal2 = 7
+    elif sub_state == "Revised ID Needed":
+        goal1 = 14
+        goal2 = 28
+    elif main_state == "Publication Requested":
+        goal1 = 7
+        goal2 = 14
+    elif main_state == "AD Evaluation":
+        goal1 = 14
+        goal2 = 28
     else:
-        goal = 14
-    if days > goal:
-        return '<span style="padding:0 2px;font-size:85%%;background:yellow;" title="Goal is %d days">(for&nbsp;%d&nbsp;day%s)</span>' % (goal,days,('','s')[days != 1])
+        goal1 = 14
+        goal2 = 28
+    if days > goal2:
+        class_name = "ietf-small ietf-highlight-r"
+    elif days > goal1:
+        class_name = "ietf-small ietf-highlight-y"
     else:
-        return '<span style="font-size:85%%;">(for&nbsp;%d&nbsp;day%s)</span>' % (days,('','s')[days != 1])
+        class_name = "ietf-small"
+    if days > goal1:
+        title = ' title="Goal is &lt;%d days"' % (goal1,)
+    else:
+        title = ''
+    return '<span class="%s"%s>(for&nbsp;%d&nbsp;day%s)</span>' % (class_name,title,days,('','s')[days != 1])

@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ TABLE = "rfc_index_mirror"
 log_data = ""
 def log(line):
     global log_data
-    if len(sys.argv) > 1:
+    if __name__ == '__main__' and len(sys.argv) > 1:
         print line
     else:
         log_data += line + "\n"
@@ -109,6 +109,15 @@ def parse(response):
             updated_by = getDocList(node, "updated-by")
             obsoletes = getDocList(node, "obsoletes") 
             obsoleted_by = getDocList(node, "obsoleted-by")
+            stream = getChildText(node, "stream")
+            wg = getChildText(node, "wg_acronym")
+            if wg and ((wg == "NON WORKING GROUP") or len(wg) > 15):
+                wg = None
+           
+            l = []
+            for format in node.getElementsByTagName("format"):
+                l.append(getChildText(format, "file-format"))
+            file_formats = (",".join(l)).lower()
 
             draft = getChildText(node, "draft")
             if draft and re.search("-\d\d$", draft):
@@ -119,7 +128,7 @@ def parse(response):
             else:
                 has_errata = 0
 
-            data.append([rfc_number,title,authors,rfc_published_date,current_status,updates,updated_by,obsoletes,obsoleted_by,None,draft,has_errata])
+            data.append([rfc_number,title,authors,rfc_published_date,current_status,updates,updated_by,obsoletes,obsoleted_by,None,draft,has_errata,stream,wg,file_formats])
 
     for d in data:
         k = "RFC%04d" % d[0]
@@ -127,34 +136,39 @@ def parse(response):
             d[9] = ",".join(also_list[k])
     return data
 
-try:
-    log("output from mirror_rfc_index.py:\n")
-    log("time: "+str(datetime.now()))
-    log("host: "+socket.gethostname())
-    log("url: "+INDEX_URL)
-
-    log("downloading...")
-    response = urllib2.urlopen(INDEX_URL)
-    log("parsing...")
-    data = parse(response)
-
-    log("got " + str(len(data)) + " entries")
-    if len(data) < 5000:
-        raise Exception('not enough data')
-
+def insert_to_database(data):
     log("connecting to database...")
     cursor = db.connection.cursor()
     log("removing old data...")
     cursor.execute("DELETE FROM "+TABLE)
     log("inserting new data...")
-    cursor.executemany("INSERT INTO "+TABLE+" (rfc_number, title, authors, rfc_published_date, current_status,updates,updated_by,obsoletes,obsoleted_by,also,draft,has_errata) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
+    cursor.executemany("INSERT INTO "+TABLE+" (rfc_number, title, authors, rfc_published_date, current_status,updates,updated_by,obsoletes,obsoleted_by,also,draft,has_errata,stream,wg,file_formats) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
     cursor.close()
     db.connection._commit()
     db.connection.close()
 
-    log("all done!")
-    log_data = ""
+if __name__ == '__main__':
+    try:
+        log("output from mirror_rfc_index.py:\n")
+        log("time: "+str(datetime.now()))
+        log("host: "+socket.gethostname())
+        log("url: "+INDEX_URL)
 
-finally:
-    if len(log_data) > 0:
-        print log_data
+        log("downloading...")
+        socket.setdefaulttimeout(30)
+        response = urllib2.urlopen(INDEX_URL)
+        log("parsing...")
+        data = parse(response)
+
+        log("got " + str(len(data)) + " entries")
+        if len(data) < 5000:
+            raise Exception('not enough data')
+
+        insert_to_database(data)
+
+        log("all done!")
+        log_data = ""
+
+    finally:
+        if len(log_data) > 0:
+            print log_data

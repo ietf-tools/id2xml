@@ -1,5 +1,5 @@
 {% comment %} 
-Copyright (C) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2008-2010 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
 
 Redistribution and use in source and binary forms, with or without
@@ -34,46 +34,79 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% comment %}
 Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
 {% endcomment %}
-{% load ietf_filters %}
+{% load ietf_filters %}{% load ballot_icon %}
 
+{% if title2_first %}{% if title1_first %}<h2>{{ title1 }}</h2>
+{% if title1|startswith:"2." %}
+    <blockquote>
+    Reviews should focus on these questions: "Is this document a
+    reasonable basis on which to build the salient part of the Internet
+    infrastructure? If not, what changes would make it so?"
+    </blockquote>
+{% endif %}
+{% endif %}
+<h3>{{ title2 }}</h3>
+{% if title2|startswith:"3.1" or title2|startswith:"3.2" %}
+    <blockquote>
+    Reviews should focus on these questions: "Is this document a
+    reasonable contribution to the area of Internet engineering
+    which it covers? If not, what changes would make it so?"
+    </blockquote>
+{% endif %}
+{% if title2|startswith:"3.3" %}
+    <blockquote>
+    The IESG will use RFC 5742 responses: 1) The IESG has concluded
+    that there is no conflict between this document and IETF work; 2)
+    The IESG has concluded that this work is related to IETF work done
+    in WG &lt;X&gt;, but this relationship does not prevent
+    publishing; 3) The IESG has concluded that publication could
+    potentially disrupt the IETF work done in WG &lt;X&gt; and
+    recommends not publishing the document at this time; 4) The IESG
+    has concluded that this document violates IETF procedures for
+    &lt;Y&gt; and should therefore not be published without IETF
+    review and IESG approval; or 5) The IESG has concluded that this
+    document extends an IETF protocol in a way that requires IETF
+    review and should therefore not be published without IETF review
+    and IESG approval.<br/>
+    <br />
+    The document shepherd must propose one of these responses in the
+    document write-up in the Data Tracker, and the document shepherd
+    may supply text for an IESG Note in the write-up. The Area
+    Director ballot positions indicate consensus with the response
+    proposed by the document shepherd and agreement that the IESG
+    should request inclusion of the IESG Note.<br/>
+    <br />
+    Other matters may be recorded in comments, and the comments will
+    be passed on to the RFC Editor as community review of the document.
+    </blockquote>
+{% endif %}
+{% endif %}<h4>{{ title3 }}</h4>
+
+{% for doc in section_docs %}
 {% if forloop.first %}
-<table><tr><th>Area</th><th>Date</th></tr>
 {% endif %}
 
-<tr>
-<td>{{doc.obj.area_acronym|upper}}</td>
-<td>{{ doc.obj.event_date|date:"M d" }}</td>
-
-{% if not doc.ballot_set %}
-
-<td>{{ doc.obj.document.title|escape }} ({{ doc.obj.document.intended_status }})</td></tr>
-
-<tr><td></td><td></td><td>
+<table class="agenda-doc">
+<tbody>
+<tr><td>
 {% if doc.obj.rfc_flag %}
-<a href="{{ doc.obj.document.doclink }}">{{doc.obj.document.filename}}</a>
-<a href="http://tools.ietf.org/rfc/{{ doc.obj.document.filename }}">[txt]</a>
+<a href="/doc/rfc{{doc.obj.document.rfc_number}}">{{doc.obj.document.filename}}</a>
+<a href="http://www.rfc-editor.org/rfc/rfc{{doc.obj.document.rfc_number}}/">[txt]</a>
 {% else %}
-<a href="{{ doc.obj.document.doclink_current }}">{{doc.obj.document.displayname_current|safe}}</a>
-<!--       <a href="http://www.ietf.org/internet-draft/{{ doc.obj.document.filename }}-{{ doc.obj.document.revision }}.txt">[txt]</a> -->
-<a href="http://tools.ietf.org/id/{{ doc.obj.document.filename }}-{{ doc.obj.document.revision }}.txt">[txt]</a>
+<a href="/doc/{{doc.obj.document.filename}}/">{{doc.obj.document.displayname|safe}}</a>
+<a href="http://www.ietf.org/id/{{doc.obj.document.filename}}-{{doc.obj.document.revision}}.txt">[txt]</a>
 {% endif %}
 
-{% if doc.obj.ballot.active %}
-{% if private %}
-<a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=open_ballot&amp;id_document_tag={{ doc.obj.draft_id }}">
-{% else %}
-<a href="/idtracker/ballot/{{ doc.obj.ballot_id}}/">
-{% endif %}
-[Open Web Ballot]</a>
-{% endif %}
-</td></tr>
+<br/>{{ doc.obj.document.title|escape }} ({{ doc.obj.document.intended_status }})
 
-{% if doc.obj.note %} {# note: note is not escaped #}
-<tr><td></td><td></td><td>Note: {{ doc.obj.note }}</td></tr>
+
+{% if doc.obj.note %}
+<br/>Note: {{ doc.obj.note|unescape }}
 {% endif %}
 
 {% if doc.obj.draft.ipr.all %}
-<tr><td></td><td valign="top">IPR:</td><td>
+<br />
+<h5>IPR:</h5>
    <ul>
    {% for ipr in doc.obj.draft.ipr.all %}
       {% ifequal ipr.ipr.status 1 %}
@@ -81,39 +114,26 @@ Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
       {% endifequal %}
    {% endfor %}
    </ul>
-</td></tr>
+
 {% endif %}
 
-
-{% else %} {# ballot_set #}
-
-<td>Multi-Document Ballot: 
+<br/>Token: {{ doc.obj.token_name|escape }} ({{doc.obj.area_acronym}} area)
+{% if doc.obj.ballot.defer %}
+<br/>Was deferred by {{doc.obj.ballot.defer_by}} on {{doc.obj.ballot.defer_date}}
+{% endif %}
+</td><td style="padding-left:20px; width: 50px;">
+{% ballot_icon doc.obj %}
 {% if doc.obj.ballot.active %}
-{% if private %}
+{% if private or user|in_group:"Area_Director,Secretariat" %}
 <a href="https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=open_ballot&amp;id_document_tag={{ doc.obj.draft_id }}">
 {% else %}
-<a href="/idtracker/ballot/{{ doc.obj.ballot_id }}/">
+<a href="/idtracker/ballot/{{ doc.obj.ballot_id}}/">
 {% endif %}
-[Open Web Ballot]</a>
+[ballot]</a>
 {% endif %}
-</td></tr>
-
-{% for obj2 in doc.obj.ballot_set %}
-<tr><td></td><td></td><td>{{ obj2.draft.title|escape }} ({{ obj2.draft.intended_status }})</td></tr>
-<tr><td></td><td></td><td>
-<a href="{{obj2.draft.doclink}}">{{obj2.draft.displayname}}</a></td></tr>
-{% if obj2.note %} {# note: note is not escaped #}
-<tr><td></td><td></td><td>Note: {{ obj2.note }}</td></tr>
-{% endif %}
-{% endfor %}
-
-{% endif %} {# ballot_set #}
-
-<tr><td></td><td>Token:</td><td><a href="mailto:{{doc.obj.token_email|urlencode}}">{{ doc.obj.token_name|escape }}</a></td></tr>
-{% if doc.obj.ballot.defer %}
-<tr><td></td><td></td><td>Was deferred by {{doc.obj.ballot.defer_by}} on {{doc.obj.ballot.defer_date}}</td></tr>
-{% endif %}
-
+</td></tr></tbody></table>
 {% if forloop.last %}
-</table>
 {% endif %}
+{% empty %}
+<p>NONE</p>
+{% endfor %}

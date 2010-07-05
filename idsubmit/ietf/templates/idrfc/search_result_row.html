@@ -36,27 +36,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% load ballot_icon %}
 <tr class="{% cycle oddrow,evenrow %}">
 <td class="doc">
-{% if doc.rfc %}<a href="/doc/rfc{{doc.rfc.rfc_number}}/">RFC {{doc.rfc.rfc_number}}</a>
-{% if doc.id %}<br />(<a href="/doc/{{doc.id.draft_name}}/">{{doc.id.draft_name}}</a>){%endif%}
-{% else %}<a href="/doc/{{doc.id.draft_name}}/">{{doc.id.draft_name_and_revision}}</a>{% endif %}</td>
-<td class="title">{{ doc.title|escape }}</td>
-<td class="date">{{ doc.publication_date }}
-{% if doc.publication_date|timesince_days|less_than:"14" %}<br/><span style="padding:0 2px;background:yellow;font-size:85%;">{% if not doc.rfc%}<a href="http://tools.ietf.org/rfcdiff?url2={{doc.id.draft_name_and_revision}}">new</a>{%else%}new{%endif%}</span>{%endif%}
-{% if doc.id and doc.id.expected_expiration_date and doc.id.expected_expiration_date|timesince_days|greater_than:"-14" %}<br/><span style="padding:0 2px;font-size:85%;background:yellow;">expires soon</span>{%endif%}
-</td>
-
-<td class="status">{{ doc.friendly_state|safe }}
-{% if not doc.rfc %}{{ doc.id|state_age_colored|safe }}{% endif %}
-{% if doc.rfc %}
-{% if doc.rfc.obsoleted_by %}<br />Obsoleted by {{ doc.rfc.obsoleted_by }}{%endif %}
-{% if doc.rfc.updated_by %}<br />Updated by {{ doc.rfc.updated_by }}{%endif %}
-{% if doc.rfc.has_errata %}<br /><a href="http://www.rfc-editor.org/errata_search.php?rfc={{doc.rfc.rfc_number}}" rel="nofollow" target="_blank">Errata</a>{% endif %}
-{% else %}
-  {% if doc.id.rfc_editor_state %}<br />RFC Editor State: {{ doc.id.rfc_editor_state|escape }}{% endif %}
+{% if doc.rfc %}{{ doc.rfc.displayname_with_link|safe }}
+{% if doc.id %}<br />(<a href="{{ doc.id.get_absolute_url }}">{{doc.id.draft_name}}</a>){%endif%}
+{% else %}{{ doc.id.displayname_with_link|safe }}
 {% endif %}
 </td>
-<td class="ballot">
-{% if doc.rfc and doc.rfc.in_ietf_process and doc.rfc.ietf_process.has_active_iesg_ballot %}{% ballot_icon doc.rfc %}{% else %}{% if doc.id %}{% ballot_icon doc.id %}{%endif%}{%endif%}</td>
-<td class="ad">{% if doc.ad_name %}{{ doc.ad_name|escape }}{% else %}&nbsp;{% endif %}</td>
+<td class="title">{{ doc.title }}</td>
+{% include "idrfc/date_column.html" %}
+{% include "idrfc/status_columns.html" %}
+{# <td class="ad">{% if doc.ad_name %}{{ doc.ad_name }}{% else %}&nbsp;{% endif %}</td> #}
+<td class="ad">{{ doc.ad_name|default:"" }}</td>
 
 </tr>

@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,20 +30,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import re
+import re, os
+from datetime import datetime, time
+
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from ietf.idtracker.models import InternetDraft, IETFWG, Area, IDInternal, BallotInfo
-from ietf.idrfc.models import RfcIndex, RfcEditorQueue, DraftVersions
-from ietf.idrfc.idrfc_wrapper import BallotWrapper, IdWrapper, RfcWrapper
-from ietf.idrfc import markup_txt
-from ietf import settings
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.template.defaultfilters import truncatewords_html
+from django.utils import simplejson as json
+from django.utils.decorators import decorator_from_middleware
+from django.middleware.gzip import GZipMiddleware
+
+from ietf import settings
+from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, DocumentComment
 from ietf.idtracker.templatetags.ietf_filters import format_textarea, fill
+from ietf.idrfc import markup_txt
+from ietf.idrfc.models import RfcIndex, DraftVersions
+from ietf.idrfc.idrfc_wrapper import BallotWrapper, IdWrapper, RfcWrapper
 
 def document_debug(request, name):
-    r = re.compile("^rfc([0-9]+)$")
+    r = re.compile("^rfc([1-9][0-9]*)$")
     m = r.match(name)
     if m:
         rfc_number = int(m.group(1))
@@ -54,33 +61,47 @@ def document_debug(request, name):
         doc = IdWrapper(draft=id)
     return HttpResponse(doc.to_json(), mimetype='text/plain')
 
+def _get_html(key, filename):
+    f = None
+    try:
+        f = open(filename, 'rb')
+        raw_content = f.read()
+    except IOError:
+        return ("Error; cannot read ("+key+")", "")
+    finally:
+        if f:
+            f.close()
+    (c1,c2) = markup_txt.markup(raw_content)
+    return (c1,c2)
+
 def document_main_rfc(request, rfc_number):
     rfci = get_object_or_404(RfcIndex, rfc_number=rfc_number)
     doc = RfcWrapper(rfci)
 
     info = {}
-    content1 = None
-    content2 = None
-    f = None
-    try:
-        try:
-            f = open(settings.RFC_PATH+"rfc"+str(rfc_number)+".txt")
-            content = f.read()
-            (content1, content2) = markup_txt.markup(content)
-        except IOError:
-            content1 = "Error - can't find"+"rfc"+str(rfc_number)+".txt"
-            content2 = ""
-    finally:
-        if f:
-            f.close()
+    info['is_rfc'] = True
+    info['has_pdf'] = (".pdf" in doc.file_types())
+    info['has_txt'] = (".txt" in doc.file_types())
+    info['has_ps'] = (".ps" in doc.file_types())
+    if info['has_txt']:
+        (content1, content2) = _get_html(
+            "rfc"+str(rfc_number)+",html", 
+            os.path.join(settings.RFC_PATH, "rfc"+str(rfc_number)+".txt"))
+    else:
+        content1 = ""
+        content2 = ""
+
+    history = _get_history(doc, None)
             
     return render_to_response('idrfc/doc_main_rfc.html',
                               {'content1':content1, 'content2':content2,
-                               'doc':doc, 'info':info},
+                               'doc':doc, 'info':info, 
+                               'history':history},
                               context_instance=RequestContext(request));
 
+@decorator_from_middleware(GZipMiddleware)
 def document_main(request, name):
-    r = re.compile("^rfc([0-9]+)$")
+    r = re.compile("^rfc([1-9][0-9]*)$")
     m = r.match(name)
     if m:
         return document_main_rfc(request, int(m.group(1)))
@@ -108,61 +129,89 @@ def document_main(request, name):
         info['type'] = "Old Internet-Draft"+stream
 
     info['has_pdf'] = (".pdf" in doc.file_types())
+    info['is_rfc'] = False
     
-    content1 = None
-    content2 = None
-    if info['is_active_draft']:
-        f = None
-        try:
-            try:
-                f = open(settings.INTERNET_DRAFT_PATH+name+"-"+id.revision+".txt")
-                content = f.read()
-                (content1, content2) = markup_txt.markup(content)
-            except IOError:
-                content1 = "Error - can't find "+name+"-"+id.revision+".txt"
-                content2 = ""
-        finally:
-            if f:
-                f.close()
+    (content1, content2) = _get_html(
+        str(name)+","+str(id.revision)+",html",
+        os.path.join(settings.INTERNET_DRAFT_PATH, name+"-"+id.revision+".txt"))
+
+    versions = _get_versions(id)
+    history = _get_history(doc, versions)
             
     return render_to_response('idrfc/doc_main_id.html',
                               {'content1':content1, 'content2':content2,
-                               'doc':doc, 'info':info},
+                               'doc':doc, 'info':info, 
+                               'versions':versions, 'history':history},
                               context_instance=RequestContext(request));
 
-def document_comments(request, name):
-    r = re.compile("^rfc([0-9]+)$")
-    m = r.match(name)
-    if m:
-        id = get_object_or_404(IDInternal, rfc_flag=1, draft=int(m.group(1)))
-    else:
-        id = get_object_or_404(IDInternal, rfc_flag=0, draft__filename=name)
+# doc is either IdWrapper or RfcWrapper
+def _get_history(doc, versions):
     results = []
-    commentNumber = 0
-    for comment in id.public_comments():
+    if doc.is_id_wrapper:
+        comments = DocumentComment.objects.filter(document=doc.tracker_id).exclude(rfc_flag=1)
+    else:
+        comments = DocumentComment.objects.filter(document=doc.rfc_number,rfc_flag=1)
+        if len(comments) > 0:
+            # also include rfc_flag=NULL, but only if at least one
+            # comment with rfc_flag=1 exists (usually NULL means same as 0)
+            comments = DocumentComment.objects.filter(document=doc.rfc_number).exclude(rfc_flag=0)
+    for comment in comments.order_by('-date','-time','-id').filter(public_flag=1).select_related('created_by'):
         info = {}
-        r = re.compile(r'^(.*) by (?:<b>)?([A-Z]\w+ [A-Z]\w+)(?:</b>)?$')
-        m = r.match(comment.comment_text)
-        if m:
-            info['text'] = m.group(1)
-            info['by'] = m.group(2)
-        else:
-            info['text'] = comment.comment_text
-            info['by'] = comment.get_fullname()
+        info['text'] = comment.comment_text
+        info['by'] = comment.get_fullname()
         info['textSnippet'] = truncatewords_html(format_textarea(fill(info['text'], 80)), 25)
         info['snipped'] = info['textSnippet'][-3:] == "..."
-        info['commentNumber'] = commentNumber
-        commentNumber = commentNumber + 1
-        results.append({'comment':comment, 'info':info})
-    return render_to_response('idrfc/doc_comments.html', {'comments':results}, context_instance=RequestContext(request))
+        results.append({'comment':comment, 'info':info, 'date':comment.datetime(), 'is_com':True})
+    if doc.is_id_wrapper and versions:
+        for v in versions:
+            if v['draft_name'] == doc.draft_name:
+                v = dict(v) # copy it, since we're modifying datetimes later
+                v['is_rev'] = True
+                results.insert(0, v)    
+    if doc.is_id_wrapper and doc.draft_status == "Expired" and doc._draft.expiration_date:
+        results.append({'is_text':True, 'date':doc._draft.expiration_date, 'text':'Draft expired'})
+    if doc.is_rfc_wrapper:
+        if doc.draft_name:
+            text = 'RFC Published (see <a href="/doc/%s/">%s</a> for earlier history)' % (doc.draft_name,doc.draft_name)
+        else:
+            text = 'RFC Published'
+        results.append({'is_text':True, 'date':doc.publication_date, 'text':text})
 
-def document_ballot(request, name):
-    r = re.compile("^rfc([0-9]+)$")
+    # convert plain dates to datetimes (required for sorting)
+    for x in results:
+        if not isinstance(x['date'], datetime):
+            x['date'] = datetime.combine(x['date'], time(0,0,0))
+
+    results.sort(key=lambda x: x['date'])
+    results.reverse()
+    return results
+
+# takes InternetDraft instance
+def _get_versions(draft, include_replaced=True):
+    ov = []
+    ov.append({"draft_name":draft.filename, "revision":draft.revision_display(), "date":draft.revision_date})
+    if include_replaced:
+        draft_list = [draft]+list(draft.replaces_set.all())
+    else:
+        draft_list = [draft]
+    for d in draft_list:
+        for v in DraftVersions.objects.filter(filename=d.filename).order_by('-revision'):
+            if (d.filename == draft.filename) and (draft.revision_display() == v.revision):
+                continue
+            ov.append({"draft_name":d.filename, "revision":v.revision, "date":v.revision_date})
+    return ov
+
+def get_ballot(name):
+    r = re.compile("^rfc([1-9][0-9]*)$")
     m = r.match(name)
     if m:
-        id = get_object_or_404(IDInternal, rfc_flag=1, draft=int(m.group(1)))
+        rfc_number = int(m.group(1))
+        rfci = get_object_or_404(RfcIndex, rfc_number=rfc_number)
+        id = get_object_or_404(IDInternal, rfc_flag=1, draft=rfc_number)
+        doc = RfcWrapper(rfci, idinternal=id)
     else:
         id = get_object_or_404(IDInternal, rfc_flag=0, draft__filename=name)
+        doc = IdWrapper(id) 
     try:
         if not id.ballot.ballot_issued:
             raise Http404
@@ -170,17 +219,18 @@ def document_ballot(request, name):
         raise Http404
 
     ballot = BallotWrapper(id)
-    return render_to_response('idrfc/doc_ballot.html', {'ballot':ballot}, context_instance=RequestContext(request))
+    return ballot, doc
 
-def document_versions(request, name):
-    draft = get_object_or_404(InternetDraft, filename=name)
-    ov = []
-    ov.append({"draft_name":draft.filename, "revision":draft.revision, "revision_date":draft.revision_date})
-    for d in [draft]+list(draft.replaces_set.all()):
-        for v in DraftVersions.objects.filter(filename=d.filename).order_by('-revision'):
-            if (d.filename == draft.filename) and (draft.revision == v.revision):
-                continue
-            ov.append({"draft_name":d.filename, "revision":v.revision, "revision_date":v.revision_date})
-    
-    return render_to_response('idrfc/doc_versions.html', {'versions':ov}, context_instance=RequestContext(request))
+def document_ballot(request, name):
+    ballot, doc = get_ballot(name)
+    return render_to_response('idrfc/doc_ballot.html', {'ballot':ballot, 'doc':doc}, context_instance=RequestContext(request))
 
+def ballot_tsv(request, name):
+    ballot, doc = get_ballot(name)
+    return HttpResponse(render_to_string('idrfc/ballot.tsv', {'ballot':ballot}, RequestContext(request)), content_type="text/plain")
+
+def ballot_json(request, name):
+    ballot, doc = get_ballot(name)
+    response = HttpResponse(mimetype='text/plain')
+    response.write(json.dumps(ballot.dict(), indent=2))
+    return response

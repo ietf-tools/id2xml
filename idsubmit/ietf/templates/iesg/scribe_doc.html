@@ -32,29 +32,36 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% endcomment %}{% comment %}
 Some parts Copyright (c) 2009 The IETF Trust, all rights reserved.
-{% endcomment %}{% load ietf_filters %}{% if forloop.first %}
+{% endcomment %}{% load ietf_filters %}
+{% if title2_first %}{% if title1_first %}<p><b>{{ title1 }}</b></p>{% endif %}
+<p><b>{{ title2 }}</b></p>
+{% endif %}<p><b>{{ title3 }}</b></p>
+
 <ol>
-{% endif %}  
+{% for doc in section_docs %}
   <li>{{ doc.obj.document.title|escape }} ({{ doc.obj.document.intended_status }}){% if doc.obj.rfc_flag %}
-  <br><a href="{{ doc.obj.document.doclink }}">{{ doc.obj.document.doclink }}</a>
+  <br><a href="http://tools.ietf.org/html/rfc{{doc.obj.document.rfc_number }}">{{ doc.obj.document.filename }}</a>
 {% else %}
   <br><a href="http://tools.ietf.org/html/{{doc.obj.document.filename}}-{{doc.obj.document.revision}}.html">{{doc.obj.document.filename}}-{{doc.obj.document.revision}}</a>
 {% endif %}  <br>Token: {{ doc.obj.token_name|escape }}    
-{% if doc.obj.note %}{# note: note is not escaped #}  <br>Note: {{ doc.obj.note }}
-{% endif %}{% for ipr in doc.obj.draft.ipr.all %}{% ifequal ipr.ipr.status 1 %}  <br>IPR: <a href="http://datatracker.ietf.org/ipr/{{ ipr.ipr.ipr_id }}/">{{ ipr.ipr.title }}</a>{% endifequal %}
-{% endfor %}  {% if doc.obj.ballot.active %}<br>Extracted from <a href="http://datatracker.ietf.org/idtracker/ballot/{{ doc.obj.ballot.ballot}}/">ballot {{doc.obj.ballot.ballot }}</a>:
+{% if doc.obj.note %}{# note: note is not escaped #}  <br>Note: {{ doc.obj.note|safe }}
+{% endif %}{% for ipr in doc.obj.draft.ipr.all %}{% ifequal ipr.ipr.status 1 %}  <br>IPR: <a href="http://datatracker.ietf.org/ipr/{{ ipr.ipr.ipr_id }}/">{{ ipr.ipr.title|escape }}</a>{% endifequal %}
+{% endfor %}  {% if doc.obj.ballot.active %}<br><b>Discusses/comments</b> (from <a href="http://datatracker.ietf.org/idtracker/ballot/{{ doc.obj.ballot.ballot}}/">ballot {{doc.obj.ballot.ballot }})</a>:
   <ol>
-{% for position in doc.obj.ballot.positions.all|dictsort:"ad.last_name" %}{% ifequal position.discuss 1 %}    <li>{{ position.ad }}:{% for item in doc.obj.ballot.discusses.all %}{% ifequal position.ad item.ad %} Discuss [{{ item.date }}]:<br>
-    {{ item.text|text_to_html }}
-{% endifequal %}{% endfor %}{% endifequal %}{% for item in doc.obj.ballot.comments.all %}{% ifequal position.ad item.ad %}    <li>{{ position.ad }}: Comment [{{ item.date }}]:<br>
-    {{ item.text|text_to_html }}
+{% for position in doc.obj.ballot.positions.all|dictsort:"ad.last_name" %}{% ifequal position.discuss 1 %}    <li><a href="#{{doc.obj.document.filename}}+{{position.ad|slugify}}+discuss">{{ position.ad }}:{% for item in doc.obj.ballot.discusses.all %}{% ifequal position.ad item.ad %} Discuss [{{ item.date }}]</a>:
+        <br>...
+{% endifequal %}{% endfor %}{% endifequal %}{% for item in doc.obj.ballot.comments.all %}{% ifequal position.ad item.ad %}    <li><a href="#{{doc.obj.document.filename}}+{{position.ad|slugify}}+comment">{{ position.ad }}: Comment [{{ item.date }}]</a>:
+        <br>...
 {% endifequal %}{% endfor %}{% endfor %}  </ol>
 {%endif %}  <p><b>Telechat</b>:
   <ul>
-    <li>
-    <li>
-    <li>
-    <li>
-    <li>
-  </ul><p>{% if forloop.last %}
-</ol>{% endif %}
+    <li>...
+    <li>...
+    <li>...
+    <li>...
+    <li>...
+  </ul><p>
+{% empty %}
+<li>(none)</li>
+{% endfor %}
+</ol>

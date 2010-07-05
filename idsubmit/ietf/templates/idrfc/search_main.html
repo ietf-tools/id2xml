@@ -1,4 +1,4 @@
-{% extends "idrfc/base.html" %}
+{% extends "base.html" %}
 {% comment %}
 Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
@@ -33,22 +33,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% endcomment %}
 
-
-{% block title %}Internet-Drafts and RFCs
-{% endblock %}
+{% block title %}Internet-Drafts and RFCs{% endblock %}
 
 {% block content %}
+<h1>Internet-Drafts and RFCs</h1>
 
-<h1 style="margin-top:0;">Internet-Drafts and RFCs</h1>
-
-<div id="search_form_box">
+<div class="ietf-box search_form_box">
 {% include "idrfc/search_form.html" %}
 </div>
 
-<div id="search_results" class="search_results">
-{% if docs %}
+<div id="search_results">
+{% if meta.searching %}
 {% include "idrfc/search_results.html" %}
 {% endif %}
 </div>
-
-{% endblock %}
+{% endblock content %}
+{% block scripts %}
+YAHOO.util.Event.onContentReady("search_submit_button", function () {
+    var oButton = new YAHOO.widget.Button("search_submit_button", {});
+});      
+{% endblock scripts %}

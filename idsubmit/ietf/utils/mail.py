@@ -8,18 +8,10 @@ import smtplib
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
-from ietf.utils import log, MaybeRequestContext
-from ietf.announcements.models import ScheduledAnnouncement
+from django.template import Context,RequestContext
+from ietf.utils import log
 import sys
 import time
-import datetime
-
-test_mode=False
-outbox=[]
-
-def empty_outbox():
-    global outbox
-    outbox = []
 
 def add_headers(msg):
     if not(msg.has_key('Message-ID')):
@@ -36,14 +28,8 @@ def send_smtp(msg, bcc=None):
     The destination list will be taken from the To:/Cc: headers in the
     Message.  The From address will be used if present or will default
     to the django setting DEFAULT_FROM_EMAIL
-
-    If someone has set test_mode=True, then just append the msg to
-    the outbox.
     '''
     add_headers(msg)
-    if test_mode:
-        outbox.append(msg)
-	return
     (fname, frm) = parseaddr(msg.get('From'))
     addrlist = msg.get_all('To') + msg.get_all('Cc', [])
     if bcc:
@@ -109,12 +95,18 @@ def copy_email(msg, to, toUser=False):
     new['To'] = to
     send_smtp(new)
 
+def mail_context(request):
+    if request:
+        return RequestContext(request)
+    else:
+        return Context()
+  
 def send_mail_subj(request, to, frm, stemplate, template, context, *args, **kwargs):
     '''
     Send an email message, exactly as send_mail(), but the
     subject field is a template.
     '''
-    subject = render_to_string(stemplate, context, context_instance=MaybeRequestContext(request)).replace("\n"," ").strip()
+    subject = render_to_string(stemplate, context, context_instance=mail_context(request)).replace("\n"," ").strip()
     return send_mail(request, to, frm, subject, template, context, *args, **kwargs)
 
 def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
@@ -124,39 +116,19 @@ def send_mail(request, to, frm, subject, template, context, *args, **kwargs):
     The body is a text/plain rendering of the template with the context.
     extra is a dict of extra headers to add.
     '''
-    txt = render_to_string(template, context, context_instance=MaybeRequestContext(request))
+    txt = render_to_string(template, context, context_instance=mail_context(request))
     return send_mail_text(request, to, frm, subject, txt, *args, **kwargs)
 
-def send_scheduled(msg, bcc, sendTime, scheduledExtra):
-    # Queue a message to be sent later.
-    now = datetime.datetime.now()
-    kwargs = { 'mail_sent': False,
-	       'scheduled_date': now,
-	       'scheduled_time': str( now.time() ), # sigh
-	     }
-    kwargs.update( scheduledExtra )
-    kwargs['from_val'] = msg['From']
-    kwargs['to_val'] = msg['To']
-    kwargs['cc_val'] = msg['Cc'] or ''
-    kwargs['subject'] = msg['Subject']
-    kwargs['to_be_sent_date'] = sendTime
-    kwargs['to_be_sent_time'] = str(sendTime.time())
-    kwargs['body'] = str(msg.get_payload())	# if we support multipart, this
-					# might be a list!
-    kwargs['content_type'] = msg.get_content_type()
-
-    ScheduledAnnouncement.objects.create(**kwargs)
-
-# This contentType handling is a little lame, since we'd rather
-# let the python MIME stuff handle this.  For now, though,
-# we keep the MIME in the template.
-def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=None, bcc=None, contentType=None, sendTime=None, scheduledExtra={}):
-    msg = MIMEText(txt)
+def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=None, bcc=None):
+    if isinstance(txt, unicode):
+        msg = MIMEText(txt.encode('utf-8'), 'plain', 'UTF-8')
+    else:
+        msg = MIMEText(txt)
     if isinstance(frm, tuple):
 	frm = formataddr(frm)
-    if hasattr(to, '__iter__'):
+    if isinstance(to, list) or isinstance(to, tuple):
         to = ", ".join([isinstance(addr, tuple) and formataddr(addr) or addr for addr in to])
-    if hasattr(cc, '__iter__'):
+    if isinstance(cc, list) or isinstance(cc, tuple):
         cc = ", ".join([isinstance(addr, tuple) and formataddr(addr) or addr for addr in cc])
     if frm:
 	msg['From'] = frm
@@ -168,11 +140,6 @@ def send_mail_text(request, to, frm, subject, txt, cc=None, extra=None, toUser=N
     if extra:
 	for k, v in extra.iteritems():
 	    msg[k] = v
-    if contentType:
-	msg.set_type(contentType)
-    if sendTime:
-	send_scheduled(msg, bcc, sendTime, scheduledExtra)
-	return
     if settings.SERVER_MODE == 'production':
 	send_smtp(msg, bcc)
     elif settings.SERVER_MODE == 'test':

@@ -10,6 +10,10 @@ syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+import sys
+TOP_DIR = os.path.dirname(BASE_DIR)
+if TOP_DIR not in sys.path:
+  sys.path.insert(0, TOP_DIR)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

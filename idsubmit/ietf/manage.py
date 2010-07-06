@@ -8,6 +8,14 @@ warnings.filterwarnings("ignore", message="the sets module is deprecated")
 warnings.filterwarnings("ignore", message="the md5 module is deprecated; use hashlib instead")
 warnings.filterwarnings("ignore", message="the sha module is deprecated; use the hashlib module instead")
 
+
+import os
+import sys
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TOP_DIR = os.path.dirname(BASE_DIR)
+if TOP_DIR not in sys.path:
+  sys.path.insert(0, TOP_DIR)
+
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.

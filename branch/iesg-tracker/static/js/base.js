@@ -33,7 +33,7 @@
 function showBallot(draftName, editPositionUrl) {
     var handleEditPosition = function() {
         IETF.ballotDialog.hide();
-        window.open(editPositionUrl);
+        window.location = editPositionUrl;
     }; 
     var handleClose = function() {
         IETF.ballotDialog.hide();

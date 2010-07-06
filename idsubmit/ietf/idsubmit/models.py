@@ -51,8 +51,8 @@ STATUS_CODE = {
 class IdDates(models.Model):
     id = models.IntegerField(primary_key=True)
     id_date = models.DateField()
-    date_name = models.CharField(maxlength=255)
-    f_name = models.CharField(blank=True, maxlength=255)
+    date_name = models.CharField(max_length=255)
+    f_name = models.CharField(blank=True, max_length=255)
     def __str__(self):
         return self.date_name
     class Meta:
@@ -96,31 +96,31 @@ class IdSubmissionDetail(models.Model):
     # temp_id_document_tag = models.IntegerField(editable=False)        # obsolete
     status_id = models.IntegerField(default=0, choices=STATUS_CODE.items())
     last_updated_date = models.DateField(blank=True)
-    last_updated_time = models.CharField(maxlength=100,blank=True)
-    title = models.CharField(maxlength=255, db_column='id_document_name')
-    group = models.ForeignKey(Acronym, db_column='group_acronym_id', raw_id_admin=True)
-    filename = models.CharField(maxlength=255) # in real mode , unique=True)
+    last_updated_time = models.CharField(max_length=100,blank=True)
+    title = models.CharField(max_length=255, db_column='id_document_name')
+    group = models.ForeignKey(Acronym, db_column='group_acronym_id')
+    filename = models.CharField(max_length=255) # in real mode , unique=True)
     creation_date = models.DateField(null=True, blank=True)
     submission_date = models.DateField(default=datetime.date.today)
-    remote_ip = models.IPAddressField(blank=True, maxlength=100)
-    revision = models.CharField(blank=True, maxlength=2)
-    auth_key = models.CharField(blank=True, maxlength=35)
+    remote_ip = models.IPAddressField(blank=True, max_length=100)
+    revision = models.CharField(blank=True, max_length=2)
+    auth_key = models.CharField(blank=True, max_length=35)
     idnits_message = models.TextField(blank=True)
-    file_type = models.CharField(blank=True, maxlength=20)
+    file_type = models.CharField(blank=True, max_length=20)
     comment_to_sec = models.TextField(blank=True)
     abstract = models.TextField()
     txt_page_count = models.IntegerField()
-    error_message = models.CharField(blank=True, maxlength=255)
+    error_message = models.CharField(blank=True, max_length=255)
     warning_message = models.TextField(blank=True)
     wg_submission = models.BooleanField(default=0)
     filesize = models.IntegerField(null=True, blank=True)
     man_posted_date = models.DateField(null=True, blank=True)
-    man_posted_by = models.CharField(blank=True, maxlength=255)
+    man_posted_by = models.CharField(blank=True, max_length=255)
     first_two_pages = models.TextField(blank=True)
     sub_email_priority = models.IntegerField(null=True, blank=True)
     invalid_version = models.IntegerField(default=0)
     idnits_failed = models.BooleanField(default=0)
-    submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag", raw_id_admin=True)
+    submitter = models.ForeignKey(PersonOrOrgInfo, null=True, blank=True, db_column="submitter_tag")
 
     def posted(self):
         return self.status_id in ( -1, -2 )
@@ -382,11 +382,11 @@ class IdSubmissionDetail(models.Model):
         search_fields = ['filename']
 
 class IdApprovedDetail(models.Model):
-    filename = models.CharField(blank=True, maxlength=255, unique=True)
+    filename = models.CharField(blank=True, max_length=255, unique=True)
     approved_status = models.IntegerField(null=True, blank=True)
-    approved_person = models.ForeignKey(PersonOrOrgInfo, db_column='approved_person_tag', raw_id_admin=True)
+    approved_person = models.ForeignKey(PersonOrOrgInfo, db_column='approved_person_tag')
     approved_date = models.DateField(null=True, blank=True)
-    recorded_by = models.ForeignKey(PersonOrOrgInfo, db_column='recorded_by', raw_id_admin=True, related_name='idsubmission_recorded')
+    recorded_by = models.ForeignKey(PersonOrOrgInfo, db_column='recorded_by', related_name='idsubmission_recorded')
     def __str__(self):
         return "I-D %s pre-approval" % self.filename
     class Meta:
@@ -397,13 +397,13 @@ class IdApprovedDetail(models.Model):
 
 class TempIdAuthors(models.Model):
     #id_document_tag = models.IntegerField(editable=False)      # obsolete
-    first_name = models.CharField(maxlength=255, core=True)
-    last_name = models.CharField(maxlength=255, core=True)
-    email_address = models.EmailField() # maxlength=255
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email_address = models.EmailField() # max_length=255
     last_modified_date = models.DateField(editable=False)
-    last_modified_time = models.CharField(editable=False, maxlength=100)
+    last_modified_time = models.CharField(editable=False, max_length=100)
     author_order = models.IntegerField(editable=False, default=0)
-    submission = models.ForeignKey(IdSubmissionDetail, edit_inline=models.TABULAR, related_name="authors", editable=False)
+    submission = models.ForeignKey(IdSubmissionDetail, related_name="authors", editable=False)
     def save(self,*args,**kwargs):
         self.last_modified_date = datetime.date.today()
         self.last_modified_time = datetime.datetime.now().time()

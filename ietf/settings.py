@@ -11,7 +11,7 @@ syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 # Domain name of the IETF
@@ -146,7 +146,7 @@ INTERNAL_IPS = (
 # Valid values:
 # 'production', 'test', 'development'
 # Override this in settings_local.py if it's not true
-SERVER_MODE = 'production'
+SERVER_MODE = 'development'
 
 # The name of the method to use to invoke the test suite
 TEST_RUNNER = 'ietf.utils.test_runner.run_tests'
@@ -161,7 +161,7 @@ IETFWG_DESCRIPTIONS_PATH = '/a/www/www6s/wg-descriptions/'
 IESG_TASK_FILE = '/a/www/www6/iesg/internal/task.txt'
 IESG_ROLL_CALL_FILE = '/a/www/www6/iesg/internal/rollcall.txt'
 IESG_MINUTES_FILE = '/a/www/www6/iesg/internal/minutes.txt'
-IESG_wG_EVALUATION_DIR = "/a/www/www6/iesg/evaluation"
+IESG_WG_EVALUATION_DIR = "/a/www/www6/iesg/evaluation"
 
 # Override this in settings_local.py if needed
 CACHE_MIDDLEWARE_SECONDS = 300

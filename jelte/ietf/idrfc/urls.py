@@ -41,6 +41,7 @@ urlpatterns = patterns('',
     url(r'^ad/(?P<name>[^/]+)/$', views_search.by_ad, name="doc_search_by_ad"),
                        
     url(r'^(?P<name>[^/]+)/$', views_doc.document_main, name="doc_view"),
+    url(r'^(?P<name>[^/]+)/html_doc_only$', views_doc.document_html_doc_only, name="doc_view_html_only"),
     (r'^(?P<name>[^/]+)/doc.json$', views_doc.document_debug),
     (r'^(?P<name>[^/]+)/_ballot.data$', views_doc.document_ballot),
     (r'^(?P<name>[^/]+)/ballot.tsv$', views_doc.ballot_tsv),

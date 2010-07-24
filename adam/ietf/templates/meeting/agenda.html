@@ -29,12 +29,56 @@ table#agenda { border: 0; border-collapse:collapse; }
 .bgwhite, .bgwhite a { background-color: white; color: black; }
 .bgyellow, .bgyellow a { background-color: yellow; color: black; }
 .bgblack, .bgblack a { background-color: black; color: white; }
+.groupagenda { display:none; }
+
 {% endblock morecss %}
 
 {% block pagehead %}
 <script type="text/javascript" src='/js/agenda2.js'></script>
+<script type="text/javascript">
+  function hideUnwantedGroups()
+  {
+    var fragment = window.location.hash.replace("#",'').split(',');
+    var rows = document.getElementsByTagName('tr');
+
+    var hidenone = false;
+    if (window.location.hash.replace("#",'').length == 0) { hidenone=true; }
+
+    var re = RegExp("-(" + fragment.join('|') + ")($|-)");
+
+    for (var i = 0; i < rows.length; i++)
+    {
+      if (rows[i].className == 'groupagenda' || rows[i].className == 'grouprow')
+      {
+        if (re.test(rows[i].id) || (hidenone && rows[i].className == 'grouprow'))
+        {
+          rows[i].style.display="table-row";
+        }
+        else
+        {
+          rows[i].style.display="none";
+        }
+      }
+    }
+
+    window.setTimeout("hideUnwantedGroups()",1000);
+
+  }
+
+  function r(obj)
+  {
+    /* This can't work until we move the agendas into the datatracker.ietf.org
+       domain -- we can't query the height of a document from another domain. */
+
+    /*
+    docHeight = obj.contentWindow.document.height;
+    obj.style.height = (docHeight + 20) * 1.05 + "px"
+    */
+  }
+</script>
+
 {% endblock pagehead %}
-{% block bodyAttrs %}onload='updateAgendaColors()'{% endblock %}
+{% block bodyAttrs %}onload='hideUnwantedGroups();updateAgendaColors()'{% endblock %}
 {% block content %}
 <h1>IETF {{ meeting.num }} Meeting Agenda</h1>
 <p>{{ meeting.city }}, {{ meeting.start_date|date:"F j" }}-{% ifnotequal meeting.start_date.month meeting.end_date.month %}{{ meeting.end_date|date:"F " }}{% endifnotequal %}{{ meeting.end_date|date:"j, Y" }}<br />
@@ -44,10 +88,11 @@ Updated {{ update.updated|date:"Y-m-d H:i:s T" }}<br />
 <p><strong>IETF agendas are subject to change, up to and during the meeting.</strong></p>
 
 {# cache this part for 15 minutes -- it takes 3-6 seconds to generate #}
+
 {% load cache %}
 {% cache 900 ietf_meeting_agenda meeting.num %}
 
-<table id="agenda">
+<table id="agenda" width="100%">
 {% for slot in timeslots %}
    {% ifchanged  %}
       <tr class="meeting-date">
@@ -89,17 +134,23 @@ Updated {{ update.updated|date:"Y-m-d H:i:s T" }}<br />
       </tr>
       {% if not slot.is_plenary %}
       {% for session in slot.sessions_by_area|dictsort:"area" %}
-      <tr id="{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.acronym|lower}}">
+      <tr id="{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.area|upper}}-{{session.info.acronym|lower}}" class="grouprow">
 	 <td><a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{session.info.room_id.room_name|slugify}}" title="room map">{{ session.info.room_id.room_name}}</a></td>
 	 {% if session.info.area %}
 	 <td>{{ session.info.area|upper}}</td>
 	 <td>{% if session.info.isWG %}<a href="/wg/{{ session.info.acronym|lower }}/">{{ session.info.acronym|lower }}</a>{% else %}{{ session.info.acronym|lower }}{% endif %}</td>
 	 <td>
-            <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.acronym|lower}}',this);" title="color tag this line"/>
+            <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.area|upper}}-{{session.info.acronym|lower}}',this);" title="color tag this line"/>
 	    {% if session.info.agenda_file %}<a href="http://www.ietf.org/proceedings/{{ session.info.agenda_file }}" title="session agenda">{{ session.info.acronym_name|escape }} {{ session.info.group_type_str }}</a>{% else %}{{ session.info.acronym_name|escape }} {{ session.info.group_type_str }}{% endif %}
 	    {% if session.info.special_agenda_note %}<br/> - {{ session.info.special_agenda_note }}{% endif %}
 	 </td>
 	 {% endif %}
+      </tr>
+      <tr id="agenda-{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.area|upper}}-{{session.info.acronym|lower}}" class="groupagenda">
+        <td>&nbsp;</td>
+        <td colspan="3">
+          <iframe width="100%" height="400px" src="http://www.ietf.org/proceedings/{{ session.info.agenda_file }}" onload="r(this)"></iframe>
+        </td>
       </tr>
       {% endfor %}
       {% endif %}

@@ -73,8 +73,8 @@ IETF.user_groups = { {% for group in user.groups.all %}"{{group}}":true{% if not
 
 <td style="width:6px; padding-right:0px;padding-left:0px;" >
 <div>
-<img src="/images/hide.gif" id="hide_navbar" onclick="jQuery('#show_navbar').show(); jQuery('#ietf-navbar').hide('slow'); jQuery(this).hide(); "/>
-<img src="/images/show.gif" id="show_navbar" onclick="jQuery('#hide_navbar').show(); jQuery('#ietf-navbar').show('slow'); jQuery(this).hide();" onLoad="jQuery(this).hide();"/>
+<img src="/images/hide.gif" id="hide_navbar" onclick="jQuery('#ietf-navbar').hide('slow'); jQuery(this).hide(); jQuery('#show_navbar').show(); "/>
+<img src="/images/show.gif" id="show_navbar" onclick="jQuery('#ietf-navbar').show('slow'); jQuery(this).hide(); jQuery('#hide_navbar').show();" onLoad="jQuery(this).hide();"/>
 </div>
 </td>
 

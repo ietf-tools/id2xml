@@ -38,6 +38,9 @@ from django.template import RequestContext, loader
 from django.http import HttpResponse
 from ietf.idrfc.views_search import SearchForm, search_query
 from ietf.idrfc.idrfc_wrapper import IdRfcWrapper
+from ietf.proceedings.models import Meeting, WgAgenda
+
+
 
 def wg_summary_acronym(request):
     areas = Area.active_areas()
@@ -86,3 +89,21 @@ def wg_charter(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
     return render_to_response('wginfo/wg_charter.html', {'wg': wg, 'concluded':concluded, 'selected':'charter'}, RequestContext(request))
+
+def wg_agenda(request, acronym):
+    wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
+    # do the latest 5 meeting
+    meetings =list(Meeting.objects.all())
+    meetings.reverse()
+    meetings = [ meeting.meeting_num for meeting in meetings[0:4] ]
+    agendaFiles = []
+    agendaMtgs = []
+    for m in meetings:
+        a = WgAgenda.objects.filter(meeting=m).filter(group_acronym_id=wg.group_acronym_id) # returns a QuerySet of size 0 or 1
+        if len(a) == 1:
+            agendaFiles.append( a[0].filename)
+            agendaMtgs.append('IETF' + str(m) )
+    print agendaFiles
+    print agendaMtgs
+    concluded = (wg.status_id != 1)
+    return render_to_response('wginfo/wg_agenda.html', {'wg': wg, 'concluded':concluded, 'agenda_files':agendaFiles}, RequestContext(request))

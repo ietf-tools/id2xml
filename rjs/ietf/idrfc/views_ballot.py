@@ -431,6 +431,191 @@ def ballot_writeups(request, name):
                               context_instance=RequestContext(request))
 
 
+@group_required('Area_Director','Secretariat')
+def lastcalltext(request, name):
+    """Editing of the last call text"""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    try:
+        ballot = doc.idinternal.ballot
+    except BallotInfo.DoesNotExist:
+        ballot = generate_ballot(request, doc)
+
+    last_call_form = LastCallTextForm(instance=ballot)
+
+    if request.method == 'POST':
+        if "save_last_call_text" in request.POST or "send_last_call_request" in request.POST:
+            last_call_form = LastCallTextForm(request.POST, instance=ballot)
+            if last_call_form.is_valid():
+                ballot.last_call_text = last_call_form.cleaned_data["last_call_text"]
+                ballot.save()
+
+                if "send_last_call_request" in request.POST:
+                    doc.idinternal.change_state(IDState.objects.get(document_state_id=IDState.LAST_CALL_REQUESTED), None)
+                    
+                    change = log_state_changed(request, doc, login)
+                    email_owner(request, doc, doc.idinternal.job_owner, login, change)
+                    request_last_call(request, doc)
+
+                    doc.idinternal.event_date = date.today()
+                    doc.idinternal.save()
+                    
+                    return render_to_response('idrfc/last_call_requested.html',
+                                              dict(doc=doc),
+                                              context_instance=RequestContext(request))
+        
+        if "regenerate_last_call_text" in request.POST:
+            ballot.last_call_text = generate_last_call_announcement(request, doc)
+            ballot.save()
+
+            # make sure form has the updated text
+            last_call_form = LastCallTextForm(instance=ballot)
+
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+
+    can_request_last_call = doc.idinternal.cur_state_id < 27
+    can_make_last_call = doc.idinternal.cur_state_id < 20
+    can_announce = doc.idinternal.cur_state_id > 19
+    docs_with_invalid_status = [d.document().file_tag() for d in doc.idinternal.ballot_set() if "None" in d.document().intended_status.intended_status or "Request" in d.document().intended_status.intended_status]
+    need_intended_status = ", ".join(docs_with_invalid_status)
+
+    return render_to_response('idrfc/ballot_lastcalltext.html',
+                              dict(doc=doc,
+                                   ballot=ballot,
+                                   last_call_form=last_call_form,
+                                   can_request_last_call=can_request_last_call,
+                                   can_make_last_call=can_make_last_call,
+                                   need_intended_status=need_intended_status,
+                                   ),
+                              context_instance=RequestContext(request))
+
+@group_required('Area_Director','Secretariat')
+def ballot_writeupnotes(request, name):
+    """Editing of ballot write-up and notes"""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    try:
+        ballot = doc.idinternal.ballot
+    except BallotInfo.DoesNotExist:
+        ballot = generate_ballot(request, doc)
+
+    ballot_writeup_form = BallotWriteupForm(instance=ballot)
+
+    if request.method == 'POST':
+
+        if "save_ballot_writeup" in request.POST:
+            ballot_writeup_form = BallotWriteupForm(request.POST, instance=ballot)
+            if ballot_writeup_form.is_valid():
+                ballot.ballot_writeup = ballot_writeup_form.cleaned_data["ballot_writeup"]
+                ballot.save()
+
+        if "issue_ballot" in request.POST:
+            ballot_writeup_form = BallotWriteupForm(request.POST, instance=ballot)
+            approval_text_form = ApprovalTextForm(request.POST, instance=ballot)            
+            if ballot_writeup_form.is_valid() and approval_text_form.is_valid():
+                ballot.ballot_writeup = ballot_writeup_form.cleaned_data["ballot_writeup"]
+                ballot.approval_text = approval_text_form.cleaned_data["approval_text"]
+                ballot.active = True
+                ballot.ballot_issued = True
+                ballot.save()
+
+                if not Position.objects.filter(ballot=ballot, ad=login):
+                    pos = Position()
+                    pos.ballot = ballot
+                    pos.ad = login
+                    pos.yes = 1
+                    pos.noobj = pos.abstain = pos.approve = pos.discuss = pos.recuse = 0
+                    pos.save()
+
+                msg = generate_issue_ballot_mail(request, doc)
+                send_mail_preformatted(request, msg)
+
+                email_iana(request, doc, 'drafts-eval@icann.org', msg)
+                
+                doc.b_sent_date = date.today()
+                doc.save()
+
+                add_document_comment(request, doc, "Ballot has been issued")
+                    
+                doc.idinternal.event_date = date.today()
+                doc.idinternal.save()
+                    
+                return render_to_response('idrfc/ballot_issued.html',
+                                          dict(doc=doc),
+                                          context_instance=RequestContext(request))
+                
+
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+
+    docs_with_invalid_status = [d.document().file_tag() for d in doc.idinternal.ballot_set() if "None" in d.document().intended_status.intended_status or "Request" in d.document().intended_status.intended_status]
+    need_intended_status = ", ".join(docs_with_invalid_status)
+
+    return render_to_response('idrfc/ballot_writeupnotes.html',
+                              dict(doc=doc,
+                                   ballot=ballot,
+                                   ballot_writeup_form=ballot_writeup_form,
+                                   need_intended_status=need_intended_status,
+                                   ),
+                              context_instance=RequestContext(request))
+
+@group_required('Area_Director','Secretariat')
+def ballot_approvaltext(request, name):
+    """Editing of approval text"""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    try:
+        ballot = doc.idinternal.ballot
+    except BallotInfo.DoesNotExist:
+        ballot = generate_ballot(request, doc)
+
+    approval_text_form = ApprovalTextForm(instance=ballot)
+
+    if request.method == 'POST':
+
+        if "save_approval_text" in request.POST:
+            approval_text_form = ApprovalTextForm(request.POST, instance=ballot)            
+            if approval_text_form.is_valid():
+                ballot.approval_text = approval_text_form.cleaned_data["approval_text"]
+                ballot.save()
+                
+        if "regenerate_approval_text" in request.POST:
+            ballot.approval_text = generate_approval_mail(request, doc)
+            ballot.save()
+
+            # make sure form has the updated text
+            approval_text_form = ApprovalTextForm(instance=ballot)
+            
+        doc.idinternal.event_date = date.today()
+        doc.idinternal.save()
+
+    can_announce = doc.idinternal.cur_state_id > 19
+    docs_with_invalid_status = [d.document().file_tag() for d in doc.idinternal.ballot_set() if "None" in d.document().intended_status.intended_status or "Request" in d.document().intended_status.intended_status]
+    need_intended_status = ", ".join(docs_with_invalid_status)
+
+    return render_to_response('idrfc/ballot_approvaltext.html',
+                              dict(doc=doc,
+                                   ballot=ballot,
+                                   approval_text_form=approval_text_form,
+                                   can_announce=can_announce,
+                                   need_intended_status=need_intended_status,
+                                   ),
+                              context_instance=RequestContext(request))
+
+
 @group_required('Secretariat')
 def approve_ballot(request, name):
     """Approve ballot, sending out announcement, changing state."""

@@ -1,6 +1,5 @@
 {% extends "idrfc/doc_main.html" %}
 
-<div>
 {% comment %}
 Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
@@ -38,8 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {% block title %}{{ doc.draft_name_and_revision }}{% endblock %}
 {% block doc_meta_description %}{{ doc.title }} ({{info.type}}; {{doc.publication_date|date:"Y"}}){% endblock %}
-{% block doc_h1 %}
-{{ doc.title|escape }}<br/>{{ doc.draft_name_and_revision }}{% endblock %}
+{% block doc_h1 %}{{ doc.title|escape }}<br/>{{ doc.draft_name_and_revision }}{% endblock %}
 
 {% block doc_metatable %}
 <tr><td style="width:18ex;">Document type:</td><td>{{ info.type|escape }}
@@ -73,14 +71,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% if not info.has_pdf %}
 <a href="http://tools.ietf.org/pdf/{{doc.draft_name_and_revision}}.pdf">pdf</a>,
 {% endif %}
-<a href="http://tools.ietf.org/html/{{doc.draft_name_and_revision}}">html</a>,
-<a href="html_doc_only">html (doc only)</a>
-
+<a href="http://tools.ietf.org/html/{{doc.draft_name_and_revision}}">html</a>
 </td></tr>
 {% endifequal %}
 {% endblock doc_metatable %}
-
-<div id="docdata">
 
 {% block doc_metalinks %}
  <a href="mailto:{{doc.draft_name}}@tools.ietf.org?subject=Mail%20regarding%20{{doc.draft_name}}" rel="nofollow">Email Authors</a>
@@ -90,7 +84,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% if doc.in_ietf_process %}| <a href="/feed/comments/{% if info.is_rfc %}rfc{{doc.rfc_number}}{% else %}{{doc.draft_name}}{% endif %}/">Comments feed</a>{% endif %}
 {% endblock %}
 
-</div>
 {% block doc_text1 %}
 {% ifequal doc.draft_status "Active" %}
 <div class="markup_draft">
@@ -129,5 +122,3 @@ Missing author info #{{ author.person_id }}
 </div>
 {% endifequal %}
 {% endblock %} {# doc_text2 #}
-
-</div>

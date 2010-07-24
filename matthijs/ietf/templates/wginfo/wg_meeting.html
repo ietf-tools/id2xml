@@ -1,0 +1,118 @@
+{% extends "wginfo/wg_base.html" %}
+{% comment %}
+Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions 
+are met:
+
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+
+ * Neither the name of the Nokia Corporation and/or its
+   subsidiary(-ies) nor the names of its contributors may be used
+   to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{% endcomment %}
+{% load ietf_filters %}
+{% block wg_titledetail %}Meeting{% endblock %}
+
+{% block wg_content %}
+
+<div class="ietf-box ietf-wg-details">
+<table>
+<tr>
+<td colspan="2">
+<b>Previous Meetings</b>
+</td>
+</tr>
+
+{% for sess in sessions %}
+
+<tr>
+<td colspan=2">
+<a href="/wg/{{ wg.group_acronym.acronym }}/meeting/{{ sess.meeting.meeting_num }}/">IETF {{ sess.meeting.num }} Meeting</a>
+</td>
+</tr>
+
+{% endfor %}
+
+</table>
+</div>
+
+<h2>IETF {{ meeting.meeting_num }} Meeting</h2>
+
+<p>
+<b>Location and Time</b> <br />
+{% if session.sched_time_id1 %}
+Date: {{ meeting_date }} <br />
+Time: {{ session.sched_time_id1.time_desc }} <br />
+{% endif %}
+{% if session.sched_room_id1 %}
+Room: {{ session.sched_room_id1.room_name }} <br />
+{% endif %}
+
+{% if combined_sessions %}
+Combined sessions: [TO DO] <br />
+{% endif %}
+
+iCal:
+<a href="http://tools.ietf.org/wg/{{ wg.group_acronym.acronym }}/ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics">
+ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics
+</a>
+<br />
+<br />
+
+<b>Remote Access</b> <br />
+Live Audio Stream:
+see <a href="http://tools.ietf.org/{{ wg.group_acronym.acronym }}/agenda">Tools WG Page</a> (only available during the session) <br />
+Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg.group_acronym.acronym }} chatroom</a> <br />
+<br />
+
+<b>Slides</b> <br />
+
+{% for slide in slides %}
+<a href="{{ slide.filename }}">{{ slide.slide_name }}</a> <br />
+{% endfor %}
+</p>
+
+<h2>IETF {{ meeting.meeting_num }} Minutes</h2>
+
+<p>
+{% ifequal minutes_type "html" %}
+{{ minutes|safe }}
+{% else %}
+{{ minutes|escape|linebreaks|urlize|urlize_ietf_docs }}
+{% endifequal %}
+</p>
+
+<h2>IETF {{ meeting.meeting_num }} Agenda</h2>
+
+<p>
+{% ifequal agenda_type "html" %}
+{{ agenda|safe }}
+{% else %}
+{{ agenda|escape|linebreaks|urlize|urlize_ietf_docs }}
+{% endifequal %}
+</p>
+
+{% endblock wg_content %}
+

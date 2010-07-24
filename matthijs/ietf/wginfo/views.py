@@ -33,9 +33,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from ietf.idtracker.models import Area, IETFWG
+from ietf.proceedings.models import Meeting, WgMeetingSession, WgAgenda
+# MeetingTime, MeetingVenue, IESGHistory, Proceeding, Switches, WgProceedingsActivities
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.http import HttpResponse
+from django.conf import settings
 from ietf.idrfc.views_search import SearchForm, search_query
 
 def wg_summary_acronym(request):
@@ -73,3 +76,92 @@ def wg_charter(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
     return render_to_response('wginfo/wg_charter.html', {'wg': wg, 'concluded':concluded, 'selected':'charter'}, RequestContext(request))
+
+def meeting_info(num=None, acronym=None):
+    if num:
+        meetings = [ num ]
+    else:
+        if acronym:
+            meetings = list(Meeting.objects.all())
+        else:
+            meetings = list(Meeting.objects.all())
+        meetings.reverse()
+        meetings = [ meeting.meeting_num for meeting in meetings ]
+
+    for n in meetings:
+        try:
+            meeting= Meeting.objects.get(meeting_num=n)
+            break
+        except (Meeting.DoesNotExist):
+            continue
+    else:
+        raise Http404("No agenda for meeting %s available" % num)
+
+    return meeting
+
+def wg_text(filename=None, typestr="file"):
+    if not filename:
+        text = "Sorry, no "+ typestr +" available as of today. Either no meeting was held, or the document has not yet been submitted."
+    else:
+        try:
+            text_file = open(filename)
+            text = text_file.read()
+        except BaseException:
+            text =  'Error loading work group ' + typestr # + ' filename ' + filename
+
+    return text
+
+def wg_agenda_text(filename=None):
+    return wg_text(filename, "agenda")
+
+def wg_minutes_text(filename=None):
+    return wg_text(filename, "minutes")
+
+def wg_meeting(request, acronym=None, num=None):
+    wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
+    concluded = (wg.status_id != 1)
+    sessions = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id)
+    if not num:
+        session = list(sessions)[-1]
+    else:
+        session = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id, meeting__meeting_num=num).get()
+
+    if session and session.sched_time_id1:
+        sess_meeting_date = session.sched_time_id1.meeting_date()
+
+    if not num:
+        meeting = meeting_info(session.meeting.meeting_num)
+    else:
+        meeting = meeting_info(num)
+ 
+    slides = session.slides()
+    for slide in slides:
+        slide.filename = slide.file_loc()
+
+    prefix = settings.AGENDA_PATH
+
+    agenda_file = session.agenda_file()
+    if agenda_file and prefix:
+        agenda_file = prefix + agenda_file
+    agenda_text = wg_agenda_text(agenda_file)
+    agenda_type = "text";
+    if agenda_file[-5:] == ".html":
+        agenda_type = "html";
+    elif agenda_file[-4:] == ".htm":
+        agenda_type = "html";
+
+    minutes_file = session.minute_file()
+    if minutes_file and prefix:
+        minutes_file = prefix + minutes_file
+    minutes_text = wg_minutes_text(minutes_file)
+    minutes_type = "text";
+    if minutes_file[-5:] == ".html":
+        minutes_type = "html";
+    elif minutes_file[-4:] == ".htm":
+        minutes_type = "html";
+
+    template = "wginfo/wg_meeting.html"
+    return render_to_response(template,
+            {'wg':wg, 'concluded':concluded, 'meeting':meeting, 'session':session, 'sessions':sessions,
+                'agenda':agenda_text, 'agenda_type':agenda_type, 'minutes':minutes_text, 'minutes_type':minutes_type,
+                'meeting_date':sess_meeting_date, 'slides':slides, 'selected':'meeting'}, RequestContext(request))

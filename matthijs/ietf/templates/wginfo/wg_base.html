@@ -58,6 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="ietf-navset">
 {% ifequal selected "documents" %}<span class="selected">Documents</span>{% else %}<a href="/wg/{{wg}}/">Documents</a>{% endifequal %} | 
 {% ifequal selected "charter" %}<span class="selected">Charter</span>{% else %}<a href="/wg/{{wg}}/charter/">Charter</a>{% endifequal %} | 
+{% ifequal selected "meeting" %}<span class="selected">Meetings</span>{% else %}<a href="/wg/{{wg}}/meeting/">Meetings</a>{% endifequal %} | 
 {% if wg.clean_email_archive|startswith:"http:" or wg.clean_email_archive|startswith:"ftp:" %}
 <a href="{{ wg.clean_email_archive }}">List Archive &#187;</a> | 
 {% endif %}

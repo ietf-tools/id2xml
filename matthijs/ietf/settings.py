@@ -164,6 +164,9 @@ IESG_MINUTES_FILE = '/a/www/www6/iesg/internal/minutes.txt'
 IESG_WG_EVALUATION_DIR = "/a/www/www6/iesg/evaluation"
 
 # Override this in settings_local.py if needed
+AGENDA_URL = 'http://www.ietf.org/proceedings/'
+
+# Override this in settings_local.py if needed
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 if SERVER_MODE == 'production':

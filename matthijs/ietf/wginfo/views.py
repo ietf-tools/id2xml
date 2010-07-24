@@ -141,17 +141,18 @@ def wg_meeting(request, acronym=None, num=None):
     else:
         meeting = meeting_info(num)
  
-    prefix = settings.AGENDA_PATH
+    agenda_prefix = settings.AGENDA_PATH
+    url_prefix = settings.AGENDA_URL
 
     slides = session.slides()
     for slide in slides:
         slide.filename = slide.file_loc()
-#        if slide.filename and prefix:
-#            slide.filename = prefix + slide.file_loc()
+        if slide.filename and url_prefix:
+            slide.filename = url_prefix + slide.file_loc()
 
     agenda_file = session.agenda_file()
-    if agenda_file and prefix:
-        agenda_file = prefix + agenda_file
+    if agenda_file and agenda_prefix:
+        agenda_file = agenda_prefix + agenda_file
     agenda_text = wg_agenda_text(agenda_file)
     agenda_type = "text";
     if agenda_file[-5:].lower() == ".html":
@@ -160,8 +161,8 @@ def wg_meeting(request, acronym=None, num=None):
         agenda_type = "html";
 
     minutes_file = session.minute_file()
-    if minutes_file and prefix:
-        minutes_file = prefix + minutes_file
+    if minutes_file and agenda_prefix:
+        minutes_file = agenda_prefix + minutes_file
     minutes_text = wg_minutes_text(minutes_file)
     minutes_type = "text";
     if minutes_file[-5:] == ".html":

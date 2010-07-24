@@ -63,11 +63,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>
 <b>Location and Time</b> <br />
 {% if session.sched_time_id1 %}
-Date: {{ meeting_date }} <br />
-Time: {{ session.sched_time_id1.time_desc }} <br />
+Session 1: {{ meeting_date1 }} {{ session.sched_time_id1.time_desc }}
 {% endif %}
 {% if session.sched_room_id1 %}
-Room: {{ session.sched_room_id1.room_name }} <br />
+{{ session.sched_room_id1.room_name }} <br />
+{% endif %}
+
+{% if session.sched_time_id2 %}
+Session 2: {{ meeting_date2 }} {{ session.sched_time_id2.time_desc }}
+{% endif %}
+{% if session.sched_room_id2 %}
+{{ session.sched_room_id2.room_name }} <br />
+{% endif %}
+
+{% if session.sched_time_id3 %}
+Session 3: {{ meeting_date3 }} {{ session.sched_time_id3.time_desc }}
+{% endif %}
+{% if session.sched_room_id3 %}
+{{ session.sched_room_id3.room_name }} <br />
 {% endif %}
 
 {% if combined_sessions %}
@@ -100,7 +113,7 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 {% ifequal minutes_type "html" %}
 {{ minutes|safe }}
 {% else %}
-{{ minutes|escape|linebreaks|urlize|urlize_ietf_docs }}
+{{ minutes|urlize|urlize_ietf_docs|escape|linebreaks }}
 {% endifequal %}
 </p>
 
@@ -110,7 +123,7 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 {% ifequal agenda_type "html" %}
 {{ agenda|safe }}
 {% else %}
-{{ agenda|escape|linebreaks|urlize|urlize_ietf_docs }}
+{{ agenda|urlize|urlize_ietf_docs|escape|linebreaks }}
 {% endifequal %}
 </p>
 

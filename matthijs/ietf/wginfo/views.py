@@ -126,8 +126,15 @@ def wg_meeting(request, acronym=None, num=None):
     else:
         session = WgMeetingSession.objects.all().filter(group_acronym_id=wg.group_acronym.acronym_id, meeting__meeting_num=num).get()
 
+    sess_meeting_date1 = None;
+    sess_meeting_date2 = None;
+    sess_meeting_date3 = None;
     if session and session.sched_time_id1:
-        sess_meeting_date = session.sched_time_id1.meeting_date()
+        sess_meeting_date1 = session.sched_time_id1.meeting_date()
+    if session and session.sched_time_id2:
+        sess_meeting_date2 = session.sched_time_id1.meeting_date()
+    if session and session.sched_time_id3:
+        sess_meeting_date3 = session.sched_time_id1.meeting_date()
 
     if not num:
         meeting = meeting_info(session.meeting.meeting_num)
@@ -164,4 +171,5 @@ def wg_meeting(request, acronym=None, num=None):
     return render_to_response(template,
             {'wg':wg, 'concluded':concluded, 'meeting':meeting, 'session':session, 'sessions':sessions,
                 'agenda':agenda_text, 'agenda_type':agenda_type, 'minutes':minutes_text, 'minutes_type':minutes_type,
-                'meeting_date':sess_meeting_date, 'slides':slides, 'selected':'meeting'}, RequestContext(request))
+                'meeting_date1':sess_meeting_date1, 'meeting_date2':sess_meeting_date2, 'meeting_date3':sess_meeting_date3,
+                'slides':slides, 'selected':'meeting'}, RequestContext(request))

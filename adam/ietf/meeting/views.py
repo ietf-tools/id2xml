@@ -4,7 +4,7 @@
 #import models
 from django.shortcuts import render_to_response, get_object_or_404
 from ietf.proceedings.models import Meeting, MeetingTime, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches, WgProceedingsActivities
-from ietf.idtracker.models import IETFWG, IRTF
+from ietf.idtracker.models import IETFWG, IRTF, Area
 from django.views.generic.list_detail import object_list
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
@@ -92,8 +92,9 @@ def agenda_info(num=None):
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda(request, num=None):
     timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
-    wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE)
-    rgs = IRTF.objects.all()
+    wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).order_by('group_acronym__acronym')
+    rgs = IRTF.objects.all().order_by('acronym')
+    areas = Area.objects.filter(status=Area.ACTIVE).order_by('area_acronym')
 
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
@@ -111,7 +112,7 @@ def html_agenda(request, num=None):
     return render_to_response(template,
             {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
                 "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, 
-                "wg_list" : wgs, "rg_list" : rgs},
+                "wg_list" : wgs, "rg_list" : rgs, "area_list" : areas},
             context_instance=RequestContext(request))
 
 def text_agenda(request, num=None):

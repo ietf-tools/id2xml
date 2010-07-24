@@ -99,50 +99,6 @@ def document_main_rfc(request, rfc_number):
                                'history':history},
                               context_instance=RequestContext(request));
 
-def document_html_doc_only(request, name):
-    r = re.compile("^rfc([1-9][0-9]*)$")
-    m = r.match(name)
-    if m:
-        return document_html_doc_only_rfc(request, int(m.group(1)))
-    else:
-        return document_html_doc_only_id(request, name)
-
-def document_html_doc_only_id(request, name):
-        id = get_object_or_404(InternetDraft, filename=name)
-        doc = IdWrapper(id) 
-        
-        (content1, content2) = _get_html(
-            str(name)+","+str(id.revision)+",html",
-            os.path.join(settings.INTERNET_DRAFT_PATH, name+"-"+id.revision+".txt"))
-    
-        return render_to_response('idrfc/doc_html_only_id.html',
-                                  {'content1':content1, 'content2':content2,
-                                   'doc':doc,
-                                  },
-                                  context_instance=RequestContext(request));
-
-def document_html_doc_only_rfc(request, rfc_number):
-    rfci = get_object_or_404(RfcIndex, rfc_number=rfc_number)
-    doc = RfcWrapper(rfci)
-
-    info = {}
-    info['is_rfc'] = True
-    info['has_txt'] = (".txt" in doc.file_types())
-    if info['has_txt']:
-        (content1, content2) = _get_html(
-            "rfc"+str(rfc_number)+",html", 
-            os.path.join(settings.RFC_PATH, "rfc"+str(rfc_number)+".txt"))
-    else:
-        content1 = ""
-        content2 = ""
-
-    return render_to_response('idrfc/doc_html_only_rfc.html',
-                              {'content1':content1, 'content2':content2,
-                               'doc':doc, 'info':info 
-                              },
-                              context_instance=RequestContext(request));
-
-
 @decorator_from_middleware(GZipMiddleware)
 def document_main(request, name):
     r = re.compile("^rfc([1-9][0-9]*)$")

@@ -59,6 +59,13 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
 {% endblock %}
 
 {% block content %}
+<div style="padding-top: 3px;">
+<img src="/images/hide_vertical.gif" id="hide_docdata" onclick="jQuery('#show_docdata').show(); jQuery('#docinfo').hide('slow'); jQuery(this).hide(); "/>
+<img src="/images/show_vertical.gif" id="show_docdata" onclick="jQuery('#hide_docdata').show(); jQuery('#docinfo').show('slow'); jQuery(this).hide();" onLoad="jQuery(this).hide();"/>
+</div>
+
+<div id="docinfo">
+
 <h1>{% block doc_h1 %}{% endblock %}</h1>
 
 <div id="mytabs" class="yui-navset">
@@ -69,7 +76,6 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
   <li><a href="#history"><em>History</em></a></li>
 </ul>
 <div class="yui-content">
-
 <div id="doc">
 <div class="ietf-box metabox">
 <table id="metatable">
@@ -169,6 +175,7 @@ div.diffTool { padding: 8px 4px; margin: 8px 0;}
 
 </div> <!-- yui-content -->
 </div> <!-- mytabs -->
+</div> <!-- docinfo -->
 
 <script type="text/javascript">
 //<![CDATA[

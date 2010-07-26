@@ -83,10 +83,6 @@ Session 3: {{ meeting_date3 }} {{ session.sched_time_id3.time_desc }}
 {{ session.sched_room_id3.room_name }} <br />
 {% endif %}
 
-{% if combined_sessions %}
-Combined sessions: [TO DO] <br />
-{% endif %}
-
 iCal:
 <a href="http://tools.ietf.org/wg/{{ wg.group_acronym.acronym }}/ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics">
 ietf-{{ meeting.meeting_num }}-{{ wg.group_acronym.acronym }}.ics
@@ -100,23 +96,22 @@ see <a href="http://tools.ietf.org/{{ wg.group_acronym.acronym }}/agenda">Tools 
 Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg.group_acronym.acronym }} chatroom</a> <br />
 <br />
 
-{% if slides %}
+{% if proceedings.slides %}
 <b>Slides</b> <br />
-{% endif %}
-
-{% for slide in slides %}
+{% for slide in proceedings.slides %}
 <a href="{{ slide.filename }}">{{ slide.slide_name }}</a> <br />
 {% endfor %}
+{% endif %}
 </p>
 
 <h2>IETF {{ meeting.meeting_num }} Minutes</h2>
 
 <p>
-{% ifequal minutes_type "html" %}
-{{ minutes|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{% ifequal proceedings.minutes_type "html" %}
+{{ proceedings.minutes|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
 {% else %}
 <tt>
-{{ minutes|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.minutes|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
 </tt>
 {% endifequal %}
 </p>
@@ -124,11 +119,11 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 <h2>IETF {{ meeting.meeting_num }} Agenda</h2>
 
 <p>
-{% ifequal agenda_type "html" %}
-{{ agenda|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{% ifequal proceedings.agenda_type "html" %}
+{{ proceedings.agenda|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
 {% else %}
 <tt>
-{{ agenda|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.agenda|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
 </tt>
 {% endifequal %}
 </p>

@@ -370,7 +370,9 @@ class IdSubmissionDetail(models.Model):
 
 
     def __str__(self):
-        return 'Submission of %s-%s' % ( self.filename, self.revision )
+        return str(self.__unicode__())
+    def __unicode__(self):
+        return u'Submission of %s-%s' % ( self.filename, self.revision )
 
     class Meta:
         db_table = 'id_submission_detail'

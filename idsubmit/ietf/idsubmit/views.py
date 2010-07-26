@@ -61,6 +61,7 @@ def file_upload(request):
     error_msg = check_setting(request)
     if error_msg:
         return render("idsubmit/error.html", {'error_msg':error_msg, 'critical_error':True}, context_instance=RequestContext(request))
+
     now = datetime.now()
     subenv = SubmissionEnv.objects.all()[0]
     cut_off_time = subenv.cut_off_time
@@ -74,19 +75,21 @@ def file_upload(request):
                 'second_cut_off_time': second_cut_off_time,
                 'ietf_monday': datetime.combine(ietf_monday_date, time(0,0,0)) }
     submission = None
-    if request.POST:
 
-        post_data = request.POST.copy()
-        post_data.update(request.FILES)
 
-	# A bug in the test client in 0.96 causes the 
-	# fields to be named differently than outside test.
-	for ext in IDUploadForm.file_names.keys():
-	    if post_data.get(ext) == '' and \
-	       post_data.has_key(ext + "_file"):
-		post_data[ext] = post_data[ext + "_file"]
+    if request.method == 'POST':
 
-        form = IDUploadForm(post_data)
+        # Commented out by [wiggins@concentricsky] on 1.1 update
+        #post_data = request.POST.copy()
+        #post_data.update(request.FILES)
+        # A bug in the test client in 0.96 causes the 
+        # fields to be named differently than outside test.
+        #for ext in IDUploadForm.file_names.keys():
+        #    if post_data.get(ext) == '' and \
+        #       post_data.has_key(ext + "_file"):
+        #        post_data[ext] = post_data[ext + "_file"]
+
+        form = IDUploadForm(request.POST, request.FILES)
         if form.is_valid():
             #if not request.FILES['txt_file']['content-type'].startswith('text'):
             #    return render("idsubmit/error.html", {'error_msg':STATUS_CODE[101]}, context_instance=RequestContext(request))
@@ -96,15 +99,18 @@ def file_upload(request):
                 context['form'] = IDUploadForm()
                 context['cutoff_msg'] = "first_second"
                 return render ("idsubmit/upload.html", context, context_instance=RequestContext(request))
+
             dp.set_remote_ip(request.META.get('REMOTE_ADDR', ''))
             threshold_msg = dp.check_dos_threshold()
             if threshold_msg:
                 return render("idsubmit/error.html", {'error_msg':threshold_msg}, context_instance=RequestContext(request))
+
             (ietfgroup,invalid_group) = dp.get_group_id()
             if invalid_group:
                 return render("idsubmit/error.html",{'error_msg':'Invalid WG: %s' % invalid_group}, context_instance=RequestContext(request))
             if not ietfgroup:
                 return render("idsubmit/error.html",{'error_msg':'Failed to determine IETF WG from filename, %s' % submission.filename}, context_instance=RequestContext(request))
+
             meta_data = dp.get_meta_data_fields()
             submission = IdSubmissionDetail.objects.create(**meta_data)
             # Display critical error message
@@ -112,16 +118,20 @@ def file_upload(request):
                 return render("idsubmit/error.html",{'error_msg':STATUS_CODE[submission.status_id]}, context_instance=RequestContext(request))
             submission.group = ietfgroup
             submission.save()
+
             # Checking existing submission
             if IdSubmissionDetail.objects.filter(filename__exact=dp.filename, status_id__gt=0,status_id__lt=100).exclude(submission_id=submission.submission_id).count():
                 submission.status_id = 103
                 submission.save()
                 return render("idsubmit/error.html", {'error_msg':STATUS_CODE[103],'filename':submission.filename}, context_instance=RequestContext(request))
+
             # All the critical errors are checked. It's ok to save the file now
             if not form.save(submission.filename, submission.revision):
                 return render("idsubmit/error.html", {'error_msg':'There was an error on saving documents'}, context_instance=RequestContext(request))
+
             submission.set_file_type(form.file_ext_list)
             file_path = "%s-%s.txt" % (os.path.join(settings.STAGING_PATH,dp.filename), dp.revision)
+
             #idnits checking
             idnits_msg = dp.check_idnits(file_path)
             if type(idnits_msg) is dict:
@@ -134,6 +144,7 @@ def file_upload(request):
                     idnits_result = False
             else:
                 return render("idsubmit/error.html", {'error_msg':idnits_msg}, context_instance=RequestContext(request))
+
             submission.save()
             authors = dp.get_author_list(dp.get_authors_info())
             for author in authors:

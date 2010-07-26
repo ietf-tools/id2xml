@@ -6,7 +6,7 @@
 from models import STATUS_CODE
 from ietf.idtracker.models import InternetDraft, EmailAddress, PersonOrOrgInfo
 import os
-from django import newforms as forms
+from django import forms
 from django.conf import settings
 from ietf.idsubmit.parser.draft_parser import check_creation_date
 from ietf.utils import log
@@ -21,19 +21,19 @@ class AuthorForm(forms.Form):
         # If any keys are missing, then field validation failed, so
         # we can't add anything.
         for field in ['first_name', 'last_name', 'email_address']:
-            if not self.clean_data.has_key( field ):
-                return self.clean_data
-        if self.clean_data['first_name'] + self.clean_data['last_name'] + self.clean_data['email_address'] == '':
+            if not self.cleaned_data.has_key( field ):
+                return self.cleaned_data
+        if self.cleaned_data['first_name'] + self.cleaned_data['last_name'] + self.cleaned_data['email_address'] == '':
             # Empty, so valid.
-            return self.clean_data
-        if self.clean_data['first_name'] != '' and self.clean_data['last_name'] != '' and self.clean_data['email_address'] != '':
+            return self.cleaned_data
+        if self.cleaned_data['first_name'] != '' and self.cleaned_data['last_name'] != '' and self.cleaned_data['email_address'] != '':
             # All supplied, so valid.
-            return self.clean_data
-        if self.clean_data['first_name'] == '':
+            return self.cleaned_data
+        if self.cleaned_data['first_name'] == '':
             raise forms.ValidationError('Given Name is required')
-        if self.clean_data['last_name'] == '':
+        if self.cleaned_data['last_name'] == '':
             raise forms.ValidationError('Family Name is required')
-        if self.clean_data['email_address'] == '':
+        if self.cleaned_data['email_address'] == '':
             raise forms.ValidationError('Email Address is required')
         raise forms.ValidationError('Neither valid nor invalid?')
 
@@ -42,13 +42,14 @@ class SubmitterForm(forms.Form):
     lname = forms.CharField(required=True, label='Family Name : ', max_length=30)
     submitter_email = forms.EmailField(required=True, label='Email Address:', max_length=255)
     def save(self, submission):
-        submitter_email_address = self.clean_data['submitter_email']
-        person = PersonOrOrgInfo.objects.get_or_create_person(
-            first_name=self.clean_data['fname'],
-            last_name=self.clean_data['lname'],
+        submitter_email_address = self.cleaned_data['submitter_email']
+        person = PersonOrOrgInfo.objects.get_or_create(
+            first_name=self.cleaned_data['fname'],
+            last_name=self.cleaned_data['lname'],
             created_by="IDST",
-            email_address=submitter_email_address,
         )
+        person = person[0] # get_or_create returns a tuple (object, boolean_was_created) [wiggins@concentricsky]
+        person.add_email_address(submitter_email_address)
 
         # The priority can either be:
         # - An I-D tag, because this is the address used for that I-D
@@ -98,23 +99,23 @@ class AdjustForm(forms.Form):
     comment_to_sec = forms.CharField(required=False, label='Comment to the Secretariat: ', widget=forms.Textarea(attrs={'rows':4, 'cols':72,}))
 
     def clean_revision(self):
-        revision = self.clean_data['revision']
+        revision = self.cleaned_data['revision']
         expected_revision = self.submission.invalid_version
         if not expected_revision == int(revision):
             raise forms.ValidationError("%s (Version -%02d is expected)" % (STATUS_CODE[201], expected_revision))
         return revision
     def clean_creation_date(self):
-        creation_date = self.clean_data['creation_date']
+        creation_date = self.cleaned_data['creation_date']
         if not check_creation_date(creation_date):
             raise forms.ValidationError(STATUS_CODE[204])
         return creation_date
     def save(self):
-        self.submission.comment_to_sec = self.clean_data['comment_to_sec']
-        self.submission.title = self.clean_data['title']
-        self.submission.revision = self.clean_data['revision']
-        self.submission.creation_date = self.clean_data['creation_date']
-        self.submission.abstract = self.clean_data['abstract']
-        self.submission.txt_page_count = self.clean_data['txt_page_count']
+        self.submission.comment_to_sec = self.cleaned_data['comment_to_sec']
+        self.submission.title = self.cleaned_data['title']
+        self.submission.revision = self.cleaned_data['revision']
+        self.submission.creation_date = self.cleaned_data['creation_date']
+        self.submission.abstract = self.cleaned_data['abstract']
+        self.submission.txt_page_count = self.cleaned_data['txt_page_count']
         self.submission.save()
 
 class IDUploadForm(forms.Form):
@@ -137,13 +138,16 @@ class IDUploadForm(forms.Form):
             #    else:
             #        err_msg = "Filename contains non alpha-numeric character"
     def get_content(self, file_type):
-        return self.clean_data[file_type]['content']
+        cached_content = getattr(self, 'cached_content', None)
+        if cached_content is None:
+                self.cached_content = self.cleaned_data[file_type].read()
+        return self.cached_content
 
     def save(self, filename, revision):
         self.file_ext_list = []
         for file_name, file_ext in self.file_names.items():
-            if self.clean_data[file_name]:
-                content = self.clean_data[file_name]['content']
+            if self.cleaned_data[file_name]:
+                content = self.get_content(file_name)
             else:
                 continue
             file_path = "%s-%s%s" % (os.path.join(settings.STAGING_PATH,filename), revision, file_ext)

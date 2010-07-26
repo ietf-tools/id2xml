@@ -231,11 +231,14 @@ class PersonOrOrgInfo(models.Model):
     date_created = models.DateField(auto_now_add=True, null=True)
     created_by = models.CharField(blank=True, null=True, max_length=8)
     address_type = models.CharField(blank=True, null=True, max_length=4)
-    def save(self):
-        self.first_name_key = self.first_name.upper()
-        self.middle_initial_key = self.middle_initial.upper()
-        self.last_name_key = self.last_name.upper()
-        super(PersonOrOrgInfo, self).save()
+    def save(self, *args, **kwargs):
+        if self.first_name:
+            self.first_name_key = self.first_name.upper()
+        if self.middle_initial:
+            self.middle_initial_key = self.middle_initial.upper()
+        if self.last_name:
+            self.last_name_key = self.last_name.upper()
+        super(PersonOrOrgInfo, self).save(*args, **kwargs)
     def __str__(self):
         # For django.VERSION 0.96
 	if self.first_name == '' and self.last_name == '':

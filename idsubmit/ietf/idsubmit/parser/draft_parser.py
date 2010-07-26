@@ -115,7 +115,7 @@ class DraftParser(object):
         except InternetDraft.DoesNotExist:
             expected_revision = '00'
         else:
-	    expected_revision = '%02d' % ( id.current_revision() + 1 )
+            expected_revision = '%02d' % (int(id.revision) + 1,)
         return expected_revision
 
     def _get_content_by_pages(self, content):
@@ -251,35 +251,32 @@ class DraftParser(object):
         return self.creation_date
 
     def get_authors_info(self):
-        authors_section1 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s{2,}.+\n+)+)\w+')
-        authors_section2 = re.compile('\n {,5}[0-9]{0,2} {0,1}[\.-]?\s{0,10}([Aa]uthor|[Ee]ditor)+\'?\s?s?\'?\s?s?\s?(Address[es]{0,2})?\s?:?\s*\n+((\s*.+\n+)+)\w+')
+        # regex rewritten by [wiggins@concentricsky] for speed/consistency
+        authors_re = re.compile('\n\s*(?:\d+\s*[\.=])?\s*(?:author|editor)(?:\'s|s\')?\s+address(?:es)?\s*:?\s*\n+(?P<authors>(\s*.+\n+)+)', re.I)
+
         if self.page_num > 7:
             # get last 7 pages
             temp_content = '\n'.join(self.pages[-7:len(self.pages)])
         else:
             temp_content = self.content        
+
         lead_blank_re = re.compile('\n {1,}\n')
         temp_content = lead_blank_re.sub('\n\n',temp_content)
         address_not_found = True 
-        for authors_re in [authors_section1, authors_section2]:
-            searched_author = authors_re.search(temp_content) #looking last 7 pages
-            if not searched_author: #looking entire document
-                searched_author = authors_re.search(self.content)
-            if searched_author:
-                try:
-                    authors_info = '\n\n' + searched_author.group(3).strip()
-                    authors_info = authors_info.replace('ipr@ietf.org','')
-                    mail_srch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
-                    mail_rst = mail_srch.findall(authors_info)
-                    if address_not_found and mail_rst:
-                        address_not_found = False
-                except AttributeError:
-                    authors_info = None
-                    self.add_meta_data_error('authors', "Could not find the authors' information")
-                if not address_not_found:
-                    return authors_info
-            else:
-                authors_info = None
+
+        searched_author = authors_re.search(temp_content)
+        if not searched_author:
+            searched_author = authors_re.search(self.content)
+        if searched_author:
+            authors_info = '\n\n' + searched_author.group('authors').strip()
+            authors_info = authors_info.replace('ipr@ietf.org','')
+            mail_srch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+            mail_rst = mail_srch.findall(authors_info)
+            if address_not_found and mail_rst:
+                address_not_found = False
+        else:
+            authors_info = None
+            self.add_meta_data_error('authors', "Could not find the authors' information")
         if authors_info is None or address_not_found:
             self.add_meta_data_error('authors', "Could not find the authors' information")
         return authors_info
@@ -386,7 +383,7 @@ class DraftParser(object):
     def get_group_id(self):
         wg_id = self.get_wg_id()
         if wg_id is None:
-            group_id = Acronym.objects.get(acronym_id=Acronym.NONE)
+            group_id = Acronym.objects.get(acronym='none')
         else:
             try:
 		wg = IETFWG.objects.get(group_acronym__acronym=wg_id,status=1,group_type=1)

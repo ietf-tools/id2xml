@@ -1,6 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-from django import newforms as forms
+from django import forms
 import re
 DRAFT_WG_RE = '(?<=draft-ietf-)(krb-wg|[a-z0-9]+)(?=-)'
 

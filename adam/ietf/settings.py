@@ -11,7 +11,7 @@ syslog.openlog("django", syslog.LOG_PID, syslog.LOG_LOCAL0)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 # Domain name of the IETF
@@ -146,7 +146,7 @@ INTERNAL_IPS = (
 # Valid values:
 # 'production', 'test', 'development'
 # Override this in settings_local.py if it's not true
-SERVER_MODE = 'development'
+SERVER_MODE = 'production'
 
 # The name of the method to use to invoke the test suite
 TEST_RUNNER = 'ietf.utils.test_runner.run_tests'
@@ -156,6 +156,9 @@ TEST_RUNNER = 'ietf.utils.test_runner.run_tests'
 INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
 RFC_PATH = '/a/www/ietf-ftp/rfc/'
 AGENDA_PATH = '/a/www/www6s/proceedings/'
+AGENDA_PATH_PATTERN = '/a/www/www6s/proceedings/%(meeting)s/agenda/%(wg)s.%(ext)s'
+MINUTES_PATH_PATTERN = '/a/www/www6s/proceedings/%(meeting)s/minutes/%(wg)s.%(ext)s'
+SLIDES_PATH_PATTERN = '/a/www/www6s/proceedings/%(meeting)s/slides/%(wg)s-*'
 IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR/'
 IETFWG_DESCRIPTIONS_PATH = '/a/www/www6s/wg-descriptions/'
 IESG_TASK_FILE = '/a/www/www6/iesg/internal/task.txt'

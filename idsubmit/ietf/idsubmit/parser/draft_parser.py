@@ -466,7 +466,7 @@ class DraftParser(object):
         if (cur_same_submitter_size >= max_same_submitter_size):
 	    return "The same submitter cannot submit more than %d bytes of I-Ds a day." % max_same_submitter_size
         (group_id, err) = self.get_group_id()
-        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group=Acronym.NONE)
+        cur_same_wg_draft = IdSubmissionDetail.objects.filter(group=group_id, submission_date__exact=today).exclude(group__acronym='none')
         cur_same_wg_draft_count = cur_same_wg_draft.count()
         if (cur_same_wg_draft_count >= subenv.max_same_wg_draft):
 	    return "A same working group I-Ds cannot be submitted more than %d times a day." % subenv.max_same_wg_draft

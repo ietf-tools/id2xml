@@ -2,6 +2,7 @@
 
 import re, os, glob
 from datetime import datetime, time, timedelta
+import difflib
 
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
@@ -150,12 +151,19 @@ def file_upload(request):
             for author in authors:
                 submission.authors.create(**author)
 
+            previous_submissions = IdSubmissionDetail.objects.filter(title=submission.title).exclude(revision=submission.revision).order_by('-revision')
+            if len(previous_submissions) > 0:
+                previous_submission = previous_submissions[0]
+            else:
+                previous_submission = None
+
             return render("idsubmit/validate.html",
-                {'submission'        : submission, 
+                {'submission'        : submission,
                  'meta_data_errors' : dp.meta_data_errors,
                  'submitter_form'   : SubmitterForm(),
                  'idnits_result'   : idnits_result,
                  'staging_url'      : settings.STAGING_URL,
+                 'previous_submission': previous_submission,
                 }, context_instance=RequestContext(request))
         else:
             return render ("idsubmit/upload.html",{'form':form}, context_instance=RequestContext(request))
@@ -408,5 +416,27 @@ def cancel_draft (request, submission_id):
         {
             'object': submission,
             'staging_url': settings.STAGING_URL,
+        }, context_instance=RequestContext(request)
+    )
+
+def submission_diff(request, submission_id, previous_id):
+    submission = IdSubmissionDetail.objects.get(pk=submission_id)
+    previous = IdSubmissionDetail.objects.get(pk=previous_id)
+
+    submission_name = '%s-%s.txt' % (submission.filename, submission.revision)
+    submission_path = os.path.join(settings.STAGING_PATH, submission_name)
+    submission_txt = open(submission_path).readlines()
+
+    previous_name = '%s-%s.txt' % (previous.filename, previous.revision)
+    previous_path = os.path.join(settings.STAGING_PATH, previous_name)
+    previous_txt = open(previous_path).readlines()
+
+    diff = list( difflib.unified_diff(previous_txt, submission_txt, previous_name, submission_name) )
+    return render(
+        "idsubmit/diff.html",
+        {
+            'submission': submission,
+            'previous': previous,
+            'diff': diff,
         }, context_instance=RequestContext(request)
     )

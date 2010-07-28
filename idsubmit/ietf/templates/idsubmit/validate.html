@@ -26,10 +26,46 @@
 {% ifnotequal submission.status_id 2 %}
     <b>Meta-data errors:</b>
     <ul>
-    {{ submission.warning_message }}
+    {{ submission.warning_message|safe }}
     </ul>
     {% include "idsubmit/sec_note.html" %}
 {% endifnotequal %}
+
+{%if previous_submission%}
+<p><strong>Previous Submission</strong></p>
+<table>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Document:</font></td>
+  <td>
+    {% for file_type in previous_submission.get_file_type_list %}
+    <a href="{{ staging_url }}/{{ previous_submission.filename }}-{{ previous_submission.revision }}{{file_type}}">{{ previous_submission.filename }}-{{ previous_submission.revision }}{{file_type}}</a>
+    <br/>
+    {% endfor %}
+  </td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Version:</font></td>
+  <td>{{previous_submission.revision}}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Submission Date:</font></td>
+  <td>{{previous_submission.submission_date}}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Title:</font></td>
+  <td>{{previous_submission.title}}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Submitter:</font></td>
+  <td>{{previous_submission.submitter}}</td>
+</tr>
+<tr bgcolor="{% get_bgColor_Code meta_data_errors 'null' %}">
+  <td width="110"><font face="Arial" size="2">Changes:</font></td>
+  <td><a target="diff" href="{% url idsubmit_submission_diff submission.submission_id previous_submission.submission_id%}">view diff</a></td>
+</tr>
+</table>
+{%endif%}
+
 
 <p><strong>Meta-Data from the Draft.</strong></p>
 <b></b>

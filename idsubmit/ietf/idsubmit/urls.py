@@ -1,6 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 from ietf.idsubmit import views, approval_views
 from ietf.idsubmit.models import IdSubmissionDetail
 
@@ -22,4 +22,6 @@ urlpatterns = patterns('',
      (r'^verify/(?P<submission_id>\d+)/(?P<auth_key>\w+)/(?P<from_wg_or_sec>(wg|sec))/$', views.verify_key),
      (r'^approve/(?P<draft>[^/]+)/$', approval_views.approval),
      (r'^approve/$', approval_views.approval),
+
+     url(r'^diff/(?P<submission_id>\d+)/(?P<previous_id>\d+)/$', views.submission_diff, name='idsubmit_submission_diff'),
 )

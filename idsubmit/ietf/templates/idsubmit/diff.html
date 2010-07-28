@@ -1,0 +1,36 @@
+{%extends "idsubmit/base.html"%}
+
+{%block maincontent%}
+<div align="left">
+<center>
+<table border="0" vspace="0">
+<tr valign="top">
+<td height="550" >
+
+
+
+<p>
+    <font face="Arial" size="4">
+        <strong>Draft Diff</strong>
+    </font>
+</p>
+
+<p>
+Changeset from {{submission.filename}}-{{submission.revision}}.txt to {{previous.filename}}-{{previous.revision}}.txt
+</p>
+
+    <div style="font-size: 10px; line-height: 10px; color: black">
+    {%for line in diff%}
+    <pre style="color: {%ifequal line.0 '-'%}red{%endifequal%}{%ifequal line.0 '+'%}green{%endifequal%}{%ifequal line.0 '@'%}blue{%endifequal%}">{{line}}</pre>
+    {%endfor%}
+    </div>
+
+
+</td>
+</tr>
+</table>
+</center>
+</div>
+{%endblock%}
+
+

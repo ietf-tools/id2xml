@@ -121,11 +121,12 @@ img.hidden { display: none; }
   /* Resizes an IFRAME to fit its contents */
   function r(obj)
   {
-    if (r == null) { return; }
-    if (r.nodeName != "iframe") { return; }
-
-    docHeight = obj.contentWindow.document.height;
-    obj.style.height = (docHeight + 20) * 1.05 + "px"
+    try
+    {
+      docHeight = obj.contentWindow.document.height;
+      obj.style.height = (docHeight + 20) * 1.05 + "px"
+    }
+    catch (e) {}
   }
 
   function toggle(selection)

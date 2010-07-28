@@ -79,8 +79,11 @@ def wg_documents(request, acronym):
     (docs_related,meta_related) = search_query(form_related.cleaned_data)
     docs_related_pruned = []
     for d in docs_related:
-        if d.id.draft_name_and_revision().count('-ietf-') == 0:
-             docs_related_pruned.append(d)
+        nameRev = d.id.draft_name_and_revision().split("-");
+        # canonical form draft-<name|ietf>-wg-etc
+        if ( len(nameRev) >= 3):
+            if nameRev[1].count('ietf') == 0 and nameRev[2].count(wg.group_acronym.acronym) > 0:
+                docs_related_pruned.append(d)
         
     return render_to_response('wginfo/wg_documents.html', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  'meta':meta, 
                                                            'docs_related':docs_related_pruned, 'meta_related':meta_related}, RequestContext(request))
@@ -90,6 +93,7 @@ def wg_charter(request, acronym):
     concluded = (wg.status_id != 1)
     return render_to_response('wginfo/wg_charter.html', {'wg': wg, 'concluded':concluded, 'selected':'charter'}, RequestContext(request))
 
+# under construction
 def wg_agenda(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     # do the latest 5 meeting

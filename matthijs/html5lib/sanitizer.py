@@ -119,6 +119,11 @@ class HTMLSanitizerMixin(object):
         'mailto', 'news', 'gopher', 'nntp', 'telnet', 'webcal',
         'xmpp', 'callto', 'feed', 'urn', 'aim', 'rsync', 'tag',
         'ssh', 'sftp', 'rtsp', 'afs' ]
+
+
+    # block elements whose contents will be stripped completely if we we are
+    # stripping tokens during sanitization.
+    unacceptable_block_elements = [ 'script', 'style' ]
   
     # subclasses may define their own versions of these constants
     allowed_elements = acceptable_elements + mathml_elements + svg_elements
@@ -139,7 +144,7 @@ class HTMLSanitizerMixin(object):
     #    => &lt;script> do_nasty_stuff() &lt;/script>
     #   sanitize_html('<a href="javascript: sucker();">Click here for $100</a>')
     #    => <a>Click here for $100</a>
-    def sanitize_token(self, token):
+    def sanitize_token(self, token, strip_tokens=False):
         if token["type"] in (tokenTypes["StartTag"], tokenTypes["EndTag"], 
                              tokenTypes["EmptyTag"]):
             if token["name"] in self.allowed_elements:
@@ -172,6 +177,8 @@ class HTMLSanitizerMixin(object):
                     token["data"] = [[name,val] for name,val in attrs.items()]
                 return token
             else:
+                if strip_tokens:
+                    return None
                 if token["type"] == tokenTypes["EndTag"]:
                     token["data"] = "</%s>" % token["name"]
                 elif token["data"]:
@@ -216,15 +223,32 @@ class HTMLSanitizerMixin(object):
         return ' '.join(clean)
 
 class HTMLSanitizer(HTMLTokenizer, HTMLSanitizerMixin):
+    # strip tokens instead of escaping them 
+    strip_tokens = False
+
     def __init__(self, stream, encoding=None, parseMeta=True, useChardet=True,
                  lowercaseElementName=False, lowercaseAttrName=False):
         #Change case matching defaults as we only output lowercase html anyway
         #This solution doesn't seem ideal...
         HTMLTokenizer.__init__(self, stream, encoding, parseMeta, useChardet,
                                lowercaseElementName, lowercaseAttrName)
+        # flag to indicate if stripping is going on or not
+        self.stripping = 0
 
     def __iter__(self):
         for token in HTMLTokenizer.__iter__(self):
-            token = self.sanitize_token(token)
-            if token:
-                yield token
+            # if its a start tag and is a risky block element (e.g. script), we
+            # indicate that we are in striping mode. Its a counter which allows us
+            # to handle nested risky block elements
+            if self.strip_tokens and token["type"] in ["StartTag", "EndTag"] \
+                and token["name"].lower() in HTMLSanitizerMixin.unacceptable_block_elements:
+                if token["type"] == "StartTag":
+                    self.stripping += 1
+                elif token["type"] == "EndTag":
+                    self.stripping -= 1
+
+            # Only yield tokens if we are not in stripping mode
+            if self.stripping < 1:
+                token = self.sanitize_token(token, self.strip_tokens)
+                if token:
+                    yield token

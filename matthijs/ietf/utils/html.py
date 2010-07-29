@@ -40,9 +40,14 @@ class HTMLSanitizer(tokenizer.HTMLTokenizer, HTMLSanitizerMixin):
             if token:
                 yield token
 
-def sanitize_html(html):
+def sanitize_html(html, strip=False):
     """Sanitizes an HTML fragment."""
-    p = html5lib.HTMLParser(tokenizer=HTMLSanitizer,
+    def sanitizer_factory(*args, **kwargs):
+      san = sanitizer.HTMLSanitizer(*args, **kwargs)
+      san.strip_tokens = strip
+      return san
+
+    p = html5lib.HTMLParser(tokenizer=sanitizer_factory,
                             tree=treebuilders.getTreeBuilder("dom"))
     dom_tree = p.parseFragment(html)
     walker = treewalkers.getTreeWalker("dom")

@@ -125,8 +125,15 @@ def sanitize_html(value):
     for the details.
     """
     from ietf.utils.html import sanitize_html
-    return sanitize_html(value)
+    return sanitize_html(value, False)
 
+@register.filter(name='strip_tags')
+def strip_tags(value):
+    """Sanitizes an HTML fragment.
+    Like sanitize_html, only strip out those tags and attributes.
+    """
+    from ietf.utils.html import sanitize_html
+    return sanitize_html(value, True)
 
 # For use with ballot view
 @register.filter(name='bracket')

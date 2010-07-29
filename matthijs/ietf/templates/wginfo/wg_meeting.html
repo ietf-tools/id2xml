@@ -108,10 +108,10 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 
 <p>
 {% ifequal proceedings.minutes_type "html" %}
-{{ proceedings.minutes|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.minutes|fill:"80"|safe|urlize|keep_spacing|strip_tags|sanitize_html|safe }}
 {% else %}
 <tt>
-{{ proceedings.minutes|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.minutes|fill:"80"|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
 </tt>
 {% endifequal %}
 </p>
@@ -120,10 +120,11 @@ Jabber: <a href="xmmp:{{ wg.group_acronym.acronym}}@jabber.ietf.org?join ">{{ wg
 
 <p>
 {% ifequal proceedings.agenda_type "html" %}
-{{ proceedings.agenda|safe|urlize|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.agenda|fill:"80"|safe|urlize|keep_spacing|strip_tags|sanitize_html|safe }}
 {% else %}
 <tt>
-{{ proceedings.agenda|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
+{{ proceedings.agenda|fill:"80"|safe|urlize|urlize_ietf_docs|linebreaksbr|keep_spacing|sanitize_html|safe }}
+
 </tt>
 {% endifequal %}
 </p>

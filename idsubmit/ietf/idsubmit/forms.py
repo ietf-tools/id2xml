@@ -49,7 +49,7 @@ class SubmitterForm(forms.Form):
             created_by="IDST",
         )
         person = person[0] # get_or_create returns a tuple (object, boolean_was_created) [wiggins@concentricsky]
-        person.add_email_address(submitter_email_address)
+        person.add_email_address(submitter_email_address, type='INET')
 
         # The priority can either be:
         # - An I-D tag, because this is the address used for that I-D

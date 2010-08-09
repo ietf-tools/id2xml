@@ -232,12 +232,13 @@ class IdSubmissionDetail(models.Model):
 
         authors_names = []
         for author_info in submission.authors.all():
-            person_or_org = PersonOrOrgInfo.objects.get_or_create_person(
+            person_or_org = PersonOrOrgInfo.objects.get_or_create(
                 first_name=author_info.first_name,
                 last_name=author_info.last_name,
                 created_by="IDST",
-                email_address=author_info.email_address,
             )
+            person_or_org = person_or_org[0] # get_or_create returns a tuple (object, boolean_was_created) [wiggins@concentricsky]
+
 
             internet_draft.authors.create(
                 person=person_or_org,
@@ -275,9 +276,11 @@ class IdSubmissionDetail(models.Model):
 	    "idsubmit/i-d_action.txt",
             {'submission':submission,
              'authors': authors},
-	    sendTime=now,
-	    scheduledExtra={'scheduled_by':'IDST'},
-	    contentType="Multipart/Mixed; Boundary=\"NextPart\"")
+            #following keyword arguments are no longer available [wiggins@concentricsky]
+	    #sendTime=now,
+	    #scheduledExtra={'scheduled_by':'IDST'},
+	    #contentType="Multipart/Mixed; Boundary=\"NextPart\""
+            )
 
         submission.status_id = 8
         submission.save()
@@ -325,8 +328,10 @@ class IdSubmissionDetail(models.Model):
                 "idsubmit/new_version_notify.txt",
 		{'submission':submission,'msg':msg},
 		cc=cc_val,
-		sendTime=now,
-		scheduledExtra={'scheduled_by':'IDST'})
+                #following keyword arguments are no longer available [wiggins@concentricsky]
+		#sendTime=now,
+		#scheduledExtra={'scheduled_by':'IDST'}
+                )
 
             submission.status_id = 9
             submission.save()
@@ -335,7 +340,7 @@ class IdSubmissionDetail(models.Model):
         # <Please read auto_post.cgi, sub notify_all_authors>
 
         cc_email = []
-        if submission.group_id == Acronym.NONE :
+        if submission.group == Acronym.objects.get(acronym='none') :
             group_acronym = "Independent Submission"
         else :
             group_acronym = submission.group.name

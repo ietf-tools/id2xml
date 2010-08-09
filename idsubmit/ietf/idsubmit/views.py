@@ -342,7 +342,7 @@ def verify_key(request, submission_id, auth_key, from_wg_or_sec=None):
     except IdApprovedDetail.DoesNotExist :
         approved_status = None
 
-    if approved_status == 1 or submission.revision != "00" or submission.group_id == Acronym.NONE :
+    if approved_status == 1 or submission.revision != "00" or submission.group == Acronym.objects.get(acronym='none'):
         try:
             submission.approved()
         except IdSubmissionDetail.ApprovalError, e:

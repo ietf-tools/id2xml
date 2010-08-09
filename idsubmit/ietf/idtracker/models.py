@@ -154,9 +154,9 @@ class InternetDraft(models.Model):
     review_by_rfc_editor = models.BooleanField()
     expired_tombstone = models.BooleanField()
     idinternal = FKAsOneToOne('idinternal', reverse=True, query=models.Q(rfc_flag = 0))
-    def save(self):
+    def save(self, *args, **kwargs):
         self.id_document_key = self.title.upper()
-        super(InternetDraft, self).save()
+        super(InternetDraft, self).save(*args, **kwargs)
     def displayname(self):
         return self.filename
     def group_acronym(self):
@@ -272,6 +272,17 @@ class PersonOrOrgInfo(models.Model):
         except AssertionError:
             return "PersonOrOrgInfo with multiple priority-%d addresses!" % priority
         return "%s" % ( postal.affiliated_company or postal.department or "???" )
+
+    # Added by [wiggins@concentricsky]
+    def add_email_address(self, email_address, priority=1, type=None, comment=None):
+        EmailAddress.objects.get_or_create(
+            person_or_org = self,
+            type=type,
+            priority=priority,
+            address=email_address,
+            comment=comment
+        )
+
     class Meta:
         db_table = 'person_or_org_info'
         ordering = ['last_name']

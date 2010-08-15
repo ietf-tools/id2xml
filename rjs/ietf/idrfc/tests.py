@@ -470,7 +470,7 @@ class BallotWriteupsTestCase(django.test.TestCase):
 
     def test_edit_last_call_text(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        url = urlreverse('doc_ballot_lastcall', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
         # normal get
@@ -507,7 +507,7 @@ class BallotWriteupsTestCase(django.test.TestCase):
 
     def test_request_last_call(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        url = urlreverse('doc_ballot_lastcall', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
         mailbox_before = len(mail_outbox)
@@ -524,7 +524,7 @@ class BallotWriteupsTestCase(django.test.TestCase):
 
     def test_edit_ballot_writeup(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        url = urlreverse('doc_ballot_writeupnotes', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
         # normal get
@@ -544,7 +544,7 @@ class BallotWriteupsTestCase(django.test.TestCase):
 
     def test_issue_ballot(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        url = urlreverse('doc_ballot_writeupnotes', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "rhousley", url)
 
         draft.idinternal.ballot.ballot_issued = False
@@ -579,7 +579,7 @@ class BallotWriteupsTestCase(django.test.TestCase):
 
     def test_edit_approval_text(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
-        url = urlreverse('doc_ballot_writeups', kwargs=dict(name=draft.filename))
+        url = urlreverse('doc_ballot_approvaltext', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
         # normal get

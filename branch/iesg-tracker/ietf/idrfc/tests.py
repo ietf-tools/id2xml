@@ -270,8 +270,9 @@ class EditInfoTestCase(django.test.TestCase):
         self.assertEquals(draft.idinternal.job_owner, job_owner)
         self.assertEquals(draft.idinternal.note, "This is a note")
         self.assertTrue(not draft.idinternal.agenda)
-        self.assertEquals(draft.idinternal.comments().count(), 3)
+        self.assertEquals(draft.idinternal.comments().count(), 2)
         self.assertTrue("Draft added" in draft.idinternal.comments()[0].comment_text)
+        self.assertTrue("This is a note" in draft.idinternal.comments()[1].comment_text)
         self.assertEquals(len(mail_outbox), mailbox_before)
 
 

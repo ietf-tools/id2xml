@@ -79,7 +79,7 @@ def update_telechat(request, idinternal, new_telechat_date, new_returning_item=N
 
     # update agenda
     doc = idinternal.document()
-    if idinternal.agenda != on_agenda:
+    if bool(idinternal.agenda) != on_agenda:
         if on_agenda:
             add_document_comment(request, doc,
                                  "Placed on agenda for telechat - %s" % new_telechat_date)

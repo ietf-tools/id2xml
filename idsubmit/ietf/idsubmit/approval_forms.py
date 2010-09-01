@@ -7,7 +7,7 @@ DRAFT_WG_RE = '(?<=draft-ietf-)(krb-wg|[a-z0-9]+)(?=-)'
 class PreauthzForm(forms.Form):
     draft = forms.CharField()
     def clean_draft(self):
-        draft = self.clean_data['draft']
+        draft = self.cleaned_data['draft']
         if not draft.startswith("draft-ietf-"):
             raise forms.ValidationError("Filename must start with draft-ietf-")
         if not draft.islower():

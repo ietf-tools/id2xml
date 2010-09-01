@@ -82,7 +82,7 @@ def approve_draft(request, filename, approver, person):
 @login_required
 def approval(request, draft=None):
     """Main view for the page."""
-    user = PersonOrOrgInfo.objects.from_django( request.user )
+    user = PersonOrOrgInfo.objects.get_from_request(request)
     if user is None:
         return fail(None, None, "Can't find your IETF user from your django user")
     pending_submissions = IdSubmissionDetail.objects.filter( status_id = 10 ).order_by( '-submission_date' )
@@ -93,7 +93,7 @@ def approval(request, draft=None):
             data = {'draft': draft}
         form = PreauthzForm(data)
         if form.is_valid():
-            filename = form.clean_data['draft']
+            filename = form.cleaned_data['draft']
             # form validation has ensured that this will match
             m = re.search(DRAFT_WG_RE, filename)
             wg = m.group()
@@ -103,7 +103,7 @@ def approval(request, draft=None):
                     if request.POST.has_key('approver'):
                         approver_form = PickApprover(approvers, request.POST)
                         if approver_form.is_valid():
-                            approver = PersonOrOrgInfo.objects.get(pk=approver_form.clean_data['approver'])
+                            approver = PersonOrOrgInfo.objects.get(pk=approver_form.cleaned_data['approver'])
                             return approve_draft(request, filename, user, approver)
                     else:
                         approver_form = PickApprover(approvers=approvers)

@@ -215,6 +215,22 @@ class InternetDraft(models.Model):
     class Meta:
         db_table = "internet_drafts"
 
+
+# added by [wiggins@concentricsky]
+class PersonOrOrgManager(models.Manager):
+    def get_from_request(self, request):
+        """Find a Rolodex entry from the request user"""
+        if request.user.is_authenticated:
+            try:
+                ret = self.filter(first_name=request.user.first_name, last_name=request.user.last_name)
+                if len(ret) == 1:
+                    return ret[0]
+                # found too many; we can't determine which user
+                pass
+            except self.model.DoesNotExist:
+                pass
+        return None
+
 class PersonOrOrgInfo(models.Model):
     person_or_org_tag = models.AutoField(primary_key=True)
     record_type = models.CharField(blank=True, null=True, max_length=8)
@@ -231,6 +247,7 @@ class PersonOrOrgInfo(models.Model):
     date_created = models.DateField(auto_now_add=True, null=True)
     created_by = models.CharField(blank=True, null=True, max_length=8)
     address_type = models.CharField(blank=True, null=True, max_length=4)
+    objects = PersonOrOrgManager()
     def save(self, *args, **kwargs):
         if self.first_name:
             self.first_name_key = self.first_name.upper()

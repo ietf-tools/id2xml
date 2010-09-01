@@ -423,15 +423,19 @@ def submission_diff(request, submission_id, previous_id):
     submission = IdSubmissionDetail.objects.get(pk=submission_id)
     previous = IdSubmissionDetail.objects.get(pk=previous_id)
 
-    submission_name = '%s-%s.txt' % (submission.filename, submission.revision)
-    submission_path = os.path.join(settings.STAGING_PATH, submission_name)
-    submission_txt = open(submission_path).readlines()
+    try:
+        submission_name = '%s-%s.txt' % (submission.filename, submission.revision)
+        submission_path = os.path.join(settings.STAGING_PATH, submission_name)
+        submission_txt = open(submission_path).readlines()
 
-    previous_name = '%s-%s.txt' % (previous.filename, previous.revision)
-    previous_path = os.path.join(settings.STAGING_PATH, previous_name)
-    previous_txt = open(previous_path).readlines()
+        previous_name = '%s-%s.txt' % (previous.filename, previous.revision)
+        previous_path = os.path.join(settings.STAGING_PATH, previous_name)
+        previous_txt = open(previous_path).readlines()
 
-    diff = list( difflib.unified_diff(previous_txt, submission_txt, previous_name, submission_name) )
+        diff = list( difflib.unified_diff(previous_txt, submission_txt, previous_name, submission_name) )
+    except IOError:
+        diff = None
+
     return render(
         "idsubmit/diff.html",
         {

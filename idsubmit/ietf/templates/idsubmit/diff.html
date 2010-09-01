@@ -7,7 +7,7 @@
 <tr valign="top">
 <td height="550" >
 
-
+{%if diff%}
 
 <p>
     <font face="Arial" size="4">
@@ -24,6 +24,10 @@ Changeset from {{submission.filename}}-{{submission.revision}}.txt to {{previous
     <pre style="color: {%ifequal line.0 '-'%}red{%endifequal%}{%ifequal line.0 '+'%}green{%endifequal%}{%ifequal line.0 '@'%}blue{%endifequal%}">{{line}}</pre>
     {%endfor%}
     </div>
+
+{%else%}
+<p>There was an error generating the diff.</p>
+{%endif%}
 
 
 </td>

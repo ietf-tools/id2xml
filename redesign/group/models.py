@@ -3,33 +3,36 @@
 from django.db import models
 from redesign.name.models import RoleName
 from redesign.person.models import Email
-from redesign.doc.models import Document
 
 class GroupState(models.Model):
     # States: BOF, Proposed, Active, Dormant, Concluded
-    name = models.CharField(maxlength=32)
+    name = models.CharField(max_length=32)
+    def __unicode__(self):
+        return self.name
     class Admin:
         pass
 
 class GroupType(models.Model):
     # Types: IETF, Area, WG, RG, Team, etc.
-    name = models.CharField(maxlength=32)
+    name = models.CharField(max_length=32)
+    def __unicode__(self):
+        return self.name
     class Admin:
         pass
 
 class Group(models.Model):
-    name = models.CharField(maxlength=64)
-    acronym = models.CharField(maxlength=16)
-    status = models.ForeignKey(GroupState)
-    type = models.ForeignKey(GroupType)
-    charter = models.ForeignKey(Document, related_name='chartered_group')
-#    charter = models.CharField(maxlength=50) # Dummy, for graphing purposes
-    documents = models.ManyToManyField(Document, related_name='document_group')
-    parent = models.ForeignKey('Group')
+    name = models.CharField(max_length=64)
+    acronym = models.CharField(max_length=16)
+    status = models.ForeignKey(GroupState, null=True)
+    type = models.ForeignKey(GroupType, null=True)
+    charter = models.ForeignKey('doc.Document', related_name='chartered_group', null=True)
+    parent = models.ForeignKey('Group', null=True)
     chairs = models.ManyToManyField(Email, related_name='chaired_groups')
-    list_email = models.CharField(maxlength=64)
-    list_pages = models.CharField(maxlength=64)
+    list_email = models.CharField(max_length=64)
+    list_pages = models.CharField(max_length=64)
     comments = models.TextField(blank=True)
+    def __unicode__(self):
+        return self.name
     class Admin:
         pass
 
@@ -44,18 +47,18 @@ class GroupHistory(models.Model):
     comment = models.TextField()
     who = models.ForeignKey(Email, related_name='group_changes')
     # inherited from Group:
-    name = models.CharField(maxlength=64)
-    acronym = models.CharField(maxlength=16)
+    name = models.CharField(max_length=64)
+    acronym = models.CharField(max_length=16)
     status = models.ForeignKey(GroupState)
     type = models.ForeignKey(GroupType)
-    charter = models.ForeignKey(Document, related_name='chartered_group_history')
-#    charter = models.CharField(maxlength=50) # Dummy, for graphing purposes
-    documents = models.ManyToManyField(Document, related_name='document_set_history')
+    charter = models.ForeignKey('doc.Document', related_name='chartered_group_history')
     parent = models.ForeignKey('Group')
     chairs = models.ManyToManyField(Email, related_name='chaired_groups_history')
-    list_email = models.CharField(maxlength=64)
-    list_pages = models.CharField(maxlength=64)
+    list_email = models.CharField(max_length=64)
+    list_pages = models.CharField(max_length=64)
     comments = models.TextField(blank=True)
+    def __unicode__(self):
+        return self.group.name
     class Meta:
         verbose_name_plural="Doc histories"
     class Admin:
@@ -65,7 +68,9 @@ class Role(models.Model):
     name = models.ForeignKey(RoleName)
     group = models.ForeignKey(Group)
     email = models.ForeignKey(Email)
-    auth = models.CharField(maxlength=255)
+    auth = models.CharField(max_length=255)
+    def __unicode__(self):
+        return self.name
     class Admin:
         pass
     

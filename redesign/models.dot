@@ -17,267 +17,107 @@ digraph name {
 
   
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    Document -> Document
-    [label="replaces"] ;
+    Document -> Email
+    [label="agent"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     Document -> Email
     [label="ad"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     Document -> Email
     [label="shepherd"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     Document -> Email
     [label="authors"] [arrowhead=normal arrowtail=normal];
     
+    Document -> Document
+    [label="updates"] [arrowhead=normal arrowtail=normal];
+    
+    Document -> Document
+    [label="replaces"] [arrowhead=normal arrowtail=normal];
+    
+    Document -> Document
+    [label="obsoletes"] [arrowhead=normal arrowtail=normal];
+    
+    Document -> Document
+    [label="reviews"] [arrowhead=normal arrowtail=normal];
+    
   
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    DocHistory -> Document
-    [label="doc"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     DocHistory -> Email
     [label="agent"] ;
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    DocHistory -> Document
-    [label="replaces"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     DocHistory -> Email
     [label="ad"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     DocHistory -> Email
     [label="shepherd"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
+    DocHistory -> Document
+    [label="name"] ;
+    
     DocHistory -> Email
     [label="authors"] [arrowhead=normal arrowtail=normal];
     
-  
+    DocHistory -> Document
+    [label="updates"] [arrowhead=normal arrowtail=normal];
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    Alias -> Document
-    [label="document"] ;
+    DocHistory -> Document
+    [label="replaces"] [arrowhead=normal arrowtail=normal];
     
-  
+    DocHistory -> Document
+    [label="obsoletes"] [arrowhead=normal arrowtail=normal];
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    Message -> Document
-    [label="doc"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
-    Message -> Email
-    [label="frm"] ;
-    
-    BallotPosition [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >BallotPosition</FONT></TD></TR>
-        </TABLE>
-        >]
-    Message -> BallotPosition
-    [label="pos"] ;
+    DocHistory -> Document
+    [label="reviews"] [arrowhead=normal arrowtail=normal];
     
   
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
     InfoTag -> Document
     [label="document"] ;
     
-    DocInfoTag [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >DocInfoTag</FONT></TD></TR>
-        </TABLE>
-        >]
-    InfoTag -> DocInfoTag
-    [label="infotag"] ;
+  
+    
+    DocAlias -> Document
+    [label="document"] ;
     
   
     
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ballot -> Message
-    [label="initiated"] ;
+    Message -> Document
+    [label="doc"] ;
     
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ballot -> Message
-    [label="deferred"] ;
-    
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ballot -> Message
-    [label="last_call"] ;
-    
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ballot -> Message
-    [label="closed"] ;
-    
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ballot -> Message
-    [label="announced"] ;
+    Message -> Email
+    [label="frm"] ;
     
   
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     SendQueue -> Email
     [label="agent"] ;
     
-    Message [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Message</FONT></TD></TR>
-        </TABLE>
-        >]
     SendQueue -> Message
     [label="msg"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     SendQueue -> Email
     [label="to"] ;
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     SendQueue -> Email
     [label="cc"] [arrowhead=normal arrowtail=normal];
+    
+  
+    
+    Ballot -> Message
+    [label="initiated"] ;
+    
+    Ballot -> Message
+    [label="deferred"] ;
+    
+    Ballot -> Message
+    [label="last_call"] ;
+    
+    Ballot -> Message
+    [label="closed"] ;
+    
+    Ballot -> Message
+    [label="announced"] ;
     
   
 
@@ -291,10 +131,24 @@ digraph name {
     
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">name</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">time</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">DateTimeField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">comment</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">TextField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">agent</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
@@ -313,6 +167,41 @@ digraph name {
         
         <TR><TD ALIGN="LEFT" BORDER="0"
         ><FONT FACE="Helvetica Bold">state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">doc_stream</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">wg_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">iesg_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">iana_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">rfc_state</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
@@ -340,14 +229,7 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">intended_status</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">replaces</FONT
+        ><FONT FACE="Helvetica Bold">intended_std_level</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
@@ -368,7 +250,42 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">name</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
         ><FONT FACE="Helvetica Bold">authors</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">updates</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">replaces</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">obsoletes</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">reviews</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
@@ -394,17 +311,10 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">doc</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">time</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">time</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">DateTimeField</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">DateTimeField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
@@ -419,13 +329,6 @@ digraph name {
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">name</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
@@ -444,6 +347,41 @@ digraph name {
         
         <TR><TD ALIGN="LEFT" BORDER="0"
         ><FONT FACE="Helvetica Bold">state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">doc_stream</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">wg_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">iesg_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">iana_state</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">rfc_state</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
@@ -471,14 +409,7 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">intended_status</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">replaces</FONT
+        ><FONT FACE="Helvetica Bold">intended_std_level</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
@@ -499,7 +430,42 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">name</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
         ><FONT FACE="Helvetica Bold">authors</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">updates</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">replaces</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">obsoletes</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">reviews</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
@@ -509,11 +475,44 @@ digraph name {
     </TABLE>
     >]
   
-    Alias [label=<
+    InfoTag [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
      <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
      ><FONT FACE="Helvetica Bold" COLOR="white"
-     >Alias</FONT></TD></TR>
+     >InfoTag</FONT></TD></TR>
+
+    
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">document</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">infotag</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+    
+    </TABLE>
+    >]
+  
+    DocAlias [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
+     ><FONT FACE="Helvetica Bold" COLOR="white"
+     >DocAlias</FONT></TD></TR>
 
     
         
@@ -610,93 +609,6 @@ digraph name {
     </TABLE>
     >]
   
-    InfoTag [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-     ><FONT FACE="Helvetica Bold" COLOR="white"
-     >InfoTag</FONT></TD></TR>
-
-    
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">document</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">infotag</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-    
-    </TABLE>
-    >]
-  
-    Ballot [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-     ><FONT FACE="Helvetica Bold" COLOR="white"
-     >Ballot</FONT></TD></TR>
-
-    
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">initiated</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">deferred</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">last_call</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">closed</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">announced</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-    
-    </TABLE>
-    >]
-  
     SendQueue [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
      <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
@@ -765,142 +677,112 @@ digraph name {
     </TABLE>
     >]
   
+    Ballot [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
+     ><FONT FACE="Helvetica Bold" COLOR="white"
+     >Ballot</FONT></TD></TR>
+
+    
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">initiated</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">deferred</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">last_call</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">closed</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">announced</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+    
+    </TABLE>
+    >]
+  
 
 
   
     
-    Group [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Group</FONT></TD></TR>
-        </TABLE>
-        >]
-    Role -> Group
-    [label="group"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
-    Role -> Email
-    [label="email"] ;
-    
-  
-    
-    Group [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Group</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Group
-    [label="group"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Email
-    [label="who"] ;
-    
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Document
-    [label="charter"] ;
-    
-    Group [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Group</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Group
-    [label="parent"] ;
-    
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Document
-    [label="documents"] [arrowhead=normal arrowtail=normal];
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
-    GroupHistory -> Email
-    [label="chairs"] [arrowhead=normal arrowtail=normal];
-    
-  
-    
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
     Group -> Document
     [label="charter"] ;
     
-    Group [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Group</FONT></TD></TR>
-        </TABLE>
-        >]
     Group -> Group
     [label="parent"] ;
     
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
     Group -> Document
     [label="documents"] [arrowhead=normal arrowtail=normal];
     
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
     Group -> Email
     [label="chairs"] [arrowhead=normal arrowtail=normal];
     
   
+    
+    GroupHistory -> Group
+    [label="group"] ;
+    
+    GroupHistory -> Email
+    [label="who"] ;
+    
+    GroupHistory -> Document
+    [label="charter"] ;
+    
+    GroupHistory -> Group
+    [label="parent"] ;
+    
+    GroupHistory -> Document
+    [label="documents"] [arrowhead=normal arrowtail=normal];
+    
+    GroupHistory -> Email
+    [label="chairs"] [arrowhead=normal arrowtail=normal];
+    
+  
+    
+    Role -> Group
+    [label="group"] ;
+    
+    Role -> Email
+    [label="email"] ;
+    
+  
 
   
-    Role [label=<
+    Group [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
      <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
      ><FONT FACE="Helvetica Bold" COLOR="white"
-     >Role</FONT></TD></TR>
+     >Group</FONT></TD></TR>
 
     
         
@@ -915,28 +797,77 @@ digraph name {
         ><FONT FACE="Helvetica Bold">name</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ><FONT FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">group</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">email</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">auth</FONT
+        ><FONT FACE="Helvetica Bold">acronym</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">CharField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">status</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">type</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">charter</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">parent</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">list_email</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">list_pages</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">comments</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">TextField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">documents</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">chairs</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
         ></TD></TR>
         
     
@@ -1067,11 +998,11 @@ digraph name {
     </TABLE>
     >]
   
-    Group [label=<
+    Role [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
      <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
      ><FONT FACE="Helvetica Bold" COLOR="white"
-     >Group</FONT></TD></TR>
+     >Role</FONT></TD></TR>
 
     
         
@@ -1086,77 +1017,28 @@ digraph name {
         ><FONT FACE="Helvetica Bold">name</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">acronym</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">status</FONT
+        ><FONT FACE="Helvetica Bold">group</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">type</FONT
+        ><FONT FACE="Helvetica Bold">email</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">ForeignKey</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">charter</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">parent</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">list_email</FONT
+        ><FONT FACE="Helvetica Bold">auth</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">list_pages</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">comments</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">TextField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">documents</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">chairs</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ManyToManyField</FONT
         ></TD></TR>
         
     
@@ -1167,40 +1049,52 @@ digraph name {
 
   
     
-    Component [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Component</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ticket -> Component
-    [label="component"] ;
-    
-    Email [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Email</FONT></TD></TR>
-        </TABLE>
-        >]
-    Ticket -> Email
-    [label="owner"] ;
-    
-  
-    
-    Document [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Document</FONT></TD></TR>
-        </TABLE>
-        >]
     Component -> Document
     [label="text"] ;
     
   
+    
+    Ticket -> Component
+    [label="component"] ;
+    
+    Ticket -> Email
+    [label="owner"] ;
+    
+  
 
+  
+    Component [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
+     ><FONT FACE="Helvetica Bold" COLOR="white"
+     >Component</FONT></TD></TR>
+
+    
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">text</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">owner</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">description</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">TextField</FONT
+        ></TD></TR>
+        
+    
+    </TABLE>
+    >]
   
     Ticket [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
@@ -1333,38 +1227,10 @@ digraph name {
     </TABLE>
     >]
   
-    Component [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-     ><FONT FACE="Helvetica Bold" COLOR="white"
-     >Component</FONT></TD></TR>
 
-    
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">text</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">owner</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">description</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">TextField</FONT
-        ></TD></TR>
-        
-    
-    </TABLE>
-    >]
+
+  
+
   
 
 
@@ -1372,88 +1238,11 @@ digraph name {
     
   
     
-  
-
-  
-    DocInfoTag [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-     ><FONT FACE="Helvetica Bold" COLOR="white"
-     >DocInfoTag</FONT></TD></TR>
-
-    
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">name</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">desc</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">TextField</FONT
-        ></TD></TR>
-        
-    
-    </TABLE>
-    >]
-  
-    BallotPosition [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-     ><FONT FACE="Helvetica Bold" COLOR="white"
-     >BallotPosition</FONT></TD></TR>
-
-    
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">name</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
-        ></TD></TR>
-        
-        <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">desc</FONT
-        ></TD>
-        <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">TextField</FONT
-        ></TD></TR>
-        
-    
-    </TABLE>
-    >]
-  
-
-
-  
+    Alias -> Person
+    [label="person"] ;
     
   
     
-    Person [label=<
-        <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
-        ><FONT FACE="Helvetica Bold" COLOR="white"
-        >Person</FONT></TD></TR>
-        </TABLE>
-        >]
     Email -> Person
     [label="person"] ;
     
@@ -1476,31 +1265,71 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">given</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">time</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">DateTimeField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">name</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">middle</FONT
+        ><FONT FACE="Helvetica Bold">ascii</FONT
         ></TD>
         <TD ALIGN="LEFT"
         ><FONT FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">family</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">ascii_short</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">CharField</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">address</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">address</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">TextField</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">TextField</FONT
+        ></TD></TR>
+        
+    
+    </TABLE>
+    >]
+  
+    Alias [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+     <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4"
+     ><FONT FACE="Helvetica Bold" COLOR="white"
+     >Alias</FONT></TD></TR>
+
+    
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">id</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">AutoField</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">person</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">ForeignKey</FONT
+        ></TD></TR>
+        
+        <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Helvetica Bold">name</FONT
+        ></TD>
+        <TD ALIGN="LEFT"
+        ><FONT FACE="Helvetica Bold">CharField</FONT
         ></TD></TR>
         
     
@@ -1530,10 +1359,10 @@ digraph name {
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"
-        ><FONT FACE="Helvetica Bold">time</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">time</FONT
         ></TD>
         <TD ALIGN="LEFT"
-        ><FONT FACE="Helvetica Bold">DateTimeField</FONT
+        ><FONT COLOR="#7B7B7B" FACE="Helvetica Bold">DateTimeField</FONT
         ></TD></TR>
         
         <TR><TD ALIGN="LEFT" BORDER="0"

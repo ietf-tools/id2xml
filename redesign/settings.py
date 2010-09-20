@@ -42,7 +42,11 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'PST8PDT'
+#TIME_ZONE = 'PST8PDT'
+TIME_ZONE = 'UTC'
+
+DATE_FORMAT = "Y-m-d"
+DATETIME_FORMAT = "Y-m-d H:i:s"
 
 # Language code for this installation. All choices can be found here:
 # http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -74,7 +78,8 @@ AUTH_PROFILE_MODULE = 'ietfauth.UserMap'
 # Allow specification of email address as username,
 # and handle htpasswd crypt() format passwords.
 AUTHENTICATION_BACKENDS = (
-    "ietf.ietfauth.auth.EmailBackend",
+    "ietf.ietfauth.auth.IetfUserBackend",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -123,11 +128,13 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.humanize',
+    'south',
     'redesign.person',
     'redesign.name',
     'redesign.group',
     'redesign.doc',
-#    'redesign.issue',
+    'redesign.issue',
+    'ietf.idtracker',
 )
 
 INTERNAL_IPS = (

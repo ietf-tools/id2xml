@@ -1,108 +1,112 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
+from redesign.group.models import *
 from redesign.name.models import *
 from redesign.person.models import Email
+from redesign.util import admin_link
 
-class Document(models.Model):
+class RelatedDoc(models.Model):
+    relationship = models.ForeignKey(DocRelationshipName)
+    doc_alias = models.ForeignKey('DocAlias')
+    def __unicode__(self):
+        return "%s %s" % (self.relationship.name, self.doc_alias.name)
+    source = admin_link("related_document_set")
+    target = admin_link("doc_alias__document")
+
+class DocumentInfo(models.Model):
     """Any kind of document.  Draft, RFC, Charter, IPR Statement, Liaison Statement"""
-    name = models.CharField(maxlength=256, primary_key=True)           # immutable
-    # Event related.  Time, comment, and agent related to latest change.
-    time = models.DateTimeField(auto_now=True)
+    # Event related.  Time, comment, and agent, related to latest change.
+    time = models.DateTimeField(null=True)
     comment = models.TextField()
-    agent = models.ForeignKey(Email, null=True, related_name='changed_documents')
+    agent = models.ForeignKey(Email, null=True, related_name='changed_%(class)s_set')
     # Document related
-    type = models.ForeignKey(DocTypeName, null=True)
-    title = models.CharField(maxlength=255)
+    type = models.ForeignKey(DocTypeName, null=True) # Draft, Agenda, Minutes, Charter, Discuss, Guideline, Email, Review, Issue, Wiki, External ...
+    title = models.CharField(max_length=255)
     # State
     state = models.ForeignKey(DocStateName, null=True) # Active/Expired/RFC/Replaced/Withdrawn
-    doc_stream = models.ForeignKey(DocStreamName, null=True) # IETF, IAB, IRTF, Independent Submission
+    tags = models.ManyToManyField(DocInfoTagName, null=True) # Revised ID Needed, ExternalParty, AD Followup, ...
+    stream = models.ForeignKey(DocStreamName, null=True) # IETF, IAB, IRTF, Independent Submission
+    group = models.ForeignKey(Group, null=True) # WG, RG, IAB, IESG, Edu, Tools
     wg_state  = models.ForeignKey(WgDocStateName, null=True) # Not/Candidate/Active/Parked/LastCall/WriteUp/Submitted/Dead
     iesg_state = models.ForeignKey(IesgDocStateName, null=True) # 
     iana_state = models.ForeignKey(IanaDocStateName, null=True)
     rfc_state = models.ForeignKey(RfcDocStateName, null=True)
     # Other
     abstract = models.TextField()
-    rev = models.CharField(maxlength=16)
+    rev = models.CharField(max_length=16)
     pages = models.IntegerField(null=True)
-    intended_std_level = models.ForeignKey(StdStatusName, null=True)
+    intended_std_level = models.ForeignKey(IntendedStatusName, null=True)
+    std_level = models.ForeignKey(StdStatusName, null=True)
     authors = models.ManyToManyField(Email, null=True)
-    updates = models.ManyToManyField('Document', related_name='updated_by', null=True)
-    replaces = models.ManyToManyField('Document', related_name='replaced_by', null=True)
-    obsoletes = models.ManyToManyField('Document', related_name='obsoleted_by', null=True)
-    reviews = models.ManyToManyField('Document', related_name='reviewed_by', null=True)
-    ad = models.ForeignKey(Email, related_name='ad_documents', null=True)
-    shepherd = models.ForeignKey(Email, related_name='shepherded_documents', null=True)
-    def __str__(self):
-        return self.name
-    class Admin:
-        pass
-        
-class DocHistory(models.Model):
-    """This holds all the document specific information, except for
-    it's immutable name.  Any time a field changes, a new record is
-    created for the document, and the 'current' pointer of the
-    Document record is updated (That pointer is strictly speaking
-    superfluous -- could be skipped if there aren't any performance
-    issues ...)
-    This gives us a complete record of document state over time.
-
-    This class will actually be implemented as an extension of the
-    Document Class, but that requires Django 1.0
-    """
-    name = models.ForeignKey(Document)   # ID of the Document this relates to
-    # Event related
-    time = models.DateTimeField()
-    comment = models.TextField()
-    agent = models.ForeignKey(Email, related_name='document_changes')
-    # Document related
-    type = models.ForeignKey(DocTypeName)
-    title = models.CharField(maxlength=255)
-    # State
-    doc_stream = models.ForeignKey(DocStreamName, null=True) # IETF, IAB, IRTF, Independent Submission
-    doc_state = models.ForeignKey(DocStateName, null=True) # Active/Expired/RFC/Replaced/Withdrawn
-    wg_state  = models.ForeignKey(WgDocStateName, null=True) # Not/Candidate/Active/Parked/LastCall/WriteUp/Submitted/Dead
-    iesg_state = models.ForeignKey(IesgDocStateName, null=True) # 
-    iana_state = models.ForeignKey(IanaDocStateName, null=True)
-    rfc_state = models.ForeignKey(RfcDocStateName, null=True)
-    # Other
-    abstract = models.TextField()
-    rev = models.CharField(maxlength=16)
-    pages = models.IntegerField(null=True)
-    intended_status = models.ForeignKey(StdStatusName, null=True)
-    authors = models.ManyToManyField(Email, null=True)
-    updates = models.ManyToManyField('Document', related_name='updated_by_history', null=True)
-    replaces = models.ManyToManyField('Document', related_name='replaced_by_history', null=True)
-    obsoletes = models.ManyToManyField('Document', related_name='obsoleted_by_history', null=True)
-    ad = models.ForeignKey(Email, related_name='ads_document_history', null=True)
-    shepherd = models.ForeignKey(Email, related_name='shepherded_document_history', null=True)
+    related = models.ManyToManyField(RelatedDoc, related_name='related_%(class)s_set')
+    ad = models.ForeignKey(Email, related_name='ad_%(class)s_set', null=True)
+    shepherd = models.ForeignKey(Email, related_name='shepherd_%(class)s_set', null=True)
+    notify = models.CharField(max_length=255)
+    external_url = models.URLField(null=True, blank=True) # Should be set for documents with type 'External'.
     class Meta:
-        verbose_name_plural="Doc histories"
-    class Admin:
-        pass
+        abstract = True
+    def author_list(self):
+        return ", ".join([ email.address for email in self.authors.all()])
 
-class InfoTag(models.Model):
-    """While a document can only be in one state at a given time, it
-    can have multiple instances of infirmational tags associated with
-    it.  It could for instance both be under some IANA handling and
-    under some other action (Specialist review? RFC Ed Queue?) at the
-    same time.  This table captures that information.
-    """
-    document = models.ForeignKey(Document)
-    infotag = models.ForeignKey(DocInfoTagName)
-    class Admin:
-        pass
+class Document(DocumentInfo):
+    name = models.CharField(max_length=255, primary_key=True)           # immutable
+    def __unicode__(self):
+        return self.name
+    def values(self):
+        try:
+            fields = dict([(field.name, getattr(self, field.name))
+                            for field in self._meta.fields
+                                if field is not self._meta.pk])
+        except:
+            for field in self._meta.fields:
+                print "* %24s"%field.name,
+                print getattr(self, field.name)
+            raise
+        many2many = dict([(field.name, getattr(self, field.name).all())
+                            for field in self._meta.many_to_many ])
+        return fields, many2many
+        
+    def save(self, force_insert=False, force_update=False):
+        fields, many2many = self.values()
+        fields["doc"] = self
+        try:
+            snap = DocHistory.objects.get(**dict([(k,v) for k,v in fields.items() if not k == 'time']))
+            if snap.time > fields["time"]:
+                snap.time = fields["time"]
+                snap.save()
+        except DocHistory.DoesNotExist:
+            snap = DocHistory(**fields)
+            snap.save()
+            for m in many2many:
+                #print "m2m:", m, many2many[m]
+                rel = getattr(snap, m)
+                for item in many2many[m]:
+                    rel.add(item)
+        except DocHistory.MultipleObjectsReturned:
+            list = DocHistory.objects.filter(**dict([(k,v) for k,v in fields.items() if not k == 'time']))
+            list.delete()
+            snap = DocHistory(**fields)
+            snap.save()
+            print "Deleted list:", snap
+        super(Document, self).save(force_insert, force_update)
 
-class Alias(models.Model):
+class DocHistory(DocumentInfo):
+    doc = models.ForeignKey(Document)   # ID of the Document this relates to
+    def __unicode__(self):
+        return unicode(self.doc.name)
+
+class DocAlias(models.Model):
     """This is used for documents that may appear under multiple names,
     and in particular for RFCs, which for continuity still keep the
     same immutable Document.name, in the tables, but will be referred
     to by RFC number, primarily, after achieving RFC status.
     """
     document = models.ForeignKey(Document)
-    name = models.CharField(maxlength=256)
-    def __str__(self):
-        return self.name
+    name = models.CharField(max_length=255)
+    def __unicode__(self):
+        return "%s-->%s" % (self.name, self.document.name)
+    document_link = admin_link("document")
     class Meta:
         verbose_name_plural="Aliases"
     class Admin:
@@ -113,7 +117,7 @@ class Message(models.Model):
     type = models.ForeignKey(MsgTypeName)   # Announcement, IesgComment, BallotPosition, etc.
     doc  = models.ForeignKey(Document)
     frm  = models.ForeignKey(Email, related_name='from_messages')
-    subj = models.CharField(maxlength=255)
+    subj = models.CharField(max_length=255)
     pos  = models.ForeignKey(BallotPositionName)
     text = models.TextField()
     class Admin:

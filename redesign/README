@@ -44,3 +44,11 @@
 
  * There remains 39 tables which are related to IPR, Liaison and Meetings.
    These still have to be considered and integrated as indicated above.
+
+ * Some table size related numbers, as of 16 Feb 2010:
+
+   Number of drafts		 20,379
+   Number of revisions		 64,217
+   Number of history lines	357,051
+   Bytes of history data    355,132,749
+      (in text format)

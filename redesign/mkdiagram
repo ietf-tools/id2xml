@@ -1,4 +1,20 @@
 #!/bin/bash
 
-./manage.py validate && ./manage.py sql doc names person group > tables.sql
-./graph-models --exclude=DocType,DocState,StdStatus,MsgType,RoleName,GroupState,GroupType > models.png
+trap 'echo "$program($LINENO): Command failed with error code $? ($0 $*)"; exit 1' ERR
+
+exclude="--exclude=DocType,DocState,StdStatus,MsgType,RoleName,GroupState,GroupType,WgDocStateName,RfcDocStateName,DocStreamName,IanaDocStateName,IesgDocStateName,DocStateName,StdStatusName,DocTypeName,BallotPositionName,MsgTypeName,DocInfoTagName"
+
+export PYTHONPATH="$PWD/.."
+
+echo "Validating..."
+./manage.py validate
+if [ "$*" ]; then apps="$@"; graph="${1%.*}"; else apps=$(ls */models.py | sed 's!/models.py!!'); graph="models"; fi
+echo "Dump tables"
+./manage.py sql $apps > tables.sql
+export PYTHONPATH=`dirname $PWD`
+module=${PWD##*/}
+export DJANGO_SETTINGS_MODULE=$module.settings
+echo "Generate .dot file"
+modelviz.py $exclude $apps > $graph.dot
+echo "Generate .png file"
+dot -Tpng $graph.dot > $graph.png

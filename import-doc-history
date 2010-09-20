@@ -1,0 +1,558 @@
+#!/usr/bin/python
+# -*- python -*-
+
+"""
+NAME
+	%(program)s - <short description>
+
+SYNOPSIS
+	%(program)s [OPTIONS] 
+
+DESCRIPTION
+        <long description>
+
+%(options)s
+
+FILES
+        The program expects to read two files as input, one giving all information
+        about a draft in the format '<draftname> <attr1>="value1"  <attr2>="value2" ...'
+        or '<date> <draftname> <attr1>="value1"  <attr2>="value2" ...', the other
+        being an aliases file which contain WG chair aliases.  If a file
+        argument is given on the command line, it is assumed to be the all-IDs
+        state file.  A chair-aliases file must be specified with the
+        --chair-aliases option; if none is given, chair aliases will not be generated.
+
+AUTHOR
+	Written by Henrik Levkowetz, <henrik@levkowetz.com>
+
+COPYRIGHT
+	Copyright 2009 Henrik Levkowetz
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or (at
+	your option) any later version. There is NO WARRANTY; not even the
+	implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+	PURPOSE. See the GNU General Public License for more details.
+
+"""
+
+import sys, os.path, getopt, re, tbvars
+from path import path as Path
+from pprint import pprint
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+version = "v0.20"
+program = os.path.basename(sys.argv[0])
+progdir = os.path.dirname(sys.argv[0])
+
+options = ""
+for line in re.findall("\n +(if|elif) +opt in \[(.+)\]:\s+#(.+)\n", open(sys.argv[0]).read()):
+    if not options:
+        options += "OPTIONS\n"
+    options += "        %-16s %s\n" % (line[1].replace('"', ''), line[2])
+options = options.strip()
+
+# with ' < 1:' on the next line, this is a no-op:
+if len(sys.argv) < 1:
+    print __doc__ % locals()
+    sys.exit(1)
+
+try:
+    opts, files = getopt.gnu_getopt(sys.argv[1:], "hvce", ["help", "version","existing"])
+except Exception, e:
+    print "%s: %s" % (program, e)
+    sys.exit(1)
+
+# ----------------------------------------------------------------------
+
+sys.path = [ progdir ] + sys.path
+os.environ["DJANGO_SETTINGS_MODULE"] = "redesign.settings"
+
+from datetime import datetime as Datetime
+from tzparse import tzparse
+
+from django.conf import settings
+
+from ietf.idtracker.models import InternetDraft as OldInternetDraft
+from ietf.idtracker.models import IDInternal as OldIdInternal
+from ietf.idtracker.models import RfcObsolete as OldRfcObsolete
+from ietf.idtracker.models import PersonOrOrgInfo as OldPerson
+from ietf.utils.draft import Draft, getdraft
+
+from redesign.doc.models import *
+from redesign.name.models import *
+from redesign.person.models import *
+
+import attrib
+
+# ------------------------------------------------------------------------------
+# Function definitions.
+# ------------------------------------------------------------------------------
+def debug(s):
+    print "\n* %s\n" % (s, )
+
+# ------------------------------------------------------------------------------
+def number(num):
+    parts = re.split("[^0-9]", num, 1)
+    return parts[0]
+
+def changes(old, new):
+    if not type(old) == type({}):
+        old = old.__dict__.copy()
+    if not type(new) == type({}):
+        new = new.__dict__.copy()
+    changed = []
+    for key in old:
+        if not key.startswith("_"):
+            if key in new and old[key] != new[key]:
+                changed += [key]
+    return changed
+        
+def maybe_create(Cls, unique, **kwargs):
+    try:
+        unique = dict( [ (key, kwargs[key]) for key in unique ] )
+        obj = Cls.objects.get(**unique)
+        for key, value in kwargs.items():
+            if value and not getattr(obj, key) == value:
+                try:
+                    setattr(obj, key, value)
+                except ValueError:
+                    print "\n * Object:", obj, key, value, "\n", kwargs, "\n"
+                    raise
+                    
+    except Cls.DoesNotExist:
+        args = dict([ (k, v) for k, v in kwargs.items() if v ])
+        try:
+            obj, created = Cls.objects.get_or_create(**args)
+            if created:
+                try:
+                    print "Created %s:" % obj._meta.object_name, obj.id, obj.encode("Latin-1")
+                except AttributeError:
+                    print repr(obj)[:80]
+            else:
+                changes = changed(obj, kwargs)
+                if changed:
+                    print "Changed fields:"
+                    for key in changes:
+                        print "    %s: %s -> " % (key, getattr(obj, key), kwargs[key])
+        except Exception, e:
+            print "\n"
+            print Cls.__name__, 
+            pprint(args)
+            print ""
+            #tbvars.print_exc_plus()
+            raise
+    except AssertionError:
+        objects = Cls.objects.filter(**unique)
+        for obj in list(objects)[1:]:
+            print "Deleting duplicate object:", obj
+            obj.delete()
+        obj = Cls.objects.get(**unique)
+        raise
+    return obj
+    
+def maybe_create_document(**kwargs):
+    try:
+        doc_alias = DocAlias.objects.get(name=kwargs["name"])
+        return doc_alias.document
+    except DocAlias.DoesNotExist:
+        return maybe_create(Document, ["name"], **kwargs)
+    except DocAlias.MultipleObjectsReturned:
+        aliases = DocAlias.objects.filter(name=kwargs["name"])
+        for a in aliases:
+            if a.document.name.startswith("rfc"):
+                a.delete()
+        doc_alias = DocAlias.objects.get(name=kwargs["name"])
+        return doc_alias.document
+    except Document.DoesNotExist:
+        if doc_alias.name == doc_alias.document_id:
+            return maybe_create(Document, ["name"], **kwargs)
+        else:
+            debug("Alias %s --> %s: document missing??" % (doc_alias.name, doc_alias.document_id))
+            raise
+        
+def maybe_get_name(Cls, name):
+    try:
+        obj = Cls.objects.get(name=name)
+    except Cls.DoesNotExist:
+        if name == 'None':
+            obj = None
+        else:
+            print "\n*", Cls.__name__, name
+            #tbvars.print_exc_plus()
+            raise
+    return obj
+    
+def get(Cls, **kwargs):
+    try:
+        obj = Cls.objects.get(**kwargs)
+    except Cls.DoesNotExist:
+        print "Can't find %s: %s" % (Cls.__name__, kwargs)
+        raise
+    return obj
+    
+def get_or_create_person(name, addr=""):
+    if not name:
+        return None
+    if name.startswith("The ") and len(name) > 20:
+        return None
+    person_list = list(set([ alias.person for alias in Alias.objects.filter(name=name) ]))
+    if len(person_list) == 0:
+        pass
+    elif len(person_list) == 1:
+        return person_list[0]
+    else:
+        for item in person_list:
+            print "Match:", item.id, item
+            item.delete()
+        raise Exception("Multiple matching author names")
+    person = maybe_create(Person, ["name", ],
+        name    = name,
+        ascii   = name,
+        address = addr)
+    maybe_create(Alias, ["name", "person", ], name=name, person=person)
+    return person
+
+def get_or_create_email(email, person):
+    email = maybe_create(Email, ["address"],
+        time = Datetime.now(),
+        address = email,
+        person = person)
+    return email
+
+def fix_alias(orig, aliases):
+    if orig in aliases.keys():
+        return aliases[orig]
+    else:
+        return orig
+
+def parse_name(name):
+    p = Person(name=name, ascii=name)
+    return p.name_parts()    
+
+# ------------------------------------------------------------------------------
+def listdir(path, pattern):
+    dirlist = Path(path).dirs()
+    items = [ x for x in dirlist if re.search(pattern, x.name) ]
+    items.sort()
+    return items
+
+# ------------------------------------------------------------------------------
+def fixup(attrs):
+    def email(k, s, d):
+        info = s.strip()
+        if "@" in info:
+            try:
+                name, email = info.rsplit(" ", 1)
+            except ValueError:
+                name, email = None, info
+            email = email.strip("<>")
+            p = get_or_create_person(name=name)
+            e = get_or_create_email(person=p, email=email)
+        else:
+            e = None
+        return e
+        
+    def authorlist(k, s, d):
+        list = [ x.strip() for x in s.split(",") ]
+        for i in range(len(list)):
+            list[i] = email(k, list[i], d)
+        return list
+
+    def time(k, s, d):
+        try:
+            t = tzparse(s, "%Y-%m-%dT%H:%M:%S%Z")
+            utc = Datetime(*t.utctimetuple()[:6])
+        except UnboundLocalError:
+            print "time(k='%s', s='%s')"%(k,s)
+            raise
+        return utc
+
+    def state(k, s, d):
+        if s == "Withdrawn":
+            if d.startswith("draft-ietf"):
+                s = "Withdrawn by IETF"
+            else:
+                s = "Withdrawn by Submitter"
+        if s.startswith("draft-"):
+            s = "Replaced"
+        return maybe_get_name(DocStateName, s)
+
+    def intended_std_level(k, s, d):
+        alias = {
+            "draft":                None,
+            "to be discussed":      None,
+            "private":              None,
+            "Request":              None,
+            "Expected":             None,
+            "Internet Draft":       None,
+            "September 9, 2008":    None,
+            "<e.g., Informational>":None,
+            "Best Current":         "Best Current Practice",
+            "BCP":                  "Best Current Practice",
+            "Recommendation":       "Best Current Practice",
+            "<Best Current Practice>":
+                                    "Best Current Practice",
+            "Standard Tracks":      "Standards Track",
+            "Standards":            "Standards Track",
+            "Standard Track":       "Standards Track",
+            "Standard track":       "Standards Track",
+            "Standard Stack":       "Standards Track",
+            "Standard Truck":       "Standards Track",
+            "Standards Truck":      "Standards Track",
+            "Updates RFC 3473":     "Standards Track",
+            "standard track":       "Standards Track",
+            "Streamlined FTP Command Extensions":
+                                    "Standards Track",
+            "Updates 791,1122,2003":"Standards Track",
+            "Standards Track (as PS)":
+                                    "Proposed Standard",
+            "Standards Track (PS)": "Proposed Standard",
+            "Proposed Standards":   "Proposed Standard",
+            "Proposed":             "Proposed Standard",
+            "Full Standard":        "Standard",
+            "Experimental Track":   "Experimental",
+            "Experimental.":        "Experimental",
+            "Experimental RFC":     "Experimental",
+            "Experimental July 18, 2007":
+                                    "Experimental",
+            "Hiroshi Ohta, NTT":    "Informational",
+            "Informative":          "Informational",
+            "Information":          "Informational",
+            "Informational Track":  "Informational",
+            "Informational Alcatel-Lucent":
+                                    "Informational",
+            "Independent submission": "Informational",
+            "Informational October 7, 2009":
+                                    "Informational",
+            "Informational NTT":    "Informational",
+            "RFC":                  "Informational",
+            }
+        if s in alias:
+            s = alias[s]
+        if s and s.startswith("Internet Draft"):
+            s = None
+        if s:
+            return maybe_get_name(IntendedStatusName, s)
+        else:
+            return None
+
+    def std_level(k, s, d):
+        alias = {
+            "INFORMATIONAL":    "Informational",
+            }
+        if s in alias:
+            s = alias[s]
+        if s:
+            return maybe_get_name(StdStatusName, s)
+        else:
+            return None
+
+    def ad(k, s, d):
+        if "@" in s:
+            return email(k, s, d)
+        else:
+            return None
+
+    def group(k, s, d):
+        if s == 'none':
+            return None
+        else:
+            return maybe_create(Group, ["name"], name=s)
+
+    def docinfotag(k, s, d):
+        list = [ x.strip() for x in s.split(",") ]
+        for i in range(len(list)):
+            list[i] = maybe_get_name(DocInfoTagName, list[i])
+        return list
+        
+    def rfc_state(k, s, d):
+        return maybe_get_name(RfcDocStateName, s)
+
+    def related(k, s, d):
+        def rel(r, d):
+            d = d.strip()
+            if d.lower().endswith("[not-received]"):
+                d = d[:-14]
+            if d.lower().endswith("[in-queue]"):
+                d = d[:-10]
+            if d.endswith(".txt"):
+                d = d[:-4]
+            if re.search("-[0-9][0-9]$", d):
+                d = d[:-3]
+
+            document = maybe_create_document(name=d, type=maybe_get_name(DocTypeName, (d.startswith("draft-") and "Draft" or "External")))
+            doc_alias = maybe_create(DocAlias, ["name","document"], name=d, document=document) 
+
+            return maybe_create(RelatedDoc, ["relationship", "doc_alias"],
+                relationship=maybe_get_name(DocRelationshipName, r),
+                doc_alias=doc_alias)
+        if k == 'docrefs':
+            return [ rel("References", i.strip()) for i in re.split("[ ,]+", s) ]
+        if k == 'docreplaces':
+            return [ rel("Replaces", i.strip()) for i in re.split("[ ,]+", s) ]
+        if k == 'docupdates':
+            return [ rel("Updates", i.strip()) for i in re.split("[ ,]+", s) ]
+        if k == 'docobsoletes':
+            return [ rel("Obsoletes", i.strip()) for i in re.split("[ ,]+", s) ]
+
+    def alias(k, s, d):
+        if k == 'docrfcnum':
+            return [ "rfc%s"%(number(s),), ]
+        if k == 'docisalso' and s.lower().startswith("std"):
+            return []
+        return [ i.strip().lower() for i in re.split("[ ,]+", s) ]
+
+    def pages(k, s, d):
+        num = number(s)
+        if num:
+            return int(num)
+        else:
+            return None
+
+    fix = {
+        "docabstract":      "abstract",
+        "docareadir":       ad,
+        "docauthors":       authorlist,
+        "docauthor":        None,
+        "docbytes":         None,
+        "doccreated":       None,
+        "docdeststatus":    intended_std_level,
+        "docformat":        None,
+        "docidnum":         None,
+        "docinfotag":       docinfotag,
+        "docipr":           None,
+        "docisalso":        alias,
+        "docnotify":        "notify",
+        "docobsoletes":     related,
+        "docobsoletedby":   None,
+        "docorigstatus":    None,
+        "docpages":         pages,
+        "docphase":         None,
+        "docpublished":     None,
+        "docrefs":          related,
+        "docreplaces":      related,
+        "docreplacement":   None,
+        "docrfcnum":        alias,
+        "docrev":           "rev",
+        "docstdstatus":     std_level,
+        "docsource":        None,
+        "docsponsor":       ad,
+        "docstate":         None,           # Needs state handling
+        "docsubmitted":     None,
+        "doctitle":         "title",
+        "document":         "name",
+        "docupdatedby":     None,
+        "docupdates":       related,
+        "docuuid":          None,
+        "docvalidity":      state,
+        "docwg":            group,
+        "eventsource":      None,
+        "eventtitle":       None,
+        "eventuuid":        None,
+        "rfcqqueue":        None,
+        "rfcqentry":        None,
+        "stateadded":       None,
+        "statechange":      None,
+        "timestamp":        time,
+        }
+    fixed = {
+        "alias":    [ attrs["document"].string ],
+        "type":     maybe_get_name(DocTypeName, "Draft"),
+    }
+    doc = attrs["document"].string
+    for key, value in attrs.items():
+        try:
+            if key.startswith("old"):
+                continue
+            if type(fix[key]) is str:
+                    fixed[fix[key]] = value.string.decode("latin1")
+            elif type(fix[key]) is type(lambda a:a):
+                k = fix[key].__name__
+                v = fix[key](key, value.string.decode("latin1"), doc)
+                # Append lists, but set other values
+                if type(v) == type([]):
+                    if not k in fixed:
+                        fixed[k] = []
+                    fixed[k] += v
+                else:
+                    fixed[k] = v
+            else:
+                pass
+        except KeyError:
+            print "* Document:", attrs["document"].string
+            print key, value
+            raise
+        except:
+            print "* Document:", attrs["document"].string
+            raise
+    return fixed
+    
+# ------------------------------------------------------------------------------
+
+fn = Path("processed.json")
+if fn.exists():
+    processed = json.load(fn.open())
+else:
+    processed = []
+
+
+docaliases = [ a.name for a in DocAlias.objects.all() ]
+docdirs = listdir("/www/tools.ietf.org/draft/", "^draft-.*")
+special = {}
+count = 0
+try:
+    for d in docdirs:
+        count += 1
+        sys.stderr.write(".")
+        if count % 1000 == 0:
+            sys.stderr.write("\n * %6s %s\n" % (count, d.basename()))
+        h = d/"history"
+        if h.exists() and h.size > 0:
+            if not d.basename() in processed:
+                history = attrib.read(h)
+
+                for event in history:
+                    #print event["timestamp"], event["document"]
+                    event = fixup(event)
+                    #print event
+                    for item in ["authorlist", "docinfotag", "alias", "related" ]:
+                        if item in event:
+                            special[item] = event[item]
+                            del event[item]
+                        else:
+                            special[item] = []
+
+                    doc = maybe_create_document(**event)
+                    for author in special["authorlist"]:
+                        if author and author not in doc.authors.all():
+                            doc.authors.add(author)
+                    for tag in special["docinfotag"]:
+                        if not tag in doc.tags.all():
+                            doc.tags.add(tag)
+                    for rel in special["related"]:
+                        if not rel in doc.related.all():
+                            doc.related.add(rel)
+                    doc.save()
+                for alias in special["alias"]:
+                    if alias.startswith("rfc"):
+                        rfcdocs = list(Document.objects.filter(name=alias))
+                        if rfcdocs:
+                            if len(rfcdocs) > 1:
+                                sys.stderr.write("\n * Two documents with name=%s ??"%alias)
+                            else:
+                                rfc = rfcdocs[0]
+                                if rfc != doc:
+                                    sys.stderr.write("Deleting %s\n"%rfc)
+                                    al = DocAlias.objects.filter(document=rfc)
+                                    for a in al:
+                                        a.delete()
+                                    rfc.delete()
+                    maybe_create(DocAlias, ["document", "name",], document=doc, name=alias)
+                processed += [ d.basename() ]
+finally:
+    json.dump(processed, fn.open("w"))

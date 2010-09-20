@@ -37,9 +37,9 @@ COPYRIGHT
 
 """
 
-import sys, os.path, getopt, re
+import sys, os.path, getopt, re, traceback
 
-version = "v0.10"
+version = "v0.20"
 program = os.path.basename(sys.argv[0])
 progdir = os.path.dirname(sys.argv[0])
 
@@ -73,6 +73,8 @@ from django.conf import settings
 from ietf.idtracker.models import InternetDraft as OldInternetDraft
 from ietf.idtracker.models import IDInternal as OldIdInternal
 from ietf.idtracker.models import RfcObsolete as OldRfcObsolete
+from ietf.idtracker.models import PersonOrOrgInfo as OldPerson
+from ietf.utils.draft import Draft, getdraft
 
 from redesign.doc.models import *
 from redesign.name.models import *
@@ -80,6 +82,9 @@ from redesign.person.models import *
 
 import attrib
 
+# ------------------------------------------------------------------------------
+# Function definitions.
+# ------------------------------------------------------------------------------
 def changes(old, new):
     if not type(old) == type({}):
         old = old.__dict__.copy()
@@ -120,6 +125,7 @@ def get_or_create(Cls, unique, **kwargs):
             print "Deleting duplicate object:", obj
             obj.delete()
         obj = Cls.objects.get(**unique)
+        raise
     return obj
     
 def get(Cls, **kwargs):
@@ -130,19 +136,54 @@ def get(Cls, **kwargs):
         raise
     return obj
     
-def get_email(p):
+def get_or_create_person(id=None, date=None, prefix="", first="", middle="", last="", suffix="", addr=""):
+    for parts in [
+        [ prefix, first, middle, last, suffix, ],
+        [ first, middle, last, suffix ],
+        [ first, middle, last ],
+        [ first, last, suffix ],
+        [ first, last ],
+        ]:
+        parts = [ item for item in parts if item ]         
+        name = " ".join(parts)
+        person_list = list(set([ alias.person for alias in Alias.objects.filter(name=name) ]))
+        if len(person_list) == 0:
+            continue
+        elif len(person_list) == 1:
+            return person_list[0]
+        else:
+            for item in person_list:
+                print "Match:", item.id, item
+                item.delete()
+            raise Exception("Multiple matching author names")
+    name = " ".join([ item for item in [ first, middle, last, suffix, ] if item ])
     person = get_or_create(Person, ["id", ],
-        id     = p.person_or_org_tag,
-        time   = p.date_modified or Datetime.now(),
-        prefix = p.name_prefix or "",
-        given  = p.first_name,
-        middle = p.middle_initial or "",
-        family = p.last_name,
-        suffix = p.name_suffix or "",
-        address = "")
+        id      = id,
+        time    = date or Datetime.now(),
+        name    = name,
+        ascii   = name,
+        address = addr)
+    get_or_create(Alias, ["name", "person", ], name=name, person=person)
+    if name in auth_alias:
+        for alias in auth_alias[name]:
+            get_or_create(Alias, ["name", "person", ], name=alias, person=person)
+    return person
+
+def get_or_create_person_from_old(p):
+    person_list = Person.objects.filter(id=p.person_or_org_tag)
+    if person_list.count() == 1:
+        return person_list.get(id=p.person_or_org_tag)
+    else:
+        return get_or_create_person(id=p.person_or_org_tag, date=p.date_modified, prefix=p.name_prefix, first=p.first_name, middle=p.middle_initial, last=p.last_name, suffix=p.name_suffix, addr="Mark 1")
+
+def get_or_create_person_from_name(name):
+    prefix, first, middle, last, suffix = parse_name(name)
+    return get_or_create_person(prefix=prefix, first=first, middle=middle, last=last, suffix=suffix, addr="Mark 3")
+
+def get_or_create_email(email, person):
     email = get_or_create(Email, ["address"],
         time = Datetime.now(),
-        address = p.email()[1],
+        address = email,
         person = person)
     return email
 
@@ -152,89 +193,22 @@ def fix_alias(orig, aliases):
     else:
         return orig
 
+def parse_name(name):
+    p = Person(name=name, ascii=name)
+    return p.name_parts()    
+
+# ------------------------------------------------------------------------------
+def listdir(path, pattern):
+    dirlist = os.listdir(path)
+    files = [ x for x in dirlist if re.match(pattern, x) ]
+    files.sort()
+    return files
+
+# ------------------------------------------------------------------------------
 std_status_aliases = {
     "Best Current Practice": "BCP",
     "Request For Comments":  "Unknown",
     "Request":  "Unknown",
 }
 
-
-count = 0
-for id in OldInternetDraft.objects.all():
-    #print id.filename
-    count += 1
-    if count % 100:
-        sys.stderr.write(".")
-    doc = get_or_create(Document, ["name"], name=id.filename)
-    alias = get_or_create(Alias, ["name"], document=doc, name=doc.name)
-    try:
-        id.iesg = OldIdInternal.objects.get(draft=id)
-    except:
-        id.iesg = None
-    
-    # Document related
-    doc.type = get_or_create(DocTypeName, ["slug"], name="Draft",slug='draft', desc="")
-    doc.title = id.title
-    # State
-    if id.iesg and id.iesg.via_rfc_editor:
-        doc.stream = get_or_create(DocStreamName, ["slug"], name="Independent Submission", slug="indie", desc="")
-    else:
-        if id.filename[5:11] == "-iab-":
-            doc.stream = get_or_create(DocStreamName, ["slug"], name="IAB", slug="iab", desc="")
-        elif id.filename[5:12] == "-irtf-":
-            doc.stream = get_or_create(DocStreamName, ["slug"], name="IRTF", slug="irtf", desc="")
-        else:
-            doc.stream = get_or_create(DocStreamName, ["slug"], name="IETF", slug="ietf", desc="")
-    doc.state = get(DocStateName, name=id.status.status)
-    doc.wg_state  = None
-    if id.iesg:
-        doc.iesg_state = get(IesgDocStateName, name=id.iesg.cur_state.state)
-    doc.iana_state = None
-    #doc.rfc_state =
-    # Other
-    doc.abstract = id.abstract
-    doc.rev = id.revision
-    doc.pages = id.txt_page_count
-    try:
-        doc.intended_std_level = get(StdStatusName, name=fix_alias(id.intended_status.intended_status, std_status_aliases))
-    except:
-        raise
-    authors = {}
-    email = None
-    failure = False
-    for info in id.authors.all():
-        try:
-            authors[info.person_id] = "Unknown"
-            person = info.person
-            email = get_email(info.person)
-            authors[info.person_id] = "%-32s %s" % (email, str(person))
-            #print " ", email
-            doc.authors.add(email)
-        except:
-            try:
-                person = Person.objects.get(id=info.person_id)
-                email = person.email
-            except:
-                failure = True
-        if email:
-            doc.authors.add(email)
-        if failure:
-            print ""
-            print id.filename
-            for n, who in authors.items():
-                print "  Author:", n, who
-    #doc.updates.add()
-    if id.replaces:
-        doc.replaces.add(get_or_create(Document, ["name"], name=id.replaces.filename))
-    #doc.obsoletes.add()
-    if id.iesg:
-        try:
-            doc.ad = get_email(id.iesg.job_owner.person)
-        except Exception:
-            print "Looking at id: %s" % id
-            print "Looking for job_owner: %s" % id.iesg.job_owner_id
-            print "Looking for person: %s" % id.iesg.job_owner.person_id
-            raise
-    doc.shepherd = None
-    doc.save()
-    
+#

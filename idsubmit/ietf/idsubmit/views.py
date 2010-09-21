@@ -207,12 +207,12 @@ def adjust_form(request, submission_id):
             cnt = 1
             for aform in author_forms:
                 # Delete this author (or empty additional author)
-                if aform.clean_data['email_address'] == '':
+                if aform.cleaned_data['email_address'] == '':
                     continue
                 submission.authors.create(
-                    first_name= aform.clean_data['first_name'],
-                    last_name = aform.clean_data['last_name'],
-                    email_address = aform.clean_data['email_address'],
+                    first_name= aform.cleaned_data['first_name'],
+                    last_name = aform.cleaned_data['last_name'],
+                    email_address = aform.cleaned_data['email_address'],
                     author_order = cnt,
                 )
                 cnt = cnt + 1

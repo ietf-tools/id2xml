@@ -142,6 +142,9 @@ INTERNAL_IPS = (
         '::1',
 )
 
+# no slash at end
+IDTRACKER_BASE_URL = "http://datatracker.ietf.org"
+
 # Valid values:
 # 'production', 'test', 'development'
 # Override this in settings_local.py if it's not true

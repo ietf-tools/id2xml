@@ -1,6 +1,8 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% extends "idsubmit/base.html" %}
-{% block maincontent %}
+{% extends "base.html" %}
+{%block title%}IDNITS - IETF Datatracker{%endblock%}
+
+{% block content %}
 <pre>
 {{ object.idnits_message|escape|urlize }}
 </pre>

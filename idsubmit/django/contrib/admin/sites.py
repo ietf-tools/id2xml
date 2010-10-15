@@ -277,8 +277,9 @@ class AdminSite(object):
         """
         Displays the login form for the given HttpRequest.
         """
-        url = "/accounts/login/?next="+request.get_full_path()
-        return http.HttpResponseRedirect(url)
+        if not getattr(settings, 'FORCE_DJANGO_AUTHENTICATION', False):
+            url = "/accounts/login/?next="+request.get_full_path()
+            return http.HttpResponseRedirect(url)
 
         from django.contrib.auth.models import User
 

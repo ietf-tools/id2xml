@@ -43,6 +43,7 @@ class IDState(models.Model):
     IESG_EVALUATION = 20
     IESG_EVALUATION_DEFER = 21
     APPROVED_ANNOUNCEMENT_SENT = 30
+    AD_WATCHING = 42
     DEAD = 99
     DO_NOT_PUBLISH_STATES = (33, 34)
     
@@ -1053,6 +1054,21 @@ class IRTFChair(models.Model):
         db_table = 'irtf_chairs'
         verbose_name="IRTF Research Group Chair"
 
+class IDDates(models.Model):
+    FIRST_CUT_OFF = 1
+    SECOND_CUT_OFF = 2
+    IETF_MONDAY = 3
+    ALL_IDS_PROCESSED_BY = 4
+    IETF_MONDAY_AFTER = 5
+    APPROVED_V00_SUBMISSIONS = 6
+    
+    date = models.DateField(db_column="id_date")
+    description = models.CharField(max_length=255, db_column="date_name")
+    f_name = models.CharField(max_length=255)
+    
+    class Meta:
+        db_table = 'id_dates'
+    
 # Not a model, but it's related.
 # This is used in the view to represent documents
 # in "I-D Exists".

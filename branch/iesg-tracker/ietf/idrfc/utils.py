@@ -2,9 +2,14 @@ from ietf.idtracker.models import DocumentComment, BallotInfo, IESGLogin
 from ietf.idrfc.mails import *
 
 def add_document_comment(request, doc, text, include_by=True, ballot=None):
-    login = IESGLogin.objects.get(login_name=request.user.username)
-    if include_by:
-        text += " by %s" % login
+    if request:
+        login = IESGLogin.objects.get(login_name=request.user.username)
+        if include_by:
+            text += " by %s" % login
+    else:
+        login = None
+        if include_by:
+            text += " by %s" % "system"
 
     c = DocumentComment()
     c.document = doc.idinternal
@@ -49,7 +54,8 @@ def log_state_changed(request, doc, by):
     c.public_flag = True
     c.version = doc.revision_display()
     c.comment_text = change
-    c.created_by = by
+    if isinstance(by, IESGLogin):
+        c.created_by = by
     c.result_state = doc.idinternal.cur_state
     c.origin_state = doc.idinternal.prev_state
     c.rfc_flag = doc.idinternal.rfc_flag

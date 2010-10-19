@@ -895,6 +895,47 @@ class ExpireIDsTestCase(django.test.TestCase):
         self.assertEquals(int(draft.revision), int(revision_before) - 1)
         self.assertTrue(draft.expired_tombstone)
         
+class ExpireLastCallTestCase(django.test.TestCase):
+    fixtures = ['base', 'draft']
+
+    def test_expire_last_call(self):
+        from ietf.idrfc.lastcall import get_expired_last_calls, expire_last_call
+        
+        # check that not expired drafts aren't expired 
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        draft.idinternal.cur_state = IDState.objects.get(document_state_id=IDState.IN_LAST_CALL)
+        draft.idinternal.cur_substate = None
+        draft.idinternal.save()
+        draft.lc_expiration_date = datetime.date.today() + datetime.timedelta(days=2)
+        draft.save()
+
+        self.assertEquals(len(get_expired_last_calls()), 0)
+
+        draft.lc_expiration_date = None
+        draft.save()
+        
+        self.assertEquals(len(get_expired_last_calls()), 0)
+
+        # test expired
+        draft.lc_expiration_date = datetime.date.today()
+        draft.save()
+        
+        drafts = get_expired_last_calls()
+        self.assertEquals(len(drafts), 1)
+
+        mailbox_before = len(mail_outbox)
+        comments_before = draft.idinternal.comments().count()
+        
+        expire_last_call(drafts[0])
+
+        draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        self.assertEquals(draft.idinternal.cur_state.document_state_id, IDState.WAITING_FOR_WRITEUP)
+        self.assertEquals(draft.idinternal.comments().count(), comments_before + 1)
+        self.assertEquals(len(mail_outbox), mailbox_before + 1)
+        self.assertTrue("Last Call Expired" in mail_outbox[-1]["Subject"])
+        
+
         
 TEST_RFC_INDEX = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index" 

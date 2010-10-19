@@ -1,3 +1,5 @@
+# expiry of Internet Drafts
+
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.db.models import Q

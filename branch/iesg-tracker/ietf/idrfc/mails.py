@@ -21,7 +21,7 @@ def email_state_changed(request, doc, text):
 def html_to_text(html):
     return strip_tags(html.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("<br>", "\n"))
     
-def email_owner(request, doc, owner, changed_by, text):
+def email_owner(request, doc, owner, changed_by, text, subject=None):
     if not owner or not changed_by or owner == changed_by:
         return
 
@@ -29,7 +29,7 @@ def email_owner(request, doc, owner, changed_by, text):
     send_mail(request, to,
               "DraftTracker Mail System <iesg-secretary@ietf.org>",
               "%s updated by %s" % (doc.file_tag(), changed_by),
-              "idrfc/changes_by_other.txt",
+              "idrfc/change_notice.txt",
               dict(text=html_to_text(text),
                    doc=doc,
                    url=settings.IDTRACKER_BASE_URL + doc.idinternal.get_absolute_url()))
@@ -273,4 +273,17 @@ def email_iana(request, doc, to, msg):
                        parsed_msg.get_payload(),
                        extra=extra,
                        bcc="fenner@research.att.com")
+
+def email_last_call_expired(doc):
+    text = "IETF Last Call has ended, and the state has been changed to\n%s." % doc.idinternal.cur_state.state
+    
+    send_mail(None,
+              "iesg@ietf.org",
+              "DraftTracker Mail System <iesg-secretary@ietf.org>",
+              "Last Call Expired: %s" % doc.file_tag(),
+              "idrfc/change_notice.txt",
+              dict(text=text,
+                   doc=doc,
+                   url=settings.IDTRACKER_BASE_URL + doc.idinternal.get_absolute_url()),
+              cc="iesg-secretary@ietf.org")
 

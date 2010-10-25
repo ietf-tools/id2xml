@@ -103,7 +103,7 @@ class ChangeStateTestCase(django.test.TestCase):
         self.assertTrue(draft.filename in mail_outbox[-1]['Subject'])
 
         
-    def test_make_last_call(self):
+    def test_request_last_call(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
 
         self.client.login(remote_user="klm")
@@ -113,7 +113,8 @@ class ChangeStateTestCase(django.test.TestCase):
         
         self.assertRaises(BallotInfo.DoesNotExist, lambda: draft.idinternal.ballot)
         r = self.client.post(url,
-                             dict(state="15", substate=""))
+                             dict(state=str(IDState.LAST_CALL_REQUESTED),
+                                  substate=""))
         self.assertContains(r, "Your request to issue the Last Call")
 
         # last call text
@@ -135,6 +136,7 @@ class ChangeStateTestCase(django.test.TestCase):
 
         # comment
         self.assertTrue("Last Call was requested" in draft.idinternal.comments()[0].comment_text)
+        
 
 class EditInfoTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
@@ -707,6 +709,11 @@ class MakeLastCallTestCase(django.test.TestCase):
 
     def test_make_last_call(self):
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
+        draft.idinternal.cur_state = IDState.objects.get(document_state_id=IDState.LAST_CALL_REQUESTED)
+        draft.idinternal.save()
+        draft.lc_expiration_date = None
+        draft.save()
+        
         url = urlreverse('doc_make_last_call', kwargs=dict(name=draft.filename))
         login_testing_unauthorized(self, "klm", url)
 
@@ -718,16 +725,18 @@ class MakeLastCallTestCase(django.test.TestCase):
 
         # make last call
         mailbox_before = len(mail_outbox)
+
+        expire_date = q('input[name=last_call_expiration_date]')[0].get("value")
         
         r = self.client.post(url,
                              dict(last_call_sent_date=q('input[name=last_call_sent_date]')[0].get("value"),
-                                  last_call_expiration_date=q('input[name=last_call_expiration_date]')[0].get("value")
+                                  last_call_expiration_date=expire_date
                                   ))
         self.assertEquals(r.status_code, 302)
 
         draft = InternetDraft.objects.get(filename="draft-ietf-mipshop-pfmipv6")
         self.assertEquals(draft.idinternal.cur_state_id, IDState.IN_LAST_CALL)
-        
+        self.assertEquals(draft.lc_expiration_date.strftime("%Y-%m-%d"), expire_date)
         self.assertEquals(len(mail_outbox), mailbox_before + 4)
 
         self.assertTrue("Last Call" in mail_outbox[-4]['Subject'])

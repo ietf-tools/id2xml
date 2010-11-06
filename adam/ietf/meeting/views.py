@@ -4,6 +4,8 @@
 #import models
 import datetime
 import os
+import re
+import tarfile
 
 from django.shortcuts import render_to_response, get_object_or_404
 from ietf.idtracker.models import IETFWG, IRTF, Area
@@ -17,6 +19,8 @@ from django.conf import settings
 from django.utils.decorators import decorator_from_middleware
 from django.middleware.gzip import GZipMiddleware
 from django.db.models import Count
+from ietf.idtracker.models import InternetDraft
+from ietf.idrfc.idrfc_wrapper import IdWrapper
 
 from ietf.proceedings.models import Meeting, MeetingTime, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches, WgProceedingsActivities
 
@@ -148,3 +152,107 @@ def session_agenda(request, num, session, ext=None):
         raise Http404("No %s agenda for the %s session of IETF %s is available" % (ext, session, num))
     else:
         raise Http404("No agenda for the %s session of IETF %s is available" % (session, num))
+
+def convert_to_pdf(doc_name):
+    from tempfile import mkstemp
+    from ietf.utils.pipe import pipe
+    import subprocess
+    inpath = os.path.join(settings.INTERNET_DRAFT_PATH, doc_name + ".txt")
+    outpath = os.path.join(settings.INTERNET_DRAFT_PDF_PATH, doc_name + ".pdf")
+
+    try:
+        infile = open(inpath, "r")
+    except Exception, e:
+        return
+
+    t,tempname = mkstemp()
+    tempfile = open(tempname, "w")
+
+    pageend = 0;
+    newpage = 0;
+    formfeed = 0;
+    for line in infile:
+        line = re.sub("\r","",line)
+        line = re.sub("[ \t]+$","",line)
+        if re.search("\[?[Pp]age [0-9ivx]+\]?[ \t]*$",line):
+            pageend=1
+            tempfile.write(line)
+            continue
+        if re.search("^[ \t]*\f",line):
+            formfeed=1
+            tempfile.write(line)
+            continue
+        if re.search("^ *INTERNET.DRAFT.+[0-9]+ *$",line) or re.search("^ *Internet.Draft.+[0-9]+ *$",line) or re.search("^draft-[-a-z0-9_.]+.*[0-9][0-9][0-9][0-9]$",line) or re.search("^RFC.+[0-9]+$",line):
+            newpage=1
+        if re.search("^[ \t]*$",line) and pageend and not newpage:
+            continue
+        if pageend and newpage and not formfeed:
+            tempfile.write("\f")
+        pageend=0
+        formfeed=0
+        newpage=0
+        tempfile.write(line)
+
+    infile.close()
+    tempfile.close()
+    t,psname = mkstemp()
+    pipe("enscript --margins 76::76: -B -q -p "+psname + " " +tempname)
+    os.unlink(tempname)
+    pipe("ps2pdf "+psname+" "+outpath)
+    os.unlink(psname)
+
+
+def session_draft_tarfile(request, num, session):
+    from tempfile import mkstemp
+    extensions = ["html", "htm", "txt", "HTML", "HTM", "TXT", ]
+    found = False
+    for wg in [session, session.upper(), session.lower()]:
+        for e in extensions:
+            path = settings.AGENDA_PATH_PATTERN % {"meeting":num, "wg":wg, "ext":e}
+            if os.path.exists(path):
+                file = open(path)
+                agenda = file.read()
+                file.close()
+                found = True
+                break
+        if found:
+           break
+    else:
+      raise Http404("No agenda for the %s session of IETF %s is available" % (session, num))
+    
+    drafts = set(re.findall('(draft-[-a-z0-9]*)',agenda))
+
+    response = HttpResponse(mimetype='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s-drafts.tgz'%(session)
+    tarstream = tarfile.open('','w:gz',response)
+    mfh, mfn = mkstemp()
+    manifest = open(mfn, "w")
+
+    for draft in drafts:
+        if (re.search('-[0-9]{2}$',draft)):
+            doc_name = draft
+        else:
+            id = get_object_or_404(InternetDraft, filename=draft)
+            doc = IdWrapper(id)
+            doc_name = draft + "-" + id.revision
+
+        txt_path = os.path.join(settings.INTERNET_DRAFT_PATH, doc_name + ".txt")
+        pdf_path = os.path.join(settings.INTERNET_DRAFT_PDF_PATH, doc_name + ".pdf")
+
+        if (not os.path.exists(pdf_path)):
+            convert_to_pdf(doc_name)
+
+        if os.path.exists(pdf_path):
+            try:
+                tarstream.add(pdf_path, str(doc_name + ".pdf"))
+                manifest.write("Included:  "+pdf_path+"\n")
+            except Exception, e:
+                manifest.write(("Failed (%s): "%e)+pdf_path+"\n")
+        else:
+            manifest.write("Not found: "+pdf_path+"\n")
+
+    manifest.close()
+    tarstream.add(mfn, "manifest.txt")
+    tarstream.close()
+    os.unlink(mfn)
+    return response    

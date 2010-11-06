@@ -37,8 +37,10 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.http import HttpResponse
 from ietf.idrfc.views_search import SearchForm, search_query
-from ietf.idrfc.idrfc_wrapper import IdRfcWrapper
+from ietf.idrfc.idrfc_wrapper import IdRfcWrapper, RfcWrapper, IdWrapper
 from ietf.ipr.models import IprDetail
+from ietf.idrfc.models import RfcIndex
+from ietf.idtracker.models import InternetDraft
 
 
 def wg_summary_acronym(request):
@@ -65,27 +67,37 @@ def wg_dir(request):
 def wg_documents(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
-    form = SearchForm({'by':'group', 'group':str(wg.group_acronym.acronym),
-                       'rfcs':'on', 'activeDrafts':'on'})
-    if not form.is_valid():
-        raise ValueError("form did not validate")
-    (docs,meta) = search_query(form.cleaned_data)
     
-    # get the related docs
-    form_related = SearchForm({'by':'group', 'name':'-'+str(wg.group_acronym.acronym)+'-', 'activeDrafts':'on'})
-    if not form_related.is_valid():
-        raise ValueError("form_related did not validate")
-    (docs_related,meta_related) = search_query(form_related.cleaned_data)
+    # get RFCs 
+    rfcs = RfcIndex.objects.filter( wg=wg.group_acronym.acronym)
+    docs = []
+    for r in rfcs:
+        rw = RfcWrapper(r)
+        idrfc = IdRfcWrapper(None, rw)
+        docs.append( idrfc )
+        
+    # get the WG drafts 
+    drafts = InternetDraft.objects.filter( group__acronym=wg.group_acronym.acronym, status__status='Active')
+
+    for id in drafts:
+        dw = IdWrapper(id)
+        d = IdRfcWrapper( dw, None)
+        docs.insert(0, d)
+      
+    # now get the related docs
     docs_related_pruned = []
-    for d in docs_related:
+    related = InternetDraft.objects.filter( filename__contains=wg.group_acronym.acronym,  status__status='Active')
+    for r in related:
+        dw = IdWrapper(r)
+        d = IdRfcWrapper( dw, None)
         parts = d.id.draft_name.split("-", 2);
         # canonical form draft-<name|ietf>-wg-etc
         if ( len(parts) >= 3):
             if parts[1] != "ietf" and parts[2].startswith(wg.group_acronym.acronym+"-"):
                 docs_related_pruned.append(d)
-  
-    return render_to_response('wginfo/wg_documents.html', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  'meta':meta, 
-                                                           'docs_related':docs_related_pruned, 'meta_related':meta_related}, RequestContext(request))
+ 
+    return render_to_response('wginfo/wg_documents.html', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  
+                                                           'docs_related':docs_related_pruned }, RequestContext(request))
 
 def wg_charter(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)

@@ -228,11 +228,13 @@ def send_ballot_comment(request, name):
         c = comment.text
         subj.append("COMMENT")
 
-    subject = "%s: %s" % (" and ".join(subj), doc.file_tag())
+    ad_name = str(ad)
+    ad_name_genitive = ad_name + "'" if ad_name.endswith('s') else ad_name + "'s"
+    subject = "%s %s on %s" % (ad_name_genitive, " and ".join(subj), doc.filename + '-' + doc.revision_display())
     body = render_to_string("idrfc/ballot_comment_mail.txt",
-                            dict(discuss=d, comment=c))
+                            dict(discuss=d, comment=c, ad=ad, doc=doc))
     frm = u"%s <%s>" % ad.person.email()
-    to = "iesg@ietf.org"
+    to = "The IESG <iesg@ietf.org>"
         
     if request.method == 'POST':
         cc = [x.strip() for x in request.POST.get("cc", "").split(',') if x.strip()]
@@ -632,7 +634,7 @@ def make_last_call(request, name):
         announcement += "\n".join(links)
     else:
         announcement += "\n\n"
-        announcement += "No IPR declarations were found that appear related to this I-D."
+        announcement += "No IPR declarations have been submitted directly on this I-D."
     
     if request.method == 'POST':
         form = MakeLastCallForm(request.POST)

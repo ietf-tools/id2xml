@@ -7,6 +7,8 @@ import os
 import re
 import tarfile
 
+from tempfile import mkstemp
+
 from django.shortcuts import render_to_response, get_object_or_404
 from ietf.idtracker.models import IETFWG, IRTF, Area
 from django.views.generic.list_detail import object_list
@@ -21,6 +23,7 @@ from django.middleware.gzip import GZipMiddleware
 from django.db.models import Count
 from ietf.idtracker.models import InternetDraft
 from ietf.idrfc.idrfc_wrapper import IdWrapper
+from ietf.utils.pipe import pipe
 
 from ietf.proceedings.models import Meeting, MeetingTime, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches, WgProceedingsActivities
 
@@ -154,8 +157,6 @@ def session_agenda(request, num, session, ext=None):
         raise Http404("No agenda for the %s session of IETF %s is available" % (session, num))
 
 def convert_to_pdf(doc_name):
-    from tempfile import mkstemp
-    from ietf.utils.pipe import pipe
     import subprocess
     inpath = os.path.join(settings.INTERNET_DRAFT_PATH, doc_name + ".txt")
     outpath = os.path.join(settings.INTERNET_DRAFT_PDF_PATH, doc_name + ".pdf")
@@ -202,9 +203,9 @@ def convert_to_pdf(doc_name):
     os.unlink(psname)
 
 
-def session_draft_tarfile(request, num, session):
-    from tempfile import mkstemp
+def session_draft_list(num, session):
     extensions = ["html", "htm", "txt", "HTML", "HTM", "TXT", ]
+    result = []
     found = False
     for wg in [session, session.upper(), session.lower()]:
         for e in extensions:
@@ -222,12 +223,6 @@ def session_draft_tarfile(request, num, session):
     
     drafts = set(re.findall('(draft-[-a-z0-9]*)',agenda))
 
-    response = HttpResponse(mimetype='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s-drafts.tgz'%(session)
-    tarstream = tarfile.open('','w:gz',response)
-    mfh, mfn = mkstemp()
-    manifest = open(mfn, "w")
-
     for draft in drafts:
         if (re.search('-[0-9]{2}$',draft)):
             doc_name = draft
@@ -235,8 +230,21 @@ def session_draft_tarfile(request, num, session):
             id = get_object_or_404(InternetDraft, filename=draft)
             doc = IdWrapper(id)
             doc_name = draft + "-" + id.revision
+        result.append(doc_name)
 
-        txt_path = os.path.join(settings.INTERNET_DRAFT_PATH, doc_name + ".txt")
+    return sorted(list(set(result)))
+
+
+def session_draft_tarfile(request, num, session):
+    drafts = session_draft_list(num, session);
+
+    response = HttpResponse(mimetype='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s-drafts.tgz'%(session)
+    tarstream = tarfile.open('','w:gz',response)
+    mfh, mfn = mkstemp()
+    manifest = open(mfn, "w")
+
+    for doc_name in drafts:
         pdf_path = os.path.join(settings.INTERNET_DRAFT_PDF_PATH, doc_name + ".pdf")
 
         if (not os.path.exists(pdf_path)):
@@ -256,3 +264,45 @@ def session_draft_tarfile(request, num, session):
     tarstream.close()
     os.unlink(mfn)
     return response    
+
+def pdf_pages(file):
+    try:
+        infile = open(file, "r")
+    except Exception, e:
+        return 0
+    for line in infile:
+        m = re.match('\] /Count ([0-9]+)',line)
+        if m:
+            return int(m.group(1))
+    return 0
+
+
+def session_draft_pdf(request, num, session):
+    drafts = session_draft_list(num, session);
+    curr_page = 1
+    pmh, pmn = mkstemp()
+    pdfmarks = open(pmn, "w")
+    pdf_list = ""
+
+    for draft in drafts:
+        pdf_path = os.path.join(settings.INTERNET_DRAFT_PDF_PATH, draft + ".pdf")
+        if (not os.path.exists(pdf_path)):
+            convert_to_pdf(draft)
+
+        if (os.path.exists(pdf_path)):
+            pages = pdf_pages(pdf_path)
+            pdfmarks.write("[/Page "+str(curr_page)+" /View [/XYZ 0 792 1.0] /Title (" + draft + ") /OUT pdfmark\n")
+            pdf_list = pdf_list + " " + pdf_path
+            curr_page = curr_page + pages
+
+    pdfmarks.close()
+    pdfh, pdfn = mkstemp()
+    pipe("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=" + pdfn + " " + pdf_list + " " + pmn)
+
+    pdf = open(pdfn,"r")
+    pdf_contents = pdf.read()
+    pdf.close()
+
+    os.unlink(pmn)
+    os.unlink(pdfn)
+    return HttpResponse(pdf_contents, mimetype="application/pdf")

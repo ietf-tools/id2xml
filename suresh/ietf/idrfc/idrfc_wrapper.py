@@ -696,7 +696,9 @@ class BallotWrapper:
         return self.get("No Record")
 
     def get_texts(self):
-        return [p for p in self.position_list() if ('has_text' in p) and p['has_text']]
+        ret = [p for p in self.position_list() if p.get('has_text')]
+        ret.sort(key=lambda pos:pos.get('comment_date',pos.get('discuss_date')),reverse=True) 
+        return ret
 
     def dict(self):
         summary = {}

@@ -228,9 +228,10 @@ def send_ballot_comment(request, name):
         c = comment.text
         subj.append("COMMENT")
 
+
     ad_name = str(ad)
     ad_name_genitive = ad_name + "'" if ad_name.endswith('s') else ad_name + "'s"
-    subject = "%s %s on %s" % (ad_name_genitive, pos.name() , doc.filename + '-' + doc.revision_display())
+    subject = "%s %s on %s" % (ad_name_genitive, pos.name() if pos else "No Position" , doc.filename + '-' + doc.revision_display())
     if subj:
       subject += ": (with "+" and ".join(subj)+")"
  

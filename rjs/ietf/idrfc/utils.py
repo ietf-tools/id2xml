@@ -1,15 +1,11 @@
 from ietf.idtracker.models import InternetDraft, DocumentComment, BallotInfo, IESGLogin
 from ietf.idrfc.mails import *
 
-def add_document_comment(request, doc, text, include_by=True, ballot=None):
+def add_document_comment(request, doc, text, ballot=None):
     if request:
         login = IESGLogin.objects.get(login_name=request.user.username)
-        if include_by:
-            text += " by %s" % login
     else:
         login = None
-        if include_by:
-            text += " by %s" % "system"
 
     c = DocumentComment()
     c.document = doc.idinternal
@@ -33,18 +29,25 @@ def generate_ballot(request, doc):
     doc.idinternal.ballot = ballot
     return ballot
     
-def log_state_changed(request, doc, by, email_watch_list=True):
-    change = u"State changed to <b>%s</b> from <b>%s</b> by %s" % (
+def log_state_changed(request, doc, by, email_watch_list=True, note=''):
+    change = u"State changed to <b>%s</b> from %s." % (
         doc.idinternal.docstate(),
         format_document_state(doc.idinternal.prev_state,
-                              doc.idinternal.prev_sub_state),
-        by)
+                              doc.idinternal.prev_sub_state))
+    if note:
+        change += "<br>%s" % note
 
     c = DocumentComment()
     c.document = doc.idinternal
     c.public_flag = True
     c.version = doc.revision_display()
     c.comment_text = change
+
+    if doc.idinternal.docstate()=="In Last Call":
+        c.comment_text += "\n\n<b>The following Last Call Announcement was sent out:</b>\n\n"
+        c.comment_text += doc.idinternal.ballot.last_call_text
+
+
     if isinstance(by, IESGLogin):
         c.created_by = by
     c.result_state = doc.idinternal.cur_state

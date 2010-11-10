@@ -228,11 +228,13 @@ def send_ballot_comment(request, name):
         c = comment.text
         subj.append("COMMENT")
 
-    subject = "%s: %s" % (" and ".join(subj), doc.file_tag())
+    ad_name = str(ad)
+    ad_name_genitive = ad_name + "'" if ad_name.endswith('s') else ad_name + "'s"
+    subject = "%s %s on %s" % (ad_name_genitive, " and ".join(subj), doc.filename + '-' + doc.revision_display())
     body = render_to_string("idrfc/ballot_comment_mail.txt",
-                            dict(discuss=d, comment=c))
+                            dict(discuss=d, comment=c, ad=ad, doc=doc))
     frm = u"%s <%s>" % ad.person.email()
-    to = "iesg@ietf.org"
+    to = "The IESG <iesg@ietf.org>"
         
     if request.method == 'POST':
         cc = [x.strip() for x in request.POST.get("cc", "").split(',') if x.strip()]
@@ -364,6 +366,7 @@ def lastcalltext(request, name):
             last_call_form = LastCallTextForm(request.POST, instance=ballot)
             if last_call_form.is_valid():
                 ballot.last_call_text = last_call_form.cleaned_data["last_call_text"]
+		add_document_comment(request, doc, "Last Call text changed")
                 ballot.save()
 
                 if "send_last_call_request" in request.POST:
@@ -428,6 +431,7 @@ def ballot_writeupnotes(request, name):
             ballot_writeup_form = BallotWriteupForm(request.POST, instance=ballot)
             if ballot_writeup_form.is_valid():
                 ballot.ballot_writeup = ballot_writeup_form.cleaned_data["ballot_writeup"]
+		add_document_comment(request, doc, "Ballot writeup text changed")
                 ballot.save()
 
         if "issue_ballot" in request.POST:
@@ -502,10 +506,12 @@ def ballot_approvaltext(request, name):
             approval_text_form = ApprovalTextForm(request.POST, instance=ballot)            
             if approval_text_form.is_valid():
                 ballot.approval_text = approval_text_form.cleaned_data["approval_text"]
+		add_document_comment(request, doc, "Approval announcement text changed")
                 ballot.save()
                 
         if "regenerate_approval_text" in request.POST:
             ballot.approval_text = generate_approval_mail(request, doc)
+	    add_document_comment(request, doc, "Approval announcement text regenerated")
             ballot.save()
 
             # make sure form has the updated text

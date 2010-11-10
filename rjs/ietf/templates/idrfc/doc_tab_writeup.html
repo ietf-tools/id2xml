@@ -1,5 +1,6 @@
+{% extends "idrfc/doc_main.html" %}
 {% comment %}
-Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
 
 Redistribution and use in source and binary forms, with or without
@@ -33,19 +34,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% endcomment %}
 
 {% load ietf_filters %}
-{% load ballot_icon %}
-<tr class="{% cycle oddrow,evenrow %}">
-<td class="doc">
-{% if doc.rfc %}{{ doc.rfc.displayname_with_link|safe }}
-{% if doc.id %}<br />(<a href="{{ doc.id.get_absolute_url }}">{{doc.id.draft_name}}</a>){%endif%}
-{% else %}{{ doc.id.displayname_with_link|safe }}
-{% endif %}
-</td>
-<td class="title">{{ doc.title }}</td>
-{% include "idrfc/date_column.html" %}
-{% include "idrfc/status_columns.html" %}
-{% include "idrfc/ipr_column.html" %}
-{# <td class="ad">{% if doc.ad_name %}{{ doc.ad_name }}{% else %}&nbsp;{% endif %}</td> #}
-<td class="ad">{{ doc.ad_name|default:"" }}</td>
 
-</tr>
+{% block tab_content %}
+---- following is a DRAFT of message to be sent AFTER approval ---
+{% if doc.in_ietf_process and doc.ietf_process.has_iesg_ballot %}
+{% if user|in_group:"Area_Director,Secretariat" %}
+<div style="background:#E0E0FF">
+<p align=right>
+<span id="doc_edit_announce_button" class="yui-button yui-link-button"><span class="first-child">
+<a href="{% url doc_ballot_approvaltext name=doc.draft_name %}">Edit Announcement Text</a>
+</span></span>
+</p>
+{% endif %}
+{% endif %}
+<pre>
+{{ doc.ietf_process.iesg_ballot.approval_text|escape|urlize }}
+</pre>
+{% if doc.in_ietf_process and doc.ietf_process.has_iesg_ballot %}
+{% if user|in_group:"Area_Director,Secretariat" %}
+</div>
+
+<div style="background:#E0E0FF">
+<p align=right>
+<span id="doc_ballot_edit_button" class="yui-button yui-link-button"><span class="first-child">
+<a href="{% url doc_ballot_writeupnotes name=doc.draft_name %}">Edit Ballot Text</a>
+</span></span>
+</p>
+{% endif %}
+{% endif %}
+<pre>
+{{ doc.ietf_process.iesg_ballot.ballot_writeup|escape|urlize }}
+</pre>
+{% if doc.in_ietf_process and doc.ietf_process.has_iesg_ballot %}
+{% if user|in_group:"Area_Director,Secretariat" %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock tab_content %}

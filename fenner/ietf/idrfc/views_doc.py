@@ -41,6 +41,7 @@ from django.template.defaultfilters import truncatewords_html
 from django.utils import simplejson as json
 from django.utils.decorators import decorator_from_middleware
 from django.middleware.gzip import GZipMiddleware
+from django.views.decorators.cache import cache_control
 
 from ietf import settings
 from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, DocumentComment
@@ -96,13 +97,19 @@ def document_main_rfc(request, rfc_number, tab):
     template = "idrfc/doc_tab_%s" % tab
     if tab == "document":
 	template += "_rfc"
+    include_text = bool( request.GET.get( 'include_text' ) ) or \
+		   request.COOKIES.get( 'full_draft' ) == "on"
     return render_to_response(template + ".html",
                               {'content1':content1, 'content2':content2,
                                'doc':doc, 'info':info, 'tab':tab,
-			       'include_text':request.GET.get( 'include_text' ),
+			       'include_text':include_text,
                                'history':history},
                               context_instance=RequestContext(request));
 
+# Supply a Cache-Control header, to encourage browsers to cache the tabs.
+# We use Cache-Control: private to prevent any intermediate web caches
+# from caching the page, since we show per-user state if you're logged in.
+@cache_control(private=True, max_age=3600)
 @decorator_from_middleware(GZipMiddleware)
 def document_main(request, name, tab):
     if tab is None:
@@ -147,10 +154,12 @@ def document_main(request, name, tab):
     template = "idrfc/doc_tab_%s" % tab
     if tab == "document":
 	template += "_id"
+    include_text = bool( request.GET.get( 'include_text' ) ) or \
+		   request.COOKIES.get( 'full_draft' ) == "on"
     return render_to_response(template + ".html",
                               {'content1':content1, 'content2':content2,
                                'doc':doc, 'info':info, 'tab':tab,
-			       'include_text':request.GET.get( 'include_text' ),
+			       'include_text':include_text,
                                'versions':versions, 'history':history},
                               context_instance=RequestContext(request));
 

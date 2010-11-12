@@ -71,6 +71,9 @@ MEDIA_URL = ''
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
+# Have CommonMiddleware generate Etag headers
+USE_ETAGS = True
+
 AUTH_PROFILE_MODULE = 'ietfauth.IetfUserProfile'
 AUTHENTICATION_BACKENDS = ( "ietf.ietfauth.auth.IetfUserBackend", )
 SESSION_COOKIE_AGE = 43200 # 12 hours
@@ -83,6 +86,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',

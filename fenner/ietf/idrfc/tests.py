@@ -1277,3 +1277,12 @@ class MirrorScriptTestCases(unittest.TestCase,RealDatabaseTest):
         self.assertEquals(len(refs), 3)
         print "OK"
 
+class DjangoCompressTextGzipTimeStamp(unittest.TestCase):
+    def testCompressText(self):
+	from django.utils.text import compress_string
+	x = compress_string( 'Hello, World!' )
+	# Bytes 1-2: magic number
+	# Byte 3: deflate algorithm
+	# Byte 4: no filename or other optional metadata
+	# Bytes 5-8: zero timestamp (the real point of this test)
+	self.assertEqual( x[ :8 ], '\x1f\x8b\x08\x00\x00\x00\x00\x00' )

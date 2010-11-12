@@ -167,13 +167,16 @@ def phone2numeric(phone):
 phone2numeric = allow_lazy(phone2numeric)
 
 # From http://www.xhaus.com/alan/python/httpcomp.html#gzip
-# Used with permission.
+# Used with permission.  Hacked to avoid including the time.
 def compress_string(s):
-    import cStringIO, gzip
+    import cStringIO, gzip, time
     zbuf = cStringIO.StringIO()
+    oldtime = time.time
+    time.time = lambda a = None:0
     zfile = gzip.GzipFile(mode='wb', compresslevel=6, fileobj=zbuf)
     zfile.write(s)
     zfile.close()
+    time.time = oldtime
     return zbuf.getvalue()
 
 ustring_re = re.compile(u"([\u0080-\uffff])")

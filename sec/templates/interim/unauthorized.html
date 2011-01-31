@@ -1,0 +1,17 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block content %}
+
+<H2>Interim Meetings - Unauthorized</h2>
+
+<h3>
+{% if user_name %}
+    Sorry, {{ user_name }}, you are not authorized to access  {{group_name}}
+{% else %}
+    <p>No login name passed</p>
+{% endif %}
+</h3>
+
+{% endblock %}

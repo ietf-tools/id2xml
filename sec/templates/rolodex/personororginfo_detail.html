@@ -1,0 +1,22 @@
+{% extends "base_site.html" %}
+
+{% block title %}Rolodex - Edit{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../">Rolodex</a>
+  &raquo; Edit
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <table cellspacing="0">
+        <tr class="row1">
+            <td>{{person.person_or_org_tag}}</td>
+            <td>{{person.name_prefix}}</td>
+            <td>{{person.first_name}}</td>
+            <td>{{person.last_name}}</td>
+            <td>{{person.date.modified}}</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

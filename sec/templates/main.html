@@ -1,0 +1,29 @@
+{% extends "base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+<table cellpadding="5" cellspacing="5" border="0" width="800">
+<tr valign="top"><td>
+<h3>Liaisons</h3>
+<li> <a href="/sec/liaison/"><b>Add Liaison</b></a></li><br>
+</td><td>
+<h3>IDs and WGs Process</h3>
+<li> <a href="/sec/areas/"><b>Areas</b></a></li><br>
+<li> <a href="/sec/groups/"><b>Working Groups</b></a></li><br>
+<li> <a href="/sec/roles/"><b>Roles</b></a></li><br>
+<li> <a href="/sec/rolodex/"><b>Rolodex</b></a></li><br>
+{% comment %}
+{% if request.user_is_secretariat %}
+<h3>Welcome Secretariat User</h3>
+{% endif %}
+<li> <a href={% url home %}><b>Test</b></a></li><br>
+{% endcomment %}
+</td></tr>
+<tr valign="top"><td colspan="2">
+<h3>Meetings and Proceedings</h3>
+<li> <a href="/sec/proceedings/"><b>Proceedings Manager</b></a></li><br>
+<li> <a href="/proceedings/proceeding_generator.php"><b>Generate Proceedings </b></a></li><br>
+</td></tr>
+</table>
+</div>
+{% endblock %}

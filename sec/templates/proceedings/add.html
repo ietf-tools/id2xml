@@ -1,0 +1,34 @@
+{% extends "base_site.html" %}
+
+{% block title %}Proceedings - Add{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="/sec/proceedings/">Proceedings</a>
+  &raquo; <a href="/sec/proceedings/add/">Add</a>
+{% endblock %}
+
+{% block content %}
+
+<noscript class="errornote"> You have javascript disabled.  Javascript is required for this application.</noscript>
+
+<div  class="module">
+  <h2>Proceedings - Add</h2>
+  <form id="add-proceedings" enctype="multipart/form-data" action="" method="post">
+  <table id="proceedings-table">
+    {{ proceedingform.as_table }}
+  </table>
+  <div class="button-group">
+    <ul>
+      <li><input type="submit" value="Submit" class="standard" /></li>
+    </ul>
+  </div> <!-- button-group -->
+  </form>
+</div> <!-- module -->
+
+{% endblock %}
+

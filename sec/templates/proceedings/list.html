@@ -1,0 +1,51 @@
+{% extends "base_site.html" %}
+
+{% block title %}Proceeding manager{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; Proceedings
+{% endblock %}
+
+{% block content %}
+
+<div  class="module" >
+    <h2>Proceedings</h2>
+    <table id="proceedings-list-table" class="full-width">
+      <thead>
+        <tr>
+          <th>Meeting</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for proceeding in proceeding_list %}
+
+              <tr class = "{% cycle 'row1' 'row2' %} {{ proceeding.frozen }} ">
+                <td><a href="{% url sec.proceedings.views.view id=proceeding.meeting_num %}">{{ proceeding.meeting_num }}</a></td>
+     
+		     {% ifequal proceeding.frozen 1 %}	
+		             <td>Frozen</td>
+		     {% else %}	
+		             <td>Active</td>
+		     {% endifequal %}	
+              </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="button-group">
+      <ul id="proceedings-button-list">
+        <li><button onclick="window.location='add/'">Add</button></li>
+      </ul>
+    </div> <!-- button-group -->
+</div> <!-- module -->
+
+{% endblock %}
+~
+~
+~
+

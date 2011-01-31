@@ -1,0 +1,25 @@
+<table class="center" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Group Acronym</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr class="{% cycle 'row1' 'row2' %}">
+       <td><a href="{% url sec.proceedings.views.current_material id=meeting.meeting_num,acronym_id='1', menu=menu %}">Administrative Plenary</a></td>
+     </tr>
+     <tr><td><a href="{% url sec.proceedings.views.current_material id=meeting.meeting_num,acronym_id='2', menu=menu %}">Technical Plenary</a></td></tr> 
+       {% for item in group_list %}
+           <tr class="{% cycle 'row1' 'row2' %}">
+           {% ifequal  menu 'irtf' %}
+               <td><a href="{% url sec.proceedings.views.current_material id=meeting.meeting_num,acronym_id=item.irtf_id, menu=menu %}">{{ item.acronym }}</a></td>
+           {% endifequal %}
+           {% ifnotequal menu 'irtf' %}
+               <td><a href="{% url sec.proceedings.views.current_material id=meeting.meeting_num,acronym_id=item.acronym_id, menu=menu %}">{{ item.acronym }}</a></td>
+           {% endifnotequal %}   
+           </tr>
+
+       {% endfor %}
+  </tbody>
+</table>
+

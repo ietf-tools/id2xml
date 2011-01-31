@@ -1,0 +1,16 @@
+/LICENSE/1.3/Wed Jan 26 18:10:24 2011//
+/__init__.py/1.3/Wed Jan 26 18:10:24 2011//
+/base.py/1.3/Wed Jan 26 18:10:24 2011//
+/datasource.py/1.3/Wed Jan 26 18:10:24 2011//
+/driver.py/1.3/Wed Jan 26 18:10:24 2011//
+/envelope.py/1.3/Wed Jan 26 18:10:24 2011//
+/error.py/1.3/Wed Jan 26 18:10:24 2011//
+/feature.py/1.3/Wed Jan 26 18:10:24 2011//
+/field.py/1.3/Wed Jan 26 18:10:24 2011//
+/geometries.py/1.3/Wed Jan 26 18:10:24 2011//
+/geomtype.py/1.3/Wed Jan 26 18:10:24 2011//
+/layer.py/1.3/Wed Jan 26 18:10:24 2011//
+/libgdal.py/1.3/Wed Jan 26 18:10:24 2011//
+/srs.py/1.3/Wed Jan 26 18:10:24 2011//
+D/prototypes////
+D/tests////

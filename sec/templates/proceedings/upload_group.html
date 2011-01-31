@@ -1,0 +1,26 @@
+{% extends "proceedings/base_upload.html" %}
+
+{% block subsection %}
+
+<div class="module proceedings-container">
+    <h2>Upload Material</h2>
+    <form  enctype="multipart/form-data" action="" method="post">
+      <table>
+        {{ upload_form.as_table }}
+      </table>
+      <div class="button-group">
+      <ul>
+         <li><input type="submit" value="Upload" class="standard" /></li>
+      </ul>
+      </div> <!-- button-group -->
+    </form>
+    <div class="inline-group">
+    <h2>Current material - Select Group</h2>
+       {% include "includes/group_current_materials.html" %}
+    </div> <!-- inline-related -->
+</div> <!-- module -->
+
+
+
+{% endblock %}
+

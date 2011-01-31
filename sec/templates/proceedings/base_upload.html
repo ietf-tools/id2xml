@@ -1,0 +1,33 @@
+{% extends "base_site.html" %}
+
+{% block title %}Upload Material{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/media/css/jquery-ui-1.8.1.custom.css" />
+  <link rel="stylesheet" type="text/css" href="/media/css/jquery.ui.autocomplete.css" />
+  <script type="text/javascript" src="/media/js/jquery-ui-1.8.1.custom.min.js"></script>
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../">Proceedings </a>
+  &raquo;<a href="{% url sec.proceedings.views.view id=proceeding.meeting_num %}">{{ proceeding.meeting_num }}</a>
+  &raquo; Upload Material
+
+{% endblock %}
+
+{% block content %}
+
+<div id="nav" class="proceedings-nav">
+  <ul id="list-nav">
+    <li id="nav-upload_group" class="leftmost"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='group' %}">Group/BOF/Plenary</a></li>
+    <li id="nav-training"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='training' %}">Training</a></li>
+    <li id="nav-irtf"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='irtf' %}">IRTF Group</a></li>
+    <li id="nav-interim"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='interim' %}">Interim</a></li>
+  </ul>
+</div>
+
+{% block subsection %}{% endblock %}
+
+{% endblock %}

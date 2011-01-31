@@ -1,0 +1,45 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Interim Meetings</a>
+  &raquo; <a href="../../group/{{ meeting.group_acronym_id }}">{{ meeting.get_group_acronym }}</a>
+  &raquo; {{ meeting.meeting_date }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Working Group - {{ meeting.get_group_acronym }}: Interim Meeting of {{ meeting.meeting_date }}<span class="login">Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+       <p><h3>Proceedings:</h3></p>
+       {% if proceedings_link %}
+         <a href="{{ proceedings_link|safe }}" target="_blank">Proceedings</a>
+       {% else %}
+         <p>Proceedings not yet generated</p>
+       {% endif %}
+
+     <div class="inline-group">
+       <h2>Slides</h2>
+       {% include "includes/interim_slides.html" %}
+     </div> <!-- inline-group -->
+
+     <div class="inline-group">
+       <h2>Upload Materials</h2>
+       <form enctype="multipart/form-data" action="." method="post">
+       <table>
+       {{ form.as_table }}
+       </table>
+
+       {% include "includes/buttons_submit.html" %}
+ 
+       </form>
+      </div> <!-- inline-group -->
+</div> <!-- module -->
+
+{% endblock %}

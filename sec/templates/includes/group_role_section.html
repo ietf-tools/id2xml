@@ -1,0 +1,14 @@
+<table class="group-people-table center">
+     {% for entry in set %}
+       <form action="delete/" method="post">
+         <input type="hidden" name="tag" value="{{ entry.person.person_or_org_tag }}" />
+         <input type="hidden" name="table" value="{{ item.table }}" />
+         <tr>
+           <td id="groups-people-col1"><a href="{% url sec.rolodex.views.view tag=entry.person.person_or_org_tag %}">{{ entry.person.first_name }} {{ entry.person.last_name}}</a></td>
+           <td id="groups-people-col2"><input type="submit" name="submit" value="Delete" /></td>
+         </tr>
+       </form>
+     {% empty %}
+       <br>
+     {% endfor %}
+</table>

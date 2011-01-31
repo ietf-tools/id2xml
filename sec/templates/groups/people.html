@@ -1,0 +1,49 @@
+{% extends "base_site.html" %}
+
+{% block title %}Working Groups - People{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/media/css/jquery-ui-1.8.1.custom.css" />
+  <link rel="stylesheet" type="text/css" href="/media/css/jquery.ui.autocomplete.css" />
+  <script type="text/javascript" src="/media/js/jquery-ui-1.8.1.custom.min.js"></script>
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Working Groups</a>
+  &raquo; <a href="../">{{ group.group_acronym.acronym_id }}</a>
+  &raquo; People
+{% endblock %}
+
+{% block content %}
+
+<div class="module group-container">
+    {% for item in driver %}
+      <h2>{{ item.title }}{% if forloop.first %} - ({{ group.group_acronym.name }}){% endif %}</h2>
+      {% with item.data as set %}
+	{% include "includes/group_role_section.html" %}
+      {% endwith %}
+    {% endfor %}
+
+   <div class="inline-related">
+     <h3><b>New Role Assignment</b></h3>
+       <p>
+       <form action="." method="post">
+       <table class="full-width">
+         {{ form.as_table }}
+         <tr>
+           <td></td>
+           <td><input type="submit" name="submit" value="Add" /></td>
+         </tr>
+       </table>
+       </form>
+   </div> <!-- iniline-related -->
+
+      <div class="button-group">
+	<ul>
+          <li><button onclick="window.location='../'">Back to View</button></li>
+	</ul>
+      </div> <!-- button-group -->
+</div> <!-- module -->
+
+{% endblock %}

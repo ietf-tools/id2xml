@@ -1,0 +1,49 @@
+{% extends "base_site.html" %}
+
+{% block title %}Areas - View{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../">Areas</a>
+  &raquo; {{ acronym.acronym_id }}
+{% endblock %}
+
+{% block content %}
+
+<div class="module">
+    <h2>Area - View</h2>
+      <table class="full-width">
+        <tr><td>Area Acronym:</td><td>{{ acronym.acronym }}</td></tr>
+        <tr><td>Area Name:</td><td>{{ acronym.name }}</td></tr>
+        <tr><td>Status:</td><td>{{ area.status.status_value }}</td></tr>
+        <tr><td>Start Date:</td><td>{{ area.start_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Concluded Date:</td><td>{{ area.concluded_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Last Modified Date:</td><td>{{ area.last_modified_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Comments:</td><td>{{ area.comments}}</td></tr>
+      </table>
+
+      <div class="inline-related">
+        <h2>Directors</h2>
+        <table>
+	{% for director in directors %}
+          <tr><td><a href="{% url sec.rolodex.views.view tag=director.person.person_or_org_tag %}">{{ director.person.first_name }} {{ director.person.last_name }}</a></td></tr>
+        {% endfor %}
+        </table>
+      </div> <!-- inline-group -->
+
+      {% include "includes/awp_view.html" %}
+
+      <div class="button-group">
+	<ul>
+          <!-- <li><button onclick="window.location='../../'">Back</button></li> -->
+          <li><button onclick="window.location='edit/'">Edit</button></li>
+          <li><button onclick="window.location='people/'">People</button></li>
+          <li><button onclick="window.location='../../groups/search/?primary_area={{ acronym.acronym_id }}'">Groups</button></li>
+	</ul>
+      </div> <!-- button-group -->
+</div> <!-- module -->
+
+{% endblock %}

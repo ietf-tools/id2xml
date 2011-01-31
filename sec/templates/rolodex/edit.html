@@ -1,0 +1,180 @@
+{% extends "base_site.html" %}
+
+{% block title %}Rolodex - Edit{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/dynamic_inlines.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Rolodex</a>
+  &raquo; <a href="../">{{ person.person_or_org_tag }}</a>
+  &raquo; Edit
+{% endblock %}
+
+{% block content %}
+<form enctype="multipart/form-data" action="" method="post" id="personororginfo-form">
+<div class="module">
+    <h2>Name</h2>
+    {% for field in person_form %}
+      {{ field.errors }}
+    {% endfor %}
+    <table id="name-table" class="full-width">
+      <thead>
+	<tr>
+	  <th>Prefix</th>
+	  <th>First</th>
+	  <th>M.I.</th>
+	  <th>Last</th>
+	  <th>Suffix</th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td>{{ person_form.name_prefix }}</td>
+	  <td>{{ person_form.first_name }}</td>
+	  <td>{{ person_form.middle_initial }}</td>
+	  <td>{{ person_form.last_name }}</td>
+	  <td>{{ person_form.name_suffix }}</td>
+	</tr>
+      </tbody>
+    </table>
+</div> <!-- module --> 
+
+<div class="inline-group">
+    <div class="tabular inline-related{% if forloop.last %} last-related{% endif %}">
+        <fieldset class="module aligned">
+	<h2>Phone Numbers</h2>
+        {{ phone_formset.management_form }}
+        {{ phone_formset.non_form_errors }}
+	<table id="phone-table">
+             <thead>
+		 <tr>
+                 {% for field in phone_formset.forms.0.visible_fields %}
+		     <th>{{ field.label }}</th>
+		 {% endfor %}
+		 </tr>
+             </thead>
+             <tbody>
+	     {% for form in phone_formset.forms %}
+                  {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+		  <tr class="{% cycle row1,row2 %}">
+		  {# Include the hidden fields in the form #}
+		  {% for hidden in form.hidden_fields %}
+		    {{ hidden }}
+		  {% endfor %}
+		  {% for field in form.visible_fields %}
+		       <td>
+		         {{ field.errors }}
+			 {{ field }}{% if forloop.first %}{% if form.is_primary %} Primary {% endif %}{% endif %}
+		       </td>
+		  {% endfor %}
+		  </tr>
+	     {% endfor %}
+             </tbody>
+	</table>
+	</fieldset>
+    </div> <!-- tabular inline-related -->
+</div> <!-- inline-group -->
+
+<div class="inline-group">
+    <div class="tabular inline-related{% if forloop.last %} last-related{% endif %}">
+	<fieldset class="module aligned ">
+	<h2>Email Addresses</h2>
+        {{ email_formset.management_form }}
+        {{ email_formset.non_form_errors }}
+	<table>
+            <thead>
+		<tr>
+		{% for field in email_formset.forms.0 %}
+		     {% if not field.is_hidden %}
+			  <th>{{ field.label }}</th>
+		     {% endif %}
+		{% endfor %}
+		</tr>
+            </thead>
+            <tbody>
+	     {% for form in email_formset.forms %}
+                  {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+		  <tr class="{% cycle row1,row2 %}">
+		  {# Include the hidden fields in the form #}
+		  {% for hidden in form.hidden_fields %}
+		    {{ hidden }}
+		  {% endfor %}
+		  {% for field in form.visible_fields %}
+		    <td>
+		    {{ field.errors }}
+		    {{ field }}{% if forloop.first %}{% if form.is_primary %} Primary {% endif %}{% endif %}
+		    </td>
+		  {% endfor %}
+		  </tr>
+	     {% endfor %}
+            </tbody>
+	</table>
+	</fieldset>
+    </div> <!-- tabular inline-related last_related -->
+</div> <!-- inline-group -->
+
+<div class="inline-group">
+  <h2>Addresses</h2>
+  {{ address_formset.management_form }}
+  {{ address_formset.non_form_errors }}
+
+{% for form in address_formset.forms %}
+<div class="inline-related{% if forloop.last %} last-related{% endif %}">
+  <h3><b>Address:</b>&nbsp; #{{ forloop.counter }}{% if form.is_primary %} Primary {% endif %}
+    {% if address_formset.can_delete %}<span class="delete">{{ form.DELETE }} Delete</span>{% endif %}
+  </h3>
+  {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+	<fieldset class="module aligned ">
+	<table>
+	     <tr>
+               <td>Address Type:</td>
+               <td>{{ form.address_type.errors }}{{ form.address_type }}</td>
+	     </tr>
+	     <tr>
+               <td>Title:</td>
+               <td>{{ form.person_title.errors }}{{ form.person_title }}</td>
+	     </tr>
+	     <tr>
+               <td>Company Name:</td>
+               <td>{{ form.affiliated_company.errors }}{{ form.affiliated_company }}</td>
+	     </tr>
+	     <tr>
+               <td>Department:</td>
+               <td>{{ form.department.errors }}{{ form.department }}</td>
+	     </tr>
+	     <tr>
+               <td>Mail Stop:</td>
+               <td>{{ form.mail_stop.errors }}{{ form.mail_stop }}</td>
+	     </tr>
+	     <tr>
+               <td>Street Address 1:</td>
+               <td>{{ form.staddr1.errors }}{{ form.staddr1 }}</td>
+	     </tr>
+	     <tr>
+               <td>Street Address 2:</td>
+               <td>{{ form.staddr2.errors }}{{ form.staddr2 }}</td>
+	     </tr>
+	     <tr>
+               <td>City, State(Prov), Postal Code:</td>
+               <td>{{ form.city.errors }}{{ form.city }}</td>
+               <td>{{ form.state_or_prov.errors }}{{ form.state_or_prov }}</td>
+               <td>{{ form.postal_code.errors }}{{ form.postal_code }}</td>
+	     </tr>
+	     <tr>
+               <td>Country:</td>
+               <td>{{ form.country.errors }}{{ form.country }}</td>
+	     </tr>
+             {{ form.id }}      
+             {{ form.address_priority }}
+	</table>
+	</fieldset>
+    </div> <!-- inline-related -->
+{% endfor %}
+</div> <!-- inline-group -->
+
+{% include "includes/buttons_save_cancel.html" %}
+
+</form>
+{% endblock %}

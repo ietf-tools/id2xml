@@ -1,0 +1,31 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Interim Meetings</a>
+  &raquo; <a href="../../group/{{ meeting.group_acronym_id }}">{{ meeting.get_group_acronym }}</a>
+  &raquo; <a href="../../meeting/{{ meeting.id }}">{{ meeting.meeting_date }}</a>
+  &raquo; {{ slide.slidename }}
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Working Group - {{ meeting.get_group_acronym }}: Interim Meeting of {{ meeting.meeting_date }}<span class="login">Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+         <p><h3>Edit Slide:</h3></p>
+         <form enctype="multipart/form-data" action="." method="post">
+           <table>
+             {{ form.as_table }}
+           </table>
+
+             {% include "includes/buttons_submit.html" %}
+
+         </form>
+</div> <!-- module -->
+
+{% endblock %}

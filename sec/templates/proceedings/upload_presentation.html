@@ -1,0 +1,39 @@
+{% extends "base_site.html" %}
+
+{% block title %}Proceedings - Upload Presentations {% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="../../../">Proceedings</a>
+  &raquo; <a href="../../">{{ meeting.meeting_num }}</a>
+  &raquo; <a href="../../convert">Convert Material</a>
+ 
+  &raquo; Upload Presentation
+{% endblock %}
+
+{% block content %}
+<div class="module">
+    <!--form action="." method="post"-->
+    <form  enctype="multipart/form-data" action="" method="post">
+    <h2>Proceedings - Upload (HTML-Zipped) Presentation : <font color="RED">{{ group_name}}</font></h2>
+    <div>
+         <ul><li>For Presentation : {{ slide_name }}</li>
+         <ul>
+    </div>
+    <table>
+        {{ upload_presentation.as_table }}
+    </table>
+    <div class="button-group">
+    <ul>
+       <li><input type="submit" value="Upload" class="standard" /></li>
+         <!--li><input type="submit" value="Cancel" class="standard" /></li-->
+    </ul>
+    </div> <!-- button-group -->
+    </form>
+</div> <!-- module -->
+
+{% endblock %}
+

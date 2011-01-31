@@ -1,0 +1,115 @@
+{% extends "ietf_base.html" %}
+{% load ams_filters %}
+{% block title %}IETF Proceedings{% endblock %}
+
+{% block content %}
+
+<h2>{{ meeting.get_group_name }} ({{ meeting.get_group_acronym }})</h2>
+<h3>Interim Meeting of {{ meeting.meeting_date }}</h3>
+<i>Note: This is a snapshot as of {% now "Y-m-d" %}.  It may now be out of date.</i>
+<h3>
+{% if minutes_url %}
+<a href="{{ minutes_url }}">Minutes</a>
+{% else %}
+Minutes
+{% endif %}
+ | <a href="http://jabber.ietf.org/logs/{{ meeting.get_group_acronym }}/">Jabber Logs</a>
+{% if mail_list_url %}
+ | <a href="{{ mail_list_url }}">Mailing List Archives</a>
+{% endif %}
+</h3>
+
+<div id="content2"><p>Additional information is available at <a href="http://tools.ietf.org/wg/{{ meeting.get_group_acronym }}">tools.ietf.org/wg/{{ meeting.get_group_acronym }}</a>
+
+<table width="60%" border="0" cellspacing="2" cellpadding="2">
+  <tr><td bgcolor="#EEEEFF">
+      <h3>Chair(s):</h3>
+      <ul>
+      {% for chair in chairs %}
+        <li><a href="mailto:{{ chair.person.email }}">{{ chair.person.first_name }} {{ chair.person.last_name }}</a></li>
+      {% endfor %}
+      </ul>
+      {% if secretaries %}
+          {% if secretaries.count > 1 %}<h3>Secretaries</h3>{% else %}<h3>Secretary</h3>{% endif %}
+          <ul>
+            {% for secretary in secretaries %}
+              <li><a href="mailto:{{ secretary.person.email }}">{{ secretary.person.first_name }} {{ secretary.person.last_name }}</a></li>
+            {% endfor %}
+          </ul>
+      {% endif %}
+      <h3>{{ area_name }} Area Director(s):</h3>
+      <ul>
+      {% for ad in ads %}
+        <li><a href="mailto:{{ ad.person.email }}">{{ ad.person.first_name }} {{ ad.person.last_name }}</a></li>
+      {% endfor %}
+      </ul>
+      {% if advisors %}
+          <h3>{{ area_name }} Advisor(s)</h3>
+          <ul>
+            {% for advisor in advisors %}
+              <li><a href="mailto:{{ advisor.person.email }}">{{ advisor.person.first_name }} {{ advisor.person.last_name }}</a></li>
+            {% endfor %}
+          </ul>
+      {% endif %}
+<br /><br /></td></tr></table>
+
+<h2>Mailing Lists:</h2>
+General Discussion: {{ group.email_address }}<br />
+{% if group.email_keyword != '' %}
+To Subscribe: {{ group.email_subscribe }}<br />
+In Body: {{ group.email_keyword }}<br />
+{% else %}
+To Subscribe: <a href="{{ group.email_subscribe }}">{{ group.email_subscribe }}</a><br />
+{% endif %}
+Archive: <a href="{{ group.email_archive }}">{{ group.email_archive }}</a><br />
+
+<h2>Description of Working Group:</h2>
+<pre>{{ description }}</pre>
+
+{% if goals %}
+<h2>Goals and Milestones:</h2>
+<table>
+  {% for goal in goals %}
+  <tr align="left" valign="top">
+    <td width="70" valign="top">
+    {% if goal.done == 'Done' %}Done{% else %}{{ goal.expected_due_date|date:"m-Y" }}{% endif %}
+    </td>
+    <td>&nbsp;&nbsp;</td><td>{{ goal.description }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if drafts %}
+<h2>Internet-Drafts:</h2>
+<ul>
+  {% for draft in drafts %}
+  <li><a href="http://tools.ietf.org/id/{{ draft.filename }}-{{ draft.revision }}.txt" target="_blank">{{ draft.filename }}-{{ draft.revision }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if rfcs %}
+<h2>Request for Comments:</h2>
+<table>
+  <tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+  {% for rfc in rfcs %}
+  <tr align=left>
+    <td width="90"><a href="http://tools.ietf.org/rfc/rfc{{ rfc.rfc_number }}.txt" target="_blank">RFC{{ rfc.rfc_number }}</a></td>
+    <td width="90">{{ rfc.status.status|abbr_status }}</td>
+    <td>{{ rfc.title }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if slides %}
+<h2>Slides:</h2>
+<ul>
+  {% for slide in slides %}
+  <li><a href="{{ slide.filename.url }}" target="_blank">{{ slide.slidename }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+        
+{% endblock %}

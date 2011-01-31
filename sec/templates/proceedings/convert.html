@@ -1,0 +1,60 @@
+{% extends "base_site.html" %}
+
+{% block title %}Proceedings - Convert Materials{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="../../">Proceedings</a>
+  &raquo; <a href="../">{{ meeting.meeting_num }}</a>
+  &raquo; Convert Material
+{% endblock %}
+
+{% block content %}
+
+<div class="module">
+    <form action="." method="post">
+    <h2>Proceedings - PPT/DOC Files in Queue</h2>
+    <table class="full-width">
+    <thead>
+        <tr>
+          <th>Slide Name</th>
+          <th>Group</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for item in slide_info %}
+           {% for slide_item in item %}
+           <tr class = "{% cycle 'row1' 'row2' %}">
+               {% ifequal slide_item.interim 1 %}
+                       <td>{{ slide_item.slide_name }}<font color="RED"><b> (INTERIM)</b></font></td>
+               {% endifequal %}
+               {% ifequal slide_item.interim 0 %}
+                       <td>{{ slide_item.slide_name }}</td>
+               {% endifequal %} 
+       	               <td>{{ slide_item.group_name }}</td>
+                       {% ifequal slide_item.slide_type_id 4 %}
+        	       <td><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{ slide_item.group_name}}-{{slide_item.slide_num }}.ppt"  ">Download</a></td>
+                       {% endifequal %}
+                       {% ifequal slide_item.slide_type_id 6 %}
+        	       <td><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{ slide_item.group_name}}-{{slide_item.slide_num }}.pptx"  ">Download</a></td>
+                       {% endifequal %}
+ 
+
+	               <td><a href="{% url sec.proceedings.views.upload_presentation id=meeting.meeting_num, slide_id=slide_item.id %}">Upload</a></td>
+
+           </tr>
+           {% endfor %}
+      {% endfor %}
+      </tbody>
+    </table>
+    </form>
+
+</div> <!-- module -->
+
+{% endblock %}
+

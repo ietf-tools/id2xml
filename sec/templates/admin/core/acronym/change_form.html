@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+
+{% load custom_tags %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="/sec/">Home</a> &rsaquo;
+    <a href="/sec/areas/">Areas</a> &rsaquo;
+  </div>
+{% endblock %}
+
+{% block object-tools %}{% endblock %}
+
+{% block form_top %}
+
+{% if object_id %}
+    {% display_directors object_id %}
+{% endif %}
+
+
+{% endblock %}

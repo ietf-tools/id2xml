@@ -1,0 +1,23 @@
+<table id="interim-slides" class="center" cellspacing="0">
+  <thead>
+    <tr> 
+      <th>Slide</th>
+      <th>Type</th>
+      <th>Order</th>
+      <th>Edit</th>
+      <th colspan="2">Move</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for slide in slides %}
+       <tr class="{% cycle 'row1' 'row2' %}">
+         <td><a href="{{ slide.filename.url }}" target="_blank">{{ slide.slidename }}</a></td>
+         <td>{{ slide.get_slide_type }}</td>
+         <td>{{ slide.order_num }}</td>
+         <td><a href="{% url sec.interim.views.slide slide_id=slide.id %}">Edit</a></td>
+         <td><a href="../../slide/{{ slide.id }}/up/"><img src="/media/img/admin/arrow-up.gif" alt="Up Arrow" border="0"/></a></td>
+         <td><a href="../../slide/{{ slide.id }}/down/"><img src="/media/img/admin/arrow-down.gif" alt="Up Arrow" border="0"/></a></td>
+       </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,109 @@
+{% extends "base_site.html" %}
+
+{% block title %}Working Groups - View{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../">Working Groups</a>
+  &raquo; {{ group.group_acronym.acronym_id }}
+{% endblock %}
+
+{% block content %}
+
+<div class="module group-container">
+  <div id="groups-view-col1">
+    <h2>Working Group - View</h2>
+      <table >
+        <tr><td>Group Acronym:</td><td>{{ group.group_acronym }}</td></tr>
+        <tr><td>Group Name:</td><td>{{ group.group_acronym.name }}</td></tr>
+        <tr><td>Status:</td><td>{{ group.status }}</td></tr>
+        <tr><td>Type:</td><td>{{ group.group_type }}</td></tr>
+        <tr><td>Start Date:</td><td>{{ group.start_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Dormant Date:</td><td>{{ group.dormant_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Proposed Date:</td><td>{{ group.proposed_date|date:"Y-m-d" }}</td></tr>
+        <tr><td>Concluded Date:</td><td>{{ group.concluded_date|date:"Y-m-d" }}</td></tr>
+        {% comment %}
+        Here we need to check that group.area_director and group.area_director.area are defined before referencing.
+        Otherwise the template would raise errors if the group area director record didn't exist or
+        in the case of Area Director = TBD, the area field is NULL
+        {% endcomment %}
+        <tr><td>Primary Area:</td>
+            <td>{% if not group.get_area %}(No Data){% else %}
+                  <a href="{% url sec.areas.views.view id=group.get_area.area_acronym.acronym_id %}">{{ group.get_area.area_acronym.name }}</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr><td>Primary Area Director:</td>
+            <td>{% if not group.area_director %}{% else %}
+                <a href="{% url sec.rolodex.views.view tag=group.area_director.person.person_or_org_tag %}">{{ group.area_director.person.first_name }} {{ group.area_director.person.last_name }}</a>
+                {% endif %}
+            </td>
+        </tr>
+        <tr><td>Meeting Scheduled:</td><td>{{ group.meeting_scheduled}}</td></tr>
+        <tr><td>Email Address:</td><td>{{ group.email_address }}</td></tr>
+        <tr><td>Email Subscription:</td><td>{{ group.email_subscribe }}</td></tr>
+        <tr><td>Email Keyword:</td><td>{{ group.email_keyword }}</td></tr>
+        <tr><td>Email Archive:</td><td>{{ group.email_archive }}</td></tr>
+        <tr><td>Group Desc:</td><td><a href="description/">Edit Description</a></td></tr>
+        <tr><td>Comments:</td><td>{{ group.comments }}</td></tr>
+        <tr><td>Last Modified Date:</td><td>{{ group.last_modified_date }}</td></tr>
+      </table>
+
+      {% include "includes/awp_view.html" %}
+
+  </div> <!-- groups-view-col1 -->
+  <div id="groups-view-col2">
+      <div class="inline-related">
+        <h2>Chairperson(s)</h2>
+        <table>
+	{% for chair in group.wgchair_set.all %}
+          <tr><td><a href="{% url sec.rolodex.views.view tag=chair.person.person_or_org_tag %}">{{ chair.person.first_name }} {{ chair.person.last_name }}</a></td></tr>
+        {% endfor %}
+        </table>
+      </div> <!-- inline-related -->
+
+      <div class="inline-related">
+        <h2>Document Editor(s)</h2>
+        <table>
+        {% for editor in group.wgeditor_set.all %}
+          <tr><td><a href="{% url sec.rolodex.views.view tag=editor.person.person_or_org_tag %}">{{ editor.person.first_name }} {{ editor.person.last_name }}</a></td></tr>
+        {% endfor %}
+        </table>
+      </div> <!-- inline-related -->
+
+      <div class="inline-related">
+        <h2>Technical Advisor(s)</h2>
+        <table>
+        {% for advisor in group.wgtechadvisor_set.all %}
+          <tr><td><a href="{% url sec.rolodex.views.view tag=advisor.person.person_or_org_tag %}">{{ advisor.person.first_name }} {{ advisor.person.last_name }}</a></td></tr>
+        {% endfor %}
+        </table>
+      </div> <!-- inline-related -->
+
+      <div class="inline-related">
+        <h2>Secretary(ies)</h2>
+        <table>
+        {% for secretary in group.wgsecretary_set.all %}
+          <tr><td><a href="{% url sec.rolodex.views.view tag=secretary.person.person_or_org_tag %}">{{ secretary.person.first_name }} {{ secretary.person.last_name }}</a></td></tr>
+        {% endfor %}
+        </table>
+      </div> <!-- inline-related -->
+    </div> <!-- groups-view-col2 -->
+
+      <div class="button-group">
+	<ul>
+          <li><button onclick="window.location='edit/'">Edit</button></li>
+          <li><button onclick="window.location='people/'">People</button></li>
+          <li><button onclick="window.location='gm/'">G + M</button></li>
+          {% comment %}
+          <li><button onclick="window.location='{% url sec.ids.views.search id=group.group_acronym.acronym_id %}'">Drafts</button></li>
+          <li><button onclick="window.location='{% url sec.rfcs.views.search id=group.group_acronym.acronym_id %}'">RFCs</button></li>
+          {% endcomment %}
+	</ul>
+      </div> <!-- button-group -->
+</div> <!-- module -->
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "roles/base_roles.html" %}
+
+{% block subsection %}
+
+<div class="module role-container">
+    <h2>{{ type }} Chairs</h2>
+      <table class="full-width">
+        {% for chair in chairs %}
+            <tr>
+              <td><a href="{% url sec.rolodex.views.view tag=chair.person.person_or_org_tag %}">{{ chair.person.first_name }} {{ chair.person.last_name }}</a></td>
+              <td>{{ chair.start_year }}-{% if chair.is_present %}PRESENT{% else %}{{ chair.end_year }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+      </table>
+
+          <div class="inline-related">
+            <h3><b>Add new Chair</b></h3>
+            <p>
+            <form action="." method="post">
+            <table class="center">
+              {{ form.as_table }}
+            </table>
+          </div> <!-- iniline-related -->
+
+      <div class="button-group">
+	<ul>
+          <li><button type="submit" name="submit" value="Add">Add</button></li>
+	</ul>
+      </div> <!-- button-group -->
+      </form>
+</div> <!-- module -->
+
+{% endblock %}

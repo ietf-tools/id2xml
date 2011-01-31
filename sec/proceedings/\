@@ -1,0 +1,602 @@
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.urlresolvers import reverse
+from django.forms.formsets import formset_factory
+from django.forms.models import inlineformset_factory, modelformset_factory
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
+from django.template import Context
+from django.template.loader import get_template
+from django.utils import simplejson
+from django.db.models import Max
+from session_messages import create_message
+from models import *
+from sec.core.models import Acronym
+from sec.groups.models import IETFWG
+from sec.proceedings.models import *
+from forms import *
+import os
+import re
+
+
+
+# -------------------------------------------------
+# Helper Functions
+# -------------------------------------------------
+def handle_uploaded_file(f,material_type,meeting_num):
+    """
+    Save uploaded (Agenda, Minutes, Slides )draft files to location determined by settings variable
+    """
+
+    if material_type == 1:
+       local_dir = 'slides'
+    elif material_type == 2:
+       local_dir = 'agenda'
+    elif material_type == 3:
+       local_dir = 'minutes' 
+
+    dest_dirname = os.path.join(settings.PROCEEDINGS_DIR + '/'+ str(meeting_num) + '/'+ local_dir + '/'+ f.name) 
+    destination = open(dest_dirname, 'wb+')
+
+    for chunk in f.chunks():
+        destination.write(chunk)
+    destination.close()
+
+# --------------------------------------------------
+# STANDARD VIEW FUNCTIONS
+# --------------------------------------------------
+
+def add(request):
+    """
+    Add a new IETF Meeting
+
+    **Templates:**
+
+    * ``proceedings/add.html``
+
+    **Template Variables:**
+
+    * proceedingform
+
+    """
+    if request.method == 'POST':
+        proceedingform = AddProceedingForm(request.POST)
+        if proceedingform.is_valid():
+            # get form data - for Meeting Object
+            meeting_num = proceedingform.cleaned_data['meeting_num']
+            start_date = proceedingform.cleaned_data['start_date']
+            end_date = proceedingform.cleaned_data['end_date']
+            city = proceedingform.cleaned_data['city']
+            state = proceedingform.cleaned_data['state']
+            country = proceedingform.cleaned_data['country']
+
+            # get form data - for Proceeding Object
+            dir_name = proceedingform.cleaned_data['dir_name']
+            sub_begin_date = proceedingform.cleaned_data['sub_begin_date']
+            sub_cut_off_date = proceedingform.cleaned_data['sub_cut_off_date']
+            c_sub_cut_off_date = proceedingform.cleaned_data['c_sub_cut_off_date']
+            pr_from_date= proceedingform.cleaned_data['pr_from_date']
+            pr_to_date= proceedingform.cleaned_data['pr_to_date']
+
+            # We will need 2 objects over here Proceedings and Meetings
+            # save new Meeting
+
+            meeting_obj = Meeting(meeting_num=meeting_num,start_date=start_date,end_date=end_date,city=city,state=state,country=country)
+            meeting_obj.save()
+
+            # save new Proceeding
+            # Using the meeting object to save in the Proceeding(As Meeting and Proceeding models are link together)
+            proceeding_obj = Proceeding(meeting_num=meeting_obj,dir_name=dir_name,sub_begin_date=sub_begin_date,sub_cut_off_date=sub_cut_off_date,frozen=0,c_sub_cut_off_date=c_sub_cut_off_date,pr_from_date=pr_from_date,pr_to_date=pr_to_date)
+            proceeding_obj.save()
+
+           #Create Physical new meeting directory and subdirectories
+
+            dest_dirname = os.path.join(settings.PROCEEDINGS_DIR + '/'+ str(meeting_num))
+            os.mkdir(dest_dirname)
+            os.chdir(dest_dirname)
+            os.mkdir('slides')
+            os.mkdir('agenda')
+            os.mkdir('minutes')
+            os.mkdir('id')
+            os.mkdir('rfc')
+
+            create_message(request, 'The Meeting was created successfully!')
+            url = reverse('sec.proceedings.views.list')
+
+
+            return HttpResponseRedirect(url)
+    else:
+        # display initial forms
+        proceedingform = AddProceedingForm()
+
+
+    return render_to_response('proceedings/add.html', {
+        'proceedingform': proceedingform},
+        RequestContext(request, {}),
+    )
+
+
+def list(request):
+    """
+    List IETF Meetings
+
+    **Templates:**
+
+    * ``proceedings/list.html``
+
+    **Template Variables:**
+
+    * proceeding_list
+
+    """
+
+    proceeding_list = Proceeding.objects.order_by('meeting_num')
+    return render_to_response('proceedings/list.html',{
+           'proceeding_list': proceeding_list},
+          RequestContext(request,{}), 
+    )
+
+
+
+def view(request, id):
+    """
+    View Meeting information.
+
+    **Templates:**
+
+    * ``proceedings/view.html``
+
+    **Template Variables:**
+
+    * meeting , proceeding
+
+    """
+    # get meeting or return HTTP 404 if record not found
+
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+
+    return render_to_response('proceedings/view.html', {
+        'meeting': meeting,
+        'proceeding': proceeding},
+        RequestContext(request, {}),
+    )
+
+
+def edit(request, id):
+
+    """
+    Edit Meeting information.
+
+    **Templates:**
+
+    * ``proceedings/edit.html``
+
+    **Template Variables:**
+
+    * meeting, meeting_formset, meeting_form
+
+    """
+    # get meeting or return HTTP 404 if record not found
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+    ProceedingFormSet = inlineformset_factory(Meeting, Proceeding, form=MeetingForm, can_delete=False, extra=0)
+
+    if request.method == 'POST':
+       button_text = request.POST.get('submit','')
+       if button_text == 'Save':
+            proceeding_formset = ProceedingFormSet(request.POST, instance=meeting)
+            meeting_form = MeetingForm(request.POST, instance=meeting)
+
+            if proceeding_formset.is_valid() and meeting_form.is_valid():
+               proceeding_formset.save()
+               meeting_form.save()
+               create_message(request,'The meeting entry was changed successfully')
+               url = reverse('sec.proceedings.views.view', kwargs={'id':id})
+               return HttpResponseRedirect(url)
+
+       else:
+              url = reverse('sec.proceedings.views.view', kwargs={'id':id})
+              return HttpResponseRedirect(url)
+    else:
+#        meeting_form = MeetingForm(instance=meeting)
+         proceeding_formset = ProceedingFormSet(instance=meeting)
+         meeting_form = MeetingForm(instance=meeting)
+
+    return render_to_response('proceedings/edit.html', {
+         'meeting': meeting,
+         'proceeding_formset': proceeding_formset,
+         'meeting_form' : meeting_form, },
+        RequestContext(request,{}),
+    )
+
+
+
+def status(request,id):
+    """
+    Edits the status associated with proceedings: Freeze/Unfreeze proceeding status.
+
+    **Templates:**
+
+    * ``proceedings/view.html``
+
+    **Template Variables:**
+
+    * meeting , proceeding
+
+    """
+    # get meeting or return HTTP 404 if record not found
+
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+
+    #Call the respected page using data passed.   
+    return render_to_response('proceedings/status.html', {
+           'meeting':meeting,
+	   'proceeding':proceeding},
+          RequestContext(request,{}), 
+    )
+
+
+
+def modify(request,id):
+    """
+    Handle status changes of Proceedings (Activate, Freeze)
+
+    **Templates:**
+
+    * none
+
+    Redirects to view page on success.
+
+    """
+
+    if request.method == 'POST':
+	
+
+        meeting = get_object_or_404(Meeting, meeting_num=id)
+        proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+        #Handles the freeze request
+	if request.POST.get('submit', '') == "Freeze":  
+
+           new_proceeding_obj = Proceeding(meeting_num=meeting,dir_name=proceeding.dir_name,sub_begin_date=proceeding.sub_begin_date,sub_cut_off_date=proceeding.sub_cut_off_date,frozen=1,c_sub_cut_off_date=proceeding.c_sub_cut_off_date,pr_from_date=proceeding.pr_from_date,pr_to_date=proceeding.pr_to_date)
+
+           new_proceeding_obj.save()
+           create_message(request, 'Proceedings have been freezed successfully!')
+
+
+        if request.POST.get('submit','') == "Activate":
+
+           new_proceeding_obj = Proceeding(meeting_num=meeting,dir_name=proceeding.dir_name,sub_begin_date=proceeding.sub_begin_date,sub_cut_off_date=proceeding.sub_cut_off_date,frozen=0,c_sub_cut_off_date=proceeding.c_sub_cut_off_date,pr_from_date=proceeding.pr_from_date,pr_to_date=proceeding.pr_to_date)
+
+           new_proceeding_obj.save()
+           create_message(request, 'Proceedings have been activated successfully!')
+
+
+        url = reverse('sec.proceedings.views.view', kwargs={'id':str(id)})
+        return HttpResponseRedirect(url)
+
+
+
+
+
+def upload_group(request,id,menu):
+    """
+    Handles the upload material process for the various categories.
+      
+    The main categories are
+    
+    - Groups/BOF/Plenary
+    
+    - Training
+    
+    - IRTF Group
+    
+    - Interim Meeting Groups 
+
+    **Templates:**
+
+    * ``proceedings/view.html``
+
+    **Template Variables:**
+
+    * meeting , proceeding,upload_form
+
+    """
+
+
+    # get meeting  and proceeding or return HTTP 404 if record not found
+
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+    menu = menu
+    
+   # Get the maximum meeting number(Object) from Meeting model
+    max_meeting_number = Proceeding.objects.aggregate(Max('meeting_num'))
+
+    # Get Max meetig number from the Meeting object
+    max_meeting_num = max_meeting_number['meeting_num__max']
+
+    # Now check the passed meeting number to set value of meeting_scheduled_field
+    # 1. Is same as the maximum meeting number from meetings table assign meeting_scheduled value
+    # 2. Is different than the maximum meeting number from meetings table assign meeting_scheduled value
+
+    # Initialize the meeting_scheduled field value
+    meeting_scheduled_field = ''
+  
+
+ 
+    if request.method == 'POST':
+       button_text = request.POST.get('submit','')
+
+       if button_text == 'Cancel':
+          url = reverse('sec.proceedings.views.view', kwargs={'id':str(id)})
+          return HttpResponseRedirect(url)
+
+   # Group Selection dropdown criteria
+   # If the passed meeting number is the latest meeting number then based on meeting scheduled filed
+   # If the passed meeting number is not the latest meeting number then based on meeting scheduled old filed
+
+       if menu == 'group':
+          if str(max_meeting_num) == str(id):
+             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='group',meeting_scheduled_field='meeting_scheduled')
+          else:
+             meeting_scheduled_field = 'meeting_scheduled_old'
+             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='group',meeting_scheduled_field='meeting_scheduled_old')
+       elif menu == 'training':
+             upload_form = GroupSelectionForm(menu='training',meeting_num=id)
+       elif menu == 'irtf':
+             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='irtf')
+       elif menu == 'interim':
+#             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='interim')
+          if str(max_meeting_num) == str(id):
+             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='interim',meeting_scheduled_field='meeting_scheduled')
+          else:
+             meeting_scheduled_field = 'meeting_scheduled_old'
+             upload_form = GroupSelectionForm(request.POST,request.FILES,menu='interim',meeting_scheduled_field='meeting_scheduled_old')
+
+
+   #If the form is valid get the values of fields
+       if upload_form.is_valid():
+          group_acronym_id = upload_form.cleaned_data['group_name']
+          material_type = upload_form.cleaned_data['material_type']
+          slide_name =  upload_form.cleaned_data['slide_name']
+          slide_type_id = upload_form.cleaned_data['file_format']
+
+   #Get the acronym name for the selected group_acronym_id (acronym_id)
+          if group_acronym_id == 0:
+             group_name = "Error message"
+             group_name_short = "Ermsg"
+   #Need to handle the group message
+          if group_acronym_id == -1:
+             group_name = "Wednesday Plenary"
+             group_name_short = "plenaryw"
+          elif group_acronym_id == -2:
+             group_name = "Thursday Plenary"
+             group_name_short = "plenaryt"
+          else:
+             if menu == 'irtf':
+            #Get from group_name from irtf_acronym #
+                q = IRTF.objects.filter(acronym=group_acronym_id)
+                for item in q:
+                   group_name = item.acronym
+             else:
+                q = Acronym.objects.filter(acronym_id=group_acronym_id)
+                for item in q:
+                   group_name = item.acronym
+
+                if menu == 'interim':
+                   group_name = "i".group_name
+             
+             group_name_short = group_name  
+
+    #Get the file name and file type based on the slide_type_id
+          filename = group_name
+
+          if slide_type_id == 1:
+             slide_type = 'html'
+          elif slide_type_id == 2:
+             slide_type = 'pdf'
+          elif slide_type_id == 3:
+             slide_type = 'txt'
+
+    #Depending upon the material  type(ie Presentation/Agenda/Minute) perform relevant actions
+
+
+    #If Uploaded material is slide-presentation#
+    #------------------------------------------
+          if material_type == 1:
+
+    #Get the current slides 
+             local_dir = 'slides'
+             if slide_type_id == 1: #If the presentation is in HTML format then it has to uploaded as zip
+                slide_type = 'zip'
+    #Check if the passed meeting number has some slides uploaded in the slide table
+    # 1. Get the dictinary containing the aggregate slide number for the matching meeting number
+    # 2. Get the slide number from the dictinary.
+    # 3. If the slide number is not present in the databse then initialize it to zero.
+    #    Increment the existing slide number
+    # 4. Give error message if slide name is not present
+    # 5. Make an enty to slide tables with DATA : (meeting_num,group_acronym_id,slide_num,slide_type_id,slide_name,irtf,interim)
+    # 7. existing is id
+
+                dict_slide = Slide.objects.filter(meeting__exact=id,group_acronym_id__exact=group_acronym_id).aggregate(Max('slide_num'))
+                slide_num = dict_slide['slide_num__max']
+
+                if slide_num is None:
+                   slide_num = '0'
+                else:
+                   slide_num = slide_num + 1;
+ 
+                slide_obj = Slide(meeting=meeting,group_acronym_id=group_acronym_id,slide_num=slide_num,slide_type_id=slide_type_id,slide_name=slide_name,irtf=0,interim=0)
+                slide_obj.save()
+
+    #Place for existing slide number logic#
+    #If Uploaded material is agenda#
+    #------------------------------------------
+          elif material_type == 2:
+             local_dir = 'agenda'
+    #If Uploaded material is minute#
+    #------------------------------------------
+          elif material_type == 3:
+             local_dir = 'minutes'
+
+
+    #Now store the actual file at the correct location using the handle_uploaded_file
+
+          file = request.FILES[request.FILES.keys()[0]]
+#               draft.filename = os.path.splitext(file.name)[0][:-3]
+#               draft.revision = os.path.splitext(file.name)[0][-2:]
+          for file in request.FILES.values():
+             handle_uploaded_file(file,material_type,id)
+
+          create_message(request,'The material was uploaded successfully')
+          url = reverse('sec.proceedings.views.upload_group', args=(id,menu))
+          return HttpResponseRedirect(url)
+    else: 
+         if menu == 'group':
+            if str(max_meeting_num) == str(id):
+               upload_form = GroupSelectionForm(menu='group',meeting_scheduled_field='meeting_scheduled')
+            else:
+               meeting_scheduled_field = 'meeting_scheduled_old'
+               upload_form = GroupSelectionForm(menu='group',meeting_scheduled_field='meeting_scheduled_old')
+         elif menu == 'training':
+               upload_form = GroupSelectionForm(menu='training',meeting_num=id)
+         elif menu == 'irtf':
+               upload_form = GroupSelectionForm(menu='irtf')
+         elif menu == 'interim':
+    #           upload_form = GroupSelectionForm(menu='interim')
+            if str(max_meeting_num) == str(id):
+               upload_form = GroupSelectionForm(menu='interim',meeting_scheduled_field='meeting_scheduled')
+            else:
+               meeting_scheduled_field = 'meeting_scheduled_old'
+               upload_form = GroupSelectionForm(menu='interim',meeting_scheduled_field='meeting_scheduled_old')
+
+
+         return render_to_response('proceedings/upload_group.html', {
+            'meeting':meeting,
+            'proceeding':proceeding,
+            'upload_form': upload_form,
+            'max_meeting_num':max_meeting_num,
+            'passed_num':id,
+            'menu':menu},
+             RequestContext(request,{}),
+            )
+
+
+
+
+def convert(request, id):
+    """
+    Handles the convert material process for meeting.
+      
+    **Templates:**
+
+    * ``proceedings/view.html``
+
+    **Template Variables:**
+
+    * meeting , proceeding
+
+    """
+
+    # get meeting or return HTTP 404 if record not found
+
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+   # Get the directory name for the passed meeting
+    q = Proceeding.objects.filter(meeting_num=id)
+    for item in q:
+        dir_name = item.dir_name
+
+   #Get the file names in queue waiting for the conversion
+
+    slide_list = Slide.objects.filter(meeting=id,in_q='1')
+
+   #Store the slide related details  
+    ind_slide = []
+    slide_info = []
+
+    for slide_item in slide_list:
+       if slide_item.irtf == 0:
+          group_name = Acronym.objects.filter(acronym_id=slide_item.group_acronym_id)
+       else:
+          group_name = IRTF.objects.filter(irtf_id=slide_item.group_acronym_id)
+       for x in group_name:
+              ind_slide =  [{'slide_name':slide_item.slide_name,'group_name':x.acronym,'interim':slide_item.interim,'id':slide_item.id}]
+              slide_info.append(ind_slide)
+
+     
+#     for item in convert_list:
+#         group_acronym_id =       
+#             = Acronym.objects.filter(acronym_id=group_acronym_id)
+
+
+    return render_to_response('proceedings/convert.html', {
+        'meeting': meeting,
+        'proceeding': proceeding,
+        'slide_info':slide_info},
+        RequestContext(request, {}),
+    )
+
+
+
+
+def upload_presentation(request,id,slide_id):
+#def upload_presentation(request,id):
+
+    meeting = get_object_or_404(Meeting, meeting_num=id)
+    proceeding = get_object_or_404(Proceeding, meeting_num=id)
+
+
+    return render_to_response('proceedings/upload_presentation.html', {
+        'meeting': meeting,
+        'proceeding': proceeding},
+           RequestContext(request, {}),
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

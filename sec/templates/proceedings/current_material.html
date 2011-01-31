@@ -1,0 +1,131 @@
+{% extends "base_site.html" %}
+
+{% block title %}Proceedings - Current Materials{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="../../../../">Proceedings</a>
+  &raquo; <a href="../../../">{{ meeting.meeting_num }}</a> 
+  &raquo; Current Material
+{% endblock %}
+
+{% block content %}
+
+<div id="nav" class="proceedings-nav">
+  <ul id="list-nav">
+    <li id="nav-upload_group" class="leftmost"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='group' %}">Group/BOF/Plenary</a></li>
+    <li id="nav-training"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='training' %}">Training</a></li>
+    <li id="nav-irtf"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='irtf' %}">IRTF Group</a></li>
+    <li id="nav-interim"><a href="{% url sec.proceedings.views.upload_group id=proceeding.meeting_num, menu='interim' %}">Interim</a></li>
+  </ul>
+</div>
+
+<div  class="module proceedings-container">
+    <h2>IETF  {{meeting.meeting_num}} Meeting - Current material  for : <font color="RED"> {{ acronym }}</font></h2>
+    <div class="inline-related">
+    	<h4>Current Agenda</h4> 
+    	<ul>
+             {% ifnotequal wg_filename "Agenda not uploaded" %}
+	        <li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/agenda/{{ wg_filename }}">{{ wg_filename }}</a>&nbsp;&nbsp;&nbsp;<a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=wg_id,min_id=0,slide_id=0 %}"> [DELETE]</a></li>
+             {% endifnotequal %}
+             {% ifequal wg_filename "Agenda not uploaded" %}
+	        <li>{{ wg_filename }}</li>
+             {% endifequal %}
+        </ul>      
+    </div><!-- inline-related-->
+    <h4>Current Minute</h4> 
+    <ul>
+             {% ifnotequal min_filename "Minutes not uploaded" %}
+	        <li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/minutes/{{ min_filename }}">{{ min_filename }}</a>&nbsp;&nbsp;&nbsp;<a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=0 %} "> [DELETE]</a></li>
+             {% endifnotequal %}
+             {% ifequal min_filename "Minutes not uploaded" %}
+	        <li>{{ min_filename }}</li>
+             {% endifequal %}
+    </ul>      
+    <h4>Current Slides</h4>
+    (<font color="RED">*</font> In waiting to be converted to HTML format) 
+
+    <ul>
+        {%for slide_item in slides_list %} 
+           {% if slide_item.in_q %}
+              {% ifequal slide_item.slide_type_id 2 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.pdf">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 3 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.txt">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 4 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.ppt">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 5 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.doc">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 6 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.pptx">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 7 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.wav">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 8 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.avi">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 9 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.mp3">{{ slide_item.slide_name }}<font color="RED">*</font></a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+
+           {% endif %}
+            {% if not slide_item.in_q %}
+              {% ifequal slide_item.slide_type_id 2 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.pdf">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 3 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.txt">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 4 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.ppt">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 5 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.doc">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 6 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.pptx">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 7 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.wav">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 8 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.avi">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+              {% ifequal slide_item.slide_type_id 9 %}
+	     	<li><a href="http://www.ietf.org/proceedings-beta/{{ meeting.meeting_num }}/slides/{{acronym}}-{{slide_item.slide_num }}.mp3">{{ slide_item.slide_name }}</a>&nbsp;&nbsp;&nbsp; <a href="{% url sec.proceedings.views.delete_file id=meeting.meeting_num, menu=menu,wg_id=0,min_id=min_id,slide_id=slide_item.id %} "> [DELETE]</a>
+                </li>
+              {% endifequal %} 
+
+           {% endif %}
+
+        {%endfor%}
+    </ul>     
+
+    
+</div> <!-- module -->
+
+{% endblock %}
+

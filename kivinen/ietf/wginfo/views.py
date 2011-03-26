@@ -62,7 +62,7 @@ def wg_dir(request):
     areas = Area.active_areas()
     return render_to_response('wginfo/wg-dir.html', {'areas':areas}, RequestContext(request))
 
-def wg_documents(request, acronym):
+def wg_documents(request, acronym, txt = 0):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)
     concluded = (wg.status_id != 1)
     form = SearchForm({'by':'group', 'group':str(wg.group_acronym.acronym),
@@ -83,9 +83,14 @@ def wg_documents(request, acronym):
         if ( len(parts) >= 3):
             if parts[1] != "ietf" and parts[2].startswith(wg.group_acronym.acronym+"-"):
                 docs_related_pruned.append(d)
-  
-    return render_to_response('wginfo/wg_documents.html', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  'meta':meta, 
-                                                           'docs_related':docs_related_pruned, 'meta_related':meta_related}, RequestContext(request))
+
+    if txt != 0:
+        return HttpResponse(loader.render_to_string('wginfo/wg_documents.txt', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  'meta':meta, 'docs_related':docs_related_pruned, 'meta_related':meta_related}),mimetype='text/plain; charset=UTF-8')
+    else:
+        return render_to_response('wginfo/wg_documents.html', {'wg': wg, 'concluded':concluded, 'selected':'documents', 'docs':docs,  'meta':meta, 'docs_related':docs_related_pruned, 'meta_related':meta_related}, RequestContext(request))
+
+def wg_documents_txt(request, acronym):
+    return wg_documents(request, acronym, 1)
 
 def wg_charter(request, acronym):
     wg = get_object_or_404(IETFWG, group_acronym__acronym=acronym, group_type=1)

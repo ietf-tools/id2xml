@@ -215,7 +215,3 @@ def login_testing_unauthorized(tc, remote_user, url):
 
     tc.client.login(remote_user=remote_user)
     
-class ReverseLazyTest(TestCase):
-    def test_redirect_with_lazy_reverse(self):
-        response = self.client.get('/ipr/update/')
-        self.assertRedirects(response, "/ipr/", status_code=301)

@@ -38,8 +38,6 @@ import re
 from datetime import date
 from django.utils import simplejson as json
 from django.db.models import Q
-from django.db import models
-from django.core.urlresolvers import reverse
 import types
 
 BALLOT_ACTIVE_STATES = ['In Last Call',
@@ -200,11 +198,11 @@ class IdWrapper:
 
     def friendly_state(self):
         if self.draft_status == "RFC":
-            return "<a href=\"%s\">RFC %d</a>" % (reverse('doc_view', args=['rfc%d' % self.rfc_number]), self.rfc_number)
+            return "<a href=\"/doc/rfc%d/\">RFC %d</a>" % (self.rfc_number, self.rfc_number)
         elif self.draft_status == "Replaced":
             rs = self.replaced_by()
             if rs:
-                return "Replaced by <a href=\"%s\">%s</a>" % (reverse('ipr_show', args=[rs[0]]),rs[0]) 
+                return "Replaced by <a href=\"/doc/%s/\">%s</a>" % (rs[0],rs[0])
             else:
                 return "Replaced"
         elif self.draft_status == "Active":
@@ -359,9 +357,8 @@ class RfcWrapper:
             # TODO: get AD name of the draft
             return None
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('ietf.idrfc.views_doc.document_main', ['rfc%s' % (str(self.rfc_number))])
+        return "/doc/rfc%d/" % (self.rfc_number,)
     def displayname_with_link(self):
         return '<a href="%s">RFC %d</a>' % (self.get_absolute_url(), self.rfc_number)
 
@@ -758,8 +755,6 @@ def create_position_object(ballot, position, all_comments):
              position=p)
     if not position.ad.is_current_ad():
         r['is_old_ad'] = True
-    else:
-        r['is_old_ad'] = False
         
     was = [v for k,v in positions.iteritems() if position.__dict__[k] < 0]
     if len(was) > 0:

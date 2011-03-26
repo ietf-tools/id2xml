@@ -21,8 +21,6 @@ from ietf.ipr.models import IprDetail
 from ietf.idrfc.mails import *
 from ietf.idrfc.utils import *
 from ietf.idrfc.lastcall import request_last_call
-from ietf.idrfc.idrfc_wrapper import BallotWrapper
-
 
 BALLOT_CHOICES = (("yes", "Yes"),
                   ("noobj", "No Objection"),
@@ -188,7 +186,6 @@ def edit_position(request, name):
                                    comment=comment,
                                    ad=ad,
                                    return_to_url=return_to_url,
-                                   ballot=BallotWrapper(doc.idinternal)
                                    ),
                               context_instance=RequestContext(request))
 

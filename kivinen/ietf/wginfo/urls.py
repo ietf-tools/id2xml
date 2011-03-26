@@ -14,6 +14,6 @@ urlpatterns = patterns('',
      (r'^1wg-charters.txt', views.wg_charters),
      (r'^1wg-charters-by-acronym.txt', views.wg_charters_by_acronym),
      (r'^txt/(?P<acronym>[^/]+)/$', views.wg_documents_txt),
-     (r'^(?P<acronym>[^/]+)/$', views.wg_documents),
+     (r'^(?P<acronym>[^/]+)/$', views.wg_documents_html),
      (r'^(?P<acronym>[^/]+)/charter/$', views.wg_charter),
 )

@@ -157,6 +157,8 @@ def session_agenda(request, num, session, ext=None):
                 file.close()
                 if e.lower() == "txt":
                     return HttpResponse(text, mimetype="text/plain")
+                elif e.lower() == "pdf":
+                    return HttpResponse(text, mimetype="application/pdf")
                 else:
                     return HttpResponse(text)
     if ext:

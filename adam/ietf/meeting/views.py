@@ -328,7 +328,8 @@ def week_view(request, num=None):
             {"timeslots":timeslots, "update":update, "meeting":meeting, 
              "venue":venue, "ads":ads, "plenaryw_agenda":plenaryw_agenda,
              "plenaryt_agenda":plenaryt_agenda, "wg_list" : wgs, 
-             "rg_list" : rgs, "area_list" : areas, "conflicts":conflicts},
+             "rg_list" : rgs, "area_list" : areas, "conflicts":conflicts,
+             "admin": True},
              context_instance=RequestContext(request))
 
 def ical_agenda(request, num=None):

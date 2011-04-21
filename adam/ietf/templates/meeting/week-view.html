@@ -6,11 +6,24 @@
 <script type="text/javascript" src='/js/agenda2.js'></script>
 <script type="text/javascript">
 var items = new Array();
+var timeslot = new Array();
 {% autoescape off %}
-{% for slot in timeslots %}{% for session in slot.sessions %}
-items.push({day:{{slot.day_id}}, time:"{{slot.time_desc}}", time_id:{{slot.time_id}}, name:"{{session.acronym_name}}", wg:"{{session.acronym}}", area:"{{session.area}}", room:"{{session.room_id.room_name}}", dayname:"{{ slot.meeting_date|date:"l"|upper }}, {{ slot.meeting_date|date:"F j, Y" }}"{% if session.agenda_file %}, agenda:"/meeting/{{session.agenda_file}}"{% endif %}});{% endfor %}{% endfor %}
-{% endautoescape %}
 
+{% for slot in timeslots %}{% for session in slot.sessions %}
+{% ifchanged slot.time_id %}timeslot[{{slot.time_id}}] = {day:{{slot.day_id}}, time:"{{slot.time_desc}}"};
+{% endifchanged %}items.push({time_id:{{slot.time_id}}, name:"{{session.acronym_name}}", wg:"{{session.acronym}}", area:"{{session.area}}", room:"{{session.room_id.room_name}}", dayname:"{{ slot.meeting_date|date:"l"|upper }}, {{ slot.meeting_date|date:"F j, Y" }}"{% if session.agenda_file %}, agenda:"/meeting/{{session.agenda_file}}"{% endif %}});{% endfor %}{% endfor %}
+
+{% if admin %}
+var conflict =
+{
+{% for conflict in conflicts %}{% if conflict.group_acronym %}{% if conflict.conflict_gid %}{% ifchanged conflict.group_acronym %}{% if not forloop.first %} },
+{% endif %}  "{{conflict.group_acronym}}": { {% else %}, {% endifchanged %}"{{conflict.conflict_gid}}":1{% endif %}{% endif %}{% endfor %} }
+};
+
+var timeslot_position = Array();
+{% endif %}
+
+{% endautoescape %}
 
 var fg = {
   'app': "#008",
@@ -51,29 +64,41 @@ var divlist = [];
 var lastfrag;
 var lastheight;
 var lastwidth;
+var force_redraw = false;
+var freeze_animation = false;
 
 var padding = 2;
 var border = 1;
 
 setInterval("animate()",50);
 
+
 function draw_calendar()
 {
+  document.body.onmousedown = function () { return false; }
+  document.body.style.overflow="hidden";
+
   window.setTimeout("draw_calendar()",1000);
+
+  if (force_redraw) { freeze_animation = false; }
+  if (freeze_animation) { return; }
 
   var width = document.body.clientWidth;
   var height = document.body.clientHeight;
 
   if (lastheight == height && 
       lastwidth == width &&
-      lastfrag == window.location.hash)
+      lastfrag == window.location.hash &&
+      !force_redraw)
   {
     return;
   }
 
+  force_redraw = 0;
+
   var i;
   var text="";
-  var start_day = items[0].day;
+  var start_day = timeslot[items[0].time_id].day;
   var end_day = start_day;
   var sessions = Array();
   var used = Array();
@@ -97,16 +122,16 @@ function draw_calendar()
     if (include[(items[i].wg).toLowerCase()] 
         || include[(items[i].area).toLowerCase()])
     {
-      var start_time = parseInt(items[i].time.substr(0,2),10) * 60 +
-                       parseInt(items[i].time.substr(2,2),10);
-      var end_time   = parseInt(items[i].time.substr(5,2),10) * 60 +
-                       parseInt(items[i].time.substr(7,2),10);
+      var start_time = parseInt(timeslot[items[i].time_id].time.substr(0,2),10) * 60 +
+                       parseInt(timeslot[items[i].time_id].time.substr(2,2),10);
+      var end_time   = parseInt(timeslot[items[i].time_id].time.substr(5,2),10) * 60 +
+                       parseInt(timeslot[items[i].time_id].time.substr(7,2),10);
 
       if (!day_start || start_time < day_start) { day_start = start_time; }
       if (end_time > day_end) { day_end = end_time; }
 
-      if (items[i].day < start_day) { start_day = items[i].day; }
-      if (items[i].day > end_day) { end_day = items[i].day; }
+      if (timeslot[items[i].time_id].day < start_day) { start_day = timeslot[items[i].time_id].day; }
+      if (timeslot[items[i].time_id].day > end_day) { end_day = timeslot[items[i].time_id].day; }
       if (sessions[items[i].time_id])
       {
         sessions[items[i].time_id]++;
@@ -128,13 +153,13 @@ function draw_calendar()
   var body = document.body;
   while (body.childNodes.length) { body.removeChild(body.childNodes[0]); }
 
+
   for (i = 0; i < num_days; i++)
   {
     //-----------------------------------------------------------------
     // Draw weekday name
     //-----------------------------------------------------------------
     var e = document.createElement("div");
-
     e.style.border="solid";
     e.style.borderWidth=border;
 
@@ -192,6 +217,66 @@ function draw_calendar()
     body.appendChild(e);
   }
 
+{% if admin %}
+  //-----------------------------------------------------------------
+  // Populate map for conflict detection
+  //-----------------------------------------------------------------
+  var inslot = Array();
+  var last_id;
+  for (i = 0; i < items.length; i++)
+  {
+    if (items[i].time_id != last_id)
+    {
+      inslot[items[i].time_id] = Array();
+      last_id = items[i].time_id;
+    }
+  }
+  for (i = 0; i < items.length; i++)
+  {
+    inslot[items[i].time_id].push(items[i].wg);
+  }
+
+  //-----------------------------------------------------------------
+  // Calculate timeslot positions for moving things
+  //-----------------------------------------------------------------
+  for (i in timeslot)
+  {
+    try
+    {
+      var start_time = parseInt(timeslot[i].time.substr(0,2),10) * 60 +
+                       parseInt(timeslot[i].time.substr(2,2),10);
+      var end_time   = parseInt(timeslot[i].time.substr(5,2),10) * 60 +
+                       parseInt(timeslot[i].time.substr(7,2),10);
+      var x = ((timeslot[i].day - start_day) * day_width);
+      var y = ((start_time - day_start) * minute_height) + header_height;
+      var h = ((end_time - start_time) * minute_height) - 2 * (padding + border);
+      timeslot_position[i] = [x,y];
+
+      var e = document.createElement("div");
+      e.style.border="solid";
+      e.style.borderWidth=border;
+
+      {
+        e.style.background="#f0f0f0";
+        e.style.borderColor="#e0e0e0";
+      }
+
+      e.style.display="block";
+      e.style.position="absolute";
+      e.style.top=y;
+      e.style.left=x + 1;
+      e.style.width=day_width - 2 * (padding + border) - 2;
+      e.style.height=h;
+      e.style.margin=0;
+      e.style.padding=padding;
+      body.appendChild(e);
+    }
+    catch(err)
+    {
+    }
+  }
+{% endif %}
+
   //-----------------------------------------------------------------
   // Draw a block for each meeting
   //-----------------------------------------------------------------
@@ -204,15 +289,15 @@ function draw_calendar()
     if (include[(items[i].wg).toLowerCase()] 
         || include[(items[i].area).toLowerCase()])
     {
-      var start_time = parseInt(items[i].time.substr(0,2),10) * 60 +
-                       parseInt(items[i].time.substr(2,2),10);
-      var end_time   = parseInt(items[i].time.substr(5,2),10) * 60 +
-                       parseInt(items[i].time.substr(7,2),10);
+      var start_time = parseInt(timeslot[items[i].time_id].time.substr(0,2),10) * 60 +
+                       parseInt(timeslot[items[i].time_id].time.substr(2,2),10);
+      var end_time   = parseInt(timeslot[items[i].time_id].time.substr(5,2),10) * 60 +
+                       parseInt(timeslot[items[i].time_id].time.substr(7,2),10);
 
       var sess_width = day_width / sessions[items[i].time_id];
       var sess_height = ((end_time - start_time) * minute_height) 
                         - 2 * (padding + border);
-      var day_left = ((items[i].day - start_day) * day_width);
+      var day_left = ((timeslot[items[i].time_id].day - start_day) * day_width);
       var sess_left = day_left + sess_width * used[items[i].time_id];
       var sess_top = ((start_time - day_start) * minute_height) + header_height;
 
@@ -263,9 +348,36 @@ function draw_calendar()
       }
 
       var div = document.createElement("div");
-      div.appendChild(document.createTextNode(items[i].time));
+      div.appendChild(document.createTextNode(timeslot[items[i].time_id].time));
       div.appendChild(document.createElement("br"));
 
+{% if admin %}
+      e.onmousedown = drag_func(e);
+      //-----------------------------------------------------------------
+      // Detect and display conflicts
+      //-----------------------------------------------------------------
+      var j;
+      var slot = items[i].time_id;
+      for (j in inslot[slot])
+      {
+        if (conflict[items[i].wg] && conflict[items[i].wg][inslot[slot][j]])
+        {
+          var nobr = document.createElement("nobr");
+          var bold = document.createElement("span");
+          var img = document.createElement("img");
+          img.src = "/images/warning.png";
+          nobr.appendChild(img);
+          warning_shown = 1;
+          bold.appendChild(document.createTextNode("\xA0Conflict:\xA0" + inslot[slot][j]));
+          bold.style.fontWeight="bold";
+          bold.style.color="#FF0000";
+          nobr.appendChild(bold);
+          div.appendChild(nobr);
+          div.appendChild(document.createElement("br"));
+        }
+      }
+
+{% endif %}
       var label = items[i].name;
       if (fg[items[i].area])
       {
@@ -285,6 +397,7 @@ function draw_calendar()
       e.appendChild(div);
 
       body.appendChild(e);
+
     }
   }
 
@@ -295,6 +408,7 @@ function draw_calendar()
 
 function resize(div,t2,l2,w2,h2,to_fit)
 {
+  if(freeze_animation) { return; }
   // Move the element to the front
   document.body.removeChild(div);
   document.body.appendChild(div);
@@ -310,6 +424,7 @@ function resize(div,t2,l2,w2,h2,to_fit)
 
 function animate()
 {
+  if (freeze_animation) { return; }
   var i;
   for (i = divlist.length - 1; i >= 0; i--)
   {
@@ -476,6 +591,71 @@ Array.prototype.remove = function(from, to) {
   this.length = from < 0 ? this.length + from : from;
   return this.push.apply(this, rest);
 };
+
+{% if admin %}
+var move_func = function(div){return function(evt){return move(evt,div);} }
+var drag_func = function(div){return function(evt){drag(evt,div);} }
+var drop_func = function(div){return function(evt){drop(evt,div);} }
+
+function drag(ev,e)
+{
+  document.body.onmousemove = move_func(e);
+  document.body.onmouseup = drop_func(e);
+  e.style.cursor="move";
+  e.offsetX = ev.clientX - e.style.left.replace("px","");
+  e.offsetY = ev.clientY - e.style.top.replace("px","");
+}
+
+function drop(ev,e)
+{
+  document.body.onmousemove = undefined;
+  document.body.onmouseup = undefined;
+  e.style.cursor="pointer";
+  ev.stopPropagation();
+
+  if (e.onclick) { return; }
+
+  // Find the closest timeslot
+  var min_distance = document.body.clientHeight + document.body.clientWidth;
+  var best_timeslot = 0;
+  var j;
+  for (j in timeslot_position)
+  {
+    var distance = Math.sqrt(
+      Math.pow(e.style.left.replace("px","") - timeslot_position[j][0],2) +
+      Math.pow(e.style.top.replace("px","") - timeslot_position[j][1],2)
+    );
+
+    if (distance < min_distance)
+    {
+      min_distance = distance;
+      best_timeslot = j;
+    }
+  }
+
+  if (best_timeslot)
+  {
+    items[e.id].time_id = best_timeslot;
+  }
+
+  force_redraw = true;
+  redraw_calendar();
+}
+
+function move(ev,e)
+{
+  e.onclick = undefined;
+  e.onmouseout = undefined;
+  e.onmouseover = undefined;
+  freeze_animation = true;
+
+  e.style.left = ev.clientX - e.offsetX;
+  e.style.top = ev.clientY - e.offsetY;
+  ev.stopPropagation();
+  ev.preventDefault();
+  return false;
+}
+{% endif %}
 
 </script>
 </head>

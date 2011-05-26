@@ -59,6 +59,8 @@ class PlainParser(FileParser):
             match_revision = revisionre.match(filename)
             if match_revision:
                 self.parsed_info.metadraft.revision = match_revision.group(1)
+            else:
+                self.parsed_info.add_error(u'The filename found on the first page of the document does not contain a revision: "%s"' % (filename,))
             filename = re.sub('-\d+$', '', filename)
             self.parsed_info.metadraft.filename = filename
             return

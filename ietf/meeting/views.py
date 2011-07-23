@@ -372,10 +372,3 @@ def meeting_requests(request, num=None) :
         {"sessions": sessions, "timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads, "wgs":wgs,
          "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, "areas":areas},
         context_instance=RequestContext(request))
-
-def conflict_digraph(request, num=None) :
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
-    sessions = WgMeetingSession.objects.filter(meeting=meeting)
-    return render_to_response("meeting/digraph.html",
-        {"sessions":sessions},
-        context_instance=RequestContext(request), mimetype="text/plain")

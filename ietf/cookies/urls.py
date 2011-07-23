@@ -11,4 +11,6 @@ urlpatterns = patterns('',
      (r'^expires_soon/', views.expires_soon),
      (r'^full_draft/(?P<enabled>.*)$', views.full_draft),
      (r'^full_draft/', views.full_draft),
+     (r'^draft_format/(?P<format>.*)$', views.draft_format),
+     (r'^draft_format/', views.draft_format),
 )

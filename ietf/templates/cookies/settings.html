@@ -63,6 +63,25 @@ cookies disabled then you are not able to change the settings
     <td>{% if full_draft|equal:"off" %}<span class="ietf-highlight-y"><a href="/cookies/full_draft/off">off</a></span>{%else%}<a href="/cookies/full_draft/off">off</a>{% endif %}</td></td>
     <td>{% if full_draft|equal:"on" %}<span class="ietf-highlight-y"><a href="/cookies/full_draft/on">on</a></span>{%else%}<a href="/cookies/full_draft/on">on</a>{% endif %}</td></td>
   </tr>
+
+  <tr class="setting-header">
+    <td colspan="6">
+      <h2 class="ietf-divider">Use html or txt format for draft</h2>
+    </td>
+  <tr>
+  <tr class="setting-description">
+    <td colspan="6">
+      <p>When showing draft on the document page, this setting specifies whether the full tools.ietf.org html format is used, or whether simplier txt format is used instead.</p>
+    </td>
+  </tr>
+  <tr class="settings-values">
+    <td>{% if draft_format|equal:"text" %}<span class="ietf-highlight-y"><a href="/cookies/draft_format/text">Text Format</a></span>{%else%}<a href="/cookies/draft_format/text">Text Format</a>{% endif %}</td></td>
+    <td>{% if draft_format|equal:"html" %}<span class="ietf-highlight-y"><a href="/cookies/draft_format/html">Html Format</a></span>{%else%}<a href="/cookies/draft_format/html">Html Format</a>{% endif %}</td></td>
+  </tr>
+
+
 </table>
 {% endblock %}
+
+
 

@@ -63,7 +63,7 @@ def document_debug(request, name):
         doc = IdWrapper(draft=id)
     return HttpResponse(doc.to_json(), mimetype='text/plain')
 
-def _get_html(key, filename):
+def _get_text(key, filename):
     f = None
     try:
         f = open(filename, 'rb')
@@ -75,6 +75,73 @@ def _get_html(key, filename):
             f.close()
     (c1,c2) = markup_txt.markup(raw_content)
     return (c1,c2)
+
+def _get_html(key, filename):
+    f = None
+    try:
+        f = open(filename, 'rb')
+        raw_content = f.read()
+    except IOError:
+        return ("Error; cannot read ("+key+")", "")
+    finally:
+        if f:
+            f.close()
+    # Find the script part from the html
+    script = raw_content[raw_content.find("<script"):raw_content.find("</script>")+10]
+    # Find the style sheet part from the html
+    style = raw_content[raw_content.find("<style"):raw_content.find("</style>")+10]
+    # Disable body and h1-h6 styles, as they mess up the datatracker default
+    # format
+    style = style.replace('body', '.body')
+    style = style.replace('h1, h2, h3, h4, h5, h6, ', '')
+    # Remove everything until </head>
+    raw_content = raw_content[raw_content.find("</head>")+7:]
+    # Remove everything after </body>
+    raw_content = raw_content[:raw_content.find("</body>")+7]
+    # Change body -> div
+    raw_content = raw_content.replace('<body', '<div')
+    raw_content = raw_content.replace('</body', '</div')
+    # Change the ./rfc8888 links to ../rfc8888 links as we now have
+    # url in format of /doc/rfc8888/ (note the final /)
+    raw_content = raw_content.replace('<a href="./', '<a href="../')
+    # Get rid of the line having links, and replace it with empty line
+    # The links are already in the datatracker main page, and the versions
+    # in the html does not work
+    link_line_start = raw_content.find('<a href="../html/"')
+    link_line_start = raw_content.rfind("\n", 0, link_line_start) + 1
+    link_line_end = raw_content.find("\n", link_line_start)
+    raw_content = raw_content[:link_line_start] + '<span class="pre noprint docinfo top">                                                                        </span><br />' + raw_content[link_line_end:]
+    # Split the file to 2 pieces, first piece contains first 2 pages
+    # and second piece rest.
+    part1 = raw_content.find("class='newpage'")
+    part1 = raw_content.find("<pre class='newpage'", part1)
+    part1_str = raw_content[:part1]
+    part2_str = raw_content[part1:]
+    return (script+style+part1_str,part2_str)
+
+def _get_id_html(request, key, filename):
+    html_format = False
+    if "draft_format" in request.COOKIES:
+        if request.COOKIES["draft_format"] == "html":
+            html_format = True
+    if html_format:
+        file=os.path.join(settings.INTERNET_DRAFT_HTML_PATH,filename+".html")
+        return _get_html(key,file)
+    else:
+        file=os.path.join(settings.INTERNET_DRAFT_PATH,filename+".txt")
+        return _get_text(key,file)
+
+def _get_rfc_html(request, key, filename):
+    html_format = False
+    if "draft_format" in request.COOKIES:
+        if request.COOKIES["draft_format"] == "html":
+            html_format = True
+    if html_format:
+        file=os.path.join(settings.RFC_HTML_PATH,filename+".html")
+        return _get_html(key,file)
+    else:
+        file=os.path.join(settings.RFC_PATH,filename+".txt")
+        return _get_text(key,file)
 
 def include_text(request):
     include_text = request.GET.get( 'include_text' )
@@ -93,9 +160,8 @@ def document_main_rfc(request, rfc_number, tab):
     info['has_txt'] = (".txt" in doc.file_types())
     info['has_ps'] = (".ps" in doc.file_types())
     if info['has_txt']:
-        (content1, content2) = _get_html(
-            "rfc"+str(rfc_number)+",html", 
-            os.path.join(settings.RFC_PATH, "rfc"+str(rfc_number)+".txt"))
+        (content1, content2) = _get_rfc_html(request, 
+            "rfc"+str(rfc_number)+",html", "rfc"+str(rfc_number))
     else:
         content1 = ""
         content2 = ""
@@ -127,9 +193,8 @@ def document_main(request, name, tab):
     info['has_pdf'] = (".pdf" in doc.file_types())
     info['is_rfc'] = False
     
-    (content1, content2) = _get_html(
-        str(name)+","+str(id.revision)+",html",
-        os.path.join(settings.INTERNET_DRAFT_PATH, name+"-"+id.revision+".txt"))
+    (content1, content2) = _get_id_html(request, 
+        str(name)+","+str(id.revision)+",html", name+"-"+id.revision)
 
     versions = _get_versions(id)
     history = _get_history(doc, versions)

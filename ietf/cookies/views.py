@@ -4,7 +4,8 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response as render, get_object_or_404
 from django.template import RequestContext
 
-def settings(request, new_enough = -1, expires_soon = -1, full_draft = ""):
+def settings(request, new_enough = -1, expires_soon = -1, full_draft = "",
+             draft_format = ""):
     if new_enough < 0:
         if "new_enough" in request.COOKIES:
             new_enough = int(request.COOKIES["new_enough"])
@@ -20,11 +21,17 @@ def settings(request, new_enough = -1, expires_soon = -1, full_draft = ""):
             full_draft = request.COOKIES["full_draft"]
         else:
             full_draft = "off"
+    if draft_format == "":
+        if "draft_format" in request.COOKIES:
+            draft_format = request.COOKIES["draft_format"]
+        else:
+            draft_format = "text"
     return render("cookies/settings.html",
            {
             "new_enough" : new_enough,
             "expires_soon" : expires_soon,
-            "full_draft" : full_draft
+            "full_draft" : full_draft,
+            "draft_format" : draft_format
             }, context_instance=RequestContext(request))
 
 def new_enough(request, days="14"):
@@ -54,4 +61,11 @@ def full_draft(request, enabled="off"):
             enabled = "off"
     response = settings(request, -1, -1, enabled)
     response.set_cookie("full_draft", enabled, 315360000)
+    return response
+
+def draft_format(request, format="text"):
+    if format != "text" and format != "html":
+            format = "text"
+    response = settings(request, -1, -1, "", format)
+    response.set_cookie("draft_format", format, 315360000)
     return response

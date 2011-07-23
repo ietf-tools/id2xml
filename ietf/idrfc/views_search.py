@@ -170,12 +170,18 @@ def search_query(query_original, sort_by=None):
         q_objs = []
         searchRfcIndex = True
         if query['name']:
-            r = re.compile("^\s*(?:RFC)?\s*(\d+)\s*$", re.IGNORECASE)
+            r = re.compile("^\s*(STD|FYI|BCP)\s*(\d+)\s*$", re.IGNORECASE)
             m = r.match(query['name'])
             if m:
-                q_objs.append(Q(rfc_number__contains=m.group(1))|Q(title__icontains=query['name']))
+                search_str = m.group(1).upper()+m.group(2).rjust(4,'0')
+                q_objs.append(Q(also__contains=search_str))
             else:
-                q_objs.append(Q(title__icontains=query['name']))
+                r = re.compile("^\s*(?:RFC)?\s*(\d+)\s*$", re.IGNORECASE)
+                m = r.match(query['name'])
+                if m:
+                    q_objs.append(Q(rfc_number__contains=m.group(1))|Q(title__icontains=query['name']))
+                else:
+                    q_objs.append(Q(title__icontains=query['name']))
         if query['by'] == 'author':
             q_objs.append(Q(authors__icontains=query['author']))
         elif query['by'] == 'group':

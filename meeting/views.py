@@ -359,4 +359,4 @@ def csv_agenda(request, num=None):
     return HttpResponse(render_to_string("meeting/agenda.csv",
         {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
          "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },
-        RequestContext(request)), mimetype="text/csv")
+        RequestContext(request)), mimetype="text/plain")

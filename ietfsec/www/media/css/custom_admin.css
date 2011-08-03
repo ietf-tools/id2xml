@@ -1,0 +1,24 @@
+/*
+   Overrides 
+*/
+
+input#id_name_prefix {
+    width: 5em;
+}
+
+input#id_first_name {
+    width: 7em;
+}
+
+input#id_middle_initial {
+    width: 2em;
+}
+
+input#id_last_name {
+    width: 7em;
+}
+
+input#id_name_suffix {
+    width: 5em;
+}
+

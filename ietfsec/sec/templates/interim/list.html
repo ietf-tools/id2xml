@@ -1,0 +1,40 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; Interim Meetings 
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Interim Meetings<span class="login">{% if request.user_is_secretariat %}Secretariat {% endif %}Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+         <p><h3>Scheduled Interim Meetings:{% if request.user_is_secretariat or request.user_is_chair %}
+                                             &nbsp&nbsp<a href="{% url interim_manage %}">Manage Meetings</a>
+                                           {% endif %}</h3></p>
+	 {% if meetings %}
+           <table class="full-width">
+             <tr>
+               <td><a href="{% url interim_list order_by="date" %}">Date</a></td>
+               <td><a href="{% url interim_list order_by="group" %}">Group</a></td>
+             </tr>
+	     {% for meeting in meetings %}
+             <tr class="{% cycle row1,row2 %}">
+	       <td><a href="{{ meeting.proceedings_url }}">{{ meeting.meeting_date }}</a></td>
+               <td>{{ meeting.get_group_name }}</td>
+             </tr>
+             {% endfor %}
+             </table>
+
+	 {% else %}
+	     <p>No Interim Meetings scheduled.</p>
+	 {% endif %}
+
+</div> <!-- module -->
+
+{% endblock %}

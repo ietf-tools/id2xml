@@ -1,0 +1,30 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; Interim Meetings 
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Interim Meetings<span class="login">{% if request.user_is_secretariat %}Secretariat {% endif %}Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+         <p><h3>Select a group to manage:</h3></p>
+	 {% if groups %}
+	     <ul class="none">
+	       {% for group in groups %}
+	       <li><a href="{% url sec.interim.views.group group_id=group.group_acronym.acronym_id %}">{{ group.group_acronym.acronym }} - {{ group.group_acronym.name }}</a></li>
+	       {% endfor %}
+	     </ul>
+	 {% else %}
+	     <p>No groups to manage.</p>
+	 {% endif %}
+
+</div> <!-- module -->
+
+{% endblock %}

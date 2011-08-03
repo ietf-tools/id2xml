@@ -1,0 +1,23 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="{% url "interim_list" %}">Interim Meetings</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="module group-container">
+    <h2>Error Message</h2>
+      An ERROR has occured:
+      <h3>{{ error }}</h3>
+      <div class="button-group">
+	<ul>
+	  <li><button onClick="window.location='{% url "interim_list" %}'">Continue</button></li>
+	</ul>
+      </div> <!-- button-group -->
+    </form>
+</div> <!-- module -->
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base_site.html" %}
+
+{% block title %}Meetings - Edit{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="../../">Meetings</a>
+  &raquo; <a href="../">{{ meeting.meeting_num }}</a>
+  &raquo; Edit
+{% endblock %}
+
+{% block content %}
+
+<div class="module">
+    <form action="." method="post">
+    <h2>Meetings - Edit</h2>
+      <table id="proceedings-edit-table">
+        {{ meeting_form.as_table }}
+        {{ proceeding_formset }}
+      </table>  
+      {% include "includes/buttons_save_cancel.html"%}	
+
+    </form>
+
+</div> <!-- module -->
+
+{% endblock %}
+

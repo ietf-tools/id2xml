@@ -1,0 +1,28 @@
+{% extends "base_site.html" %}
+
+{% block title %}Meetings - Info{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Meetings</a>
+  &raquo; <a href="../">{{ meeting.meeting_num }}</a>
+  &raquo; Additional Info
+{% endblock %}
+
+{% block content %}
+
+<div class="module group-container">
+    <h2>Meetings - {{ type }}</h2>
+    <form enctype="multipart/form-data" action="" method="post" id="additional-info-form">
+      {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+      {{ form.text.errors }}{{ form.text }}
+
+      {% include "includes/buttons_save_cancel.html" %}
+
+    </form>
+</div> <!-- module -->
+
+{% endblock %}

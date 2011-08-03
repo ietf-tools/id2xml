@@ -1,0 +1,56 @@
+{% extends "base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+
+{% if request.user_is_secretariat %}
+
+<table class="menu" width="100%" cellpadding="5" cellspacing="5" border="0">
+  <tr valign="top">
+    <td>
+      <h3>Liaisons</h3>
+      <li> <a href="/sec/liaison/"><b>Add Liaison Organization</b></a></li><br>
+   </td>
+   <td>
+     <h3>IDs and WGs Process</h3>
+       <li> <a href="/sec/drafts/"><b>Drafts</b></a></li><br>
+       <li> <a href="/sec/areas/"><b>Areas</b></a></li><br>
+       <li> <a href="/sec/groups/"><b>Working Groups</b></a></li><br>
+       <li> <a href="/sec/roles/"><b>Roles</b></a></li><br>
+       <li> <a href="/sec/rolodex/"><b>Rolodex</b></a></li><br>
+    </td>
+  </tr>
+  <tr valign="top">
+    <td>
+      <h3>Meetings and Proceedings</h3>
+      <li> <a href="/sec/drafts/dates/"><b>ID Submission Dates</b></a></li><br>
+      <li> <a href="/sec/meetings/"><b>Meeting Manager</b></a></li><br>
+      <li> <a href="/sec/proceedings/"><b>Meeting Materials Manager (Proceedings)</b></a></li><br>
+      <li> <a href="/proceedings/proceeding_generator.php"><b>Generate Proceedings </b></a></li><br>
+      <li> <a href="/sec/sessions/"><b>Session Request Tool</b></a></li><br>
+
+    </td>
+    <td>
+      <h3>IPR</h3>
+      <li> <a href="/sec/ipr/"><b>IPR Administrator Page</b></a></li><br>
+    </td>
+  </tr>
+</table>
+
+{% else %}
+
+<table cellpadding="5" cellspacing="5" border="0" width="100%">
+  <tr valign="top">
+    <td>
+      <h3>Meetings and Proceedings</h3>
+      <li> <a href="/sec/sessions/"><b>Session Request Tool</b></a></li><br>
+      <li> <a href="/sec/proceedings/"><b>Meeting Materials Manager (Proceedings)</b></a></li><br>
+      <li> <a href="{% url proceedings_select_interim %}"><b>Interim Meeting Manager</b></a></li><br>
+    </td>
+  </tr>
+</table>
+
+{% endif %}
+
+</div>
+{% endblock %}

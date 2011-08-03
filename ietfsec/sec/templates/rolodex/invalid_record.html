@@ -1,0 +1,15 @@
+{% extends "base_site.html" %}
+
+{% block title %}Rolodex - Error{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../">Rolodex</a>
+{% endblock %}
+
+{% block content %}
+
+<h2><p>ERROR: record entry not found! ({{ tag }})</p></h2>
+
+<button onClick="window.location='../../'">Continue</button>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base_site.html" %}
+
+{% block title %}Liaisons{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; Add Liaison
+{% endblock %}
+
+{% block content %}
+<div class="module">
+  <h2>Add New Liaison</h2>
+  <form action="." method="POST">
+      <p class="help">
+      To add a new liaison enter a name in the name field below and click submit.  Duplicate names are not allowed.  Only letters, numbers, spaces and special characters dash "-", slash "/" and period "." are allowed.
+      </p>
+      <table align="center">
+	{{ form.as_table }}
+      </table>
+
+      {% include "includes/buttons_submit.html" %}
+
+  </form>
+</div> <!-- module -->
+<div class="module">
+    <h2>Liaisons</h2>
+    <table class="full-width">
+      {% for item in from_bodies %}
+        <tr class="{% cycle 'row1' 'row2' %}"><td>{{item.body_name}}</td></tr>
+      {% endfor %}
+    </table>
+</div> <!-- module -->
+{% endblock %}

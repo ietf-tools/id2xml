@@ -1,0 +1,83 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Interim Meetings</a>
+  &raquo; <a href="../../group/{{ meeting.group_acronym_id }}">{{ meeting.get_group_acronym }}</a>
+  &raquo; {{ meeting.meeting_date }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Working Group - {{ meeting.get_group_acronym }}: Interim Meeting of {{ meeting.meeting_date }}<span class="login">{% if request.user_is_secretariat %}Secretariat {% endif %}Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+       <table class="center">
+         <thead>
+           <tr>
+             <th>Type</th>
+             <th>Filename</th>
+             <th>Delete</th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td>Proceedings</td>
+             <td>
+               {% if proceedings_link %}
+                 <a href="{{ proceedings_link|safe }}" target="_blank">Proceedings</a>
+               {% else %}
+                 Proceedings not yet generated
+               {% endif %}
+             </td>
+             <td></td>
+           </tr>
+           <tr>
+             <td>Minutes</td>
+             {% if meeting.get_minutes %}
+             <td>{{ meeting.get_minutes.get_short_filename }}</td>
+             <td><a href="../../slide/{{ meeting.get_minutes.id }}/delete/">Delete</a></td>
+             {% else %}
+             <td></td>
+             <td></td>
+             {% endif %}
+           </tr>
+           <tr>
+             <td>Agenda</td>
+             {% if meeting.get_agenda %}
+             <td>{{ meeting.get_agenda.get_short_filename }}</td>
+             <td><a href="../../slide/{{ meeting.get_agenda.id }}/delete/">Delete</a></td>
+             {% else %}
+             <td></td>
+             <td></td>
+             {% endif %}
+             </tr>
+         </tbody>
+       </table>
+     
+     <div class="inline-group">
+       <h2>Slides</h2>
+       {% with meeting.slides as slides %}
+         {% include "includes/interim_slides.html" %}
+       {% endwith %}
+     </div> <!-- inline-group -->
+
+     <div class="inline-group">
+       <h2>Upload Materials</h2>
+       <form enctype="multipart/form-data" action="." method="post">
+       <table>
+       {{ form.as_table }}
+       </table>
+
+       {% include "includes/buttons_submit_back.html" %}
+ 
+       </form>
+      </div> <!-- inline-group -->
+</div> <!-- module -->
+
+{% endblock %}

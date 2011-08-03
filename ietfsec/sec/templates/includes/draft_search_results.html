@@ -1,0 +1,20 @@
+<table id="draft-search-results" class="center" cellspacing="0">
+  <thead>
+    <tr> 
+      <th>Filename</th>
+      <th>Group</th>
+      <th>Status</th>
+      <th>Intended Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in results %}
+       <tr class="{% cycle 'row1' 'row2' %}">
+         <td><a href="{% url drafts_view id=item.id_document_tag %}">{{item.filename}}</a></td>
+         <td>{{item.group}}</td>
+         <td>{{item.status}}</td>
+         <td>{{item.intended_status}}</td>
+       </tr>
+    {% endfor %}
+  </tbody>
+</table>

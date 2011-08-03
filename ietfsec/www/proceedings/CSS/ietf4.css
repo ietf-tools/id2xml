@@ -1,0 +1,99 @@
+/* CSS Document */
+/* begin yui fonts-min.css */
+/*
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
+*/
+body{font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}table{font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+/* end of yui fonts-min.css */
+
+body {
+        color: #000000;
+        margin: 5px;
+        padding: 0px;
+}
+
+#container {
+        margin: 0;
+        text-align: left;
+}
+
+#sidebar1 {
+        background-color: #edf5ff;
+        border: 1px solid #89d;
+        padding: 0;
+        vertical-align: top;
+        width: 14em;
+}
+
+#sidebar1 ul { padding: 0; margin: 0;}
+#sidebar1 ul li { list-style: none; padding: 0; margin: 0; padding: 2px 0px 2px 0px;}
+#sidebar1 ul li.yuimenuitem {padding: 1px 0px 1px 0px; }
+#sidebar1 ul li a { padding: 0px 0px 0px 10px; }
+#sidebar1 ul li.subhdr00 a { padding: 2px 2px 2px 2px; }
+#sidebar1 ul li.subhdr00 { font-weight:bold; color:#fff; background:#2647A0; margin-top:2px; text-indent:2px; padding: 2px 0;}
+#sidebar1 ul li.first { margin-top: 0px; }
+#sidebar1 ul li:hover { background: #e60; }
+#sidebar1 ul li:hover a  { color:#fff; }
+#sidebar1 ul li.subhdr00 a {color:#fff; }
+
+
+#sidebar2 {
+        padding: 0;
+}
+
+#content1 {
+        background-color: #FFFFFF;
+        vertical-align: top;
+}
+
+
+#content2 {
+        padding: 1em 1.5em 1em 1em;
+        max-width: 65em;
+}
+
+#related table td { text-align: center; }
+
+#footer1 {
+        background-color: #EEEEFF;
+        color: #000000;
+        font-size: 80%;
+        padding-top:8px;
+        text-align: center;
+        vertical-align: top;
+}
+
+#footer2 {
+        background-color: #EEEEEE;
+        padding: 4px;
+        font-size: 85%;
+        text-align: center;
+        vertical-align: top;
+        }
+
+.desc01 {
+        display: none;
+}
+
+.subhdr00 {
+        color: #0000FF;
+        font-size: 100%;
+}
+
+.subhdr01 {
+        font-size: 90%;
+}
+
+.subhdr02 {
+        font-size: 90%;
+}
+
+.ptitle {
+        font-size: 150%;
+        font-weight:bold;
+        text-align:left;
+        }
+                        

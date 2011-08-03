@@ -1,0 +1,18 @@
+---------------------------------------------------------
+Working Group Name: {{ session.group.group_name }}
+Area Name: {% if session.group.get_area.area_acronym.name %}{{ session.group.get_area.area_acronym.name }}{% else %}{% if session.irtf %}IRTF{% endif %}{% endif %}
+Session Requester: {{ request.person }}
+
+Number of Sessions: {{ session.num_session }}
+Length of Session(s):  {{ session.length_session1 }}{% if session.length_session2 %}, {{ session.length_session2 }}{% endif %}{% if session.length_session3 %}, {{ session.length_session3 }}{% endif %}
+Number of Attendees: {{ session.number_attendee }}
+Conflicts to Avoid: 
+{% if session.conflict1 %} First Priority: {{ session.conflict1 }}{% endif %}
+{% if session.conflict2 %} Second Priority: {{ session.conflict2 }}{% endif %}
+{% if session.conflict3 %} Third Priority: {{ session.conflict3 }}{% endif %}
+{% if session.conflict_other %} BOF or IRTF Session: {{ session.conflict_other }}{% endif %}
+
+
+Special Requests:
+  {{ session.special_req }}
+---------------------------------------------------------

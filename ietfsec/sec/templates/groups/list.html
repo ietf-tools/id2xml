@@ -1,0 +1,43 @@
+{% extends "base_site.html" %}
+
+{% block title %}Working Groups{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Working Groups</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="module group-container">
+    <h2>Working Groups</h2>
+    <table class="full-width">
+      <thead>
+	<tr>
+	  <th>Name</th>
+	  <th>Acronym</th>
+	  <th>Status</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for item in results %}
+	   <tr class="{% cycle 'row1' 'row2' %} {{ item.area.status.status_value|lower }}">
+	     <td><a href="{% url sec.areas.views.view id=item.acronym_id%}">{{item.name}}</a></td>
+             <td>{{item.acronym}}</td>
+             <td>{{item.area.status.status_value}}</td>
+	   </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+
+    <div class="button-group">
+      <ul id="id-area-button-list">
+	<li><button onclick="window.location='add/'">Add</button></li>
+      </ul>
+    </div> <!-- button-group -->
+</div> <!-- module -->
+
+{% endblock %}

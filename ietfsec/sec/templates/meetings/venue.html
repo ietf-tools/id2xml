@@ -1,0 +1,17 @@
+{% extends "meetings/base_rooms_times.html" %}
+
+{% block subsection %}
+
+<div class="module role-container">
+    <h2>Venues</h2>
+      <form action="." method="post">
+        <table class="center">
+          {{ form.as_table }}
+        </table>
+            
+        {% include "includes/buttons_save.html" %}
+
+      </form>
+</div> <!-- module -->
+
+{% endblock %}

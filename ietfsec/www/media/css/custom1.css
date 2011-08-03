@@ -1,0 +1,261 @@
+/*
+   Overrides (override existing properties from Django admin css)
+*/
+
+#content {
+    width: 760px;
+    margin: 10px auto;
+}
+
+.inline-group th, td {
+    padding: 3px;
+}
+
+.object-tools {
+    float: left;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.errorlist li {
+    background: #FF8080 url(../img/admin/icon_alert.gif) no-repeat scroll 5px 0.3em;
+    border: 1px solid #FF8080;
+}
+
+/* ------------------ General Styles ---------------- */
+
+.required {
+    color: red;
+}
+
+.alert {
+    color: red;
+}
+
+td.border-right {
+    border-right: #ccc 1px solid;
+    padding: 0;
+}
+
+table.full-width {
+    width: 100%;
+}
+
+table.center {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+
+
+/* ----------------- Buttons ------------------------ */
+
+.button.standard, input.standard[type="submit"] {
+    background: none;
+}
+
+.button-group { 
+    clear: both;
+    width: auto;
+    height: 2.5em;
+    padding: 4px 7px;
+    background: white url(../img/admin/nav-bg.gif) 0 100% repeat-x;
+    border: 0 solid #ccc;
+    border-top: 1px solid #ccc;
+    margin: 5px 0 0 0;
+    overflow: hidden;
+}
+
+.button-group ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 7px;
+    text-align: center;
+}
+
+.button-group li {
+    display: inline;
+    padding: 5px;
+}
+
+button.fancy:hover {
+    background-color: #ffc; 
+}
+
+/* ------------ Navigation Bar --------------------- */
+
+#nav {
+    padding: 0;
+}
+
+ul#list-nav {
+    padding-left: 0;
+    margin-left: 0;
+    background-color: #36648B;
+    color: White;
+    /* float: left; */
+    width: 100%;
+    /* font-family: arial, helvetica, sans-serif; */
+    overflow: auto;
+}
+
+ul#list-nav li { display: inline; }
+
+
+ul#list-nav li a {
+    /*padding: 0.2em 1em; */
+    padding: 0.2em;
+    /*width: 19.1%; */
+    width: 23%;
+    background-color: #36648B;
+    color: White;
+    text-decoration: none;
+    text-align: center;
+    float: left;
+    border-left: 1px solid #fff;
+}
+
+ul#list-nav li.leftmost a {
+    border-left: none;
+}
+
+ul#list-nav li a:hover {
+    background-color: #4F94CD;
+    color: #fff;
+}
+
+ul#list-nav a.current {
+    background-color: #7CA0C7;
+}
+
+/* ----------- Area Tool -------------------- */
+
+#areas-list-table td, th {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+/* ----------- Proceeding Tool -------------------- */
+
+#proceedings-list-table td, th {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.proceedings-container {
+    width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+}
+
+.proceedings-nav {
+    width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ------------- Group Tool ------------------ */
+#id_primary_area_director {
+    width: 210px;
+}
+
+#id_description {
+    width: 100%;
+}
+
+.group-container {
+    width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#group-search-results td {
+    font-size: xx-small;
+}
+
+#groups-people-col1 {
+    width: 75%;
+}
+
+#groups-people-col2 {
+    width: 25%;
+}
+
+#groups-view-col1 {
+    float: left;
+    width: 420px;
+    margin: 0;
+    border-right: 1px solid #CCCCCC;
+}
+
+#groups-view-col2 {
+    float: left;
+    width: 139px;
+    margin: 0;
+    padding: 0;
+}
+
+/* ------------ Liaisons Tool ---------------- */
+
+
+/* ------------ Role Tool -------------------- */
+.role-container {
+    width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+}
+
+.role-nav {
+    width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.name-autocomplete {
+    width: 300px;
+}
+
+/* ------------- Rolodex Tool  ---------------- */
+
+/* Search Page */
+
+#rolodex-search-form {
+    width: 50%;
+}
+
+/* View Page */
+
+#rolodex-view-container td {
+    padding: 2px;
+    border-bottom: none;
+}
+
+#rolodex-view-container th {
+    background: #DCDCDC;
+}
+
+#view-table {
+    margin: 0;
+    padding: 0;
+}
+
+#view-table td {
+    width: 380px;
+    padding-left: 4px;
+}
+ 
+#view-address-table {
+    margin-left: 2px;
+}
+
+#view-address-table td {
+    width: 50%;
+}
+
+#view-phone-table {
+    margin-bottom: 1em;
+}
+

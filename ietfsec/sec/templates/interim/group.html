@@ -1,0 +1,51 @@
+{% extends "base_site.html" %}
+
+{% block title %}Interim Meetings{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Interim Meetings</a>
+  &raquo; {{ group_name }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="module interim-container">
+    <h2>Working Group - {{ group_name }}<span class="login">{% if request.user_is_secretariat %}Secretariat {% endif %}Logged in: {{ request.META.REMOTE_USER }}</span></h2>
+       <p><h3>Scheduled / Completed {{group_name}} Interim Meetings:</h3></p>
+       {% if meeting_list %}
+       <ul>
+         {% for meeting in meeting_list %}
+         <li><a href="{% url sec.interim.views.meeting meeting_id=meeting.id %}">{{meeting.meeting_date}}</a>
+           {% if meeting.updated %}
+           {% ifnotequal meeting.updated "0000-00-00" %}
+             (Updated {{ meeting.updated }})
+           {% endifnotequal%} 
+           {% endif %}
+           {% if request.user_is_secretariat %}
+             &nbsp;-&nbsp;<a href="{% url sec.interim.views.delete_meeting meeting_id=meeting.id %}" onClick="javascript:return confirm('Are you sure you want to delete this meeting?  Any uploaded material will be removed.')">[Delete]</a>
+           {% endif %}
+         </li>
+         {% endfor %}
+       </ul>
+       {% else %}
+         <p>No meetings.</p>
+       {% endif %}
+
+     <div class="inline-group">
+       <h2>New Meeting</h2>
+       <p><h3>Create a new {{ group_name }} Interim Meeting:</h3></p>
+       <form action="." method="post">
+       {{ form.as_p }}
+
+       {% include "includes/buttons_submit_back.html" %}
+ 
+       </form>
+      </div> <!-- inline-group -->
+</div> <!-- module -->
+
+{% endblock %}

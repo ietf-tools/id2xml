@@ -1,0 +1,40 @@
+{% extends "base_site.html" %}
+
+{% block title %}Rolodex - Add{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="/media/js/utils.js"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }} 
+  &raquo; <a href="../../">Rolodex</a>
+  &raquo; <a href="../">{{ person.person_or_org_tag }}</a>
+  &raquo; Bulk-Update
+{% endblock %}
+
+{% block content %}
+
+<ul class="errorlist"><li>Changing one of the emails below will result in all matching email records for {{ person.first_name }} {{ person.last_name }} being updated.</li></ul>
+
+<div class="module">
+  <h2>Bulk Update Email {{ first_name }} {{ last_name }}</h2>
+
+    {% if email_forms %}
+    <table>
+      {% for form in email_forms %}
+        <form id="bulk-update-form-{{ forloop.counter }}" enctype="multipart/form-data" action="" method="post">
+        <tr>
+          {{ form.tag }}
+          <td>Old Email:</td>
+          <td>{{ form.old_email }}</td>
+          <td>New Email:</td>
+          <td>{{ form.new_email }}{{ form.new_email.errors }}</td>
+          <td><button type="submit" name="submit" value="Submit">Submit</button></td>
+        </tr>
+        </form>
+      {% endfor %}
+    </table>
+    {% endif %}
+</div> <!-- module -->
+
+{% endblock %}

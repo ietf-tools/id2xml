@@ -1,0 +1,78 @@
+/* CSS Document */
+body {
+        color: #000000;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 9.5pt;
+        margin: 0px;
+        padding: 0px;
+}
+
+#container {
+        margin: 0;
+        max-width: 80em;
+        text-align: left;
+}
+
+#sidebar1 {
+        background-color: #CCCCFF;
+        vertical-align: top;
+        width: 14em;
+}
+
+#sidebar1 ul { padding: 0; margin: 0;}
+#sidebar1 ul li { list-style: none; }
+#sidebar1 ul li a { padding: 0px 0px 0px 10px; }
+#sidebar1 ul li.subhdr00 { font-weight:bold; padding: 0;}
+#sidebar1 ul li.subhdr00 a { padding: 0; }
+
+#sidebar2 {
+        padding: 0 1em 0 1em;
+}
+
+#content1 {
+        background-color: #FFFFFF;
+        vertical-align: top;
+}
+
+#content2 {
+        padding: 1em 1.5em 1em 1em;
+}
+
+#related table td { text-align: center; }
+
+#footer1 {
+        background-color: #EEEEFF;
+        color: #000000;
+        font-size: 80%;
+        padding: 0 0 0 0;
+        text-align: center;
+        vertical-align: top;
+}
+
+
+#footer2 {
+        padding: 0 0 0 0;
+        }
+
+.desc01 {
+        margin: 0.5em 0 0.5em 0;
+}
+
+.subhdr00 {
+        color: #0000FF;
+        font-size: 100%;
+}
+
+.subhdr01 {
+        font-size: 90%;
+}
+
+.subhdr02 {
+        font-size: 90%;
+}
+
+.ptitle {
+        font-size: 150%;
+        font-weight:bold;
+        text-align:left;
+        }

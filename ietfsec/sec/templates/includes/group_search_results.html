@@ -1,0 +1,22 @@
+<table id="group-search-results" class="center" cellspacing="0">
+  <thead>
+    <tr> 
+      <th>Group Name</th>
+      <th>Group Acronym</th>
+      <th>Status</th>
+      <th>Type</th>
+      <th>Meeting Scheduled</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in results %}
+       <tr class="{% cycle 'row1' 'row2' %}">
+         <td><a href="{% url sec.groups.views.view id=item.group_acronym.acronym_id %}">{{item.group_acronym.name}}</a></td>
+         <td>{{item.group_acronym.acronym}}</td>
+         <td>{{item.status}}</td>
+         <td>{{item.group_type}}</td>
+         <td>{{item.meeting_scheduled}}</td>
+       </tr>
+    {% endfor %}
+  </tbody>
+</table>

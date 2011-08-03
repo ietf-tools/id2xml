@@ -1,0 +1,169 @@
+<html>
+<title>Remote Network Monitoring (rmonmib) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.4.14 Remote Network Monitoring (rmonmib)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-01-07
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:ietf@andybierman.com"><b>Andy Bierman &lt;ietf@andybierman.com&gt;</b></a><br>
+
+<h2>Operations and Management Area Director(s):</h2>
+<a href="mailto:bwijnen@lucent.com"><b>Bert Wijnen &lt;bwijnen@lucent.com&gt;</b></a><br>
+<a href="mailto:david.kessens@nokia.com"><b>David Kessens &lt;david.kessens@nokia.com&gt;</b></a><br>
+
+<h2>Operations and Management Area Advisor:</h2>
+<a href="mailto:bwijnen@lucent.com"><b>Bert Wijnen &lt;bwijnen@lucent.com&gt;</b></a><br>
+
+<h2>Technical Advisor(s):</h2>
+<a href="mailto:waldbusser@nextbeacon.com"><b>Steven Waldbusser &lt;waldbusser@nextbeacon.com&gt;</b></a><br>
+<a href="mailto:matt@internet2.edu"><b>Matthew Zekauskas &lt;matt@internet2.edu&gt;</b></a><br>
+<h2>Mailing Lists:</h2> 
+General Discussion: rmonmib@ietf.org<br>
+To Subscribe: <a href="http://www.ietf.org/mailman/listinfo/rmonmib">http://www.ietf.org/mailman/listinfo/rmonmib</a><br>
+Archive: <a href="http://www.ietf.org/mail-archive/web/rmonmib/index.html">http://www.ietf.org/mail-archive/web/rmonmib/index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Activation of working group, call for suggested MIB modules. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Reach agreement on the functional scope of the charter, and 
+                finalize the document deliverables. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for Differentiated Services 
+                Monitoring </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for Interface TopN Reporting </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for TR-RMON MIB in SMIv2 Format </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for TR-RMON MIB in SMIv2 Format </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for Application Performance 
+                Metrics </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for Differentiated Services 
+                Monitoring </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for Interface TopN Reporting </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of Differentiated Services Monitoring to 
+                IESG for standards track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for Application Performance 
+                Metrics </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of Application Performance Metrics to IESG 
+                for standards track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of Interface TopN Reporting to IESG for 
+                standards track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Call for MIB Modules for Synthetic Sources for Performance 
+                Monitoring </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Call for RMON-2 Implementation reports </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Call for RMON-PI Implementation reports </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for Synthetic Sources for 
+                Performance Monitoring </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial Internet-Draft for the RMON Framework </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of TR-RMON MIB in SMIv2 Format </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete RMON-PI Implementation Report </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin WG Last Call for Transport Performance Measurement </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin WG Last Call for Synthetic Sources for Performance 
+                Monitoring </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final RMON-2 Implementation Report to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final SMON Implementation Report to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete RMON-2 Implementation Report </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final RMON-PI Implementation Report to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete SMON Implementation Report </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin WG Last Call for RMON Framework </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Publish initial Internet-Draft for the Extensions to RMON 
+                Framework for RAQMON </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Publish initial Internet-Draft for the RAQMON PDU Types </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of Transport Performance Measurement to IESG 
+                for standards track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of Synthetic Sources for Performance 
+                Monitoring to IESG for standards track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Publish initial Internet-Draft for the RAQMON MIB </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Draft of RMON Framework to IESG for standards 
+                track action </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for the Extensions to RMON 
+                Framework for RAQMON document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for the RAQMON PDU Types document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Working Group Last Call for the RAQMON MIB document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit initial draft for RMON Protocol Macros for IPv6 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 03</td><td>&nbsp;&nbsp;</td><td>Submit the RAQMON PDU Types document to the IESG for 
+                publication consideration as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 03</td><td>&nbsp;&nbsp;</td><td>Submit the RAQMON MIB document to the IESG for publication 
+                consideration as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin WG Last Call for RMON Protocol Macros for IPv6 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 03</td><td>&nbsp;&nbsp;</td><td>Submit the Extensions to RMON Framework for RAQMON document to 
+                the IESG for publication consideration as an Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit final draft of RMON Protocol Macros for IPv6 to the IESG </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-rmonmib-tpm-mib-14.txt" target="blank">draft-ietf-rmonmib-tpm-mib-14.txt</a><br>
+<li> <a href="IDs/draft-ietf-rmonmib-sspm-mib-12.txt" target="blank">draft-ietf-rmonmib-sspm-mib-12.txt</a><br>
+<li> <a href="IDs/draft-ietf-rmonmib-raqmon-mib-07.txt" target="blank">draft-ietf-rmonmib-raqmon-mib-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-rmonmib-raqmon-framework-11.txt" target="blank">draft-ietf-rmonmib-raqmon-framework-11.txt</a><br>
+<li> <a href="IDs/draft-ietf-rmonmib-raqmon-pdu-10.txt" target="blank">draft-ietf-rmonmib-raqmon-pdu-10.txt</a><br>
+<li> <a href="IDs/draft-ietf-rmonmib-rmon2-v2-02.txt" target="blank">draft-ietf-rmonmib-rmon2-v2-02.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1271.txt" target="blank">RFC1271</A></td><td width=90>  PS  </td><td>Remote Network Monitoring Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1757.txt" target="blank">RFC1757</A></td><td width=90>  DS  </td><td>Remote Network Monitoring Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2021.txt" target="blank">RFC2021</A></td><td width=90>  PS  </td><td>Remote Network Monitoring Management Information Base 
+                       Version 2 using SMIv2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2074.txt" target="blank">RFC2074</A></td><td width=90>  PS  </td><td>Remote Network Monitoring MIB Protocol Identifiers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2613.txt" target="blank">RFC2613</A></td><td width=90>  PS  </td><td>Remote Network Monitoring MIB Extensions for Switch 
+                       Networks Version 1.0 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2819.txt" target="blank">RFC2819</A></td><td width=90> Standard </td><td>Remote Network Monitoring Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2895.txt" target="blank">RFC2895</A></td><td width=90>  PS  </td><td>Remote Network Monitoring MIB Protocol Identifier 
+                       Reference </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2896.txt" target="blank">RFC2896</A></td><td width=90>  I   </td><td>Remote Network Monitoring MIB Protocol Identifier Macros </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3144.txt" target="blank">RFC3144</A></td><td width=90>  PS  </td><td>Remote Monitoring MIB Extensions for Interface 
+                       Parameters Monitoring </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3273.txt" target="blank">RFC3273</A></td><td width=90>  PS  </td><td>Remote Network Monitoring Management Information Base 
+                       for High Capacity Networks </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3287.txt" target="blank">RFC3287</A></td><td width=90>  PS  </td><td>Remote Monitoring MIB Extensions for Differentiated 
+                       Services </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3395.txt" target="blank">RFC3395</A></td><td width=90>  PS  </td><td>Remote Network Monitoring MIB Protocol Identifier 
+                       Reference Extensions </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3434.txt" target="blank">RFC3434</A></td><td width=90>  PS  </td><td>Remote Monitoring MIB Extensions for High Capacity 
+                       Alarms </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3577.txt" target="blank">RFC3577</A></td><td width=90>  I   </td><td>Introduction to the Remote Monitoring (RMON) Family of 
+                       MIB Modules </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3729.txt" target="blank">RFC3729</A></td><td width=90> Standard </td><td>Application Performance Measurement MIB </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3737.txt" target="blank">RFC3737</A></td><td width=90> Standard </td><td>IANA guidelines for the registry of rmon MIB modules </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3919.txt" target="blank">RFC3919</A></td><td width=90>  I   </td><td>Remote Network Monitoring (RMON) Protocol Identifiers 
+                       for IPv6 and Multi Protocol Label Switching (MPLS) </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/rmonmib-0/sld1.htm" target="blank"">Agenda</a><br>
+<a href="slides/rmonmib-1/sld1.htm" target="blank"">RAQMON Internet-Drafts</a><br>
+

@@ -1,0 +1,121 @@
+<html>
+<title>Network File System Version 4 (nfsv4) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.7.9 Network File System Version 4 (nfsv4)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-01-07
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:beepy@netapp.com"><b>Brian Pawlowski &lt;beepy@netapp.com&gt;</b></a><br>
+<a href="mailto:spencer.shepler@sun.com"><b>Spencer Shepler &lt;spencer.shepler@sun.com&gt;</b></a><br>
+
+<h2>Transport Area Director(s):</h2>
+<a href="mailto:mankin@psg.com"><b>Allison Mankin &lt;mankin@psg.com&gt;</b></a><br>
+<a href="mailto:jon.peterson@neustar.biz"><b>Jon Peterson &lt;jon.peterson@neustar.biz&gt;</b></a><br>
+
+<h2>Transport Area Advisor:</h2>
+<a href="mailto:jon.peterson@neustar.biz"><b>Jon Peterson &lt;jon.peterson@neustar.biz&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: nfsv4@ietf.org<br>
+To Subscribe: <a href="https://www1.ietf.org/mailman/listinfo/nfsv4">https://www1.ietf.org/mailman/listinfo/nfsv4</a><br>
+Archive: <a href="http://www.ietf.org/mail-archive/web/nfsv4/index.html">http://www.ietf.org/mail-archive/web/nfsv4/index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Issue strawman Internet-Draft for v4 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Initial Internet-Draft of requirements document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Final Internet-Draft of requirements document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>AD reassesses WG charter </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit v4 Internet-Draft sufficient to begin prototype 
+                implementations </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Begin Interoperability testing of prototype implementations </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit NFS version 4 to IESG for consideration as a Proposed 
+                Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Conduct final Interoperability tests </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Conduct full Interoperability tests for all NFSv4 features </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Update API advancement draft </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Form core design team to work on NFS V4 migration/replication 
+                requirements and protocol </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised NFS Version 4 specification (revision to RFC 
+                3010) to IESG for consideration as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Strawman NFS V4 replication/migration protocol proposal 
+                submitted as an ID </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 03</td><td>&nbsp;&nbsp;</td><td>ADs to submit API advancement internet draft as informational 
+                RFC (needed to advance GSSAPI to Draft Standard to allow 
+                advancement of NFS Version 4) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 03</td><td>&nbsp;&nbsp;</td><td>Continued interoperability testing of NFS Version 4 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 03</td><td>&nbsp;&nbsp;</td><td>Internet draft on NFS V4 migration/replication requirements </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 03</td><td>&nbsp;&nbsp;</td><td>AD review of NFS V4 migration/replication requirements draft </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 03</td><td>&nbsp;&nbsp;</td><td>Creation of internet draft on ONC RPC MIB </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 03</td><td>&nbsp;&nbsp;</td><td>Revision of internet draft on NFS MIB </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 03</td><td>&nbsp;&nbsp;</td><td>Draft problem statement I-D for NFS/RPC/RDDP submitted </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 03</td><td>&nbsp;&nbsp;</td><td>Document full Interoperability tests for all NFSv4 features </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Depending on results of AD review of NFS Version 4 
+                migration/replication requirements document, review scope of 
+                task </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Submit related Proposed Standards required by NFS Version 4 for 
+                consideration as Draft Standards to IESG - RFCs 1831, 1833, 
+                2203, 2078, 2744, RFC 1964, & 2847 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Draft requirements document I-D for NFS/RPC/RDDP submitted </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Submit ONC RPC and NFS MIBs to IESG for consideration as 
+                Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Submit an NFS V4 migration/replication protocol to IESG for 
+                consideration as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 03</td><td>&nbsp;&nbsp;</td><td>Submit report on results of NFS version 4 RFC interoperability 
+                testing </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 03</td><td>&nbsp;&nbsp;</td><td>AD review of NFS/RPC/RDDP progress and charter </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 03</td><td>&nbsp;&nbsp;</td><td>Interoperability tests of NFS V4 migration/replication </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 03</td><td>&nbsp;&nbsp;</td><td>Submit revised NFS Version 4 Proposed Standard for 
+                consideration as Draft Standard to IESG </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-nfsv4-rfc1832bis-05.txt" target="blank">draft-ietf-nfsv4-rfc1832bis-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-rpc-iana-03.txt" target="blank">draft-ietf-nfsv4-rpc-iana-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-rfc1831bis-05.txt" target="blank">draft-ietf-nfsv4-rfc1831bis-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-acl-mapping-03.txt" target="blank">draft-ietf-nfsv4-acl-mapping-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-channel-bindings-03.txt" target="blank">draft-ietf-nfsv4-channel-bindings-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-nfs-rdma-problem-statement-02.txt" target="blank">draft-ietf-nfsv4-nfs-rdma-problem-statement-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-rpcrdma-01.txt" target="blank">draft-ietf-nfsv4-rpcrdma-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-nfsdirect-01.txt" target="blank">draft-ietf-nfsv4-nfsdirect-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-nfsv4-sess-01.txt" target="blank">draft-ietf-nfsv4-sess-01.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2623.txt" target="blank">RFC2623</A></td><td width=90>  PS  </td><td>NFS Version 2 and Version 3 Security Issues and the NFS 
+                       Protocol's Use of RPCSEC_GSS and Kerberos V5 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2624.txt" target="blank">RFC2624</A></td><td width=90>  I   </td><td>NFS Version 4 Design Considerations </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3010.txt" target="blank">RFC3010</A></td><td width=90>  PS  </td><td>NFS version 4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3530.txt" target="blank">RFC3530</A></td><td width=90>  PS  </td><td>Network File System (NFS) version 4 Protocol </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/nfsv4-0/sld1.htm" target="blank"">Agenda</a><br>
+<a href="slides/nfsv4-1/sld1.htm" target="blank"">I-D Status</a><br>
+<a href="slides/nfsv4-2.pdf" target="blank"">NFS/RDMA and Sessions Updates</a><br>
+<a href="slides/nfsv4-3/sld1.htm" target="blank"">pNFS extension for NFSv4</a><br>
+<a href="slides/nfsv4-4/sld1.htm" target="blank"">Directory Delegations in NFSv4</a><br>
+

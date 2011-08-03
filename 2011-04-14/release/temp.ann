@@ -1,0 +1,46 @@
+
+To: Internet Engineering Steering Group <iesg@ietf.org>
+From: IESG Secretary <iesg-secretary@ietf.org>
+Reply-To: IESG Scretary <iesg-secretary@ietf.org>
+Subject: Evaluation: draft-ietf-ipsp-config-policy-model -
+        IPsec Configuration Policy Information Model
+--------
+
+Last Call to expire on: 2002-11-11
+
+        Please return the full line with your position.
+
+                      Yes  No-Objection  Discuss  Abstain
+Harald Alvestrand    [   ]     [   ]     [   ]     [   ]
+Steve Bellovin       [   ]     [   ]     [   ]     [   ]
+Scott Bradner        [   ]     [   ]     [   ]     [   ]
+Randy Bush           [   ]     [   ]     [   ]     [   ]
+Patrik Faltstrom     [   ]     [   ]     [   ]     [   ]
+Bill Fenner          [   ]     [   ]     [   ]     [   ]
+Ned Freed            [   ]     [   ]     [   ]     [   ]
+Ted Hardie           [   ]     [   ]     [   ]     [   ]
+Russ Housley         [   ]     [   ]     [   ]     [   ]
+Allison Mankin       [   ]     [   ]     [   ]     [   ]
+Thomas Narten        [   ]     [   ]     [   ]     [   ]
+Erik Nordmark        [   ]     [   ]     [   ]     [   ]
+Jon Peterson         [   ]     [   ]     [   ]     [   ]
+Jeff Schiller        [   ]     [   ]     [   ]     [   ]
+Bert Wijnen          [   ]     [   ]     [   ]     [   ]
+Alex Zinin           [   ]     [   ]     [   ]     [   ]
+
+2/3 (9) Yes or No-Objection opinions needed to pass.
+
+^L 
+To: IETF-Announce:; 
+Dcc: *******
+Cc: RFC Editor <rfc-editor@isi.edu>,
+ Internet Architecture Board <iab@iab.org>, ipsec-policy@vpnc.org
+From: The IESG <iesg-secretary@ietf.org>
+Subject: Protocol Action: IPsec Configuration Policy Information Model to 
+     Proposed Standard 
+-------------
+
+The IESG has approved the Internet-Draft 'IPsec Configuration Policy 
+Information Model' <draft-ietf-ipsp-config-policy-model-.txt> as a Proposed 
+Standard. This document is the product of the IP Security Policy Working 
+Group. The IESG contact persons are Russell Housley and Steven Bellovin 

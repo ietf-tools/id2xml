@@ -1,0 +1,200 @@
+<html>
+<title>Multiprotocol Label Switching (mpls) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.5.6 Multiprotocol Label Switching (mpls)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-01-25
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:swallow@cisco.com"><b>George Swallow &lt;swallow@cisco.com&gt;</b></a><br>
+<a href="mailto:loa@pi.se"><b>Loa Andersson &lt;loa@pi.se&gt;</b></a><br>
+
+<h2>Routing Area Director(s):</h2>
+<a href="mailto:fenner@research.att.com"><b>Bill Fenner &lt;fenner@research.att.com&gt;</b></a><br>
+<a href="mailto:zinin@psg.com"><b>Alex Zinin &lt;zinin@psg.com&gt;</b></a><br>
+
+<h2>Routing Area Advisor:</h2>
+<a href="mailto:zinin@psg.com"><b>Alex Zinin &lt;zinin@psg.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: mpls@lists.ietf.org<br>
+To Subscribe: <a href="https://www1.ietf.org/mailman/listinfo/mpls">https://www1.ietf.org/mailman/listinfo/mpls</a><br>
+Archive: <a href="http://cell.onecall.net/cell-relay/archives/mpls/mpls.index.html">http://cell.onecall.net/cell-relay/archives/mpls/mpls.index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit documents from original MPLS effort to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Framework for IP multicast over label-switched paths ready for 
+                advancement. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>LDP fault tolerance specification ready for advancement to 
+                Proposed Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Definitions of Managed Objects for MultoiProtocol Label 
+                Switching, Label Distribution Protocol (LDP) to the IESG for 
+                publication as Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Specification for MPLS-specific recovery ready for advancement. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Multiprotocol Label Switching (MPLS) Forward Equivalency 
+                Class-To-Next Hop Label Forwarding Entry Management Information 
+                Base to the IESG for publication as Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Multiprotocol Label Switching (MPLS) Label Switching 
+                Router (LSR), Management Information Base to the IESG for 
+                publication as Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Multiprotocol Label Switching (MPLS) Management Overview 
+                to the IESG for publication as Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Definitions of Textual Conventions for Multiprotocol 
+                Label Switching (MPLS) Management to the IESG for publication 
+                as Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Multiprotocol Label Switching (MPLS) Traffic Engineering 
+                Management Information Base to the IESG for publication as 
+                Proposed Standards </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit the Traffic Engineering Link MIB to the IESG for as a 
+                Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit a specification on Encapsulations to carry MPLS over IP 
+                and GRE to the IESG for as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Together with CCAMP complete and establish the (G)MPLS change 
+                process </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 04</td><td>&nbsp;&nbsp;</td><td>Advance MPLS Architecture and MPLS encapsulation to Draft 
+                Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 04</td><td>&nbsp;&nbsp;</td><td>Submit a specification on Soft Pre-emption of LSP Tunnels to 
+                the IESG for publication as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 04</td><td>&nbsp;&nbsp;</td><td>Submit specification on LSR Self Test to the IESG for 
+                publication as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 04</td><td>&nbsp;&nbsp;</td><td>Submit specification on LSP Ping to the IESG for publication as 
+                a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 04</td><td>&nbsp;&nbsp;</td><td>Submit a document defining the scope, requirements, and issues 
+                to resolve for setup of P2MP TE LSPs (MPLS and GMPLS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Submit an OAM Framework Document to the IESG for publication as 
+                an Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Oct 04</td><td>&nbsp;&nbsp;</td><td>Advance 'Extension to RSVP for LSP Tunnels' to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 04</td><td>&nbsp;&nbsp;</td><td>Submit document(s) specifying protocol extensions, enhancements 
+                and mechanisms for setup of P2MP TE LSPs </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 04</td><td>&nbsp;&nbsp;</td><td>Submit a BCP on MPLS load sharing to the IESG </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-mpls-lsp-hierarchy-08.txt" target="blank">draft-ietf-mpls-lsp-hierarchy-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-bundle-06.txt" target="blank">draft-ietf-mpls-bundle-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-mgmt-overview-09.txt" target="blank">draft-ietf-mpls-mgmt-overview-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-bgp-mpls-restart-04.txt" target="blank">draft-ietf-mpls-bgp-mpls-restart-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-rsvp-lsp-fastreroute-07.txt" target="blank">draft-ietf-mpls-rsvp-lsp-fastreroute-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-lsp-ping-08.txt" target="blank">draft-ietf-mpls-lsp-ping-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-lc-if-mib-04.txt" target="blank">draft-ietf-mpls-lc-if-mib-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-in-ip-or-gre-08.txt" target="blank">draft-ietf-mpls-in-ip-or-gre-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-nodeid-subobject-05.txt" target="blank">draft-ietf-mpls-nodeid-subobject-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-oam-requirements-05.txt" target="blank">draft-ietf-mpls-oam-requirements-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-soft-preemption-03.txt" target="blank">draft-ietf-mpls-soft-preemption-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-telink-mib-07.txt" target="blank">draft-ietf-mpls-telink-mib-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-lsr-self-test-04.txt" target="blank">draft-ietf-mpls-lsr-self-test-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-rsvpte-attributes-04.txt" target="blank">draft-ietf-mpls-rsvpte-attributes-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-explicit-null-02.txt" target="blank">draft-ietf-mpls-explicit-null-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-rfc3036bis-01.txt" target="blank">draft-ietf-mpls-rfc3036bis-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-ecmp-bcp-00.txt" target="blank">draft-ietf-mpls-ecmp-bcp-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-oam-frmwk-01.txt" target="blank">draft-ietf-mpls-oam-frmwk-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-rsvp-te-p2mp-01.txt" target="blank">draft-ietf-mpls-rsvp-te-p2mp-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-mpls-p2mp-sig-requirement-01.txt" target="blank">draft-ietf-mpls-p2mp-sig-requirement-01.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2702.txt" target="blank">RFC2702</A></td><td width=90>  I   </td><td>Requirements for Traffic Engineering Over MPLS </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3031.txt" target="blank">RFC3031</A></td><td width=90>  PS  </td><td>Multiprotocol Label Switching Architecture </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3032.txt" target="blank">RFC3032</A></td><td width=90>  PS  </td><td>MPLS Label Stack Encoding </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3033.txt" target="blank">RFC3033</A></td><td width=90>  PS  </td><td>The Assignment of the Information Field and Protocol 
+                       Identifier in the Q.2941 Generic Identifier and Q.2957 
+                       User-to-user Signaling for the Internet Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3034.txt" target="blank">RFC3034</A></td><td width=90>  PS  </td><td>Use of Label Switching on Frame Relay Networks 
+                       Specification </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3035.txt" target="blank">RFC3035</A></td><td width=90>  PS  </td><td>MPLS using LDP and ATM VC Switching </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3036.txt" target="blank">RFC3036</A></td><td width=90>  PS  </td><td>LDP Specification </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3037.txt" target="blank">RFC3037</A></td><td width=90>  PS  </td><td>LDP Applicability </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3038.txt" target="blank">RFC3038</A></td><td width=90>  PS  </td><td>VCID Notification over ATM link for LDP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3063.txt" target="blank">RFC3063</A></td><td width=90>  E   </td><td>MPLS Loop Prevention Mechanism </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3107.txt" target="blank">RFC3107</A></td><td width=90>  PS  </td><td>Carrying Label Information in BGP-4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3209.txt" target="blank">RFC3209</A></td><td width=90>  PS  </td><td>RSVP-TE: Extensions to RSVP for LSP Tunnels </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3210.txt" target="blank">RFC3210</A></td><td width=90>  I   </td><td>Applicability Statement for Extensions to RSVP for 
+                       LSP-Tunnels </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3212.txt" target="blank">RFC3212</A></td><td width=90>  PS  </td><td>Constraint-Based LSP Setup using LDP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3213.txt" target="blank">RFC3213</A></td><td width=90>  I   </td><td>Applicability Statement for CR-LDP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3214.txt" target="blank">RFC3214</A></td><td width=90>  PS  </td><td>LSP Modification Using CR-LDP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3215.txt" target="blank">RFC3215</A></td><td width=90>  I   </td><td>LDP State Machine </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3270.txt" target="blank">RFC3270</A></td><td width=90>  PS  </td><td>MPLS Support of Differentiated Services </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3353.txt" target="blank">RFC3353</A></td><td width=90>  I   </td><td>Framework for IP Multicast in MPLS </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3443.txt" target="blank">RFC3443</A></td><td width=90>  PS  </td><td>Time to Live (TTL) Processing in MPLS Networks (Updates 
+                       RFC 3032) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3469.txt" target="blank">RFC3469</A></td><td width=90>  I   </td><td>Framework for MPLS-based Recovery </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3477.txt" target="blank">RFC3477</A></td><td width=90>  PS  </td><td>Signalling Unnumbered Links in Resource ReSerVation 
+                       Protocol - Traffic Engineering (RSVP-TE) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3478.txt" target="blank">RFC3478</A></td><td width=90>  PS  </td><td>Graceful Restart Mechanism for Label Distribution 
+                       Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3479.txt" target="blank">RFC3479</A></td><td width=90>  PS  </td><td>Fault Tolerance for the Label Distribution Protocol 
+                       (LDP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3480.txt" target="blank">RFC3480</A></td><td width=90>  PS  </td><td>Signalling Unnumbered Links in CR-LDP 
+                       (Constraint-Routing Label Distribution Protocol) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3612.txt" target="blank">RFC3612</A></td><td width=90>  I   </td><td>Applicability Statement for Restart Mechanisms for the 
+                       Label Distribution Protocol (LDP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3811.txt" target="blank">RFC3811</A></td><td width=90> Standard </td><td>Definitions of Textual Conventions for Multiprotocol 
+                       Label Switching (MPLS) Management </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3812.txt" target="blank">RFC3812</A></td><td width=90> Standard </td><td>Multiprotocol Label Switching (MPLS) Traffic Engineering 
+                       Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3813.txt" target="blank">RFC3813</A></td><td width=90> Standard </td><td>Multiprotocol Label Switching (MPLS) Label Switching 
+                       Router (LSR)Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3814.txt" target="blank">RFC3814</A></td><td width=90> Standard </td><td>Multiprotocol Label Switching (MPLS) Forwarding 
+                       Equivalence Class To Next Hop Label Forwarding Entry 
+                       (FEC-To-NHLFE)Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3815.txt" target="blank">RFC3815</A></td><td width=90> Standard </td><td>Definitions of Managed Objects for the Multiprotocol 
+                       Label Switching, Label Distribution Protocol (LDP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3988.txt" target="blank">RFC3988</A></td><td width=90>  E   </td><td>Maximum Transmission Unit Signalling Extensions for the 
+                       Label Distribution Protocol </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<p>None received.</p>
+

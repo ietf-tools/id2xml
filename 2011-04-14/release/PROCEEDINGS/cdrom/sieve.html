@@ -1,0 +1,97 @@
+<html>
+<title>Sieve Mail Filtering Language (sieve) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.1.9 Sieve Mail Filtering Language (sieve)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-02-18
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:daboo@isamet.com"><b>Cyrus Daboo &lt;daboo@isamet.com&gt;</b></a><br>
+<a href="mailto:alexey.melnikov@isode.com"><b>Alexey Melnikov &lt;alexey.melnikov@isode.com&gt;</b></a><br>
+
+<h2>Applications Area Director(s):</h2>
+<a href="mailto:hardie@qualcomm.com"><b>Ted Hardie &lt;hardie@qualcomm.com&gt;</b></a><br>
+<a href="mailto:sah@428cobrajet.net"><b>Scott Hollenbeck &lt;sah@428cobrajet.net&gt;</b></a><br>
+
+<h2>Applications Area Advisor:</h2>
+<a href="mailto:hardie@qualcomm.com"><b>Ted Hardie &lt;hardie@qualcomm.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: ietf-mta-filters@imc.org<br>
+To Subscribe: <a href="mailto:mailto:ietf-mta-filters-request@imc.org?body=subscribe">mailto:ietf-mta-filters-request@imc.org?body=subscribe</a><br>
+Archive: <a href="http://www.imc.org/ietf-mta-filters/mail-archive/">http://www.imc.org/ietf-mta-filters/mail-archive/</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised variables draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised vacation draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG last call for variables draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Initial submission of RFC 3028bis. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 04</td><td>&nbsp;&nbsp;</td><td>WG last call for vacation draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>WG last call for RFC 3028bis. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>Initial submission of revised relational draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Initial submission of revised subaddress draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>Submit variables draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>Submit vacation draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Initial submission of revised spamtest/virustest draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised editheader draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised imapflags draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit RFC 3028bis to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>WG last call of revised relational draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>WG last call of revised subaddress draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>WG last call of revised spamtest/virustest draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit revised body test draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit revised reject before delivery draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>WG last call for editheader draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit revised relational draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit revised subaddress draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit revised spamtest/virustest draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>WG last call for imapflags draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Submit revised notification action draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>WG last call for body test draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>WG last call for reject before delivery draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Submit editheader draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Submit imapflags draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 05</td><td>&nbsp;&nbsp;</td><td>Submit revised MIME part tests draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 05</td><td>&nbsp;&nbsp;</td><td>WG last call for notification action draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 05</td><td>&nbsp;&nbsp;</td><td>Submit body test draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 05</td><td>&nbsp;&nbsp;</td><td>Submit revised reject before delivery draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 05</td><td>&nbsp;&nbsp;</td><td>Submit notification action draft to IESG. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 05</td><td>&nbsp;&nbsp;</td><td>WG last call for MIME part tests draft. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 05</td><td>&nbsp;&nbsp;</td><td>Create list of core sieve features; collect implementation 
+                information for interoperability report. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>Submit MIME part tests draft to IESG. </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-sieve-variables-01.txt" target="blank">draft-ietf-sieve-variables-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-sieve-spamtestbis-00.txt" target="blank">draft-ietf-sieve-spamtestbis-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-sieve-body-00.txt" target="blank">draft-ietf-sieve-body-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-sieve-editheader-00.txt" target="blank">draft-ietf-sieve-editheader-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-sieve-imapflags-00.txt" target="blank">draft-ietf-sieve-imapflags-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-sieve-rfc3598bis-00.txt" target="blank">draft-ietf-sieve-rfc3598bis-00.txt</a><br>
+
+<h2>No Request For Comments</h2>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<p>None received.</p>
+

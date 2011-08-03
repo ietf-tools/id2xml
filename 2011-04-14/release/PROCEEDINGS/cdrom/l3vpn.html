@@ -1,0 +1,125 @@
+<html>
+<title>Layer 3 Virtual Private Networks (l3vpn) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.3.13 Layer 3 Virtual Private Networks (l3vpn)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-02-24
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:rick@rhwilder.net"><b>Rick Wilder &lt;rick@rhwilder.net&gt;</b></a><br>
+<a href="mailto:rcallon@juniper.net"><b>Ross Callon &lt;rcallon@juniper.net&gt;</b></a><br>
+<a href="mailto:rbonica@juniper.net"><b>Ronald Bonica &lt;rbonica@juniper.net&gt;</b></a><br>
+
+<h2>Internet Area Director(s):</h2>
+<a href="mailto:narten@us.ibm.com"><b>Thomas Narten &lt;narten@us.ibm.com&gt;</b></a><br>
+<a href="mailto:margaret@thingmagic.com"><b>Margaret Wasserman &lt;margaret@thingmagic.com&gt;</b></a><br>
+
+<h2>Internet Area Advisor:</h2>
+<a href="mailto:narten@us.ibm.com"><b>Thomas Narten &lt;narten@us.ibm.com&gt;</b></a><br>
+
+<h2>Technical Advisor(s):</h2>
+<a href="mailto:zinin@psg.com"><b>Alex Zinin &lt;zinin@psg.com&gt;</b></a><br>
+<h2>Mailing Lists:</h2> 
+General Discussion: l3vpn@ietf.org<br>
+To Subscribe: <a href="https://www1.ietf.org/mailman/listinfo/l3vpn">https://www1.ietf.org/mailman/listinfo/l3vpn</a><br>
+Archive: <a href="http://www.ietf.org/mail-archive/web/l3vpn/index.html">http://www.ietf.org/mail-archive/web/l3vpn/index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit L3 VPN Requirements Document to IESG for publication as 
+                Info </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Generic Requirements Document to IESG for publication as 
+                Info </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit L3 VPN Framework Document to IESG for publication as 
+                Info </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit VPN Security Analysis to IESG for publication as Info 
+                (draft-fang-ppvpn-security-framework-00) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit BGP/MPLS VPNs specification and AS to IESG for 
+                publication as PS (draft-ietf-ppvpn-rfc2547bis-03, 
+                draft-ietf-ppvpn-as2547-01) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit CE-based specification and AS to IESG for publication as 
+                PS (draft-ietf-ppvpn-ce-based-03, 
+                draft-declercq-ppvpn-ce-based-sol-00, 
+                draft-declercq-ppvpn-ce-based-as-01) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit Virtual Router specification and AS to IESG for 
+                publication as PS (draft-ietf-ppvpn-vpn-vr-03, 
+                draft-ietf-ppvpn-as-vr-01) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit BGP as an Auto-Discovery Mechanism for publication as PS 
+                (draft-ietf-ppvpn-bgpvpn-auto-05.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit specification of using GRE for PE-PE encapsulation in 
+                BGP/MPLS VPNs to IESG for publication as PS 
+                (draft-ietf-ppvpn-gre-ip-2547-02) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Submit VPN MIB Textual Conventions to IESG for publication as 
+                PS (draft-ietf-ppvpn-tc-mib-02) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit MPLS/BGP VPN MIB to IESG for publication as PS 
+                (draft-ietf-ppvpn-mpls-vpn-mib-05) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Submit VR MIB to IESG for publication as PS 
+                (draft-ietf-ppvpn-vr-mib-04) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Submit specification of using IPSEC for PE-PE encapsulation in 
+                BGP/MPLS VPNs to IESG for publication as PS 
+                (draft-ietf-ppvpn-ipsec-2547-03) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit specification of OSPF as the PE/CE Protocol in BGP/MPLS 
+                VPNs for publication (draft-ietf-l3vpn-ospf-2547-xx.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 04</td><td>&nbsp;&nbsp;</td><td>Submit specification of CE Route Authentication to IESG for 
+                publication as PS (draft-ietf-ppvpn-l3vpn-auth-03) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit specification of IPv6 over BGP/MPLS VPNs for publication </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 04</td><td>&nbsp;&nbsp;</td><td>Submit specification of IPv4 multicast over BGP/MPLS VPNs for 
+                publication </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-l3vpn-requirements-02.txt" target="blank">draft-ietf-l3vpn-requirements-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-framework-00.txt" target="blank">draft-ietf-l3vpn-framework-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-ce-based-02.txt" target="blank">draft-ietf-l3vpn-ce-based-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-bgp-ipv6-05.txt" target="blank">draft-ietf-l3vpn-bgp-ipv6-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-mpls-vpn-mib-06.txt" target="blank">draft-ietf-l3vpn-mpls-vpn-mib-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-rfc2547bis-03.txt" target="blank">draft-ietf-l3vpn-rfc2547bis-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-ipsec-2547-03.txt" target="blank">draft-ietf-l3vpn-ipsec-2547-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-ospf-2547-02.txt" target="blank">draft-ietf-l3vpn-ospf-2547-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-gre-ip-2547-03.txt" target="blank">draft-ietf-l3vpn-gre-ip-2547-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-bgpvpn-auto-05.txt" target="blank">draft-ietf-l3vpn-bgpvpn-auto-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-vpn-vr-02.txt" target="blank">draft-ietf-l3vpn-vpn-vr-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-tc-mib-05.txt" target="blank">draft-ietf-l3vpn-tc-mib-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-as2547-07.txt" target="blank">draft-ietf-l3vpn-as2547-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-as-vr-01.txt" target="blank">draft-ietf-l3vpn-as-vr-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-mgt-fwk-04.txt" target="blank">draft-ietf-l3vpn-mgt-fwk-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-l3vpn-auth-01.txt" target="blank">draft-ietf-l3vpn-l3vpn-auth-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-security-framework-03.txt" target="blank">draft-ietf-l3vpn-security-framework-03.txt</a><br>
+<li> <a href="IDs/draft-declercq-l3vpn-ce-based-as-00.txt" target="blank">draft-declercq-l3vpn-ce-based-as-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-ppvpn-terminology-04.txt" target="blank">draft-ietf-l3vpn-ppvpn-terminology-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-rt-constrain-01.txt" target="blank">draft-ietf-l3vpn-rt-constrain-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-l3vpn-ppvpn-mcast-reqts-00.txt" target="blank">draft-ietf-l3vpn-ppvpn-mcast-reqts-00.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3809.txt" target="blank">RFC3809</A></td><td width=90>  I   </td><td>Generic Requirements for Provider Provisioned Virtual 
+                       Private Networks </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/l3vpn-0/sld1.htm" target="blank"">Status of L3 PPVPN Working Group Documents</a><br>
+<a href="slides/l3vpn-1.pdf" target="blank"">Requirements for Multicast Multicast in L3 PPVPNs</a><br>
+<a href="slides/l3vpn-2/sld1.htm" target="blank"">Multicast in BGP/MPLS VPNs</a><br>
+<a href="slides/l3vpn-3/sld1.htm" target="blank"">MPLS VPN Import/Export Verification</a><br>
+<a href="slides/l3vpn-4/sld1.htm" target="blank"">CE Based Membership Verification for L3VPN</a><br>
+<a href="slides/l3vpn-5/sld1.htm" target="blank"">BGP-MPLS VPN extension for IPv4/IPv6 Hybrid Network</a><br>
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+PYTHONPATH=/a/www/ietf-datatracker/web export PYTHONPATH
+
+# Hourly client jobs
+
+# Client jobs in datatracker
+
+# Client jobs not in datatracker
+cd /a/www/www6s/scripts/
+nice -19 /a/www/www6s/scripts/datatracker-updater
+nice -19 /a/www/www6s/scripts/proposed-wg
+nice -19 /a/www/www6s/scripts/update-charters
+nice -19 /a/www/www6s/scripts/update-text-charters
+nice -19 cp /a/www/ietf-ftp/rfc/rfc-index.txt /a/www/www6s/download/rfc-index.txt
+nice -19 rsync -a --delete /a/www/ietf-mail-archive/text/ /a/www/ietf-ftp/ietf-mail-archive
+nice -19 /a/www/ietf-datatracker/scripts/checksys
+nice -19 /a/www/ietf-datatracker/scripts/fixmog
+nice -19 /etc/transdump >/dev/null
+
+exit 0

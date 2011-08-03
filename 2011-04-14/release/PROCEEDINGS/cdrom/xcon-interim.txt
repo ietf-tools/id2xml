@@ -1,0 +1,70 @@
+To: "'ietf-announce at ietf.org'" <ietf-announce at ietf.org> 
+Subject: XCON WG Interim Meeting Announcement 
+From: "Johnston, Alan" <Alan.Johnston at mci.com> 
+Date: Fri, 03 Dec 2004 16:31:23 +0000 
+=======================================
+ON working group will hold an interim meeting in downtown Boston, MA
+on January 5 and 6, 2005.  The tentative agenda is listed below.  Details of
+the conference hotel will be posted on the XCON list in a week's time.  
+
+Thanks to Fidelity Investments Systems Company - Telecom for their
+sponsorship of this meeting.
+
+Thanks,
+Alan Johnston
+co-chair XCON
+sip:alan at sipstation.com
+
+- - - - - - - - - - - - - 
+XCON (Centralized Conferencing) Working Group Interim Meeting Tentative
+Agenda
+
+Wednesday January 5, 2005
+
+1300 - 1310 Agenda Bash
+1310 - 1340 Floor Control Protocol
+1340 - 1500 Framework Document and Terminology
+1500 - 1515 Break
+1515 - 1600 Conference Policy Discussion
+1600 - 1730 Conference Template Discussion
+1800 - 1930 Dinner Break
+1930 - 2200 State Manipulation Protocol
+
+
+Thursday January 6, 2005
+
+0800 - 0810 Agenda Bash
+0810 - 1000 State Manipulation Protocol Continued
+1000 - 1015 Break
+1015 - 1200 Open Discussion
+
+
+-----------
+
+Below, find a revised agenda for the interim meeting this week. Note
+that some of the later topics rely on the outcome of the
+Framework/Model/Terminology discussion, so the overall agenda may be
+significantly revised after those topics. This dependency means that the
+framework discussion will likely be allowed to go as long as necessary
+to reach fundamental conclusions, even if doing so pushes other items
+off the agenda.
+
+Wednesday January 5, 2005
+
+1200 - 1300 Buffet Lunch (provided)
+1300 - 1310 Welcome/Agenda Bash
+1310 - 1500 Framework, Model, and Terminology
+1500 - 1515 Break
+1515 - 1615 Framework, Model, and Terminology
+1615 - 1745 Conference Templates
+1745 - 1800 Floor Control Wrapup
+1800 - 1930 Buffet Dinner (provided)
+1930 - 2200 Conference Policy
+
+Thursday January 6, 2005
+
+0730 - 0800 Continental Breakfast (provided)
+0800 - 1000 Conference State Manipulation
+1000 - 1015 Break
+1015 - 1115 Conference State Manipulation
+1115 - 1200 Open Discussion

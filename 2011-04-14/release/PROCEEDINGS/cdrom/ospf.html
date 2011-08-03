@@ -1,0 +1,162 @@
+<html>
+<title>Open Shortest Path First IGP (ospf) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.5.7 Open Shortest Path First IGP (ospf)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+<hr>
+In addition to this official charter maintained by the IETF Secretariat, there is additional information about this working group on the Web at:<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href=" http://rtg.ietf.org/ospf/"> Additional OSPF Web Page</a><hr>
+
+<p>Last Modified: 2005-01-17
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:acee@cisco.com"><b>Acee Lindem &lt;acee@cisco.com&gt;</b></a><br>
+<a href="mailto:rohit@utstar.com"><b>Rohit Dube &lt;rohit@utstar.com&gt;</b></a><br>
+
+<h2>Routing Area Director(s):</h2>
+<a href="mailto:fenner@research.att.com"><b>Bill Fenner &lt;fenner@research.att.com&gt;</b></a><br>
+<a href="mailto:zinin@psg.com"><b>Alex Zinin &lt;zinin@psg.com&gt;</b></a><br>
+
+<h2>Routing Area Advisor:</h2>
+<a href="mailto:fenner@research.att.com"><b>Bill Fenner &lt;fenner@research.att.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: ospf@peach.ease.lsoft.com<br>
+To Subscribe: <a href="http://peach.ease.lsoft.com/scripts/wa.exe?SUBED1=ospf&A=1">http://peach.ease.lsoft.com/scripts/wa.exe?SUBED1=ospf&A=1</a><br>
+Archive: <a href="http://peach.ease.lsoft.com/archives/ospf.html">http://peach.ease.lsoft.com/archives/ospf.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Gather operational experience with the OSPF protocol and submit 
+                the document as an Informational RFC. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Develop multiple implementations, and test against each other. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Design the routing protocol, and write its specification. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Obtain performance data for the protocol. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Make changes to the specification (if necessary) and publish 
+                the protocol as a Draft Standard RFC. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit OSPF for IPv6 to IESG for consideration as a Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Update the OSPF NSSA option specified in RFC 1587 and submit to 
+                IESG for consideration as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Develop Traffic Engineering extensions for OSPFv2 and submit it 
+                to the IESG as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit to IESG a document which updates RFC 1793 allowing 
+                detection of demand circuit neighbors whose OSPF process has 
+                exited. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit to IESG a BCP advocating that OSPF LSA refreshes be 
+                spread out over time </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Develop a hitless restart mechanism for OSPF and submit it to 
+                the IESG as a Proposed Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Document Alternative ABR implementations and submit ti IESG as 
+                an Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Develop OSPF for IPv6 MIB and submit to IESG for consideration 
+                as a Proposed Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Extend the hitless restart mechanism to OSPFv3 and submit it to 
+                the IESG as a Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Develop Traffic Engineering extensions for OSPFv3 and submit it 
+                to the IESG as a Proposed Standard. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Submit to IESG a BCP advocating that OSPF Hellos be given 
+                preference over other OSPF control traffic. </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Update OSPFv2 MIB and submit to IESG as a Standard, replacing 
+                RFC 1850 </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 03</td><td>&nbsp;&nbsp;</td><td>Specify IPSEC usage with OSPFv3 and submit to IESG for 
+                consideration as a Proposed Standard </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-pillay-esnault-ospf-flooding-07.txt" target="blank">draft-pillay-esnault-ospf-flooding-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-mib-update-08.txt" target="blank">draft-ietf-ospf-mib-update-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-scalability-09.txt" target="blank">draft-ietf-ospf-scalability-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-ospfv3-auth-07.txt" target="blank">draft-ietf-ospf-ospfv3-auth-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-ospfv3-traffic-03.txt" target="blank">draft-ietf-ospf-ospfv3-traffic-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-2547-dnbit-04.txt" target="blank">draft-ietf-ospf-2547-dnbit-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-cap-06.txt" target="blank">draft-ietf-ospf-cap-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-graceful-impl-report-05.txt" target="blank">draft-ietf-ospf-graceful-impl-report-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-af-alt-01.txt" target="blank">draft-ietf-ospf-af-alt-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-multi-area-adj-03.txt" target="blank">draft-ietf-ospf-multi-area-adj-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-mt-01.txt" target="blank">draft-ietf-ospf-mt-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-ospfv3-graceful-restart-00.txt" target="blank">draft-ietf-ospf-ospfv3-graceful-restart-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-ospf-ospfv3-update-02.txt" target="blank">draft-ietf-ospf-ospfv3-update-02.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1131.txt" target="blank">RFC1131</A></td><td width=90>  PS  </td><td>OSPF specification </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1245.txt" target="blank">RFC1245</A></td><td width=90>  I   </td><td>OSPF Protocol Analysis </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1246.txt" target="blank">RFC1246</A></td><td width=90>  I   </td><td>Experience with the OSPF Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1247.txt" target="blank">RFC1247</A></td><td width=90>  DS  </td><td>OSPF Version 2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1248.txt" target="blank">RFC1248</A></td><td width=90>  PS  </td><td>OSPF Version 2 Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1252.txt" target="blank">RFC1252</A></td><td width=90>  PS  </td><td>OSPF Version 2 Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1253.txt" target="blank">RFC1253</A></td><td width=90>  PS  </td><td>OSPF Version 2 Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1583.txt" target="blank">RFC1583</A></td><td width=90>  DS  </td><td>OSPF Version 2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1586.txt" target="blank">RFC1586</A></td><td width=90>  I   </td><td>Guidelines for Running OSPF Over Frame Relay Networks </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1587.txt" target="blank">RFC1587</A></td><td width=90>  PS  </td><td>The OSPF NSSA Option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1765.txt" target="blank">RFC1765</A></td><td width=90>  E   </td><td>OSPF Database Overflow </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1793.txt" target="blank">RFC1793</A></td><td width=90>  PS  </td><td>Extending OSPF to Support Demand Circuits </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1850.txt" target="blank">RFC1850</A></td><td width=90>  DS  </td><td>OSPF Version 2 Management Information Base </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2096.txt" target="blank">RFC2096</A></td><td width=90>  PS  </td><td>IP Forwarding Table MIB </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2178.txt" target="blank">RFC2178</A></td><td width=90>  DS  </td><td>OSPF Version 2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2328.txt" target="blank">RFC2328</A></td><td width=90> Standard </td><td>OSPF Version 2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2329.txt" target="blank">RFC2329</A></td><td width=90>  I   </td><td>OSPF Standardization Report </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2370.txt" target="blank">RFC2370</A></td><td width=90>  PS  </td><td>The OSPF Opaque LSA Option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2740.txt" target="blank">RFC2740</A></td><td width=90>  PS  </td><td>OSPF for IPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2844.txt" target="blank">RFC2844</A></td><td width=90>  E   </td><td>OSPF over ATM and Proxy PAR </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3101.txt" target="blank">RFC3101</A></td><td width=90>  PS  </td><td>The OSPF Not-So-Stubby Area (NSSA) Option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3137.txt" target="blank">RFC3137</A></td><td width=90>  I   </td><td>OSPF Stub Router Advertisement </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3509.txt" target="blank">RFC3509</A></td><td width=90>  I   </td><td>Alternative Implementations of OSPF Area Border Routers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3623.txt" target="blank">RFC3623</A></td><td width=90> Standard </td><td>Graceful OSPF Restart </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3630.txt" target="blank">RFC3630</A></td><td width=90>  PS  </td><td>Traffic Engineering (TE) Extensions to OSPF Version 2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3883.txt" target="blank">RFC3883</A></td><td width=90> Standard </td><td>Detecting Inactive Neighbors over OSPF Demand Circuits </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/ospf-0/sld1.htm" target="blank"">Agenda</a><br>
+<a href="slides/ospf-1/sld1.htm" target="blank"">OSPF WG Document Status</a><br>
+<a href="slides/ospf-2/sld1.htm" target="blank"">OSPF Support for Unknown Router Link Types</a><br>
+<a href="slides/ospf-3/sld1.htm" target="blank"">Multiple Interfaces to a Link</a><br>
+<a href="slides/ospf-4.pdf" target="blank"">OSPF MANET Design Team update</a><br>
+<a href="slides/ospf-5/sld1.htm" target="blank"">MANET Extension of OSPF  Using CDS Flooding</a><br>
+<a href="slides/ospf-6/sld1.htm" target="blank"">OSPF Protocol Extension</a><br>
+

@@ -1,0 +1,192 @@
+<html>
+<title>Public-Key Infrastructure (X.509) (pkix) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.6.12 Public-Key Infrastructure (X.509) (pkix)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-01-13
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:kent@bbn.com"><b>Stephen Kent &lt;kent@bbn.com&gt;</b></a><br>
+<a href="mailto:wpolk@nist.gov"><b>Tim Polk &lt;wpolk@nist.gov&gt;</b></a><br>
+
+<h2>Security Area Director(s):</h2>
+<a href="mailto:housley@vigilsec.com"><b>Russell Housley &lt;housley@vigilsec.com&gt;</b></a><br>
+<a href="mailto:hartmans-ietf@mit.edu"><b>Sam Hartman &lt;hartmans-ietf@mit.edu&gt;</b></a><br>
+
+<h2>Security Area Advisor:</h2>
+<a href="mailto:housley@vigilsec.com"><b>Russell Housley &lt;housley@vigilsec.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: ietf-pkix@imc.org<br>
+To Subscribe: <a href="mailto:ietf-pkix-request@imc.org">ietf-pkix-request@imc.org</a><br>
+In Body: subscribe (In Body)<br>
+Archive: <a href="http://www.imc.org/ietf-pkix">http://www.imc.org/ietf-pkix</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete approval of CMC, and qualified certificates documents </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete time stamping document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Continue attribute certificate profile work </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete data certification document </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete work on attribute certificate profile </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Standard RFCs for public key and attribute certificate 
+                profiles, CMP, OCSP, CMC, CRMF, TSP, Qualified Certificates, 
+                LDAP v2 schema, use of FTP/HTTP, Diffie-Hellman POP </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>INFORMATIONAL RFCs for X.509 PKI policies and practices, use of 
+                KEA </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Experimental RFC for Data Validation and Certification Server 
+                Protocols </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Production of revised certificate and CRL syntax and processing 
+                RFC (son-of-2459) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>DPD/DVP Requirements RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Certificate Policy & CPS Informational RFC (revision) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Logotype Extension RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Proxy Certificate RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 04</td><td>&nbsp;&nbsp;</td><td>SCVP proposed Standard RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>Cert Path Building approved as Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>Certificate Store approved as Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jan 05</td><td>&nbsp;&nbsp;</td><td>PKIX Repository approved as Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>ECC Algorithms approved as PROPOSED Standard RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>CRMFbis approved as PROPOSED Standard RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>SCVP approved as PROPOSED Standard RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Subject Identification Method as Informational RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 05</td><td>&nbsp;&nbsp;</td><td>OCXSPv2 Extensions approved as PROPOSED Standard RFC </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>Progression of Qualified Certificates Profile RFC to DRAFT 
+                Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>Progression of CMC RFCs to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>Progression of Certificate & CRL Profile RFC to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>Progression of Time Stamp Protocols RFC to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>Progression of Logotype RFC to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>Progression of Proxy Certificate RFC to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>Progression of Attribute Certificate Profile RFC to DRAFT 
+                standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>Progression of CRMF, CMP, and CMP Transport to DRAFT Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 05</td><td>&nbsp;&nbsp;</td><td>Progression of SCVP to Draft Standard </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-pkix-scvp-18.txt" target="blank">draft-ietf-pkix-scvp-18.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-rfc2510bis-09.txt" target="blank">draft-ietf-pkix-rfc2510bis-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-pi-11.txt" target="blank">draft-ietf-pkix-pi-11.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-pkixrep-03.txt" target="blank">draft-ietf-pkix-pkixrep-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-rfc2511bis-08.txt" target="blank">draft-ietf-pkix-rfc2511bis-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-2797-bis-02.txt" target="blank">draft-ietf-pkix-2797-bis-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-cmc-trans-03.txt" target="blank">draft-ietf-pkix-cmc-trans-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-cmc-archive-01.txt" target="blank">draft-ietf-pkix-cmc-archive-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-certstore-http-08.txt" target="blank">draft-ietf-pkix-certstore-http-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-warranty-extn-04.txt" target="blank">draft-ietf-pkix-warranty-extn-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-acpolicies-extn-05.txt" target="blank">draft-ietf-pkix-acpolicies-extn-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-rsa-pkalgs-03.txt" target="blank">draft-ietf-pkix-rsa-pkalgs-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-ldap-crl-schema-03.txt" target="blank">draft-ietf-pkix-ldap-crl-schema-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-ldap-ac-schema-02.txt" target="blank">draft-ietf-pkix-ldap-ac-schema-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-certpathbuild-05.txt" target="blank">draft-ietf-pkix-certpathbuild-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-gost-cppk-02.txt" target="blank">draft-ietf-pkix-gost-cppk-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-ecc-pkalgs-00.txt" target="blank">draft-ietf-pkix-ecc-pkalgs-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-ldap-pkc-schema-01.txt" target="blank">draft-ietf-pkix-ldap-pkc-schema-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-lightweight-ocsp-profile-01.txt" target="blank">draft-ietf-pkix-lightweight-ocsp-profile-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-rfc3770bis-00.txt" target="blank">draft-ietf-pkix-rfc3770bis-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-pkix-crlaia-00.txt" target="blank">draft-ietf-pkix-crlaia-00.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2459.txt" target="blank">RFC2459</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Certificate and 
+                       CRL Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2510.txt" target="blank">RFC2510</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Certificate 
+                       Management Protocols </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2511.txt" target="blank">RFC2511</A></td><td width=90>  PS  </td><td>Internet X.509 Certificate Request Message Format </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2527.txt" target="blank">RFC2527</A></td><td width=90>  I   </td><td>Internet X.509 Public Key Infrastructure Certificate 
+                       Policy and Certification Practices Framework </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2528.txt" target="blank">RFC2528</A></td><td width=90>  I   </td><td>Internet X.509 Public Key Infrastructure Representation 
+                       of Key Exchange Algorithm (KEA) Keys in Internet X.509 
+                       Public Key Infrastructure Certificates </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2559.txt" target="blank">RFC2559</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Operational 
+                       Protocols - LDAPv2 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2560.txt" target="blank">RFC2560</A></td><td width=90>  PS  </td><td>X.509 Internet Public Key Infrastructure Online 
+                       Certificate Status Protocol - OCSP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2585.txt" target="blank">RFC2585</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Operational 
+                       Protocols: FTP and HTTP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2587.txt" target="blank">RFC2587</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure LDAPv2 Schema </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2797.txt" target="blank">RFC2797</A></td><td width=90>  PS  </td><td>Certificate Management Messages over CMS </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2875.txt" target="blank">RFC2875</A></td><td width=90>  PS  </td><td>Diffie-Hellman Proof-of-Possession Algorithms </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3029.txt" target="blank">RFC3029</A></td><td width=90>  E   </td><td>Internet X.509 Public Key Infrastructure Data Validation 
+                       and Certification Server Protocols </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3039.txt" target="blank">RFC3039</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Qualified 
+                       Certificates Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3161.txt" target="blank">RFC3161</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Time Stamp 
+                       Protocols (TSP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3279.txt" target="blank">RFC3279</A></td><td width=90>  PS  </td><td>Algorithms and Identifiers for the Internet X.509 Public 
+                       Key Infrastructure Certificate and CRI Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3280.txt" target="blank">RFC3280</A></td><td width=90>  PS  </td><td>Internet X.509 Public Key Infrastructure Certificate and 
+                       CRL Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3281.txt" target="blank">RFC3281</A></td><td width=90>  PS  </td><td>An Internet Attribute Certificate Profile for 
+                       Authorization </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3379.txt" target="blank">RFC3379</A></td><td width=90>  I   </td><td>Delegated Path Validation and Delegated Path Discovery 
+                       Protocol Requirements </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3628.txt" target="blank">RFC3628</A></td><td width=90>  I   </td><td>Policy Requirements for Time-Stamping Authorities </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3647.txt" target="blank">RFC3647</A></td><td width=90>  I   </td><td>Internet X.509 Public Key Infrastructure Certificate 
+                       Policy and Certification Practices Framework </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3709.txt" target="blank">RFC3709</A></td><td width=90> Standard </td><td>Internet X.509 Public Key Infrastructure: Logotypes in 
+                       X.509 certificates </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3739.txt" target="blank">RFC3739</A></td><td width=90> Standard </td><td>Internet X.509 Public Key Infrastructure: Qualified 
+                       Certificates Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3770.txt" target="blank">RFC3770</A></td><td width=90> Standard </td><td>Certificate Extensions and Attributes Supporting 
+                       Authentication in PPP and Wireless LAN </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3779.txt" target="blank">RFC3779</A></td><td width=90> Standard </td><td>X.509 Extensions for IP Addresses and AS Identifiers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3820.txt" target="blank">RFC3820</A></td><td width=90> Standard </td><td>Internet X.509 Public Key Infrastructure Proxy 
+                       Certificate Profile </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3874.txt" target="blank">RFC3874</A></td><td width=90>  I   </td><td>A 224-bit One-way Hash Function: SHA-224 </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/pkix-0/sld1.htm" target="blank"">Document Status</a><br>
+<a href="slides/pkix-1/sld1.htm" target="blank"">3280bis</a><br>
+<a href="slides/pkix-2/sld1.htm" target="blank"">SCVP</a><br>
+<a href="slides/pkix-3/sld1.htm" target="blank"">UTF8 String Deployment</a><br>
+<a href="slides/pkix-4/sld1.htm" target="blank"">CRL Signer Certificates & AIA</a><br>
+<a href="slides/pkix-5/sld1.htm" target="blank"">Update on CRMF & CMC</a><br>
+<a href="slides/pkix-6/sld1.htm" target="blank"">LDAP Schema Definitions</a><br>
+

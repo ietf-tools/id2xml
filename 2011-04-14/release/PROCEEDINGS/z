@@ -1,0 +1,4 @@
+select
+insert
+update
+delete

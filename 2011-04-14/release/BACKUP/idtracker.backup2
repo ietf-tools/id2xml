@@ -1,0 +1,1087 @@
+#!/usr/local/bin/perl -wT
+
+use lib '/export/home/mlee/DBIs/';
+use CGI;
+use IETF_UTIL;
+use IETF_DBUTIL;
+
+$ENV{"DBPATH"} = "/export/home/mlee/database";
+#$ENV{"DBPATH"} = "/usr/informix/databases";
+$ENV{"DBNAME"} = "testdb";
+#$ENV{"DBNAME"} = "people";
+$ENV{"PROG_NAME"} = "idtracker.cgi";
+if (defined($ENV{HTTP_USER_AGENT})) {
+   my $user_agent = $ENV{HTTP_USER_AGENT};
+   @version_temp = split ' ',$user_agent;
+   $browser_version = $version_temp[0];
+} else {
+   $browser_version = "Unknown Version";
+}
+my $q = new CGI;
+$program_name = $ENV{"PROG_NAME"};
+
+############### Pre populate option lists ###################
+
+$state_option_str = get_option_str("ref_doc_states");
+
+$resp_option_str = get_option_str("ref_resp");
+
+$status_option_str = get_option_str("id_status");
+
+$ad_option_str = "";
+$sqlStr = qq{
+select unique p.person_or_org_tag, p.firstname, p.lastname from areas a, area_directors d, print_name p 
+where a.area_acronym_id = d.area_acronym_id AND
+d.person_or_org_tag = p.person_or_org_tag
+order by p.lastname
+};
+my @list = db_select_multiple($sqlStr);
+for $array_ref (@list) {
+  my ($person_or_org_tag,$firstname,$lastname) = @$array_ref;
+   $ad_option_str .= qq{
+   <option value="$person_or_org_tag">$firstname $lastname
+  };
+}
+$private_txt = qq{<font color="red" size="-1">[private]</font>};
+$public_txt = qq{<font color="blue" size="-1">[public]</font>};
+########## End Pre Populate Option lists ###################
+$table_header = qq{<table cellpadding="0" cellspacing="0" border="0">
+};
+$form_header = qq{<form action="$program_name" method="POST" name="form1">
+};
+$html_top = qq{
+<html>
+<HEAD><TITLE>IESG ID Tracker -- $browser_version</title>
+
+</head>
+<body link="blue" vlink="blue">
+};
+$html_bottom = qq{
+</body>
+</html>
+};
+
+$html_body = get_html_body($q);
+
+print <<END_HTML;
+Content-type: text/html
+$html_top
+$html_body
+$html_bottom
+END_HTML
+
+
+
+
+sub get_html_body {
+   my $q = shift;
+   my $command = $q->param("command");
+   my $loginid = $q->param("loginid");
+   my $html_txt;
+   
+   my $refer = $ENV{HTTP_REFERER};
+   $refer = rm_tr($refer);
+   unless ($refer eq "https://datatracker.ietf.org/cgi-bin/$program_name") {
+      $html_txt = login_screen("Please login");
+	  return $html_txt;
+   }
+
+   unless (my_defined($command)) {
+      return login_screen();
+   }
+   elsif ($command eq "verify_login") {
+      return verify_login ($q);
+   }
+   elsif ($command eq "main_menu") {
+      return main_menu ();
+   }
+   elsif ($command eq "search_list") {
+      $html_txt = search_list ($q);
+   }
+   elsif ($command eq "view_id") {
+      $html_txt = view_id ($q);
+   }
+   elsif ($command eq "update_id") {
+      $html_txt = update_id ($q);
+   }
+   elsif ($command eq "add_id_front") {
+      $html_txt = add_id_front ($q);
+   }
+   elsif ($command eq "add_id_search") {
+      $html_txt = add_id_search ($q);
+   }
+   elsif ($command eq "add_id_confirm") {
+      $html_txt = add_id_confirm ($q);
+   }
+   elsif ($command eq "add_id_db") {
+      $html_txt = add_id_db ($q);
+   }
+   elsif ($command eq "view_comment") {
+      return view_comment ($q);
+   }
+   elsif ($command eq "add_sub_action") {
+      return add_sub_action ($q);
+   }
+   $html_txt .= qq {
+   $form_header
+   <input type="hidden" name="command" value="main_menu">
+   <input type="hidden" name="loginid" value="$loginid">
+   <input type="submit" value="Main Menu">
+   <input type="button" name="back_button" value="BACK" onClick="history.go(-1);return true">
+   </form>
+   };
+   return $html_txt;
+}
+
+sub verify_login {
+   my $q = shift;
+   my $html_txt;
+   my $method = $ENV{REQUEST_METHOD};
+   unless ($method eq "POST") {
+      $html_txt = login_screen("Please login");
+	  return $html_txt;
+   }
+   my $login_name = $q->param("login_name");
+   my $password = $q->param("password");
+   ($login_name,$password) = db_quote($login_name,$password);
+   my $sqlStr = "select count(*) from iesg_login where login_name = $login_name and password = $password";
+   my $count = db_select($sqlStr);
+   if ($count == 1) {
+      my $loginid = db_select("select id from iesg_login where login_name = $login_name and password = $password");
+      $html_txt = main_menu($loginid);
+   } else {
+      $html_txt = login_screen("Invalid...Try Again");
+   }
+   return $html_txt;
+}
+
+
+sub login_screen {
+   my $err_msg = shift;
+   my $html_txt;
+   $html_txt = qq{
+      <b>Login Screen</b><br>
+	  <font color="red"><b>$err_msg</b></font>
+	  $form_header
+	  <input type="hidden" name="command" value="verify_login">
+	  $table_header
+	  <tr><td>Login Name:</td>
+	  <Td><input type="text" name="login_name"></td>
+	  </tr>
+	  <tr><td>Password:</td>
+	  <td><input type="password" name="password"></td>
+	  </tr>
+	  </table>
+	  <input type="submit" value="Login"> <input type="reset">
+	  </form>
+   };
+   return $html_txt;
+}
+
+sub main_menu {
+   my $loginid = shift;
+   unless (my_defined($loginid)) {
+      if (my_defined($q->param("loginid"))) {
+	     $loginid = $q->param("loginid");
+	  } else {
+         return login_screen("Page Expired... Please login");
+	  }
+   }
+   my $sqlStr = qq{
+   select id.id_document_tag,id.filename, id.revision, state.status_date,state.event_date,state.mark_by,
+   r1.document_state_val,r2.ref_resp_val,state.rfc_flag,state.ballot_id,state.primary_flag,state.cur_state
+   from internet_drafts id, id_internal state, ref_doc_states r1, outer ref_resp r2
+   where id.id_document_tag = state.id_document_tag
+   AND state.cur_state = r1.document_state_id
+   AND state.assigned_to = r2.ref_resp_id
+   AND state.rfc_flag = 0
+   order by state.cur_state, state.ballot_id, state.primary_flag desc
+   };
+   #return $sqlStr;
+   my @docList = db_select_multiple($sqlStr);
+   $sqlStr = qq {
+   select rfc.rfc_number,rfc.rfc_name, rfc.online_version, state.status_date,state.event_date,state.mark_by,
+   r1.document_state_val,r2.ref_resp_val,state.rfc_flag,state.ballot_id,state.primary_flag,state.cur_state
+   from rfcs rfc, id_internal state, ref_doc_states r1, outer ref_resp r2
+   where rfc.rfc_number = state.id_document_tag
+   AND state.cur_state = r1.document_state_id
+   AND state.assigned_to = r2.ref_resp_id
+   AND state.rfc_flag = 1
+   order by state.cur_state, state.ballot_id, state.primary_flag desc
+   };
+   my @docList_rfc = db_select_multiple($sqlStr);
+   push @docList, @docList_rfc;
+   $html_txt .= qq{
+        <CENTER>
+		$form_header
+        $table_header
+		<input type="hidden" name="command" value="search_list">
+		<input type="hidden" name="loginid" value="$loginid">
+                <TR BGCOLOR="silver"><TD colspan="2"><FONT COLOR=Black SIZE=+1><B> ID - Search Criteria </B></FONT>   </TD></TR>
+                <TR><TD colspan="2">
+                        $table_header
+						 <tr><td align="right"><B>Type:</b></td>
+						 <td><input type="radio" name="dType" checked value="id">ID  
+							<input type="radio" name="dType" value="rfc">RFC
+						 </td>
+						 </tr>
+                                <TR><TD ALIGN="right"><B>Responsible:</B>           </TD>
+								   <TD><SELECT NAME="search_assigned_to"><OPTION VALUE="">
+								   $resp_option_str
+								   </SELECT></TD></TR>
+                                <TR><TD ALIGN="right"><B>Draft State:</B>           </TD>
+								   <TD><SELECT NAME="search_cur_state"><OPTION VALUE="">
+								   $state_option_str
+								   </SELECT></TD></TR>
+                                <TR><TD ALIGN="right"><B>Group Acronym:</B>                     </TD>
+								   <TD><INPUT TYPE="text" NAME="search_group_acronym" SIZE="20" MAXLENGTH="50"></TD></TR>
+                                <TR><TD ALIGN="right"><B>Filename:</B>                          </TD>
+								   <TD><INPUT TYPE="text" NAME="search_filename" SIZE="20" MAXLENGTH="40"></TD></TR>
+                                <TR><TD ALIGN="right"><B>RFC Number:</B>                          </TD>
+								   <TD><INPUT TYPE="text" NAME="search_rfcnumber" SIZE="10" MAXLENGTH="10"></TD></TR>
+                                <TR><TD ALIGN="right"><B>Status:</B>                            </TD>
+								   <TD><SELECT NAME="search_status_id">
+								      $status_option_str
+									  <OPTION VALUE="">All</SELECT></TD></TR>
+                        </TABLE>
+                </TD></TR>
+                <TR BGCOLOR="silver"><TD ALIGN="CENTER"><INPUT TYPE="submit" VALUE="Submit"></TD></form>
+				$form_header
+				<input type="hidden" name="command" value="add_id_front">
+				<input type="hidden" name="loginid" value="$loginid">
+				<td ALIGN="CENTER"><input type="submit" value="Add"></td>
+				</form>
+				</TR>
+        </TABLE>
+        </CENTER>
+        
+        </FORM>
+        
+   };
+   $html_txt .= display_all(@docList,$loginid);
+   return $html_txt;
+}
+
+sub search_list {
+   my $q = shift;
+   my $loginid = $q->param("loginid");
+   my $html_txt = "<b>Search Result</b><br>\n";
+   my $dType = $q->param("dType");
+   if ($dType eq "id") {
+      $sqlStr = process_id ($q);
+   } else {
+      $sqlStr = process_rfc ($q);
+   }
+   #return $sqlStr;
+   my @docList = db_select_multiple($sqlStr);
+   $html_txt .= display_all(@docList,$loginid);
+   return $html_txt;
+}
+
+sub process_id {
+   my $q = shift;
+   my $sqlStr = qq{
+   select id.id_document_tag,id.filename, id.revision, state.status_date,state.event_date,state.mark_by,
+   r1.document_state_val,r2.ref_resp_val,state.rfc_flag
+   from internet_drafts id, id_internal state, ref_doc_states r1, ref_resp r2
+   where id.id_document_tag = state.id_document_tag
+   AND state.cur_state = r1.document_state_id
+   AND state.assigned_to = r2.ref_resp_id
+   AND state.rfc_flag = 0
+   };
+   if (my_defined($q->param("search_filename"))) {
+      my $filename = "%";
+	  $filename .= $q->param("search_filename");
+	  $filename .= "%";
+      $filename = db_quote($filename);
+	  $sqlStr .= "AND id.filename like $filename\n";
+   }
+   if (my_defined($q->param("search_group_acronym"))) {
+      my $group_acronym = "%";
+	  $group_acronym .= lc($q->param("search_group_acronym"));
+	  $group_acronym .= "%";
+      $group_acronym = db_quote($group_acronym);
+	  my $gID = db_select("select acronym_id from acronym where acronym like $group_acronym");
+	  $sqlStr .= "AND id.group_acronym_id = $gID\n";
+   }
+   if (my_defined($q->param("search_assigned_to"))) {
+	  my $assigned_to .= $q->param("search_assigned_to");
+	  $sqlStr .= "AND state.assigned_to = $assigned_to\n";
+   }
+   if (my_defined($q->param("search_cur_state"))) {
+	  my $cur_state .= $q->param("search_cur_state");
+	  $sqlStr .= "AND state.cur_state = $cur_state\n";
+   }
+   if (my_defined($q->param("search_status_id"))) {
+	  my $status_id .= $q->param("search_status_id");
+	  $sqlStr .= "AND id.status_id = $status_id\n";
+   }
+   return $sqlStr;
+}
+
+sub process_rfc {
+   my $q = shift;
+   my $dName = uc($q->param("search_id_document_name"));
+   my $gAcronym = $q->param("search_group_acronym");
+   my $filename = $q->param("search_rfcnumber");
+   my $sqlStr = qq{
+   select rfc.rfc_number,rfc.rfc_name, rfc.online_version, state.status_date,state.event_date,state.mark_by,
+   r1.document_state_val,r2.ref_resp_val,state.rfc_flag
+   from rfcs rfc, id_internal state, ref_doc_states r1, ref_resp r2
+   where rfc.rfc_number = state.id_document_tag
+   AND state.cur_state = r1.document_state_id
+   AND state.assigned_to = r2.ref_resp_id
+   AND state.rfc_flag = 1
+   };
+      if (my_defined($dName)) {
+	     $dName .= "%";
+         $dName = db_quote($dName);
+         $sqlStr .= "AND rfc_name_key like $dName\n";
+      }
+      if (my_defined($gAcronym)) {
+	     $gAcronym .= "%";
+         $gAcronym = db_quote($gAcronym);
+         $sqlStr .= "AND group_acronym like $gAcronym\n";
+      }
+      if (my_defined($filename)) {
+	     $_ = $filename;
+  	     s/(\D+)(\d+)(\D+)/$2/;
+		 $rfc_number = $_;
+         $sqlStr .= "AND rfc_number = $rfc_number\n";
+      }
+   if (my_defined($q->param("search_assigned_to"))) {
+	  my $assigned_to .= $q->param("search_assigned_to");
+	  $sqlStr .= "AND state.assigned_to = $assigned_to\n";
+   }
+   if (my_defined($q->param("search_cur_state"))) {
+	  my $cur_state .= $q->param("search_cur_state");
+	  $sqlStr .= "AND state.cur_state = $cur_state\n";
+   }
+   return $sqlStr;
+}
+sub add_id_front {
+   my $q = shift;
+   my $loginid = $q->param("loginid");   
+   my $ballot_id = $q->param("ballot_id");
+   $html_txt .= qq{
+        <CENTER>
+		$form_header
+        $table_header
+		<input type="hidden" name="command" value="add_id_search">
+		<input type="hidden" name="loginid" value="$loginid">
+		<input type="hidden" name="ballot_id" value="$ballot_id">
+                <TR><TD BGCOLOR="silver"><FONT COLOR=Black SIZE=+1><B> ID - Search Criteria </B></FONT>   </TD></TR>
+                <TR><TD>
+                        $table_header
+						 <tr><td align="right"><B>Type:</b></td>
+						 <td><input type="radio" name="dType" checked value="id">ID  
+							<input type="radio" name="dType" value="rfc">RFC
+						 </td>
+						 </tr>
+                                <TR><TD ALIGN="right"><B>Document Name:</B>                     </TD>
+								   <TD><INPUT TYPE="text" NAME="search_id_document_name" SIZE="20" MAXLENGTH="200"></TD></TR>
+                                <TR><TD ALIGN="right"><B>Group Acronym:</B>                     </TD>
+								   <TD><INPUT TYPE="text" NAME="search_group_acronym" SIZE="20" MAXLENGTH="50"></TD></TR>
+                                <TR><TD ALIGN="right"><B>Filename:</B>                          </TD>
+								   <TD><INPUT TYPE="text" NAME="search_filename" SIZE="20" MAXLENGTH="40"></TD></TR>
+                                <TR><TD ALIGN="right"><B>RFC Number:</B>                          </TD>
+								   <TD><INPUT TYPE="text" NAME="search_rfcnumber" SIZE="10" MAXLENGTH="10"></TD></TR>
+                                <TR><TD ALIGN="right"><B>Status:</B>                            </TD>
+								   <TD><SELECT NAME="search_status_id">
+								      $status_option_str
+									  <OPTION VALUE="">All</SELECT></TD></TR>
+                        </TABLE>
+                </TD></TR>
+                <TR><TD ALIGN="CENTER" BGCOLOR="silver"><INPUT TYPE="submit" VALUE="Submit"></TD></form>
+				</TR>
+        </TABLE>
+        </CENTER>
+        
+        </FORM>
+        
+   };
+   return $html_txt;
+}
+
+sub process_add_id {
+   my $q = shift;
+   my $sqlStr;
+   my $whereClause = "WHERE 0 = 0\n";
+#   $iStatusId = $q->param("search_Intended_Status_id");
+   $dName = uc($q->param("search_id_document_name"));
+   $gAcronym = $q->param("search_group_acronym");
+   $filename = $q->param("search_filename");
+   $StatusId = $q->param("search_status_id");
+#   if (my_defined($iStatusId)) {
+#      $whereClause .= "AND intended_status_id = $iStatusId\n";
+#   }
+   if (my_defined($StatusId)) {
+      $whereClause .= "AND status_id = $StatusId\n";
+   }
+      #$dType = "id";
+      if (my_defined($dName)) {
+	     $dName .= "%";
+         $dName = db_quote($dName);
+         $whereClause .= "AND id_document_key like $dName\n";
+      }
+      if (my_defined($gAcronym)) {
+	     $gAcronym .= "%";
+         $gAcronym = db_quote($gAcronym);
+         $sqlStr = "select acronym_id from acronym where acronym like $gAcronym";
+	     my $gID = db_select($sqlStr);
+         $whereClause .= "AND group_acronym_id = $gID\n";
+      }
+      if (my_defined($filename)) {
+	     $filename = "%${filename}%";
+         $filename = db_quote($filename);
+         $whereClause .= "AND filename like $filename\n";
+      }
+      $sqlStr = qq{
+      select id_document_tag,filename
+      from internet_drafts
+      $whereClause
+      };
+
+   return $sqlStr;
+}
+
+sub process_add_rfc {
+   my $q = shift;
+   my $sqlStr;
+   my $whereClause = "WHERE 0 = 0\n";
+   $dName = uc($q->param("search_id_document_name"));
+   $gAcronym = $q->param("search_group_acronym");
+   $filename = $q->param("search_rfcnumber");
+      if (my_defined($dName)) {
+	     $dName .= "%";
+         $dName = db_quote($dName);
+         $whereClause .= "AND rfc_name_key like $dName\n";
+      }
+      if (my_defined($gAcronym)) {
+	     $gAcronym .= "%";
+         $gAcronym = db_quote($gAcronym);
+         $whereClause .= "AND group_acronym like $gAcronym\n";
+      }
+      if (my_defined($filename)) {
+	     $_ = $filename;
+  	     s/(\D+)(\d+)(\D+)/$2/;
+		 $rfc_number = $_;
+         $whereClause .= "AND rfc_number = $rfc_number\n";
+      }
+      $sqlStr = qq{
+      select rfc_number,rfc_name
+      from rfcs
+      $whereClause
+      };
+   
+   return $sqlStr;
+}
+
+sub add_id_search {
+   my $q = shift;
+   my $loginid = $q->param("loginid");
+   my $html_txt = "Search Result";
+   my $dType = $q->param("dType");
+   if ($dType eq "id") {
+      $sqlStr = process_add_id ($q);
+	  $rfc_flag = 0;
+   } else {
+      $sqlStr = process_add_rfc ($q);
+	  $rfc_flag = 1;
+   }
+   my $ballot_id = $q->param("ballot_id");
+   unless (my_defined($ballot_id)) {
+      $ballot_id = 0;
+   }
+   
+
+
+   $html_txt = qq{$table_header
+   <tr><th>Document Name</th></tr>
+   };
+   my @list = db_select_multiple($sqlStr);
+   for $array_ref (@list) {
+     my ($dTag,$document_name) = @$array_ref;
+	 unless (db_select("select count(*) from id_internal where id_document_tag = $dTag")) {
+	    $button_str = "<input type=\"submit\" value=\"Add\">";
+	 } else {
+	    $button_str = "<font color=\"red\">EXISTS</font>";
+	 }
+     $html_txt .= qq{
+		$form_header
+		<input type="hidden" name="command" value="add_id_confirm">
+		<input type="hidden" name="dTag" value="$dTag">
+		<input type="hidden" name="rfc_flag" value="$rfc_flag">
+		<input type="hidden" name="dName" value="$document_name">
+		<input type="hidden" name="loginid" value="$loginid">
+		<input type="hidden" name="ballot_id" value="$ballot_id">
+		<tr><Td>$document_name</td>
+		<td>${button_str}</td></tr>
+		</form>
+      };
+   } #for
+   $html_txt .= "</table>\n";
+   
+   return $html_txt;
+}
+
+sub add_id_confirm {
+   my $q = shift;
+   my $rfc_flag = $q->param("rfc_flag");
+   my $dTag = $q->param("dTag");
+   my $dName = $q->param("dName");
+   my $loginid = $q->param("loginid");
+   my $ballot_id = $q->param("ballot_id");
+   my $html_txt = "<b>Add ID - $dName</b>";
+   my $job_owner = get_mark_by($loginid);
+   $html_txt .= qq{
+   $table_header
+   $form_header
+   <input type="hidden" name="command" value="add_id_db">
+   <input type="hidden" name="rfc_flag" value="$rfc_flag">
+   <input type="hidden" name="dTag" value="$dTag">
+   <input type="hidden" name="loginid" value="$loginid">
+   <input type="hidden" name="ballot_id" value="$ballot_id">
+   <tr><td>Current State: </td>
+   <td>
+   <select name="current_state">
+   $state_option_str
+   </select>
+   </td></tr>
+   <tr><td>Responsible: </td>
+   <td>
+   <select name="assigned_to">
+   $resp_option_str
+   </select>
+   </td></tr>
+   <tr>
+   <td>Job Owner:</td>
+   <td><input type="text" name="job_owner" value="$job_owner"></td>
+   </tr>
+   <tr>
+   <td>Due Date:<br>(MM/DD/YYYY)</td>
+   <td><input type="text" name="status_date"></td>
+   </tr>
+   <tr>
+   <td>Comment:</td>
+   <td><input type="text" name="comment" size="50"> <input type="checkbox" name="public_flag"> Public</td>
+   </tr>
+   <tr>
+   <td colspan="2"><input type="submit" value="SUBMIT"></td>
+   </tr>
+   </form>
+   </table>
+   };
+   return $html_txt;
+}
+
+sub add_id_db {
+   my $q = shift;
+   my $id_document_tag = $q->param("dTag");
+   my $ballot_id = $q->param("ballot_id");
+   my $primary_flag = 0;
+   my $cur_state = $q->param("current_state");
+   my $rfc_flag = $q->param("rfc_flag");
+   my $comment = $q->param("comment");
+   my $job_owner= db_quote($q->param("job_owner"));
+   my $loginid = $q->param("loginid");
+   my $public_flag = $q->param("public_flag");
+   my $mark_by = $loginid;
+   my $table_name = "id_internal";
+   my $version = db_select("select revision from internet_drafts where id_document_tag = $id_document_tag");
+   $version = db_quote($version);
+   if ($rfc_flag) {
+      $table_name = "id_internal";
+   }
+   my $status_date = db_quote($q->param("status_date"));
+   my $assigned_to = $q->param("assigned_to");
+   if ($ballot_id == 0) {  # if new action
+      $ballot_id = db_select("select max(ballot_id) from id_internal");
+	  $primary_flag = 1;
+      unless (my_defined($ballot_id)) {
+         $ballot_id = 1;
+      } else {
+         $ballot_id++;
+      }
+   }
+   $sqlStr = qq {
+   insert into $table_name
+   (id_document_tag,rfc_flag,cur_state,prev_state,assigned_to,status_date,event_date,mark_by,job_owner,ref_history,ballot_id,primary_flag)
+   values ($id_document_tag,$rfc_flag,$cur_state,$cur_state,$assigned_to,$status_date,Today,$mark_by,$job_owner,999999,$ballot_id,$primary_flag)
+   };
+  # return $sqlStr;
+   db_update($sqlStr);
+   
+   ################### Update Comment Log ####################
+   my $new_mark_by = get_mark_by($loginid);
+   my $log_txt = "Draft Added by $new_mark_by";
+   $log_txt = db_quote($log_txt);
+   update_comment_log($loginid,$id_document_tag,$version,$mark_by,$cur_state,$cur_state,$comment,$log_txt,$public_flag);
+   
+   my $html_txt = main_menu($loginid);
+   return $html_txt;
+}
+
+
+sub get_option_str {
+   my $table_name = shift;
+   my $selected_id = shift;
+   $option_str = "";
+   $sqlStr = qq{
+   select * from $table_name order by 1
+   };
+   my @list = db_select_multiple($sqlStr);
+   for $array_ref (@list) {
+     my ($id,$val) = @$array_ref;
+      if ($selected_id == $id) {
+         $selected = "selected";
+      } else {
+         $selected = "";
+      }
+      $option_str .= qq{
+      <option value="$id" $selected>$val</option>
+      };
+   }
+   return $option_str;
+}
+
+sub get_mark_by {
+   my $loginid = shift;
+   my ($fName,$lName) = db_select("select first_name,last_name from iesg_login where id = $loginid");
+   $fName = rm_tr($fName);
+   $lName = rm_tr($lName);
+   my $new_mark_by = "$fName $lName";
+   return $new_mark_by;
+}
+
+sub view_id {
+   my $q = shift;
+   my $dTag = $q->param("dTag");
+   my $rfc_flag = $q->param("rfc_flag");
+   my $loginid = $q->param("loginid");
+   if ($rfc_flag == 1) {
+	   $sqlStr = qq{
+	   select rfc.rfc_name, rfc.online_version, state.status_date,state.event_date,state.mark_by,
+	   state.cur_state,state.prev_state,state.assigned_to,state.job_owner,state.ballot_id,state.primary_flag
+	   from rfcs rfc, id_internal state
+	   where rfc.rfc_number = state.id_document_tag
+	   AND state.id_document_tag = $dTag
+	   AND state.rfc_flag = 1
+	   };
+
+   } else {
+	   $sqlStr = qq{
+	   select id.filename, id.revision, state.status_date,state.event_date,state.mark_by,
+	   state.cur_state,state.prev_state,state.assigned_to,state.job_owner,state.ballot_id,state.primary_flag
+	   from internet_drafts id, id_internal state
+	   where id.id_document_tag = state.id_document_tag
+	   AND state.id_document_tag = $dTag
+	   AND state.rfc_flag = 0
+	   };
+   }
+   #return $sqlStr;
+   my ($filename,$revision,$status_date,$event_date,$mark_by,$cur_state,$prev_state,$assigned_to,$job_owner,$ballot_id,$primary_flag) = db_select($sqlStr);
+   if ($rfc_flag == 1) {
+      $revision = "RFC";
+   }
+   my $add_sub_html = "";
+   if ($primary_flag == 1) {
+      $add_sub_html = qq {
+   $form_header
+   <input type="hidden" name="command" value="add_id_front">
+   <input type="hidden" name="loginid" value="$loginid">
+   <input type="hidden" name="ballot_id" value="$ballot_id">
+   <td><input type="submit" value="Add Sub Action"></td></form>
+	  };
+   }
+   my $html_txt = "<h2>View Draft</h2>\n";
+   my $prev_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $prev_state");
+   my $cur_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $cur_state");
+   my $next_state_option_str = get_option_str("ref_doc_states");
+   my $resp_option_str = get_option_str("ref_resp",$assigned_to);
+   my $next_state_buttons_str = get_next_state_button_str($cur_state);
+   $html_txt .= qq{
+	<SCRIPT Language="JavaScript">   
+	function MM_openBrWindow(theURL,winName,features) { //v2.0
+	  window.open(theURL,winName,features);
+	}
+	function MM_closeBrWindow(winName) { //v2.0
+	  window.close(winName);
+	}
+	</script>
+
+   $table_header
+   <form action="$program_name" method="POST" name="f">
+   <input type="hidden" name="command" value="update_id">
+   <input type="hidden" name="rfc_flag" value="$rfc_flag">
+   <input type="hidden" name="dTag" value="$dTag">
+   <input type="hidden" name="version" value="$revision">
+   <input type="hidden" name="prev_state" value="$prev_state">
+   <input type="hidden" name="cur_state" value="$cur_state">
+   <input type="hidden" name="loginid" value="$loginid">
+   <tr><td>Draft Name:</td><td>$filename</td></tr>
+   <tr><td>Version</td><td>$revision</td></tr>
+   <tr><td>Previous State: </td>
+   <td>
+   $prev_state_txt
+   </td></tr>
+   <tr><td>Current State: </td>
+   <td>
+   $cur_state_txt
+   </td></tr>
+   <tr><td>Next State: </td>
+   <td>
+   <br>
+   <select name="next_state">
+   <option value="0">---Select Next State</option>
+   $next_state_option_str
+   </select> 
+   <input type="hidden" name="next_state_hidden" value="0">
+   <br>
+   or<br>
+   $next_state_buttons_str
+   <br>or<br><input type="hidden" name="process_prev_state" value="0">
+   <input type="submit" value="Back to Previous State" onClick="document.f.process_prev_state.value='$prev_state'"><br><br>
+   </td></tr>
+   <tr><td>Responsible: </td>
+   <td>
+   <select name="assigned_to">
+   $resp_option_str
+   </select>
+   </td></tr>
+   <tr>
+   <td>Job Owner:</td>
+   <td><input type="text" name="job_owner" value="$job_owner"></td>
+   </tr>
+   <tr>
+   <td>Due Date:<br>(MM/DD/YYYY)</td>
+   <td><input type="text" name="status_date" value="$status_date">
+   </td>
+   </tr>
+   <tr><td>Comment:</td><td>
+   <textarea name="comment" rows="3" cols="75" wrap="virtual"></textarea>
+   <input type="checkbox" name="public_flag"> Public</td></tr>
+   <tr>
+   <td><input type="submit" value="UPDATE"> <input type="reset" value="RESET"></td></form>
+   <td>
+   $table_header
+   <tr>
+   $add_sub_html
+   $form_header
+   <input type="hidden" name="command" value="main_menu">
+   <input type="hidden" name="loginid" value="$loginid">
+   <td><input type="submit" value="Main Menu"></td></form>
+   </tr>
+   </table>
+   </td>
+   </tr>
+   
+   </table>
+   <h3>Comment Log</h3>
+   $table_header
+   <tr><th>Date</th><th>Version</th><th>Comment</th></tr>
+   };
+   $sqlStr = qq{
+   select id,comment_date,version,comment_text,public_flag from document_comments
+   where document_id = $dTag
+   order by 1 desc
+   };
+   my @commentList = db_select_multiple($sqlStr);
+   for $array_ref (@commentList) {
+      my ($id,$comment_date,$version,$comment_text,$public_flag) = @$array_ref;
+	  if ($public_flag == 1) {
+	     $pre_str = $public_txt;
+	  } else {
+	     $pre_str = $private_txt;
+	  }
+	  $html_txt .= qq {
+	  <tr><td>$comment_date</td><td align="center">$version</td><td>$pre_str $comment_text</td>
+	  <form>
+	  <td>
+	  <input type="button" value="View Detail" onClick="window.open('https://datatracker.ietf.org/cgi-bin/idtracker.cgi?command=view_comment&loginid=$loginid&id=$id',null,'height=250,width=500,status=no,toolbar=no,menubar=no,location=no');">
+	  </td>
+	  </form>
+	  </tr>
+	  };
+   }
+   $html_txt .= "</table>\n";
+   return $html_txt;
+}
+
+sub update_id {
+   my $q = shift;
+   my $dTag = $q->param("dTag");
+   my $rfc_flag = $q->param("rfc_flag");
+   my $cur_state = $q->param("cur_state");
+   my $prev_state = $q->param("prev_state");
+   my $next_state = $q->param("next_state");
+   my $loginid = $q->param("loginid");
+   my $status_date = db_quote($q->param("status_date"));
+   my $mark_by = $loginid;
+   my $assigned_to = $q->param("assigned_to");
+   my $comment = $q->param("comment");
+   my $public_flag = $q->param("public_flag");
+   my $version = db_select("select revision from internet_drafts where id_document_tag = $dTag");
+   $version = db_quote($version);
+   my $html_txt = "Updated...";
+   my $cur_time = db_quote(get_current_time());
+   my $process_prev_state = $q->param("process_prev_state");
+   #return $sqlStr;
+   my $log_txt = "";
+   if ($process_prev_state != 0) {
+      process_prev_state($q);
+	  return view_id($q);
+   }
+   if ($next_state == 0) {
+      $next_state = $q->param("next_state_hidden");
+   }
+   ################### Update Comment Log ####################
+   if ($cur_state != $next_state and $next_state != 0) {
+      my $new_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $next_state");
+      my $origin_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $cur_state");
+      $prev_state = $cur_state;
+	  $cur_state = $next_state;
+     my $new_mark_by = get_mark_by($loginid);
+     $log_txt = qq {State Changes to <b>$new_state_txt</b> from <b>$origin_state_txt</b> by <b>$new_mark_by</b>};
+     $log_txt = db_quote($log_txt);
+   }
+   $comment = format_comment($comment);
+   #return $comment;
+   update_comment_log($loginid,$dTag,$version,$mark_by,$cur_state,$prev_state,$comment,$log_txt,$public_flag);
+   
+   ###################### Update id_internal Table fields ####################
+   my $sqlStr = qq { Update id_internal
+   Set cur_state = $cur_state,
+       prev_state = $prev_state,
+	   status_date = $status_date,
+	   assigned_to = $assigned_to,
+	   mark_by = $mark_by,
+	   event_date = Today,
+	   ref_history = 999999
+   Where id_document_tag = $dTag
+   };
+   db_update($sqlStr);
+   $html_txt = view_id($q);
+   return $html_txt;
+}
+
+sub format_comment {
+   my $comment = shift;
+   $_ = $comment;
+   s/\n/<br>/;
+   s/\r//;
+   s/\s\s+/ /;
+   return $_;
+}
+
+sub update_comment_log {
+   my ($loginid,$document_id,$version,$mark_by,$cur_state,$prev_state,$comment,$log_txt,$public_flag) = @_;
+   
+   ##################### Add log to indicate state changed ######################
+   my $cur_time = db_quote(get_current_time());
+   if (my_defined($log_txt) and is_unique_comment($loginid,$log_txt,$document_id)) {
+      $sqlStr = qq {
+       insert into document_comments
+      (document_id,public_flag,comment_date,comment_time,version,comment_text,created_by,result_state,origin_state)
+   	   values
+	   ($document_id,1,Today,$cur_time,$version,$log_txt,$mark_by,$cur_state,$prev_state)
+        };
+        #return $sqlStr;
+        db_update($sqlStr);
+   }
+   #################### Add Comment if any #############################
+   if (my_defined($comment)) {
+      $comment = db_quote($comment);
+	  #return $comment;
+	  unless (is_unique_comment($loginid,$comment,$document_id)) {
+	     return;
+	  }
+	  if ($public_flag eq "on") {
+	     $public_flag_val = 1;
+	  } else {
+	     $public_flag_val = 0;
+	  }
+      $sqlStr = qq {
+	  insert into document_comments
+	  (document_id,public_flag,comment_date,comment_time,version,comment_text,created_by,result_state,origin_state)
+	  values
+	  ($document_id,$public_flag_val,Today,$cur_time,$version,$comment,$mark_by,$cur_state,$cur_state)
+	  };
+	  #return $sqlStr;
+	  db_update($sqlStr);
+   }
+}
+
+sub is_unique_comment {
+   my ($loginid,$log_txt,$document_id) = @_;
+   my $count = db_select("select count(*) from document_comments where created_by = $loginid AND comment_text = $log_txt AND document_id = $document_id and comment_date = Today");
+   if ($count > 0) { #There is same comment already existed
+     return 0;
+   }
+   return 1;
+}
+
+sub view_comment {
+   my $q = shift;
+   my $loginid = $q->param("loginid");
+   my $id = $q->param("id");
+   my $html_txt = "";
+   
+   my $sqlStr = qq {
+   select document_id,rfc_flag,public_flag,comment_date,comment_time,
+   version,comment_text,created_by,result_state,origin_state
+   from document_comments
+   where id = $id
+   };
+   #return $sqlStr;
+   my ($document_id,$rfc_flag,$public_flag,$comment_date,$comment_time,$version,$comment_text,$created_by,$result_state,$origin_state) = db_select($sqlStr);
+   my $origin_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $origin_state");
+   my $result_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $result_state");
+   my $created_by_str = get_mark_by($created_by);
+   $html_txt .= qq {
+   $table_header
+   <tr><td><b>Date and Time:</td><td>$comment_date, $comment_time</td></tr>
+   <tr><td><b>Version:</td><td>$version</td></tr>
+   <tr><td><b>Commented by:</td><td>$created_by_str</td></tr>
+   <tr><td><b>State before Comment:</td><td>$origin_state_txt</td></tr>
+   <tr><td><b>State after Comment:</td><td>$result_state_txt</td></tr>
+   <Tr><td><b>Comment:</td><td>$comment_text</td></tr>
+   </table>
+   <center><form>
+   <input type="button" value="close" onClick="window.close();">
+   </form></center>
+   };
+   return $html_txt;
+}
+
+sub display_all {
+   my @docList = @_;
+   my $loginid = pop @docList;
+   my $prev_state = "";
+   my $html_txt = qq{<b>Draft List</b>
+   <table>};
+   for $array_ref (@docList) {
+      my ($dTag,$filename,$revision,$status_date,$event_date,$mark_by,$cur_state,$assigned_to,$rfc_flag,$ballot_id,$primary_flag) = @$array_ref;
+	  $cur_state = rm_tr($cur_state);
+	  if ($cur_state ne $prev_state) {
+	     $prev_state = $cur_state;
+  	     $html_txt .= qq{		 
+		 </table>
+		 <h3>In Status: $cur_state</h3>
+         <table bgcolor="#DFDFDF" cellspacing="1">
+         <tr bgcolor="A3A3A3"><th>Name</th><th>Version</th><th>Responsible</th><th>Marked</th><th>Due Date</th><th>Modified Date (EST)</th></tr>
+         };
+	  }
+	  my $mark_by_str = get_mark_by($mark_by);
+	  
+	  if ($rfc_flag == 1) {
+	     $revision = "RFC";
+	  }
+	  my $pre_list;
+	  if ($primary_flag == 1) {
+	     $pre_list = "<li>";
+	  } else {
+	     $pre_list = "<dd><font size=\"-1\">";
+	  }
+	  $html_txt .= qq{
+	  <tr><Td width="150">$pre_list $filename</td><td>$revision</td><td>$assigned_to</td><td>$mark_by_str</td>
+	  <td>$status_date</td><td>$event_date</td>
+       $form_header	  
+	   <td>
+       <input type="hidden" name="command" value="view_id">
+	   <input type="hidden" name="dTag" value="$dTag">
+	   <input type="hidden" name="rfc_flag" value="$rfc_flag">
+	   <input type="hidden" name="loginid" value="$loginid">
+       <input type="submit" value="VIEW">
+	  </td>
+      </form>
+	  </tr>
+	  };
+   }
+   $html_txt .= qq {</table>
+   };   
+   return $html_txt;
+}
+
+sub get_next_state_button_str {
+   my $cur_state = shift;
+   my $html_txt = "";
+   my @list = db_select_multiple("select next_state_id from ref_next_states where cur_state_id = $cur_state");
+   for $array_ref (@list) {
+      my ($state_id) = @$array_ref;
+	  my $state_str = rm_tr(db_select("select document_state_val from ref_doc_states where document_state_id = $state_id"));
+	  $html_txt .= qq {
+		  <input type="submit" value="$state_str" onClick="document.f.next_state_hidden.value='$state_id'">
+	  };
+   }
+   return $html_txt;
+}
+
+sub process_prev_state {
+   my $q = shift;
+   my $dTag = $q->param("dTag");
+   my $rfc_flag = $q->param("rfc_flag");
+   my $cur_state = $q->param("cur_state");
+   my $prev_state = $q->param("prev_state");
+   my $next_state = $q->param("next_state");
+   my $loginid = $q->param("loginid");
+   my $status_date = db_quote($q->param("status_date"));
+   my $mark_by = $loginid;
+   my $assigned_to = $q->param("assigned_to");
+   my $comment = $q->param("comment");
+   my $public_flag = $q->param("public_flag");
+   my $version = db_select("select revision from internet_drafts where id_document_tag = $dTag");
+   $version = db_quote($version);
+   my $html_txt = "Updated...";
+   my $cur_time = db_quote(get_current_time());
+   my $process_prev_state = $q->param("process_prev_state");
+   my $ref_history = db_select("select ref_history from id_internal where id_document_tag = $dTag");
+   
+   my $sqlStr = qq {
+   select Max(id) from document_comments 
+   where document_id = $dTag
+   and result_state = $process_prev_state
+   and  id < $ref_history
+   };
+   my $id = db_select($sqlStr);
+   unless (my_defined($id)) {
+      return;
+   }
+   my ($result_state,$origin_state) = db_select("select result_state, origin_state from document_comments where id = $id");
+
+   $sqlStr = qq { Update id_internal
+   Set cur_state = $result_state,
+       prev_state = $origin_state,
+	   status_date = $status_date,
+	   assigned_to = $assigned_to,
+	   mark_by = $mark_by,
+	   event_date = Today,
+	   ref_history = $id
+   Where id_document_tag = $dTag
+   };
+   #return $sqlStr;
+   db_update($sqlStr);
+
+   ################### Update Comment Log ####################
+      my $new_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $process_prev_state");
+      my $origin_state_txt = db_select("select document_state_val from ref_doc_states where document_state_id = $cur_state");
+      $prev_state = $cur_state;
+	  $cur_state = $process_prev_state;
+     my $new_mark_by = get_mark_by($loginid);
+     $log_txt = qq {State Changes back to previous state <b>$new_state_txt</b> from <b>$origin_state_txt</b> by <b>$new_mark_by</b>};
+     $log_txt = db_quote($log_txt);
+   update_comment_log($loginid,$dTag,$version,$mark_by,$cur_state,$prev_state,$comment,$log_txt,$public_flag);
+   
+}
+
+sub add_sub_action {
+   my $q = shift;
+   
+   
+   my $html = view_id($q);
+   return $html;
+}
+
+
+
+

@@ -1,0 +1,29 @@
+From: Lisa Dusseault <lisa@rtfm.com>
+To: IETF-Announce@ietf.org
+Subject: Interim Meeting for IMAPEXT 
+Date: Tue, 21 Dec 2004 14:31:05 -0500 
+========================================
+We are organizing an interim meeting for IMAPEXT in the San Francisco
+Bay Area for the afternoon of Jan 20. (The meeting location and time
+will be alongside the LEMONADE WG interim meeting which has an
+overlapping membership).
+
+I've already announced this intent on the IMAPEXT mailing list and
+would like to announce it more widely even though we don't as yet know
+the exact location.
+
+Scott Hollenbeck has indicated his approval.
+
+Location: TBD, near San Francisco/Redwood Shores, CA
+Date: Jan 20, 2:00 pm to 5:00 pm
+Hotel: See LEMONADE WG interim meeting information
+
+Agenda (Draft)
+===========
+- resolve ANNOTATE open issues with authors
+- Discuss LISTEXT extensions
+- Resume work on ACL draft
+
+
+--Thanks,
+Lisa Dusseault

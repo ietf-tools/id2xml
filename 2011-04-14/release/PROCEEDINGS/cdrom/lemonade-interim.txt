@@ -1,0 +1,40 @@
+From: Glenn Parsons <gparsons@nortelnetworks.com>
+To: IETF-Announce@ietf.org
+Date: Fri, 10 Dec 2004 14:40:50 -0500 
+Subject: LEMONADE interim meeting   
+===================================
+
+Lemonade 61.5 Interim Meeting
+
+Location
+========
+Oracle, Redwood Shores, CA.
+350 Oracle Pkwy
+Redwood City, CA 94065-1668
+
+Date
+====
+January 19-20, 2005
+Start on 1pm Wednesday
+Likely finish by noon on Thursday.
+
+Agenda (Draft)
+==============
+- media conversion
+- CHANNEL
+- quick reconnect
+- LEMONADE 'phase 1' profile
+- 'phase 2' goals
+
+Hotel
+=====
+Summerfield Suites by Wyndham - Belmont/Redwood Shores
+400 Concourse Drive
+Belmont, California 94002
+United States
+Phone: 650-591-8600
+
+Ask for Oracle Rate: $99/night
+Yes, they have wired Internet access.
+The hotel is within walking distance (~1 km) of Oracle, and they have an
+airport shuttle.

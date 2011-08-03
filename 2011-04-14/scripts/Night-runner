@@ -1,0 +1,38 @@
+#!/bin/bash
+PYTHONPATH=/a/www/ietf-datatracker/web export PYTHONPATH
+
+# Nightly client jobs
+
+# Run the hourly job first
+/a/www/ietf-datatracker/scripts/Cron-runner
+
+# Client jobs in datatracker
+/a/www/ietf-datatracker/web/ietf/bin/expire-ids
+/a/www/ietf-datatracker/web/ietf/bin/expire-last-calls
+python -m ietf.idrfc.mirror_draft_versions
+python -m ietf.idrfc.mirror_rfc_editor_queue
+python -m ietf.idrfc.mirror_rfc_index
+
+# Client jobs not in datatracker
+wget -q -O - http://datatracker.ietf.org/wg/1wg-charters.txt > /a/www/ietf-ftp/ietf/1wg-charters.txt
+wget -q -O - http://datatracker.ietf.org/wg/1wg-charters-by-acronym.txt > /a/www/ietf-ftp/ietf/1wg-charters-by-acronym.txt
+wget -q -O - http://datatracker.ietf.org/wg/summary.txt > /a/www/ietf-ftp/ietf/1wg-summary.txt
+wget -q -O - http://datatracker.ietf.org/wg/summary-by-acronym.txt > /a/www/ietf-ftp/ietf/1wg-summary-by-acronym.txt
+rsync -a ftp.rfc-editor.org::rfcs-pdf-only /a/www/ietf-ftp/rfc
+rsync -a ftp.rfc-editor.org::rfcs-text-only /a/www/ietf-ftp/rfc
+rsync -a rsync.iana.org::protocol-registries/ /a/www/ietf-ftp/iana
+
+# Compensate for legacy sloppiness here...
+cp /a/www/ietf-ftp/rfc/rfc-index.txt /a/www/ietf-ftp/iesg/1rfc_index.txt
+cp /a/www/ietf-ftp/rfc/rfc-index.txt /a/www/ietf-ftp/rfc/rfc-index
+cp /a/www/ietf-ftp/rfc/rfc-index-latest.txt /a/www/ietf-ftp/rfc/rfc-index-latest
+cp /a/www/ietf-ftp/rfc/rfc-ref.txt.new /a/www/ietf-ftp/rfc/rfc-ref
+cp /a/www/ietf-ftp/rfc/rfc-retrieval.txt /a/www/ietf-ftp/rfc/rfc-retrieval
+
+# Postconfirm jobs
+/a/postconfirm/makewhitelist
+nice -19 find /a/postconfirm/cache -ctime +1 -exec rm {} \;
+nice -19 find /tmp -type f -mtime +2 -exec rm {} \;
+
+
+

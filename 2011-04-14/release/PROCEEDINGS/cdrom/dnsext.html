@@ -1,0 +1,167 @@
+<html>
+<title>DNS Extensions (dnsext) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.3.5 DNS Extensions (dnsext)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+
+<p>Last Modified: 2005-02-09
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:ogud@ogud.com"><b>Olafur Gudmundsson &lt;ogud@ogud.com&gt;</b></a><br>
+<a href="mailto:okolkman@ripe.net"><b>Olaf Kolkman &lt;okolkman@ripe.net&gt;</b></a><br>
+
+<h2>Internet Area Director(s):</h2>
+<a href="mailto:narten@us.ibm.com"><b>Thomas Narten &lt;narten@us.ibm.com&gt;</b></a><br>
+<a href="mailto:margaret@thingmagic.com"><b>Margaret Wasserman &lt;margaret@thingmagic.com&gt;</b></a><br>
+
+<h2>Internet Area Advisor:</h2>
+<a href="mailto:narten@us.ibm.com"><b>Thomas Narten &lt;narten@us.ibm.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: namedroppers@ops.ietf.org<br>
+To Subscribe: <a href="mailto:namedroppers-request@ops.ietf.org">namedroppers-request@ops.ietf.org</a><br>
+Archive: <a href="http://ops.ietf.org/lists/namedroppers/">http://ops.ietf.org/lists/namedroppers/</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Forward NSEC rdata to IESG for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Forward RFC2535-bis to IESG for proposed standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Forward Case Insensitive to IESG for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Forward LLMNR to IESG for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Update boilerplate text on OPT-IN </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Feb 05</td><td>&nbsp;&nbsp;</td><td>Submit KEY algorithm documents RFC253[69]bis and RFC3110 to 
+                IESG for proposed standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Finalize Zone Enumeration Requirements </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 05</td><td>&nbsp;&nbsp;</td><td>Forward Wildcard clarification to IESG for proposed standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 05</td><td>&nbsp;&nbsp;</td><td>Start of process of reviewing the following RFCs and to move 
+                them to Draft Standard status </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 05</td><td>&nbsp;&nbsp;</td><td>Submit to IESG RFC2845 (TSIG)to Draft standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>RFC2671 (EDNS0) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 05</td><td>&nbsp;&nbsp;</td><td>RFC2672 (DNAME) to Draft Standard or revision </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>RFC2136 (Dynamic Update) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>RFC3007 (Secure Update) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>RFC1995 (IXFR) to Draft standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 05</td><td>&nbsp;&nbsp;</td><td>RFC1996 (Notify) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 05</td><td>&nbsp;&nbsp;</td><td>RFC2930 (TKEY) to Draft standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 05</td><td>&nbsp;&nbsp;</td><td>RFC2181 (Clarify) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 05</td><td>&nbsp;&nbsp;</td><td>RFC2308 (Neg Caching) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>RFC2782 (SRV RR) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>RFC1982 (Serial Number Arithmetic) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>RFC2538 (CERT RR) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>FRC2539 (DH Key RR) to Draft Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Nov 05</td><td>&nbsp;&nbsp;</td><td>RFC3226 (Message Size) to Draft Standard </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-dnsext-dhcid-rr-09.txt" target="blank">draft-ietf-dnsext-dhcid-rr-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-mdns-38.txt" target="blank">draft-ietf-dnsext-mdns-38.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-opt-in-06.txt" target="blank">draft-ietf-dnsext-dnssec-opt-in-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-rfc2536bis-dsa-04.txt" target="blank">draft-ietf-dnsext-rfc2536bis-dsa-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-rfc2539bis-dhk-04.txt" target="blank">draft-ietf-dnsext-rfc2539bis-dhk-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-intro-13.txt" target="blank">draft-ietf-dnsext-dnssec-intro-13.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-ecc-key-06.txt" target="blank">draft-ietf-dnsext-ecc-key-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-tkey-renewal-mode-05.txt" target="blank">draft-ietf-dnsext-tkey-renewal-mode-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-records-11.txt" target="blank">draft-ietf-dnsext-dnssec-records-11.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-protocol-09.txt" target="blank">draft-ietf-dnsext-dnssec-protocol-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-insensitive-05.txt" target="blank">draft-ietf-dnsext-insensitive-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-wcard-clarify-05.txt" target="blank">draft-ietf-dnsext-wcard-clarify-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-trans-02.txt" target="blank">draft-ietf-dnsext-dnssec-trans-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-tsig-sha-01.txt" target="blank">draft-ietf-dnsext-tsig-sha-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-interop3597-01.txt" target="blank">draft-ietf-dnsext-interop3597-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-signed-nonexistence-requirements-01.txt" target="blank">draft-ietf-dnsext-signed-nonexistence-requirements-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-trustupdate-threshold-00.txt" target="blank">draft-ietf-dnsext-trustupdate-threshold-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-trustupdate-timers-00.txt" target="blank">draft-ietf-dnsext-trustupdate-timers-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-nsec3-01.txt" target="blank">draft-ietf-dnsext-nsec3-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-rfc2538bis-01.txt" target="blank">draft-ietf-dnsext-rfc2538bis-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dnsext-dnssec-experiments-00.txt" target="blank">draft-ietf-dnsext-dnssec-experiments-00.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2782.txt" target="blank">RFC2782</A></td><td width=90>  PS  </td><td>A DNS RR for specifying the location of services (DNS 
+                       SRV) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2845.txt" target="blank">RFC2845</A></td><td width=90> Standard </td><td>Secret Key Transaction Authentication for DNS (TSIG) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2929.txt" target="blank">RFC2929</A></td><td width=90> BCP </td><td>Domain Name System (DNS) IANA Considerations </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2930.txt" target="blank">RFC2930</A></td><td width=90>  PS  </td><td>Secret Key Establishment for DNS (TKEY RR) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2931.txt" target="blank">RFC2931</A></td><td width=90>  PS  </td><td>DNS Request and Transaction Signatures ( SIG(0)s ) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3007.txt" target="blank">RFC3007</A></td><td width=90>  PS  </td><td>Secure Domain Name System (DNS) Dynamic Update </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3008.txt" target="blank">RFC3008</A></td><td width=90>  PS  </td><td>Domain Name System Security (DNSSEC) Signing Authority </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3090.txt" target="blank">RFC3090</A></td><td width=90>  PS  </td><td>DNS Security Extension Clarification on Zone Status </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3110.txt" target="blank">RFC3110</A></td><td width=90>  PS  </td><td>RSA/SHA-1 SIGs and RSA KEYs in the Domain Name System 
+                       (DNS) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3123.txt" target="blank">RFC3123</A></td><td width=90>  E   </td><td>A DNS RR Type for Lists of Address Prefixes (APL RR) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3197.txt" target="blank">RFC3197</A></td><td width=90>  I   </td><td>Applicability Statement for DNS MIB Extensions </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3225.txt" target="blank">RFC3225</A></td><td width=90>  PS  </td><td>Indicating Resolver Support of DNSSEC </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3226.txt" target="blank">RFC3226</A></td><td width=90>  PS  </td><td>DNSSEC and IPv6 A6 aware server/resolver message size 
+                       requirements </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3363.txt" target="blank">RFC3363</A></td><td width=90>  I   </td><td>Representing IPv6 addresses in DNS </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3364.txt" target="blank">RFC3364</A></td><td width=90>  I   </td><td>Tradeoffs in DNS support for IPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3425.txt" target="blank">RFC3425</A></td><td width=90>  PS  </td><td>Obsoleting IQUERY </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3445.txt" target="blank">RFC3445</A></td><td width=90>  PS  </td><td>Limiting the Scope of the KEY Resource Record out </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3596.txt" target="blank">RFC3596</A></td><td width=90> Standard </td><td>DNS Extensions to support IP version 6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3597.txt" target="blank">RFC3597</A></td><td width=90>  PS  </td><td>Handling of Unknown DNS Resource Record (RR) Types </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3645.txt" target="blank">RFC3645</A></td><td width=90> Standard </td><td>GSS Algorithm for TSIG (GSS-TSIG) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3655.txt" target="blank">RFC3655</A></td><td width=90> Standard </td><td>Redefinition of DNS AD bit </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3658.txt" target="blank">RFC3658</A></td><td width=90> Standard </td><td>Delegation Signer Resource Record </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3755.txt" target="blank">RFC3755</A></td><td width=90> Standard </td><td>Legacy Resolver Compatibility for Delegation Signer </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3757.txt" target="blank">RFC3757</A></td><td width=90> Standard </td><td>KEY RR Secure Entry Point Flag </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3833.txt" target="blank">RFC3833</A></td><td width=90>  I   </td><td>Threat Analysis Of The Domain Name System </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3845.txt" target="blank">RFC3845</A></td><td width=90> Standard </td><td>DNSSEC NSEC RDATA Format </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/dnsext-0/sld1.htm" target="blank"">Agenda</a><br>
+<a href="slides/dnsext-1/sld1.htm" target="blank"">wcard draft</a><br>
+<a href="slides/dnsext-2/sld1.htm" target="blank"">SHA-1 and DNS in 2005</a><br>
+<a href="slides/dnsext-3/sld1.htm" target="blank"">DNSSEC Key rollover IPR</a><br>
+<a href="slides/dnsext-4.pdf" target="blank"">EPSILON</a><br>
+<a href="slides/dnsext-5/sld1.htm" target="blank"">draft-sisson-dnsext-dns-name-p-s</a><br>
+<a href="slides/dnsext-6/sld1.htm" target="blank"">draft-ietf-dnsext-nsec3-01</a><br>
+<a href="slides/dnsext-7/sld1.htm" target="blank"">NSEC4 RDATA Format</a><br>
+<a href="slides/dnsext-8.pdf" target="blank"">BERT Basic Error Response Type</a><br>
+<a href="slides/dnsext-9.pdf" target="blank"">DNSSEC Experiments</a><br>
+<a href="slides/dnsext-10/sld1.htm" target="blank"">Link Local Multicast Name Resolution (LLMNR)</a><br>
+<a href="slides/dnsext-11/sld1.htm" target="blank"">TSIG SHA etc.</a><br>
+

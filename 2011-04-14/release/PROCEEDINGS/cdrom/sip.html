@@ -1,0 +1,212 @@
+<html>
+<title>Session Initiation Protocol (sip) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.7.13 Session Initiation Protocol (sip)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+<hr>
+In addition to this official charter maintained by the IETF Secretariat, there is additional information about this working group on the Web at:<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href=" http://www.softarmor.com/sipwg/"> Additional SIP Page</a><hr>
+
+<p>Last Modified: 2005-01-31
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:dean.willis@softarmor.com"><b>Dean Willis &lt;dean.willis@softarmor.com&gt;</b></a><br>
+<a href="mailto: rohan@ekabal.com"><b>Rohan Mahy &lt; rohan@ekabal.com&gt;</b></a><br>
+
+<h2>Transport Area Director(s):</h2>
+<a href="mailto:mankin@psg.com"><b>Allison Mankin &lt;mankin@psg.com&gt;</b></a><br>
+<a href="mailto:jon.peterson@neustar.biz"><b>Jon Peterson &lt;jon.peterson@neustar.biz&gt;</b></a><br>
+
+<h2>Transport Area Advisor:</h2>
+<a href="mailto:mankin@psg.com"><b>Allison Mankin &lt;mankin@psg.com&gt;</b></a><br>
+
+<h2>Technical Advisor(s):</h2>
+<a href="mailto:dromasca@avaya.com"><b>Dan Romascanu &lt;dromasca@avaya.com&gt;</b></a><br>
+<h2>Mailing Lists:</h2> 
+General Discussion: sip@ietf.org<br>
+To Subscribe: <a href="mailto:sip-request@ietf.org">sip-request@ietf.org</a><br>
+In Body: subscribe<br>
+Archive: <a href="http://www.ietf.org/mail-archive/web/sip/index.html">http://www.ietf.org/mail-archive/web/sip/index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Server Features Negotiation submitted to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Complete IESG requested fixes to provrel and servfeat </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Revised proposed standard version of SIP (2543bis) submitted to 
+                IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP Events specification to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>The UPDATE Method submitted for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP extensions for media authorization (call-auth) submitted as 
+                Informational </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Preconditions extensions (manyfolks) spec to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP Privacy specification to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP Privacy and Security Requirements to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>The MESSAGE Method submitted for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>The Replaces Header submitted for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Refer spec to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP NAT extension submitted to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>SIP over SCTP specification and applicability statement </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Mechanism for Content Indirection in SIP submitted to IESG for 
+                Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>The SIP Referred-By Header submitted to IESG for Proposed 
+                Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Session Timer spec, revised to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Caller preferences specification submitted to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit SIP Identity documents to IESG for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>The SIP Join Header submitted to IESG for Proposed Standard </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Replaces header to IESG (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Upgrade S/MIME requirement for AES in 3261 to IESG (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 04</td><td>&nbsp;&nbsp;</td><td>Application Interaction to IESG (BCP) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Mar 04</td><td>&nbsp;&nbsp;</td><td>Resource Priority signaling mechanism to IESG (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Presence Publication to IESG (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 04</td><td>&nbsp;&nbsp;</td><td>Connection reuse mechanism to IESG (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Apr 04</td><td>&nbsp;&nbsp;</td><td>Enhancements for Authenticated Identity Management to IESG 
+                (BCP) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Guidelines for Authors of SIP extensions submitted as 
+                Informational </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">May 04</td><td>&nbsp;&nbsp;</td><td>Mechanism for obtaining globally routable unique URIs to IESG 
+                (PS) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jun 04</td><td>&nbsp;&nbsp;</td><td>MIB spec to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>Review WG status (consider closing) and/or submit a future 
+                milestones plan to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Request History mechanism to IESG (PS) </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-sip-session-timer-15.txt" target="blank">draft-ietf-sip-session-timer-15.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-mib-09.txt" target="blank">draft-ietf-sip-mib-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-guidelines-09.txt" target="blank">draft-ietf-sip-guidelines-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-sctp-06.txt" target="blank">draft-ietf-sip-sctp-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-content-indirect-mech-05.txt" target="blank">draft-ietf-sip-content-indirect-mech-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-identity-04.txt" target="blank">draft-ietf-sip-identity-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-history-info-06.txt" target="blank">draft-ietf-sip-history-info-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-resource-priority-06.txt" target="blank">draft-ietf-sip-resource-priority-06.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-connect-reuse-03.txt" target="blank">draft-ietf-sip-connect-reuse-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-rfc3312-update-03.txt" target="blank">draft-ietf-sip-rfc3312-update-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-gruu-03.txt" target="blank">draft-ietf-sip-gruu-03.txt</a><br>
+<li> <a href="IDs/draft-sparks-sip-nit-problems-02.txt" target="blank">draft-sparks-sip-nit-problems-02.txt</a><br>
+<li> <a href="IDs/draft-sparks-sip-nit-actions-03.txt" target="blank">draft-sparks-sip-nit-actions-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-anat-usage-00.txt" target="blank">draft-ietf-sip-anat-usage-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-sip-refer-with-norefersub-01.txt" target="blank">draft-ietf-sip-refer-with-norefersub-01.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2976.txt" target="blank">RFC2976</A></td><td width=90>  PS  </td><td>The SIP INFO Method </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3204.txt" target="blank">RFC3204</A></td><td width=90>  PS  </td><td>MIME media types for ISUP and QSIG Objects </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3261.txt" target="blank">RFC3261</A></td><td width=90>  PS  </td><td>SIP: Session Initiation Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3262.txt" target="blank">RFC3262</A></td><td width=90>  PS  </td><td>Reliability of Provisional Responses in SIP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3263.txt" target="blank">RFC3263</A></td><td width=90>  PS  </td><td>SIP: Locating SIP Servers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3265.txt" target="blank">RFC3265</A></td><td width=90>  PS  </td><td>SIP-Specific Event Notification </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3310.txt" target="blank">RFC3310</A></td><td width=90>  I   </td><td>Hypertext Transfer Protocol (HTTP) Digest Authentication 
+                       Using Authentication and Key Agreement (AKA) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3311.txt" target="blank">RFC3311</A></td><td width=90>  PS  </td><td>The Session Initiation Protocol UPDATE Method </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3312.txt" target="blank">RFC3312</A></td><td width=90>  PS  </td><td>Integration of Resource Management and SIP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3313.txt" target="blank">RFC3313</A></td><td width=90>  I   </td><td>Private Session Initiation Protocol (SIP)Extensions for 
+                       Media Authorization </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3319.txt" target="blank">RFC3319</A></td><td width=90>  PS  </td><td>Dynamic Host Configuration Protocol (DHCPv6)Options for 
+                       Session Initiation Protocol (SIP) Servers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3323.txt" target="blank">RFC3323</A></td><td width=90>  PS  </td><td>A Privacy Mechanism for the Session Initiation Protocol 
+                       (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3325.txt" target="blank">RFC3325</A></td><td width=90>  I   </td><td>Private Extensions to the Session Initiation Protocol 
+                       (SIP) for Asserted Identity within Trusted Networks </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3326.txt" target="blank">RFC3326</A></td><td width=90>  PS  </td><td>The Reason Header Field for the Session Initiation 
+                       Protocol (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3327.txt" target="blank">RFC3327</A></td><td width=90>  PS  </td><td>Session Initiation Protocol Extension for Registering 
+                       Non-Adjacent Contacts </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3329.txt" target="blank">RFC3329</A></td><td width=90>  PS  </td><td>Security Mechanism Agreement for the Session Initiation 
+                       Protocol (SIP) Sessions </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3361.txt" target="blank">RFC3361</A></td><td width=90>  PS  </td><td>DHCP Option for SIP Servers </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3420.txt" target="blank">RFC3420</A></td><td width=90>  PS  </td><td>Internet Media Type message/sipfrag </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3428.txt" target="blank">RFC3428</A></td><td width=90>  PS  </td><td>Session Initiation Protocol Extension for Instant 
+                       Messaging </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3486.txt" target="blank">RFC3486</A></td><td width=90> Standard </td><td>Compressing the Session Initiation Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3515.txt" target="blank">RFC3515</A></td><td width=90>  PS  </td><td>The Session Initiation Protocol (SIP) Refer Method </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3581.txt" target="blank">RFC3581</A></td><td width=90>  PS  </td><td>An Extension to the Session Initiation Protocol (SIP) 
+                       for Symmetric Response Routing </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3608.txt" target="blank">RFC3608</A></td><td width=90> Standard </td><td>Session Initiation Protocol Extension Header Field for 
+                       Service Route Discovery During Registration </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3840.txt" target="blank">RFC3840</A></td><td width=90> Standard </td><td>Indicating User Agent Capabilities in the Session 
+                       Initiation Protocol (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3841.txt" target="blank">RFC3841</A></td><td width=90> Standard </td><td>Caller Preferences for the Session Initiation Protocol 
+                       (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3853.txt" target="blank">RFC3853</A></td><td width=90> Standard </td><td>S/MIME AES Requirement for SIP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3891.txt" target="blank">RFC3891</A></td><td width=90> Standard </td><td>The Session Inititation Protocol (SIP) 'Replaces' Header </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3892.txt" target="blank">RFC3892</A></td><td width=90> Standard </td><td>The SIP Referred-By Mechanism </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3893.txt" target="blank">RFC3893</A></td><td width=90> Standard </td><td>SIP Authenticated Identity Body (AIB) Format </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3903.txt" target="blank">RFC3903</A></td><td width=90> Standard </td><td>An Event State Publication Extension to the Session 
+                       Initiation Protocol (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3911.txt" target="blank">RFC3911</A></td><td width=90> Standard </td><td>The Session Inititation Protocol (SIP) 'Join' Header </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3968.txt" target="blank">RFC3968</A></td><td width=90> BCP </td><td>The Internet Assigned Number Authority (IANA) Header 
+                       Field Parameter Registry for the Session Initiation 
+                       Protocol (SIP) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3969.txt" target="blank">RFC3969</A></td><td width=90> BCP </td><td>The Internet Assigned Number Authority (IANA) Universal 
+                       Resource Identifier (URI) Parameter Registry for the 
+                       Session Initiation Protocol (SIP) </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/sip-0/sld1.htm" target="blank"">Status and Agenda</a><br>
+<a href="slides/sip-1/sld1.htm" target="blank"">GRUU</a><br>
+<a href="slides/sip-2/sld1.htm" target="blank"">NIT Futures</a><br>
+<a href="slides/sip-3/sld1.htm" target="blank"">REFER Extensions</a><br>
+<a href="slides/sip-4/sld1.htm" target="blank"">Identityt</a><br>
+<a href="slides/sip-5/sld1.htm" target="blank"">Resource priority</a><br>
+<a href="slides/sip-6/sld1.htm" target="blank"">Accept-Disposition</a><br>
+<a href="slides/sip-7/sld1.htm" target="blank"">Application Interaction</a><br>
+<a href="slides/sip-8/sld1.htm" target="blank"">SIP Outbound Connections</a><br>
+<a href="slides/sip-9/sld1.htm" target="blank"">SIP certificate Usage</a><br>
+<a href="slides/sip-10/sld1.htm" target="blank"">End to Middle</a><br>
+<a href="slides/sip-11/sld1.htm" target="blank"">Extension Negotiation</a><br>
+<a href="slides/sip-12/sld1.htm" target="blank"">Retargeting (from SIPPING)</a><br>
+

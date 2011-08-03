@@ -1,0 +1,32 @@
+#!/bin/sh
+
+pcount=`ps -ef | grep amavis | grep -v grep | wc -l`
+if [ $pcount -lt 2 ]
+then
+	rcamavis stop
+	sleep 2
+	rm -f /a/amavis/amavisd.lock /a/amavis/amavisd.pid /a/amavis/amavisd.sock
+	sleep 2
+	rcamavis start
+	date | mail -s AmavisRestartd glen@amsl.com
+fi
+
+pcount=`ps -ef | grep proftp | grep -v grep | wc -l`
+if [ $pcount -lt 1 ]
+then
+	/etc/init.d/proftpd stop
+	sleep 2
+	/etc/init.d/proftpd start
+	date | mail -s ProftpdRestartd glen@amsl.com
+fi
+
+pcount=`ps -ef | grep postconfirmd | grep -v grep | wc -l`
+if [ $pcount -lt 1 ]
+then
+	/etc/init.d/postconfirmd stop 2>/dev/null
+	sleep 2
+	/etc/init.d/postconfirmd start 2>/dev/null
+	date | mail -s PostconfirmdRestartd glen@amsl.com henrik@levkowetz.com
+fi
+
+exit 0

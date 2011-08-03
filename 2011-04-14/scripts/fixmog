@@ -1,0 +1,2 @@
+chown -R wwwrun:www /a/www/ietf-ftp/internet-drafts
+chmod -R a+rw /a/www/ietf-ftp/internet-drafts

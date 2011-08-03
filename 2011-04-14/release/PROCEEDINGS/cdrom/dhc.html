@@ -1,0 +1,220 @@
+<html>
+<title>Dynamic Host Configuration (dhc) Charter</title>
+<body bgcolor="#ffffff"  BACKGROUND="graphics/peachbkg.gif">
+<A HREF='#cmr'><img src='graphics/minutes.gif' border=0></A>
+<A HREF='#slides'><img src='graphics/slides.gif' border=0></A>
+<img src='graphics/ib2.gif' width='100%' height=21><br><br>
+<h3>2.3.3 Dynamic Host Configuration (dhc)</h3>
+<i>NOTE: This charter is a snapshot of the 62nd IETF Meeting in Minneapolis, MN USA. It may now be out-of-date.</i>
+
+<hr>
+In addition to this official charter maintained by the IETF Secretariat, there is additional information about this working group on the Web at:<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href=" http://www.dhcp.org"> Additional DHC Page</a><hr>
+
+<p>Last Modified: 2005-01-20
+
+ <br>
+<h2>Chair(s):</h2>
+<a href="mailto:rdroms@cisco.com"><b>Ralph Droms &lt;rdroms@cisco.com&gt;</b></a><br>
+<a href="mailto:venaas@uninett.no"><b>Stig Venaas &lt;venaas@uninett.no&gt;</b></a><br>
+
+<h2>Internet Area Director(s):</h2>
+<a href="mailto:narten@us.ibm.com"><b>Thomas Narten &lt;narten@us.ibm.com&gt;</b></a><br>
+<a href="mailto:margaret@thingmagic.com"><b>Margaret Wasserman &lt;margaret@thingmagic.com&gt;</b></a><br>
+
+<h2>Internet Area Advisor:</h2>
+<a href="mailto:margaret@thingmagic.com"><b>Margaret Wasserman &lt;margaret@thingmagic.com&gt;</b></a><br>
+
+<h2>Mailing Lists:</h2> 
+General Discussion: dhcwg@ietf.org<br>
+To Subscribe: <a href="http://www1.ietf.org/mailman/listinfo/dhcwg">http://www1.ietf.org/mailman/listinfo/dhcwg</a><br>
+Archive: <a href="http://www.ietf.org/mail-archive/web/dhcwg/index.html">http://www.ietf.org/mail-archive/web/dhcwg/index.html</a><br>
+
+<h2>Description of Working Group:</h2>
+No description available<br><br>
+
+<h2>Goals and Milestones:</h2>
+
+<table>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on DHCP Options for Internet Storage Name Service 
+                (draft-ietf-dhc-isnsoption-03.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on Load Balancing for DHCPv6 
+                (draft-ietf-dhc-dhcpv6-loadb-02.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on Time Configuration Options for DHCPv6 
+                (draft-ietf-dhc-dhcpv6-opt-timeconfig-01.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on IPv6 Prefix Options for DHCPv6 
+                (draft-troan-dhcpv6-opt-prefix-delegation-02.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on DNS Configuration options for DHCPv6 
+                (draft-ietf-dhc-dhcpv6-opt-dnsconfig-01.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>WG Last Call on NIS Configuration Options for DHCPv6 
+                (draft-ietf-dhc-dhcpv6-opt-nisconfig-01.txt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Resubmit draft-ietf-dhc-dhcpv6-28.txt to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Identify DHCPv4 authentication design team </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Identify DHCPv4 specification review design team </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Identify DHCPv4 relay agent message authentication design team </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit DHCP Options for Internet Storage Name Service to IESG 
+                (draft-ietf-dhc-isnsoption) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit DNS Configuration options for DHCPv6 to IESG 
+                (draft-ietf-dhc-dhcpv6-opt-dnsconfig) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit NIS Configuratio Options for DHCPv6 to IESG 
+                (draft-ietf-dhc-dhcpv6-opt-nisconfig) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Done</td><td>&nbsp;&nbsp;</td><td>Submit IPv6 Prefix Options for DHCPv6 to IESG 
+                (draft-troan-dhcpv6-opt-prefix-delegation) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 04</td><td>&nbsp;&nbsp;</td><td>Submit 'Detection of Network Attachment (DNA) in IPv4' to IESG 
+                (draft-ietf-dhc-dna-ipv4) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Jul 04</td><td>&nbsp;&nbsp;</td><td>Resolve IPR issues around 'Rapid Commit Option for DHCPv4' </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Publish report on dual-stack issues in DHCP 
+                (draft-ietf-dhc-dual-stack) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Aug 04</td><td>&nbsp;&nbsp;</td><td>Publish report on requirements for renumbering using stateless 
+                DHCPv6 (draft-ietf-dhc-stateless-dhcpv6-renumbering) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>Submit 'Lifetime Option for DHCPv6' to IESG 
+                (draft-ietf-dhc-lifetime) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>DHCPv4 authentication design team report completed, 'Dynamic 
+                Host Configuration Protocol for IPv4 (DHCPv4) Threat Analysis' </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>DHCPv4 specification review report completed </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>Submit 'DHCP Failover Protocol' to IESG 
+                (draft-ietf-dhc-failover) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Sep 04</td><td>&nbsp;&nbsp;</td><td>Submit 'Rapid Commit Option for DHCPv4' to IESG 
+                (draft-ietf-dhc-rapid-commit-opt) </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 04</td><td>&nbsp;&nbsp;</td><td>Submit DDNS/DHCP documents to IESG </td></tr>
+<tr ALIGN=left VALIGN="top"><td WIDTH=70 VALIGN="top">Dec 04</td><td>&nbsp;&nbsp;</td><td>Submit 'Node-Specific Client Identifiers for DHCPv4' to IESG 
+                (draft-ietf-dhc-3315id-for-v4) </td></tr>
+</table>
+<h2>Internet-Drafts:</h2>
+<li> <a href="IDs/draft-ietf-dhc-server-mib-10.txt" target="blank">draft-ietf-dhc-server-mib-10.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-fqdn-option-10.txt" target="blank">draft-ietf-dhc-fqdn-option-10.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-ddns-resolution-08.txt" target="blank">draft-ietf-dhc-ddns-resolution-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-leasequery-08.txt" target="blank">draft-ietf-dhc-leasequery-08.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-agent-vpn-id-03.txt" target="blank">draft-ietf-dhc-agent-vpn-id-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-vpn-option-04.txt" target="blank">draft-ietf-dhc-vpn-option-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-isnsoption-13.txt" target="blank">draft-ietf-dhc-isnsoption-13.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-auth-suboption-05.txt" target="blank">draft-ietf-dhc-auth-suboption-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-subscriber-id-07.txt" target="blank">draft-ietf-dhc-subscriber-id-07.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-server-override-01.txt" target="blank">draft-ietf-dhc-server-override-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-subnet-alloc-02.txt" target="blank">draft-ietf-dhc-subnet-alloc-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-dna-ipv4-09.txt" target="blank">draft-ietf-dhc-dna-ipv4-09.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-relay-agent-ipsec-01.txt" target="blank">draft-ietf-dhc-relay-agent-ipsec-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-pxe-options-01.txt" target="blank">draft-ietf-dhc-pxe-options-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-3315id-for-v4-04.txt" target="blank">draft-ietf-dhc-3315id-for-v4-04.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-dhcpv6-opt-sntp-01.txt" target="blank">draft-ietf-dhc-dhcpv6-opt-sntp-01.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-rapid-commit-opt-05.txt" target="blank">draft-ietf-dhc-rapid-commit-opt-05.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-proxyserver-opt-02.txt" target="blank">draft-ietf-dhc-proxyserver-opt-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-dual-stack-02.txt" target="blank">draft-ietf-dhc-dual-stack-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-lifetime-03.txt" target="blank">draft-ietf-dhc-lifetime-03.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-stateless-dhcpv6-renumbering-02.txt" target="blank">draft-ietf-dhc-stateless-dhcpv6-renumbering-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-vendor-suboption-00.txt" target="blank">draft-ietf-dhc-vendor-suboption-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-dhcpv6-fqdn-02.txt" target="blank">draft-ietf-dhc-dhcpv6-fqdn-02.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-dhcpv6-clarify-auth-00.txt" target="blank">draft-ietf-dhc-dhcpv6-clarify-auth-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-bcmcv4-option-00.txt" target="blank">draft-ietf-dhc-bcmcv4-option-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-bcmcv6-option-00.txt" target="blank">draft-ietf-dhc-bcmcv6-option-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-soa-option-00.txt" target="blank">draft-ietf-dhc-soa-option-00.txt</a><br>
+<li> <a href="IDs/draft-ietf-dhc-v6-relay-radius-00.txt" target="blank">draft-ietf-dhc-v6-relay-radius-00.txt</a><br>
+<h2>Request For Comments:</h2>
+<table>
+<tr align=left><th>RFC</th><th>Status</th><th>Title</th></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1531.txt" target="blank">RFC1531</A></td><td width=90>  PS  </td><td>Dynamic Host Configuration Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1532.txt" target="blank">RFC1532</A></td><td width=90>  PS  </td><td>Clarifications and Extensions for the Bootstrap Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1533.txt" target="blank">RFC1533</A></td><td width=90>  PS  </td><td>DHCP Options and BOOTP Vendor Extensions </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1534.txt" target="blank">RFC1534</A></td><td width=90>  DS  </td><td>Interoperation Between DHCP and BOOTP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1541.txt" target="blank">RFC1541</A></td><td width=90>  PS  </td><td>Dynamic Host Configuration Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc1542.txt" target="blank">RFC1542</A></td><td width=90>  DS  </td><td>Clarifications and Extensions for the Bootstrap Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2131.txt" target="blank">RFC2131</A></td><td width=90>  DS  </td><td>Dynamic Host Configuration Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2132.txt" target="blank">RFC2132</A></td><td width=90>  DS  </td><td>DHCP Options and BOOTP Vendor Extensions </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2241.txt" target="blank">RFC2241</A></td><td width=90>  PS  </td><td>DHCP Options for Novell Directory Services </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2242.txt" target="blank">RFC2242</A></td><td width=90>  PS  </td><td>Netware/IP Domain Name and Information </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2485.txt" target="blank">RFC2485</A></td><td width=90>  PS  </td><td>DHCP Option for The Open Group's User Authentication 
+                       Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2489.txt" target="blank">RFC2489</A></td><td width=90> BCP </td><td>Procedure for Defining New DHCP Options </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2563.txt" target="blank">RFC2563</A></td><td width=90>  PS  </td><td>DHCP Option to Disable Stateless Auto-Configuration in 
+                       IPv4 Clients </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2610.txt" target="blank">RFC2610</A></td><td width=90>  PS  </td><td>DHCP Options for Service Location Protocol </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2937.txt" target="blank">RFC2937</A></td><td width=90>  PS  </td><td>The Name Service Search Option for DHCP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc2939.txt" target="blank">RFC2939</A></td><td width=90> BCP </td><td>Procedure for Defining New DHCP Options and Message 
+                       Types </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3004.txt" target="blank">RFC3004</A></td><td width=90>  PS  </td><td>The User Class Option for DHCP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3011.txt" target="blank">RFC3011</A></td><td width=90>  PS  </td><td>The Subnet Selection Option for DHCP </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3046.txt" target="blank">RFC3046</A></td><td width=90>  PS  </td><td>DHCP Relay Agent Information Option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3074.txt" target="blank">RFC3074</A></td><td width=90>  PS  </td><td>DHC load balancing algorithm </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3118.txt" target="blank">RFC3118</A></td><td width=90>  PS  </td><td>Authentication for DHCP Messages </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3203.txt" target="blank">RFC3203</A></td><td width=90>  PS  </td><td>DHCP reconfigure extension </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3256.txt" target="blank">RFC3256</A></td><td width=90>  PS  </td><td>The DOCSIS Device Class DHCP Relay Agent Information 
+                       Sub-option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3315.txt" target="blank">RFC3315</A></td><td width=90>  PS  </td><td>Dynamic Host Configuration Protocol for IPv6 (DHCPv6) </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3396.txt" target="blank">RFC3396</A></td><td width=90>  PS  </td><td>Encoding Long Options in DHCPv4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3442.txt" target="blank">RFC3442</A></td><td width=90>  PS  </td><td>The Classless Static Route Option for Dynamic Host 
+                       Configuration Protocol (DHCP) version 4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3495.txt" target="blank">RFC3495</A></td><td width=90>  PS  </td><td>Dynamic Host Configuration Protocol (DHCP) Option for 
+                       CableLabs Client Configuration </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3527.txt" target="blank">RFC3527</A></td><td width=90>  PS  </td><td>Link Selection sub-option for the Relay Agent 
+                       Information Option for DHCPv4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3594.txt" target="blank">RFC3594</A></td><td width=90>  PS  </td><td>PacketCable Security Ticket Control Sub-option for the 
+                       the DHCP CableLabs Client Configuration (CCC)Option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3633.txt" target="blank">RFC3633</A></td><td width=90> Standard </td><td>IPv6 Prefix Options for DHCPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3634.txt" target="blank">RFC3634</A></td><td width=90> Standard </td><td>KDC Server Address Sub-option </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3646.txt" target="blank">RFC3646</A></td><td width=90> Standard </td><td>DNS Configuration Options for DHCPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3679.txt" target="blank">RFC3679</A></td><td width=90>  I   </td><td>Unused DHCP Option Codes </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3736.txt" target="blank">RFC3736</A></td><td width=90> Standard </td><td>Stateless DHCP Service for IPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3898.txt" target="blank">RFC3898</A></td><td width=90> Standard </td><td>NIS Configuration Options for DHCPv6 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3925.txt" target="blank">RFC3925</A></td><td width=90> Standard </td><td>Vendor-Identifying Vendor Options for DHCPv4 </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc3942.txt" target="blank">RFC3942</A></td><td width=90> Standard </td><td>Reclassifying DHCPv4 Options </td></tr>
+
+<tr align=left><td width=90><A HREF="RFCs/rfc4014.txt" target="blank">RFC4014</A></td><td width=90> Standard </td><td>RADIUS Attributes Sub-option for the DHCP Relay Agent 
+                       Information Option </td></tr>
+</table>
+
+<A name="cmr">
+<H4>Current Meeting Report</H4></A>
+
+<table border=1 bordercolor="#0000FF" width=100% ><tr><td bgcolor="#FFFFFF"><!--hcdel-->
+<font color="#000000">
+
+</font></td></tr></table>
+
+<A name="slides">
+<H4>Slides</H4>
+<a href="slides/dhc-0/sld1.htm" target="blank"">Agenda</a><br>
+<a href="slides/dhc-1/sld1.htm" target="blank"">SMTP Option in DHCPv6</a><br>
+<a href="slides/dhc-2.pdf" target="blank"">Source Address Selection Policy option for DHCPv6</a><br>
+<a href="slides/dhc-3.pdf" target="blank"">DHCPv6 Relay Agent RADIUS Attributes Option</a><br>
+<a href="slides/dhc-4/sld1.htm" target="blank"">HCP-based Fast Handover protocol</a><br>
+<a href="slides/dhc-5/sld1.htm" target="blank"">Service-Oriented Address Assignment Using DHCP</a><br>
+<a href="slides/dhc-6/sld1.htm" target="blank"">DNS Zone Suffix Option for DHCPv6</a><br>
+

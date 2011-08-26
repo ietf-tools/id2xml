@@ -138,9 +138,9 @@ returned to the submitter.
 {% endif %}
 
 <table class="metadata-table">
-<tr><th>Document</th><td>{{ detail.filename }} <a class="twopages_trigger" href="#">[View first two pages]</a>
+<tr{% if validation.warnings.document_files %} class="warning"{% endif %}><th>Document</th><td>{{ detail.filename }}  <a class="twopages_trigger" href="#">[View first two pages]</a>
 {% show_submission_files detail %}
-</td></tr>
+<div class="warn_message">{{ validation.warnings.document_files|safe }}</div></td></tr>
 <tr{% if validation.warnings.revision %} class="warning"{% endif %}><th>Revision</th><td>{{ detail.revision }}<div class="warn_message">{{ validation.warnings.revision }}{% if validation.warnings.revision %}<br /><a class="twopages_trigger" href="#">[View error]</a>{% endif %}</div></td></tr>
 <tr><th>Submission date</th><td>{{ detail.submission_date }}</td></tr>
 <tr{% if validation.warnings.title %} class="warning"{% endif %}><th>Title</th><td>{{ detail.id_document_name|default:"" }}<div class="warn_message">{{ validation.warnings.title }}</div></td></tr>

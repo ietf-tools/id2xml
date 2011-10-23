@@ -1,6 +1,0 @@
-This message is to notify you that submission of an Internet-Draft,
-{{submission.filename}}-{{submission.revision}} has just been cancelled by a user whose computer has an
-IP address of {{submission.remote_ip}}.
-
-The IETF Secretariat.
-

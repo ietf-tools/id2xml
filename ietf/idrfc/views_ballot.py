@@ -684,3 +684,29 @@ def make_last_call(request, name):
                                    form=form),
                               context_instance=RequestContext(request))
 
+class MakeClearBallotForm(forms.Form):
+    confirmation = forms.BooleanField(required=True)
+
+@group_required('Secretariat')
+def ballot_clear(request, name):
+    """Clear the ballot for an Internet Draft."""
+    doc = get_object_or_404(InternetDraft, filename=name)
+    if not doc.idinternal:
+        raise Http404()
+
+    login = IESGLogin.objects.get(login_name=request.user.username)
+
+    if request.method == 'POST':
+        form = MakeClearBallotForm(request.POST)
+        if form.is_valid():
+            # code to clear the ballot goes here
+            log_ballot_cleared(request, doc, login)
+            return HttpResponseRedirect(doc.idinternal.get_absolute_url())
+    else:
+        initial = {}
+        form = MakeClearBallotForm(initial=initial)
+
+  
+    return render_to_response('idrfc/clear_ballot.html',
+                              dict(doc=doc, form=form),
+                              context_instance=RequestContext(request))

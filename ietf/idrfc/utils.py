@@ -61,6 +61,28 @@ def log_state_changed(request, doc, by, email_watch_list=True, note=''):
     return change
 
        
+def log_ballot_cleared(request, doc, by, email_watch_list=True, note=''):
+    change = u"Ballot cleared."
+    if note:
+        change += "<br>%s" % note
+
+    c = DocumentComment()
+    c.document = doc.idinternal
+    c.public_flag = True
+    c.version = doc.revision_display()
+    c.comment_text = change
+
+    if isinstance(by, IESGLogin):
+        c.created_by = by
+    c.rfc_flag = doc.idinternal.rfc_flag
+    c.save()
+
+    if email_watch_list:
+        email_state_changed(request, doc, strip_tags(change))
+
+    return change
+
+
 def update_telechat(request, idinternal, new_telechat_date, new_returning_item=None):
     on_agenda = bool(new_telechat_date)
 

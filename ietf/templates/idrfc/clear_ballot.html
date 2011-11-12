@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Clear ballot for {{ doc }}{% endblock %}
+
+{% block content %}
+<h1>Clear ballot for {{ doc }}</h1>
+
+<form action="" method="POST">
+  <p class="ietf-highlight-y">Warning! This action erases the ballot data and cannot be undone. Check the box to confirm you really want to do this.</p>
+
+  <p>{{ form.confirmation }} Clear the ballot for {{ doc.file_tag }}?</p>
+    
+  <div class="actions">
+    <a href="{{ doc.idinternal.get_absolute_url }}">Back</a>
+    <input type="submit" value="Clear ballot"/>
+  </div>
+</form>
+{% endblock %}

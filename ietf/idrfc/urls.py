@@ -61,4 +61,5 @@ urlpatterns = patterns('',
     url(r'^(?P<name>[A-Za-z0-9.-]+)/edit/approvaltext/$', views_ballot.ballot_approvaltext, name='doc_ballot_approvaltext'),
     url(r'^(?P<name>[A-Za-z0-9.-]+)/edit/approveballot/$', views_ballot.approve_ballot, name='doc_approve_ballot'),
     url(r'^(?P<name>[A-Za-z0-9.-]+)/edit/makelastcall/$', views_ballot.make_last_call, name='doc_make_last_call'),
+    url(r'^(?P<name>[A-Za-z0-9.-]+)/edit/clearballot/$', views_ballot.ballot_clear, name='doc_ballot_clear'),
 )

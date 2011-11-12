@@ -291,8 +291,7 @@ def email_iana(request, doc, to, msg):
         send_mail_text(request, "To: IANA <%s>" % to,
                        parsed_msg["From"], parsed_msg["Subject"],
                        parsed_msg.get_payload(),
-                       extra=extra,
-                       bcc="fenner@research.att.com")
+                       extra=extra)
 
 def email_last_call_expired(doc):
     text = "IETF Last Call has ended, and the state has been changed to\n%s." % doc.idinternal.cur_state.state

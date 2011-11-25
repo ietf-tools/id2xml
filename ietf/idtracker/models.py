@@ -9,6 +9,7 @@ from django.db import models
 from ietf.utils import FKAsOneToOne
 from ietf.utils.broken_foreign_key import BrokenForeignKey
 from ietf.utils.cached_lookup_field import CachedLookupField
+from ietf.utils.admin import admin_link
 
 class Acronym(models.Model):
     INDIVIDUAL_SUBMITTER = 1027
@@ -170,20 +171,25 @@ class InternetDraft(models.Model):
     review_by_rfc_editor = models.BooleanField()
     expired_tombstone = models.BooleanField()
     idinternal = FKAsOneToOne('idinternal', reverse=True, query=models.Q(rfc_flag = 0))
+    shepherd = BrokenForeignKey('PersonOrOrgInfo', null=True, blank=True, null_values=(0, ))
     def __str__(self):
         return self.filename
-    def save(self):
+    def save(self, *args, **kwargs):
         self.id_document_key = self.title.upper()
-        super(InternetDraft, self).save()
+        super(InternetDraft, self).save(*args, **kwargs)
     def displayname(self):
         return self.filename
     def file_tag(self):
-        return "<%s-%s.txt>" % (self.filename, self.revision_display())
+        return "<%s>" % (self.filename_with_rev())
+    def filename_with_rev(self):
+        return "%s-%s.txt" % (self.filename, self.revision_display())
     def name(self):
         # small hack to make model forward-compatible with new schema
         return self.filename
     def group_acronym(self):
 	return self.group.acronym
+    def group_ml_archive(self):
+	return self.group.ietfwg.clean_email_archive()
     def idstate(self):
 	idinternal = self.idinternal
 	if idinternal:
@@ -267,12 +273,15 @@ class PersonOrOrgInfo(models.Model):
 	if self.first_name == '' and self.last_name == '':
 	    return u"(Person #%s)" % self.person_or_org_tag
         return u"%s %s" % ( self.first_name or u"<nofirst>", self.last_name or u"<nolast>")
-    def email(self, priority=1):
-	name = unicode(self)
+    def email(self, priority=1, type=None):
+        name = unicode(self)
         email = ''
-        addresses = self.emailaddress_set.filter(address__contains="@").order_by('priority')[:1]
+        addresses = self.emailaddress_set.filter(address__contains="@").order_by('priority')
         if addresses:
-            email = addresses[0].address.replace('<', '').replace('>', '')
+            email = addresses[0].address
+            for a in addresses:
+                if a.priority == priority:
+                    email = a.address
 	return (name, email)
     # Added by Sunny Lee to display person's affiliation - 5/26/2007
     def affiliation(self, priority=1):
@@ -628,11 +637,28 @@ class IDInternal(models.Model):
         self.prev_state = self.cur_state
         self.cur_state = state
         self.prev_sub_state_id = self.cur_sub_state_id
-        self.cur_sub_state = sub_state
-        
+        self.cur_sub_state = sub_state        
     class Meta:
         db_table = 'id_internal'
 	verbose_name = 'IDTracker Draft'
+    def draft_link(self):
+        try:
+            if self.rfc_flag:
+                return '<a href="http://tools.ietf.org/html/rfc%s">rfc%s</a>' % (self.draft.pk, self.draft.pk)
+            else:
+                return '<a href="http://tools.ietf.org/html/%s">%s</a>' % (self.draft.filename, self.draft.filename)
+        except Exception:
+            return ""
+    draft_link.allow_tags = True
+    def tracker_link(self):
+        try:
+            if self.rfc_flag:
+                return '<a href="http://datatracker.ietf.org/doc/rfc%s">rfc%s</a>' % (self.draft.pk, self.draft.pk)
+            else:
+                return '<a href="http://datatracker.ietf.org/doc/%s">%s</a>' % (self.draft.filename, self.draft.filename)
+        except Exception:
+            return ""
+    tracker_link.allow_tags = True
 
 class DocumentComment(models.Model):
     BALLOT_DISCUSS = 1
@@ -684,6 +710,10 @@ class DocumentComment(models.Model):
 	# this is just a straightforward combination, except that the time is
 	# stored incorrectly in the database.
 	return datetime.datetime.combine( self.date, datetime.time( * [int(s) for s in self.time.split(":")] ) )
+    def doc_id(self):
+        return self.document_id
+    def doc_name(self):
+        return self.document.draft.filename
     class Meta:
         db_table = 'document_comments'
         
@@ -705,6 +735,20 @@ class Position(models.Model):
             return 'X'
         else:
             return ' '
+    def name(self):
+      positions = {"yes":"Yes",
+                   "noobj":"No Objection",
+                   "discuss":"Discuss",
+                   "abstain":"Abstain",
+                   "recuse":"Recuse"}
+      p = None
+      for k,v in positions.iteritems():
+          if self.__dict__[k] > 0:
+              p = v
+      if not p:
+          p = "No Record"
+      return p
+
     class Meta:
         db_table = 'ballots'
 	unique_together = (('ballot', 'ad'), )
@@ -805,6 +849,13 @@ class EmailAddress(models.Model):
     comment = models.CharField(blank=True, null=True, max_length=255, db_column='email_comment')
     def __str__(self):
 	return self.address
+    person_link = admin_link('person_or_org')
+    def priority_link(self):
+        if self.type=="I-D":
+            return '<a href="/admin/idtracker/internetdraft/%s/">%s</a>' % (self.priority, self.priority)
+        else:
+            return self.priority
+    priority_link.allow_tags = True
     class Meta:
         db_table = 'email_addresses'
 	#unique_together = (('email_priority', 'person_or_org'), )
@@ -899,7 +950,6 @@ class IETFWG(models.Model):
         except BaseException:    
             desc =  'Error Loading Work Group Description'
         return desc
-
     def additional_urls(self):
         return AreaWGURL.objects.filter(name=self.group_acronym.acronym)        
     def clean_email_archive(self):
@@ -907,6 +957,7 @@ class IETFWG(models.Model):
         # remove "current/" and "maillist.html"
         x = re.sub("^(http://www\.ietf\.org/mail-archive/web/)([^/]+/)(current/)?([a-z]+\.html)?$", "\\1\\2", x)
         return x
+    chairs_link = admin_link('chairs')
     class Meta:
         db_table = 'groups_ietf'
 	ordering = ['?']	# workaround django wanting to sort by acronym but not joining with it
@@ -919,6 +970,8 @@ class WGChair(models.Model):
 	return "%s (%s)" % ( self.person, self.role() )
     def role(self):
 	return "%s %s Chair" % ( self.group_acronym, self.group_acronym.group_type )
+    person_link = admin_link('person')
+    group_link = admin_link('group_acronym')
     class Meta:
         db_table = 'g_chairs'
 	verbose_name = "WG Chair"
@@ -1009,6 +1062,7 @@ class Role(models.Model):
     IAB_EXCUTIVE_DIRECTOR = 4
     IRTF_CHAIR            = 5
     IAD_CHAIR             = 6
+    RSOC_CHAIR            = 7
 
     # This __str__ makes it odd to use as a ForeignKey.
     def __str__(self):
@@ -1042,6 +1096,8 @@ class IRTF(models.Model):
     meeting_scheduled = models.BooleanField(blank=True)
     def __str__(self):
 	return self.acronym
+    def chairs(self): # return a set of IRTFChair objects for this work group
+        return IRTFChair.objects.filter(irtf=self)
     class Meta:
         db_table = 'irtf'
         verbose_name="IRTF Research Group"
@@ -1097,9 +1153,10 @@ if settings.USE_DB_REDESIGN_PROXY_CLASSES:
     AcronymOld = Acronym
     IESGLoginOld = IESGLogin
     IETFWGOld = IETFWG
-    from redesign.doc.proxy import InternetDraft, IDInternal, BallotInfo, Rfc
-    from redesign.name.proxy import IDState, IDSubState
-    from redesign.group.proxy import Area, Acronym, IETFWG
+    IRTFOld = IRTF
+    from redesign.doc.proxy import InternetDraft, IDInternal, BallotInfo, Rfc, IDState
+    from redesign.name.proxy import IDSubState
+    from redesign.group.proxy import Area, Acronym, IETFWG, IRTF
     from redesign.person.proxy import IESGLogin
 
 

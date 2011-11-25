@@ -4,14 +4,14 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.db.models import Q
 
-import datetime, os, shutil, glob, re
+import datetime, os, shutil, glob, re, itertools
 
 from ietf.idtracker.models import InternetDraft, IDDates, IDStatus, IDState, DocumentComment, IDAuthor,WGChair
 from ietf.utils.mail import send_mail, send_mail_subj
 from ietf.idrfc.utils import log_state_changed, add_document_comment
-from doc.models import Document, Event, save_document_in_history
-from name.models import IesgDocStateName, DocStateName, DocInfoTagName
-from person.models import Person, Email
+from redesign.doc.models import Document, DocEvent, save_document_in_history, State
+from redesign.name.models import DocTagName
+from redesign.person.models import Person, Email
 
 INTERNET_DRAFT_DAYS_TO_EXPIRE = 185
 
@@ -36,7 +36,11 @@ def document_expires(doc):
         return None
 
 def expirable_documents():
-    return Document.objects.filter(state="active").exclude(tags="rfc-rev").filter(Q(iesg_state=None) | Q(iesg_state__order__gte=42))
+    d = Document.objects.filter(states__type="draft", states__slug="active").exclude(tags="rfc-rev")
+    # we need to get those that either don't have a state or have a
+    # state >= 42 (AD watching), unfortunately that doesn't appear to
+    # be possible to get to work directly in Django 1.1
+    return itertools.chain(d.exclude(states__type="draft-iesg").distinct(), d.filter(states__type="draft-iesg", states__order__gte=42).distinct())
 
 def get_soon_to_expire_ids(days):
     start_date = datetime.date.today() - datetime.timedelta(InternetDraft.DAYS_TO_EXPIRE - 1)
@@ -104,7 +108,8 @@ def send_expire_warning_for_idREDESIGN(doc):
     if doc.group.type_id != "individ":
         cc = [e.formatted_email() for e in Email.objects.filter(role__group=doc.group, role__name="chair") if not e.address.startswith("unknown-email")]
 
-    state = doc.iesg_state.name if doc.iesg_state else "I-D Exists"
+    s = doc.get_state("draft-iesg")
+    state = s.name if s else "I-D Exists"
         
     frm = None
     request = None
@@ -138,8 +143,9 @@ def send_expire_notice_for_idREDESIGN(doc):
     if not doc.ad:
         return
 
-    state = doc.iesg_state.name if doc.iesg_state else "I-D Exists"
-    
+    s = doc.get_state("draft-iesg")
+    state = s.name if s else "I-D Exists"
+
     request = None
     to = doc.ad.formatted_email()
     send_mail(request, to,
@@ -152,19 +158,20 @@ def send_expire_notice_for_idREDESIGN(doc):
 
 def expire_id(doc):
     def move_file(f):
-        src = os.path.join(settings.INTERNET_DRAFT_PATH, f)
+        src = os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, f)
         dst = os.path.join(settings.INTERNET_DRAFT_ARCHIVE_DIR, f)
 
         if os.path.exists(src):
             shutil.move(src, dst)
 
     move_file("%s-%s.txt" % (doc.filename, doc.revision_display()))
+    move_file("%s-%s.txt.p7s" % (doc.filename, doc.revision_display()))
     move_file("%s-%s.ps" % (doc.filename, doc.revision_display()))
     move_file("%s-%s.pdf" % (doc.filename, doc.revision_display()))
 
     new_revision = "%02d" % (int(doc.revision) + 1)
 
-    new_file = open(os.path.join(settings.INTERNET_DRAFT_PATH, "%s-%s.txt" % (doc.filename, new_revision)), 'w')
+    new_file = open(os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, "%s-%s.txt" % (doc.filename, new_revision)), 'w')
     txt = render_to_string("idrfc/expire_text.txt",
                            dict(doc=doc,
                                 authors=[a.person.email() for a in doc.authors.all()],
@@ -190,20 +197,20 @@ def expire_idREDESIGN(doc):
 
     # clean up files
     def move_file(f):
-        src = os.path.join(settings.INTERNET_DRAFT_PATH, f)
+        src = os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, f)
         dst = os.path.join(settings.INTERNET_DRAFT_ARCHIVE_DIR, f)
 
         if os.path.exists(src):
             shutil.move(src, dst)
 
-    file_types = ['txt', 'ps', 'pdf']
+    file_types = ['txt', 'txt.p7s', 'ps', 'pdf']
     for t in file_types:
         move_file("%s-%s.%s" % (doc.name, doc.rev, t))
 
     # make tombstone
     new_revision = "%02d" % (int(doc.rev) + 1)
 
-    new_file = open(os.path.join(settings.INTERNET_DRAFT_PATH, "%s-%s.txt" % (doc.name, new_revision)), 'w')
+    new_file = open(os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, "%s-%s.txt" % (doc.name, new_revision)), 'w')
     txt = render_to_string("idrfc/expire_textREDESIGN.txt",
                            dict(doc=doc,
                                 authors=[(e.get_name(), e.address) for e in doc.authors.all()],
@@ -215,19 +222,19 @@ def expire_idREDESIGN(doc):
     
     save_document_in_history(doc)
     if doc.latest_event(type='started_iesg_process'):
-        dead_state = IesgDocStateName.objects.get(slug="dead")
-        if doc.iesg_state != dead_state:
-            prev = doc.iesg_state
-            doc.iesg_state = dead_state
+        dead_state = State.objects.get(type="draft-iesg", slug="dead")
+        prev = doc.get_state("draft-iesg")
+        if prev != dead_state:
+            doc.set_state(dead_state)
             log_state_changed(None, doc, system, prev)
 
-        e = Event(doc=doc, by=system)
+        e = DocEvent(doc=doc, by=system)
         e.type = "expired_document"
         e.desc = "Document has expired"
         e.save()
     
     doc.rev = new_revision # FIXME: incrementing the revision like this is messed up
-    doc.state = DocStateName.objects.get(slug="expired")
+    doc.set_state(State.objects.get(type="draft", slug="expired"))
     doc.time = datetime.datetime.now()
     doc.save()
 
@@ -235,12 +242,31 @@ def clean_up_id_files():
     """Move unidentified and old files out of the Internet Draft directory."""
     cut_off = datetime.date.today() - datetime.timedelta(days=InternetDraft.DAYS_TO_EXPIRE)
 
-    pattern = os.path.join(settings.INTERNET_DRAFT_PATH, "draft-*.*")
+    pattern = os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, "draft-*.*")
     files = []
-    filename_re = re.compile('^(.*)-(\d+)$')
+    filename_re = re.compile('^(.*)-(\d\d)$')
+
+    def splitext(fn):
+        """
+        Split the pathname path into a pair (root, ext) such that root + ext
+        == path, and ext is empty or begins with a period and contains all
+        periods in the last path component.
+
+        This differs from os.path.splitext in the number of periods in the ext
+        parts when the final path component containt more than one period.
+        """
+        s = fn.rfind("/")
+        if s == -1:
+            s = 0
+        i = fn[s:].find(".")
+        if i == -1:
+            return fn, ''
+        else:
+            return fn[:s+i], fn[s+i:]
+
     for path in glob.glob(pattern):
         basename = os.path.basename(path)
-        stem, ext = os.path.splitext(basename)
+        stem, ext = splitext(basename)
         match = filename_re.search(stem)
         if not match:
             filename, revision = ("UNKNOWN", "00")
@@ -254,10 +280,12 @@ def clean_up_id_files():
         try:
             doc = InternetDraft.objects.get(filename=filename, revision=revision)
 
-            if doc.status_id == 3:
+            if doc.status_id == 3:      # RFC
                 if ext != ".txt":
                     move_file_to("unknown_ids")
             elif doc.status_id in (2, 4, 5, 6) and doc.expiration_date and doc.expiration_date < cut_off:
+                # Expired, Withdrawn by Auth, Replaced, Withdrawn by IETF,
+                # and expired more than DAYS_TO_EXPIRE ago
                 if os.path.getsize(path) < 1500:
                     move_file_to("deleted_tombstones")
                     # revert version after having deleted tombstone
@@ -274,12 +302,31 @@ def clean_up_id_filesREDESIGN():
     """Move unidentified and old files out of the Internet Draft directory."""
     cut_off = datetime.date.today() - datetime.timedelta(days=INTERNET_DRAFT_DAYS_TO_EXPIRE)
 
-    pattern = os.path.join(settings.INTERNET_DRAFT_PATH, "draft-*.*")
+    pattern = os.path.join(settings.IDSUBMIT_REPOSITORY_PATH, "draft-*.*")
     files = []
-    filename_re = re.compile('^(.*)-(\d+)$')
+    filename_re = re.compile('^(.*)-(\d\d)$')
+    
+    def splitext(fn):
+        """
+        Split the pathname path into a pair (root, ext) such that root + ext
+        == path, and ext is empty or begins with a period and contains all
+        periods in the last path component.
+
+        This differs from os.path.splitext in the number of periods in the ext
+        parts when the final path component containt more than one period.
+        """
+        s = fn.rfind("/")
+        if s == -1:
+            s = 0
+        i = fn[s:].find(".")
+        if i == -1:
+            return fn, ''
+        else:
+            return fn[:s+i], fn[s+i:]
+
     for path in glob.glob(pattern):
         basename = os.path.basename(path)
-        stem, ext = os.path.splitext(basename)
+        stem, ext = splitext(basename)
         match = filename_re.search(stem)
         if not match:
             filename, revision = ("UNKNOWN", "00")
@@ -293,20 +340,22 @@ def clean_up_id_filesREDESIGN():
         try:
             doc = Document.objects.get(name=filename, rev=revision)
 
-            if doc.state_id == "rfc":
+            if doc.get_state_slug() == "rfc":
                 if ext != ".txt":
                     move_file_to("unknown_ids")
-            elif doc.state_id in ("expired", "auth-rm", "repl", "ietf-rm"):
+            elif doc.get_state_slug() in ("expired", "repl", "auth-rm", "ietf-rm"):
                 e = doc.latest_event(type__in=('expired_document', 'new_revision', "completed_resurrect"))
                 expiration_date = e.time.date() if e and e.type == "expired_document" else None
 
                 if expiration_date and expiration_date < cut_off:
+                    # Expired, Withdrawn by Author, Replaced, Withdrawn by IETF,
+                    # and expired more than DAYS_TO_EXPIRE ago
                     if os.path.getsize(path) < 1500:
                         move_file_to("deleted_tombstones")
                         # revert version after having deleted tombstone
                         doc.rev = "%02d" % (int(revision) - 1) # FIXME: messed up
                         doc.save()
-                        doc.tags.add(DocInfoTagName.objects.get(slug='exp-tomb'))
+                        doc.tags.add(DocTagName.objects.get(slug='exp-tomb'))
                     else:
                         move_file_to("expired_without_tombstone")
             

@@ -17,6 +17,16 @@ table#wg-selector { border:1px solid black; border-collapse:collapse; }
 #wg-selector-toggle-text { text-decoration: underline; cursor: pointer; }
 #wg-selector-triangle-right { vertical-align: text-top; }
 #wg-selector-triangle-down { vertical-align: text-top; }
+
+#weekview.hidden { display: none; }
+#weekview { border: none; margin: 0 0 0 0;}
+#ical-link.hidden { display: none; }
+#ical-link { margin: 10px 0 0 0; padding: 10px; text-align: center; background-color: #2647a0; color: #FFFFFF }
+#ical-link A:link { color: #FFFFFF; }
+#ical-link A:visited { color: #FFFFFF; }
+#ical-link A:active { color: #FF00FF; }
+#ical-link A:hover { color: #FF0000; }
+
 img.hidden { display: none; }
 
 .ietf-agenda-palette { border-collapse:collapse; border:2px solid black; background:white; overflow:hidden; }
@@ -56,9 +66,26 @@ img.hidden { display: none; }
     window.setTimeout("setGroupState()",1000);
     if (frag == lastfrag) { return; }
 
+    var weekview = document.getElementById('weekview');
+    var ical_link = document.getElementById('ical-link');
+    var ical_href = document.getElementById('ical-href');
+
     lastfrag = frag;
 
     var fragment = frag.split(',');
+
+    if (frag.length)
+    {
+      weekview.setAttribute("src","week-view.html#"+frag);
+      weekview.className = '';
+      ical_href.setAttribute("href","agenda.ics?"+frag);
+      ical_link.className = '';
+    }
+    else
+    {
+      weekview.className = 'hidden';
+      ical_link.className = 'hidden';
+    }
 
     var selectors = document.getElementsByTagName('div');
     var re = RegExp("^selector-");
@@ -228,6 +255,9 @@ You can customize the agenda below to show only selected working group sessions.
   </tr>
 </table>
 
+<div id="ical-link" class="hidden"><span style="font-size:150%">Week View</span><br/><a id="ical-href" href="agenda.ics"><em>Download as an ical file</em></a></div>
+
+<iframe id="weekview" class="hidden" width="100%" height="600px" src="about:blank"></iframe>
 
 <table id="agenda" width="100%">
 {% for slot in timeslots %}
@@ -260,11 +290,11 @@ You can customize the agenda below to show only selected working group sessions.
 	 <td colspan="4">
 	    <b>{{ slot.time_desc               }}  {{ slot.session_name }}</b>
 	    {% ifequal slot.sessions.0.acronym "plenaryw" %}
-	       <b>- {{ slot.sessions.0.room_id.room_name }}</b><br/>
+	       <b>- <a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{ slot.sessions.0.room_id.room_name|slugify }}">{{ slot.sessions.0.room_id.room_name }}</a></b><br/>
 	       <pre>{{ plenaryw_agenda|escape }}</pre>
 	    {% endifequal %}
 	    {% ifequal slot.sessions.0.acronym "plenaryt" %}
-	       <b>- {{ slot.sessions.0.room_id.room_name }}</b><br/>
+	       <b>- <a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{ slot.sessions.0.room_id.room_name|slugify }}">{{ slot.sessions.0.room_id.room_name }}</a></b><br/>
 	       <pre>{{ plenaryt_agenda|escape }}</pre>
 	    {% endifequal %}
 	 </td>
@@ -277,9 +307,11 @@ You can customize the agenda below to show only selected working group sessions.
 	 <td>{{ session.info.area|upper}}</td>
 	 <td>{% if session.info.isWG %}<a href="/wg/{{ session.info.acronym|lower }}/">{{ session.info.acronym|lower }}</a>{% else %}{{ session.info.acronym|lower }}{% endif %}</td>
 	 <td>
+            <table width="100%"><tr><td>
             <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('{{meeting.num}}-{{slot.meeting_date|date:"D"|lower}}-{{slot.time_desc|slice:":4"}}-{{session.info.area|upper}}-{{session.info.acronym|lower}}',this);" title="color tag this line"/ class="noprint">
 	    {% if session.info.agenda_file %}<a href="http://www.ietf.org/proceedings/{{ session.info.agenda_file }}" title="session agenda">{{ session.info.acronym_name|escape }} {{ session.info.group_type_str }}</a>{% else %}{{ session.info.acronym_name|escape }} {{ session.info.group_type_str }}{% endif %}
 	    {% if session.info.special_agenda_note %}<br/> - {{ session.info.special_agenda_note }}{% endif %}
+           </td><td align="right">drafts:&nbsp;<a href="/meeting/{{ meeting.num }}/agenda/{{session.info.acronym}}-drafts.tgz">tar</a>|<a href="/meeting/{{ meeting.num }}/agenda/{{session.info.acronym}}-drafts.pdf">pdf</a></td></tr></table>
 	 </td>
 	 {% endif %}
       </tr>

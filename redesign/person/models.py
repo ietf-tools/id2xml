@@ -1,53 +1,42 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 
-class Person(models.Model):
-    time = models.DateTimeField(auto_now_add=True)      # When this Person record entered the system
+from redesign.person.name import name_parts
+
+class PersonInfo(models.Model):
+    time = models.DateTimeField(default=datetime.datetime.now)      # When this Person record entered the system
     name = models.CharField(max_length=255, db_index=True) # The normal unicode form of the name.  This must be
                                                         # set to the same value as the ascii-form if equal.
     ascii = models.CharField(max_length=255)            # The normal ascii-form of the name.
     ascii_short = models.CharField(max_length=32, null=True, blank=True)      # The short ascii-form of the name.  Also in alias table if non-null
     address = models.TextField(max_length=255, blank=True)
+    affiliation = models.CharField(max_length=255, blank=True)
 
-    user = models.OneToOneField(User, blank=True, null=True)
-    
     def __unicode__(self):
         return self.name
-    def _parts(self, name):
-        prefix, first, middle, last, suffix = "", "", "", "", ""
-        parts = name.split()
-        if parts[0] in ["Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.", "Miss", "Dr.", "Doctor", "Prof", "Prof.", "Professor", "Sir", "Lady", "Dame", ]:
-            prefix = parts[0];
-            parts = parts[1:]
-        if len(parts) > 2:
-            if parts[-1] in ["Jr", "Jr.", "II", "2nd", "III", "3rd", ]:
-                suffix = parts[-1]
-                parts = parts[:-1]
-        if len(parts) > 2:
-            first = parts[0]
-            last = parts[-1]
-            middle = " ".join(parts[1:-1])
-        elif len(parts) == 2:
-            first, last = parts
-        else:
-            last = parts[0]
-        return prefix, first, middle, last, suffix
     def name_parts(self):
-        return self._parts(self.name)
+        return name_parts(self.name)
     def ascii_parts(self):
-        return self._parts(self.ascii)
+        return name_parts(self.ascii)
     def short(self):
         if self.ascii_short:
             return self.ascii_short
         else:
             prefix, first, middle, last, suffix = self.ascii_parts()
             return (first and first[0]+"." or "")+(middle or "")+" "+last+(suffix and " "+suffix or "")
-    def role_email(self, role_name, group):
-        e = Email.objects.filter(person=self, role__group=group, role__name=role_name)
-        if e:
-            return e[0]
+    def role_email(self, role_name, group=None):
+        if group:
+            e = Email.objects.filter(person=self, role__group=group, role__name=role_name)
+            if e:
+                return e[0]
+        else:
+            e = Email.objects.filter(person=self, role__group__state="active", role__name=role_name)
+            if e:
+                return e[0]
         e = self.email_set.order_by("-active")
         if e:
             return e[0]
@@ -64,12 +53,21 @@ class Person(models.Model):
             return e[0].formatted_email()
         else:
             return ""
-    def person(self): # little temporary wrapper to help porting
-        return self
     def full_name_as_key(self):
         return self.name.lower().replace(" ", ".")
-        
+    class Meta:
+        abstract = True
 
+class Person(PersonInfo):
+    user = models.OneToOneField(User, blank=True, null=True)
+    
+    def person(self): # little temporary wrapper to help porting to new schema
+        return self
+
+class PersonHistory(PersonInfo):
+    person = models.ForeignKey(Person, related_name="history_set")
+    user = models.ForeignKey(User, blank=True, null=True)
+    
 class Alias(models.Model):
     """This is used for alternative forms of a name.  This is the
     primary lookup point for names, and should always contain the

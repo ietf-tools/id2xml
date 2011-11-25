@@ -166,12 +166,14 @@ changes=$( sed -n "/^ietfdb ($VER.*)/,/^ -- /p" changelog | awk '{ if (line) pri
 [ "$changes" ] || die "No changelog information for $VER found"
 note "$changes"
 
+contributors=$(echo "$changes" | sed 's/\.[ \t\n]/ /'| tr -c "a-z0-9.@-" "\n" | sort | uniq | grep '@' || true)
+
 note "Set the current time on the release notes in the changelog file"
 sed -r -i -e "1,/^ -- /s/([A-Za-z-]+ <[a-z0-9.-]+@[a-z0-9.-]+>  ).*$/\1$(date +'%d %b %Y %H:%M:%S %z')/" changelog
 note " $(grep -m1 "^ -- " changelog)"
 
 note "Verifying that version $VER doesn't already exist..."
-svn info $REPO/tags/$VER 2>&1 | grep -q "Not a valid URL" || die "The tag '$VER' already exists (or there was an error testing for it)."
+$do svn info $REPO/tags/$VER 2>&1 | $do grep -q "Not a valid URL" || die "The tag '$VER' already exists (or there was an error testing for it)."
 note "  Ok"
 
 note "Committing the changelog..."
@@ -228,7 +230,7 @@ Regards,
 
 	Henrik
 	(via the mkrelease script)
-" | $do mail -s "New datatracker release: v$VER" -c henrik@levkowetz.com  -c glen@amsl.com -c fenner@fenron.net -c rjs@nostrum.com -c housley@vigilsec.com -c cmorgan@amsl.com -c avezza@amsl.com -c amorris@amsl.com codesprints@ietf.org
+" | $do mail -s "New datatracker release: v$VER" -c henrik@levkowetz.com  -c glen@amsl.com -c fenner@fenron.net -c rjs@nostrum.com -c housley@vigilsec.com -c cmorgan@amsl.com -c avezza@amsl.com -c amorris@amsl.com -c smccammon@amsl.com -c kmoreland@amsl.com -c stevey@amsl.com -c olau@iola.dk $contributors codesprints@ietf.org
 
 $do toolsfeed control changelog /www/tools.ietf.org/tools/atomfeed.xml
 $do toolpush /www/tools.ietf.org/tools/atomfeed.xml

@@ -76,6 +76,7 @@ ADMIN_MEDIA_PREFIX = '/media/'
 
 AUTH_PROFILE_MODULE = 'ietfauth.IetfUserProfile'
 AUTHENTICATION_BACKENDS = ( "ietf.ietfauth.auth.IetfUserBackend", )
+
 SESSION_COOKIE_AGE = 43200 # 12 hours
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -119,13 +120,16 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.admin',
+    'django.contrib.admindocs',
     'django.contrib.humanize',
     'south',
+    'workflows',
+    'permissions',
     'redesign.person',
     'redesign.name',
     'redesign.group',
     'redesign.doc',
-    'redesign.issue',
+#    'redesign.issue',
     'ietf.announcements',
     'ietf.idindex',
     'ietf.idtracker',
@@ -139,6 +143,9 @@ INSTALLED_APPS = (
     'ietf.redirects',
     'ietf.idrfc',
     'ietf.wginfo',
+    'ietf.submit',
+    'ietf.ietfworkflows',
+    'ietf.wgchairs',
     'ietf.community',
 )
 
@@ -163,9 +170,13 @@ SERVER_MODE = 'development'
 # The name of the method to use to invoke the test suite
 TEST_RUNNER = 'ietf.utils.test_runner.run_tests'
 
+# WG Chair configuration
+MAX_WG_DELEGATES = 3
+
 # Override this in settings_local.py if needed
 # *_PATH variables ends with a slash/ .
 INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
+INTERNET_DRAFT_PDF_PATH = '/a/www/ietf-datatracker/pdf/'
 RFC_PATH = '/a/www/ietf-ftp/rfc/'
 AGENDA_PATH = '/a/www/www6s/proceedings/'
 AGENDA_PATH_PATTERN = '/a/www/www6s/proceedings/%(meeting)s/agenda/%(wg)s.%(ext)s'
@@ -177,7 +188,7 @@ IESG_TASK_FILE = '/a/www/www6/iesg/internal/task.txt'
 IESG_ROLL_CALL_FILE = '/a/www/www6/iesg/internal/rollcall.txt'
 IESG_MINUTES_FILE = '/a/www/www6/iesg/internal/minutes.txt'
 IESG_WG_EVALUATION_DIR = "/a/www/www6/iesg/evaluation"
-INTERNET_DRAFT_ARCHIVE_DIR = '/a/www/ietf/DRAFT_ARCHIVE'
+INTERNET_DRAFT_ARCHIVE_DIR = '/a/www/www6s/draft-archive'
 
 # Override this in settings_local.py if needed
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -190,15 +201,48 @@ else:
     CACHE_BACKEND = 'dummy:///'
 
 IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
+DOC_APPROVAL_EMAIL_CC = ["RFC Editor <rfc-editor@rfc-editor.org>", ]
+
+
 
 # Liaison Statement Tool settings
 LIAISON_UNIVERSAL_FROM = 'Liaison Statement Management Tool <lsmt@' + IETF_DOMAIN + '>'
 LIAISON_ATTACH_PATH = '/a/www/ietf-datatracker/documents/LIAISON/'
 LIAISON_ATTACH_URL = '/documents/LIAISON/'
 
-# Registration configuration
+# ID Submission Tool settings
+IDSUBMIT_FROM_EMAIL = 'IETF I-D Submission Tool <idsubmission@ietf.org>'
+IDSUBMIT_TO_EMAIL = 'internet-drafts@ietf.org'
+IDSUBMIT_ANNOUNCE_FROM_EMAIL = 'internet-drafts@ietf.org'
+IDSUBMIT_ANNOUNCE_LIST_EMAIL = 'i-d-announce@ietf.org'
+
+# Days from meeting to cut off dates on submit
+FIRST_CUTOFF_DAYS = 20
+SECOND_CUTOFF_DAYS = 13
+CUTOFF_HOUR = 24                        # midnight UTC
+
+IDSUBMIT_REPOSITORY_PATH = INTERNET_DRAFT_PATH
+IDSUBMIT_STAGING_PATH = '/a/www/www6s/staging/'
+IDSUBMIT_STAGING_URL = 'http://www.ietf.org/staging/'
+IDSUBMIT_IDNITS_BINARY = '/a/www/ietf-datatracker/scripts/idnits'
+
+MAX_PLAIN_DRAFT_SIZE = 6291456  # Max size of the txt draft in bytes
+
+# DOS THRESHOLDS PER DAY (Sizes are in MB)
+MAX_SAME_DRAFT_NAME = 20
+MAX_SAME_DRAFT_NAME_SIZE = 50
+MAX_SAME_SUBMITTER = 50
+MAX_SAME_SUBMITTER_SIZE = 150
+MAX_SAME_WG_DRAFT = 150
+MAX_SAME_WG_DRAFT_SIZE = 450
+MAX_DAILY_SUBMISSION = 1000
+MAX_DAILY_SUBMISSION_SIZE = 2000
+# End of ID Submission Tool settings
+
+# Account settings
 DAYS_TO_EXPIRE_REGISTRATION_LINK = 3
-DAYS_TO_EXPIRE_RECOVER_LINK = 3
+HTPASSWD_COMMAND = "/usr/bin/htpasswd2"
+HTPASSWD_FILE = "/www/htpasswd"
 
 # DB redesign
 USE_DB_REDESIGN_PROXY_CLASSES = True

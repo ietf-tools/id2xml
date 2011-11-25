@@ -1,3 +1,806 @@
+ietfdb (3.64)
+
+  This release contains the features and bugfixes from the IETF-82
+  code sprint.
+
+  From adam@nostrum.com: 
+
+  * Fixed a bug in is_authorized_in_draft_stream: would never return true 
+    for WG chairs.
+
+  From lars.eggert@nokia.com: 
+
+  * Automatically set the recipients of RFC5742 review emails sent by the 
+    IESG based on the RFC Stream. 
+
+  * Fixed a typo. 
+
+  From rjsparks@nostrum.com: 
+
+  * Marked area directors who are not on the current IESG with square 
+    brackets on the discuss summary page.  Fixes bug 666.
+
+  * Changed the AD status page to group documents by current state.
+    Fixes bug 742.
+
+  * Changed the edit info form to allow (force) setting the stream when 
+    editing or adding a document to the iesg tracker.  Fixes bug 743.
+
+  From henrik@levkowetz.com:
+
+  * Added a colour indication to the Area/WG overview page showing 
+    responsible AD for each WG.  Also some html reformatting for better 
+    readability.
+
+  * Be more specific about the submission startup time on meeting Monday.  
+    Indicate time and timezone for more cases on the submission form.
+
+  * Various fixes to test fixtures and admin pages.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  16 Nov 2011 07:08:11 +0100
+
+ietfdb (3.63)
+
+  This is a feature release which adds support for Alternate Stream draft
+  tracking, similar to the WG Chair draft tracking.  Some bug fixes have
+  also been included.
+
+  From esanchez@yaco.es:
+
+  * Merged /branch/yaco/wgchairs.r3120:r3154-3558 from esanchez@yaco.es.  
+    This adds support for alternate streams document tracking, similar to the 
+    WG chairs tracking functionality.
+
+  * Merged /branch/yaco/wgchairs.r3120/static/media:r3152-3153.  Do not 
+    show the draft addoption form when editing stream. See #671.
+
+  * Merged /branch/yaco/wgchairs.r3120/static/media:r3122-3152.  Do no try 
+    to create an already existing model. See #671.
+
+  From henrik@levkowetz.com:  
+
+  * Improved handling of a particular IO Error that sometimes occur during 
+    draft submission.
+
+  * Removed some of the bling and unnecessary information from the document 
+    WG state display.
+
+  * Aligned the workflow admin display lists with the current model fields.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  03 Nov 2011 13:50:14 +0100
+
+ietfdb (3.62)
+
+  This is a minor bugfix release in preparation for merging in the Alternate
+  Streams draft tracker enhancements.
+
+  * Fixed a problem where server IO failures could be silently discarded
+    resulting in an ID submission upload being quietly ignored, returning
+    the upload form anew.
+
+  * Changed to a more helpful text on the 500 server error page.
+
+  * Tweaked various submission cutoff message strings.  Also made the cut-off
+    messages use the actual hour defined in settings, rather than a hardcoded
+    string saying '5 PM (PT)' ...
+
+  * Cleaned up the display of 'Sign In' and version number when rendering the 
+    base template without context (which is the case for the 500 server error 
+    template).
+
+  * Fixed a wrong settings variable (introduced when merging code from the 
+    yaco idsubmit branch for v3.61).  Refine the error report for failures to 
+    move files from staging to repository.
+
+  * Refined the admin list page for submission details a bit.
+
+  * Change the 'Sign In' link to be https, preventing clear-text passwords
+    over the wire (given the current use of basic http auth, rather than
+    diget auth, on the web server).
+
+  * Added a 'Report a bug' link in the lefthand column, below the version
+    indication.
+
+  * The cutoff hour setting is in UTC, not PST or PDT.  Adjusted 
+    accordingly in the settings file.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  26 Oct 2011 15:55:18 +0200
+
+ietfdb (3.61)
+
+  From esanchez@yaco.es: 
+
+  * Check for missed files on staging area. Fixes #707 
+
+  * Validate title extraction. Fixes #706 
+
+  From henrik@levkowetz.com:
+
+  * Improved extraction of draft title during submission.
+
+  * Fixed a problem where the scan for an author's email address was
+    prematurely terminated because another author's affiliation also was part
+    of this author's address information.
+
+  * Changed the length of the username field from 30 to 64 characters,
+    to avoid datatracker login problems for people with long email
+    addresses.
+
+  * Speeded up things and increased reliability during submission author
+    information extraction by looking for a recognizable author's address
+    section, and not searching for author names earlier in the document if
+    found.  Fixes a known bad case where the author name occurred in the
+    middle of a draft.
+
+  * Added handling for the case where an author name is followed by 
+    parentheses which are not closed on the same line.
+
+  * Added some columns to the admin interface for WgProceedingsActivities.
+    Fixed breakage in the feeds code caused by table entries for this model
+    containing meeting FKs which don't have an associated meeting entry.  The
+    base problem of broken table entries remain, though.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  19 Oct 2011 15:46:27 +0200
+
+ietfdb (3.60)
+
+  * Added basic automated apache password management functionality.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  26 Aug 2011 21:43:47 +0200
+
+ietfdb (3.59)
+
+  * Merged [3331] from rjsparks@nostrum.com: 
+    Make it more likely that one will issue a ballot when it makes sense 
+    to do so.  Fixes bug 703. 
+  * From smccammon@amsl.com:
+    Updated field help for liaison statements, to match the current form.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  19 Aug 2011 00:11:00 +0200
+
+ietfdb (3.58)
+
+  * Merged [3272] from rjsparks@nostrum.com:
+    Fixed errors with the edit state link, the new ability to set an initial
+    state when adding a document, the status date on the edit state form, and
+    brought several tests up to date.  Fixes issues 695, 696, 697, and 698.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  12 Aug 2011 22:42:14 +0200
+
+ietfdb (3.57)
+
+  * Merged [3254] from suresh.krishnan@ericsson.com: 
+    Added a link to the ARO search including the IESG lists 
+
+  * Merged [3249] from suresh.krishnan@ericsson.com: 
+    Allowing adding documents in AD is watching state in addition to the 
+    default Publication Requested state. Fixes issue #684 
+
+  * Merged [3245] from rjsparks@nostrum.com: 
+    Removes the "Change State" button and makes changing state a link 
+    further up on the form.  This fixes bug 683, but creates a new one that
+    we will need to address later - editing the state of an RFC that is going
+    through the iesg process again (for going to draft in place for example)
+    will need followup once the changes to get an rfc into that state easily
+    are made.
+
+  * Merged [3246] from adam@nostrum.com: 
+    Adding page to allow viewing meeting slot requests as they are made. 
+    There's no link to these yet. 
+
+  * Merged [3240] from adam@nostrum.com: 
+    Added csv output format for meeting agenda information, to assist
+    external applications (e.g., Android app, iPhone app) in harvesting
+    and displaying meeting agenda info. 
+
+  * Merged [3182] from adam@nostrum.com: 
+    Fix for bug 677 -- no longer assume that code sprint will always be 
+    scheduled. 
+
+  * Merged [3181] from adam@nostrum.com: 
+    Fix for bug 676 
+
+  * Merged [3166] from rjsparks@nostrum.com: 
+    Simple changes to EditInfoForm field initialization 
+
+  * Various bugfixes and admin enhancements from henrik@levkowetz.com:
+    - Some enhancements to the admin for IDInternal
+    - Fix a bug where the wrong text was shown for IPR declarations which 
+      specified that licensing terms would be announced later (option d).
+    - Fix a bug where the plenary entries in the html agenda didn't have 
+      links to the room map.
+    - Enhance the admin list page for Stream a bit.
+    - Add some debug output utility functions.
+    - Tweak the admin list for WgMeetingSession to show wg acronym instead of 
+      group id.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  27 Jul 2011 23:13:30 +0200
+
+ietfdb (3.56)
+
+  This is a minor release with various bugfixes and minor admin enhancements.
+  The most long-term noticable enhancement is added support for app- and
+  module-specific admin email addresses which will receive stack traces on
+  uncaught exceptions.
+
+  Details:
+
+  * Change the cutoff-settings to match what's desired.  Move CUTOFF_HOUR 
+    to settings.  Change the submission page template to not show the form 
+    during the down period.
+
+  * Set up app-specific email addresses so the respective developers will 
+    be notified about failures in code they have worked with.  Make django
+    pick up app- and module-specific admin email addresses for stack trace
+    messages.
+
+  * Make admin form lists work a bit better with non-ascii content in 
+    non-unicode tables.
+
+  * Admin support for StreamedID, so one can look at it.
+
+  * Get person info without limiting hits to iesglogins.  WG Chairs will have 
+    logins but not IESG logins ...
+
+  * Tweak ipr search to only look for IPRs in the appropriate state.
+
+  * Tweak PersonOrOrgName.email() to handle non-ascii names a bit better.
+
+  * Don't let the linewrapping algorithm churn infinitely.
+
+  * Some IPR admin tweaks.  Provide a __unicode__ method and show a contact 
+    even if multiple have been set for an IPR declaration.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  23 Jul 2011 15:27:36 +0200
+
+ietfdb (3.55)
+
+  This release adds the wgchair tracker functionality, and also contains
+  some bugfixes.
+
+  Feature:
+
+  * Merged in branch branch/yaco/wgchairs from esanchez@yaco.es.  This 
+    provides the WG Chair Tracker functionality.
+
+  Fixes:
+
+  * Changed the default initial state for a WG document to 'WG Document', 
+    instead of 'Call for Adoption ...'.
+
+  * Labelled the link to edit a document's WG state 'Change WG State', in 
+    order to not confuse it with changing the IESG state.
+
+  * Reordered the state information for a document into related groups, 
+    separated by rulers.  Add some indentation to the template code to make it 
+    a bit easier to read in some places.
+
+  * Made the WG a draft belongs to into a link to the WG page.
+
+  * Corrected an inappropriate use of the idsubmission repository location 
+    instead of the ID repository.  Reported by Robert Sparks.
+
+  * Correct the text (add an omitted word 'press').  Reported by Tomas Narten.
+
+  * Fixed a problem with author extraction when a given name is the same as 
+    the surname.
+
+  * Only try to return a shepherd for a document if one has been assigned 
+    to the document.
+
+  * Merged in changes from esanchez@yaco.es, changeset [3067].  Makes 
+    Liaisons' Date field editable.
+
+  * Added a bit of admin goodness for MeetingSessions.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  24 May 2011 22:58:44 +0200
+
+ietfdb (3.54)
+
+  From rjsparks@nostrum.com:
+
+  * Restructured the position editing page to better integrate the defer button.
+    Fixes bug #659
+
+  * Copied the jquery-1.5.1.min.js library into /static/js/lib (from
+    /static/js) because that's where the main document template was looking for
+    it. There have probably been several problems since the change that left
+    this dangling that showed up as things not behaving, but not as errors. The
+    one that clued me in was the discuss text-box not being hidden when the
+    position wasn't DISCUSS.  They should all behave better now.
+
+  * Added a django form validator to the discuss text field to not allow
+    actions when the position is Discuss, but the discuss-text is empty.  2 and
+    3 together fix bug #660
+
+  * Added logic to the undefer fuction to put the document back on the
+    previous telechat (if that hasn't already passed). That is, date1 from
+    telechat dates, and not date2.  Fixes bug #661
+
+  * Changed the last_call_announcement generation function's template to
+    include the abstracts from the document sets (which with modern usage means
+    the abstract of the document) reflecting the IESGs decision of a few months
+    back.  Fixes bug #662
+
+  * Removed the old tracker link from the document's main page. Fixes bug #663 
+
+  From henrik@levkowetz.com:
+
+  * Handle email recipient lists which contain 'None' elements correctly.
+    Fixes an instance of failure to send notifications about a submitted
+    draft where an author email address was missing.
+
+  * Add an admin interface to the I-D submission app, to make it easier to
+    handle manual tasks related to submissions.
+
+  * Add the submission hash to initial-revision-approval emails to WG chairs,
+    so their approvals will take effect.  Fixes a problem where WG Chair
+    approvals of WG draft submissions didn't take effect
+
+  * Apply 'autoescape off' to all email templates which don'have it but 
+    might need it, to avoid html entity escapes in emails.  Fixes another
+    set of instances where this potentially could occur.
+
+  * We cannot currently assume that BallotInfo entries matching 
+    IDInternal.ballot exists. It seems ballot may be set to a value before the 
+    actual ballot entry is created, possibly by some old secretariat tool. Very 
+    broken, but we need to survive it :-(  Fixes a crash in the admin
+    interface.
+
+  * Reordered entries of submission forms and notification emails to be
+    more appropriate.
+
+  * Changed wrapping of formatted text to expand tabs during text wrapping, in
+    order to get consistent indentation handling.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  10 May 2011 14:57:09 +0200
+
+ietfdb (3.53)
+
+  From esanches@yaco.es:
+
+  * Do not allow cancellation of submissions with GET requests, and Ensure
+    that 'get full url', 'approve' and 'force' views are called via POST
+    request. Insert a button to perform the last step of autopost via POST
+    request. Fixes #650  
+
+  * Do not assume that the two_pages_field field is not None. Fixes #651
+
+  * Allow creation dates that are 3 days after or 3 days before the current
+    date. Fixes #652
+
+  * Change substate from Revised ID Needed to AD Followup if needed. Fixes #654
+
+  * Fix expected revision for expired drafts. Fixes #656
+
+  * Send announcements when posting new version of a draft. Fixes #649
+
+  From henrik@levkowetz.com:
+
+  * Previous IPR information in last call announcements could be 
+    incomplete.  Use a better search for IPR declarations related to a 
+    document, and include the IPR information in the last call preview.
+    Fixes an AD request and a request from the IESG
+
+  * When extracting meta-information from drafts, it is required that some 
+    data reside on the first page.  Split unpaginated drafts into chunks so we 
+    can adhere better to this.  Fixes a bug where submission filename was
+    picked up (incorrectly) later in a document.
+
+  * Wrap long lines in the 'save and send email' view of AD ballot comments 
+    and discusses.  Fixes a request from the IESG
+
+  * Give development and test deployment a /robots.txt which doesn't permit 
+    robots.  Avoids indexing of development servers by web spiders.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  04 May 2011 00:37:33 +0200
+
+ietfdb (3.52)
+
+  * A very small bugfix release, providing the ability for secretariat staff
+    to post liaisons on behalf of others, and when doing so assuming the
+    powers of the liaison manager they are posting for.  This contains the
+    changes that should have been part of 3.51, but wasn't...
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  18 Apr 2011 12:27:29 +0200
+
+ietfdb (3.51)
+
+  * A very small bugfix release, providing the ability for secretariat staff
+    to post liaisons on behalf of others, and when doing so assuming the
+    powers of the liaison manager they are posting for.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  13 Apr 2011 16:20:21 +0200
+
+ietfdb (3.50)
+
+  * For this release, the idsubmit port from esanchez@yaco.es has been merged
+    in, which constitute substantial added functionality.  This integrates the
+    draft upload functionality with the python/django datatracker; it improves
+    draft submission handling and security, and fixes problems with database
+    breakage and inconsistency caused by the old implementation.  With this also
+    comes a major improvement of author extraction from draft text, provided by
+    the ietf/utils/draft.py module from henrik@levkowetz.com.
+
+  * Deployment note:  Once the new release has been placed in its deployment
+    directory, and the correct settings_local.py has been copied in, a command
+    needs to be run in order to update the database tables to work with the new
+    code.  In the directory containing the ietf/ directory, run this command:
+
+        $ PYTHONPATH=$PWD ietf/manage.py migrate
+
+    The output should be as follows:
+
+	Running migrations for liaisons:
+	- Nothing to migrate.
+	Running migrations for submit:
+	 - Migrating forwards to 0003_add_extra_name_fields.
+	 > submit: 0001_initial
+	 > submit: 0002_add_submission_hash
+	 > submit: 0003_add_extra_name_fields
+	 - Loading initial data for submit.
+
+    Once this is done, the regular deployment routine should be continued.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  12 Apr 2011 18:23:44 +0200
+
+ietfdb (3.16)
+
+  This is a minor bugfix release.
+
+  * Merged in [3029] from esanchez@yaco.es.  Make the Cc: field of new 
+    liaisons editable.
+
+  * Set the 'person' field of the LegacyLiaisonUser in the admin interface 
+    to be handled as a raw id field with search button, rather than as a choice 
+    list.  This should make admin updates involving the LegacyLiaisonUser table
+    much speedier.
+
+  * Added a new fix for empty query strings to /meeting/agenda/agenda.ics.  
+    (The QUERY_STRING in request.META is not set the same way under the builtin
+    server as under Apache; under apache there will be a QUERY_STRING entry wich
+    is explicitly Null.  Handles this.)
+
+  * Included a javascript change not previsously merged in from branch/yaco/liaison/.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  07 Apr 2011 17:15:41 +0200
+
+ietfdb (3.15)
+
+  This is a minor bugfix release.
+
+  * Fix the weekday-dependent plenary information in the materials list.
+
+  * In urls under /wg/, only accept wgnames which adhere to the constraints
+    currently practiced.  (Before this change, the URL patterns would match wg
+    names containing non-ascii characters, which later would bomb due to mix of
+    collations when accessing the database. Might as well return a 404 at once
+    instead).
+
+  * Don't return 500 if the /meeting/agenda/agenda.ics URL is without query part.
+
+  * Get rid of a print statement used during testing.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  06 Apr 2011 15:17:11 +0200
+
+ietfdb (3.14)
+
+  * From lars.eggert@nokia.com: 
+    Update jQuery to 1.5.1 and jQuery UI to 1.8.11.
+
+  * From adam@nostrum.com: 
+    On the agenda page, for the custom agenda display, now only displays groups
+    that are actually meeting.
+
+  * From lars.eggert@nokia.com: 
+    Remove unused images. Convert GIFs to smaller PNGs.
+    Optimize all images with http://www.smushit.com/ysmush.it/ 
+
+  * From lars.eggert@nokia.com: 
+    Change default vertical alignment of various datatracker tables
+    for better readability.
+
+  * From peter.musgrave@magorcorp.com: 
+    Fix typo. Fixes #566.
+
+  * From jelte@nlnetlabs.nl: 
+    Make search result table headers clickable; clicking will sort on said 
+    column, fixes #484.
+
+  * From peter.musgrave@magorcorp.com: 
+    Don't show AD/Secretariat links for Last Call etc. if they will 404.
+    Fixes #550.
+
+  * From adam@nostrum.com: 
+    Meeting boxes now expand to reveal all text when users hover over them.
+    Fixes ticket #602. 
+
+  * From kivinen@iki.fi: 
+    Added an URL to retrieve a text/plain version of the list of drafts for
+    a given WG.  Useful for building WG-speific ePub documents of a WG's
+    drafts.
+
+  * From shane@time-travellers.org:
+    Updated the JavaScript associated with the search page to 
+    control whether the 'search' button is enabled or not. It is
+    now enabled if either the main search box has input, or if
+    any of the sub-options have input, or both.
+
+  * From rjsparks@nostrum.com: 
+    Adds a view of documents currently in IETF Last Call.  Fixes #630.
+
+  * From bmheight@gmail.com:
+    Remove explicit URLs in the code, using reverse() and the newly created
+    helper function reverse_lazy().  Fixes #628.
+
+  * From rjsparks@nostrum.com: 
+    Changed the way ballot discuss/comment texts are displayed to
+    put the text from current ADs first, and mark ex-ADs with []
+    following the convention on the left bar.  This fixes issue #608 
+
+  * From adam@nostrum.com: 
+    Added ical-format agenda.  Fixes issue #601.
+
+  * From peter.musgrave@magorcorp.com: 
+    Add IPR column to IESG Telechat Agenda.  Fixes issue #552.
+
+  * From rjsparks@nostrum.com: 
+    Add a defer/undefer button to the edit_position dialog.  Fixes issue #627.
+
+  * From kivinen@iki.fi: 
+    Changed cookie settings to be valid for 10 years, they used to be valid
+    until the end of session.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  28 Mar 2011 19:43:25 +0200
+
+ietfdb (3.13)
+
+  * Provide a full URL to IPR issues in the last call email, rather than just
+    the local url path.  Fixes an issue reported by Russ.
+
+  * Tweak the admin interface for WGs and Chairs, adding some useful links 
+    to the tabular displays.
+
+  * Add refinements for the liaison admin interface.  Show contact link and 
+    coloured Login/User links to show broken entries.
+
+  * Wrap the sdo name query in a try clause to avoid server 500 errors.
+
+  * Only try to populate the liaison user/email list from the from_entity 
+    if it's set.
+
+  * Make the document announcement default Cc: somewhat configurable.  
+    Remove iab@iab.org (on request).
+
+  * Link to the State help page from the 'State:' label.
+
+  * Don't use '&lt;' and '&gt;' in text/plain email text.
+
+  * Don't permit just any characters in the document name; limit this to 
+    characters we currently permit in the names, or which has occurred in 
+    posted documents.  Fixes a problem where non-ascii characters were 
+    propagated to the database search and caused collation sequence exceptions, 
+    instead of giving 404 errors.
+
+  * Remove the To/From/Subject headers from extra headers to prevent 
+    duplicate headers.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  26 Mar 2011 09:27:14 +0100
+
+ietfdb (3.12)
+
+  Note: Deploying this release requires a database schema update, see below.
+
+  From esanches@yaco.es:
+
+  * Allow an SDO Liason Manager to send outgoing liaison from any IETF
+    Entity to his SDO.
+
+  * Allow the secretariat to send liaisons on behalf of another user.
+
+  * On login, retrieve the person record related to the login from the 
+    legacy tables of non IESG logins. Provides the link between login name
+    and person listed in the liaison manager table.  Fixes #576.
+
+  * Refined handling of the To: and From: address lists when the Liaison
+    Manager is also a WG Chair or AD.
+
+  From henrik@levkowetz.com:
+
+  * Add a clean_whitespace filter in some places to get rid of any newlines 
+    embedded in document titles.  Fixes a problem with bad email headers
+    in announcements related to documents with newlines embedded in the title.
+
+  * Don't try to send out mail which has no recipients.  Fixes a crash when
+    trying to send announcements related to drafts which have an empty
+    'email notes to' field.
+
+  * Fix typo in method calls to send email, fixes a crash when submitting
+    liaison statements.
+
+  * Renamed 'LiaisonDetail.taken_care' field to 'action_taken'.  
+    Miscellaneous associated fixes.  Enhanced liaison-related admin pages.
+
+  Note: Deploying this release requires an additional steps to create
+    a new column in a table.  This is done as a South migration
+    (see http://south.aeracode.org/ for more info on South):
+
+    # 8<----------
+    # First the regular checkout and prepare:
+
+       cd /a/www/ietf-datatracker
+       svn co http://svn.tools.ietf.org/svn/tools/ietfdb/tags/3.12
+       cp web/ietf/settings_local.py 3.12/ietf/
+       cd 3.12
+
+    # Next, apply the migrations:
+ 
+       PYTHONPATH=$PWD ietf/manage.py migrate liaisons
+
+    # Then carry on with the usual actions:
+
+       cd ../
+       rm ./web; ln -s 3.12 web
+       sudo /etc/init.d/apache restart
+
+    # 8<----------
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  02 Feb 2011 18:34:58 +0100
+
+ietfdb (3.11)
+
+  * Fixed a bug in the IPR Search, where searches against the IPR notice
+    content would fail (Only try to open a legacy url if it leads to a
+    file; not if it leads to a directory).
+
+  * For a new IESG tracker document, only add a history comment about
+    previous history if some previous history exists (i.e., if the replaced 
+    document also existed in the IESG tracker).
+
+  * Show status of Dead Expired documents appropriately; just 'Expired' is 
+    insufficient.
+
+  * Restore, for the secretariat only, the re-scheduling functionality of 
+    the /iesg/agenda/documents/ page which was removed in [2366] as the ADs 
+    felt that it made the page too busy.
+
+  * Propagate all extra fields on to the final email sending function, not 
+    only the Cc and Bcc fields.  Restores previously missing Reply-To: headers.
+
+  * Turn autoescaping off for everything in text/plain email templates.  Fixes
+    multiple problems with '<' and '>' in emails showing up as '&lt;' and
+    '&gt;', and related problems.
+
+  * The liaison tool is deployed.  Show the links to the new tool.
+
+  * Prevent things from crashing if some of the email fields are null for a 
+    liaison.
+
+  * It should be possible to edit the area of a draft even if it's been set 
+    before.  Re-enabled the area list box on the document/edit/info/ page.
+
+  * Corrected spelling error in list_display specification for the 
+    PersonOrOrgInfo Admin page.
+
+  * Corrected the path to the draft archive in the settings file.
+
+    (Some of the fixes above has been deployed already before this release
+    by patching the previous release on the server.)
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  28 Jan 2011 13:15:40 +0100
+
+ietfdb (3.10)
+
+  * Fix css for IPR header (status column was included by mistake).  Fixes 
+    issue #546.
+
+  * Tweak some GUI strings in the Liaison Manager
+
+  From adam@nostrum.com: 
+
+  * Added week-at-a-time view to agenda page when viewing selected areas 
+    and/or groups. If no groups are selected, the week view is hidden, leaving the
+    base-level functionality unchanged. 
+
+  From peter.musgrave@magorcorp.com: 
+
+  * 548# Link in IPR column should use an absolute, not relative URL.  This 
+    fixes issue #546.
+
+  From kivinen@iki.fi: 
+
+  * Added new setting to the /cookies page which enables always showing
+    full document text instead of showing beginning of the document. This 
+    fixes issue #551.
+
+  From rjsparks@nostrum.com: 
+
+  * Refined the email sent when an position changes.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  07 Dec 2010 21:39:17 +0100
+
+ietfdb (3.09)
+
+  From suresh.krishnan@ericsson.com: 
+
+  * Added the last call e-mail event to the draft history page. 
+
+  * Added a search function for drafts on their respective mailing lists.
+    Fixes issue #458.
+
+  From adam@nostrum.com: 
+
+  * Added tarfile and pdf-composite links and functionality to download
+    working group documents from the agenda page. Fixes #539
+
+  From peter.musgrave@magorcorp.com: 
+
+  * Added column 'IPR' to documnet table for WG docs and by AD docs, and also
+    in search results. Fixes issue #497.
+
+  From kivinen@iki.fi: 
+
+  * Make the idea of what is 'soon' and 'new' in the I-D and RFC lists
+    configurable.
+
+  From lars.eggert@nokia.com: 
+
+  * Fix for #467: History tab: Avoid HTTP/HTTPS warning for the diff tool form
+    submission.
+
+  * Fix for #456: Make it possible for an IESG member to add a comment (for
+    the document history) in the 'change document state' dialog
+
+  * Fix for #537: Remove redundant "by" info from doc history text.
+
+  * Fix for #525. Adds more information to the document history tab,
+    specifically changes to writeup, announcement and last-call text.
+
+  * Fix for #372. Makes the position editing form display the name of the
+    document being edited.
+
+  * Fix for #526 and #530: Change the format of the notification email sent
+    out when an AD posts a ballot position on a draft, it by default CCs that
+    email to the authors and chairs, and adds some explanatory text to the body
+    of those messages. 
+
+  From rjsparks@nostrum.com: 
+
+  * Changed the language used in the last call email to be closer to the
+    language the tracker uses when no IPR declarations are found directly on the
+    draft. Fixes #506
+
+  * Retained search results on login. Fixes #482.
+
+  * Added filename to the subject of Protocol Action and Document Action email
+    messages (and fixed a bug that was preventing CC/BCC from being honored).
+    Fixes issue #528.
+
+  From fenner@fenron.net: 
+
+  * Split the /doc/ tabs into separate pages. This fixes #533. (Eventually,
+    this will use <link rel=prefetch> to ask the tabs to be prefetched when the
+    first tab is loaded, as documented at
+    https://developer.mozilla.org/en/Link_prefetching_FAQ, but as there is some
+    issues with this which haven't been fully resolved, the prefetch part is not
+    part of this release.)
+
+  * Fill in the X-IETF-IDTracker header with the I-D Tracker version number.
+    This fixes #513
+
+  * Added support for admin site documentation 
+
+  From henrik@levkowetz.com:
+
+  * Updated IESG Agenda Section 3.3 title
+
+  * Added fix for announcement email multipart bug, in part contributed
+    by glen@amsl.com and tony@att.com.
+
+  * Other minor fixes
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  09 Nov 2010 10:42:13 +0100
+
 ietfdb (3.08)
 
   From olau@iola.dk:

@@ -1,5 +1,6 @@
 #coding: utf-8
 from django import template
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.util import unquote
 from django.core.exceptions import PermissionDenied
@@ -13,44 +14,49 @@ from django.utils.translation import ugettext as _
 
 from ietf.liaisons.models import (FromBodies, LiaisonDetail, LiaisonPurpose,
                                   SDOs, LiaisonManagers, SDOAuthorizedIndividual)
+from ietf.ietfauth.models import LegacyWgPassword, LegacyLiaisonUser
 
 
 class FromBodiesAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['body_name', 'contact_link', 'other_sdo']
+if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
+    admin.site.register(FromBodies, FromBodiesAdmin)
 
 
 class LiaisonDetailAdmin(admin.ModelAdmin):
+    list_display = ['detail_id', 'title', 'legacy_from_body', 'to_body', 'submitted_date', 'purpose', 'related_to']
     ordering = ('title', )
-    fields = ('title', 'body','submitted_date', 'last_modified_date', 'to_email', 'cc1', 'cc2', 'to_poc',
-              'response_contact', 'technical_contact', 'purpose', 'purpose_text', 'deadline_date', 'taken_care',
-              'related_to')
-    raw_id_fields=['related_to']
+#     fields = ('title', 'body','submitted_date', 'last_modified_date', 'to_email', 'cc1', 'cc2', 'to_poc',
+#               'response_contact', 'technical_contact', 'purpose', 'purpose_text', 'deadline_date', 'action_taken',
+#               'related_to')
+    raw_id_fields=['person', 'related_to']
+if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
+    admin.site.register(LiaisonDetail, LiaisonDetailAdmin)
 
 class LiaisonPurposeAdmin(admin.ModelAdmin):
     ordering = ('purpose_text', )
+if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
+    admin.site.register(LiaisonPurpose, LiaisonPurposeAdmin)
+
+
+class LiaisonManagersAdmin(admin.ModelAdmin):
+    list_display = ['id', '__unicode__', 'person_link', 'user_name', 'groups', 'sdo_link', ]
+    ordering = ('person__first_name', 'person__last_name' )
+#    fields = ('person', 'sdo')
+    raw_id_fields=['person']
+admin.site.register(LiaisonManagers, LiaisonManagersAdmin)
 
 
 class LiaisonManagersInline(admin.TabularInline):
     model = LiaisonManagers
     raw_id_fields=['person']
 
-
 class SDOAuthorizedIndividualInline(admin.TabularInline):
     model = SDOAuthorizedIndividual
     raw_id_fields=['person']
 
-
-class LiaisonManagersAdmin(admin.ModelAdmin):
-    ordering = ('person__first_name', 'person__last_name' )
-    fields = ('person', 'sdo')
-    raw_id_fields=['person']
-
-
-class SDOAuthorizedIndividualAdmin(admin.ModelAdmin):
-    raw_id_fields=['person']
-
-
 class SDOsAdmin(admin.ModelAdmin):
+    list_display = ['sdo_id', 'sdo_name', 'liaisonmanager_link', 'sdo_contact_link']
     inlines = [LiaisonManagersInline, SDOAuthorizedIndividualInline]
 
     def get_urls(self):
@@ -113,11 +119,31 @@ class SDOsAdmin(admin.ModelAdmin):
             raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
 
         return self.send_reminder(request, sdo=obj)
-
-
-#admin.site.register(FromBodies, FromBodiesAdmin)
-admin.site.register(LiaisonDetail, LiaisonDetailAdmin)
-admin.site.register(LiaisonPurpose, LiaisonPurposeAdmin)
 admin.site.register(SDOs, SDOsAdmin)
-admin.site.register(LiaisonManagers, LiaisonManagersAdmin)
+
+
+class SDOAuthorizedIndividualAdmin(admin.ModelAdmin):
+    list_display = ['id', 'person_link', 'user_name', 'groups', 'sdo_link']
+    raw_id_fields=['person']
 admin.site.register(SDOAuthorizedIndividual, SDOAuthorizedIndividualAdmin)
+
+
+class LegacyWgPasswordAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'person_link', 'login_name', ]
+admin.site.register(LegacyWgPassword, LegacyWgPasswordAdmin)
+
+
+class LegacyLiaisonUserAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'person_link', 'login_name', 'user_level', 'comment', ]
+    raw_id_fields = [ 'person', ]
+admin.site.register(LegacyLiaisonUser, LegacyLiaisonUserAdmin)
+
+class LiaisonStatementAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title', 'from_name', 'to_name', 'submitted', 'purpose', 'related_to']
+    list_display_links = ['id', 'title']
+    ordering = ('title', )
+    raw_id_fields = ('from_contact', 'related_to', 'from_group', 'to_group', 'attachments')
+if settings.USE_DB_REDESIGN_PROXY_CLASSES:
+    from ietf.liaisons.models import LiaisonStatement
+    admin.site.register(LiaisonStatement, LiaisonStatementAdmin)
+

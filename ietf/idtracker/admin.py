@@ -34,12 +34,15 @@ class ChairsHistoryAdmin(admin.ModelAdmin):
 admin.site.register(ChairsHistory, ChairsHistoryAdmin)
 
 class DocumentCommentAdmin(admin.ModelAdmin):
-    list_display=('document', 'date', 'time', 'comment_text')
+    ordering=['-date']
+    list_display=('doc_name', 'doc_id', 'date', 'time', 'comment_text')
+    search_fields = ['document__draft__filename', ]
 admin.site.register(DocumentComment, DocumentCommentAdmin)
 
 class EmailAddressAdmin(admin.ModelAdmin):
-    list_display=('person_or_org', 'address', 'type', 'priority')
+    list_display=('id', 'person_link', 'address', 'type', 'priority_link')
     search_fields=['address']
+    raw_id_fields=['person_or_org', ]
 admin.site.register(EmailAddress, EmailAddressAdmin)
 
 class GoalMilestoneAdmin(admin.ModelAdmin):
@@ -55,7 +58,7 @@ admin.site.register(IDIntendedStatus, IDIntendedStatusAdmin)
 if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
     class IDInternalAdmin(admin.ModelAdmin):
         ordering=['draft']
-        list_display=['draft', 'token_email', 'note']
+        list_display=['pk', 'rfc_flag', 'token_email', 'note', 'tracker_link', 'draft_link']
         search_fields=['draft__filename']
         raw_id_fields=['draft','ballot']
     admin.site.register(IDInternal, IDInternalAdmin)
@@ -92,11 +95,15 @@ if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
     admin.site.register(IESGLogin, IESGLoginAdmin)
 
 class IETFWGAdmin(admin.ModelAdmin):
-    list_display=('group_acronym', 'group_type', 'status', 'area_acronym', 'start_date', 'concluded_date')
+    list_display=('group_acronym', 'group_type', 'status', 'area_acronym', 'start_date', 'concluded_date', 'chairs_link')
     search_fields=['group_acronym__acronym', 'group_acronym__name']
     list_filter=['status', 'group_type']
 if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
     admin.site.register(IETFWG, IETFWGAdmin)
+
+class WGChairAdmin(admin.ModelAdmin):
+    list_display = ('person_link', 'group_link')
+admin.site.register(WGChair, WGChairAdmin)
 
 class IRTFAdmin(admin.ModelAdmin):
     pass
@@ -111,6 +118,7 @@ if not settings.USE_DB_REDESIGN_PROXY_CLASSES:
     admin.site.register(InternetDraft, InternetDraftAdmin)
 
 class PersonOrOrgInfoAdmin(admin.ModelAdmin):
+    list_display = ['person_or_org_tag', 'last_name', 'first_name', ]
     fieldsets=((None, {'fields': (('first_name', 'middle_initial', 'last_name'), ('name_suffix', 'modified_by'))}), ('Obsolete Info', {'fields': ('record_type', 'created_by', 'address_type'), 'classes': 'collapse'}))
     search_fields=['first_name', 'last_name']
 admin.site.register(PersonOrOrgInfo, PersonOrOrgInfoAdmin)
@@ -139,7 +147,8 @@ class RfcStatusAdmin(admin.ModelAdmin):
 admin.site.register(RfcStatus, RfcStatusAdmin)
 
 class RoleAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["person", "role_name", ]
+    raw_id_fields = ["person", ]
 admin.site.register(Role, RoleAdmin)
 
 class WGStatusAdmin(admin.ModelAdmin):

@@ -5,6 +5,7 @@ from django.conf import settings
 #from django import newforms as forms
 from ietf.idtracker.views import InternetDraft
 from ietf.idtracker.models import Rfc
+from ietf.utils.lazy import reverse_lazy
 
 # ------------------------------------------------------------------------
 # Models
@@ -114,17 +115,22 @@ class IprDetail(models.Model):
 
     def __str__(self):
 	return self.title
+    def __unicode__(self):
+        return self.title.decode("latin-1", 'replace')
     def docs(self):
         if settings.USE_DB_REDESIGN_PROXY_CLASSES:
             return list(IprDraftProxy.objects.filter(ipr=self))
         return list(self.drafts.all()) + list(self.rfcs.all())
+    @models.permalink
     def get_absolute_url(self):
-        return "/ipr/%d/" % self.ipr_id
+        return ('ietf.ipr.views.show', [str(self.ipr_id)])
     def get_submitter(self):
 	try:
 	    return self.contact.get(contact_type=3)
 	except IprContact.DoesNotExist:
 	    return None
+        except IprContact.MultipleObjectsReturned:
+            return self.contact.filter(contact_type=3)[0]
     class Meta:
         db_table = 'ipr_detail'
 
@@ -197,15 +203,19 @@ if settings.USE_DB_REDESIGN_PROXY_CLASSES or hasattr(settings, "IMPORTING_IPR"):
         rev = models.CharField(max_length=2, blank=True)
         def __unicode__(self):
             if self.rev:
-                return u"%s which applies to %s-%s" % (self.ipr, self.document, self.revision)
+                return u"%s which applies to %s-%s" % (self.ipr, self.doc_alias.name, self.rev)
             else:
-                return u"%s which applies to %s" % (self.ipr, self.document)
+                return u"%s which applies to %s" % (self.ipr, self.doc_alias.name)
 
     # proxy stuff
     IprDraftOld = IprDraft
     IprRfcOld = IprRfc
+
+    from redesign.proxy_utils import TranslatingManager
     
     class IprDraftProxy(IprDocAlias):
+        objects = TranslatingManager(dict(document="doc_alias__name"))
+                                          
         # document = models.ForeignKey(InternetDraft, db_column='id_document_tag', "ipr")
         # document = models.ForeignKey(Rfc, db_column='rfc_number', related_name="ipr")
         @property
@@ -222,7 +232,26 @@ if settings.USE_DB_REDESIGN_PROXY_CLASSES or hasattr(settings, "IMPORTING_IPR"):
             proxy = True
 
     IprDraft = IprDraftProxy
-    IprRfc = IprDraftProxy
+
+    class IprRfcProxy(IprDocAlias):
+        objects = TranslatingManager(dict(document=lambda v: ("doc_alias__name", "rfc%s" % v)))
+                                          
+        # document = models.ForeignKey(InternetDraft, db_column='id_document_tag', "ipr")
+        # document = models.ForeignKey(Rfc, db_column='rfc_number', related_name="ipr")
+        @property
+        def document(self):
+            from redesign.doc.proxy import DraftLikeDocAlias
+            return DraftLikeDocAlias.objects.get(pk=self.doc_alias_id)
+        
+        #revision = models.CharField(max_length=2)
+        @property
+        def revision(self):
+            return self.rev
+        
+        class Meta:
+            proxy = True
+
+    IprRfc = IprRfcProxy
                 
 
 

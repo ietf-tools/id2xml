@@ -168,7 +168,7 @@ def get_stream_mapping():
     return {
         "Legacy": name(DocStreamName, "legacy", "Legacy"),
         "IETF": name(DocStreamName, "ietf", "IETF"),
-        "INDEPENDENT": name(DocStreamName, "indie", "Independent Submission"),
+        "INDEPENDENT": name(DocStreamName, "ise", "ISE", desc="Independent submission editor stream"),
         "IAB": name(DocStreamName, "iab", "IAB"),
         "IRTF": name(DocStreamName, "irtf", "IRTF"),
     }
@@ -178,16 +178,16 @@ import django.db.transaction
 
 @django.db.transaction.commit_on_success
 def insert_to_databaseREDESIGN(data):
-    from person.models import Person
-    from doc.models import Document, DocAlias, Event, RelatedDocument
-    from group.models import Group
-    from name.models import DocInfoTagName, DocRelationshipName
-    from name.utils import name
+    from redesign.person.models import Person
+    from redesign.doc.models import Document, DocAlias, DocEvent, RelatedDocument, State
+    from redesign.group.models import Group
+    from redesign.name.models import DocTagName, DocRelationshipName
+    from redesign.name.utils import name
     
     system = Person.objects.get(name="(System)")
     std_level_mapping = get_std_level_mapping()
     stream_mapping = get_stream_mapping()
-    tag_has_errata = name(DocInfoTagName, 'errata', "Has errata")
+    tag_has_errata = name(DocTagName, 'errata', "Has errata")
     relationship_obsoletes = name(DocRelationshipName, "obs", "Obsoletes")
     relationship_updates = name(DocRelationshipName, "updates", "Updates")
 
@@ -242,8 +242,8 @@ def insert_to_databaseREDESIGN(data):
             doc.std_level = std_level_mapping[current_status]
             changed = True
 
-        if doc.state_id != "rfc":
-            doc.state_id = "rfc"
+        if doc.get_state_slug() != "rfc":
+            doc.set_state(State.objects.filter(type="draft", slug="rfc"))
             changed = True
 
         if doc.stream != stream_mapping[stream]:
@@ -256,7 +256,7 @@ def insert_to_databaseREDESIGN(data):
 
         pubdate = datetime.strptime(rfc_published_date, "%Y-%m-%d")
         if not doc.latest_event(type="published_rfc", time=pubdate):
-            e = Event(doc=doc, type="published_rfc")
+            e = DocEvent(doc=doc, type="published_rfc")
             e.time = pubdate
             e.by = system
             e.desc = "RFC published"

@@ -60,11 +60,13 @@ IETF.user_groups = { {% for group in user.groups.all %}"{{group}}":true{% if not
 <img src="/images/ietflogo-blue-small.png" width="60" height="34" style="vertical-align:middle;padding-left:8px;" alt=""/><span style="padding-left:15px;font-weight:bold;letter-spacing:0.1em;">datatracker.ietf.org {% if server_mode %}{% ifnotequal server_mode "production" %} - {{ server_mode|upper}} MODE{% endifnotequal %}{% endif %}</span>
 </div>
 
+{% if user %}
 <div id="ietf-login" class="noprint">{% if user.is_authenticated %}
 {{ user }}
 {% else %}
-<a href="/accounts/login/?next={{request.path|urlencode}}" rel="nofollow">Sign In</a>
+<a href="https://datatracker.ietf.org/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">Sign In</a>
 {% endif %}</div>
+{% endif %}
 
 <table style="margin-left:8px;margin-top:8px;" width="98%;">
 <tr valign="top">
@@ -72,8 +74,12 @@ IETF.user_groups = { {% for group in user.groups.all %}"{{group}}":true{% if not
 <div class="ietf-navbar">
 {% include "base_leftmenu.html" %}
 </div>
-<div style="padding-left: 12px;padding-top:4px;font-size:69%;">
+<div style="width: 100%; text-align: center; padding-top:4px;font-size:69%;">
+{% if version_num %}
 Version {{ version_num }}, {{revision_date}}
+<br/>
+{% endif %}
+<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
 </div>
 </td>
 <td>
@@ -82,7 +88,7 @@ Version {{ version_num }}, {{revision_date}}
 {% block content %}
 {% endblock %}
 
-<script type="text/javascript" src="/js/lib/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/js/lib/jquery-1.5.1.min.js"></script>
 <script type="text/javascript" src="/js/yui/yui-20100305.js"></script> 
 <script type="text/javascript">
 //<![CDATA[

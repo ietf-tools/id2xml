@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Change position for {{ ad }}{% endblock %}
+{% block title %}Change position for {{ ad }} on {{ doc }}{% endblock %}
 
 {% block morecss %}
 form.position-form .position ul {
@@ -29,18 +29,31 @@ form.position-form .comment-text {
 {% endblock %}
 
 {% block content %}
-<h1>Change position for {{ ad }}</h1>
+<h1>Change position for {{ ad }} on {{ doc }}</h1>
+
+    {% if ballot.was_deferred %}
+      <div style="margin-top:8px; margin-bottom:8px;">Ballot deferred by {{ ballot.deferred_by }} on {{ ballot.deferred_date }}.</div>
+    {% endif %}
 
 <form class="position-form" action="" method="POST">
-  <div class="position">{{ form.position }}</div>
+
+<div>
+  <span class="position">{{ form.position }}</span>
+  <span class="actions">
+    <input type="submit" name="send_mail" value="Save and send email"/>
+    <input type="submit" value="Save"/>
+    {% if ballot.was_deferred %}<input type="submit" name="Undefer" value="Undefer"/>{% else %}<input type="submit" name="Defer" value="Defer"/>{% endif %}
+  </span>
+</div>
 
   <div style="clear:left"></div>
-  
+
   <div class="discuss-widgets">
   <div class="discuss-text">
     {{ form.discuss_text.label_tag }}:
     {% if discuss %}<span class="last-edited">(last edited {{ discuss.date }})</span>{% endif %}
   </div>
+  {{ form.discuss_text.errors }}
   {{ form.discuss_text }}
   </div>
   
@@ -52,12 +65,10 @@ form.position-form .comment-text {
 
   <div class="actions">
     <a href="{{ return_to_url }}">Back</a>
-    <input type="submit" name="send_mail" value="Save and send email"/>
-    <input type="submit" value="Save"/>
   </div>
-  
-  {{ form.return_to_url }}
 
+   {{ form.return_to_url }}
+  
 </form>
 {% endblock %}
 

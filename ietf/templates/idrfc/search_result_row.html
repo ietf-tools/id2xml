@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <td class="title">{{ doc.title }}</td>
 {% include "idrfc/date_column.html" %}
 {% include "idrfc/status_columns.html" %}
+{% include "idrfc/ipr_column.html" %}
 {# <td class="ad">{% if doc.ad_name %}{{ doc.ad_name }}{% else %}&nbsp;{% endif %}</td> #}
 <td class="ad">{{ doc.ad_name|default:"" }}</td>
+
 </tr>

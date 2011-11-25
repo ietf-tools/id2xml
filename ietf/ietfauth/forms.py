@@ -1,12 +1,11 @@
-import subprocess
 import datetime
 import hashlib
+import subprocess
 
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.utils.translation import ugettext, ugettext_lazy as _
 
 from ietf.utils.mail import send_mail
 from redesign.person.models import Person, Email
@@ -24,7 +23,7 @@ class RegistrationForm(forms.Form):
 
     def send_email(self):
         domain = Site.objects.get_current().domain
-        subject = ugettext(u'Confirm registration at %s') % domain
+        subject = 'Confirm registration at %s' % domain
         from_email = settings.DEFAULT_FROM_EMAIL
         to_email = self.cleaned_data['email']
         today = datetime.date.today().strftime('%Y%m%d')
@@ -44,7 +43,7 @@ class RegistrationForm(forms.Form):
         if not email:
             return email
         if User.objects.filter(username=email).count():
-            raise forms.ValidationError(_('Email already in use'))
+            raise forms.ValidationError('Email already in use')
         return email
 
 
@@ -54,18 +53,19 @@ class RecoverPasswordForm(RegistrationForm):
 
     def send_email(self):
         domain = Site.objects.get_current().domain
-        subject = 'Password recovery at %s' % domain
+        subject = 'Password reset at %s' % domain
         from_email = settings.DEFAULT_FROM_EMAIL
         today = datetime.date.today().strftime('%Y%m%d')
-        to_email = self.cleaned_data["email"]
+        to_email = self.cleaned_data['email']
         auth = hashlib.md5('%s%s%s%s' % (settings.SECRET_KEY, today, to_email, self.realm)).hexdigest()
-        context = {'domain': domain,
-                   'today': today,
-                   'realm': self.realm,
-                   'auth': auth,
-                   'username': to_email,
-                   'expire': settings.DAYS_TO_EXPIRE_REGISTRATION_LINK,
-                  }
+        context = {
+            'domain': domain,
+            'today': today,
+            'realm': self.realm,
+            'auth': auth,
+            'username': to_email,
+            'expire': settings.DAYS_TO_EXPIRE_REGISTRATION_LINK,
+        }
         send_mail(None, to_email, from_email, subject, 'registration/password_reset_email.txt', context)
 
     def clean_email(self):
@@ -75,9 +75,9 @@ class RecoverPasswordForm(RegistrationForm):
 
 class PasswordForm(forms.Form):
 
-    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("Password confirmation"), widget=forms.PasswordInput,
-        help_text=_("Enter the same password as above, for verification."))
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Password confirmation", widget=forms.PasswordInput,
+        help_text="Enter the same password as above, for verification.")
     realm = 'IETF'
 
     def __init__(self, *args, **kwargs):
@@ -89,7 +89,7 @@ class PasswordForm(forms.Form):
         password1 = self.cleaned_data.get("password1", "")
         password2 = self.cleaned_data["password2"]
         if password1 != password2:
-            raise forms.ValidationError(_("The two password fields didn't match."))
+            raise forms.ValidationError("The two password fields didn't match.")
         return password2
 
     def get_password(self):
@@ -109,7 +109,7 @@ class PasswordForm(forms.Form):
         return User.objects.get(username=self.username)
 
     def save_password_file(self):
-        if settings.USE_PYTHON_HTDIGEST:
+        if getattr(settings, 'USE_PYTHON_HTDIGEST', None):
             pass_file = settings.HTPASSWD_FILE
             realm = settings.HTDIGEST_REALM
             password = self.get_password()

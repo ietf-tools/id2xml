@@ -18,6 +18,7 @@ from ietf.announcements.sitemaps import NOMCOMAnnouncementsMap
 from django.conf import settings
 
 admin.autodiscover()
+admin.site.disable_action('delete_selected')
 
 feeds = {
     'iesg-agenda': IESGAgenda,
@@ -58,9 +59,13 @@ urlpatterns = patterns('',
     (r'^accounts/', include('ietf.ietfauth.urls')),
     (r'^doc/', include('ietf.idrfc.urls')),
     (r'^wg/', include('ietf.wginfo.urls')),
+    (r'^cookies/', include('ietf.cookies.urls')),
+    (r'^submit/', include('ietf.submit.urls')),
+    (r'^streams/', include('ietf.ietfworkflows.urls')),
     (r'^community/', include('ietf.community.urls')),
 
     (r'^$', 'ietf.idrfc.views.main'),
+    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     ('^admin/', include(admin.site.urls)),
 
     # Google webmaster tools verification url
@@ -70,5 +75,6 @@ urlpatterns = patterns('',
 if settings.SERVER_MODE in ('development', 'test'):
     urlpatterns += patterns('',
         (r'^(?P<path>(?:images|css|js)/.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+        (r'^(?P<path>robots\.txt)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
         (r'^_test500/$', lambda x: None),
 	)

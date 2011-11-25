@@ -213,8 +213,13 @@ def canonicalize_sitemap(s):
         
 def login_testing_unauthorized(tc, remote_user, url):
     r = tc.client.get(url)
-    tc.assertEquals(r.status_code, 302)
-    tc.assertTrue("/accounts/login" in r['Location'])
+    tc.assertTrue(r.status_code in (302, 403))
+    if r.status_code == 302:
+        tc.assertTrue("/accounts/login" in r['Location'])
 
     tc.client.login(remote_user=remote_user)
     
+class ReverseLazyTest(TestCase):
+    def test_redirect_with_lazy_reverse(self):
+        response = self.client.get('/ipr/update/')
+        self.assertRedirects(response, "/ipr/", status_code=301)

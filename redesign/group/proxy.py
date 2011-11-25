@@ -1,4 +1,4 @@
-from redesign.proxy_utils import TranslatingManager
+from redesign.proxy_utils import TranslatingManager, proxy_role_email
 
 from models import *
 
@@ -17,7 +17,7 @@ class Acronym(Group):
     #acronym_id = models.AutoField(primary_key=True)
     @property
     def acronym_id(self):
-        raise NotImplemented
+        return self.id
     #acronym = models.CharField(max_length=12) # same name
     #name = models.CharField(max_length=100) # same name
     #name_key = models.CharField(max_length=50, editable=False)
@@ -25,16 +25,25 @@ class Acronym(Group):
     def name_key(self):
         return self.name.upper()
 
+    @property
+    def ietfwg(self):
+        return IETFWG().from_object(self)
+    
     def __str__(self):
         return self.acronym
 
     def __unicode__(self):
         return self.acronym
-    
+
     class Meta:
         proxy = True
 
 class Area(Group):
+    objects = TranslatingManager(dict(area_acronym__acronym="acronym",
+                                      area_acronym__name="name",
+                                      status=lambda v: ("state", {1: "active", 2: "dormant", 3: "conclude"}[v] )),
+                                 always_filter=dict(type="area"))
+    
     def from_object(self, base):
         for f in base._meta.fields:
             setattr(self, f.name, getattr(base, f.name))
@@ -63,6 +72,10 @@ class Area(Group):
     #    return AreaWGURL.objects.filter(name=self.area_acronym.name)
     def active_wgs(self):
         return IETFWG.objects.filter(type="wg", state="active", parent=self).select_related('type', 'state', 'parent').order_by("acronym")
+
+    @property
+    def areadirector_set(self):
+        return proxied_role_emails(Email.objects.filter(role__group=self, role__name="ad"))
     
     @staticmethod
     def active_areas():
@@ -78,12 +91,14 @@ class Area(Group):
 
 def proxied_role_emails(emails):
     for e in emails:
-        e.person.email = { 1: e }
+        proxy_role_email(e)
     return emails
 
 class IETFWG(Group):
     objects = TranslatingManager(dict(group_acronym="id",
                                       group_acronym__acronym="acronym",
+                                      group_acronym__acronym__in="acronym__in",
+                                      group_acronym__acronym__contains="acronym__contains",
                                       email_archive__startswith="list_archive__startswith",
                                       group_type=lambda v: ("type", { 1: "wg" }[int(v)]),
                                       status=lambda v: ("state", { 1: "active" }[int(v)]),
@@ -91,6 +106,11 @@ class IETFWG(Group):
                                       start_date__isnull=lambda v: None if v else ("groupevent__type", "started")
                                       ),
                                  always_filter=dict(type__in=("wg", "individ")))
+
+    def from_object(self, base):
+        for f in base._meta.fields:
+            setattr(self, f.name, getattr(base, f.name))
+        return self
 
     ACTIVE=1
     #group_acronym = models.OneToOneField(Acronym, primary_key=True, editable=False)
@@ -114,6 +134,11 @@ class IETFWG(Group):
         return { "active": 1, "dormant": 2, "conclude": 3 }[self.state_id]
     #area_director = models.ForeignKey(AreaDirector, null=True)
     #meeting_scheduled = models.CharField(blank=True, max_length=3)
+    @property
+    def meeting_scheduled(self):
+        from meeting.models import Meeting
+        latest_meeting = Meeting.objects.order_by('-date')[0]
+        return "YES" if self.session_set.filter(meeting=latest_meeting) else "NO"
     #email_address = models.CharField(blank=True, max_length=60)
     @property
     def email_address(self):
@@ -152,7 +177,7 @@ class IETFWG(Group):
 
     def active_drafts(self):
         from redesign.doc.proxy import InternetDraft
-	return InternetDraft.objects.filter(group=self, state="active")
+	return InternetDraft.objects.filter(group=self, states__type="draft", states__slug="active")
     # def choices():
     #     return [(wg.group_acronym_id, wg.group_acronym.acronym) for wg in IETFWG.objects.all().filter(group_type__type='WG').select_related().order_by('acronym.acronym')]
     # choices = staticmethod(choices)
@@ -188,12 +213,36 @@ class IETFWG(Group):
         return self.groupurl_set.all().order_by("name")
     def clean_email_archive(self):
         return self.list_archive
+    @property
     def wgchair_set(self):
         # gross hack ...
         class Dummy: pass
         d = Dummy()
-        d.all = self.chairs()
+        d.all = self.chairs
         return d
+    @property
+    def wgdelegate_set(self):
+        from ietf.wgchairs.models import WGDelegate
+        return WGDelegate.objects.filter(group=self, name="delegate")
     
+    class Meta:
+        proxy = True
+
+class IRTF(Group):
+    objects = TranslatingManager(dict(),
+                                 always_filter=dict(type="rg"))
+
+    #irtf_id = models.AutoField(primary_key=True)
+    @property
+    def irtf_id(self):
+        return self.pk
+    #acronym = models.CharField(blank=True, max_length=25, db_column='irtf_acronym') # same name
+    #name = models.CharField(blank=True, max_length=255, db_column='irtf_name') # same name
+    #charter_text = models.TextField(blank=True,null=True)
+    #meeting_scheduled = models.BooleanField(blank=True)
+    def __str__(self):
+	return self.acronym
+    #def chairs(self): # return a set of IRTFChair objects for this work group
+    #    return IRTFChair.objects.filter(irtf=self)
     class Meta:
         proxy = True

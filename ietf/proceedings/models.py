@@ -1,7 +1,9 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
+from django.conf import settings
 from ietf.idtracker.models import Acronym, PersonOrOrgInfo, IRTF, AreaGroup, Area, IETFWG
+from ietf.utils.broken_foreign_key import BrokenForeignKey
 import datetime
 #from ietf.utils import log
 
@@ -141,13 +143,30 @@ class Meeting(models.Model):
     overview1 = models.TextField(blank=True)
     overview2 = models.TextField(blank=True)
     def __str__(self):
-	return "IETF %s" % (self.meeting_num)
+	return "IETF-%s" % (self.meeting_num)
     def get_meeting_date (self,offset):
         return self.start_date + datetime.timedelta(days=offset) 
     def num(self):
         return self.meeting_num
     class Meta:
         db_table = 'meetings'
+
+    @classmethod
+    def get_first_cut_off(cls):
+        start_date = cls.objects.all().order_by('-start_date')[0].start_date
+        offset = datetime.timedelta(days=settings.FIRST_CUTOFF_DAYS)
+        return start_date - offset
+
+    @classmethod
+    def get_second_cut_off(cls):
+        start_date = cls.objects.all().order_by('-start_date')[0].start_date
+        offset = datetime.timedelta(days=settings.SECOND_CUTOFF_DAYS)
+        return start_date - offset
+
+    @classmethod
+    def get_ietf_monday(cls):
+        start_date = cls.objects.all().order_by('-start_date')[0].start_date
+        return start_date + datetime.timedelta(days=-start_date.weekday(), weeks=1)
 
 class MeetingVenue(models.Model):
     meeting_num = models.ForeignKey(Meeting, db_column='meeting_num', unique=True)
@@ -157,6 +176,8 @@ class MeetingVenue(models.Model):
 	return "IETF %s" % (self.meeting_num_id)
     class Meta:
         db_table = 'meeting_venues'
+        verbose_name = "Meeting public areas"
+        verbose_name_plural = "Meeting public areas"
 
 class NonSessionRef(models.Model):
     name = models.CharField(max_length=255)
@@ -164,10 +185,11 @@ class NonSessionRef(models.Model):
 	return self.name
     class Meta:
         db_table = 'non_session_ref'
+        verbose_name = "Non-session slot name"
 
 class NonSession(models.Model):
     non_session_id = models.AutoField(primary_key=True)
-    day_id = models.IntegerField(blank=True, null=True)
+    day_id = models.IntegerField(blank=True, null=True) # NULL means all days
     non_session_ref = models.ForeignKey(NonSessionRef)
     meeting = models.ForeignKey(Meeting, db_column='meeting_num')
     time_desc = models.CharField(blank=True, max_length=75)
@@ -177,8 +199,14 @@ class NonSession(models.Model):
 	    return "%s %s %s @%s" % ((self.meeting.start_date + datetime.timedelta(self.day_id)).strftime('%A'), self.time_desc, self.non_session_ref, self.meeting_id)
 	else:
 	    return "** %s %s @%s" % (self.time_desc, self.non_session_ref, self.meeting_id)
+    def day(self):
+        if self.day_id:
+            return (self.meeting.start_date + datetime.timedelta(self.day_id)).strftime('%A')
+        else:
+            return "All"
     class Meta:
 	db_table = 'non_session'
+        verbose_name = "Meeting non-session slot"
 
 class Proceeding(models.Model):
     meeting_num = models.ForeignKey(Meeting, db_column='meeting_num', unique=True, primary_key=True)
@@ -200,7 +228,11 @@ class SessionConflict(models.Model):
     conflict_gid = models.ForeignKey(Acronym, related_name='conflicts_with_set', db_column='conflict_gid')
     meeting_num = models.ForeignKey(Meeting, db_column='meeting_num')
     def __str__(self):
-	return "At IETF %s, %s conflicts with %s" % ( self.meeting_num_id, self.group_acronym.acronym, self.conflict_gid.acronym)
+        try:
+            return "At IETF %s, %s conflicts with %s" % ( self.meeting_num_id, self.group_acronym.acronym, self.conflict_gid.acronym)
+        except BaseException:
+	    return "At IETF %s, something conflicts with something" % ( self.meeting_num_id )
+
     class Meta:
         db_table = 'session_conflicts'
 
@@ -211,15 +243,19 @@ class SessionName(models.Model):
 	return self.session_name
     class Meta:
         db_table = 'session_names'
+        verbose_name = "Slot name"
+
 
 class IESGHistory(models.Model):
     meeting = models.ForeignKey(Meeting, db_column='meeting_num')
     area = models.ForeignKey(Area, db_column='area_acronym_id')
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag')
     def __str__(self):
-        return "%s (%s)" % (self.person,self.area)
+        return "IESG%s: %s (%s)" % (self.meeting_id, self.person,self.area)
     class Meta:
         db_table = 'iesg_history'
+        verbose_name = "Meeting AD info"
+        verbose_name_plural = "Meeting AD info"
     
 class MeetingTime(models.Model):
     time_id = models.AutoField(primary_key=True)
@@ -242,16 +278,22 @@ class MeetingTime(models.Model):
 	for s in sessions:
 	    if s.sched_time_id1_id == self.time_id:
 		s.room_id = s.sched_room_id1
+                s.ordinality = 1
 	    elif s.sched_time_id2_id == self.time_id:
 		s.room_id = s.sched_room_id2
+                s.ordinality = 2
 	    elif s.sched_time_id3_id == self.time_id:
 		s.room_id = s.sched_room_id3
+                s.ordinality = 3
             elif s.combined_time_id1_id == self.time_id:
                 s.room_id = s.combined_room_id1
+                s.ordinality = 4
             elif s.combined_time_id2_id == self.time_id:
                 s.room_id = s.combined_room_id2
+                s.ordinality = 5
 	    else:
 		s.room_id = 0
+                s.ordinality = 0
 	return sessions
     def sessions_by_area(self):
         return [ {"area":session.area()+session.acronym(), "info":session} for session in self.sessions() ]
@@ -281,6 +323,7 @@ class MeetingTime(models.Model):
         return self.session_name_id in [9, 10]
     class Meta:
         db_table = 'meeting_times'
+        verbose_name = "Meeting slot time"
 
 class MeetingRoom(models.Model):
     room_id = models.AutoField(primary_key=True)
@@ -290,6 +333,16 @@ class MeetingRoom(models.Model):
 	return "[%d] %s" % (self.meeting_id, self.room_name)
     class Meta:
         db_table = 'meeting_rooms'
+        verbose_name = "Meeting room name"
+
+class SessionStatus(models.Model):
+    id = models.AutoField(primary_key=True, db_column='status_id')
+    name = models.CharField(max_length=32, db_column='status')
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table = 'session_status'
+
 
 class WgMeetingSession(models.Model, ResolveAcronym):
     session_id = models.AutoField(primary_key=True)
@@ -307,28 +360,28 @@ class WgMeetingSession(models.Model, ResolveAcronym):
     special_req = models.TextField(blank=True)
     number_attendee = models.IntegerField(null=True, blank=True)
     approval_ad = models.IntegerField(null=True, blank=True)
-    status_id = models.IntegerField(null=True, blank=True)
+    status = models.ForeignKey(SessionStatus, null=True, blank=True)
     ts_status_id = models.IntegerField(null=True, blank=True)
     requested_date = models.DateField(null=True, blank=True)
     approved_date = models.DateField(null=True, blank=True)
-    requested_by = models.ForeignKey(PersonOrOrgInfo, db_column='requested_by')
+    requested_by = BrokenForeignKey(PersonOrOrgInfo, db_column='requested_by', null=True, null_values=(0, 888888))
     scheduled_date = models.DateField(null=True, blank=True)
     last_modified_date = models.DateField(null=True, blank=True)
     ad_comments = models.TextField(blank=True,null=True)
     sched_room_id1 = models.ForeignKey(MeetingRoom, db_column='sched_room_id1', null=True, blank=True, related_name='here1')
-    sched_time_id1 = models.ForeignKey(MeetingTime, db_column='sched_time_id1', null=True, blank=True, related_name='now1')
+    sched_time_id1 = BrokenForeignKey(MeetingTime, db_column='sched_time_id1', null=True, blank=True, related_name='now1')
     sched_date1 = models.DateField(null=True, blank=True)
     sched_room_id2 = models.ForeignKey(MeetingRoom, db_column='sched_room_id2', null=True, blank=True, related_name='here2')
-    sched_time_id2 = models.ForeignKey(MeetingTime, db_column='sched_time_id2', null=True, blank=True, related_name='now2')
+    sched_time_id2 = BrokenForeignKey(MeetingTime, db_column='sched_time_id2', null=True, blank=True, related_name='now2')
     sched_date2 = models.DateField(null=True, blank=True)
     sched_room_id3 = models.ForeignKey(MeetingRoom, db_column='sched_room_id3', null=True, blank=True, related_name='here3')
-    sched_time_id3 = models.ForeignKey(MeetingTime, db_column='sched_time_id3', null=True, blank=True, related_name='now3')
+    sched_time_id3 = BrokenForeignKey(MeetingTime, db_column='sched_time_id3', null=True, blank=True, related_name='now3')
     sched_date3 = models.DateField(null=True, blank=True)
     special_agenda_note = models.CharField(blank=True, max_length=255)
     combined_room_id1 = models.ForeignKey(MeetingRoom, db_column='combined_room_id1', null=True, blank=True, related_name='here4')
-    combined_time_id1 = models.ForeignKey(MeetingTime, db_column='combined_time_id1', null=True, blank=True, related_name='now4')
+    combined_time_id1 = BrokenForeignKey(MeetingTime, db_column='combined_time_id1', null=True, blank=True, related_name='now4')
     combined_room_id2 = models.ForeignKey(MeetingRoom, db_column='combined_room_id2', null=True, blank=True, related_name='here5')
-    combined_time_id2 = models.ForeignKey(MeetingTime, db_column='combined_time_id2', null=True, blank=True, related_name='now5')
+    combined_time_id2 = BrokenForeignKey(MeetingTime, db_column='combined_time_id2', null=True, blank=True, related_name='now5')
     def __str__(self):
 	return "%s at %s" % (self.acronym(), self.meeting)
     def agenda_file(self,interimvar=0):
@@ -396,8 +449,19 @@ class WgMeetingSession(models.Model, ResolveAcronym):
             return True
         else:
             return False
+    def length_session1_desc (self):
+        mh = MeetingHour.objects.get(hour_id=self.length_session1)
+        return mh.hour_desc
+    def length_session2_desc (self):
+        mh = MeetingHour.objects.get(hour_id=self.length_session2)
+        return mh.hour_desc
+    def length_session3_desc (self):
+        mh = MeetingHour.objects.get(hour_id=self.length_session3)
+        return mh.hour_desc
     class Meta:
         db_table = 'wg_meeting_sessions'
+        verbose_name = "WG meeting session"
+        
     _dirs = {}
 
 class WgAgenda(models.Model, ResolveAcronym):
@@ -410,6 +474,8 @@ class WgAgenda(models.Model, ResolveAcronym):
 	return "Agenda for %s at IETF %s" % (self.acronym(), self.meeting_id)
     class Meta:
         db_table = 'wg_agenda'
+        verbose_name = "WG agenda info"
+        verbose_name_plural = "WG agenda info"
 
 class Minute(models.Model, ResolveAcronym):
     meeting = models.ForeignKey(Meeting, db_column='meeting_num')
@@ -421,6 +487,8 @@ class Minute(models.Model, ResolveAcronym):
 	return "Minutes for %s at IETF %s" % (self.acronym(), self.meeting_id)
     class Meta:
         db_table = 'minutes'
+        verbose_name = "WG minutes info"
+
 
 # It looks like Switches was meant for something bigger, but
 # is only used for the agenda generation right now so we'll
@@ -436,6 +504,8 @@ class Switches(models.Model):
 	return self.name
     class Meta:
         db_table = 'switches'
+        verbose_name = "Switch"
+        verbose_name_plural = "Switches"
 
 # Empty table, don't pretend that it exists.
 #class SlideTypes(models.Model):
@@ -501,12 +571,30 @@ class WgProceedingsActivities(models.Model, ResolveAcronym):
     irtf = None
 
     def __str__(self):
-	#return "IETF%d: %s slides (%s)" % (self.meeting_id, self.acronym(), self.activity)
-        return "this is WgProceedingsActivities.__str__"
+        return "IETF%d: %s %s" % (self.meeting_id, self.acronym(), self.activity)
     class Meta:
         db_table = 'wg_proceedings_activities'
-        verbose_name = "WG Proceedings Activity"
-        verbose_name_plural = "WG Proceedings Activities"
+        verbose_name = "WG material upload"
+
+class MeetingHour(models.Model):
+    hour_id = models.IntegerField(primary_key=True)
+    hour_desc = models.CharField(max_length=60, blank=True)
+    def __unicode__(self):
+        return self.hour_desc
+    class Meta:
+        db_table = u'meeting_hours'
+
+
+if settings.USE_DB_REDESIGN_PROXY_CLASSES:
+    MeetingOld = Meeting
+    ProceedingOld = Proceeding
+    MeetingVenueOld = MeetingVenue
+    MeetingTimeOld = MeetingTime
+    WgMeetingSessionOld = WgMeetingSession
+    SlideOld = Slide
+    SwitchesOld = Switches
+    IESGHistoryOld = IESGHistory
+    from ietf.meeting.proxy import MeetingProxy as Meeting, ProceedingProxy as Proceeding, MeetingVenueProxy as MeetingVenue, MeetingTimeProxy as MeetingTime, WgMeetingSessionProxy as WgMeetingSession, SlideProxy as Slide, SwitchesProxy as Switches, IESGHistoryProxy as IESGHistory
 
 # changes done by convert-096.py:changed maxlength to max_length
 # removed core

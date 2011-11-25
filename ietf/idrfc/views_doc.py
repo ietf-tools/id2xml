@@ -41,14 +41,15 @@ from django.template.defaultfilters import truncatewords_html
 from django.utils import simplejson as json
 from django.utils.decorators import decorator_from_middleware
 from django.middleware.gzip import GZipMiddleware
-from django.core.urlresolvers import reverse as urlreverse
+from django.core.urlresolvers import reverse as urlreverse, NoReverseMatch
 from django.conf import settings
- 
+
 from ietf.idtracker.models import InternetDraft, IDInternal, BallotInfo, DocumentComment
 from ietf.idtracker.templatetags.ietf_filters import format_textarea, fill
 from ietf.idrfc import markup_txt
 from ietf.idrfc.models import RfcIndex, DraftVersions
 from ietf.idrfc.idrfc_wrapper import BallotWrapper, IdWrapper, RfcWrapper
+from ietf.ietfworkflows.utils import get_full_info_for_draft
 
 def document_debug(request, name):
     r = re.compile("^rfc([1-9][0-9]*)$")
@@ -75,7 +76,14 @@ def _get_html(key, filename):
     (c1,c2) = markup_txt.markup(raw_content)
     return (c1,c2)
 
-def document_main_rfc(request, rfc_number):
+def include_text(request):
+    include_text = request.GET.get( 'include_text' )
+    if "full_draft" in request.COOKIES:
+        if request.COOKIES["full_draft"] == "on":
+            include_text = 1
+    return include_text
+
+def document_main_rfc(request, rfc_number, tab):
     rfci = get_object_or_404(RfcIndex, rfc_number=rfc_number)
     rfci.viewing_as_rfc = True
     doc = RfcWrapper(rfci)
@@ -95,41 +103,28 @@ def document_main_rfc(request, rfc_number):
 
     history = _get_history(doc, None)
             
-    return render_to_response('idrfc/doc_main_rfc.html',
+    template = "idrfc/doc_tab_%s" % tab
+    if tab == "document":
+	template += "_rfc"
+    return render_to_response(template + ".html",
                               {'content1':content1, 'content2':content2,
-                               'doc':doc, 'info':info, 
+                               'doc':doc, 'info':info, 'tab':tab,
+			       'include_text':include_text(request),
                                'history':history},
                               context_instance=RequestContext(request));
 
 @decorator_from_middleware(GZipMiddleware)
-def document_main(request, name):
+def document_main(request, name, tab):
+    if tab is None:
+	tab = "document"
     r = re.compile("^rfc([1-9][0-9]*)$")
     m = r.match(name)
     if m:
-        return document_main_rfc(request, int(m.group(1)))
+        return document_main_rfc(request, int(m.group(1)), tab)
     id = get_object_or_404(InternetDraft, filename=name)
     doc = IdWrapper(id) 
 
     info = {}
-    stream_id = doc.stream_id()
-    if stream_id == 2:
-        stream = " (IAB document)"
-    elif stream_id == 3:
-        stream = " (IRTF document)"
-    elif stream_id == 4:
-        stream = " (Independent submission via RFC Editor)"
-    elif doc.group_acronym():
-        stream = " ("+doc.group_acronym().upper()+" WG document)"
-    else:
-        stream = " (Individual document)"
-        
-    if id.status.status == "Active":
-        info['is_active_draft'] = True
-        info['type'] = "Active Internet-Draft"+stream
-    else:
-        info['is_active_draft'] = False
-        info['type'] = "Old Internet-Draft"+stream
-
     info['has_pdf'] = (".pdf" in doc.file_types())
     info['is_rfc'] = False
     
@@ -140,9 +135,14 @@ def document_main(request, name):
     versions = _get_versions(id)
     history = _get_history(doc, versions)
             
-    return render_to_response('idrfc/doc_main_id.html',
+    template = "idrfc/doc_tab_%s" % tab
+    if tab == "document":
+	template += "_id"
+    return render_to_response(template + ".html",
                               {'content1':content1, 'content2':content2,
-                               'doc':doc, 'info':info, 
+                               'doc':doc, 'info':info, 'tab':tab,
+			       'include_text':include_text(request),
+                               'stream_info': get_full_info_for_draft(id),
                                'versions':versions, 'history':history},
                               context_instance=RequestContext(request));
 
@@ -152,13 +152,13 @@ def _get_history(doc, versions):
     if settings.USE_DB_REDESIGN_PROXY_CLASSES:
         versions = [] # clear versions
         event_holder = doc._draft if hasattr(doc, "_draft") else doc._rfcindex
-        for e in event_holder.event_set.all().select_related('by').order_by('-time', 'id'):
+        for e in event_holder.docevent_set.all().select_related('by').order_by('-time', 'id'):
             info = {}
             if e.type == "new_revision":
-                filename = u"%s-%s" % (e.doc.name, e.newrevisionevent.rev)
+                filename = u"%s-%s" % (e.doc.name, e.newrevisiondocevent.rev)
                 e.desc = 'New version available: <a href="http://tools.ietf.org/id/%s.txt">%s</a>' % (filename, filename)
-                if int(e.newrevisionevent.rev) != 0:
-                    e.desc += ' (<a href="http://tools.ietf.org/rfcdiff?url2=%s">diff from -%02d</a>)' % (filename, int(e.newrevisionevent.rev) - 1)
+                if int(e.newrevisiondocevent.rev) != 0:
+                    e.desc += ' (<a href="http://tools.ietf.org/rfcdiff?url2=%s">diff from -%02d</a>)' % (filename, int(e.newrevisiondocevent.rev) - 1)
                 info["dontmolest"] = True
 
             multiset_ballot_text = "This was part of a ballot set with: "
@@ -181,7 +181,7 @@ def _get_history(doc, versions):
         for o in results:
             e = o["comment"]
             if e.type == "new_revision":
-                e.version = e.newrevisionevent.rev
+                e.version = e.newrevisiondocevent.rev
             else:
                 e.version = prev_rev
             prev_rev = e.version
@@ -211,10 +211,12 @@ def _get_history(doc, versions):
     if doc.is_id_wrapper and doc.draft_status == "Expired" and doc._draft.expiration_date:
         results.append({'is_text':True, 'date':doc._draft.expiration_date, 'text':'Draft expired'})
     if not settings.USE_DB_REDESIGN_PROXY_CLASSES and doc.is_rfc_wrapper:
+        text = 'RFC Published'
         if doc.draft_name:
-            text = 'RFC Published (see <a href="/doc/%s/">%s</a> for earlier history)' % (doc.draft_name,doc.draft_name)
-        else:
-            text = 'RFC Published'
+            try:
+                text = 'RFC Published (see <a href="%s">%s</a> for earlier history)' % (urlreverse('doc_view', args=[doc.draft_name]),doc.draft_name)
+            except NoReverseMatch:
+                pass
         results.append({'is_text':True, 'date':doc.publication_date, 'text':text})
 
     # convert plain dates to datetimes (required for sorting)

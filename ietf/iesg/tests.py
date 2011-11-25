@@ -11,6 +11,7 @@ from ietf.idrfc.models import RfcIndex
 from ietf.idtracker.models import *
 from ietf.iesg.models import *
 from ietf.utils.test_utils import SimpleUrlTestCase, RealDatabaseTest, canonicalize_feed, login_testing_unauthorized
+from ietf.ietfworkflows.models import Stream
 
 class RescheduleOnAgendaTestCase(django.test.TestCase):
     fixtures = ['base', 'draft']
@@ -25,32 +26,25 @@ class RescheduleOnAgendaTestCase(django.test.TestCase):
         form_id = draft.idinternal.draft_id
         telechat_date_before = draft.idinternal.telechat_date
         
-        url = urlreverse('ietf.idrfc.views_edit.edit_info', kwargs={"name":"draft-ietf-mipshop-pfmipv6",})
+        url = urlreverse('ietf.iesg.views.agenda_documents')
         self.client.login(remote_user="klm")
 
         # normal get
         r = self.client.get(url)
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEquals(len(q('form select[name=telechat_date]')), 1)
-        self.assertEquals(len(q('form input[name=returning_item]')), 1)
+        self.assertEquals(len(q('form select[name=%s-telechat_date]' % form_id)), 1)
+        self.assertEquals(len(q('form input[name=%s-clear_returning_item]' % form_id)), 1)
 
         # reschedule
         comments_before = draft.idinternal.comments().count()
         d = TelechatDates.objects.all()[0].dates()[2]
 
-        r = self.client.post(url, { 'telechat_date': d.strftime("%Y-%m-%d"),
-                                    'returning_item': "0",
-                                    'job_owner': "49",
-                                    'note': draft.idinternal.note,
-                                    'state_change_notice_to': draft.idinternal.state_change_notice_to,
-                                    'intended_status': "6", })
-        self.assertEquals(r.status_code, 302)
+        r = self.client.post(url, { '%s-telechat_date' % form_id: d.strftime("%Y-%m-%d"),
+                                    '%s-clear_returning_item' % form_id: "1" })
+        self.assertEquals(r.status_code, 200)
 
-        # check that it moved below the right header in the DOM on the
-        # agenda docs page
-        url = urlreverse('ietf.iesg.views.agenda_documents')
-        r = self.client.get(url)
+        # check that it moved below the right header in the DOM
         d_header_pos = r.content.find("IESG telechat %s" % d.strftime("%Y-%m-%d"))
         draft_pos = r.content.find(draft.filename)
         self.assertTrue(d_header_pos < draft_pos)
@@ -67,12 +61,12 @@ class RescheduleOnAgendaTestCaseREDESIGN(django.test.TestCase):
     def test_reschedule(self):
         from ietf.utils.test_data import make_test_data
         from redesign.person.models import Person
-        from doc.models import TelechatEvent
+        from doc.models import TelechatDocEvent
         
         draft = make_test_data()
 
         # add to schedule
-        e = TelechatEvent(type="scheduled_for_telechat")
+        e = TelechatDocEvent(type="scheduled_for_telechat")
         e.doc = draft
         e.by = Person.objects.get(name="Aread Irector")
         e.telechat_date = TelechatDates.objects.all()[0].date1
@@ -90,12 +84,12 @@ class RescheduleOnAgendaTestCaseREDESIGN(django.test.TestCase):
         r = self.client.get(url)
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
-        # FIXME
-        #self.assertEquals(len(q('form select[name=%s-telechat_date]' % form_id)), 1)
-        #self.assertEquals(len(q('form input[name=%s-clear_returning_item]' % form_id)), 1)
+        
+        self.assertEquals(len(q('form select[name=%s-telechat_date]' % form_id)), 1)
+        self.assertEquals(len(q('form input[name=%s-clear_returning_item]' % form_id)), 1)
 
         # reschedule
-        events_before = draft.event_set.count()
+        events_before = draft.docevent_set.count()
         d = TelechatDates.objects.all()[0].dates()[2]
 
         r = self.client.post(url, { '%s-telechat_date' % form_id: d.strftime("%Y-%m-%d"),
@@ -109,10 +103,10 @@ class RescheduleOnAgendaTestCaseREDESIGN(django.test.TestCase):
         draft_pos = r.content.find(draft.name)
         self.assertTrue(d_header_pos < draft_pos)
 
-        self.assertTrue(draft.latest_event(TelechatEvent, "scheduled_for_telechat"))
-        self.assertEquals(draft.latest_event(TelechatEvent, "scheduled_for_telechat").telechat_date, d)
-        self.assertTrue(not draft.latest_event(TelechatEvent, "scheduled_for_telechat").returning_item)
-        self.assertEquals(draft.event_set.count(), events_before + 1)
+        self.assertTrue(draft.latest_event(TelechatDocEvent, "scheduled_for_telechat"))
+        self.assertEquals(draft.latest_event(TelechatDocEvent, "scheduled_for_telechat").telechat_date, d)
+        self.assertTrue(not draft.latest_event(TelechatDocEvent, "scheduled_for_telechat").returning_item)
+        self.assertEquals(draft.docevent_set.count(), events_before + 1)
 
 
 if settings.USE_DB_REDESIGN_PROXY_CLASSES:

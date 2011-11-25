@@ -44,10 +44,24 @@ form.change-state .actions {
 <div class="next-states">
   {% for n in next_states %}
   <form action="" method="post">
-    <input type="hidden" name="state" value="{{ n.slug }}" />
+    <input type="hidden" name="state" value="{{ n.pk }}" />
     <input type="submit" value="{{ n.name }}" />
   </form>
   {% endfor %}
+</div>
+{% endif %}
+
+{% if to_iesg_eval %}
+<h3>You could also jump directly to</h3>
+<div class="warn-states">
+  <form action="" method="post">
+    <input type="hidden" name="state" value="{{ to_iesg_eval.pk }}" />
+    <input type="submit" value="{{ to_iesg_eval.name }}" />
+  </form>
+  <p> 
+     But the ballot for this document has not yet been issued. 
+     <a href="{% url doc_ballot_writeupnotes name=doc.name %}">Edit Ballot Text</a>
+  </p>
 </div>
 {% endif %}
 
@@ -56,7 +70,7 @@ form.change-state .actions {
 
 <div class="prev-state">
   <form action="" method="post">
-    <input type="hidden" name="state" value="{{ prev_state.slug }}" />
+    <input type="hidden" name="state" value="{{ prev_state.pk }}" />
     <input type="submit" value="Back to {{ prev_state.name }}" />
   </form>
 </div>

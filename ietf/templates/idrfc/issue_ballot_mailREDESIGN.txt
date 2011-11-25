@@ -1,9 +1,9 @@
-To: Internet Engineering Steering Group <iesg@ietf.org>
+{% autoescape off %}To: Internet Engineering Steering Group <iesg@ietf.org>
 From: IESG Secretary <iesg-secretary@ietf.org>
 Reply-To: IESG Secretary <iesg-secretary@ietf.org>
-Subject: Evaluation: {{ doc.file_tag|safe }} to {{ status }}
+Subject: Evaluation: {{ doc.file_tag }} to {{ status }}
 
-{% filter wordwrap:73 %}Evaluation for {{ doc.file_tag|safe }} can be found at {{ doc_url }}
+{% filter wordwrap:73 %}Evaluation for {{ doc.file_tag }} can be found at {{ doc_url }}
 
 {% if last_call_expires %}Last call to expire on: {{ last_call_expires }}
 
@@ -11,10 +11,10 @@ Subject: Evaluation: {{ doc.file_tag|safe }} to {{ status }}
         Please return the full line with your position.
 
                       Yes  No-Objection  Discuss  Abstain
-{% for fmt in active_ad_positions %}{{ fmt|safe }}
+{% for fmt in active_ad_positions %}{{ fmt }}
 {% endfor %}{% if inactive_ad_positions %}
 
-{% for fmt in inactive_ad_positions %}{{ fmt|safe }}
+{% for fmt in inactive_ad_positions %}{{ fmt }}
 {% endfor %}{% endif %}
 
 "Yes" or "No-Objection" positions from 2/3 of non-recused ADs, 
@@ -33,7 +33,8 @@ DISCUSSES AND COMMENTS
 {% endif %}
 {% endfor %}{% endfilter %}
 ---- following is a DRAFT of message to be sent AFTER approval ---
-{{ approval_text|safe }}{% if ballot_writeup %}
+{{ approval_text }}{% if ballot_writeup %}
 
-{{ ballot_writeup|safe }}
+{{ ballot_writeup }}
 {% endif %}
+{% endautoescape%}

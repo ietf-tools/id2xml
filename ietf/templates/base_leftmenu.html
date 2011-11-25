@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {% endcomment %}
 {% load wg_menu %} 
-{% load ietf_filters community_tags %}
+{% load ietf_filters ietf_streams community_tags %}
 <ul>
 <li class="sect first">Accounts</li>
   <li><a href="{% url account_index %}">New Account</a></li>
@@ -49,6 +49,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="{% url ietf.iesg.views.telechat_dates %}">Telechat Dates</a></li>
   <li><a href="{% url iesg_working_group_actions %}">Working Groups</a></li>
 {% endif %}
+{% if user %}
+{% get_user_managed_streams user as stream_list %}
+<li class="sect{% if not user|in_group:"Area_Director,Secretariat" %} first{% endif %}">Streams</li>
+  {% for stream in stream_list %}
+  <li{% if forloop.last %} style="margin-bottom: 2px;"{% endif %}><a href="{% url stream_delegates stream.name %}">{{ stream.name }} stream</a></li>
+  {% endfor %}
+{% endif %}
 <li class="sect{% if not user|in_group:"Area_Director,Secretariat" %} first{% endif %}">Working Groups</li>
 
   <li style="padding-bottom:0;"><div id="wgs" class="yuimenu"><div class="bd" style="border:0;">
@@ -62,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li style="padding-top:0;"><a href="/wg/">Active WGs</a></li>
   <li><a href="http://tools.ietf.org/wg/concluded">Concluded WGs</a></li>
   <li><a href="http://www.ietf.org/list/nonwg.html">Non-WG Lists</a></li>
- 
+
 {% get_user_managed_lists user as community_lists %}
 {% if community_lists %}
 <li class="sect">Community ID lists</li>
@@ -71,11 +78,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <li><a href="{{ cl.get_manage_url }}">{{ cl.short_name }}</a>
    {% endfor %}
 {% endif %}
-
+ 
 <li class="sect">Drafts&nbsp;&amp;&nbsp;RFCs</li>
   <li><a href="/doc/">Search</a></li>
-  <li><form action="/doc/search/" method="post" style="padding-bottom:0;margin-bottom:0;"><input type="text" style="margin-left:10px; width:100px; border:1px solid #89d;" name="name" /><input type="hidden" name="activeDrafts" value="on"/><input type="hidden" name="rfcs" value="on"/></form></li>
-  <li><a href="https://datatracker.ietf.org/idst/upload.cgi">Submit a draft</a></li> 
+  <li><form action="/doc/search/" method="get" style="padding-bottom:0;margin-bottom:0;"><input type="text" style="margin-left:10px; width:100px; border:1px solid #89d;" name="name" /><input type="hidden" name="activeDrafts" value="on"/><input type="hidden" name="rfcs" value="on"/></form></li>
+  <li><a href="{% url submit_index %}">Submit a draft</a></li> 
 
 
 <li class="sect">Meetings</li>

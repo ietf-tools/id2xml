@@ -35,7 +35,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from ietf.idtracker.models import PersonOrOrgInfo, IESGLogin
-
+from ietf.utils.admin import admin_link
 
 def find_person(username):
     try: 
@@ -43,7 +43,16 @@ def find_person(username):
         return person
     except IESGLogin.DoesNotExist, PersonOrOrgInfo.DoesNotExist:
         pass
-    # TODO: try LegacyWgPassword next
+    # try LegacyWgPassword next
+    try:
+        return LegacyWgPassword.objects.get(login_name=username).person
+    except LegacyWgPassword.DoesNotExist, PersonOrOrgInfo.DoesNotExist:
+        pass
+    # try LegacyLiaisonUser next
+    try:
+        return LegacyLiaisonUser.objects.get(login_name=username).person
+    except LegacyLiaisonUser.DoesNotExist, PersonOrOrgInfo.DoesNotExist:
+        pass
     return None
 
 class IetfUserProfile(models.Model):
@@ -84,16 +93,24 @@ class IetfUserProfile(models.Model):
 # ietf.idtracker.models.IESGLogin is in the same vein.
 
 class LegacyLiaisonUser(models.Model):
+    USER_LEVEL_CHOICES = (
+	(0, 'Secretariat'),
+	(1, 'IESG'),
+	(2, 'ex-IESG'),
+	(3, 'Level 3'),
+	(4, 'Comment Only(?)'),
+    )
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', primary_key=True)
     login_name = models.CharField(max_length=255)
-    password = models.CharField(max_length=25)
-    user_level = models.IntegerField(null=True, blank=True)
+    password = models.CharField(max_length=25, blank=True, editable=False)
+    user_level = models.IntegerField(null=True, blank=True, choices=USER_LEVEL_CHOICES)
     comment = models.TextField(blank=True,null=True)
     def __str__(self):
 	return self.login_name
     class Meta:
         db_table = 'users'
 	ordering = ['login_name']
+    person_link = admin_link('person')
 
 class LegacyWgPassword(models.Model):
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag', primary_key=True)
@@ -109,6 +126,7 @@ class LegacyWgPassword(models.Model):
     class Meta:
         db_table = 'wg_password'
 	ordering = ['login_name']
+    person_link = admin_link('person')
 
 # changes done by convert-096.py:changed maxlength to max_length
 # removed core

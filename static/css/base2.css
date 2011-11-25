@@ -71,6 +71,17 @@ body { margin: 0; }
 .ietf-ballot .square { border:1px solid black; display: block; float:left;width: 10px; height:10px;font-size:1px;margin-right:4px; margin-top:1px;}
 .ietf-ballot .was { padding-left: 10px; font-size:85%; }
 
+.ietf-stream tr { vertical-align: top; }
+.ietf-stream ul.ietf-stream-tag-list { padding: 10px; margin: 0px; list-style-type: none; font-size: 10px; }
+.ietf-stream ul.ietf-stream-tag-list li { margin-bottom: 1em; list-style-type: circle; color: #999999; }
+.ietf-stream ul.ietf-stream-tag-list li.tag_set { font-weight: bold; list-style-type: disc; color: black; }
+.ietf-stream td.right { padding-top: 1em; }
+.ietf-stream .ietf-stream-head h2, .ietf-stream .ietf-stream-head h3 { margin: 0px; }
+.ietf-stream .ietf-stream-head { margin-bottom: 2em; }
+.ietf-stream .entry-title { background: #2647A0; color:white; padding: 2px 4px; font-size: 108%; margin-top: 0;}
+.ietf-stream .entry-title .entry-date { float: right; }
+.ietf-stream .entry-comment { background: #eeeeee; margin: 1em 0px; padding: 1em; }
+
 .search_form_box {width: 99.5%; margin-top:8px; padding:4px; margin-bottom:1em; padding-left:8px;}
 form#search_form { padding-top: 4px; padding-bottom: 4px; }
 #search_form input { padding: 0; padding-left: 2px; border: 1px solid #89d;}
@@ -94,16 +105,18 @@ form#search_form { padding-top: 4px; padding-bottom: 4px; }
 table.ietf-table { border-collapse:collapse; border:1px solid #7f7f7f; }
 .ietf-table tr.evenrow { background-color: #EDF5FF; }
 .ietf-table tr.oddrow { background-color: white; }
-.ietf-table td { border-right: 1px solid #cbcbcb; padding:3px 6px; }
+.ietf-table td { border-right: 1px solid #cbcbcb; padding:3px 6px; vertical-align: top; }
 .ietf-table th { color:white; background: #2647A0; text-align:left; padding:3px 6px; border-right: 1px solid #7f7f7f; }
 
 .ietf-doctable tr.header { border-top: 1px solid #7f7f7f; border-bottom: 1px solid #7f7f7f; border-left: 1px solid white; border-right:2px solid white;}
 .ietf-doctable tr.header td {padding: 6px 6px; font-weight: bold; }
 .ietf-doctable table { max-width: 1200px; }
+.ietf-doctable th { cursor: pointer }
 .ietf-doctable th.doc, .ietf-doctable td.doc { min-width:20em; max-width: 35em; }
 .ietf-doctable th.title, .ietf-doctable td.title { min-width: 20em; max-width: 35em; }
 .ietf-doctable th.date, .ietf-doctable td.date { white-space:nowrap; min-width: 6em;}
 .ietf-doctable th.status, .ietf-doctable td.status { min-width: 20em;}
+.ietf-doctable th.ipr { font-variant: small-caps; }
 .ietf-doctable th.ad, .ietf-doctable td.ad { white-space:nowrap; min-width: 6em; }
 .ietf-doctable td.ballot { border-left: hidden; min-width: 37px; }
 
@@ -119,6 +132,11 @@ table.ballot_icon td.ballot_icon_my { border: 3px outset black;}
 .ietf-highlight-y { padding:0 2px;background:yellow;}
 .ietf-highlight-r { padding:0 2px;background:#ffa0a0;}
 .ietf-divider { background: #2647a0; color: white; font-size:116%; padding:0.5em 1em; }
+
+.error-text {
+	font-size: 1.095em;
+	width: 48em;
+}
 
 form .actions {
   margin-top: 20px;
@@ -142,3 +160,12 @@ form table .help {
 }
 
 @media print { .noprint { display: none } }
+
+.color1 { color: #ffb000; }
+.color2 { color: #00ffff; }
+.bgcolor1 { background-color: #ffb000; }
+.bgcolor2 { background-color: #00ffff; }
+.square { width: 0.8ex; height: 0.8ex; margin: 0; padding: 0; display: inline-block; position: relative; top: 0.8ex; text-align: top;}
+.big	{ font-size: 109.5%; margin: 0; padding: 0; }
+.large  { font-size: 120%; margin: 0; padding: 0; }
+.huge	{ font-size: 144%; margin: 0; padding: 0; }

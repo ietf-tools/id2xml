@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Change position for {{ ad.name }}{% endblock %}
+{% block title %}Change position for {{ ad.name }} on {{ doc }}{% endblock %}
 
 {% block morecss %}
+div.ballot-deferred {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
 form.position-form .position ul {
   padding: 0;
   margin: 0;
@@ -29,10 +33,21 @@ form.position-form .comment-text {
 {% endblock %}
 
 {% block content %}
-<h1>Change position for {{ ad.name }}</h1>
+<h1>Change position for {{ ad.name }} {{ doc }}</h1>
+
+{% if ballot_deferred %}
+<div class="ballot-deferred">Ballot deferred by {{ ballot_deferred.by }} on {{ ballot_deferred.time|date:"Y-m-d" }}.</div>
+{% endif %}
 
 <form class="position-form" action="" method="POST">
-  <div class="position">{{ form.position }}</div>
+  <div>
+  <span class="position">{{ form.position }}</span>
+  <span class="actions">
+    <input type="submit" name="send_mail" value="Save and send email"/>
+    <input type="submit" value="Save"/>
+    {% if ballot_deferred %}<input type="submit" name="Undefer" value="Undefer"/>{% else %}<input type="submit" name="Defer" value="Defer"/>{% endif %}
+  </span>
+  </div>
 
   <div style="clear:left"></div>
   
@@ -41,6 +56,7 @@ form.position-form .comment-text {
     {{ form.discuss.label_tag }}:
     {% if old_pos and old_pos.discuss_time %}<span class="last-edited">(last edited {{ old_pos.discuss_time }})</span>{% endif %}
   </div>
+  {{ form.discuss.errors }}
   {{ form.discuss }}
   </div>
   
@@ -52,8 +68,6 @@ form.position-form .comment-text {
 
   <div class="actions">
     <a href="{{ return_to_url }}">Back</a>
-    <input type="submit" name="send_mail" value="Save and send email"/>
-    <input type="submit" value="Save"/>
   </div>
   
   {{ form.return_to_url }}

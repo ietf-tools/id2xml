@@ -135,6 +135,7 @@
             var purpose = form.find('#id_purpose');
             var other_purpose = form.find('#id_purpose_text');
             var deadline = form.find('#id_deadline_date');
+            var submission_date = form.find('#id_submitted_date');
             var other_organization = form.find('#id_other_organization');
             var approval = form.find('#id_approved');
             var cancel = form.find('#id_cancel');
@@ -150,11 +151,15 @@
                 config.info_update_url = confcontainer.find('.info_update_url').text();
             };
 
-            var render_mails_into = function(container, person_list) {
+            var render_mails_into = function(container, person_list, as_html) {
                 var html='';
 
                 $.each(person_list, function(index, person) {
-                    html += person[0] + ' &lt;<a href="mailto:'+person[1]+'">'+person[1]+'</a>&gt;<br />';
+                    if (as_html) {
+                        html += person[0] + ' &lt;<a href="mailto:'+person[1]+'">'+person[1]+'</a>&gt;<br />';
+                    } else {
+                        html += person[0] + ' &lt;'+person[1]+'&gt;\n';
+                    }
                 });
                 container.html(html);
             };
@@ -172,9 +177,44 @@
                 }
             };
 
-            var updateInfo = function() {
+            var checkPostOnly = function(post_only) {
+                if (post_only) {
+                    $("input[name=send]").hide();
+                } else {
+                    $("input[name=send]").show();
+                }
+            };
+
+            var updateReplyTo = function() {
+                var select = form.find('select[name=from_fake_user]');
+                var option = select.find('option:selected');
+                reply.val(option.attr('title'));
+                updateFrom();
+            }
+
+            var userSelect = function(user_list) {
+                if (!user_list || !user_list.length) {
+                    return;
+                }
+                var link = form.find('a.from_mailto');
+                var select = form.find('select[name=from_fake_user]');
+                var options = '';
+                link.hide();
+                $.each(user_list, function(index, person) {
+                    options += '<option value="' + person[0] + '" title="' + person[1][1] + '">'+ person[1][0] + ' &lt;' + person[1][1] + '&gt;</option>';
+                });
+                select.remove();
+                link.after('<select name="from_fake_user">' + options +'</select>')
+                form.find('select[name=from_fake_user]').change(updateReplyTo);
+                updateReplyTo();
+            };
+
+            var updateInfo = function(first_time) {
                 var entity = organization;
                 var to_entity = from;
+                if (!entity.is('select') || !to_entity.is('select')) {
+                    return false;
+                }
                 var url = config.info_update_url;
                 $.ajax({
                     url: url,
@@ -186,9 +226,13 @@
                            from_entity_id: to_entity.val()},
                     success: function(response){
                         if (!response.error) {
-                            render_mails_into(cc, response.cc);
-                            render_mails_into(poc, response.poc);
+                            if (!first_time || !cc.text()) {
+                                render_mails_into(cc, response.cc, false);
+                            }
+                            render_mails_into(poc, response.poc, true);
                             toggleApproval(response.needs_approval);
+                            checkPostOnly(response.post_only);
+                            userSelect(response.full_list);
                         }
                     }
                 });
@@ -283,26 +327,69 @@
                 return false;
             };
 
+            var checkFrom = function(first_time) {
+                var reduce_options = form.find('.reducedToOptions');
+                if (!reduce_options.length) {
+                    updateInfo(first_time);
+                    return;
+                }
+                var to_select = organization;
+                var from_entity = from.val();
+                if (!reduce_options.find('.full_power_on_' + from_entity).length) {
+                    to_select.find('optgroup').eq(1).hide();
+                    to_select.find('option').each(function() {
+                        if (!reduce_options.find('.reduced_to_set_' + $(this).val()).length) {
+                            $(this).hide();
+                        } else {
+                            $(this).show();
+                        }
+                    });
+                    if (!to_select.find('option:selected').is(':visible')) {
+                        to_select.find('option:selected').removeAttr('selected');
+                    }
+                } else {
+                    to_select.find('optgroup').show();
+                    to_select.find('option').show();
+                }
+                updateInfo(first_time);
+            };
+
+            var checkSubmissionDate = function() {
+                var date_str = submission_date.val();
+                if (date_str) {
+                    var sdate = new Date(date_str);
+                    var today = new Date();
+                    if (Math.abs(today-sdate) > 2592000000) {  // 2592000000 = 30 days in milliseconds
+                        return confirm('Submission date ' + date_str + ' differ more than 30 days.\n\nDo you want to continue and post this liaison using that submission date?\n');
+                    }
+                }
+            };
+
             var initTriggers = function() {
-                organization.change(updateInfo);
+                organization.change(function() {updateInfo(false);});
                 organization.change(checkOtherSDO);
-                from.change(updateInfo);
+                from.change(function() {checkFrom(false);});
                 reply.keyup(updateFrom);
                 purpose.change(updatePurpose);
                 cancel.click(cancelForm);
                 related_trigger.click(selectRelated);
                 unrelate_trigger.click(selectNoRelated);
+                form.submit(checkSubmissionDate);
             };
 
             var updateOnInit = function() {
                 updateFrom();
-                updateInfo();
+                checkFrom(true);
                 updatePurpose();
                 checkOtherSDO();
             };
 
             var initDatePicker = function() {
                 deadline.datepicker({
+                    dateFormat: $.datepicker.ATOM,
+                    changeYear: true
+                });
+                submission_date.datepicker({
                     dateFormat: $.datepicker.ATOM,
                     changeYear: true
                 });

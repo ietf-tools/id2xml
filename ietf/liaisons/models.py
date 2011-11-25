@@ -4,8 +4,12 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.template.loader import render_to_string
-from ietf.idtracker.models import Acronym,PersonOrOrgInfo, Area
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse as urlreverse
+from ietf.idtracker.models import Acronym, PersonOrOrgInfo, Area, IESGLogin
 from ietf.liaisons.mail import IETFEmailMessage
+from ietf.ietfauth.models import LegacyLiaisonUser
+from ietf.utils.admin import admin_link
 
 class LiaisonPurpose(models.Model):
     purpose_id = models.AutoField(primary_key=True)
@@ -28,6 +32,8 @@ class FromBodies(models.Model):
         db_table = 'from_bodies'
         verbose_name = "From body"
         verbose_name_plural = "From bodies"
+    contact_link = admin_link('poc', label='Contact')
+    
 
 
 class OutgoingLiaisonApproval(models.Model):
@@ -61,8 +67,9 @@ class LiaisonDetail(models.Model):
     replyto = models.CharField(blank=True, null=True, max_length=255)
     from_raw_body = models.CharField(blank=True, null=True, max_length=255)
     from_raw_code = models.CharField(blank=True, null=True, max_length=255)
+    to_raw_code = models.CharField(blank=True, null=True, max_length=255)
     approval = models.ForeignKey(OutgoingLiaisonApproval, blank=True, null=True)
-    taken_care = models.BooleanField(default=False)
+    action_taken = models.BooleanField(default=False, db_column='taken_care')
     related_to = models.ForeignKey('LiaisonDetail', blank=True, null=True)
     def __str__(self):
 	return self.title or "<no title>"
@@ -76,7 +83,13 @@ class LiaisonDetail(models.Model):
         if not self.from_raw_body:
             return self.legacy_from_body()
         return self.from_raw_body
-
+    def from_sdo(self):
+	try:
+	    name = FromBodies.objects.get(pk=self.from_id).body_name
+            sdo = SDOs.objects.get(sdo_name=name)
+            return sdo
+	except ObjectDoesNotExist:
+            return None
     def legacy_from_body(self):
 	"""The from_id field is a foreign key for either
 	FromBodies or Acronyms, depending on whether it's
@@ -101,7 +114,7 @@ class LiaisonDetail(models.Model):
 	    return "IETF %s %s" % (acronym.acronym.upper(), kind)
 	except ObjectDoesNotExist:
 	    pass
-	return "<unknown body %d>" % self.from_id
+	return "<unknown body %s>" % self.from_id
     def from_email(self):
 	"""If there is an entry in from_bodies, it has
 	the desired email priority.  However, if it's from
@@ -129,9 +142,11 @@ class LiaisonDetail(models.Model):
             to_email.append('%s <%s>' % person.email())
         subject = 'New Liaison Statement, "%s" needs your approval' % (self.title)
         from_email = settings.LIAISON_UNIVERSAL_FROM
-        body = render_to_string('liaisons/pending_liaison_mail.txt',
-                                {'liaison': self,
-                                })
+        body = render_to_string('liaisons/pending_liaison_mail.txt', {
+                'liaison': self,
+                'url': settings.IDTRACKER_BASE_URL + urlreverse("liaison_approval_detail", kwargs=dict(object_id=self.pk)),
+                'referenced_url': settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=self.related_to.pk)) if self.related_to else None,
+                })
         mail = IETFEmailMessage(subject=subject,
                                 to=to_email,
                                 from_email=from_email,
@@ -152,9 +167,11 @@ class LiaisonDetail(models.Model):
         if self.response_contact:
             cc += self.response_contact.split(',')
         bcc = ['statements@ietf.org']
-        body = render_to_string('liaisons/liaison_mail.txt',
-                                {'liaison': self,
-                                })
+        body = render_to_string('liaisons/liaison_mail.txt', {
+                'liaison': self,
+                'url': settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=self.pk)),
+                'referenced_url': settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=self.related_to.pk)) if self.related_to else None,
+                })
         mail = IETFEmailMessage(subject=subject,
                                 to=to_email,
                                 from_email=from_email,
@@ -170,8 +187,8 @@ class LiaisonDetail(models.Model):
 
 
 class SDOs(models.Model):
-    sdo_id = models.AutoField(primary_key=True)
-    sdo_name = models.CharField(blank=True, max_length=255)
+    sdo_id = models.AutoField(primary_key=True, verbose_name='ID')
+    sdo_name = models.CharField(blank=True, max_length=255, verbose_name='SDO Name')
     def __str__(self):
 	return self.sdo_name
     def liaisonmanager(self):
@@ -179,36 +196,80 @@ class SDOs(models.Model):
 	    return self.liaisonmanagers_set.all()[0]
 	except:
 	    return None
+    def sdo_contact(self):
+	try:
+	    return self.sdoauthorizedindividual_set.all()[0]
+	except:
+	    return None
     class Meta:
         verbose_name = 'SDO'
         verbose_name_plural = 'SDOs'
         db_table = 'sdos'
         ordering = ('sdo_name', )
+    liaisonmanager_link = admin_link('liaisonmanager', label='Liaison')
+    sdo_contact_link = admin_link('sdo_contact')
 
-class LiaisonManagers(models.Model):
+class LiaisonStatementManager(models.Model):
     person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag')
+    sdo = models.ForeignKey(SDOs, verbose_name='SDO')
+    def __unicode__(self):
+        return '%s (%s)' % (self.person, self.sdo)
+    class Meta:
+        abstract = True
+    # Helper functions, for use in the admin interface
+    def login_name(self):
+        login_name = None
+        try:
+            login_name = IESGLogin.objects.get(person=self.person).login_name
+            if User.objects.filter(username=login_name).count():
+                return login_name            
+        except IESGLogin.DoesNotExist:
+            pass
+        try:
+            login_name = LegacyLiaisonUser.objects.get(person=self.person).login_name
+        except LegacyLiaisonUser.DoesNotExist:
+            pass
+        return login_name
+    def user(self):
+        login_name = self.login_name()
+        user = None
+        if login_name:
+            try:
+                return User.objects.get(username=login_name), login_name
+            except User.DoesNotExist:
+                pass
+        return None, login_name
+    def user_name(self):
+        user, login_name = self.user()
+        if user:
+            return u'<a href="/admin/auth/user/%s/">%s</a>' % (user.id, login_name)
+        else:
+            if login_name:
+                return u'Add login: <a href="/admin/auth/user/add/?username=%s"><span style="color: red">%s</span></a>' % (login_name, login_name)
+            else:
+                return u'Add liaison user: <a href="/admin/ietfauth/legacyliaisonuser/add/?person=%s&login_name=%s&user_level=3"><span style="color: red">%s</span></a>' % (self.person.pk, self.person.email()[1], self.person, )
+                
+    user_name.allow_tags = True
+    def groups(self):
+        user, login_name = self.user()
+        return ", ".join([ group.name for group in user.groups.all()])
+    person_link = admin_link('person')
+    sdo_link = admin_link('sdo', label='SDO')
+        
+class LiaisonManagers(LiaisonStatementManager):
     email_priority = models.IntegerField(null=True, blank=True)
-    sdo = models.ForeignKey(SDOs)
     def email(self):
 	try:
 	    return self.person.emailaddress_set.get(priority=self.email_priority)
 	except ObjectDoesNotExist:
 	    return None
-    def __unicode__(self):
-        return '%s (%s)' % (self.person, self.sdo)
     class Meta:
         verbose_name = 'SDO Liaison Manager'
         verbose_name_plural = 'SDO Liaison Managers'
         db_table = 'liaison_managers'
         ordering = ('sdo__sdo_name', )
 
-class SDOAuthorizedIndividual(models.Model):
-    person = models.ForeignKey(PersonOrOrgInfo, db_column='person_or_org_tag')
-    sdo = models.ForeignKey(SDOs)
-
-    def __unicode__(self):
-        return '%s (%s)' % (self.person, self.sdo)
-
+class SDOAuthorizedIndividual(LiaisonStatementManager):
     class Meta:
         verbose_name = 'SDO Authorized Individual'
         verbose_name_plural = 'SDO Authorized Individuals'
@@ -233,6 +294,8 @@ class Uploads(models.Model):
     detail = models.ForeignKey(LiaisonDetail)
     def __str__(self):
 	return self.file_title
+    def filename(self):
+        return "file%s%s" % (self.file_id, self.file_extension)
     class Meta:
         db_table = 'uploads'
 
@@ -249,3 +312,55 @@ class Uploads(models.Model):
 # removed edit_inline
 # removed num_in_admin
 # removed raw_id_admin
+
+if settings.USE_DB_REDESIGN_PROXY_CLASSES or hasattr(settings, "IMPORTING_FROM_OLD_SCHEMA"):
+    from redesign.name.models import LiaisonStatementPurposeName
+    from redesign.doc.models import Document
+    from redesign.person.models import Email
+    from redesign.group.models import Group
+    
+    class LiaisonStatement(models.Model):
+        title = models.CharField(blank=True, max_length=255)
+        purpose = models.ForeignKey(LiaisonStatementPurposeName)
+        body = models.TextField(blank=True)
+        deadline = models.DateField(null=True, blank=True)
+        
+        related_to = models.ForeignKey('LiaisonStatement', blank=True, null=True)
+        
+        from_group = models.ForeignKey(Group, related_name="liaisonstatement_from_set", null=True, blank=True, help_text="Sender group, if it exists")
+        from_name = models.CharField(max_length=255, help_text="Name of the sender body")
+        from_contact = models.ForeignKey(Email, blank=True, null=True)
+        to_group = models.ForeignKey(Group, related_name="liaisonstatement_to_set", null=True, blank=True, help_text="Recipient group, if it exists")
+        to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
+        to_contact = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body")
+        
+        reply_to = models.CharField(blank=True, max_length=255)
+        
+        response_contact = models.CharField(blank=True, max_length=255)
+        technical_contact = models.CharField(blank=True, max_length=255)
+        cc = models.TextField(blank=True)
+        
+        submitted = models.DateTimeField(null=True, blank=True)
+        modified = models.DateTimeField(null=True, blank=True)
+        approved = models.DateTimeField(null=True, blank=True)
+
+        action_taken = models.BooleanField(default=False)
+
+        attachments = models.ManyToManyField(Document, blank=True)
+
+        def name(self):
+            from django.template.defaultfilters import slugify
+            if self.from_group:
+                frm = self.from_group.acronym or self.from_group.name
+            else:
+                frm = self.from_name
+            if self.to_group:
+                to = self.to_group.acronym or self.to_group.name
+            else:
+                to = self.to_name
+            return slugify("liaison" + " " + self.submitted.strftime("%Y-%m-%d") + " " + frm[:50] + " " + to[:50] + " " + self.title[:115])
+        
+        def __unicode__(self):
+            return self.title or "<no title>"
+
+        LiaisonDetailOld = LiaisonDetail

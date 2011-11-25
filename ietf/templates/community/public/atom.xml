@@ -9,17 +9,21 @@
 
     {% for entry in entries %}
     <entry>
-        <title>{{ entry.document.title }}</title>
+        <title>{{ entry.doc.title }}</title>
 
-        <link href="{{ entry.document.get_absolute_url }}"/>
+        <link href="{{ entry.doc.get_absolute_url }}"/>
 
         <id>{{ entry.id }}</id>
         
-        <updated>{{ entry.notification_date|date:"Y-m-d\TH:i:s" }}Z</updated>
+        <updated>{{ entry.time|date:"Y-m-d\TH:i:s" }}Z</updated>
         
-        <published>{{ entry.notification_date|date:"Y-m-d\TH:i:s" }}</published>
+        <published>{{ entry.time|date:"Y-m-d\TH:i:s" }}</published>
         
-        <summary>{{ entry.desc }}</summary>
+        <author>
+            <name>{{ entry.by }}</name>
+        </author>
+
+        <summary>{{ entry.desc|striptags }}</summary>
 
     </entry>
     {% endfor %}

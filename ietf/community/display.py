@@ -1,6 +1,7 @@
 import datetime
 
 from django.db.models import Q
+from ietf.ietfworkflows.utils import get_state_for_draft
 
 
 class DisplayField(object):
@@ -44,7 +45,11 @@ class StatusField(DisplayField):
     description = 'Status in the IETF process'
 
     def get_value(self, document):
-        return document.state
+        for i in ('draft-stream-ietf', 'draft-stream-irtf', 'draft-stream-ise', 'draft-stream-iab', 'draft'):
+            state = document.get_state(i)
+            if state:
+                return state
+        return ''
 
 
 class WGField(DisplayField):
@@ -70,9 +75,7 @@ class OneDayField(DisplayField):
     def get_value(self, document):
         now = datetime.datetime.now()
         last = now - datetime.timedelta(days=1)
-        if document.documentchangedates_set.filter(
-            Q(new_version_date__gte=last) |
-            Q(normal_change_date__gte=last)):
+        if document.docevent_set.filter(time__gte=last):
             return '&#10004;'
         return ''
 
@@ -84,9 +87,7 @@ class TwoDaysField(DisplayField):
     def get_value(self, document):
         now = datetime.datetime.now()
         last = now - datetime.timedelta(days=2)
-        if document.documentchangedates_set.filter(
-            Q(new_version_date__gte=last) |
-            Q(normal_change_date__gte=last)):
+        if document.docevent_set.filter(time__gte=last):
             return '&#10004;'
         return ''
 
@@ -98,9 +99,7 @@ class SevenDaysField(DisplayField):
     def get_value(self, document):
         now = datetime.datetime.now()
         last = now - datetime.timedelta(days=7)
-        if document.documentchangedates_set.filter(
-            Q(new_version_date__gte=last) |
-            Q(normal_change_date__gte=last)):
+        if document.docevent_set.filter(time__gte=last):
             return '&#10004;'
         return ''
 

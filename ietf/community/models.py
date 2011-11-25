@@ -5,12 +5,13 @@ from django.db import models
 from django.db.models import signals, Q
 
 from ietf.utils.mail import send_mail
-from redesign.doc.models import Document
+from redesign.doc.models import Document, DocEvent
 from redesign.group.models import Group, Role
 
 from ietf.community.rules import TYPES_OF_RULES, RuleManager
 from ietf.community.display import (TYPES_OF_SORT, DisplayField,
                                     SortMethod)
+from ietf.community.constants import SIGNIFICANT_STATES
 
 
 class CommunityList(models.Model):
@@ -158,18 +159,16 @@ class EmailSubscription(models.Model):
 
 class ListNotification(models.Model):
 
-    document = models.ForeignKey(Document)
-    notification_date = models.DateTimeField(auto_now=True)
-    desc = models.TextField()
+    event = models.ForeignKey(DocEvent)
     significant = models.BooleanField(default=False)
 
     def notify_by_email(self):
         clists = CommunityList.objects.filter(
-            Q(added_ids=self.document) | Q(rule__cached_ids=self.document)).distinct()
+            Q(added_ids=self.event.doc) | Q(rule__cached_ids=self.event.doc)).distinct()
         from_email = settings.DEFAULT_FROM_EMAIL
         for l in clists:
-            subject = '%s notification: Changes on %s' % (l.long_name(), self.document.name)
-            context = {'notification': self,
+            subject = '%s notification: Changes on %s' % (l.long_name(), self.event.doc.name)
+            context = {'notification': self.event,
                        'clist': l}
             to_email = ''
             filter_subscription = {'community_list': l}
@@ -178,69 +177,30 @@ class ListNotification(models.Model):
             bcc = ','.join(list(set([i.email for i in EmailSubscription.objects.filter(**filter_subscription)])))
             send_mail(None, to_email, from_email, subject, 'community/public/notification_email.txt', context, bcc=bcc)
 
-    def save(self, *args, **kwargs):
-        super(ListNotification, self).save(*args, **kwargs)
-        (changes, created) = DocumentChangeDates.objects.get_or_create(document=self.document)
-        if self.significant:
-            changes.significant_change_date = self.notification_date
-            changes.normal_change_date = self.notification_date
-        else:
-            changes.normal_change_date = self.notification_date
-        changes.save()
-        self.notify_by_email()
 
-
-def save_previous_states(sender, instance, **kwargs):
-    if isinstance(instance, Document) and not instance.pk:
-        instance.new_document = True
-    elif isinstance(instance, Document):
-        original = Document.objects.get(pk=instance.pk)
-        instance.prev_state = original.state
-        instance.prev_wg_state = original.wg_state
-        instance.prev_iesg_state = original.iesg_state
-        instance.prev_iana_state = original.iana_state
-        instance.prev_rfc_state = original.rfc_state
-
-
-def create_notifications(sender, instance, **kwargs):
-    if not isinstance(instance, Document):
+def notify_events(sender, instance, **kwargs):
+    if not isinstance(instance, DocEvent):
         return
-    if getattr(instance, 'new_document', False):
-        ListNotification.objects.create(
-            document=instance,
-            significant=True,
-            desc='New document created %s: %s' % (instance.name, instance.title)
-        )
+    if instance.doc.type.slug != 'draft' or instance.type == 'added_comment':
         return
-    if getattr(instance, 'prev_state', False) != False:
-        desc = ''
-        significant = False
-        if instance.prev_state != instance.state:
-            desc += 'State changed from %s to %s\n' % (instance.prev_state, instance.state)
-        if instance.prev_wg_state != instance.wg_state:
-            desc += 'WG state changed from %s to %s\n' % (instance.prev_wg_state, instance.wg_state)
-            if instance.iesg_state.name in ['Adopted by a WG', 'In WG Last Call',
-                                            'WG Consensus: Waiting for Write-up',
-                                            'Parked WG document', 'Dead WG document']:
+    (changes, created) = DocumentChangeDates.objects.get_or_create(document=instance.doc)
+    changes.normal_change_date = instance.time
+    significant = False
+    if instance.type == 'changed_document' and 'tate changed' in instance.desc:
+        for i in SIGNIFICANT_STATES:
+            if ('<b>%s</b>' % i) in instance.desc:
                 significant = True
-        if instance.prev_iesg_state != instance.iesg_state:
-            desc += 'IESG state changed from %s to %s\n' % (instance.prev_iesg_state, instance.iesg_state)
-            if instance.iesg_state.name in ['RFC Published', 'Dead', 'Approved-announcement sent',
-                                            'Publication Requested', 'In Last Call', 'IESG Evaluation',
-                                            'Sent to the RFC Editor']:
-                significant = True
-        if instance.prev_iana_state != instance.iana_state:
-            desc += 'Iana state changed from %s to %s\n' % (instance.prev_iana_state, instance.iana_state)
-        if instance.prev_rfc_state != instance.rfc_state:
-            desc += 'RFC state changed from %s to %s\n' % (instance.prev_rfc_state, instance.rfc_state)
-        if desc:
-            ListNotification.objects.create(
-                document=instance,
-                significant=significant,
-                desc=desc
-            )
-signals.pre_save.connect(save_previous_states)
-signals.post_save.connect(create_notifications)
+                changes.significant_change_date = instance.time
+                break
+    elif instance.type == 'new_revision':
+        changes.new_version_date = instance.time
+    changes.save()
+    notification = ListNotification.objects.create(
+        event=instance,
+        significant=significant,
+    )
+    notification.notify_by_email()
+signals.post_save.connect(notify_events)
 
 
 class DocumentChangeDates(models.Model):

@@ -3,7 +3,7 @@ Hello,
 
 This is a notification from {{ clist.long_name }}.
 
-Document: {{ notification.document }}
+Document: {{ notification.doc }}
 
 Change:
 {{ notification.desc }}

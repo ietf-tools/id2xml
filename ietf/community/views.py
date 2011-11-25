@@ -14,7 +14,7 @@ from django.utils.http import urlquote
 from ietf.community.models import CommunityList, Rule, EmailSubscription, ListNotification
 from ietf.community.forms import RuleForm, DisplayForm, SubscribeForm, UnSubscribeForm
 from redesign.group.models import Group
-from redesign.doc.models import Document
+from redesign.doc.models import Document, DocEvent
 
 
 def _manage_list(request, clist):
@@ -133,10 +133,10 @@ def view_group_list(request, acronym):
 
 
 def _atom_view(request, clist, significant=False):
-    documents = clist.get_documents().values('pk')
-    notifications = ListNotification.objects.filter(document__pk__in=documents)\
+    documents = [i['pk'] for i in clist.get_documents().values('pk')]
+    notifications = DocEvent.objects.filter(doc__pk__in=documents)\
                                             .distinct()\
-                                            .order_by('-notification_date')
+                                            .order_by('-time', '-id')
     if significant:
         notifications = notifications.filter(significant=True)
 

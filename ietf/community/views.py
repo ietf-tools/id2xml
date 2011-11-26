@@ -138,7 +138,7 @@ def _atom_view(request, clist, significant=False):
                                             .distinct()\
                                             .order_by('-time', '-id')
     if significant:
-        notifications = notifications.filter(significant=True)
+        notifications = notifications.filter(listnotification__significant=True)
 
     host = request.get_host()
     feed_url = 'http://%s%s' % (host, request.get_full_path())

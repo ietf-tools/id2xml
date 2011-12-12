@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 
 from workflows.models import State, StateObjectRelation
 from workflows.utils import (get_workflow_for_object, set_workflow_for_object,
@@ -200,6 +201,7 @@ def notify_entry(entry, template, extra_notify=[]):
     subject = 'Annotation tags have changed for draft %s' % doc
     body = render_to_string(template, {'doc': doc,
                                        'entry': entry,
+                                       'domain': Site.objects.get_current().domain,
                                       })
     mail = EmailMessage(subject=subject,
         body=body,

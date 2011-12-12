@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
+from django.contrib.sites.models import Site
 
 from ietf.utils.mail import send_mail, send_mail_text
 from ietf.idtracker.models import *
@@ -153,6 +154,7 @@ def generate_approval_mail(request, doc):
                                  contacts=contacts,
                                  status=status,
                                  action_type=action_type,
+                                 domain=Site.objects.get_current().domain,
                                  )
                             )
 
@@ -273,7 +275,8 @@ def generate_issue_ballot_mail(request, doc):
                                  status=status,
                                  active_ad_positions=active_ad_positions,
                                  inactive_ad_positions=inactive_ad_positions,
-                                 ad_feedback=ad_feedback
+                                 ad_feedback=ad_feedback,
+                                 domain=Site.objects.get_current().domain,
                                  )
                             )
     

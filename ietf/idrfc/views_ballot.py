@@ -8,6 +8,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse as urlreverse
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.contrib.sites.models import Site
 from django import forms
 from django.utils.html import strip_tags
 
@@ -253,7 +254,7 @@ def send_ballot_comment(request, name):
       subject += ": (with "+" and ".join(subj)+")"
  
     body = render_to_string("idrfc/ballot_comment_mail.txt",
-                            dict(discuss=d, comment=c, ad=ad, doc=doc, pos=pos))
+                            dict(discuss=d, comment=c, ad=ad, doc=doc, pos=pos, domain=Site.objects.get_current().domain))
     frm = u"%s <%s>" % ad.person.email()
     to = "The IESG <iesg@ietf.org>"
         

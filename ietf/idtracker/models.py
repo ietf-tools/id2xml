@@ -157,7 +157,7 @@ class InternetDraft(models.Model):
     status = models.ForeignKey(IDStatus)
     intended_status = models.ForeignKey(IDIntendedStatus)
     lc_sent_date = models.DateField(null=True, blank=True)
-    lc_changes = models.CharField(max_length=3,null=True)
+    lc_changes = models.CharField(max_length=3, null=True, blank=True)
     lc_expiration_date = models.DateField(null=True, blank=True)
     b_sent_date = models.DateField(null=True, blank=True)
     b_discussion_date = models.DateField(null=True, blank=True)

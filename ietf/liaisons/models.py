@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from ietf.idtracker.models import Acronym, PersonOrOrgInfo, Area, IESGLogin
 from ietf.liaisons.mail import IETFEmailMessage
 from ietf.ietfauth.models import LegacyLiaisonUser
@@ -142,7 +143,7 @@ class LiaisonDetail(models.Model):
         subject = 'New Liaison Statement, "%s" needs your approval' % (self.title)
         from_email = settings.LIAISON_UNIVERSAL_FROM
         body = render_to_string('liaisons/pending_liaison_mail.txt',
-                                {'liaison': self,
+                                {'liaison': self, 'domain': Site.objects.get_current().domain,
                                 })
         mail = IETFEmailMessage(subject=subject,
                                 to=to_email,
@@ -165,7 +166,7 @@ class LiaisonDetail(models.Model):
             cc += self.response_contact.split(',')
         bcc = ['statements@ietf.org']
         body = render_to_string('liaisons/liaison_mail.txt',
-                                {'liaison': self,
+                                {'liaison': self, 'domain': Site.objects.get_current().domain, 
                                 })
         mail = IETFEmailMessage(subject=subject,
                                 to=to_email,

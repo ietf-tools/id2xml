@@ -151,7 +151,7 @@ def liaison_approval_list(request):
 def liaison_approval_detail(request, object_id):
     person = get_person_for_user(request.user)
     approval_codes = IETFHM.get_all_can_approve_codes(person)
-    to_approve = LiaisonDetail.objects.filter(approval__isnull=False, approval__approved=False, from_raw_code__in=approval_codes).order_by("-submitted_date")
+    to_approve = LiaisonDetail.objects.filter(approval__isnull=False, from_raw_code__in=approval_codes).order_by("-submitted_date")
 
     if request.method=='POST' and request.POST.get('do_approval', False):
         try:

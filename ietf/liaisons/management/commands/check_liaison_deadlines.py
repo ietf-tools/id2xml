@@ -3,6 +3,7 @@ import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 
 from ietf.liaisons.models import LiaisonDetail
 from ietf.liaisons.mail import IETFEmailMessage
@@ -40,6 +41,7 @@ class Command(BaseCommand):
         body = render_to_string('liaisons/liaison_deadline_mail.txt',
                                 {'liaison': liaison,
                                  'days_msg': days_msg,
+                                 'domain': Site.objects.get_current().domain, 
                                 })
         mail = IETFEmailMessage(subject=subject,
                                 to=to_email,

@@ -288,33 +288,29 @@ class NotExistDelegateForm(MultipleDelegateForm):
         info = render_to_string('wgchairs/notexistdelegate.html', {'email_list': email_list, 'shepherd': self.shepherd})
         return info + super(NotExistDelegateForm, self).as_p()
 
-    def send_email(self, email, template):
+    def send_email(self, to, template):
         if self.shepherd:
             subject = 'WG shepherd needs system credentials'
         else:
             subject = 'WG Delegate needs system credentials'
         persons = PersonOrOrgInfo.objects.filter(emailaddress__address=self.email).distinct()
-        body = render_to_string(template,
-                                {'chair': get_person_for_user(self.user),
-                                 'delegate_email': self.email,
-                                 'shepherd': self.shepherd,
-                                 'delegate_persons': persons,
-                                 'wg': self.wg,
-                                })
-        mail = EmailMessage(subject=subject,
-                            body=body,
-                            to=email,
-                            from_email=settings.DEFAULT_FROM_EMAIL)
-        mail.send()
+        context = {
+            'chair': get_person_for_user(self.user),
+            'delegate_email': self.email,
+            'shepherd': self.shepherd,
+            'delegate_persons': persons,
+            'wg': self.wg,
+        }
+        send_mail(None, to, None, subject, template, context)
 
-    def send_email_to_delegate(self, email):
-        self.send_email(email, 'wgchairs/notexistsdelegate_delegate_email.txt')
+    def send_email_to_delegate(self, to):
+        self.send_email(to, 'wgchairs/notexistsdelegate_delegate_email.txt')
 
-    def send_email_to_secretariat(self, email):
-        self.send_email(email, 'wgchairs/notexistsdelegate_secretariat_email.txt')
+    def send_email_to_secretariat(self, to):
+        self.send_email(to, 'wgchairs/notexistsdelegate_secretariat_email.txt')
 
-    def send_email_to_wgchairs(self, email):
-        self.send_email(email, 'wgchairs/notexistsdelegate_wgchairs_email.txt')
+    def send_email_to_wgchairs(self, to):
+        self.send_email(to, 'wgchairs/notexistsdelegate_wgchairs_email.txt')
 
     def save(self):
         self.next_form = AddDelegateForm(wg=self.wg, user=self.user)

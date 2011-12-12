@@ -1,3 +1,4 @@
+{% autoescape off %}
 WG chair approval is needed for posting of {{ draft.filename }}-{{ draft.revision }} draft 
 
 I-D Submission Tool URL: http://{{ domain }}/submit/status/{{ draft.submission_id }}/{{ draft.submission_hash }}/
@@ -18,3 +19,4 @@ Submitter: {{ submitter.first_name }} {{ submitter.last_name }} <{{ submitter.em
 Author(s):
 {% for author in form.get_authors %}{{ author.first_name }} {{ author.last_name }} <{{ author.email.1 }}>
 {% endfor %}
+{% endautoescape %}

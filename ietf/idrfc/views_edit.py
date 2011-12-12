@@ -102,7 +102,10 @@ def dehtmlify_textarea_text(s):
     return s.replace("<br>", "\n").replace("<b>", "").replace("</b>", "").replace("  ", " ")
 
 class EditInfoForm(forms.Form):
-    intended_status = forms.ModelChoiceField(IDIntendedStatus.objects.all(), empty_label=None, required=True)
+    # With rfc 6410, the standard levels are reduced to two, excluding 'Draft Standard'.
+    # With the new schema, instead of 'IDIntendedStatus.objects.all()' below, we could have
+    # said 'IDIntendedStatus.objects.filter(used=True)'.  Now we have to do something else...
+    intended_status = forms.ModelChoiceField(IDIntendedStatus.objects.all().exclude(intended_status="Draft Standard"), empty_label=None, required=True)
     area_acronym = forms.ModelChoiceField(Area.active_areas(), required=True, empty_label='None Selected')
     via_rfc_editor = forms.BooleanField(required=False, label="Via IRTF or RFC Editor")
     stream = forms.ModelChoiceField(Stream.objects.all(), empty_label=None, required=True)

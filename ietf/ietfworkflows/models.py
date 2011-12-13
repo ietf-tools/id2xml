@@ -200,11 +200,17 @@ class Stream(models.Model):
         for attr_name in self.group_chair_attribute.split('.'):
             attr = getattr(obj, attr_name, None)
             if not attr:
-                return None
+                return []
             if callable(attr):
                 attr = attr()
             obj = attr
-        return attr
+        persons = []
+        for i in attr:
+            if isinstance(i, PersonOrOrgInfo):
+                persons.append(i)
+            elif hasattr(i, 'person'):
+                persons.append(i.person)
+        return persons
 
     def get_delegates_for_document(self, document):
         delegates = []

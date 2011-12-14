@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 
 from ietf.utils.mail import send_mail
-from ietf.community.models import Rule, DisplayConfiguration
+from ietf.community.models import Rule, DisplayConfiguration, RuleManager
 from ietf.community.display import DisplayField
 
 
@@ -24,6 +24,15 @@ class RuleForm(forms.ModelForm):
         self.instance.community_list = self.clist
         super(RuleForm, self).save()
 
+    def get_all_options(self):
+        result = []
+        for i in RuleManager.__subclasses__():
+            options = i(None).options()
+            if options:
+                result.append({'type': i.codename,
+                               'options': options})
+        return result
+        
 
 class DisplayForm(forms.ModelForm):
 

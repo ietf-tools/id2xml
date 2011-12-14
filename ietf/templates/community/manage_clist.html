@@ -5,6 +5,7 @@
 <script type="text/javascript" src="/js/lib/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/js/yui/yui-20100305.js"></script>
 <script type="text/javascript" src="/js/base.js"></script>
+<script type="text/javascript" src="/js/community.js"></script>
 {% endblock pagehead %}
 
 {% block title %}{{ cl.long_name }}{% endblock %}
@@ -52,12 +53,14 @@ In order to add some documents to your list you have to:
 <table class="ietf-table">
  <tr><th>Rule</th><th>Value</th><th>Documents</th><th>Remove from list</th></tr>
 {% for rule in cl.rule_set.all %}
+{% with rule.get_callable_rule as callable %}
 <tr class="{% cycle oddrow,evenrow %}">
-  <td>{{ rule.get_callable_rule.description }}</td>
-  <td>{{ rule.value }}</td>
+  <td>{{ callable.description }}</td>
+  <td>{{ callable.show_value }}</td>
   <td>{% with rule.cached_ids.count as count %}{{ count }} document{{ count|pluralize }}{% endwith %}</td>
   <td><a href="{% url community_remove_rule cl.pk rule.pk %}">Remove</a></td>
 </tr>
+{% endwith %}
 {% endfor %}
 </table>
 
@@ -66,6 +69,17 @@ In order to add some documents to your list you have to:
 {{ rule_form.as_p }}
 <input type="submit" name="save_rule" value="Add rule" />
 </form>
+<div class="rule_values" style="display: none;">
+{% for entry in rule_form.get_all_options %}
+<div class="{{ entry.type }}">
+  <select>
+  {% for option in  entry.options %}
+    <option value={{ option.0 }}>{{ option.1 }}</option>
+  {% endfor %}
+  </select>
+</div>
+{% endfor %}
+</div>
 </div>
 
 <div id="custom">

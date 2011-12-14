@@ -98,11 +98,25 @@ class PasswordForm(forms.Form):
     def create_user(self):
         user = User.objects.create(username=self.username,
                                    email=self.username)
-        person = Person.objects.create(user=user,
-                                       name=self.username,
-                                       ascii=self.username)
-        Email.objects.create(person=person,
-                             address=self.username)
+        email = Email.objects.filter(address=self.username)
+        person = None
+        if email.count():
+            email = email[0]
+            if email.person:
+                person = email.person
+        else:
+            email = None
+        if not person:
+            person = Person.objects.create(user=user,
+                                           name=self.username,
+                                           ascii=self.username)
+        if not email:
+            email = Email.objects.create(address=self.username,
+                                         person=person)
+        email.person = person
+        email.save()
+        person.user = user
+        person.save()
         return user
 
     def get_user(self):

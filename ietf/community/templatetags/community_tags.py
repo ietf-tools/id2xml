@@ -1,4 +1,5 @@
 from django import template
+from django.template.loader import render_to_string
 
 from ietf.community.models import CommunityList
 from redesign.group.models import Role
@@ -38,11 +39,11 @@ class CommunityListNode(template.Node):
 def get_user_managed_lists(parser, token):
     firstbits = token.contents.split(None, 2)
     if len(firstbits) != 3:
-        raise TemplateSyntaxError("'get_user_managed_lists' tag takes three arguments")
+        raise template.TemplateSyntaxError("'get_user_managed_lists' tag takes three arguments")
     user = parser.compile_filter(firstbits[1])
     lastbits_reversed = firstbits[2][::-1].split(None, 2)
     if lastbits_reversed[1][::-1] != 'as':
-        raise TemplateSyntaxError("next-to-last argument to 'get_user_managed_lists' tag must"
+        raise template.TemplateSyntaxError("next-to-last argument to 'get_user_managed_lists' tag must"
                                   " be 'as'")
     var_name = lastbits_reversed[0][::-1]
     return CommunityListNode(user, var_name)
@@ -53,3 +54,27 @@ def show_field(field, doc):
     return {'field': field,
             'value': field().get_value(doc),
            }
+
+
+class CommunityListViewNode(template.Node):
+    
+    def __init__(self, clist):
+        self.clist = clist
+
+    def render(self, context):
+        clist = self.clist.resolve(context)
+        if not clist.cached:
+            clist.cached = render_to_string('community/raw_view.html',
+                                            {'cl': clist,
+                                             'dc': clist.get_display_config()})
+            clist.save()
+        return clist.cached
+
+
+@register.tag
+def get_clist_view(parser, token):
+    firstbits = token.contents.split(None, 1)
+    if len(firstbits) != 2:
+        raise template.TemplateSyntaxError("'get_clist_view' tag takes one argument")
+    clist = parser.compile_filter(firstbits[1])
+    return CommunityListViewNode(clist)

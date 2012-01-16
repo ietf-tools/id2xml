@@ -1,3 +1,5 @@
+import hashlib
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -19,6 +21,8 @@ class CommunityList(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)
     group = models.ForeignKey(Group, blank=True, null=True)
     added_ids = models.ManyToManyField(Document)
+    secret = models.CharField(max_length=255, null=True, blank=True)
+    cached = models.TextField(null=True, blank=True)
 
     def check_manager(self, user):
         if user == self.user:
@@ -58,7 +62,7 @@ class CommunityList(models.Model):
 
     def get_manage_url(self):
         if self.user:
-            return reverse('manage_personal_list', None, args=(self.user.username, ))
+            return reverse('manage_personal_list', None, args=())
         else:
             return reverse('manage_group_list', None, args=(self.group.acronym, ))
 
@@ -70,15 +74,45 @@ class CommunityList(models.Model):
         return self._cached_dconfig
 
     def get_documents(self):
-        docs = self.added_ids.all().distinct()
+        if hasattr(self, '_cached_documents'):
+            return self._cached_documents
+        docs = self.added_ids.all().distinct().select_related('type', 'group', 'ad')
         for rule in self.rule_set.all():
             docs = docs | rule.cached_ids.all().distinct()
         sort_field = self.get_display_config().get_sort_method().get_sort_field()
         docs = docs.distinct().order_by(sort_field)
-        return docs
+        self._cached_documents = docs
+        return self._cached_documents
+
+    def get_rfcs_and_drafts(self):
+        if hasattr(self, '_cached_rfcs_and_drafts'):
+            return self._cached_rfcs_and_drafts
+        docs = self.get_documents()
+        sort_method = self.get_display_config().get_sort_method()
+        sort_field = sort_method.get_sort_field()
+        if hasattr(sort_method, 'get_full_rfc_sort'):
+            rfcs = sort_method.get_full_rfc_sort(docs.filter(states__name='rfc').distinct())
+        else:
+            rfcs = docs.filter(states__name='rfc').distinct().order_by(sort_field)
+        if hasattr(sort_method, 'get_full_draft_sort'):
+            drafts = sort_method.get_full_draft_sort(docs.exclude(pk__in=rfcs).distinct())
+        else:
+            drafts = docs.exclude(pk__in=rfcs).distinct().order_by(sort_field)
+        self._cached_rfcs_and_drafts = (rfcs, drafts)
+        return self._cached_rfcs_and_drafts
 
     def add_subscriptor(self, email, significant):
         self.emailsubscription_set.get_or_create(email=email, significant=significant)
+
+    def save(self, *args, **kwargs):
+        super(CommunityList, self).save(*args, **kwargs)
+        if not self.secret:
+            self.secret = hashlib.md5('%s%s%s%s' % (settings.SECRET_KEY, self.id, self.user and self.user.id or '', self.group and self.group.id or '')).hexdigest()
+            self.save()
+
+    def update(self):
+        self.cached=None
+        self.save()
 
 
 class Rule(models.Model):
@@ -105,6 +139,11 @@ class Rule(models.Model):
         super(Rule, self).save(*args, **kwargs)
         rule = self.get_callable_rule()
         self.cached_ids = rule.get_documents()
+        self.community_list.update()
+
+    def delete(self):
+        self.community_list.update()
+        super(Rule, self).delete()
 
 
 class DisplayConfiguration(models.Model):
@@ -135,11 +174,23 @@ class DisplayConfiguration(models.Model):
         active_fields = [i for i in DisplayField.__subclasses__() if i.codename in fields]
         return active_fields
 
+    def get_all_fields(self):
+        all_fields = [i for i in DisplayField.__subclasses__()]
+        return all_fields
+
     def get_sort_method(self):
         for i in SortMethod.__subclasses__():
             if i.codename == self.sort_method:
                 return i()
         return SortMethod()
+
+    def save(self, *args, **kwargs):
+        super(DisplayConfiguration, self).save(*args, **kwargs)
+        self.community_list.update()
+
+    def delete(self):
+        self.community_list.update()
+        super(DisplayConfiguration, self).delete()
 
 
 class ExpectedChange(models.Model):

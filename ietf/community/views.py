@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.utils import simplejson
 from django.utils.http import urlquote
 
 from ietf.community.models import CommunityList, Rule, EmailSubscription, ListNotification
@@ -36,6 +37,7 @@ def _manage_list(request, clist):
     else:
         rule_form = RuleForm(clist=clist)
         display_form = DisplayForm(instance=display_config)
+    clist = CommunityList.objects.get(id=clist.id)
     return render_to_response('community/manage_clist.html',
                               {'cl': clist,
                                'dc': display_config,
@@ -44,9 +46,9 @@ def _manage_list(request, clist):
                               context_instance=RequestContext(request))
 
 
-def manage_personal_list(request, username):
-    user = get_object_or_404(User, username=username)
-    if not request.user.is_authenticated() or user != request.user:
+def manage_personal_list(request):
+    user = request.user
+    if not user.is_authenticated():
         path = urlquote(request.get_full_path())
         tup = settings.LOGIN_URL, REDIRECT_FIELD_NAME, path
         return HttpResponseRedirect('%s?%s=%s' % tup)
@@ -77,6 +79,7 @@ def add_document(request, document_name):
         return HttpResponseRedirect('%s?%s=%s' % tup)
     doc = get_object_or_404(Document, name=document_name)
     clist = CommunityList.objects.get_or_create(user=request.user)[0]
+    clist.update()
     return add_document_to_list(request, clist, doc)
 
 
@@ -88,6 +91,7 @@ def remove_document(request, list_id, document_name):
         return HttpResponseRedirect('%s?%s=%s' % tup)
     doc = get_object_or_404(Document, name=document_name)
     clist.added_ids.remove(doc)
+    clist.update()
     return HttpResponseRedirect(clist.get_manage_url())
 
 
@@ -97,7 +101,7 @@ def add_document_to_list(request, clist, doc):
         tup = settings.LOGIN_URL, REDIRECT_FIELD_NAME, path
         return HttpResponseRedirect('%s?%s=%s' % tup)
     clist.added_ids.add(doc)
-    return HttpResponseRedirect(clist.get_manage_url())
+    return HttpResponse(simplejson.dumps({'success': True}), mimetype='text/plain')
 
 
 def remove_rule(request, list_id, rule_id):
@@ -120,9 +124,8 @@ def _view_list(request, clist):
                               context_instance=RequestContext(request))
 
 
-def view_personal_list(request, username):
-    user = get_object_or_404(User, username=username)
-    clist = get_object_or_404(CommunityList, user=user)
+def view_personal_list(request, secret):
+    clist = get_object_or_404(CommunityList, secret=secret)
     return _view_list(request, clist)
 
 
@@ -161,9 +164,8 @@ def _atom_view(request, clist, significant=False):
                               context_instance=RequestContext(request))
 
 
-def changes_personal_list(request, username):
-    user = get_object_or_404(User, username=username)
-    clist = get_object_or_404(CommunityList, user=user)
+def changes_personal_list(request, secret):
+    clist = get_object_or_404(CommunityList, secret=secret)
     return _atom_view(request, clist)
 
 
@@ -173,9 +175,8 @@ def changes_group_list(request, acronym):
     return _atom_view(request, clist)
 
 
-def significant_personal_list(request, username):
-    user = get_object_or_404(User, username=username)
-    clist = get_object_or_404(CommunityList, user=user)
+def significant_personal_list(request, secret):
+    clist = get_object_or_404(CommunityList, secret=secret)
     return _atom_view(request, clist, significant=True)
 
 
@@ -190,9 +191,9 @@ def _csv_list(request, clist):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=draft-list.csv'
 
-    writer = csv.writer(response, dialect=csv.excel, delimiter=';')
+    writer = csv.writer(response, dialect=csv.excel, delimiter=',')
     header = []
-    fields = display_config.get_active_fields()
+    fields = display_config.get_all_fields()
     for field in fields:
         header.append(field.description)
     writer.writerow(header)
@@ -200,19 +201,19 @@ def _csv_list(request, clist):
     for doc in clist.get_documents():
         row = []
         for field in fields:
-            row.append(field().get_value(doc))
+            row.append(field().get_value(doc, raw=True))
         writer.writerow(row)
     return response
 
 
-def csv_personal_list(request, username):
-    user = get_object_or_404(User, username=username)
-    if not request.user.is_authenticated() or user != request.user:
+def csv_personal_list(request):
+    user = request.user
+    if not user.is_authenticated():
         path = urlquote(request.get_full_path())
         tup = settings.LOGIN_URL, REDIRECT_FIELD_NAME, path
         return HttpResponseRedirect('%s?%s=%s' % tup)
-    clist = CommunityList.objects.get_or_create(user=request.user)[0]
-    if not clist.check_manager(request.user):
+    clist = CommunityList.objects.get_or_create(user=user)[0]
+    if not clist.check_manager(user):
         path = urlquote(request.get_full_path())
         tup = settings.LOGIN_URL, REDIRECT_FIELD_NAME, path
         return HttpResponseRedirect('%s?%s=%s' % tup)
@@ -266,9 +267,8 @@ def _unsubscribe_list(request, clist, significant):
                               context_instance=RequestContext(request))
 
 
-def subscribe_personal_list(request, username, significant=False):
-    user = get_object_or_404(User, username=username)
-    clist = get_object_or_404(CommunityList, user=user)
+def subscribe_personal_list(request, secret, significant=False):
+    clist = get_object_or_404(CommunityList, secret=secret)
     return _subscribe_list(request, clist, significant=significant)
 
 
@@ -278,9 +278,8 @@ def subscribe_group_list(request, acronym, significant=False):
     return _subscribe_list(request, clist, significant=significant)
 
 
-def unsubscribe_personal_list(request, username, significant=False):
-    user = get_object_or_404(User, username=username)
-    clist = get_object_or_404(CommunityList, user=user)
+def unsubscribe_personal_list(request, secret, significant=False):
+    clist = get_object_or_404(CommunityList, secret=secret)
     return _unsubscribe_list(request, clist, significant=significant)
 
 

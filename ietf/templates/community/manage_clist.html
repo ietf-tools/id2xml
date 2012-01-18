@@ -15,7 +15,7 @@
 <div id="mytabs" class="yui-navset">
 <ul class="yui-nav">
   <li class="selected"><a href="#view"><em>Documents</em></a></li>
-  <li><a href="#documents"><em>Searches</em></a></li>
+  <li><a href="#documents"><em>Manually added</em></a></li>
   <li><a href="#rules"><em>Rules</em></a></li>
   <li><a href="#custom"><em>Display customization</em></a></li>
   <li><a href="#info"><em>Exports</em></a></li>
@@ -30,7 +30,7 @@
 <div id="documents">
 <h2>Documents manually added to this list</h2>
 <p>
-In order to add some documents to your list you have to:
+In order to add some individual documents to your list you have to:
 </p>
 <ul>
    <li>Search the document or documents you want to add using <a href="/doc/search">the datatracker searcher</a>.</li>
@@ -89,9 +89,11 @@ In order to add some documents to your list you have to:
 <div id="info">
 <p>Feel free to share the following links if you need it.</p>
 <ul>
- <li><a href="view/">Read only view for {{ cl.long_name }}</a></li>
- <li><a href="changes/feed/">Feed for every change in status of {{ cl.long_name }}</a></li>
- <li><a href="changes/significant/feed/">Feed for significant change in status of {{ cl.long_name }}</a></li>
+ <li><a href="{{ cl.secret }}/view/">Read only view for {{ cl.long_name }}</a></li>
+ <li><a href="{{ cl.secret }}/changes/feed/">Feed for every change in status of {{ cl.long_name }}</a></li>
+ <li><a href="{{ cl.secret }}/changes/significant/feed/">Feed for significant change in status of {{ cl.long_name }}</a></li>
+ <li><a href="{{ cl.secret }}/subscribe/">Subscribe to the mailing list for every change in status of {{ cl.long_name }}</a></li>
+ <li><a href="{{ cl.secret }}/subscribe/significant/">Subscribe to the mailing list for significant change in status of {{ cl.long_name }}</a></li>
 </ul>
 
 <p>Export your list to CSV format</p>

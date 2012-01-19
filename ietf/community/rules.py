@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from ietf.community.utils import get_drafts_with
+from ietf.community.utils import get_documents_with
 
 from redesign.doc.models import Document
 from redesign.group.models import Group
@@ -133,7 +133,7 @@ class WithTextRule(RuleManager):
     description = 'All I-Ds that contain a particular text string'
 
     def get_documents(self):
-        return get_drafts_with(self.value).distinct()
+        return get_documents_with(self.value).distinct()
 
 
 TYPES_OF_RULES = [(i.codename, i.description) for i in RuleManager.__subclasses__()]

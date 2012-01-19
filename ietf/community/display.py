@@ -3,7 +3,7 @@ import datetime
 from django.db.models import Q
 from ietf.ietfworkflows.utils import get_state_for_draft
 
-from redesign.doc.models import DocAlias
+from redesign.doc.models import DocAlias, DocEvent
 
 
 class DisplayField(object):
@@ -39,9 +39,9 @@ class DateField(DisplayField):
     description = 'Date of current I-D'
 
     def get_value(self, document, raw=False):
-        dates = document.documentchangedates_set.all()
-        if dates and dates[0].new_version_date:
-            return dates[0].new_version_date.strftime('%Y-%m-%d')
+        date = document.latest_event(type='new_revision')
+        if date:
+            return date.time.strftime('%Y-%m-%d')
         return document.time.strftime('%Y-%m-%d')
 
 
@@ -152,15 +152,14 @@ class PublicationSort(SortMethod):
     description = 'Date of publication of current version of the document'
 
     def get_sort_field(self):
-        return 'documentchangedates__new_version_date'
-
+        return '-documentchangedates__new_version_date'
 
 class ChangeSort(SortMethod):
     codename = 'recent_change'
     description = 'Date of most recent change of status of any type'
 
     def get_sort_field(self):
-        return 'documentchangedates__normal_change_date'
+        return '-documentchangedates__normal_change_date'
 
 
 class SignificantSort(SortMethod):
@@ -168,7 +167,7 @@ class SignificantSort(SortMethod):
     description = 'Date of most recent significant change of status'
 
     def get_sort_field(self):
-        return 'documentchangedates__significant_change_date'
+        return '-documentchangedates__significant_change_date'
 
 
 TYPES_OF_SORT = [(i.codename, i.description) for i in SortMethod.__subclasses__()]

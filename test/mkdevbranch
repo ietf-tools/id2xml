@@ -59,7 +59,7 @@ for line in sys.stdin:
     blank, name, email, rest = line.strip().split("||", 3)
     login, dummy  = re.split("[@.]", email, 1)
     print "\t".join((login.strip().lower(), email.strip().lower(), name.strip())) ' \
-	| update $progdir/sprint$num.txt
+	| $progdir/update $progdir/sprint$num.txt
 
 cat $(ls $progdir/sprint*.txt | tail -n 4) | sed 's/[ \t]*$//' | sort | uniq | while read login email name; do 
     echo ""

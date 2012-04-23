@@ -499,11 +499,12 @@ def ical_agenda(request, num=None):
         Q(type__name__in = include_types) |
         Q(session__group__acronym__in = filter) |
         Q(session__group__parent__acronym__in = filter)
-        ).exclude(Q(session__group__isnull = False),
-        Q(session__group__acronym__in = exclude) | 
-        Q(session__group__parent__acronym__in = exclude))
+        )#.exclude(Q(session__group__isnull = False),
+        #Q(session__group__acronym__in = exclude) | 
+        #Q(session__group__parent__acronym__in = exclude))
 
-    return HttpResponse(render_to_string("meeting/agendaREDESIGN.ics" if settings.USE_DB_REDESIGN_PROXY_CLASSES else "meeting/agenda.ics",
+
+    return HttpResponse(render_to_string("meeting/agendaREDESIGN.ics",
         {"timeslots":timeslots, "meeting":meeting },
         RequestContext(request)), mimetype="text/calendar")
 

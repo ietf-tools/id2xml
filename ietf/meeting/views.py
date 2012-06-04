@@ -522,10 +522,13 @@ def csv_agenda(request, num=None):
          "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },
         RequestContext(request)), mimetype="text/csv")
 
-def meeting_requests(request, num) :
-    meeting = Meeting.objects.get(number=num)
+def meeting_requests(request, num=None) :
+    if (num == None):
+        meeting = Meeting.objects.filter(type="ietf").order_by("date").reverse()[0]
+    else:
+        meeting = get_object_or_404(Meeting, number=num)
 
-    sessions = Session.objects.filter(meeting__number=num,group__parent__isnull = False).exclude(requested_by=0).order_by("group__parent__acronym","group__acronym")
+    sessions = Session.objects.filter(meeting__number=meeting.number,group__parent__isnull = False).exclude(requested_by=0).order_by("group__parent__acronym","status__slug","group__acronym")
 
     groups_not_meeting = Group.objects.filter(state='Active',type__in=['WG','RG','BOF']).exclude(acronym__in = [session.group.acronym for session in sessions]).order_by("parent__acronym","acronym")
 
@@ -533,10 +536,3 @@ def meeting_requests(request, num) :
         {"meeting": meeting, "sessions":sessions,
          "groups_not_meeting": groups_not_meeting},
         context_instance=RequestContext(request))
-
-def conflict_digraph(request, num=None) :
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
-    sessions = WgMeetingSession.objects.filter(meeting=meeting)
-    return render_to_response("meeting/digraph.html",
-        {"sessions":sessions},
-        context_instance=RequestContext(request), mimetype="text/plain")

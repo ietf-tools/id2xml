@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from ietf.community.constants import SIGNIFICANT_STATES
 from ietf.community.models import DocumentChangeDates
-from redesign.doc.models import Document
+from ietf.doc.models import Document
 
 
 class Command(BaseCommand):

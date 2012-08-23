@@ -1,5 +1,0 @@
-for i in /home/*/.tmda/lists/allconfirmed
-do
-cat allconfirmed > $i
-done
-rm allconfirmed

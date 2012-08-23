@@ -1,5 +1,0 @@
-{{person.first_name}} {{person.last_name}}, a chair of the {{group.group_acronym.name}}
-working group has cancelled the {{group.group_acronym.name}} working group 
-for IETF {{meeting_num}} meeting.
-
-This message was generated and sent by the IETF Meeting Session Request Tool.

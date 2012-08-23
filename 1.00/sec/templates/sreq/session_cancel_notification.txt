@@ -1,0 +1,2 @@
+A request to cancel a meeting session has just been submitted by {{ login }}, a chair of the {{ group.acronym }} working group.
+

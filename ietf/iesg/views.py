@@ -330,11 +330,14 @@ def _agenda_json(request, date=None):
                 pass
             else:
                 if len(wgs[section]) != 0:
-                    for obj in wgs[section]:
-                        wg = obj['obj']
+                    for element in wgs[section]:
+                        doc = element['doc']
+                        wg = doc.group
                         wginfo = {'wgname':wg.name,
                                   'acronym':wg.acronym,
-                                  'ad':wg.ad.name}
+                                  'ad':wg.ad.name,
+                                  'docname':doc.name,
+                                  'rev': doc.rev}
                         data['sections'][s]['wgs'] += [wginfo, ]
 
     mgmt = agenda_management_issues(date)

@@ -318,6 +318,7 @@ def _agenda_json(request, date=None):
                             docinfo['target-title'] = td.title
                             docinfo['target-rev'] = td.rev
                             docinfo['intended-std-level'] = str(td.intended_std_level)
+                            docinfo['stream'] = str(td.stream)
                         else:
                             docinfo['intended-std-level'] = str(d.intended_std_level)
                             if d.rfc_number():

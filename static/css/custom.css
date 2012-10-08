@@ -507,6 +507,10 @@ div.interim-scroll {
     overflow: auto;
 }
 
+.highlight {
+    color: #FF0000;
+}
+
 .internal-form label {
     float: left;
     width: 100px;

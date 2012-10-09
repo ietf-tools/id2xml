@@ -373,7 +373,7 @@ def non_session(request, meeting_id):
     if not TimeSlot.objects.filter(meeting=meeting,type__in=('break','reg','other')):
         build_nonsession(meeting)
     
-    slots = TimeSlot.objects.filter(meeting=meeting,type__in=('break','reg','other','plenary')).order_by('-type__name',)
+    slots = TimeSlot.objects.filter(meeting=meeting,type__in=('break','reg','other','plenary')).order_by('-type__name','time')
     
     if request.method == 'POST':
         form = NonSessionForm(request.POST)

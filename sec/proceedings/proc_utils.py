@@ -215,7 +215,7 @@ def create_proceedings(meeting, group, is_final=False):
         for name in files:
             basename = os.path.basename(name)
             obj = {'name': basename,
-                   'url': url_root + "blueshseets/" + basename}
+                   'url': url_root + "bluesheets/" + basename}
             bluesheets.append(obj)
         bluesheets = sorted(bluesheets, key = lambda x: x['name'])
         # ----------------------------------------------------------------------

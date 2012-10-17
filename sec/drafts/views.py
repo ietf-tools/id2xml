@@ -1098,7 +1098,7 @@ def search(request):
                 kwargs['title__istartswith'] = title
             if state:
                 kwargs['states__type'] = 'draft'
-                kwargs['states__slug'] = state
+                kwargs['states'] = state
             if name:
                 kwargs['name__istartswith'] = name
             if group:
@@ -1109,7 +1109,9 @@ def search(request):
             if revision_date_end:
                 kwargs['docevent__type'] = 'new_revision'
                 kwargs['docevent__time__lte'] = revision_date_end
+            
             # perform query
+            #assert False, kwargs
             if kwargs:
                 qs = Document.objects.filter(**kwargs)
             else:

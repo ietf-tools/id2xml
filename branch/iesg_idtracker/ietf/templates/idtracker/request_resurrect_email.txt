@@ -1,7 +1,0 @@
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-I-D that is requested to be resurrected: {{ draft.filename }}
-Requested by: {{ requested_by }}
-{% if draft.idinternal %}
-ID Tracker URL: http://datatracker.ietf.org{% url ietf.idtracker.views.view_id draft.filename %} 
-{% endif %}
-

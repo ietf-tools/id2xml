@@ -132,9 +132,10 @@ def get_revision_emails(draft):
     if draft.ad:
         emails.append(draft.ad.role_email("ad").address)
 
-    for ad, pos in draft.active_ballot().active_ad_positions().iteritems():
-        if pos and pos.pos_id == "discuss":
-            emails.append(ad.role_email("ad").address)
+    if draft.active_ballot():
+        for ad, pos in draft.active_ballot().active_ad_positions().iteritems():
+            if pos and pos.pos_id == "discuss":
+                emails.append(ad.role_email("ad").address)
 
     return ', '.join(emails)
 

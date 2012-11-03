@@ -5,8 +5,11 @@
 # http://code.djangoproject.com/wiki/SplitSettings
 
 import os
-import syslog
-syslog.openlog("datatracker", syslog.LOG_PID, syslog.LOG_USER)
+try:
+    import syslog
+    syslog.openlog("datatracker", syslog.LOG_PID, syslog.LOG_USER)
+except ImportError:
+    pass
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -101,6 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'ietf.middleware.SQLLogMiddleware',
     'ietf.middleware.SMTPExceptionMiddleware',
@@ -120,6 +124,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
     'ietf.context_processors.server_mode',
     'ietf.context_processors.revision_info',
     'ietf.context_processors.rfcdiff_prefix', 
@@ -134,6 +139,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.humanize',
+    'django.contrib.messages',
     'south',
     'workflows',
     'permissions',
@@ -299,6 +305,7 @@ BIBXML_BASE_PATH = '/a/www/ietf-ftp/xml2rfc'
 
 # Timezone files for iCalendar
 TZDATA_ICS_PATH = '/www/ietf-datatracker/tz/ics/'
+CHANGELOG_PATH = '/www/ietf-datatracker/web/changelog'
 
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.

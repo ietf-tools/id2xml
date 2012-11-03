@@ -242,54 +242,35 @@ class AddDelegateForm(RelatedWGForm):
 
     def save(self):
         email = self.cleaned_data.get('email')
-        if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-            try:
-                person = Person.objects.filter(email__address=email).exclude(user=None).distinct().get()
-            except Person.DoesNotExist:
-                self.next_form = NotExistDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
-                self.next_form.set_message('doesnotexist', 'There is no user with this email allowed to login to the system')
-                return
-            except Person.MultipleObjectsReturned:
-                self.next_form = MultipleDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
-                self.next_form.set_message('multiple', 'There are multiple users with this email in the system')
-                return
-        else:
-            try:
-                person = self.get_person(email)
-            except PersonOrOrgInfo.DoesNotExist:
-                self.next_form = NotExistDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
-                self.next_form.set_message('doesnotexist', 'There is no user with this email allowed to login to the system')
-                return
-            except PersonOrOrgInfo.MultipleObjectsReturned:
-                self.next_form = MultipleDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
-                self.next_form.set_message('multiple', 'There are multiple users with this email in the system')
-                return
+        try:
+            person = Person.objects.filter(email__address=email).exclude(user=None).distinct().get()
+        except Person.DoesNotExist:
+            self.next_form = NotExistDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
+            self.next_form.set_message('doesnotexist', 'There is no user with this email allowed to login to the system')
+            return
+        except Person.MultipleObjectsReturned:
+            self.next_form = MultipleDelegateForm(wg=self.wg, user=self.user, email=email, shepherd=self.shepherd)
+            self.next_form.set_message('multiple', 'There are multiple users with this email in the system')
+            return
         if self.shepherd:
             self.assign_shepherd(person)
         else:
             self.create_delegate(person)
 
     def assign_shepherd(self, person):
-        if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-            assign_shepherd(self.user, self.shepherd, person)
-        else:
-            self.shepherd.shepherd = person
-            self.shepherd.save()
+        assign_shepherd(self.user, self.shepherd, person)
         self.next_form = AddDelegateForm(wg=self.wg, user=self.user, shepherd=self.shepherd)
         self.next_form.set_message('success', 'Shepherd assigned successfully')
 
     def create_delegate(self, person):
-        if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-            created = False
-            e = Email.objects.get(address=self.cleaned_data.get('email'))
-            if not Role.objects.filter(name="delegate", group=self.wg, person=person, email=e):
-                created = True
-                save_group_in_history(self.wg)
-                delegate, _ = Role.objects.get_or_create(
-                    name=RoleName.objects.get(slug="delegate"), group=self.wg, person=e.person, email=e)
-        else:
-            (delegate, created) = WGDelegate.objects.get_or_create(wg=self.wg,
-                                                                   person=person)
+        created = False
+        e = Email.objects.get(address=self.cleaned_data.get('email'))
+        if not Role.objects.filter(name="delegate", group=self.wg, person=person, email=e):
+            created = True
+            save_group_in_history(self.wg)
+            delegate, _ = Role.objects.get_or_create(
+                name=RoleName.objects.get(slug="delegate"), group=self.wg, person=e.person, email=e)
+
         if not created:
             self.set_message('error', 'The email belongs to a person who is already a delegate')
         else:
@@ -427,43 +408,29 @@ class WriteUpEditForm(RelatedWGForm):
         return self.data.get('writeup', self.doc_writeup and self.doc_writeup.writeup or '')
 
     def save(self):
-        if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-            e = WriteupDocEvent(type="changed_protocol_writeup")
-            e.doc = self.doc
-            e.by = self.person
-            e.desc = e.get_type_display()
-            e.text = self.cleaned_data['writeup']
-            e.save()
-            from ietf.wgchairs.models import ProtoWriteUpProxy
-            self.doc_writeup = ProtoWriteUpProxy.objects.get(pk=e.pk)
-        else:
-            if not self.doc_writeup:
-                self.doc_writeup = ProtoWriteUp.objects.create(
-                    person=self.person,
-                    draft=self.doc,
-                    writeup=self.cleaned_data['writeup'])
-            else:
-                self.doc_writeup.writeup = self.cleaned_data['writeup']
-                self.doc_writeup.save()
 
-        if self.data.get('modify_tag', False):
-            followup = self.cleaned_data.get('followup', False)
+        e = WriteupDocEvent(type="changed_protocol_writeup")
+        e.doc = self.doc
+        e.by = self.person
+        e.desc = e.get_type_display()
+        e.text = self.cleaned_data['writeup']
+        e.save()
+        from ietf.wgchairs.models import ProtoWriteUpProxy
+        self.doc_writeup = ProtoWriteUpProxy.objects.get(pk=e.pk)
+
+        if self.data.get('complete_tag', False) or self.data.get('pending_tag', False):
+            followup = self.data.get('pending_tag');
             comment = self.cleaned_data.get('comment', False)
             try:
                 shepherd = self.doc.shepherd
             except PersonOrOrgInfo.DoesNotExist:
                 shepherd = None
             if shepherd:
-                if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-                    extra_notify = [shepherd.formatted_email()]
-                else:
-                    extra_notify = ['%s <%s>' % shepherd.email()]
+                extra_notify = [shepherd.formatted_email()]
             else:
                 extra_notify = []
-            if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-                tags = DocTagName.objects.filter(slug="sheph-u")
-            else:
-                tags = [FOLLOWUP_TAG]
+
+            tags = DocTagName.objects.filter(slug="sheph-u")
             if followup:
                 update_tags(self.request, self.doc, comment, self.person, set_tags=tags, extra_notify=extra_notify)
             else:
@@ -471,8 +438,4 @@ class WriteUpEditForm(RelatedWGForm):
         return self.doc_writeup
 
     def is_valid(self):
-        if self.data.get('confirm', False) and self.data.get('modify_tag', False):
-            self.fields['comment'].required = True
-        else:
-            self.fields['comment'].required = False
         return super(WriteUpEditForm, self).is_valid()

@@ -194,11 +194,7 @@ def managing_shepherd(request, acronym, name):
     add_form = add_form_factory(request, wg, user, shepherd=doc)
     if request.method == 'POST':
         if request.POST.get('remove_shepherd'):
-            if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-                assign_shepherd(user, doc, None)
-            else:
-                doc.shepherd = None
-                doc.save()
+            assign_shepherd(user, doc, None)
         elif request.POST.get('setme'):
             if settings.USE_DB_REDESIGN_PROXY_CLASSES:
                 assign_shepherd(user, doc, person)
@@ -252,15 +248,9 @@ def managing_writeup(request, acronym, name):
     user = request.user
     doc = get_object_or_404(InternetDraft, filename=name)
     authorized_user = can_manage_writeup_of_a_document_no_state(user, doc)
-    if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-        from ietf.doc.models import State
-        state = doc.get_state("draft-stream-%s" % doc.stream_id)
-        can_edit = (state and state.slug == "writeupw") or can_manage_writeup_of_a_document_no_state(user, doc)
-    else:
-        can_edit = True
-        current_state = get_state_for_draft(doc)
-        if current_state != get_state_by_name(WAITING_WRITEUP) and not can_manage_writeup_of_a_document_no_state(user, doc):
-            can_edit = False
+    from ietf.doc.models import State
+    state = doc.get_state("draft-stream-%s" % doc.stream_id)
+    can_edit = (state and state.slug == "writeupw") or can_manage_writeup_of_a_document_no_state(user, doc)
     writeup = doc.protowriteup_set.all()
     if writeup:
         writeup = writeup[0]
@@ -269,6 +259,10 @@ def managing_writeup(request, acronym, name):
     error = False
     followup_tag = get_annotation_tags_for_draft(doc).filter(annotation_tag__name=FOLLOWUP_TAG)
     followup = bool(followup_tag.count())
+
+    if not followup and not writeup:
+        followup=True
+        
     if request.method == 'POST':
         form = WriteUpEditForm(wg=wg, doc=doc, user=user, data=request.POST, files=request.FILES)
         form.request = request
@@ -282,7 +276,8 @@ def managing_writeup(request, acronym, name):
         valid = form.is_valid()
         if (valid and not error and not request.POST.get('confirm', None)) or (not valid and not error):
             if not valid:
-                form.set_message('error', 'You have to specify a comment')
+                form.set_message('error', 'You have to specify a comment') # should never happen
+                
             return render_to_response('wgchairs/confirm_management_writeup.html',
                                       dict(doc=doc,
                                            user=user,

@@ -277,7 +277,6 @@ class ManageWriteupTestCase(django.test.TestCase):
                              dict(writeup="New writeup"))
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEquals(len(q("input[name=followup]")), 1)
         self.assertEquals(len(q("input[name=confirm]")), 1)
         self.assertEquals(q("input[name=writeup]").val(), "New writeup")
 

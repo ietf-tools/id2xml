@@ -1,8 +1,15 @@
 import sys
 import time as timeutils
 import inspect
-import syslog
-from pprint import pformat
+try:
+    import syslog
+    write = syslog.syslog
+except ImportError:                     # import syslog will fail on Windows boxes
+    import sys
+    write = lambda x: sys.stderr.write(x+"\n")
+except ImportError:
+    from pprint import pformat
+    
 import cProfile
 try:
     from django.conf import settings

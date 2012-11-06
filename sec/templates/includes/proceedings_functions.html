@@ -18,3 +18,9 @@
               &nbsp;&nbsp;<span class="{% if ppt_count > 0 %}alert{% endif %}">{{ ppt_count }} PowerPoint files waiting to be converted</span>
             </li>
           </ul>
+          <p>Use this to generate the progress report for the plenary.</p>
+          <ul class="none">
+            <li><button onclick="window.location='{% url proceedings_progress_report meeting_num=meeting.number %}'">Generate Progress Report</button>
+            &nbsp;&nbsp;<a href="https://www.ietf.org/proceedings/{{ meeting.number }}/progress-report.html">Progress Report</a>
+            </li>
+          </ul>

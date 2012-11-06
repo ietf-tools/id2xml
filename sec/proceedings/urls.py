@@ -13,6 +13,7 @@ urlpatterns = patterns('sec.proceedings.views',
     url(r'^move-slide/(?P<slide_id>[A-Za-z0-9._\-\+]+)/(?P<direction>(up|down))/$',
         'move_slide', name='proceedings_move_slide'),
     url(r'^process-pdfs/(?P<meeting_num>\d{1,3})/$', 'process_pdfs', name='proceedings_process_pdfs'),
+    url(r'^progress-report/(?P<meeting_num>\d{1,3})/$', 'progress_report', name='proceedings_progress_report'),
     url(r'^replace-slide/(?P<slide_id>[A-Za-z0-9._\-\+]+)/$', 'replace_slide', name='proceedings_replace_slide'),
     url(r'^(?P<meeting_num>\d{1,3})/$', 'select', name='proceedings_select'),
     # NOTE: we have two entries here which both map to upload_unified, passing session_id or acronym

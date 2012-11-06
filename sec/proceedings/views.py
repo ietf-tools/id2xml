@@ -564,6 +564,17 @@ def process_pdfs(request, meeting_num):
     url = reverse('proceedings_select', kwargs={'meeting_num':meeting_num})
     return HttpResponseRedirect(url)
     
+@sec_only
+def progress_report(request, meeting_num):
+    '''
+    This function generates the proceedings progress report for use at the Plenary.
+    '''
+    meeting = get_object_or_404(Meeting, number=meeting_num)
+    gen_progress({'meeting':meeting},final=False)
+    
+    url = reverse('proceedings_select', kwargs={'meeting_num':meeting_num})
+    return HttpResponseRedirect(url)
+    
 @check_permissions
 def replace_slide(request, slide_id):
     '''

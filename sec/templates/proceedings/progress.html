@@ -13,12 +13,12 @@
 
 &nbsp;&nbsp;&nbsp;{{ action_events.count }} IESG Protocol and Document Actions this period<br />
 &nbsp;&nbsp;&nbsp;{{ lc_events.count }} IESG Last Calls issued to the IETF this period<br />
-&nbsp;&nbsp;&nbsp;{{ new_docs.count }} new or revised Internet-Drafts this period<br />
+{# &nbsp;&nbsp;&nbsp;{{ new_docs.count }} new or revised Internet-Drafts this period<br /> #}
 <br />
 &nbsp;&nbsp;&nbsp;{{ new|stringformat:"3s" }}    New I-Ds   ({{ updated }} of which were updated, some ({{ updated_more }}) more than once)<br />
 &nbsp;&nbsp;&nbsp;{{ total_updated|stringformat:"3s" }}    I-Ds were updated   (Some more than once)<br />
 <br />
-In the final 4 weeks before meeting<br />
+&nbsp;&nbsp;&nbsp;In the final 4 weeks before meeting<br />
 &nbsp;&nbsp;&nbsp;{{ ff_new_count|stringformat:"3s" }}    New I-Ds were received - {{ ff_new_percent }} of total newbies since last meeting<br />
 &nbsp;&nbsp;&nbsp;{{ ff_update_count|stringformat:"3s" }}    I-Ds were updated - {{ ff_update_percent }} of total updated since last meeting<br />
 <br />

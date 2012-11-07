@@ -95,7 +95,7 @@ def get_progress_stats(sdate,edate):
     for e in events.filter(type='new_revision').exclude(newrevisiondocevent__rev='00'):
         result.add(e.doc)
     ff_update_count = len(result)
-    ff_update_percent = format(ff_update_count / float(total_updated),'.0%')
+    ff_update_percent = format(ff_update_count / float(data['total_updated']),'.0%')
     
     data['ff_new_count'] = ff_new_count
     data['ff_new_percent'] = ff_new_percent

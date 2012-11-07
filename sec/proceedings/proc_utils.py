@@ -74,6 +74,34 @@ def get_progress_stats(sdate,edate):
     # calculate approved
     data['approved'] = events.filter(type='iesg_approved').count()
     
+    # get 4 weeks
+    monday = Meeting.get_ietf_monday()
+    cutoff = monday + datetime.timedelta(days=3)
+    ff1_date = cutoff - datetime.timedelta(days=28)
+    ff2_date = cutoff - datetime.timedelta(days=21)
+    ff3_date = cutoff - datetime.timedelta(days=14)
+    ff4_date = cutoff - datetime.timedelta(days=7)
+    
+    ff_docs = Document.objects.filter(type='draft').filter(docevent__type='new_revision',
+                                                           docevent__newrevisiondocevent__rev='00',
+                                                           docevent__time__gte=ff1_date,
+                                                           docevent__time__lte=cutoff)
+    ff_new_count = ff_docs.count()
+    ff_new_percent = format(ff_new_count / float(new),'.0%')
+    
+    # calculate total documents updated in final four weeks, not counting new, rev=00
+    result = set()
+    events = DocEvent.objects.filter(doc__type='draft',time__gte=ff1_date,time__lte=cutoff)
+    for e in events.filter(type='new_revision').exclude(newrevisiondocevent__rev='00'):
+        result.add(e.doc)
+    ff_update_count = len(result)
+    ff_update_percent = format(ff_update_count / float(total_updated),'.0%')
+    
+    data['ff_new_count'] = ff_new_count
+    data['ff_new_percent'] = ff_new_percent
+    data['ff_update_count'] = ff_update_count
+    data['ff_update_percent'] = ff_update_percent
+    
     # Progress Report Section
     data['docevents'] = DocEvent.objects.filter(doc__type='draft',time__gte=sdate,time__lte=edate)
     data['action_events'] = data['docevents'].filter(type='iesg_approved')

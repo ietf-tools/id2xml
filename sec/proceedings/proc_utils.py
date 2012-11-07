@@ -45,6 +45,36 @@ def get_progress_stats(sdate,edate):
     data = {}
     data['sdate'] = sdate
     data['edate'] = edate
+    
+    # Activty Report Section
+    new_docs = Document.objects.filter(type='draft').filter(docevent__type='new_revision',
+                                                            docevent__newrevisiondocevent__rev='00',
+                                                            docevent__time__gte=sdate,
+                                                            docevent__time__lte=edate)
+    data['new'] = new_docs.count()
+    data['updated'] = 0
+    data['updated_more'] = 0
+    for d in new_docs:
+        updates = d.docevent_set.filter(type='new_revision',time__gte=sdate,time__lte=edate).count()
+        if updates > 1:
+            data['updated'] += 1
+        if updates > 2:
+            data['updated_more'] +=1
+    
+    # calculate total documents updated, not counting new, rev=00
+    result = set()
+    events = DocEvent.objects.filter(doc__type='draft',time__gte=sdate,time__lte=edate)
+    for e in events.filter(type='new_revision').exclude(newrevisiondocevent__rev='00'):
+        result.add(e.doc)
+    data['total_updated'] = len(result)
+    
+    # calculate sent last call
+    data['last_call'] = events.filter(type='sent_last_call').count()
+    
+    # calculate approved
+    data['approved'] = events.filter(type='iesg_approved').count()
+    
+    # Progress Report Section
     data['docevents'] = DocEvent.objects.filter(doc__type='draft',time__gte=sdate,time__lte=edate)
     data['action_events'] = data['docevents'].filter(type='iesg_approved')
     data['lc_events'] = data['docevents'].filter(type='sent_last_call')

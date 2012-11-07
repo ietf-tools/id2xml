@@ -7,6 +7,15 @@
 {% include "includes/proceeding_title.html" %}
 {% endif %}
 
+<h2>Activity Report</h2>
+
+<h4>IETF Activity since last IETF Meeting ({{ meeting.city }})</h4>
+
+{{ new|stringformat:"3s" }}    New I-Ds   ({{ updated }} of which were updated, some ({{ updated_more }}) more than once)<br />
+{{ total_updated|stringformat:"3s" }}    I-Ds were updated   (Some more than once)<br />
+{{ last_call|stringformat:"3s" }}    I-Ds Last Called<br />
+{{ approved|stringformat:"3s" }}    I-Ds approved for publication<br />
+
 <h2>IETF Progress Report</h2>
 
 <h4>{{ sdate|date:"d-F-y" }} to {{ edate|date:"d-F-y" }}</h4>

@@ -87,7 +87,7 @@ def get_progress_stats(sdate,edate):
                                                            docevent__time__gte=ff1_date,
                                                            docevent__time__lte=cutoff)
     ff_new_count = ff_docs.count()
-    ff_new_percent = format(ff_new_count / float(new),'.0%')
+    ff_new_percent = format(ff_new_count / float(data['new']),'.0%')
     
     # calculate total documents updated in final four weeks, not counting new, rev=00
     result = set()

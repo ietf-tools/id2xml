@@ -17,7 +17,7 @@ from ietf.meeting.models import Meeting
 from ietf.name.models import StreamName
 from ietf.doc.models import Document, DocumentAuthor
 from ietf.doc.utils import augment_with_start_time
-from ietf.submit.models import IdSubmissionDetail
+from ietf.submit.models import IdSubmissionDetail, Preapproval
 from ietf.utils.draft import Draft
 from sec.proceedings.proc_utils import get_progress_stats
 from sec.sreq.views import get_meeting
@@ -629,7 +629,7 @@ def approvals(request):
     This view handles setting Initial Approval for drafts
     '''
     
-    approved = IdApprovedDetail.objects.all().order_by('filename')
+    approved = Preapproval.objects.all().order_by('name')
     form = None
     
     return render_to_response('drafts/approvals.html', {
@@ -975,6 +975,19 @@ def makerfc(request, id):
         RequestContext(request, {}),
     )
 
+def nudge_report(request):
+    '''
+    This view produces the Nudge Report, basically a list of documents that are in the IESG
+    process but have not had activity in some time
+    '''
+    docs = Document.objects.filter(type='draft',states__slug='active')
+    docs = docs.filter(states=12,tags='need-rev')
+                
+    return render_to_response('drafts/report_nudge.html', {
+        'docs': docs},
+        RequestContext(request, {}),
+    )
+    
 def replace(request, id):
     '''
     This view handles replacing one Internet-Draft with another 

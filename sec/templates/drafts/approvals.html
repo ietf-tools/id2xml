@@ -28,16 +28,14 @@
       <th>Filename</th>
       <th>Approved Date</th>
       <th>Approved by</th>
-      <th>Recorded by</th>
     </tr>
   </thead>
   <tbody>
     {% for doc in approved %}
        <tr class="{% cycle 'row1' 'row2' %}">
-         <td>{{ doc.filename }}</a></td>
-         <td>{{ doc.approved_date }}</td>
-         <td>{{ doc.approved_by }}</td>
-         <td>{{ doc.recorded_by }}</td>
+         <td>{{ doc.name }}</a></td>
+         <td>{{ doc.time|date:"Y-m-d" }}</td>
+         <td>{{ doc.by }}</td>
        </tr>
     {% endfor %}
   </tbody>

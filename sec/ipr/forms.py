@@ -59,7 +59,7 @@ class IprDetailForm(BetterModelForm):
     remove_old_ipr = forms.BooleanField(required=False, label='Remove old IPR')
     rfc_num = forms.CharField(required=False, label='RFC Number', widget=forms.HiddenInput)
     id_filename = forms.CharField(
-            max_length=255, required=False,
+            max_length=512, required=False,
             label='I-D Filename (draft-ietf...)',
             widget=forms.HiddenInput)
     #is_pending = forms.ChoiceField(choices=IS_PENDING_CHOICES,required=False, label="B. Does your disclosure relate to an unpublished pending patent application?", widget=forms.RadioSelect)

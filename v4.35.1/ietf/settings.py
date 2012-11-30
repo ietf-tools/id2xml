@@ -86,6 +86,9 @@ MEDIA_URL = ''
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
+#DAJAXICE_MEDIA_PREFIX="dajaxice"
+DAJAXICE_MEDIA_PREFIX="dajaxice"
+
 AUTH_PROFILE_MODULE = 'person.Person'
 AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.RemoteUserBackend', )
 
@@ -97,6 +100,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -166,6 +170,7 @@ INSTALLED_APPS = (
     'ietf.wgchairs',
     'ietf.wgcharter',
     'ietf.community',
+    'dajaxice',
 )
 
 INTERNAL_IPS = (

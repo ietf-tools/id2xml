@@ -166,7 +166,7 @@ if settings.USE_DB_REDESIGN_PROXY_CLASSES:
     agenda_info = agenda_infoREDESIGN
 
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None):
+def html_agenda_original(request, num=None):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -193,6 +193,135 @@ def html_agenda(request, num=None):
          "area_list": area_list, "wg_list": wg_list ,
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
+
+##########################################################################################################################
+@decorator_from_middleware(GZipMiddleware)
+def html_agenda(request, num=None):
+    if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
+        user_agent = "iPhone"
+    elif 'user_agent' in request.REQUEST:
+        user_agent = request.REQUEST['user_agent']
+    elif 'HTTP_USER_AGENT' in request.META:
+        user_agent = request.META["HTTP_USER_AGENT"]
+    else:
+        user_agent = ""
+    if "iPhone" in user_agent:
+        return iphone_agenda(request, num)
+
+    meeting = get_meeting(num)
+    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
+    modified = timeslots.aggregate(Max('modified'))['modified__max']
+
+    area_list = timeslots.filter(type = 'Session', session__group__parent__isnull = False).order_by('session__group__parent__acronym').distinct('session__group__parent__acronym').values_list('session__group__parent__acronym',flat=True)
+
+    wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
+
+    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
+    
+    time_slices = []
+    date_slices = {}
+    for t in timeslots:
+
+#        print t.id, t.pk
+        if(t.session != None):# and len(t.session.agenda_note)>1):
+            ymd = t.time.strftime("%Y-%m-%d")
+            if ymd not in date_slices and t.location != None:
+                date_slices[ymd] = []
+            
+            if ymd in date_slices:
+                if [t.time, t.time+t.duration] not in date_slices[ymd]:   # only keep unique entries
+                    date_slices[ymd].append([t.time, t.time+t.duration])
+                
+           
+
+            if t.time.strftime("%H%M") not in time_slices:
+                time_slices.append(t.time.strftime("%H%M"))
+            else:
+                pass
+                
+    from ietf.meeting.models import Room
+    rooms = Room.objects.filter(meeting__number=num)
+    time_slices.append("0830")
+    
+#    print date_slices
+    meeting_days = []
+    for k,v in date_slices.iteritems():
+        print "k=",k
+        print "v=",v
+        meeting_days.append(k)
+    meeting_days.sort()
+    #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
+
+#    print "area_list", area_list
+    time_slices.sort()
+    print len(timeslots)
+    print date_slices[meeting_days[0]]
+#    print len(meeting)
+    return HttpResponse(render_to_string("meeting/agenda.html",
+        {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+         "area_list": area_list, "wg_list": wg_list ,
+         "show_inline": set(["txt","htm","html"]) },
+        RequestContext(request)), mimetype="text/html")
+
+##########################################################################################################################
+@decorator_from_middleware(GZipMiddleware)
+def edit_agenda(request, num=None):
+    if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
+        user_agent = "iPhone"
+    elif 'user_agent' in request.REQUEST:
+        user_agent = request.REQUEST['user_agent']
+    elif 'HTTP_USER_AGENT' in request.META:
+        user_agent = request.META["HTTP_USER_AGENT"]
+    else:
+        user_agent = ""
+    if "iPhone" in user_agent:
+        return iphone_agenda(request, num)
+
+    meeting = get_meeting(num)
+    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
+    modified = timeslots.aggregate(Max('modified'))['modified__max']
+
+    area_list = timeslots.filter(type = 'Session', session__group__parent__isnull = False).order_by('session__group__parent__acronym').distinct('session__group__parent__acronym').values_list('session__group__parent__acronym',flat=True)
+
+    wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
+
+    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
+    
+    time_slices = []
+    date_slices = []
+    for t in timeslots:
+#        print t.id, t.pk
+        if(t.session != None):# and len(t.session.agenda_note)>1):
+            if t.time.strftime("%H%M") not in time_slices:
+                time_slices.append(t.time.strftime("%H%M"))
+            else:
+                pass
+            if t.time.strftime("%Y-%m-%d") not in date_slices and t.location != None:
+                date_slices.append(t.time.strftime("%Y-%m-%d"))
+                if t.time.strftime("%Y-%m-%d") == "2012-11-03":
+
+                    print "t.time\t",t.time
+                    print "t.location\t",t.location
+                    print "t.duration\t",t.duration
+                    print "t.session.group.name\t",t.session.group.name
+                    print "t.session.group.acronym\t",t.session.group.acronym
+
+    ########################################################
+    from ietf.meeting.models import Room
+    rooms = Room.objects.filter(meeting__number=num)
+    time_slices.append("0830")
+            
+    time_slices.sort()
+    return HttpResponse(render_to_string("meeting/edit_agenda.html",
+        {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+         "area_list": area_list, "wg_list": wg_list ,
+         "show_inline": set(["txt","htm","html"]) },
+        RequestContext(request)), mimetype="text/html")
+
+
+
+###########################################################################################################################
+
 
 def iphone_agenda(request, num):
     timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)

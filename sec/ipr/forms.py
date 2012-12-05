@@ -219,8 +219,6 @@ class IprDetailForm(BetterModelForm):
         status = self.cleaned_data['status']
         return 0 if status == None else status
 
-    #def clean(
-
     def save(self, *args, **kwargs):
         #import ipdb; ipdb.set_trace()
         ipr_detail = super(IprDetailForm, self).save(*args, **kwargs)
@@ -242,13 +240,12 @@ class IprDetailForm(BetterModelForm):
         if old_ipr:
             if self.cleaned_data['remove_old_ipr']:
                 old_ipr.status = 3
-            else:
-                old_ipr.status = old_ipr.status
-            old_ipr.save()
-            IprUpdate.objects.create(ipr=ipr_detail,
-                        updated=old_ipr,
-                        status_to_be=old_ipr.status,
-                        processed=0)
+                old_ipr.save()
+            obj,created = IprUpdate.objects.get_or_create(ipr=ipr_detail,updated=old_ipr)
+            if created:
+                obj.status_to_be = old_ipr.status
+                obj.processed = 0
+                obj.save()
         '''
         IprRfc.objects.filter(ipr=ipr_detail).delete()
         IprDraft.objects.filter(ipr=ipr_detail).delete()

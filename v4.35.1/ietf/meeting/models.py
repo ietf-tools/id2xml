@@ -37,6 +37,7 @@ class Meeting(models.Model):
     break_area = models.CharField(blank=True, max_length=255)
     reg_area = models.CharField(blank=True, max_length=255)
     agenda_note = models.TextField(blank=True, help_text="Text in this field will be placed at the top of the html agenda page for the meeting.  HTML can be used, but will not validated.")
+    official_agenda = models.ForeignKey('NamedAgenda',null=True,blank=True, related_name='+')
 
     def __unicode__(self):
         if self.type_id == "ietf":
@@ -102,8 +103,29 @@ class TimeSlot(models.Model):
     duration = TimedeltaField()
     location = models.ForeignKey(Room, blank=True, null=True)
     show_location = models.BooleanField(default=True, help_text="Show location in agenda")
-    session = models.ForeignKey('Session', null=True, blank=True, help_text=u"Scheduled session, if any")
+    sessions = models.ManyToManyField('Session', related_name='slots', through='ScheduledSession', null=True, blank=True, help_text=u"Scheduled session, if any")
     modified = models.DateTimeField(default=datetime.datetime.now)
+
+    @property
+    def time_desc(self):
+        return u"%s-%s" % (self.time.strftime("%H%M"), (self.time + self.duration).strftime("%H%M"))
+
+    def meeting_date(self):
+        return self.time.date()
+
+    def registration(self):
+        # below implements a object local cache
+        # it tries to find a timeslot of type registration which starts at the same time as this slot
+        # so that it can be shown at the top of the agenda.
+        if not hasattr(self, '_reg_info'):
+            try:
+                self._reg_info = TimeSlot.objects.get(meeting=self.meeting, time__month=self.time.month, time__day=self.time.day, type="reg")
+            except TimeSlot.DoesNotExist:
+                self._reg_info = None
+        return self._reg_info
+
+    def reg_info(self):
+        return (self.registration() is not None)
 
     def __unicode__(self):
         location = self.get_location()
@@ -129,15 +151,161 @@ class TimeSlot(models.Model):
             
         return location
 
+    def session_name(self):
+        if self.type_id not in ("session", "plenary"):
+            return None
         
+        class Dummy(object):
+            def __unicode__(self):
+                return self.session_name
+        d = Dummy()
+        d.session_name = self.name
+        return d
+
+    def scheduledsessions_at_same_time(self, agenda=None):
+        if agenda is None:
+            agenda = self.meeting.official_agenda
+            
+        return agenda.scheduledsession_set.filter(timeslot__time=self.time, timeslot__type__in=("session", "plenary", "other"))
+
+    @property
+    def is_plenary(self):
+        return self.type_id == "plenary"
     
+    @property
+    def is_plenary_type(self, name, agenda=None):
+        return self.scheduledsessions_at_same_time(agenda)[0].acronym == name
+    
+class NamedAgenda(models.Model):
+    """
+    Each person may have multiple agendas saved.
+    An Agenda may be made visible, which means that it will show up in
+    public drop down menus, etc.  It may also be made public, which means
+    that someone who knows about it by name/id would be able to reference
+    it.  A non-visible, public agenda might be passed around by the
+    Secretariat to IESG members for review.  Only the owner may edit the
+    agenda, others may copy it
+    """
+    meeting  = models.ForeignKey(Meeting, null=True)
+    name     = models.CharField(max_length=16, blank=False)
+    owner    = models.ForeignKey(Person)
+    visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
+    public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
+    # considering copiedFrom = models.ForeignKey('NamedAgenda', blank=True, null=True)
+
+    def __unicode__(self):
+        return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
+    
+
+class ScheduledSession(models.Model):
+    """
+    This model provides an N:M relationship between Session and TimeSlot.
+    Each relationship is attached to the named agenda, which is owned by
+    a specific person/user.
+    """
+    timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
+    session  = models.ForeignKey('Session', null=False, blank=False, help_text=u"Scheduled session")
+    owner    = models.ForeignKey('NamedAgenda', null=False, help_text=u"Who made this agenda")
+    notes    = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u"%s [%s<->%s]" % (self.owner, self.session, self.timeslot)
+
+    @property
+    def room_name(self):
+        return self.timeslot.location.name
+    
+    @property
+    def special_agenda_note(self):
+        return self.session.agenda_note if self.session else ""
+
+    @property
+    def acronym(self):
+        if self.session and self.session.group:
+            return self.session.group.acronym
+    
+    @property
+    def acronym_name(self):
+        if not self.session:
+            return self.notes
+        if hasattr(self, "interim"):
+            return self.session.group.name + " (interim)"
+        elif self.session.name:
+            return self.session.name
+        else:
+            return self.session.group.name
+
+    @property
+    def session_name(self):
+        if self.timeslot.type_id not in ("session", "plenary"):
+            return None
+        return self.timeslot.name
+
+    @property
+    def area(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group.type_id == "irtf":
+            return "irtf"
+        if self.timeslot.type_id == "plenary":
+            return "1plenary"
+        if not self.session.group.parent or not self.session.group.parent.type_id in ["area","irtf"]:
+            return ""
+        return self.session.group.parent.acronym
+
+    @property
+    def break_info(self):
+        breaks = self.owner.scheduledsessions_set.filter(timeslot__time__month=self.timeslot.time.month, timeslot__time__day=self.timeslot.time.day, timeslot__type="break").order_by("timeslot__time")
+        now = self.timeslot.time_desc[:4]
+        for brk in breaks:
+            if brk.time_desc[-4:] == now:
+                return brk
+        return None
+    
+    @property
+    def area_name(self):
+        if self.timeslot.type_id == "plenary":
+            return "Plenary Sessions"
+        elif self.session and self.session.group and self.session.group.acronym == "edu":
+            return "Training"
+        elif not self.session or not self.session.group or not self.session.group.parent or not self.session.group.parent.type_id == "area":
+            return ""
+        return self.session.group.parent.name
+
+    @property
+    def isWG(self):
+        if not self.session or not self.session.group:
+            return False
+        if self.session.group.type_id == "wg" and self.session.group.state_id != "bof":
+            return True
+
+    @property
+    def group_type_str(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group and self.session.group.type_id == "wg":
+            if self.session.group.state_id == "bof":
+                return "BOF"
+            else:
+                return "WG"
+
+        return ""
+
 class Constraint(models.Model):
-    """Specifies a constraint on the scheduling between source and
-    target, e.g. some kind of conflict."""
+    Specifies a constraint on the scheduling.
+    One type (name=conflic?) of constraint is between source WG and target WG,
+           e.g. some kind of conflict.
+    Another type (name=adpresent) of constraing is between source WG and
+           availability of a particular Person, usually an AD.
+    A third type (name=avoidday) of constraing is between source WG and
+           a particular day of the week, specified in day.
+    """
     meeting = models.ForeignKey(Meeting)
     source = models.ForeignKey(Group, related_name="constraint_source_set")
-    target = models.ForeignKey(Group, related_name="constraint_target_set")
-    name = models.ForeignKey(ConstraintName)
+    target = models.ForeignKey(Group, related_name="constraint_target_set", null=True)
+    person = models.ForeignKey(Person, null=True, blank=True)
+    day    = models.DateTimeField(null=True, blank=True)
+    name   = models.ForeignKey(ConstraintName)
 
     def __unicode__(self):
         return u"%s %s %s" % (self.source, self.name.name.lower(), self.target)
@@ -186,8 +354,8 @@ class Session(models.Model):
         if self.meeting.type_id == "interim":
             return self.meeting.number
 
-        timeslots = self.timeslot_set.order_by('time')
-        return u"%s: %s %s" % (self.meeting, self.group.acronym, timeslots[0].time.strftime("%H%M") if timeslots else "(unscheduled)")
+        ss0 = self.scheduledsession_set.order_by('timeslot__time')[0]
+        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0.timeslot.time.strftime("%H%M") if ss0 else "(unscheduled)")
 
     def constraints(self):
         return Constraint.objects.filter(source=self.group, meeting=self.meeting).order_by('name__name')

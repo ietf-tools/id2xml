@@ -3,4 +3,5 @@ South
 MySQL-python
 pytz
 wsgiref==0.1.2
-
+PyQuery
+python-magic

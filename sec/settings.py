@@ -280,6 +280,7 @@ GROUP_DESCRIPTION_DIR = '/a/www/www6s/wg-descriptions'
 INTERIM_LISTING_DIR = '/a/www/www6/meeting/interim'
 MAX_UPLOAD_SIZE = 40960000
 PROCEEDINGS_DIR = '/a/www/www6s/proceedings/'
+AGENDA_PATH = '/a/www/www6s/proceedings/'   # for code merge
 
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.

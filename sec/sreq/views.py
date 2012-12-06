@@ -28,7 +28,7 @@ import itertools
 # Globals
 # -------------------------------------------------
 SESSION_REQUEST_EMAIL = 'session-request@ietf.org'
-LOCKFILE = os.path.join(settings.PROCEEDINGS_DIR,'session_request.lock')
+LOCKFILE = os.path.join(settings.AGENDA_PATH,'session_request.lock')
 # -------------------------------------------------
 # Helper Functions
 # -------------------------------------------------

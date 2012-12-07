@@ -18,7 +18,7 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
 {% dajaxice_js_import %}
-<script type='text/javascript' src='/js/agenda_credil.js'></script>
+<script type='text/javascript' src='/js/agenda_edit.js'></script>
 
 <script type='text/javascript'>
 
@@ -62,7 +62,7 @@ function setup_slots(){
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
-  {% for day in meeting_days %}
+  {% for day in date_slices %}
 
   <table id="meetings" class="{{day}} ietf-navbar" >
 

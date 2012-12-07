@@ -122,7 +122,6 @@ function populate_events(title,description,room, time,date, django_id){
 }
 
 
-
 function event_template(event_title, description, time, django_id){
 
     var part1 = "";
@@ -132,8 +131,6 @@ function event_template(event_title, description, time, django_id){
     return $(part1+part2+part3);
 }
     
-
-
 
 
 function handelDrop(event, ui){

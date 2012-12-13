@@ -27,12 +27,13 @@ import stat
 # -------------------------------------------------
 # Helper Functions
 # -------------------------------------------------
-def comp(timeslot):
+def mycomp(timeslot):
     '''
     This takes a timeslot object and returns a key to sort by the area acronym or None
     '''
     try:
-        key = timeslot.session.group.parent.acronym
+        group = timeslot.session.group
+        key = '%s:%s' % (group.parent.acronym, group.acronym)
     except AttributeError:
         key = None
     return key
@@ -370,8 +371,8 @@ def gen_agenda(context):
     #timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(meeting.number)
     timeslots = TimeSlot.objects.filter(meeting=meeting)
     
-    # sort by area then time
-    sort1 = sorted(timeslots, key = comp)
+    # sort by area:group then time
+    sort1 = sorted(timeslots, key = mycomp)
     sort2 = sorted(sort1, key = lambda a: a.time)
     
     html = render_to_response('proceedings/agenda.html',{

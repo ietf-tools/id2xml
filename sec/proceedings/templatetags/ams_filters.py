@@ -34,11 +34,14 @@ def display_duration(value):
     return map[value]
 
 @register.filter
-def get_published_date(rfc):
+def get_published_date(doc):
     '''
     Returns the published date for a RFC Document
     '''
-    event = rfc.latest_event(type='published_rfc')
+    event = doc.latest_event(type='published_rfc')
+    if event:
+        return event.time
+    event = doc.latest_event(type='new_revision')
     if event:
         return event.time
     else:
@@ -64,5 +67,4 @@ def smart_login(user):
     if user.role_set.filter(name='secr',group__acronym='secretariat'):
         return '%s, on behalf of the' % user
     else:
-        return '%s, a chair of the'
-    
+        return '%s, a chair of the' % user

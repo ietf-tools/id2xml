@@ -40,13 +40,11 @@
            {% if slot.session.group.charter %}<a href="{{slot.session.group.charter.get_absolute_url}}">{{slot.session.group.acronym}}</a>
            {% else %}{{slot.session.group.acronym}}{% endif %}</td>
        <td>
-         <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('{{meeting.number}}-{{slot.time|date:"D-Hi"|lower}}-{{slot.session.group.parent.acronym|upper}}-{{slot.session.group.acronym|lower}}',this);" title="color tag this line"/ class="noprint">
            {% if slot.session.agenda %}<a href="/meeting/{{ meeting.number }}/agenda/{{ slot.session.group.acronym }}/">{{slot.session.group.name}}</a>
            {% else %}{{slot.session.group.name}}{% endif %}
            {% if slot.session.group.state.name = "BOF" %} BOF {% endif %}
            {% if slot.session.agenda_note %}
            <br/><span class="note">{{slot.session.agenda_note}}</span>{% endif %}</td>
-       
      </tr>
 
    {% endif %} {% endif %}

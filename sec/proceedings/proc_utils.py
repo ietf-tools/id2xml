@@ -317,7 +317,10 @@ def create_proceedings(meeting, group, is_final=False):
     f = open(proceedings_path,'w')
     f.write(response.content)
     f.close()
-    os.chmod(proceedings_path, 0664)
+    try:
+        os.chmod(proceedings_path, 0664)
+    except OSError:
+        pass
     
     # rebuild the directory
     if meeting.type.slug == 'interim':

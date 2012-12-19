@@ -37,7 +37,7 @@ class Meeting(models.Model):
     break_area = models.CharField(blank=True, max_length=255)
     reg_area = models.CharField(blank=True, max_length=255)
     agenda_note = models.TextField(blank=True, help_text="Text in this field will be placed at the top of the html agenda page for the meeting.  HTML can be used, but will not validated.")
-    official_agenda = models.ForeignKey('NamedAgenda',null=True,blank=True, related_name='+')
+    agenda     = models.ForeignKey('Schedule',null=True,blank=True, related_name='+')
 
     def __unicode__(self):
         if self.type_id == "ietf":
@@ -164,7 +164,7 @@ class TimeSlot(models.Model):
 
     def scheduledsessions_at_same_time(self, agenda=None):
         if agenda is None:
-            agenda = self.meeting.official_agenda
+            agenda = self.meeting.agenda
             
         return agenda.scheduledsession_set.filter(timeslot__time=self.time, timeslot__type__in=("session", "plenary", "other"))
 
@@ -176,7 +176,7 @@ class TimeSlot(models.Model):
     def is_plenary_type(self, name, agenda=None):
         return self.scheduledsessions_at_same_time(agenda)[0].acronym == name
     
-class NamedAgenda(models.Model):
+class Schedule(models.Model):
     """
     Each person may have multiple agendas saved.
     An Agenda may be made visible, which means that it will show up in
@@ -191,7 +191,7 @@ class NamedAgenda(models.Model):
     owner    = models.ForeignKey(Person)
     visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
     public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
-    # considering copiedFrom = models.ForeignKey('NamedAgenda', blank=True, null=True)
+    # considering copiedFrom = models.ForeignKey('Schedule', blank=True, null=True)
 
     def __unicode__(self):
         return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
@@ -205,11 +205,11 @@ class ScheduledSession(models.Model):
     """
     timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
     session  = models.ForeignKey('Session', null=False, blank=False, help_text=u"Scheduled session")
-    owner    = models.ForeignKey('NamedAgenda', null=False, help_text=u"Who made this agenda")
+    schedule = models.ForeignKey('Schedule', null=False, help_text=u"Who made this agenda")
     notes    = models.TextField(blank=True)
 
     def __unicode__(self):
-        return u"%s [%s<->%s]" % (self.owner, self.session, self.timeslot)
+        return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
 
     @property
     def room_name(self):
@@ -255,7 +255,7 @@ class ScheduledSession(models.Model):
 
     @property
     def break_info(self):
-        breaks = self.owner.scheduledsessions_set.filter(timeslot__time__month=self.timeslot.time.month, timeslot__time__day=self.timeslot.time.day, timeslot__type="break").order_by("timeslot__time")
+        breaks = self.schedule.scheduledsessions_set.filter(timeslot__time__month=self.timeslot.time.month, timeslot__time__day=self.timeslot.time.day, timeslot__type="break").order_by("timeslot__time")
         now = self.timeslot.time_desc[:4]
         for brk in breaks:
             if brk.time_desc[-4:] == now:

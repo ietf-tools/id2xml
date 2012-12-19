@@ -19,6 +19,7 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
 {% dajaxice_js_import %}
 <script type='text/javascript' src='/js/agenda_edit.js'></script>
+<script type='text/javascript' src='/js/agenda_objects.js'></script>
 
 <script type='text/javascript'>
 
@@ -27,24 +28,63 @@ function my_js_callback(data){
     alert(data.message);
 }<!-- dajaxice example --> {% endcomment %}
 
+
 function setup_slots(){
+{% for s in scheduledsessions %}
+	console.log("{{s.timeslot.id}}");
+var e_obj = new event_obj( "{{ s.session.group.acronym }}","{{ s.session.group.name }}","{{s.timeslot.location|slugify}}" ,"{{ s.timeslot.time|date:'Hi' }}", "{{s.timeslot.time|date:'Y-m-d'}}","{{s.id}}", "{{s.timeslot.id}}", "{{s.owner.owner}}");
+
+	$.extend(meeting_objs,{ "{{s.id}}":e_obj});
+var slot_status_id = { "{{s.timeslot.location|slugify}}_{{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}":{"empty":false,"timeslot_id":"{{s.timeslot.id}}"} };
+$.extend(slot_status, slot_status_id);
+//console.log("{{s}}");
+{% endfor %}
+
+
+
+{% comment %}
+{% for day in date_slices %}
+	{% for r in rooms %}
+		{% for slot in date_slices|lookup:day %}
+			var slot_status_id = { "{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}":false };
+			$.extend(slot_status, slot_status_id);	
+		{% endfor %}
+	{% endfor %}
+{% endfor %}
+{% endcomment %}
+
+
+
+
+console.log("setup_slots run");
+
+{% comment %} 
 {% for t in timeslots %}
-	<!-- ------------------------- >
-	var e_obj = new event_obj( "{{ t.session.group.acronym }}","{{ t.session.group.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
-	
-	$.extend(meeting_objs,{ "{{t.id}}":e_obj});
-	<!-- ------------------------- >
+
+	{% for s in t.sessions %}
+
+var e_obj = new event_obj( "{{ s.group.acronym }}","{{ s.group.name }}","{{t.timeslot.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}","{{t.id}}", "{{s.id}}", "{{s.owner}}");
+	//console.log(e_obj);
+	$.extend(meeting_objs,{ "{{s.id}}":e_obj});
+
+	{% endfor %}
+	//console.log(meeting_objs);
+{% endfor %}
+
+{% endcomment %}
+console.log(slot_status);
+console.log(meeting_objs);
+console.log("{{timeslots|length}}");
+
+{% for t in time_slices %}
+console.log("{{t.id}}");
 {% endfor %}
 
 
-{% comment %} Toggles to hide the calendar {% endcomment %}
-{% for days in date_slices %}
-	$("#{{days}}-btn").click(function(){
-		$("#{{days}}tr").toggle();
-		$("#{{days}}tbody").toggle();
-	});
-{% endfor %}
 }
+
+
+
 
 
 </script>
@@ -56,15 +96,17 @@ function setup_slots(){
 
 {% block content %}
 
+<div style="float: left; width:900px; overflow:scroll; height:800px;">
+  
 {% comment %} For each meeting day, we generate a table {% endcomment %}
 {% comment %} <button onclick="Dajaxice.ietf.meeting.sayhello(my_js_callback);">click me </button><!-- dajaxice example --> {% endcomment %}
-<div style="margin: 0 auto">
+
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
-  {% for day in date_slices %}
-
-  <table id="meetings" class="{{day}} ietf-navbar" >
+{% for day in time_slices %} 
+  
+  <table id="meetings" class="{{day}} ietf-navbar" style="width:100%"  > <!-- ietf-navbar -->
 
   <th colspan="{{date_slices|colWidth:day|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th>
   <tr id="{{day}}tr">
@@ -76,114 +118,32 @@ function setup_slots(){
   <tbody id="{{day}}tbody" class="cells">
     {% for r in rooms %}
 	<tr id="{{r}}">
-
-	    <th class="vert_time">{{r}}
+	    <th class="vert_time">{{r}}</th>
 	    {% for slot in date_slices|lookup:day %}
-	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="{% cycle 'alt' '' %}"></td>
+	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="{% cycle 'alt' '' %}" style="background:#606060 "></td>
 	    {% endfor %}
 	</tr>
     {% endfor %}
 </tbody>
 </table>
     
-    
-{% endfor %}
 
+ {% endfor %} 
 
-
-
-
-
-
-
-
-<!-- {% comment %} -->
-<!-- <div style="margin: 0 auto"> -->
-<!-- {% for day,value in date_slices.items %} -->
-  
-<!--   <table id="meetings" class="{{day}} ietf-navbar" > -->
-<!--     {{value|length|add:'1'}} -->
-<!--   <th colspan="{{value|length|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th> -->
-<!--   <tr id="{{day}}tr"> -->
-<!--   <th></th> -->
-  
-<!--   {% for slot in value %} -->
-<!--   <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th> -->
-<!--   {% endfor %} -->
-<!--   <tbody id="{{d}}tbody" class="cells"> -->
-<!--     {% for r in rooms %} -->
-<!-- 	<tr id="{{r}}"> -->
-<!-- 	    <th class="vert_time">{{r}} -->
-<!-- 	    {% for slot in value %} -->
-<!-- 	        <td id="{{r|slugify}}-{{day}}-{{slot.0|date:'Hi'}}" class="{{r|cut:"/"}}"> -->
-<!-- 		</td> -->
-<!-- 	    {% endfor %} -->
-<!-- 	</tr> -->
-<!--     {% endfor %} -->
-<!-- </tbody> -->
-<!-- </table> -->
-    
-    
-<!-- {% endfor %} -->
-
-<!-- {% endcomment %} -->
-
-
-
-
-
-
-  
-<!-- {% comment %} -->
-<!--   {% for d in date_slices %} -->
-<!-- <table id="meetings" class="{{d}} ietf-navbar" > -->
-
-<!--   <th colspan="{{rooms|length|add:'1'}}" id="{{d}}-btn" style="border:1px solid red; background:#A60000; color:white">{{d}}</th> -->
-
-
-<!--   <tr id="{{d}}tr"> -->
-<!--     <th ></th> -->
-<!--     {% for r in rooms %} -->
-<!--     <th class="room_title">"{{r}}" </th> -->
-<!--     {% endfor %} -->
-<!--   </tr> -->
-
-<!-- <tbody id="{{d}}tbody" class="cells"> -->
-
-
-
-<!--   {% for s in time_slices %} -->
-<!--   	<tr id="{{s}}"> -->
-<!-- 	    <th class="vert_time">{{s}}</th> -->
-<!-- 	    {% for r in rooms %} -->
-<!--     		<td class="{{r|cut:"/"}}"></td> -->
-<!-- 	    {% endfor %} -->
-<!-- 	</tr> -->
-<!--    {% endfor %} -->
-<!-- </tbody> -->
-<!-- </table> -->
-
-<!-- {% endfor %} -->
-
-
-<!-- {% endcomment %} -->
 
 </div>
-<div style="border:1px solid black; margin: 0 auto; height:800px; width:200px;overflow:scroll;">
-<b>Events:</b>
-<ul style="" id="sortable-list">
-</ul>
 
+<div style="height:119px"></div> <!-- Not sure why I need this, but it's there to push the sortablelist down (otherwise it moves the table too) -->
+
+<div id="sortable-list" style="margin-top:120px; border:1px solid black;  height:400px; width:200px;overflow:scroll;">
+<div style="background-color:maroon; "><b>Unassigned Events:</b></div>
+
+</div>
 </div>
 
 
 
 
 
-<!-- </div> -->
-
-<!--<div class="room" id="room1" style="background:green"></div> -->
-
-<!--</body>-->
 {% endblock %}
-<!--</html>-->
+

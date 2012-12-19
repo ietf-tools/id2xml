@@ -14,21 +14,21 @@ class Migration(DataMigration):
         wanda    = Person.objects.get(user__username = 'wnl') # Wanda Lo
         Meeting  = orm['meeting.meeting']
         ScheduledSession = orm['meeting.ScheduledSession']
-        NamedAgenda = orm['meeting.NamedAgenda']
+        Schedule = orm['meeting.Schedule']
         for meeting in Meeting.objects.all():
             sys.stdout.write ("Processing meeting %s.." % (meeting.number))
-            if meeting.official_agenda is not None:
+            if meeting.agenda is not None:
                # assume that we have done this meeting already.
                sys.stdout.write("already done\n")
                continue
             
-            na = NamedAgenda(name=("mtg:%s"%(meeting.number))[0:15],
+            na = Schedule(name=("mtg:%s"%(meeting.number))[0:15],
                              owner=wanda,
                              visible=True, public=True)
             na.save()
-            meeting.official_agenda = na
+            meeting.agenda = na
             meeting.save()
-            sys.stdout.write("\n  creating namedagenda %s\n" %(na.name))
+            sys.stdout.write("\n  creating schedule %s\n" %(na.name))
                                           
             for slot in meeting.timeslot_set.all():
                 session = slot.session
@@ -39,7 +39,7 @@ class Migration(DataMigration):
                 sys.stdout.write ("  session for wg:%s       \r" % (session.group.acronym))
                 ss = ScheduledSession(timeslot = slot,
                                       session  = slot.session,
-                                      owner    = na,
+                                      schedule = na,
                                       notes    = "Auto created")
                 ss.save()
             sys.stdout.write("\n")
@@ -184,15 +184,15 @@ class Migration(DataMigration):
             'date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'number': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '64'}),
-            'official_agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']", 'blank': 'True', 'null': 'True'}),
+            'agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']", 'blank': 'True', 'null': 'True'}),
             'reg_area': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'time_zone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['name.MeetingTypeName']"}),
             'venue_addr': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'venue_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
-        'meeting.namedagenda': {
-            'Meta': {'object_name': 'NamedAgenda'},
+        'meeting.schedule': {
+            'Meta': {'object_name': 'Schedule'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['person.Person']"}),
@@ -210,7 +210,7 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'ScheduledSession'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']"}),
+            'schedule': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']"}),
             'session': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Session']"}),
             'timeslot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.TimeSlot']"})
         },

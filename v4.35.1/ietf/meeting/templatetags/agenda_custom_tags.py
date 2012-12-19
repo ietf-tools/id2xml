@@ -11,6 +11,17 @@ def lookup(dict, index):
         return dict[index]
     return ''
 
+@register.filter(name='get_id')
+def get_id(room,day):
+    date = ""
+    print "getid"
+    print " "
+    from ietf.meeting.models import TimeSlot
+    print "ROOM=", room
+    print "date=", date
+    x = TimeSlot.objects.filter(time=date)
+    return "bla"
+
 # returns the length of the value of a dict. 
 # We are doing this to how long the title for the calendar should be. (this should return the number of time slots)
 @register.filter(name='colWidth')

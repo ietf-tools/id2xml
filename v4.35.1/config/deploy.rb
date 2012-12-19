@@ -21,7 +21,7 @@ set :ssh_options, { :forward_agent => true }
 #set :git_enable_submodules, true
 
 # SVN
-set :scm, :svn
+set :scm, :subversion
 set :repository,  "http://svn.tools.ietf.org/svn/tools/ietfdb/branch/ssw/agenda/v4.35.1"
 
 set :django_environment, "cd #{release_path}"

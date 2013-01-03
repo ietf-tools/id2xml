@@ -143,8 +143,10 @@ def write_html(path,content):
     f = open(path,'w')
     f.write(content)
     f.close()
-    os.chmod(path,0664)
-    
+    try:
+        os.chmod(path, 0664)
+    except OSError:
+        pass
 # -------------------------------------------------
 # End Helper Functions
 # -------------------------------------------------

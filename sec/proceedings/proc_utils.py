@@ -443,31 +443,44 @@ def gen_overview(context):
     write_html(path,html.content)
     
 def gen_plenaries(context):
+    '''
+    This function generates pages for the Plenaries.  At meeting 85 the Plenary sessions 
+    were combined into one, so we need to handle not finding one of the sessions.
+    '''
     meeting = context['meeting']
-    admin_session = Session.objects.get(meeting=meeting,name__contains='Administration Plenary')
-    admin_slides = admin_session.materials.filter(type='slides')
-    admin_minutes = admin_session.materials.filter(type='minutes')
-    admin = render_to_response('proceedings/plenary.html',{
-        'title': 'Administrative',
-        'meeting': meeting,
-        'slides': admin_slides,
-        'minutes': admin_minutes}
-    )
-    path = os.path.join(settings.PROCEEDINGS_DIR,context['meeting'].number,'administrative-plenary.html')
-    write_html(path,admin.content)
     
-    tech_session = Session.objects.get(meeting=meeting,name__contains='Technical Plenary')
-    tech_slides = tech_session.materials.filter(type='slides')
-    tech_minutes = tech_session.materials.filter(type='minutes')
-    tech = render_to_response('proceedings/plenary.html',{
-        'title': 'Technical',
-        'meeting': meeting,
-        'slides': tech_slides,
-        'minutes': tech_minutes}
-    )
-    path = os.path.join(settings.PROCEEDINGS_DIR,context['meeting'].number,'technical-plenary.html')
-    write_html(path,tech.content)
-
+    # Administration Plenary
+    try:
+        admin_session = Session.objects.get(meeting=meeting,name__contains='Administration Plenary')
+        admin_slides = admin_session.materials.filter(type='slides')
+        admin_minutes = admin_session.materials.filter(type='minutes')
+        admin = render_to_response('proceedings/plenary.html',{
+            'title': 'Administrative',
+            'meeting': meeting,
+            'slides': admin_slides,
+            'minutes': admin_minutes}
+        )
+        path = os.path.join(settings.PROCEEDINGS_DIR,context['meeting'].number,'administrative-plenary.html')
+        write_html(path,admin.content)
+    except Session.DoesNotExist:
+        pass
+        
+    # Technical Plenary
+    try:
+        tech_session = Session.objects.get(meeting=meeting,name__contains='Technical Plenary')
+        tech_slides = tech_session.materials.filter(type='slides')
+        tech_minutes = tech_session.materials.filter(type='minutes')
+        tech = render_to_response('proceedings/plenary.html',{
+            'title': 'Technical',
+            'meeting': meeting,
+            'slides': tech_slides,
+            'minutes': tech_minutes}
+        )
+        path = os.path.join(settings.PROCEEDINGS_DIR,context['meeting'].number,'technical-plenary.html')
+        write_html(path,tech.content)
+    except Session.DoesNotExist:
+        pass
+        
 def gen_progress(context, final=True):
     '''
     This function generates the Progress Report.  This report is actually produced twice.  First

@@ -89,11 +89,13 @@ def get_plenary_agenda(meeting_num, id):
 
 class NamedTimeSlot(object):
     """
-    this encapsulates a TimeSlot with a named agenda, so that
+    this encapsulates a TimeSlot with a Schedule, so that
     specific time slots can be returned as appropriate. It proxies
     most things to TimeSlot.  Agenda_info returns an array of these
     objects rather than actual Time Slots, as the templates do not
-    permit multiple parameters to be passed into a relation
+    permit multiple parameters to be passed into a relation.
+    This may be irrelevant with Django 1.3+, given with argument extension
+    to templating language.
     """
     def __init__(self, agenda, timeslot):
         self.agenda   = agenda
@@ -168,7 +170,7 @@ class NamedTimeSlot(object):
 def get_ntimeslots_from_ss(agenda, scheduledsessions):
     ntimeslots = []
     time_seen = set()
-        
+
     for ss in scheduledsessions:
         t = ss.timeslot
         if not t.time in time_seen:

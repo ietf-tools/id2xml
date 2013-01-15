@@ -1,3 +1,3 @@
 #!/bin/sh
 
-REMOTE_USER=admin ./manage runserver
+REMOTE_USER=admin ./manage runserver $*

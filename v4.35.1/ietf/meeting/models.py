@@ -240,7 +240,7 @@ class ScheduledSession(models.Model):
         if self.timeslot.type_id not in ("session", "plenary"):
             return None
         return self.timeslot.name
-
+        
     @property
     def area(self):
         if not self.session or not self.session.group:

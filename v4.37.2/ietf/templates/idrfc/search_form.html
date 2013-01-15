@@ -1,0 +1,85 @@
+{% comment %}
+Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions 
+are met:
+
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+
+ * Neither the name of the Nokia Corporation and/or its
+   subsidiary(-ies) nor the names of its contributors may be used
+   to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{% endcomment %}
+
+<form name="search_form" id="search_form" class="search_form" action="/doc/search/" method="get" {# onsubmit="submitSearch();return false;" #}>
+
+<div class="search_field">
+<label>Name/number/title:</label> {{ form.name }}
+</div>
+
+<div class="search_field">
+<label>Types:</label>
+<table id="search_types">
+<tr><td>{{ form.rfcs }} RFCs</td></tr>
+<tr><td>{{ form.activeDrafts }} Internet-Drafts (active)</td></tr>
+<tr><td>{{ form.oldDrafts }} Internet-Drafts (expired/replaced/withdrawn)</td></tr>
+</table>
+</div>
+
+<span class="toggle_advanced"><b><img src="/images/{% if meta.advanced %}minus{% else %}plus{% endif %}.png" alt="" id="search_advanced-img" /> Advanced</b></span>
+
+<div id="search_advanced" style="{% if not meta.advanced %}display:none;{%endif%}margin-top:1em;">
+Additional search criteria:
+
+<div class="search_field">
+<label><input type="radio" class="radio" name="by" value="author" {% ifequal meta.by "author" %}checked="checked"{% endifequal %}/> Author (last name):</label> {{ form.author }}
+</div>
+<div class="search_field">
+<label><input type="radio" class="radio" name="by" value="group" {% ifequal meta.by "group" %}checked="checked"{% endifequal %}/> WG:</label> {{ form.group }}
+</div>
+<div class="search_field">
+<label><input type="radio" class="radio" name="by" value="area" {% ifequal meta.by "area" %}checked="checked"{% endifequal %}/> Area:</label> {{ form.area }}
+</div>
+<div class="search_field">
+<label><input type="radio" class="radio" name="by" value="ad" {% ifequal meta.by "ad" %}checked="checked"{% endifequal %}/> Responsible AD:</label> {{ form.ad }} 
+</div>
+<div class="search_field">
+<label><input type="radio" class="radio" name="by" value="state" {% ifequal meta.by "state" %}checked="checked"{% endifequal %}/> IESG State:</label> {{ form.state }} :: {{ form.subState }}
+</div>
+{% comment %}
+<div class="search_field" style="text-decoration:line-through;color:#808080;">
+<label>Ballot position:</label> {{ form.positionAd }} has position  {{ form.positionValue }}
+</div>
+{% endcomment %}
+
+</div><!-- end of advanced -->
+
+<div style="padding-top:0.5em;">
+{# <input type="hidden" name="ajax" value="" /> #}
+<span class="first-child">
+<button type="submit" name="search_submit" id="id_search_submit">Search</button>
+</span>
+</div>
+
+</form>

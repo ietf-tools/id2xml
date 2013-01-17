@@ -99,6 +99,8 @@ class AgendaInfoTestCase(TestCase):
         #1300-1450  Tools for Creating Internet-Drafts Tutorial - 241
         #1300-1450  Newcomers' Orientation - 252B
         #1300-1450  Meetecho Tutorial for Participants and WG Chairs - 252A
+        #import pdb
+        #pdb.set_trace()
         slot3 = timeslots[2]
         self.assertEqual(slot3.time_desc, "1300-1450")
         events = slot3.scheduledsessions_at_same_time

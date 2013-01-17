@@ -292,6 +292,7 @@ class ScheduledSession(models.Model):
         return ""
 
 class Constraint(models.Model):
+    """
     Specifies a constraint on the scheduling.
     One type (name=conflic?) of constraint is between source WG and target WG,
            e.g. some kind of conflict.

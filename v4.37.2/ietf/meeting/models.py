@@ -37,7 +37,7 @@ class Meeting(models.Model):
     break_area = models.CharField(blank=True, max_length=255)
     reg_area = models.CharField(blank=True, max_length=255)
     agenda_note = models.TextField(blank=True, help_text="Text in this field will be placed at the top of the html agenda page for the meeting.  HTML can be used, but will not validated.")
-    official_agenda = models.ForeignKey('NamedAgenda',null=True,blank=True)
+    official_agenda = models.ForeignKey('NamedAgenda',null=True,blank=True, related_name='+')
 
     def __unicode__(self):
         if self.type_id == "ietf":
@@ -154,6 +154,7 @@ class NamedAgenda(models.Model):
     Secretariat to IESG members for review.  Only the owner may edit the
     agenda, others may copy it
     """
+    meeting  = models.ForeignKey(Meeting, null=True)
     name     = models.CharField(max_length=16, blank=False)
     owner    = models.ForeignKey(Person)
     visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")

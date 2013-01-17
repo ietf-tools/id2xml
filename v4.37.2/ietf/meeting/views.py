@@ -149,7 +149,7 @@ def agenda_info(num=None):
 
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None):
+def html_agenda(request, num=None, namedagenda_name=None):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -162,6 +162,8 @@ def html_agenda(request, num=None):
         return iphone_agenda(request, num)
 
     meeting = get_meeting(num)
+    namedagenda = get_namedagenda(meeting, namedagenda_name)
+        
     timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
     modified = timeslots.aggregate(Max('modified'))['modified__max']
 
@@ -513,6 +515,13 @@ def get_meeting(num=None):
     else:
         meeting = get_object_or_404(Meeting, number=num)
     return meeting
+
+def get_namedagenda(meeting, name=None):
+    if name is None:
+        namedagenda = meeting.official_agenda
+    else:
+        namedagenda = get_object_or_404(meeting.namedagenda_set, name=name)
+    return namedagenda
 
 def week_view(request, num=None):
     meeting = get_meeting(num)

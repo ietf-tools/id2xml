@@ -29,4 +29,10 @@ def get_col_width(dict, index):
     if index in dict:
         return len(dict[index])
     return 0
+
+# used because html id's should not have spaces in them.
+@register.filter(name='nospace')
+def nospace(inp):
+    return str(inp).replace(' ','_')
+    
     

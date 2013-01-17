@@ -2,7 +2,7 @@
 
 var meeting_objs = {};    // contains a list of event_obj's
 var slot_status = {};     // the status of the slot, in format { room_year-month-day_hour: { free: t/f, timeslotid: id } }
-
+var days = [];
 /////////////-END-GLOBALS-///////////////////////////////////////
 
 /* refactor this out into the html */
@@ -34,7 +34,28 @@ function initStuff(){
     log("droppable() ran");
     load_events();
     log("load_events() ran");
+    hide_empty();
 }
+
+/* hide_empty()
+   looks for the rooms with no events in them and hides them.
+   This is mostly a temp fix for hiding stuff. DOMs should just
+   never be created. Allowing the toggle may be a nice feature though
+*/
+function hide_empty(){
+
+    for(i=0;i<days.length;i++){
+	var childs = ($("#"+days[i]+"tbody").children());
+	for(k=0;k<childs.length;k++){
+	    if($(childs[k]).find(".meeting_event").length == 0){
+	    	$(childs[k]).toggle();
+	    }
+	}
+    }
+
+}
+
+
 
 function print_all(){
     console.log("all");
@@ -78,7 +99,20 @@ function listeners(){
     $('#event_AllDay_no').click(function(){
 	$('#event_AllDay_yes').attr('checked',false);
     });
+    $('#get_ss').click(function(){
+	get_ss();
+    });
+    
 
+}
+
+function print_all_ss(objs){
+    console.log(objs)
+
+}
+function get_ss(){
+    console.log("get_ss")
+    Dajaxice.ietf.meeting.get_scheduledsessions(print_all_ss);
 }
 
 function insert_cell(time,date,room,text){

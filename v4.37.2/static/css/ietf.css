@@ -228,3 +228,6 @@ table.meeting_event {
 
 
 }
+    .ui-effects-transfer {
+        border: 1px dotted black;
+    }

@@ -1,6 +1,7 @@
 from django.utils import simplejson
 from dajaxice.core import dajaxice_functions
 from dajaxice.decorators import dajaxice_register
+from ietf.ietfauth.decorators import group_required
 
 # New models
 from ietf.meeting.models import Meeting, TimeSlot, Session, ScheduledSession, Room
@@ -14,14 +15,15 @@ log = logging.getLogger(__name__)
 def sayhello(request):
     return simplejson.dumps({'message':'Hello World'})
 
-
+@group_required('Area_Director','Secretariat')
 @dajaxice_register
 def update_timeslot(request, new_event):
     # get the ScheduledSession.
     ss_id = int(new_event["session_id"])
     timeslot_id = int(new_event["timeslot_id"])
     
-    log.info("updating scheduledsession_id=%u to timeslot_id=%u" % (ss_id, timeslot_id))
+    log.info("%s is updating scheduledsession_id=%u to timeslot_id=%u" %
+             (request.user, ss_id, timeslot_id))
     ss = ScheduledSession.objects.get(id=ss_id)
     try:
         # find the timeslot, assign it to the ScheduledSession's timeslot, save it. 

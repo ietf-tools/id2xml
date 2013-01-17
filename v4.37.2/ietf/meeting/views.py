@@ -275,12 +275,9 @@ def build_agenda_slices(scheduledsessions):
             if ymd in date_slices:
                 if [ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration] not in date_slices[ymd]:   # only keep unique entries
                     date_slices[ymd].append([ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration])
-                    ids.append(ss.timeslot.id)
-            
     
     time_slices.sort()
-    print ids
-    print date_slices
+
 
     return time_slices,date_slices
 
@@ -355,9 +352,7 @@ def edit_agenda(request, num=None, namedagenda_name=None):
     wg_list = get_wg_list(wg_name_list)
     
     time_slices,date_slices = build_agenda_slices(scheduledsessions)
-    #for e in date_slices:
-    #    print e, len(date_slices[e])
-    #print "date_slices:length=", len(date_slices)
+
     rooms = meeting.room_set
     rooms = rooms.all()
     

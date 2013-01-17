@@ -147,35 +147,6 @@ def agenda_info(num=None):
 
     return timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
-@decorator_from_middleware(GZipMiddleware)
-def html_agenda_original(request, num=None):
-    if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
-        user_agent = "iPhone"
-    elif 'user_agent' in request.REQUEST:
-        user_agent = request.REQUEST['user_agent']
-    elif 'HTTP_USER_AGENT' in request.META:
-        user_agent = request.META["HTTP_USER_AGENT"]
-    else:
-        user_agent = ""
-    if "iPhone" in user_agent:
-        return iphone_agenda(request, num)
-
-    meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
-    modified = timeslots.aggregate(Max('modified'))['modified__max']
-
-    area_list = timeslots.filter(type = 'Session', session__group__parent__isnull = False).order_by('session__group__parent__acronym').distinct('session__group__parent__acronym').values_list('session__group__parent__acronym',flat=True)
-
-    wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
-
-    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
-
-    return HttpResponse(render_to_string("meeting/agenda.html",
-        {"timeslots":timeslots, "modified": modified, "meeting":meeting,
-         "area_list": area_list, "wg_list": wg_list ,
-         "show_inline": set(["txt","htm","html"]) },
-        RequestContext(request)), mimetype="text/html")
-
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda(request, num=None):

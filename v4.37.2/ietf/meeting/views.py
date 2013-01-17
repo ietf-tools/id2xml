@@ -367,7 +367,7 @@ def edit_agenda(request, num=None, namedagenda_name=None):
     time_slices,date_slices = build_agenda_slices(scheduledsessions)
 
     rooms = meeting.room_set
-
+    
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
                                          {"timeslots":ntimeslots,
                                           "rooms":rooms,
@@ -378,7 +378,7 @@ def edit_agenda(request, num=None, namedagenda_name=None):
                                           "area_list": area_list,
                                           "wg_list": wg_list ,
                                           "show_inline": set(["txt","htm","html"]) },
--                                         RequestContext(request)), mimetype="text/html")
+                                         RequestContext(request)), mimetype="text/html")
 
 ###########################################################################################################################
 

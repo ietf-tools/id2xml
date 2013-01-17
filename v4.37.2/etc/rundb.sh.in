@@ -3,7 +3,7 @@
 TOPDIR=@TOPDIR@
 RUNDIR=${TOPDIR}/run
 DBDIR=${RUNDIR}/db
-LOGDIR=${TOPDIR}/log
+LOGDIR=${RUNDIR}/log
 SOCKET=${RUNDIR}/mysqld.sock
 PIDFILE=${RUNDIR}/mysqld.pid
 mkdir -p ${RUNDIR}/mysqld
@@ -15,5 +15,7 @@ else
         BASEDIR=/usr
 fi
 
+mkdir -p ${LOGDIR}/mysql
+
 PATH=/usr/local/mysql/bin:$PATH export PATH
-mysqld --basedir=${BASEDIR} --datadir=${DBDIR} --pid-file=${PIDFILE} --skip-external-locking --socket=${SOCKET} --skip-networking --log_bin=${LOGDIR}/mysql/mysql-bin.log &
+mysqld --basedir=${BASEDIR} --datadir=${DBDIR} --pid-file=${PIDFILE} --skip-external-locking --socket=${SOCKET} --skip-networking --log=${LOGDIR}/mysql-query.log &

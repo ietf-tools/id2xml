@@ -29,7 +29,7 @@ from ietf.utils.history import find_history_active_at
 from ietf.doc.models import Document, State
 
 # Old model -- needs to be removed
-from ietf.proceedings.models import Meeting as OldMeeting, MeetingTime, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
+from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
 
 # New models
 from ietf.meeting.models import Meeting, TimeSlot, Session
@@ -147,6 +147,13 @@ def agenda_info(num=None):
 
     return timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
+def get_area_list(timeslots, num):
+    return timeslots.filter(type = 'Session',
+                            session__group__parent__isnull = False).order_by(
+        'session__group__parent__acronym').distinct(
+        'session__group__parent__acronym').values_list(
+        'session__group__parent__acronym',flat=True)
+
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda(request, num=None, namedagenda_name=None):
@@ -167,7 +174,7 @@ def html_agenda(request, num=None, namedagenda_name=None):
     timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
     modified = timeslots.aggregate(Max('modified'))['modified__max']
 
-    area_list = timeslots.filter(type = 'Session', session__group__parent__isnull = False).order_by('session__group__parent__acronym').distinct('session__group__parent__acronym').values_list('session__group__parent__acronym',flat=True)
+    area_list = get_area_list(timeslots, num)
 
     wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
 

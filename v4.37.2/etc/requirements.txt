@@ -1,0 +1,7 @@
+Django==1.2.7
+South
+MySQL-python
+distribute==0.6.28
+pytz
+wsgiref==0.1.2
+

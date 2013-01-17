@@ -1,0 +1,53 @@
+Download
+--------
+
+[dl]: git://github.com/mcr/can-o-mysql.git 
+
+
+Introduction
+------------
+
+Can-o-MYSQL is a small set of scripts that configures a LAMP system
+in the current directly.
+
+I really dislike web projects that tell me to go reconfigure the running
+MySQL daemon (and then give me no examples), and assume that I want to run
+everything, even during testing, as a system process.
+
+What I want is to turn web "applications" into normal source trees.
+This means that they run without root, they run in the current directory,
+and they do not require reconfiguring system daemons.
+
+MySQL will run with a custom Unix domain port, and Apache will run
+unpriviledged on a custom port, it's just a question of plugging it all
+together.
+
+  [fixup]: etc/fixup.sh
+
+To start with this, create a new empty project.  I suggest that you
+fork my can-o-mysql project on github, and then check it out.  
+
+Then setup your "public" directory to point to the root of your HTML/PHP
+code.  For existing projects there are several ways you could do this:
+
+1) a straight symlink pointing to another directory.
+2) copy the code to public
+3) git submodule add, to get your data there
+4) start new project in this format.
+
+If you go the (3) route, you should, after you create the .gitsubmodule
+and tests, and other directories you need for your testing skaffold,
+then create a new project for your foo project, "foo-skaffold".  Updates
+from can-o-mysql can be applied with a git merge or git rebase.
+
+New Projects
+============
+
+On a new project, I suggest that you organize things the way that Rails does.
+Your code does not go into public, only your visible .html and .phtml files
+do.  All of your classes and the like go into the top-level php directory.
+
+If you need mocks or other code just for tests, then put them into test/php,
+which is on the php include path prior to php.
+
+

@@ -51,20 +51,21 @@ class AgendaInfoTestCase(TestCase):
         slot1 = TimeSlot.objects.get(pk=2371)  # "name": "Morning Session I"
         self.assertEqual(slot1.registration(), regslot)
 
-    def test_DoNotGetNamedAgenda(self):
+    def test_DoNotGetSchedule(self):
+        from django.http import Http404
         num = '83'
-        from ietf.meeting.views import get_meeting, get_namedagenda
+        from ietf.meeting.views import get_meeting, get_schedule
         meeting = get_meeting(num)
         try:
-            na = get_namedagenda(meeting, "none:83")
+            na = get_schedule(meeting, "none:83")
         except Http404:
             False
 
-    def test_GetNamedAgenda(self):
+    def test_GetSchedule(self):
         num = '83'
-        from ietf.meeting.views import get_meeting, get_namedagenda
+        from ietf.meeting.views import get_meeting, get_schedule
         meeting = get_meeting(num)
-        na = get_namedagenda(meeting, "mtg:83")
+        na = get_schedule(meeting, "mtg:83")
         self.assertIsNotNone(na)
 
     def test_sessionstr(self):

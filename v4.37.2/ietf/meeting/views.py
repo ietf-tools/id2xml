@@ -102,6 +102,68 @@ class NamedTimeSlot(object):
     def time(self):
         return self.timeslot.time
 
+    @property
+    def meeting_date(self):
+        return self.timeslot.meeting_date
+
+    @property
+    def reg_info(self):
+        return self.timeslot.reg_info
+
+    @property
+    def registration(self):
+        return self.timeslot.registration
+
+    @property
+    def session_name(self):
+        return self.timeslot.session_name
+
+    @property
+    def break_info(self):
+        return self.timeslot.break_info
+
+    @property
+    def time_desc(self):
+        return self.timeslot.time_desc
+
+    @property
+    def is_plenary(self):
+        return self.timeslot.is_plenary
+
+    @property
+    def is_plenaryw(self):
+        return self.timeslot.is_plenary_type("plenaryw")
+
+    @property
+    def is_plenaryt(self):
+        return self.timeslot.is_plenary_type("plenaryt")
+
+    @property
+    def sessions(self):
+        return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(owner=self.agenda) ]
+
+    @property
+    def scheduledsessions_at_same_time(self):
+        if not hasattr(self, "sessions_at_same_time_cache"):
+            self.sessions_at_same_time_cache = self.timeslot.scheduledsessions_at_same_time(self.agenda)
+        return self.sessions_at_same_time_cache
+
+    @property
+    def scheduledsessions(self):
+        return self.timeslot.scheduledsession_set.filter(owner=self.agenda)
+
+    @property
+    def scheduledsessions_by_area(self):
+        things = self.scheduledsessions_at_same_time
+        import sys
+        if things is not None:
+            return [ {"area":ss.area+ss.acronym_name, "info":ss} for ss in things ]
+        else:
+            return [ ]
+
+        
+
+
 def agenda_info(num=None, name=None):
     """
     XXX this should really be a method on Meeting

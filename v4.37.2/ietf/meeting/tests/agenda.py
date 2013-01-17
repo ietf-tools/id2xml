@@ -80,5 +80,29 @@ class AgendaInfoTestCase(TestCase):
         """
         pass
 
+    def test_AgendaInfoNamedSlotSessionsByArea(self):
+        from ietf.meeting.views import agenda_info
+        num = '83'
+        timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+        for slot in timeslots:
+            for ss in slot.scheduledsessions_by_area:
+                self.assertIsNotNone(ss)
+                self.assertIsNotNone(ss["area"])
+                self.assertIsNotNone(ss["info"])
+
+    def test_AgendaInfoNamedSlotSessionsByArea(self):
+        from ietf.meeting.views import agenda_info
+        num = '83'
+        timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+        # the third timeslot should be 1300-1450 on Sunday March 25.
+        # it should have three things:
+        #1300-1450  Tools for Creating Internet-Drafts Tutorial - 241
+        #1300-1450  Newcomers' Orientation - 252B
+        #1300-1450  Meetecho Tutorial for Participants and WG Chairs - 252A
+        slot3 = timeslots[2]
+        self.assertEqual(slot3.time_desc, "1300-1450")
+        events = slot3.scheduledsessions_at_same_time
+        self.assertEqual(len(events), 3)
         
+
         

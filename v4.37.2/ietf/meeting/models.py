@@ -106,6 +106,10 @@ class TimeSlot(models.Model):
     sessions = models.ManyToManyField('Session', related_name='slots', through='ScheduledSession', null=True, blank=True, help_text=u"Scheduled session, if any")
     modified = models.DateTimeField(default=datetime.datetime.now)
 
+    @property
+    def time_desc(self):
+        return u"%s-%s" % (self.time.strftime("%H%M"), (self.time + self.duration).strftime("%H%M"))
+
     def meeting_date(self):
         return self.time.date()
 
@@ -119,6 +123,9 @@ class TimeSlot(models.Model):
             except TimeSlot.DoesNotExist:
                 self._reg_info = None
         return self._reg_info
+
+    def reg_info(self):
+        return (self.registration() is not None)
 
     def __unicode__(self):
         location = self.get_location()
@@ -144,6 +151,31 @@ class TimeSlot(models.Model):
             
         return location
 
+    def session_name(self):
+        if self.type_id not in ("session", "plenary"):
+            return None
+        
+        class Dummy(object):
+            def __unicode__(self):
+                return self.session_name
+        d = Dummy()
+        d.session_name = self.name
+        return d
+
+    def scheduledsessions_at_same_time(self, agenda=None):
+        if agenda is None:
+            agenda = self.meeting.official_agenda
+            
+        return agenda.scheduledsession_set.filter(timeslot__time=self.time, timeslot__type__in=("session", "plenary", "other"))
+
+    @property
+    def is_plenary(self):
+        return self.type_id == "plenary"
+    
+    @property
+    def is_plenary_type(self, name, agenda=None):
+        return self.scheduledsessions_at_same_time(agenda)[0].acronym == name
+    
 class NamedAgenda(models.Model):
     """
     Each person may have multiple agendas saved.
@@ -178,7 +210,87 @@ class ScheduledSession(models.Model):
 
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.owner, self.session, self.timeslot)
+
+    @property
+    def room_name(self):
+        return self.timeslot.location.name
     
+    @property
+    def special_agenda_note(self):
+        return self.session.agenda_note if self.session else ""
+
+    @property
+    def acronym(self):
+        if self.session and self.session.group:
+            return self.session.group.acronym
+    
+    @property
+    def acronym_name(self):
+        if not self.session:
+            return self.notes
+        if hasattr(self, "interim"):
+            return self.session.group.name + " (interim)"
+        elif self.session.name:
+            return self.session.name
+        else:
+            return self.session.group.name
+
+    @property
+    def session_name(self):
+        if self.timeslot.type_id not in ("session", "plenary"):
+            return None
+        return self.timeslot.name
+
+    @property
+    def area(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group.type_id == "irtf":
+            return "irtf"
+        if self.timeslot.type_id == "plenary":
+            return "1plenary"
+        if not self.session.group.parent or not self.session.group.parent.type_id in ["area","irtf"]:
+            return ""
+        return self.session.group.parent.acronym
+
+    @property
+    def break_info(self):
+        breaks = self.owner.scheduledsessions_set.filter(timeslot__time__month=self.timeslot.time.month, timeslot__time__day=self.timeslot.time.day, timeslot__type="break").order_by("timeslot__time")
+        now = self.timeslot.time_desc[:4]
+        for brk in breaks:
+            if brk.time_desc[-4:] == now:
+                return brk
+        return None
+    
+    @property
+    def area_name(self):
+        if self.timeslot.type_id == "plenary":
+            return "Plenary Sessions"
+        elif self.session and self.session.group and self.session.group.acronym == "edu":
+            return "Training"
+        elif not self.session or not self.session.group or not self.session.group.parent or not self.session.group.parent.type_id == "area":
+            return ""
+        return self.session.group.parent.name
+
+    @property
+    def isWG(self):
+        if not self.session or not self.session.group:
+            return False
+        if self.session.group.type_id == "wg" and self.session.group.state_id != "bof":
+            return True
+
+    @property
+    def group_type_str(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group and self.session.group.type_id == "wg":
+            if self.session.group.state_id == "bof":
+                return "BOF"
+            else:
+                return "WG"
+
+        return ""
+
 class Constraint(models.Model):
     Specifies a constraint on the scheduling.
     One type (name=conflic?) of constraint is between source WG and target WG,

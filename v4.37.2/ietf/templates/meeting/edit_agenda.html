@@ -3,6 +3,7 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% load humanize %}
 
+{% load dajaxice_templatetags %}
 
 {% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
 {% load agenda_custom_tags %}
@@ -16,30 +17,26 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
-
-<script type='text/javascript' src='/js/agenda_credil.js'></script>
+{% dajaxice_js_import %}
+<script type='text/javascript' src='/js/agenda_edit.js'></script>
 
 <script type='text/javascript'>
 
-function setup_slots_a(){
-    {% for day,value in date_slices.items %}
-        {% for r in rooms %}
-            {% for slot in value %}
-		  var t = "{{slot.0|date:'Hi'}}";
-		  populate_events("title","desc","{{r|slugify}}",t,"{{day}}");
-	    {% endfor %}
-	{% endfor %}
-    {% endfor %}
-
-}
+{% comment %}
+function my_js_callback(data){
+    alert(data.message);
+}<!-- dajaxice example --> {% endcomment %}
 
 
 function setup_slots(){
 {% for t in timeslots %}
-	populate_events("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}" );
-
+	<!-- ------------------------- >
+	var e_obj = new event_obj("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
+	
+	$.extend(meeting_objs,{ "{{t.id}}":e_obj});
+	<!-- ------------------------- >
 {% endfor %}
-populate_events("title","desc","asdfdssf","asdf","asdfsd");
+
 
 {% for days in date_slices %}
 	$("#{{days}}-btn").click(function(){
@@ -66,7 +63,7 @@ function strip_bad(bad){
 {% block content %}
 
 {% comment %} For each meeting day, we generate a table {% endcomment %}
-
+{% comment %} <button onclick="Dajaxice.ietf.meeting.sayhello(my_js_callback);">click me </button><!-- dajaxice example --> {% endcomment %}
 <div style="margin: 0 auto">
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
@@ -87,7 +84,7 @@ function strip_bad(bad){
 	<tr id="{{r}}">
 	    <th class="vert_time">{{r}}
 	    {% for slot in date_slices|lookup:day %}
-	        <td id="{{r|slugify}}-{{day}}-{{slot.0|date:'Hi'}}"></td>
+	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}"></td>
 	    {% endfor %}
 	</tr>
     {% endfor %}

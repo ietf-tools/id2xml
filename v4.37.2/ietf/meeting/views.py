@@ -37,7 +37,7 @@ from ietf.group.models import Group
 
 
 @decorator_from_middleware(GZipMiddleware)
-def show_html_materials(request, meeting_num=None):
+def show_html_materials(request, meeting_num=None, namedagenda_name=None):
     proceeding = get_object_or_404(Proceeding, meeting_num=meeting_num)
     begin_date = proceeding.sub_begin_date
     cut_off_date = proceeding.sub_cut_off_date
@@ -50,11 +50,16 @@ def show_html_materials(request, meeting_num=None):
     sub_began = 0
     if now > begin_date:
         sub_began = 1
-    sessions  = Session.objects.filter(meeting__number=meeting_num, timeslot__isnull=False)
-    plenaries = sessions.filter(name__icontains='plenary')
-    ietf      = sessions.filter(group__parent__type__slug = 'area').exclude(group__acronym='edu')
-    irtf      = sessions.filter(group__parent__acronym = 'irtf')
-    training  = sessions.filter(group__acronym='edu')
+
+    meeting = get_meeting(meeting_num)
+    namedagenda = get_namedagenda(meeting, namedagenda_name)
+
+    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+
+    plenaries = scheduledsessions.filter(session__name__icontains='plenary')
+    ietf      = scheduledsessions.filter(session__group__parent__type__slug = 'area').exclude(session__group__acronym='edu')
+    irtf      = scheduledsessions.filter(session__group__parent__acronym = 'irtf')
+    training  = scheduledsessions.filter(session__group__acronym='edu')
 
     cache_version = Document.objects.filter(session__meeting__number=meeting_num).aggregate(Max('time'))["time__max"]
     #
@@ -240,12 +245,72 @@ def agenda_info(num=None, name=None):
 
     return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
-def get_area_list(timeslots, num):
-    return timeslots.filter(type = 'Session',
-                            session__group__parent__isnull = False).order_by(
+def get_area_list(scheduledsessions, num):
+    return scheduledsessions.filter(timeslot__type = 'Session',
+                                    session__group__parent__isnull = False).order_by(
         'session__group__parent__acronym').distinct(
         'session__group__parent__acronym').values_list(
         'session__group__parent__acronym',flat=True)
+
+def build_agenda_slices(scheduledsessions):
+    ################## just some debugging stuff ############
+    time_slices = []
+    date_slices = set()
+    for ss in scheduledsessions:
+        if(ss.session != None):# and len(t.session.agenda_note)>1):
+
+#            if ss.timeslot.meeting.number != None:
+#                print ss.timeslot.name," ", ss.timeslot.meeting.number
+#            else:
+#                print ss.timeslot.name
+#            print "\t",ss.timeslot.location
+#            print "\t",ss.timeslot.time.strftime("%H%M"), type(ss.timeslot.time)
+            if ss.timeslot.time.strftime("%H%M") not in time_slices:
+                time_slices.append(ss.timeslot.time.strftime("%H%M"))
+            else:
+                pass
+            date = ss.timeslot.time.strftime("%Y-%m-%d")
+            if ss.timeslot.location != None:
+                date_slices.add(date)
+                #if ss.timeslot.time.strftime("%Y-%m-%d") == "2012-11-03":
+                #    print "t.time\t",ss.timeslot..time
+                #    print "t.location\t",ss.timeslot.location
+                #    print "t.duration\t",ss.timeslot.duration
+                #    print "t.session.group.name\t",ss.timeslot.session.group.name
+                #    print "t.session.group.acronym\t",ss.timeslot.session.group.acronym
+
+    time_slices.append("0830")
+            
+    #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
+
+#    print "area_list", area_list
+    
+    time_slices.sort()
+
+    # convert set to list and sort it.
+    date_slices = list(date_slices).sort()
+    return time_slices,date_slices
+
+
+def get_scheduledsessions_from_namedagenda(namedagenda):
+   ss = namedagenda.scheduledsession_set.order_by('timeslot__time','timeslot__name')
+   return ss
+
+def get_modified_from_scheduledsessions(scheduledsessions):
+    return scheduledsessions.aggregate(Max('timeslot__modified'))['timeslot__modified__max']
+
+def get_wg_name_list(scheduledsessions):
+    return scheduledsessions.filter(timeslot__type = 'Session',
+                                    session__group__isnull = False,
+                                    session__group__parent__isnull = False).order_by(
+        'session__group__acronym').distinct(
+        'session__group').values_list(
+        'session__group__acronym',flat=True)
+
+def get_wg_list(scheduledsessions):
+    wg_name_list = get_wg_name_list(scheduledsessions)
+    return Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
+
 
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
@@ -259,61 +324,23 @@ def html_agenda(request, num=None, namedagenda_name=None):
     else:
         user_agent = ""
     if "iPhone" in user_agent:
-        return iphone_agenda(request, num)
+        return iphone_agenda(request, num, namedagenda_name)
 
     meeting = get_meeting(num)
     namedagenda = get_namedagenda(meeting, namedagenda_name)
         
-    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
-    modified = timeslots.aggregate(Max('modified'))['modified__max']
+    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+    modified = get_modified_from_scheduledsessions(scheduledsessions)
 
-    area_list = get_area_list(timeslots, num)
-
-    wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
-
-    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
+    area_list = get_area_list(scheduledsessions, num)
+    wg_list = get_wg_list(scheduledsessions)
     
-    time_slices = []
-    date_slices = {}
-    for t in timeslots:
+    time_slices,date_slices = build_agenda_slices(scheduledsessions)
 
-#        print t.id, t.pk
-        if(t.session != None):# and len(t.session.agenda_note)>1):
-            ymd = t.time.strftime("%Y-%m-%d")
-            if ymd not in date_slices and t.location != None:
-                date_slices[ymd] = []
-            
-            if ymd in date_slices:
-                if [t.time, t.time+t.duration] not in date_slices[ymd]:   # only keep unique entries
-                    date_slices[ymd].append([t.time, t.time+t.duration])
-                
-           
+    rooms = meeting.room_set
 
-            if t.time.strftime("%H%M") not in time_slices:
-                time_slices.append(t.time.strftime("%H%M"))
-            else:
-                pass
-                
-    from ietf.meeting.models import Room
-    rooms = Room.objects.filter(meeting__number=num)
-    time_slices.append("0830")
-    
-#    print date_slices
-    meeting_days = []
-    for k,v in date_slices.iteritems():
-        print "k=",k
-        print "v=",v
-        meeting_days.append(k)
-    meeting_days.sort()
-    #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
-
-#    print "area_list", area_list
-    time_slices.sort()
-    print len(timeslots)
-    print date_slices[meeting_days[0]]
-#    print len(meeting)
     return HttpResponse(render_to_string("meeting/agenda.html",
-        {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+        {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list ,
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
@@ -321,71 +348,35 @@ def html_agenda(request, num=None, namedagenda_name=None):
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
 def edit_agenda(request, num=None):
-    if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
-        user_agent = "iPhone"
-    elif 'user_agent' in request.REQUEST:
-        user_agent = request.REQUEST['user_agent']
-    elif 'HTTP_USER_AGENT' in request.META:
-        user_agent = request.META["HTTP_USER_AGENT"]
-    else:
-        user_agent = ""
-    if "iPhone" in user_agent:
-        return iphone_agenda(request, num)
-
     meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).order_by('time','name')
-    modified = timeslots.aggregate(Max('modified'))['modified__max']
+    namedagenda = get_namedagenda(meeting, namedagenda_name)
+    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+    modified = get_modified_from_scheduledsessions(scheduledsessions)
 
-    area_list = timeslots.filter(type = 'Session', session__group__parent__isnull = False).order_by('session__group__parent__acronym').distinct('session__group__parent__acronym').values_list('session__group__parent__acronym',flat=True)
+    area_list = get_area_list(scheduledsessions, num)
+    wg_name_list = get_wg_name_list(scheduledsessions)
+    wg_list = get_wg_list(wg_name_list)
+     
+    time_slices,date_slices = build_agenda_slices(scheduledssessions)
 
-    wg_name_list = timeslots.filter(type = 'Session', session__group__isnull = False, session__group__parent__isnull = False).order_by('session__group__acronym').distinct('session__group').values_list('session__group__acronym',flat=True)
+    rooms = meeting.room_set
 
-    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
-    
-    time_slices = []
-    date_slices = []
-    for t in timeslots:
-#        print t.id, t.pk
-        if(t.session != None):# and len(t.session.agenda_note)>1):
-            if t.time.strftime("%H%M") not in time_slices:
-                time_slices.append(t.time.strftime("%H%M"))
-            else:
-                pass
-            if t.time.strftime("%Y-%m-%d") not in date_slices and t.location != None:
-                date_slices.append(t.time.strftime("%Y-%m-%d"))
-                if t.time.strftime("%Y-%m-%d") == "2012-11-03":
-
-                    print "t.time\t",t.time
-                    print "t.location\t",t.location
-                    print "t.duration\t",t.duration
-                    print "t.session.group.name\t",t.session.group.name
-                    print "t.session.group.acronym\t",t.session.group.acronym
-
-    ########################################################
-    from ietf.meeting.models import Room
-    rooms = Room.objects.filter(meeting__number=num)
-    time_slices.append("0830")
-            
-    time_slices.sort()
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
-        {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
-         "area_list": area_list, "wg_list": wg_list ,
-         "show_inline": set(["txt","htm","html"]) },
-        RequestContext(request)), mimetype="text/html")
-
+                                         {"timeslots":timeslots,
+                                          "rooms":rooms,
+                                          "time_slices":time_slices,
+                                          "date_slices":date_slices  ,
+                                          "modified": modified,
+                                          "meeting":meeting,
+                                          "area_list": area_list,
+                                          "wg_list": wg_list ,
+                                          "show_inline": set(["txt","htm","html"]) },
+                                         RequestContext(request)), mimetype="text/html")
 
 
 ###########################################################################################################################
-
-
 def iphone_agenda(request, num, name):
     timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
-
-    import sys
-    sys.stdout.write("agenda_info returned: %s[%d] %s %s" % (scheduledsessions[0],
-                                                         len(scheduledsessions),
-                                                         meeting,
-                                                         venue));
 
     groups_meeting = set();
     for ss in scheduledsessions:
@@ -687,10 +678,6 @@ def ical_agenda(request, num=None):
 
 def csv_agenda(request, num=None, name=None):
     timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
-    #wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).order_by('group_acronym__acronym')
-    #rgs = IRTF.objects.all().order_by('acronym')
-    #areas = Area.objects.filter(status=Area.ACTIVE).order_by('area_acronym__acronym')
-
     # we should really use the Python csv module or something similar
     # rather than a template file which is one big mess
 

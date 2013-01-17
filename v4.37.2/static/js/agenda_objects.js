@@ -28,7 +28,7 @@ function event_obj(title,description,room, time,date,session_id,timeslot_id,owne
     this.room = room;
     this.time = time;
     this.date = date;
-    this.session_id = session_id
+    this.session_id = session_id;
     this.timeslot_id = timeslot_id;
     this.owner = owner;
     this.last_timeslot_id = null;

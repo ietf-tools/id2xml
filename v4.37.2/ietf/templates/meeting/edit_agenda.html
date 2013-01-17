@@ -104,8 +104,8 @@ console.log("{{t.id}}");
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
-{% for day in date_slices %} 
-
+{% for day in time_slices %} 
+  
   <table id="meetings" class="{{day}} ietf-navbar" style="width:100%"  > <!-- ietf-navbar -->
 
   <th colspan="{{date_slices|colWidth:day|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th>

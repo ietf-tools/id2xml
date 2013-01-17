@@ -260,24 +260,32 @@ def build_agenda_slices(scheduledsessions):
 
     ################## just some debugging stuff ############
     time_slices = []
-    date_slices = set()
+    #date_slices = set()
     date_slices = {}
-
 
     ids = []
     for ss in scheduledsessions:
         if(ss.session != None):# and len(ss.timeslot.session.agenda_note)>1):
             ymd = ss.timeslot.time.strftime("%Y-%m-%d")
-
+            
             if ymd not in date_slices and ss.timeslot.location != None:
                 date_slices[ymd] = []
+                time_slices.append(ymd)
             
             if ymd in date_slices:
                 if [ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration] not in date_slices[ymd]:   # only keep unique entries
                     date_slices[ymd].append([ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration])
     
     time_slices.sort()
-
+    #sorted_keys = sorted(date_slices, key=lambda key: date_slices[key])
+    
+    #sorted_date_slices = {}
+    #for i in sorted_keys:
+    #    print i
+    #    sorted_date_slices[i] = date_slices[i]
+    #    print sorted_date_slices[i]
+#    print sorted_date_slices
+    
 
     return time_slices,date_slices
 
@@ -355,6 +363,7 @@ def edit_agenda(request, num=None, namedagenda_name=None):
 
     rooms = meeting.room_set
     rooms = rooms.all()
+    
     
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
                                          {"timeslots":ntimeslots,

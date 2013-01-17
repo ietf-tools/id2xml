@@ -78,6 +78,12 @@ class PersonManager(models.Manager):
             return results[0]
         else:
             return None
+    def by_username(self, username):
+        results = self.get_query_set().filter(user__username = username)
+        if len(results)>0:
+            return results[0]
+        else:
+            return None
             
 class Person(PersonInfo):
     objects = PersonManager()

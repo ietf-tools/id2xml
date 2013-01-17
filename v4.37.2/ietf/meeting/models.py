@@ -37,6 +37,7 @@ class Meeting(models.Model):
     break_area = models.CharField(blank=True, max_length=255)
     reg_area = models.CharField(blank=True, max_length=255)
     agenda_note = models.TextField(blank=True, help_text="Text in this field will be placed at the top of the html agenda page for the meeting.  HTML can be used, but will not validated.")
+    official_agenda = models.ForeignKey('NamedAgenda',null=True,blank=True)
 
     def __unicode__(self):
         if self.type_id == "ietf":
@@ -103,6 +104,7 @@ class TimeSlot(models.Model):
     location = models.ForeignKey(Room, blank=True, null=True)
     show_location = models.BooleanField(default=True, help_text="Show location in agenda")
     session = models.ForeignKey('Session', null=True, blank=True, help_text=u"Scheduled session, if any")
+    sessions = models.ManyToManyField('Session', related_name='slots', through='ScheduledSession', null=True, blank=True, help_text=u"Scheduled session, if any")
     modified = models.DateTimeField(default=datetime.datetime.now)
 
     def __unicode__(self):
@@ -129,15 +131,49 @@ class TimeSlot(models.Model):
             
         return location
 
-        
+class NamedAgenda(models.Model):
+    """
+    Each person may have multiple agendas saved.
+    An Agenda may be made visible, which means that it will show up in
+    public drop down menus, etc.  It may also be made public, which means
+    that someone who knows about it by name/id would be able to reference
+    it.  A non-visible, public agenda might be passed around by the
+    Secretariat to IESG members for review.  Only the owner may edit the
+    agenda, others may copy it
+    """
+    name     = models.CharField(max_length=16, blank=False)
+    owner    = models.ForeignKey(Person)
+    visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
+    public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
+    # considering copiedFrom = models.ForeignKey('NamedAgenda', blank=True, null=True)
+    
+
+class ScheduledSession(models.Model):
+    """
+    This model provides an N:M relationship between Session and TimeSlot.
+    Each relationship is attached to the named agenda, which is owned by
+    a specific person/user.
+    """
+    timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
+    session  = models.ForeignKey('Session', null=False, blank=False, help_text=u"Scheduled session")
+    owner    = models.ForeignKey('NamedAgenda', null=False, help_text=u"Who made this agenda")
+    notes    = models.TextField(blank=True)
     
 class Constraint(models.Model):
-    """Specifies a constraint on the scheduling between source and
-    target, e.g. some kind of conflict."""
+    Specifies a constraint on the scheduling.
+    One type (name=conflic?) of constraint is between source WG and target WG,
+           e.g. some kind of conflict.
+    Another type (name=adpresent) of constraing is between source WG and
+           availability of a particular Person, usually an AD.
+    A third type (name=avoidday) of constraing is between source WG and
+           a particular day of the week, specified in day.
+    """
     meeting = models.ForeignKey(Meeting)
     source = models.ForeignKey(Group, related_name="constraint_source_set")
-    target = models.ForeignKey(Group, related_name="constraint_target_set")
-    name = models.ForeignKey(ConstraintName)
+    target = models.ForeignKey(Group, related_name="constraint_target_set", null=True)
+    person = models.ForeignKey(Person, null=True, blank=True)
+    day    = models.DateTimeField(null=True, blank=True)
+    name   = models.ForeignKey(ConstraintName)
 
     def __unicode__(self):
         return u"%s %s %s" % (self.source, self.name.name.lower(), self.target)

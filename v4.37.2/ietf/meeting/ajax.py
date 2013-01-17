@@ -7,6 +7,8 @@ from ietf.meeting.models import Meeting, TimeSlot, Session, ScheduledSession, Ro
 from ietf.group.models import Group
 import datetime
 
+import logging
+log = logging.getLogger(__name__)
 
 @dajaxice_register
 def sayhello(request):
@@ -15,11 +17,15 @@ def sayhello(request):
 
 @dajaxice_register
 def update_timeslot(request, new_event):
-    # get the ScheduledSession. 
-    ss = ScheduledSession.objects.get(id=int(new_event["session_id"]))
+    # get the ScheduledSession.
+    ss_id = int(new_event["session_id"])
+    timeslot_id = int(new_event["timeslot_id"])
+    
+    log.info("updating scheduledsession_id=%u to timeslot_id=%u" % (ss_id, timeslot_id))
+    ss = ScheduledSession.objects.get(id=ss_id)
     try:
         # find the timeslot, assign it to the ScheduledSession's timeslot, save it. 
-        slots = TimeSlot.objects.get(id=int(new_event["timeslot_id"]))
+        slots = TimeSlot.objects.get(id=timeslot_id)
         ss.timeslot = slots
         ss.save()
         

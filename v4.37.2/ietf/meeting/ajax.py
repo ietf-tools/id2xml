@@ -35,3 +35,33 @@ def update_timeslot(request, new_event):
         print e
 
     return simplejson.dumps({'message':'im happy!'})
+
+
+@dajaxice_register
+def get_info(request, meeting_obj):#, event):
+    # print event
+    # try:
+    #     ss = ScheduledSession.objects.get(id=int(event["session_id"]))
+    #     print ss
+    # except Exception as e:
+    #     print e
+    ss = ScheduledSession.objects.get(id=int(meeting_obj["session_id"]))
+
+    return simplejson.dumps({'room':str(ss.timeslot.location),
+                             'group':str(ss.session.group),
+                             'name':str(ss.session.name),
+                             'short_name':str(ss.session.name),
+                             'agenda_note':str(ss.session.agenda_note),
+                             'attendees':str(ss.session.attendees),
+                             'status': str(ss.session.status),
+                             'requested_time': str(ss.session.requested),
+                             'requested_by': str(ss.session.requested_by),
+                             'requested_duration': str(ss.session.requested_duration),
+                             'ss_name':str(ss.schedule.name),
+                             'ss_owner':str(ss.schedule.owner),
+                             'ss_visible':str(ss.schedule.visible),
+                             'ss_public':str(ss.schedule.public),
+                             'ts_time':str(ss.timeslot.time),
+                             'ts_duration':str(ss.timeslot.duration),
+                             
+                             })

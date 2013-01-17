@@ -123,7 +123,7 @@ console.log("{{t.id}}");
 	<tr id="{{r|nospace}}">
 	    <th class="vert_time">{{r}}</th>
 	    {% for slot in date_slices|lookup:day %}
-	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="{% cycle 'alt' '' %}" style="background:#606060 "></td>
+	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="agenda_slot {% cycle 'alt' '' %}" style="background:#606060 "></td>
 	    {% endfor %}
 	</tr>
     {% endfor %}
@@ -136,10 +136,14 @@ console.log("{{t.id}}");
 
 </div>
 
-<div style="height:119px"></div> <!-- Not sure why I need this, but it's there to push the sortablelist down (otherwise it moves the table too) -->
+<div id="ss_info" style="height:119px;">
+  
+
+</div> <!-- Not sure why I need this, but it's there to push the sortablelist down (otherwise it moves the table too) -->
 
 <div id="sortable-list" style="margin-top:120px; border:1px solid black;  height:400px; width:200px;overflow:scroll;">
 <div style="background-color:maroon; "><b>Unassigned Events:</b></div>
+
 
 </div>
 </div>

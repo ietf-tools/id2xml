@@ -1,0 +1,4 @@
+distribute==0.6.28
+South
+wsgiref==0.1.2
+

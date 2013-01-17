@@ -413,10 +413,22 @@ class HttpResponse(object):
     def _get_content(self):
         if self.has_header('Content-Encoding'):
             return ''.join(self._container)
-        return smart_str(''.join(self._container), self._charset)
+        # the /meeting/75/agenda/mip4 test case results in
+        # self._container == [None]
+        f1 = ''
+        try:
+            f1 = ''.join(self._container)
+        except:
+            pass
+            #import sys
+            #sys.stdout.write("container:  %s" % (self._container))
+        return smart_str(f1, self._charset)
 
     def _set_content(self, value):
-        self._container = [value]
+        if value is None:
+            self._container = ['']
+        else:
+            self._container = [value]
         self._is_string = True
 
     content = property(_get_content, _set_content)

@@ -103,9 +103,22 @@ class TimeSlot(models.Model):
     duration = TimedeltaField()
     location = models.ForeignKey(Room, blank=True, null=True)
     show_location = models.BooleanField(default=True, help_text="Show location in agenda")
-    session = models.ForeignKey('Session', null=True, blank=True, help_text=u"Scheduled session, if any")
     sessions = models.ManyToManyField('Session', related_name='slots', through='ScheduledSession', null=True, blank=True, help_text=u"Scheduled session, if any")
     modified = models.DateTimeField(default=datetime.datetime.now)
+
+    def meeting_date(self):
+        return self.time.date()
+
+    def registration(self):
+        # below implements a object local cache
+        # it tries to find a timeslot of type registration which starts at the same time as this slot
+        # so that it can be shown at the top of the agenda.
+        if not hasattr(self, '_reg_info'):
+            try:
+                self._reg_info = TimeSlot.objects.get(meeting=self.meeting, time__month=self.time.month, time__day=self.time.day, type="reg")
+            except TimeSlot.DoesNotExist:
+                self._reg_info = None
+        return self._reg_info
 
     def __unicode__(self):
         location = self.get_location()

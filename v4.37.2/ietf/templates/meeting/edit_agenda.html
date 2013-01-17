@@ -27,31 +27,25 @@ function my_js_callback(data){
     alert(data.message);
 }<!-- dajaxice example --> {% endcomment %}
 
-
 function setup_slots(){
 {% for t in timeslots %}
 	<!-- ------------------------- >
-	var e_obj = new event_obj("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
+	var e_obj = new event_obj( "{{ t.session.group.acronym }}","{{ t.session.group.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
 	
 	$.extend(meeting_objs,{ "{{t.id}}":e_obj});
 	<!-- ------------------------- >
 {% endfor %}
 
 
+{% comment %} Toggles to hide the calendar {% endcomment %}
 {% for days in date_slices %}
 	$("#{{days}}-btn").click(function(){
 		$("#{{days}}tr").toggle();
 		$("#{{days}}tbody").toggle();
 	});
-
 {% endfor %}
 }
 
-function strip_bad(bad){
-//	log(bad);
-	return bad.split("/").join(".");
-
-}
 
 </script>
 <style type='text/css'>
@@ -82,9 +76,10 @@ function strip_bad(bad){
   <tbody id="{{day}}tbody" class="cells">
     {% for r in rooms %}
 	<tr id="{{r}}">
+
 	    <th class="vert_time">{{r}}
 	    {% for slot in date_slices|lookup:day %}
-	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}"></td>
+	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="{% cycle 'alt' '' %}"></td>
 	    {% endfor %}
 	</tr>
     {% endfor %}

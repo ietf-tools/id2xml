@@ -83,7 +83,7 @@ def get_plenary_agenda(meeting_num, id):
     except WgMeetingSession.DoesNotExist:
         return "The Plenary has not been scheduled"
 
-class NamedTimeSlot:
+class NamedTimeSlot(object):
     """
     this encapsulates a TimeSlot with a named agenda, so that
     specific time slots can be returned as appropriate. It proxies
@@ -98,6 +98,7 @@ class NamedTimeSlot:
     def scheduledsessions(self):
         self.timeslot.scheduledsessions_set.filter(owner=self.agenda)
 
+    @property
     def time(self):
         return self.timeslot.time
 

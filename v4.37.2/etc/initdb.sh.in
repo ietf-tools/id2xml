@@ -17,7 +17,7 @@ mkdir -p ${TOPDIR}/db/mysql
 mkdir -p ${LOGDIR}/mysql
 PATH=${BASEDIR}/scripts:${BASEDIR}/bin:$PATH export PATH
 
-mysql_install_db --basedir=${BASEDIR} --datadir=${DBDIR} --pid-file=${PIDFILE} --skip-external-locking --socket=${SOCKET} --log_bin=${LOGDIR}/mysql/mysql-bin.log
+mysql_install_db --no-defaults --basedir=${BASEDIR} --datadir=${DBDIR} --pid-file=${PIDFILE} --skip-external-locking --socket=${SOCKET} --log_bin=${LOGDIR}/mysql/mysql-bin.log
 
 echo ${SOCKET} >.mysql.socket
 

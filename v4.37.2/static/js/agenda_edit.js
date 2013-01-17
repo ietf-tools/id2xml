@@ -28,7 +28,7 @@ function initStuff(){
 
 ////////////// GLOBALS    ////////////////////////////////////////
 var meeting_objs = {};  // contains a list of event_obj's
-var slot_status = {};
+var slot_status = {}; 
 ///////////// END GLOBALS ///////////////////////////////////////
 
 function print_all(){
@@ -40,15 +40,6 @@ function print_all(){
     console.log("done");
 }
 
-function event_obj(title,description,room, time,date,django_id,session_id){
-    this.title = title;
-    this.description = description;
-    this.room = room;
-    this.time = time;
-    this.date = date;
-    this.django_id = django_id;
-    this.session_id = session_id
-}
 
 /* this pushes every event into the calendars */
 function load_events(){
@@ -59,7 +50,9 @@ function load_events(){
 			meeting_json.room, 
 			meeting_json.time, 
 			meeting_json.date,
-			meeting_json.django_id
+			meeting_json.session_id,
+			meeting_json.timeslot_id,
+			meeting_json.owner
 		);
 	});
 }
@@ -94,7 +87,8 @@ function insert_cell(time,date,room,text){
     slot_id_status = (room+"_"+date+"_"+time);
     try{
 	var found = $(slot_id).append(text);
-	slot_status[slot_id_status] = true;
+	$(slot_id).css('background','');
+	//slot_status[slot_id_status] = true;
 	if(found.length == 0){
 	 //   log(slot_id);
 	 //   log(text)
@@ -106,8 +100,8 @@ function insert_cell(time,date,room,text){
 	log(err);
     } 
 }
-function populate_events(title,description,room, time,date, django_id){
-    var eTemplate =     event_template(title, description,time, django_id);
+function populate_events(title,description,room, time,date, session_id){
+    var eTemplate =     event_template(title, description,time, session_id);
     var t = title+" "+description;
     var good = insert_cell(time,date, room.split(/[ ]/).join('.'), eTemplate);
     if(good < 1){
@@ -116,14 +110,29 @@ function populate_events(title,description,room, time,date, django_id){
 }
 
 
-function event_template(event_title, description, time, django_id){
+
+function event_template(event_title, description, time, session_id){
     var part1 = "";
     var part2 = "";
     var part3 = "";
-    var part2 = "<table class='meeting_event' id='"+django_id+"'><tr><th>"+event_title+"</th></tr><tr><td style='height:10px'> .."+description+" ..</td></tr></table>"
+    var part2 = "<table class='meeting_event' id='"+session_id+"'><tr><th>"+event_title+"</th></tr><tr><td style='height:10px'> .."+description+" ..</td></tr></table>"
     return $(part1+part2+part3);
 }
     
+
+function check_free(inp){
+    var empty = false;
+    try{
+	
+	console.log("trying...");
+	empty = slot_status[inp.id].empty;
+    }
+    catch(err){
+	empty = false;
+	console.log(err);
+    }
+    return empty;
+}
 
 
 function handelDrop(event, ui){
@@ -145,7 +154,10 @@ function id_to_json(id){
 
 /* following functions are for droppable, they should be reusable */
 function drop_over(event, ui){
-    $(this).css("background","red");
+//    $(this).css("background","red");
+    if(check_free(this)){
+	$(this).css("background","red");
+    }
     $(ui.draggable).css("background","blue");
     $(event.draggable).css("background","blue");
 }
@@ -156,7 +168,9 @@ function drop_activate(event, ui){
 }
 
 function drop_out(event, ui){
-    $(this).css("background","");
+    if(check_free(this)){
+	$(this).css("background","");
+    }
 }
 
 function drop_create(event,ui){
@@ -164,58 +178,126 @@ function drop_create(event,ui){
 }
 
 function drop_drop(event, ui){
-    $(this).css("background",""); // remove the highlighting from the activate
-
-    var temp_id = ui.draggable.attr('id'); // the django
-    try{
-	var event_json = id_to_json($(this).attr('id')); // make a json with the new values to inject into the event	
-	var slot_id = "#"+$(this).attr('id');
-	var slot_idd = $(this).attr('id');
-
-	/* set things to the new values */
-	new_event = meeting_objs[temp_id];
-	var old_id = json_to_id(new_event);
-//	console.log("oldid:" +old_id);
-//	console.log(slot_status[slot_idd]);
-	var str_slot_idd = slot_status[slot_idd];
-	var str_slot_old_id = slot_status[old_id];	
-        slot_status[slot_idd] = true;
-	try{
-            slot_status[old_id] = false;
-//	    console.log(slot_status[old_id]);	
-	}catch(err){
-	    console.log(err);
-	    console.log(slot_status);
-	}
-//	console.log("slot_idd("+slot_idd+") was:"+ str_slot_idd + " but now is: "+ slot_status[slot_idd]);
-//	console.log("old_id("+old_id+") was:"+ str_slot_old_id + " but now is: "+ slot_status[old_id]);
+    console.log("drop_drop");
+    //$(this).css("background",""); // remove the highlighting from the activate
+    var temp_id = ui.draggable.attr('id');
+    var event_json = id_to_json($(this).attr('id')); // make a json with the new values to inject into the event
+//    var slot_id = "#"+$(this).attr('id');
+    var slot_idd = $(this).attr('id');
+    new_event = meeting_objs[temp_id];
+    var old_id = json_to_id(new_event);
+    /* create the template */
+    
+    // try{
+    // 	var empty = slot_status[slot_idd].empty;
+    // }
+    // catch(err){
+    // 	empty = false;
+    // }
+    //console.log("slot_idd:"+slot_idd);
+    var empty = check_free(this);
+    if(empty){
+	$(this).css("background","");
+	var eTemplate = event_template(new_event.title, 
+				       new_event.description,
+				       new_event.time, 
+				       new_event.session_id,
+				       new_event.timeslot_id
+				      );
+	console.log(new_event);
 	new_event.time = event_json.time;
 	new_event.room = event_json.room;
 	new_event.date = event_json.date;
+	
+
+	
+	$(this).append(eTemplate); // add the html code to the new slot.
+	//    console.log($(this).attr('id'));
+	ui.draggable.remove(); // remove the old one. 
+	droppable(); // we need to run this again to toggle the new listeners
+	if(slot_idd == "sortable-list"){
+	    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	}
+	slot_status[slot_idd].empty = false;
+	console.log("slot_status["+slot_idd+"] set to:"+ slot_status[slot_idd].empty);
+
+	slot_status[old_id].empty = true;
+	console.log("slot_status["+old_id+"] set to:"+ slot_status[old_id].empty);
+	new_event.timeslot_id = slot_status[slot_idd].timeslot_id
+	if ((new_event.last_timeslot_id == null) || (new_event.last_timeslot_id != new_event.timeslot_id)){
+	    new_event.last_timeslot_id = slot_status[old_id].timeslot_id
+	}
+	meeting_objs[temp_id] = new_event;
+	console.log(meeting_objs);
+	console.log(meeting_objs[temp_id]);
+	Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,{'new_event':new_event});
     }
-    catch(err){ // probably got null, the typical case would be when we are dragging to the sortable list (so it doesn't have any of these properties)
-	new_event = meeting_objs[temp_id];
+    else{ // happens when you are moving the item to somewhere that has something in it.
+	console.log("this is not empty");
+	ui.draggable.css("background",""); // remove the old one. 	
+    }
+    // }catch(err){ // happens when you move the object to a slot that never had something in it. 
+    // 	console.log("there was a error, but really we are indicating the slot is not empty");
+    // 	console.log("the error was:"+err);
+    // 	ui.draggable.css("background",""); // if we don't do this, it will stay highlighted blue
+    // }
+    console.log("done drop_drop");
+
+}
+
+/* end droppable fucntions */
+
+
+function drop_bucket(event, ui){
     
-	new_event.time = null; // something more intelligent that reflects that there is no time should be put here. 
-	new_event.room = null;
-	new_event.date = null;
-
-    }
-
-    /* create the template */
+    console.log("drop_bucket");
+    var temp_id = ui.draggable.attr('id'); // the django
+    new_event = meeting_objs[temp_id];
+    var old_id = json_to_id(new_event);
+    var slot_idd = $(this).attr('id');
+    console.log("temp_id:"+temp_id);
+    console.log("slot_id:"+slot_idd);
+    var slot_status_obj = slot_status[old_id];
+    //slot_status_obj.empty = true;
+    slot_status[old_id].empty = true;
+    console.log("-----------------------------------------");
+    console.log(new_event);
+    console.log("slot_status["+old_id+"] set to:"+ slot_status[old_id].empty);
+    console.log(slot_status[old_id]);
+    console.log("-----------------------------------------");
     var eTemplate = event_template(new_event.title, 
 				   new_event.description,
 				   new_event.time, 
-				   new_event.django_id
+				   new_event.session_id,
+				   new_event.timeslot_id
 				  );
-    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,{'new_event':new_event});
-    $(this).append(eTemplate); // add the html code to the new slot.
-//    console.log($(this).attr('id'));
-    ui.draggable.remove(); // remove the old one. 
-    droppable(); // we need to run this again to toggle the new listeners
+    // give me any id at all, so we don't have timeslots in limbo if the page refreshes.
+    var free = []
+    $.each(slot_status, function(sskey) {
+	ss = slot_status[sskey];
+	var usable = true;
+	if(ss.empty == true){
+	    $.each(meeting_objs, function(mkey){
+		if(meeting_objs.timeslot_id == ss.timeslot_id){
+		    usable = false; 
+		}
+	    });
+	    if(usable){
+		new_event.timeslot_id = ss.timeslot_id;
+	    }
+	}
+    });
 
+    
+    meeting_objs[temp_id] = new_event;
+    $(this).append(eTemplate); // add the html code to the new slot.
+    ui.draggable.remove(); // remove the old one. 
+    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,{'new_event':new_event});
+    droppable(); // we need to run this again to toggle the new listeners
+    console.log(meeting_objs[temp_id]);
+    console.log("done drop_bucket");
+    
 }
-/* end droppable fucntions */
 
 function droppable(){
     $(function() {
@@ -229,7 +311,7 @@ function droppable(){
 	    over : drop_over,
 	    activate: drop_activate,
 	    out : drop_out,
-	    drop : drop_drop,
+	    drop : drop_bucket,
 	})
     
 	$("#meetings td").droppable({

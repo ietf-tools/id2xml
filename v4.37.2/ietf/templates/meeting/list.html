@@ -32,7 +32,7 @@ Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
 {% endif %}
 
 <!-- Working groups -->
-{% regroup ietf|dictsort:"group.parent.acronym" by group.parent.name as areas %}
+{% regroup ietf|dictsort:"session.group.parent.acronym" by session.group.parent.name as areas %}
 {% for sessions in areas %}
    <h2 class="ietf-divider">{{ sessions.grouper }}</h2>
    {% for session in sessions.list|dictsort:"group.acronym" %}

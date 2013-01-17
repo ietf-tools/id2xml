@@ -160,6 +160,9 @@ class NamedAgenda(models.Model):
     visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
     public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
     # considering copiedFrom = models.ForeignKey('NamedAgenda', blank=True, null=True)
+
+    def __unicode__(self):
+        return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
     
 
 class ScheduledSession(models.Model):
@@ -172,6 +175,9 @@ class ScheduledSession(models.Model):
     session  = models.ForeignKey('Session', null=False, blank=False, help_text=u"Scheduled session")
     owner    = models.ForeignKey('NamedAgenda', null=False, help_text=u"Who made this agenda")
     notes    = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u"%s [%s<->%s]" % (self.owner, self.session, self.timeslot)
     
 class Constraint(models.Model):
     Specifies a constraint on the scheduling.
@@ -236,8 +242,8 @@ class Session(models.Model):
         if self.meeting.type_id == "interim":
             return self.meeting.number
 
-        timeslots = self.timeslot_set.order_by('time')
-        return u"%s: %s %s" % (self.meeting, self.group.acronym, timeslots[0].time.strftime("%H%M") if timeslots else "(unscheduled)")
+        ss0 = self.scheduledsession_set.order_by('timeslot__time')[0]
+        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0.timeslot.time.strftime("%H%M") if ss0 else "(unscheduled)")
 
     def constraints(self):
         return Constraint.objects.filter(source=self.group, meeting=self.meeting).order_by('name__name')

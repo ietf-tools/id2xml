@@ -83,7 +83,28 @@ def get_plenary_agenda(meeting_num, id):
     except WgMeetingSession.DoesNotExist:
         return "The Plenary has not been scheduled"
 
-def agenda_info(num=None):
+class NamedTimeSlot:
+    """
+    this encapsulates a TimeSlot with a named agenda, so that
+    specific time slots can be returned as appropriate. It proxies
+    most things to TimeSlot.  Agenda_info returns an array of these
+    objects rather than actual Time Slots, as the templates do not
+    permit multiple parameters to be passed into a relation
+    """
+    def __init__(self, agenda, timeslot):
+        self.agenda   = agenda
+        self.timeslot = timeslot
+
+    def scheduledsessions(self):
+        self.timeslot.scheduledsessions_set.filter(owner=self.agenda)
+
+    def time(self):
+        return self.timeslot.time
+
+def agenda_info(num=None, name=None):
+    """
+    XXX this should really be a method on Meeting
+    """
     try:
         if num != None:
             meeting = OldMeeting.objects.get(number=num)
@@ -94,22 +115,31 @@ def agenda_info(num=None):
 
     # now go through the timeslots, only keeping those that are
     # sessions/plenary/training and don't occur at the same time
-    timeslots = []
+    ntimeslots = []
     scheduledsessions = []
     import sys
     
-    officialagenda = meeting.official_agenda
+    if name is not None:
+        try:
+            agenda = meeting.namedagenda_set.get(name=name)
+        except NamedAgenda.DoesNotExist:
+            raise Http404("Meeting %s has no agenda named %s" % (num, name))
+    else:
+        agenda = meeting.official_agenda
 
-    if officialagenda is not None:
-        time_seen = set()
+    if agenda is None:
+        raise Http404("Meeting %s has no agenda set yet" % (num))
 
-        for ss in officialagenda.scheduledsession_set.all().order_by("timeslot__time"):
-            t = ss.timeslot
-            scheduledsessions.append(ss)
-            if not t.time in time_seen:
-                time_seen.add(t.time)
-                timeslots.append(t)
-        time_seen = None
+    time_seen = set()
+
+    for ss in agenda.scheduledsession_set.all().order_by("timeslot__time"):
+        t = ss.timeslot
+        scheduledsessions.append(ss)
+        if not t.time in time_seen:
+            time_seen.add(t.time)
+            ntimeslots.append(NamedTimeSlot(agenda, t))
+            
+    time_seen = None
     
     update = Switches().from_object(meeting)
     venue = meeting.meeting_venue
@@ -145,7 +175,7 @@ def agenda_info(num=None):
             else:
                 plenaryw_agenda = s
 
-    return timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
+    return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
 def get_area_list(timeslots, num):
     return timeslots.filter(type = 'Session',
@@ -285,8 +315,8 @@ def edit_agenda(request, num=None):
 ###########################################################################################################################
 
 
-def iphone_agenda(request, num):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+def iphone_agenda(request, num, name):
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
 
     import sys
     sys.stdout.write("agenda_info returned: %s[%d] %s %s" % (scheduledsessions[0],
@@ -317,8 +347,8 @@ def iphone_agenda(request, num):
             context_instance=RequestContext(request))
 
  
-def text_agenda(request, num=None):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+def text_agenda(request, num=None, name=None):
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
     plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
     plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
 
@@ -592,8 +622,8 @@ def ical_agenda(request, num=None):
         {"timeslots":timeslots, "meeting":meeting, "vtimezone": vtimezone },
         RequestContext(request)), mimetype="text/calendar")
 
-def csv_agenda(request, num=None):
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+def csv_agenda(request, num=None, name=None):
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
     #wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).order_by('group_acronym__acronym')
     #rgs = IRTF.objects.all().order_by('acronym')
     #areas = Area.objects.filter(status=Area.ACTIVE).order_by('area_acronym__acronym')

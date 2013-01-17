@@ -87,7 +87,7 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
 
 #DAJAXICE_MEDIA_PREFIX="dajaxice"
-DAJAXICE_MEDIA_PREFIX=""
+DAJAXICE_MEDIA_PREFIX="dajaxice"
 
 AUTH_PROFILE_MODULE = 'person.Person'
 AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.RemoteUserBackend', )
@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'ietf.wgcharter',
     'ietf.sync',
     'ietf.community',
+    'dajaxice',
 )
 
 INTERNAL_IPS = (

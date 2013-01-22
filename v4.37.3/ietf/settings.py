@@ -120,7 +120,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'ietf.urls'
 
 TEMPLATE_DIRS = (
-    BASE_DIR + "/templates"
+    os.path.join(BASE_DIR, 'templates'),
+    os.path.join(BASE_DIR, '../sec/templates')
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

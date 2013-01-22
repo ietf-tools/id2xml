@@ -14,3 +14,15 @@
 404	/meeting/99/materials.html
 200	/feed/wg-proceedings/
 200	/meeting/83/agenda/edit
+200	/meeting/add/
+200	/meeting/83/edit/
+200	/meeting/83/rooms/
+200	/meeting/83/times/
+200	/meeting/83/times/delete/09:00/
+200	/meeting/83/non_session
+200	/meeting/83/non_session/edit/1234/
+200	/meeting/83/non_session/delete/1234/
+200	/meeting/83/select/
+200	/meeting/83/roll/schedule/
+200	/meeting/83/roll/remove/
+

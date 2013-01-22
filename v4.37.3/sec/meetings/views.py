@@ -28,16 +28,29 @@ from forms import *
 import os
 import datetime
 
+def build_schedule(request,meeting):                
+    schedule = meeting.agenda
+    if schedule is None:
+        schedule = Schedule.create(meeting=meeting,
+                                   owner=request.user.get_profile(),
+                                   visible=True,
+                                   public=True,
+                                   name="Official")
+        meeting.agenda = schedule
+        meeting.save()
+    return schedule
+
 # --------------------------------------------------
 # Helper Functions
 # --------------------------------------------------
-def build_timeslots(meeting,room=None):
-    '''
+def build_timeslots(request,meeting,room=None):
+    """
     This function takes a Meeting object and an optional room argument.  If room isn't passed we 
     pre-create the full set of timeslot records using the last meeting as a template.  
     If room is passed pre-create timeslots for the new room.  Call this after saving new rooms 
     or adding a room.
-    '''
+    """
+    schedule = build_schedule(request,meeting)
     slots = meeting.timeslot_set.filter(type='session')
     if room:
         rooms = [room]
@@ -62,14 +75,16 @@ def build_timeslots(meeting,room=None):
         for t in timeslots:
             new_time = t.time + delta
             for room in rooms:
-                TimeSlot.objects.create(type_id='session',
+                n = TimeSlot.objects.create(type_id='session',
                                         meeting=meeting,
                                         name=t.name,
                                         time=new_time,
                                         location=room,
                                         duration=t.duration)
+                ScheduledSession.create(schedule=schedule,
+                                        timeslot=n)
 
-def build_nonsession(meeting):
+def build_nonsession(request,meeting):
     '''
     This function takes a meeting object and creates non-session records
     for a new meeting, based on the last meeting
@@ -77,6 +92,8 @@ def build_nonsession(meeting):
     last_meeting = get_last_meeting(meeting)
     delta = meeting.date - last_meeting.date
     system = Person.objects.get(name='(system)')
+    schedule = build_schedule(meeting)
+    
     for slot in TimeSlot.objects.filter(meeting=last_meeting,type__in=('break','reg','other','plenary')):
         new_time = slot.time + delta
         session = None
@@ -89,24 +106,29 @@ def build_nonsession(meeting):
                               requested_by=system,
                               status_id='sched')
             session.save()
-        
-        TimeSlot.objects.create(type=slot.type,
+            
+        n = TimeSlot.objects.create(type=slot.type,
                                 meeting=meeting,
-                                session=session,
                                 name=slot.name,
                                 time=new_time,
                                 duration=slot.duration,
                                 show_location=slot.show_location)
+
+        ss = ScheduledSession.create(schedule=schedule,
+                                     session=session,
+                                     timeslot=n)
+                                     
+                                     
                                 
 def get_last_meeting(meeting):
     last_number = int(meeting.number) - 1
     return Meeting.objects.get(number=last_number)
     
-def is_combined(session):
+def is_combined(session, meeting):
     '''
     Check to see if this session is using two combined timeslots
     '''
-    if session.timeslot_set.count() > 1:
+    if session.sessionscheduled_set.filter(meeting=meeting.agenda).count > 1:
         return True
     else:
         return False
@@ -184,7 +206,9 @@ def sort_groups(meeting):
     groups_with_sessions = [ s.group for s in sessions ]
     gset = set(groups_with_sessions)
     sorted_groups_with_sessions = sorted(gset, key = lambda instance: instance.acronym)
-    slots = TimeSlot.objects.filter(meeting=meeting,session__isnull=False)
+
+    slots = meeting.agenda.scheduledsession_set.filter(session__isnull=False)
+
     groups_with_timeslots = [ s.session.group for s in slots ]
     for group in sorted_groups_with_sessions:
             if group in groups_with_timeslots:
@@ -371,7 +395,7 @@ def non_session(request, meeting_id):
     
     # if the Break/Registration records don't exist yet (new meeting) create them
     if not TimeSlot.objects.filter(meeting=meeting,type__in=('break','reg','other')):
-        build_nonsession(meeting)
+        build_nonsession(request, meeting)
     
     slots = TimeSlot.objects.filter(meeting=meeting,type__in=('break','reg','other','plenary')).order_by('-type__name','time')
     
@@ -543,14 +567,14 @@ def rooms(request, meeting_id):
             
             # if we are creating rooms for the first time create full set of timeslots
             if first_time:
-                build_timeslots(meeting)
+                build_timeslots(request, meeting)
                 
             # otherwise if we're modifying rooms
             else:
                 # add timeslots for new rooms, deleting rooms automatically deletes timeslots
                 for form in formset.forms[formset.initial_form_count():]:
                     if form.instance.pk:
-                        build_timeslots(meeting,room=form.instance)
+                        build_timeslots(request, meeting,room=form.instance)
             
             messages.success(request, 'Meeting Rooms changed successfully')
             url = reverse('meetings_rooms', kwargs={'meeting_id':meeting_id})
@@ -580,14 +604,20 @@ def schedule(request, meeting_id, acronym):
     for s in sessions:
         d = {'session':s.id,
              'note':s.agenda_note}
-        qs = s.timeslot_set.all()
+
+        qs = None
+        ss = s.scheduledsession_set.filter(schedule=meeting.agenda).all()
+
+        if ss: 
+            qs = ss[0].timeslot_set.all()
+            
         if qs:
             d['room'] = qs[0].location.id
             d['day'] = qs[0].time.isoweekday() % 7 + 1     # adjust to django week_day
             d['time'] = qs[0].time.strftime('%H%M')
         else:
             d['day'] = 2
-        if is_combined(s):
+        if is_combined(s, meeting):
             d['combine'] = True
         initial.append(d)
     

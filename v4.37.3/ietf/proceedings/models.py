@@ -553,3 +553,5 @@ if settings.USE_DB_REDESIGN_PROXY_CLASSES:
 # changes done by convert-096.py:changed maxlength to max_length
 # removed core
 # removed raw_id_admin
+
+# class Registration is in sec/proceedings/models.py

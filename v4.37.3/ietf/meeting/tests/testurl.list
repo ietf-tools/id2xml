@@ -18,7 +18,8 @@
 200	/meeting/83/edit/
 200	/meeting/83/rooms/
 200	/meeting/83/times/
-200	/meeting/83/times/delete/09:00/
+200	/meeting/83/times/delete/2012:03:29:09:00/
+410	/meeting/83/times/delete/09:00/
 200	/meeting/83/non_session
 200	/meeting/83/non_session/edit/1234/
 200	/meeting/83/non_session/delete/1234/

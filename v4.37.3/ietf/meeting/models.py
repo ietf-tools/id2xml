@@ -84,6 +84,7 @@ class Meeting(models.Model):
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
     name = models.CharField(max_length=255)
+    capacity = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -162,6 +163,13 @@ class TimeSlot(models.Model):
         d.session_name = self.name
         return d
 
+    def session_for_schedule(self, schedule):
+        ss = scheduledsession_set.filter(schedule=schedule).all()[0]
+        if ss:
+            return ss.session
+        else:
+            return None
+ 
     def scheduledsessions_at_same_time(self, agenda=None):
         if agenda is None:
             agenda = self.meeting.agenda
@@ -204,8 +212,9 @@ class ScheduledSession(models.Model):
     a specific person/user.
     """
     timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
-    session  = models.ForeignKey('Session', null=False, blank=False, help_text=u"Scheduled session")
-    schedule = models.ForeignKey('Schedule', null=False, help_text=u"Who made this agenda")
+    session  = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session")
+    schedule = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
+    modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -363,3 +372,9 @@ class Session(models.Model):
 
     def reverse_constraints(self):
         return Constraint.objects.filter(target=self.group, meeting=self.meeting).order_by('name__name')
+
+    def scheduledsession_for_agenda(self, schedule):
+        return self.scheduledsession_set.filter(schedule=schedule)[0]
+
+    def official_scheduledsession(self):
+        return self.scheduledsession_for_agenda(self.meeting.agenda)

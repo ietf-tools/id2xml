@@ -128,7 +128,7 @@ def is_combined(session, meeting):
     '''
     Check to see if this session is using two combined timeslots
     '''
-    if session.sessionscheduled_set.filter(meeting=meeting.agenda).count > 1:
+    if session.scheduledsession_set.filter(schedule=meeting.agenda).count > 1:
         return True
     else:
         return False
@@ -532,10 +532,10 @@ def remove_session(request, meeting_id, acronym):
     now = datetime.datetime.now()
     
     for session in sessions:
-        timeslot = session.timeslot_set.all()[0]
-        timeslot.session = None
-        timeslot.modified = now
-        timeslot.save()
+        ss = session.official_scheduledsession()
+        ss.session = None
+        ss.modified = now
+        ss.save()
         session.status_id = 'canceled'
         session.modified = now
         session.save()
@@ -609,12 +609,12 @@ def schedule(request, meeting_id, acronym):
         ss = s.scheduledsession_set.filter(schedule=meeting.agenda).all()
 
         if ss: 
-            qs = ss[0].timeslot_set.all()
+            qs = ss[0].timeslot
             
         if qs:
-            d['room'] = qs[0].location.id
-            d['day'] = qs[0].time.isoweekday() % 7 + 1     # adjust to django week_day
-            d['time'] = qs[0].time.strftime('%H%M')
+            d['room'] = qs.location.id
+            d['day'] = qs.time.isoweekday() % 7 + 1     # adjust to django week_day
+            d['time'] = qs.time.strftime('%H%M')
         else:
             d['day'] = 2
         if is_combined(s, meeting):
@@ -857,14 +857,18 @@ def times_delete(request, meeting_id, time):
     meeting = get_object_or_404(Meeting, number=meeting_id)
     
     parts = [ int(x) for x in time.split(':') ]
+    # XXX should verify that there are enough parts here.
+    # return 410 on error?
     dtime = datetime.datetime(*parts)
-    
-    if Session.objects.filter(timeslot__time=dtime,timeslot__meeting=meeting):
+
+    qs = meeting.agenda.scheduledsession_set.filter(timeslot__time=dtime,
+                                                      session__isnull=False)
+    if qs:
         messages.error(request, 'ERROR deleting timeslot.  There is one or more sessions scheduled for this timeslot.')
         url = reverse('meetings_times', kwargs={'meeting_id':meeting_id})
         return HttpResponseRedirect(url)
     
-    TimeSlot.objects.filter(meeting=meeting,time=dtime).delete()
+    qs.delete()
     
     messages.success(request, 'Timeslot deleted')
     url = reverse('meetings_times', kwargs={'meeting_id':meeting_id})

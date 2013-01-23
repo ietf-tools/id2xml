@@ -18,7 +18,11 @@ fi
 mkdir -p ${LOGDIR}/mysql
 
 PATH=/usr/local/mysql/bin:$PATH export PATH
-mysqld --basedir=${BASEDIR} --datadir=${DBDIR} --pid-file=${PIDFILE} --skip-external-locking --socket=${SOCKET} --skip-networking --general_log=${LOGDIR}/mysql-query.log --transaction-isolation=READ-COMMITTED --skip-sync-frm=OFF&
+mysqld --basedir=${BASEDIR} --datadir=${DBDIR} \
+    --pid-file=${PIDFILE} --skip-external-locking \
+    --socket=${SOCKET} --skip-networking \
+    --log=${LOGDIR}/mysql-query.log --general_log=1 \
+    --transaction-isolation=READ-COMMITTED --skip-sync-frm=OFF&
 
 #--default-table-type=innodb 
 #[mysqld]

@@ -424,7 +424,9 @@ def text_agenda(request, num=None, name=None):
          "plenaryw_agenda":plenaryw_agenda,
          "plenaryt_agenda":plenaryt_agenda, },
         RequestContext(request)), mimetype="text/plain")
-    
+
+
+# XXX THIS HAS GOT TO BE BROKEN.
 def session_agenda(request, num, session):
     d = Document.objects.filter(type="agenda", session__meeting__number=num)
     if session == "plenaryt":

@@ -14,16 +14,17 @@ class Migration(SchemaMigration):
                       keep_default=False)
 
 
-        # Changing field 'ScheduledSession.session'
         db.alter_column('meeting_scheduledsession', 'session_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.Session'], null=True))
 
-        # Changing field 'Room.capacity'
-        db.alter_column('meeting_room', 'capacity', self.gf('django.db.models.fields.IntegerField')(null=True))
+        # Adding field 'Room.capacity'
+        db.add_column('meeting_room', 'capacity',
+                      self.gf('django.db.models.fields.IntegerField')(default=50),
+                      keep_default=False)
 
     def backwards(self, orm):
         # Deleting field 'ScheduledSession.modified'
         db.delete_column('meeting_scheduledsession', 'modified')
-
+        db.delete_column('meeting_scheduledsession', 'capacity')
 
         # User chose to not deal with backwards NULL issues for 'ScheduledSession.session'
         #raise RuntimeError("Cannot reverse this migration. 'ScheduledSession.session' and its values cannot be restored.")

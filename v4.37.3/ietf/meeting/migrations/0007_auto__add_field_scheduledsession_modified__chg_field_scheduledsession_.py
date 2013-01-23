@@ -16,11 +16,6 @@ class Migration(SchemaMigration):
 
         # Changing field 'ScheduledSession.session'
         db.alter_column('meeting_scheduledsession', 'session_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.Session'], null=True))
-        # Adding field 'Meeting.agenda_note'
-        db.add_column('meeting_meeting', 'agenda_note',
-                      self.gf('django.db.models.fields.TextField')(default='', blank=True),
-                      keep_default=False)
-
 
         # Changing field 'Room.capacity'
         db.alter_column('meeting_room', 'capacity', self.gf('django.db.models.fields.IntegerField')(null=True))
@@ -32,12 +27,6 @@ class Migration(SchemaMigration):
 
         # User chose to not deal with backwards NULL issues for 'ScheduledSession.session'
         #raise RuntimeError("Cannot reverse this migration. 'ScheduledSession.session' and its values cannot be restored.")
-        # Deleting field 'Meeting.agenda_note'
-        db.delete_column('meeting_meeting', 'agenda_note')
-
-
-        # Changing field 'Room.capacity'
-        db.alter_column('meeting_room', 'capacity', self.gf('django.db.models.fields.IntegerField')())
 
     models = {
         'auth.group': {

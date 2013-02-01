@@ -321,8 +321,6 @@ def _agenda_json(request, date=None):
                                    'ad':d.ad.name}
                         if d.rfc_number():
                             docinfo['rfc-number'] = d.rfc_number()
-                        else:
-                            docinfo['rev'] = d.rev
                         if d.note:
                             docinfo['note'] = d.note
                         defer = d.active_defer_event()
@@ -330,20 +328,22 @@ def _agenda_json(request, date=None):
                             docinfo['defer-by'] = defer.by.name
                             docinfo['defer-at'] = str(defer.time)
                         if d.type_id == "draft":
+                            docinfo['rev'] = d.rev
                             docinfo['intended-std-level'] = str(d.intended_std_level)
-                            iana_state = d.get_state("draft-iana-review")
-                            if iana_state:
-                                if iana_state.slug in ("not-ok", "changed", "need-rev"):
-                                    docinfo['iana-review-state'] = str(iana_state)
-                            if d.get_state_slug("draft-iesg") == "lc":
-                                e = d.latest_event(LastCallDocEvent, type="sent_last_call")
-                                if e:
-                                    docinfo['lastcall-expires'] = e.expires
-                            docinfo['consensus'] = None
-                            e = d.latest_event(ConsensusDocEvent, type="changed_consensus")
-                            if e:
-                                docinfo['consensus'] = e.consensus
+                            # iana_state = d.get_state("draft-iana-review")
+                            # if iana_state:
+                            #     if iana_state.slug in ("not-ok", "changed", "need-rev"):
+                            #         docinfo['iana-review-state'] = str(iana_state)
+                            # if d.get_state_slug("draft-iesg") == "lc":
+                            #     e = d.latest_event(LastCallDocEvent, type="sent_last_call")
+                            #     if e:
+                            #         docinfo['lastcall-expires'] = e.expires
+                            # docinfo['consensus'] = None
+                            # e = d.latest_event(ConsensusDocEvent, type="changed_consensus")
+                            # if e:
+                            #     docinfo['consensus'] = e.consensus
                         elif d.type_id == 'conflrev':
+                            docinfo['rev'] = d.rev
                             td = d.relateddocument_set.get(relationship__slug='conflrev').target.document
                             docinfo['target-docname'] = td.canonical_name()
                             docinfo['target-title'] = td.title

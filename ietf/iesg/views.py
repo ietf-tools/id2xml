@@ -346,6 +346,7 @@ def _agenda_json(request, date=None):
                             if e:
                                 docinfo['consensus'] = e.consensus
                         elif doc.type_id == 'conflrev':
+                            docinfo['rev'] = doc.rev
                             td = doc.relateddocument_set.get(relationship__slug='conflrev').target.document
                             docinfo['target-docname'] = td.canonical_name()
                             docinfo['target-title'] = td.title

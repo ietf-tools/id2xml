@@ -24,9 +24,10 @@ class ApiTestCase(TestCase):
         # IETF chair until IETF86
         return {'REMOTE_USER':'rhousley'}
 
-    def do_auth_joeblow(self):
-        credentials = base64.b64encode('username:password')
-        self.client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
+    @property
+    def auth_joeblow(self):
+        # this is a generic user who has no special role
+        return {'REMOTE_USER':'joeblow'}
 
     def test_wlo_is_secretariat(self):
         wnl = User.objects.filter(pk = 509)[0]
@@ -36,9 +37,15 @@ class ApiTestCase(TestCase):
     def test_housley_is_ad(self):
         rh = User.objects.filter(pk = 432)[0]
         self.assertIsNotNone(rh)
-        self.assertTrue(has_role(wnl, "Area Director"))
+        self.assertTrue(has_role(rh, "Area Director"))
+
+    def test_joeblow_is_mortal(self):
+        jb = User.objects.filter(pk = 99870)[0]
+        self.assertIsNotNone(jb)
+        self.assertFalse(has_role(jb, "Area Director"))
+        self.assertFalse(has_role(jb, "Secretariat"))
                                
-    def atest_noAuthenticationUpdateAgendaItem(self):
+    def test_noAuthenticationUpdateAgendaItem(self):
         ts_one = TimeSlot.objects.get(pk=2371)
         ts_two = TimeSlot.objects.get(pk=2372)
         ss_one = ScheduledSession.objects.get(pk=2371)
@@ -46,7 +53,6 @@ class ApiTestCase(TestCase):
         # confirm that it has old timeslot value
         self.assertEqual(ss_one.timeslot, ts_one)
         
-        self.assertTrue(0)
         # move this session from one timeslot to another.
         self.client.post('/dajaxice/ietf.meeting.update_timeslot/', {
             'argv': '{"new_event":{"session_id":"2371","timeslot_id":"2372"}}'
@@ -75,7 +81,7 @@ class ApiTestCase(TestCase):
         self.assertEqual(ss_one.timeslot, ts_one)
 
 
-    def atest_wrongAuthorizationUpdateAgendaItem(self):
+    def test_wrongAuthorizationUpdateAgendaItem(self):
         ts_one = TimeSlot.objects.get(pk=2371)
         ts_two = TimeSlot.objects.get(pk=2372)
         ss_one = ScheduledSession.objects.get(pk=2371)
@@ -83,11 +89,10 @@ class ApiTestCase(TestCase):
         # confirm that it has old timeslot value
         self.assertEqual(ss_one.timeslot, ts_one)
         
-        self.assertTrue(0)
         # move this session from one timeslot to another.
         self.client.post('/dajaxice/ietf.meeting.update_timeslot/', {
             'argv': '{"new_event":{"session_id":"2371","timeslot_id":"2372"}}'
-            }, **{'REMOTE_USER':'wlo@amsl.org'})
+            }, **self.auth_joeblow)
 
         # confirm that without login, it does not have new value
         ss_one = ScheduledSession.objects.get(pk=2371)

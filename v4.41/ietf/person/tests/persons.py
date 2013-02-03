@@ -14,6 +14,10 @@ class PersonFetchTestCase(TestCase):
         one = Person.objects.by_email('wlo@amsl.com')
         self.assertNotEqual(one, None)
 
+    def test_FindOnePersonByUsername(self):
+        one = Person.objects.by_username('wnl')
+        self.assertNotEqual(one, None)
+
         
 
 

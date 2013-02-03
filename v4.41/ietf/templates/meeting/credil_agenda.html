@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load ietf_filters %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% load humanize %}
+{% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
+
+{% block pagehead %}
+<link rel='stylesheet' type='text/css' href='/css/ietf.css' />
+
+<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery-ui.custom.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.widget.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.droppable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
+
+<script type='text/javascript' src='/js/agenda_credil.js'></script>
+
+<script type='text/javascript'>
+function setup_slots(){
+{% for t in timeslots %}
+	populate_events("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|cut:'/'}}", "{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}" );
+{% endfor %}
+{% for days in date_slices %}
+	$("#{{days}}-btn").click(function(){
+		$("#{{days}}tr").toggle();
+		$("#{{days}}tbody").toggle();
+	});
+
+{% endfor %}
+}
+
+function strip_bad(bad){
+//	log(bad);
+	return bad.split("/").join(".");
+
+}
+
+</script>
+<style type='text/css'>
+
+</style>
+{% endblock pagehead %}
+
+
+{% block content %}
+
+{% comment %} For each meeting day, we generate a table {% endcomment %}
+<div style="margin: 0 auto">
+{% for d in date_slices %}
+<table id="meetings" class="{{d}} ietf-navbar" >
+
+  <th colspan="{{rooms|length|add:'1'}}" id="{{d}}-btn" style="border:1px solid red; background:#A60000; color:white">{{d}}</th>
+
+
+  <tr id="{{d}}tr">
+    <th ></th>
+    {% for r in rooms %}
+    <th class="room_title">"{{r}}" </th>
+    {% endfor %}
+  </tr>
+
+<tbody id="{{d}}tbody" class="cells">
+
+
+
+  {% for s in time_slices %}
+
+  	<tr id="{{s}}">
+	    <th class="vert_time">{{s}}</th>
+	    {% for r in rooms %}
+    		<td class="{{r|cut:"/"}}"></td>
+	      
+	    {% endfor %}
+	</tr>
+   {% endfor %}
+</tbody>
+</table>
+
+{% endfor %}
+</div>
+<div style="border:1px solid black; margin: 0 auto; height:800px; width:200px;overflow:scroll;">
+<b>Events:</b>
+<ul style="" id="sortable-list">
+</ul>
+
+</div>
+
+
+
+
+
+<!-- </div> -->
+
+<!--<div class="room" id="room1" style="background:green"></div> -->
+
+<!--</body>-->
+{% endblock %}
+<!--</html>-->

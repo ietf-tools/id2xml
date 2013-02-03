@@ -222,6 +222,8 @@ def html_agenda(request, num=None):
     time_slices = []
     date_slices = {}
     for t in timeslots:
+
+#        print t.id, t.pk
         if(t.session != None):# and len(t.session.agenda_note)>1):
             ymd = t.time.strftime("%Y-%m-%d")
             if ymd not in date_slices and t.location != None:

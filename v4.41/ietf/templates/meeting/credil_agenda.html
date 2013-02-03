@@ -3,7 +3,7 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% load humanize %}
 {% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
-
+{% load agenda_custom_tags %}
 {% block pagehead %}
 <link rel='stylesheet' type='text/css' href='/css/ietf.css' />
 
@@ -18,10 +18,27 @@
 <script type='text/javascript' src='/js/agenda_credil.js'></script>
 
 <script type='text/javascript'>
+
+function setup_slots_a(){
+    {% for day,value in date_slices.items %}
+        {% for r in rooms %}
+            {% for slot in value %}
+		  var t = "{{slot.0|date:'Hi'}}";
+		  populate_events("title","desc","{{r|slugify}}",t,"{{day}}");
+	    {% endfor %}
+	{% endfor %}
+    {% endfor %}
+
+}
+
+
 function setup_slots(){
 {% for t in timeslots %}
-	populate_events("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|cut:'/'}}", "{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}" );
+	populate_events("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}" );
+
 {% endfor %}
+populate_events("title","desc","asdfdssf","asdf","asdfsd");
+
 {% for days in date_slices %}
 	$("#{{days}}-btn").click(function(){
 		$("#{{days}}tr").toggle();
@@ -47,38 +64,116 @@ function strip_bad(bad){
 {% block content %}
 
 {% comment %} For each meeting day, we generate a table {% endcomment %}
+
 <div style="margin: 0 auto">
-{% for d in date_slices %}
-<table id="meetings" class="{{d}} ietf-navbar" >
-
-  <th colspan="{{rooms|length|add:'1'}}" id="{{d}}-btn" style="border:1px solid red; background:#A60000; color:white">{{d}}</th>
+{% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
-  <tr id="{{d}}tr">
-    <th ></th>
+  {% for day in meeting_days %}
+
+  <table id="meetings" class="{{day}} ietf-navbar" >
+
+  <th colspan="{{date_slices|colWidth:day|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th>
+  <tr id="{{day}}tr">
+  <th></th>
+  
+  {% for slot in date_slices|lookup:day %}
+  <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+  {% endfor %}
+  <tbody id="{{day}}tbody" class="cells">
     {% for r in rooms %}
-    <th class="room_title">"{{r}}" </th>
-    {% endfor %}
-  </tr>
-
-<tbody id="{{d}}tbody" class="cells">
-
-
-
-  {% for s in time_slices %}
-
-  	<tr id="{{s}}">
-	    <th class="vert_time">{{s}}</th>
-	    {% for r in rooms %}
-    		<td class="{{r|cut:"/"}}"></td>
-	      
+	<tr id="{{r}}">
+	    <th class="vert_time">{{r}}
+	    {% for slot in date_slices|lookup:day %}
+	        <td id="{{r|slugify}}-{{day}}-{{slot.0|date:'Hi'}}"></td>
 	    {% endfor %}
 	</tr>
-   {% endfor %}
+    {% endfor %}
 </tbody>
 </table>
-
+    
+    
 {% endfor %}
+
+
+
+
+
+
+
+
+
+<!-- {% comment %} -->
+<!-- <div style="margin: 0 auto"> -->
+<!-- {% for day,value in date_slices.items %} -->
+  
+<!--   <table id="meetings" class="{{day}} ietf-navbar" > -->
+<!--     {{value|length|add:'1'}} -->
+<!--   <th colspan="{{value|length|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th> -->
+<!--   <tr id="{{day}}tr"> -->
+<!--   <th></th> -->
+  
+<!--   {% for slot in value %} -->
+<!--   <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th> -->
+<!--   {% endfor %} -->
+<!--   <tbody id="{{d}}tbody" class="cells"> -->
+<!--     {% for r in rooms %} -->
+<!-- 	<tr id="{{r}}"> -->
+<!-- 	    <th class="vert_time">{{r}} -->
+<!-- 	    {% for slot in value %} -->
+<!-- 	        <td id="{{r|slugify}}-{{day}}-{{slot.0|date:'Hi'}}" class="{{r|cut:"/"}}"> -->
+<!-- 		</td> -->
+<!-- 	    {% endfor %} -->
+<!-- 	</tr> -->
+<!--     {% endfor %} -->
+<!-- </tbody> -->
+<!-- </table> -->
+    
+    
+<!-- {% endfor %} -->
+
+<!-- {% endcomment %} -->
+
+
+
+
+
+
+  
+<!-- {% comment %} -->
+<!--   {% for d in date_slices %} -->
+<!-- <table id="meetings" class="{{d}} ietf-navbar" > -->
+
+<!--   <th colspan="{{rooms|length|add:'1'}}" id="{{d}}-btn" style="border:1px solid red; background:#A60000; color:white">{{d}}</th> -->
+
+
+<!--   <tr id="{{d}}tr"> -->
+<!--     <th ></th> -->
+<!--     {% for r in rooms %} -->
+<!--     <th class="room_title">"{{r}}" </th> -->
+<!--     {% endfor %} -->
+<!--   </tr> -->
+
+<!-- <tbody id="{{d}}tbody" class="cells"> -->
+
+
+
+<!--   {% for s in time_slices %} -->
+<!--   	<tr id="{{s}}"> -->
+<!-- 	    <th class="vert_time">{{s}}</th> -->
+<!-- 	    {% for r in rooms %} -->
+<!--     		<td class="{{r|cut:"/"}}"></td> -->
+<!-- 	    {% endfor %} -->
+<!-- 	</tr> -->
+<!--    {% endfor %} -->
+<!-- </tbody> -->
+<!-- </table> -->
+
+<!-- {% endfor %} -->
+
+
+<!-- {% endcomment %} -->
+
 </div>
 <div style="border:1px solid black; margin: 0 auto; height:800px; width:200px;overflow:scroll;">
 <b>Events:</b>

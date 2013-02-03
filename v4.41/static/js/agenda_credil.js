@@ -51,7 +51,36 @@ function listeners(){
 
 }
 
-function insert_cell(time,date, room, text){
+function insert_cell(time,date,room,text){
+   
+    slot_id = ("#"+room+"-"+date+"-"+time);
+   
+    try{
+	var found = $(slot_id).append(text);
+	if(found.length == 0){
+	    log(slot_id);
+	    log(text)
+	}
+
+    }
+    catch(err){
+	log("error");
+	log(err);
+    }
+
+    
+}
+function populate_events(title,description,room, time,date){
+    var eTemplate =     event_template(title, description,time);
+    var t = title+" "+description;
+    var good = insert_cell(time,date, room.split(/[ ]/).join('.'), eTemplate);
+    if(good < 1){
+	event_template(title, description,time).appendTo("#sortable-list");
+    }
+}
+
+
+function insert_cell_old(time,date, room, text){
     //log()//.find(room))
 //    log("#"+time+" "+room+" "+text);
 //    log(time+" "+room+" "+text+" "+date);
@@ -112,20 +141,6 @@ function event_template(event_title, description, time){
     
 
 
-function populate_events(title,description,room, time,date){
-    var eTemplate =     event_template(title, description,time);
-    var t = title+" "+description;
-    //log("split:"+room);
-//    log(room.split());
-    var good = insert_cell(time,date, room.split(/[ ]/).join('.'), eTemplate);
-    if(good < 1){
-	event_template(title, description,time).appendTo("#sortable-list");
-    }
- //   log("title:" + title);
-  //  log(" description:" + description);
-  //  log("time:" +time);
-
-}
 
 
 function test_js(){
@@ -164,7 +179,7 @@ function handelDrop(event, ui){
 
 function sort_js(){
     $(function() {
-//	$("#accordion").accordion();
+	$("#accordion").accordion();
 	$( "#sortable-list li").draggable({
 	    appendTo: "body",
 	    helper: "clone",

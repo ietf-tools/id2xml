@@ -223,49 +223,45 @@ def html_agenda(request, num=None):
     ################## just some debugging stuff ############
     print "timeslots:"
     time_slices = []
-    date_slices = []
+    date_slices = {}
     for t in timeslots:
         if(t.session != None):# and len(t.session.agenda_note)>1):
+            ymd = t.time.strftime("%Y-%m-%d")
+            if ymd not in date_slices and t.location != None:
+                date_slices[ymd] = []
+            
+            if ymd in date_slices:
+                if [t.time, t.time+t.duration] not in date_slices[ymd]:   # only keep unique entries
+                    date_slices[ymd].append([t.time, t.time+t.duration])
+                
+           
 
-#            if t.meeting.number != None:
-#                print t.name," ", t.meeting.number
-#            else:
-#                print t.name
-#            print "\t",t.location
-#            print "\t",t.time.strftime("%H%M"), type(t.time)
             if t.time.strftime("%H%M") not in time_slices:
                 time_slices.append(t.time.strftime("%H%M"))
             else:
                 pass
-            if t.time.strftime("%Y-%m-%d") not in date_slices and t.location != None:
-                date_slices.append(t.time.strftime("%Y-%m-%d"))
-                if t.time.strftime("%Y-%m-%d") == "2012-11-03":
-
-                    print "t.time\t",t.time
-                    print "t.location\t",t.location
-                    print "t.duration\t",t.duration
-                    print "t.session.group.name\t",t.session.group.name
-                    print "t.session.group.acronym\t",t.session.group.acronym
-
-#            print t.time
-#            print "\t",t.duration
-#            print "\t",t.session.group.name
-#            print "\t",t.session.group.acronym
-    ########################################################
+                
     from ietf.meeting.models import Room
     rooms = Room.objects.filter(meeting__number=num)
     time_slices.append("0830")
-            
+    
+#    print date_slices
+    meeting_days = []
+    for k,v in date_slices.iteritems():
+        print "k=",k
+        print "v=",v
+        meeting_days.append(k)
+    meeting_days.sort()
     #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
 
 #    print "area_list", area_list
-    
     time_slices.sort()
     print len(timeslots)
+    print date_slices[meeting_days[0]]
 #    print len(meeting)
     #return HttpResponse(render_to_string("meeting/agenda.html",
     return HttpResponse(render_to_string("meeting/credil_agenda.html",
-        {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+        {"meeting_days":meeting_days,"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list ,
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")

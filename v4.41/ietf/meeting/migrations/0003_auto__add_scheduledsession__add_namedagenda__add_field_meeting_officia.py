@@ -13,24 +13,24 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('timeslot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.TimeSlot'])),
             ('session', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.Session'])),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.NamedAgenda'])),
+            ('schedule', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.Schedule'])),
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal('meeting', ['ScheduledSession'])
 
-        # Adding model 'NamedAgenda'
-        db.create_table('meeting_namedagenda', (
+        # Adding model 'Schedule'
+        db.create_table('meeting_schedule', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=16)),
             ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['person.Person'])),
             ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('public', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
-        db.send_create_signal('meeting', ['NamedAgenda'])
+        db.send_create_signal('meeting', ['Schedule'])
 
-        # Adding field 'Meeting.official_agenda'
-        db.add_column('meeting_meeting', 'official_agenda',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.NamedAgenda'], blank=True, null=True),
+        # Adding field 'Meeting.agenda'
+        db.add_column('meeting_meeting', 'agenda',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['meeting.Schedule'], blank=True, null=True),
                       keep_default=False)
 
         # Adding field 'Room.capacity'
@@ -56,11 +56,11 @@ class Migration(SchemaMigration):
         # Deleting model 'ScheduledSession'
         db.delete_table('meeting_scheduledsession')
 
-        # Deleting model 'NamedAgenda'
-        db.delete_table('meeting_namedagenda')
+        # Deleting model 'Schedule'
+        db.delete_table('meeting_schedule')
 
-        # Deleting field 'Meeting.official_agenda'
-        db.delete_column('meeting_meeting', 'official_agenda_id')
+        # Deleting field 'Meeting.agenda'
+        db.delete_column('meeting_meeting', 'agenda_id')
 
         # Deleting field 'Room.capacity'
         db.delete_column('meeting_room', 'capacity')
@@ -210,15 +210,15 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'number': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '64'}),
-            'official_agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']", 'blank': 'True'}),
+            'agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']", 'blank': 'True'}),
             'reg_area': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'time_zone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['name.MeetingTypeName']"}),
             'venue_addr': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'venue_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
-        'meeting.namedagenda': {
-            'Meta': {'object_name': 'NamedAgenda'},
+        'meeting.schedule': {
+            'Meta': {'object_name': 'Schedule'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['person.Person']"}),
@@ -236,7 +236,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'ScheduledSession'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']"}),
+            'schedule': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']"}),
             'session': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Session']"}),
             'timeslot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.TimeSlot']"})
         },

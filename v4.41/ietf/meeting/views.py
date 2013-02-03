@@ -37,7 +37,7 @@ from ietf.group.models import Group
 
 
 @decorator_from_middleware(GZipMiddleware)
-def show_html_materials(request, meeting_num=None, namedagenda_name=None):
+def show_html_materials(request, meeting_num=None, schedule_name=None):
     proceeding = get_object_or_404(Proceeding, meeting_num=meeting_num)
     begin_date = proceeding.sub_begin_date
     cut_off_date = proceeding.sub_cut_off_date
@@ -52,9 +52,9 @@ def show_html_materials(request, meeting_num=None, namedagenda_name=None):
         sub_began = 1
 
     meeting = get_meeting(meeting_num)
-    namedagenda = get_namedagenda(meeting, namedagenda_name)
+    schedule = get_schedule(meeting, schedule_name)
 
-    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
 
     plenaries = scheduledsessions.filter(session__name__icontains='plenary')
     ietf      = scheduledsessions.filter(session__group__parent__type__slug = 'area').exclude(session__group__acronym='edu')
@@ -101,7 +101,7 @@ class NamedTimeSlot(object):
         self.timeslot = timeslot
 
     def scheduledsessions(self):
-        self.timeslot.scheduledsessions_set.filter(owner=self.agenda)
+        self.timeslot.scheduledsessions_set.filter(schedule=self.agenda)
 
     @property
     def time(self):
@@ -145,7 +145,7 @@ class NamedTimeSlot(object):
 
     @property
     def sessions(self):
-        return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(owner=self.agenda) ]
+        return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(schedule=self.agenda) ]
 
     @property
     def scheduledsessions_at_same_time(self):
@@ -155,7 +155,7 @@ class NamedTimeSlot(object):
 
     @property
     def scheduledsessions(self):
-        return self.timeslot.scheduledsession_set.filter(owner=self.agenda)
+        return self.timeslot.scheduledsession_set.filter(schedule=self.agenda)
 
     @property
     def scheduledsessions_by_area(self):
@@ -201,11 +201,11 @@ def agenda_info(num=None, name=None):
 
     if name is not None:
         try:
-            agenda = meeting.namedagenda_set.get(name=name)
-        except NamedAgenda.DoesNotExist:
+            agenda = meeting.schedule_set.get(name=name)
+        except Schedule.DoesNotExist:
             raise Http404("Meeting %s has no agenda named %s" % (num, name))
     else:
-        agenda = meeting.official_agenda
+        agenda = meeting.agenda
 
     if agenda is None:
         raise Http404("Meeting %s has no agenda set yet" % (num))
@@ -290,8 +290,8 @@ def build_agenda_slices(scheduledsessions):
     return time_slices,date_slices
 
 
-def get_scheduledsessions_from_namedagenda(namedagenda):
-   ss = namedagenda.scheduledsession_set.order_by('timeslot__time','timeslot__name')
+def get_scheduledsessions_from_schedule(schedule):
+   ss = schedule.scheduledsession_set.order_by('timeslot__time','timeslot__name')
    return ss
 
 def get_modified_from_scheduledsessions(scheduledsessions):
@@ -311,7 +311,7 @@ def get_wg_list(scheduledsessions):
 
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None, namedagenda_name=None):
+def html_agenda(request, num=None, schedule_name=None):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -321,12 +321,12 @@ def html_agenda(request, num=None, namedagenda_name=None):
     else:
         user_agent = ""
     if "iPhone" in user_agent:
-        return iphone_agenda(request, num, namedagenda_name)
+        return iphone_agenda(request, num, schedule_name)
 
     meeting = get_meeting(num)
-    namedagenda = get_namedagenda(meeting, namedagenda_name)
+    schedule = get_schedule(meeting, schedule_name)
 
-    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
     area_list = get_area_list(scheduledsessions, num)
@@ -344,16 +344,16 @@ def html_agenda(request, num=None, namedagenda_name=None):
 
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda(request, num=None, namedagenda_name=None):
+def edit_agenda(request, num=None, schedule_name=None):
 
     meeting = get_meeting(num)
-    namedagenda = get_namedagenda(meeting, namedagenda_name)
+    schedule = get_schedule(meeting, schedule_name)
 
     # get_modified_from needs the query set, not the list
-    scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
-    ntimeslots = get_ntimeslots_from_ss(namedagenda, scheduledsessions)
+    ntimeslots = get_ntimeslots_from_ss(schedule, scheduledsessions)
 
     area_list = get_area_list(scheduledsessions, num)
     wg_name_list = get_wg_name_list(scheduledsessions)
@@ -613,12 +613,12 @@ def get_meeting(num=None):
         meeting = get_object_or_404(Meeting, number=num)
     return meeting
 
-def get_namedagenda(meeting, name=None):
+def get_schedule(meeting, name=None):
     if name is None:
-        namedagenda = meeting.official_agenda
+        schedule = meeting.agenda
     else:
-        namedagenda = get_object_or_404(meeting.namedagenda_set, name=name)
-    return namedagenda
+        schedule = get_object_or_404(meeting.schedule_set, name=name)
+    return schedule
 
 def week_view(request, num=None):
     meeting = get_meeting(num)

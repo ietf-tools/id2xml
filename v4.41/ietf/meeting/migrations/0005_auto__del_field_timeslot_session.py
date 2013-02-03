@@ -154,15 +154,15 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'number': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '64'}),
-            'official_agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']", 'null': 'True', 'blank': 'True'}),
+            'agenda': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']", 'null': 'True', 'blank': 'True'}),
             'reg_area': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'time_zone': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['name.MeetingTypeName']"}),
             'venue_addr': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'venue_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'})
         },
-        'meeting.namedagenda': {
-            'Meta': {'object_name': 'NamedAgenda'},
+        'meeting.schedule': {
+            'Meta': {'object_name': 'Schedule'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['person.Person']"}),
@@ -180,7 +180,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'ScheduledSession'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.NamedAgenda']"}),
+            'schedule': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Schedule']"}),
             'session': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Session']"}),
             'timeslot': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.TimeSlot']"})
         },

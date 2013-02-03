@@ -98,7 +98,47 @@ function listeners(){
 }
 
 function insert_cell(time,date,room,text){
-    slot_id = ("#"+room+"_"+date+"_"+time);
+   
+    slot_id = ("#"+room+"-"+date+"-"+time);
+   
+    try{
+	var found = $(slot_id).append(text);
+	if(found.length == 0){
+	    log(slot_id);
+	    log(text)
+	}
+
+    }
+    catch(err){
+	log("error");
+	log(err);
+    }
+
+    
+}
+function populate_events(title,description,room, time,date){
+    var eTemplate =     event_template(title, description,time);
+    var t = title+" "+description;
+    var good = insert_cell(time,date, room.split(/[ ]/).join('.'), eTemplate);
+    if(good < 1){
+	event_template(title, description,time).appendTo("#sortable-list");
+    }
+}
+
+
+function insert_cell_old(time,date, room, text){
+    //log()//.find(room))
+//    log("#"+time+" "+room+" "+text);
+//    log(time+" "+room+" "+text+" "+date);
+    if(date == "2012-11-03"){
+	log(time+" "+room+" "+text+" "+date);
+    }
+
+
+    room = "td."+room;
+    time = "#"+time;
+    date = "."+date;
+
     try{
 	var found = $(slot_id).append(text);
 	if(found.length == 0){
@@ -134,6 +174,28 @@ function event_template(event_title, description, time, django_id){
     
 
 
+function test_js(){
+    $(function() {
+        $(".obj").draggable({
+	    revert:true,
+	    snap:true,
+	    snapMode:"both",
+	    distance: 2,
+	    opacity: true,
+	    grid: [128,128],
+
+
+	});
+	$(".timeslot").droppable({
+	    
+	    over: function() {
+		//d = $(this).get(0);
+		d = $(this);
+	    },
+	    drop: handelDrop,
+	   
+	});
+});
 
 
 function handelDrop(event, ui){

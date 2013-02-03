@@ -19,6 +19,7 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
 {% dajaxice_js_import %}
 <script type='text/javascript' src='/js/agenda_edit.js'></script>
+<script type='text/javascript' src='/js/agenda_objects.js'></script>
 
 <script type='text/javascript'>
 
@@ -40,7 +41,8 @@ function setup_slots(){
 
 {% for t in timeslots %}
 	<!-- ------------------------- >
-	var e_obj = new event_obj( "{{ t.session.group.acronym }}","{{ t.session.group.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
+	var e_obj = new event_obj( "{{ t.session.group.acronym }}","{{ t.session.group.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}","{{t.id}}", "{{t.session.id}}");
+	console.log("{{t.session.id}}");
 
 	$.extend(meeting_objs,{ "{{t.id}}":e_obj});
 	<!-- ------------------------- >
@@ -70,13 +72,13 @@ function setup_slots(){
 
 {% comment %} For each meeting day, we generate a table {% endcomment %}
 {% comment %} <button onclick="Dajaxice.ietf.meeting.sayhello(my_js_callback);">click me </button><!-- dajaxice example --> {% endcomment %}
-<div style="margin: 0 auto">
+<div style="float: left; width:900px; overflow:scroll; height:800px;">
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
   {% for day in date_slices %}
 
-  <table id="meetings" class="{{day}} ietf-navbar" >
+  <table id="meetings" class="{{day}} ietf-navbar" style="width:100%"  > <!-- ietf-navbar -->
 
   <th colspan="{{date_slices|colWidth:day|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th>
   <tr id="{{day}}tr">
@@ -103,11 +105,14 @@ function setup_slots(){
 
 
 </div>
-<div id="sortable-list" style="border:1px solid black; margin: 0 auto; height:800px; width:200px;overflow:scroll;">
-<div style="background-color:maroon"><b>Unassigned Events:</b></div>
+
+<div style="height:119px"></div> <!-- Not sure why I need this, but it's there to push the sortablelist down (otherwise it moves the table too) -->
+
+<div id="sortable-list" style="margin-top:120px; border:1px solid black;  height:400px; width:200px;overflow:scroll;">
+<div style="background-color:maroon; "><b>Unassigned Events:</b></div>
 
 </div>
-
+</div>
 
 
 

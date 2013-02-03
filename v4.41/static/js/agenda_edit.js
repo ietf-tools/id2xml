@@ -40,13 +40,14 @@ function print_all(){
     console.log("done");
 }
 
-function event_obj(title,description,room, time,date,django_id){
+function event_obj(title,description,room, time,date,django_id,session_id){
     this.title = title;
     this.description = description;
     this.room = room;
     this.time = time;
     this.date = date;
     this.django_id = django_id;
+    this.session_id = session_id
 }
 
 /* this pushes every event into the calendars */

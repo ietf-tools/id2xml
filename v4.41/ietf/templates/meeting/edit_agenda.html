@@ -30,6 +30,9 @@ function my_js_callback(data){
 
 
 function setup_slots(){
+{% for day in time_slices %}
+days.push("{{day}}");
+{% endfor %}
 {% for s in scheduledsessions %}
 	console.log("{{s.timeslot.id}}");
 var e_obj = new event_obj( "{{ s.session.group.acronym }}","{{ s.session.group.name }}","{{s.timeslot.location|slugify}}" ,"{{ s.timeslot.time|date:'Hi' }}", "{{s.timeslot.time|date:'Y-m-d'}}","{{s.id}}", "{{s.timeslot.id}}", "{{s.owner.owner}}");
@@ -117,7 +120,7 @@ console.log("{{t.id}}");
   {% endfor %}
   <tbody id="{{day}}tbody" class="cells">
     {% for r in rooms %}
-	<tr id="{{r}}">
+	<tr id="{{r|nospace}}">
 	    <th class="vert_time">{{r}}</th>
 	    {% for slot in date_slices|lookup:day %}
 	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="{% cycle 'alt' '' %}" style="background:#606060 "></td>

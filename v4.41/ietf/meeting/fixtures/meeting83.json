@@ -15,7 +15,7 @@
 	}
 },
 
-{"pk": 24, "model": "meeting.namedagenda", "fields": {"owner": 108757, "visible": true, "name": "mtg:83", "public": true}},
+{"pk": 24, "model": "meeting.namedagenda", "fields": {"owner": 108757, "visible": true, "name": "mtg:83", "public": true, "meeting": 83}},
 {"pk": 2371, "model": "meeting.scheduledsession", "fields": {"owner": 24, "notes": "Auto created", "session": 2157, "timeslot": 2371}}, 
 {"pk": 2372, "model": "meeting.scheduledsession", "fields": {"owner": 24, "notes": "Auto created", "session": 2158, "timeslot": 2372}}, 
 {"pk": 2373, "model": "meeting.scheduledsession", "fields": {"owner": 24, "notes": "Auto created", "session": 2159, "timeslot": 2373}}, 

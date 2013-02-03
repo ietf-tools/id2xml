@@ -1,7 +1,7 @@
 import sys
 from django.test import TestCase
 from django.test.client import Client
-from ietf.meeting.models  import TimeSlot
+from ietf.meeting.models  import TimeSlot, Session
 
 class AgendaInfoTestCase(TestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
@@ -66,6 +66,19 @@ class AgendaInfoTestCase(TestCase):
         meeting = get_meeting(num)
         na = get_namedagenda(meeting, "mtg:83")
         self.assertIsNotNone(na)
+
+    def test_sessionstr(self):
+        num = '83'
+        from ietf.meeting.views import get_meeting
+        meeting = get_meeting(num)
+        session1= Session.objects.get(pk=2157)
+        self.assertEqual(session1.__unicode__(), u"IETF-83: pkix 0900")
+
+    def test_sessionstr_interim(self):
+        """
+        Need a fixture for a meeting that is interim
+        """
+        pass
 
         
         

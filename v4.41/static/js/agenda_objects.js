@@ -22,12 +22,15 @@ function slot(){
 }
 
 
-function event_obj(title,description,room, time,date,django_id,session_id){
+function event_obj(title,description,room, time,date,session_id,timeslot_id,owner){
     this.title = title;
     this.description = description;
     this.room = room;
     this.time = time;
     this.date = date;
-    this.django_id = django_id;
     this.session_id = session_id
+    this.timeslot_id = timeslot_id;
+    this.owner = owner;
+    this.last_timeslot_id = null;
+
 }

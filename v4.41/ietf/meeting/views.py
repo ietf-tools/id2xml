@@ -182,7 +182,6 @@ def get_ntimeslots_from_ss(agenda, scheduledsessions):
 def get_ntimeslots_from_agenda(agenda):
     # now go through the timeslots, only keeping those that are
     # sessions/plenary/training and don't occur at the same time
-
     scheduledsessions = agenda.scheduledsession_set.all().order_by("timeslot__time")
     ntimeslots = get_ntimeslots_from_ss(agenda, scheduledsessions)
     return ntimeslots, scheduledsessions
@@ -191,6 +190,7 @@ def agenda_info(num=None, name=None):
     """
     XXX this should really be a method on Meeting
     """
+
     try:
         if num != None:
             meeting = OldMeeting.objects.get(number=num)
@@ -249,6 +249,7 @@ def agenda_info(num=None, name=None):
     return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
 def get_area_list(scheduledsessions, num):
+
     return scheduledsessions.filter(timeslot__type = 'Session',
                                     session__group__parent__isnull = False).order_by(
         'session__group__parent__acronym').distinct(
@@ -256,42 +257,31 @@ def get_area_list(scheduledsessions, num):
         'session__group__parent__acronym',flat=True)
 
 def build_agenda_slices(scheduledsessions):
+
     ################## just some debugging stuff ############
     time_slices = []
     date_slices = set()
+    date_slices = {}
+
+
+    ids = []
     for ss in scheduledsessions:
-        if(ss.session != None):# and len(t.session.agenda_note)>1):
+        if(ss.session != None):# and len(ss.timeslot.session.agenda_note)>1):
+            ymd = ss.timeslot.time.strftime("%Y-%m-%d")
 
-#            if ss.timeslot.meeting.number != None:
-#                print ss.timeslot.name," ", ss.timeslot.meeting.number
-#            else:
-#                print ss.timeslot.name
-#            print "\t",ss.timeslot.location
-#            print "\t",ss.timeslot.time.strftime("%H%M"), type(ss.timeslot.time)
-            if ss.timeslot.time.strftime("%H%M") not in time_slices:
-                time_slices.append(ss.timeslot.time.strftime("%H%M"))
-            else:
-                pass
-            date = ss.timeslot.time.strftime("%Y-%m-%d")
-            if ss.timeslot.location != None:
-                date_slices.add(date)
-                #if ss.timeslot.time.strftime("%Y-%m-%d") == "2012-11-03":
-                #    print "t.time\t",ss.timeslot..time
-                #    print "t.location\t",ss.timeslot.location
-                #    print "t.duration\t",ss.timeslot.duration
-                #    print "t.session.group.name\t",ss.timeslot.session.group.name
-                #    print "t.session.group.acronym\t",ss.timeslot.session.group.acronym
-
-    time_slices.append("0830")
+            if ymd not in date_slices and ss.timeslot.location != None:
+                date_slices[ymd] = []
             
-    #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
-
-#    print "area_list", area_list
+            if ymd in date_slices:
+                if [ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration] not in date_slices[ymd]:   # only keep unique entries
+                    date_slices[ymd].append([ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration])
+                    ids.append(ss.timeslot.id)
+            
     
     time_slices.sort()
+    print ids
+    print date_slices
 
-    # convert set to list and sort it.
-    date_slices = list(date_slices).sort()
     return time_slices,date_slices
 
 
@@ -365,18 +355,22 @@ def edit_agenda(request, num=None, namedagenda_name=None):
     wg_list = get_wg_list(wg_name_list)
     
     time_slices,date_slices = build_agenda_slices(scheduledsessions)
-
+    #for e in date_slices:
+    #    print e, len(date_slices[e])
+    #print "date_slices:length=", len(date_slices)
     rooms = meeting.room_set
+    rooms = rooms.all()
     
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
                                          {"timeslots":ntimeslots,
                                           "rooms":rooms,
                                           "time_slices":time_slices,
-                                          "date_slices":date_slices  ,
+                                          "date_slices":date_slices,
                                           "modified": modified,
                                           "meeting":meeting,
                                           "area_list": area_list,
                                           "wg_list": wg_list ,
+                                          "scheduledsessions": scheduledsessions,
                                           "show_inline": set(["txt","htm","html"]) },
                                          RequestContext(request)), mimetype="text/html")
 

@@ -18,14 +18,14 @@ function initStuff(){
     log("listeners() ran");
     setup_slots();
     log("setup_slots() ran");
-    sort_js();
-    log("sort_js() ran");
+    droppable();
+    log("droppable() ran");
     load_events();
     log("load_events() ran");
 }
 
 
-var meeting_objs = [];
+var meeting_objs = {};  // contains a list of event_obj's
 
 function print_all(){
     console.log("all");
@@ -44,9 +44,11 @@ function event_obj(title,description,room, time,date,django_id){
     this.time = time;
     this.date = date;
     this.django_id = django_id;
-    
+}
+
+
     /* function declerations */
-    this.print_out = function() {
+ /*   this.print_out = function() {
 	console.log("---- Django id:"+this.django_id+" ------------------------------");
 	console.log("title:"+this.title);
 	console.log("description:"+this.description);
@@ -54,21 +56,22 @@ function event_obj(title,description,room, time,date,django_id){
 	console.log("time:"+this.time);
 	console.log("date:"+this.date);
 
-    }
-}
+    } */
+//}
 
 
 /* this pushes every event into the calendars */
 function load_events(){
-    for(var i = 0; i<meeting_objs.length; i++){
-	populate_events(meeting_objs[i].title,
-		        meeting_objs[i].description, 
-			meeting_objs[i].room, 
-			meeting_objs[i].time, 
-			meeting_objs[i].date,
-			meeting_objs[i].django_id
-		       );
-    }
+    $.each(meeting_objs, function(key) {
+	    meeting_json = meeting_objs[key];
+	    populate_events(meeting_json.title,
+		        meeting_json.description, 
+			meeting_json.room, 
+			meeting_json.time, 
+			meeting_json.date,
+			meeting_json.django_id
+		);
+	});
 }
 
 
@@ -139,7 +142,13 @@ function handelDrop(event, ui){
     $(d).append(ui.draggable);
 }
 
-function sort_js(){
+function id_to_json(id){
+    var split = id.split('_');
+    
+    return {"location":split[0],"date":split[1],"time":split[2]}
+}
+
+function droppable(){
     $(function() {
 	$("#accordion").accordion();
 	$( "#sortable-list li").draggable({
@@ -163,157 +172,31 @@ function sort_js(){
 		$(this).css("background","");
 	    },
 	    drop : function(event, ui){
-		$(this).css("background","");
-		log("found:");
-		log($(this).attr('id'));
-		log($(this).find(".meeting_event"));
-		$(this).find(".ui-state-default").remove();
+		$(this).css("background",""); // remove the highlighting from the activate
+		var event_json = id_to_json($(this).attr('id')); // make a json with the new values to inject into the event		
+		var temp_id = ui.draggable.attr('id'); // the django
+
+		/* set things to the new values */
+		meeting_objs[temp_id].time = event_json.time;
+		meeting_objs[temp_id].room = event_json.room;
+		meeting_objs[temp_id].date = event_json.date;
 		
-//		log("html>>");
-
-		log(ui.draggable.attr('id'));
+		/* create the template */
+		var eTemplate = event_template(meeting_objs[temp_id].title, 
+					       meeting_objs[temp_id].description,
+					       meeting_objs[temp_id].time, 
+					       meeting_objs[temp_id].django_id
+					      );
 		
-		var table_code = "<table class='meeting_event'>";
-		table_code = table_code+ui.draggable.html()+"</table>";
-	
-/*	
-		log("----------------------");
-		log(table_code);
-		log("----------------------");
-*/
-		$(this).append(table_code);
-		log($(this).html());
-//		log(ui.draggable.html());
-
-/*
-		log($(this).css("height"));
-		var height = $(this).css("height")
-
-		log("to");
-		log(height);
-*/
-
-		ui.draggable.remove();
-		sort_js(); // we need to run this again to toggle the new listeners
+		$(this).append(eTemplate); // add the html code to the new slot.
+		ui.draggable.remove(); // remove the old one. 
+		droppable(); // we need to run this again to toggle the new listeners
 	
 		
-	    }
+	    } // end drop
 
-	});
-    });
+	}); // end droppable
+    }); // end function()
 
-}
+} // end sort_js
 
-
-
-function eventClicked(event){
-    log("event clicked");
-    log(event);
-
-    $("#event_StartDate").val(event.start);
-    $("#event_EndDate").val(event.end);
-    $("#event_Title").val(event.title);
-    
-    var all_day = null;
-    
-}
-
-function select_function(start,end,allDay){
-    var name = "select_function:";
-    log(name+"  start:["+start+"] End:["+end+"] allday:["+allDay+"]");
-    $("#event_StartDate").val(start);
-    $("#event_EndDate").val(end);
-    
-}
-
-
-var cal_events = [ ];
-
-
-
-	
-
-/*
-function add_event(){
-    var startdate = $("#event_StartDate").val();
-    var enddate = $("#event_EndDate").val();
-    var title = $("#event_Title").val();
-    
-    var y_checked = $("#event_AllDay_yes").attr('checked');
-    var n_checked = $("#event_AllDay_no").attr('checked');
-    var all_day = null;
-    if(y_checked == "checked" && n_checked == null){
-	all_day = true;
-    }
-    else if(n_checked == "checked" && y_checked == null){
-	all_day = false;
-    }
-    if(startdate != "" && enddate != "" && title != "" && all_day != null){
-	log(title +" "+startdate + " " + enddate +  " " + all_day);
-	var new_event = { 
-	    "title": title,
-	    "start": startdate,
-	    "end": enddate,
-	    "allDay": all_day
-	};
-	cal_events.push(new_event);
-
-	$('#calendar').fullCalendar('refetchEvents');
-	log("pushed new event:"+new_event);
-
-
-    }
-    else{
-	log("missing some values...");
-	log("title:"+title+"|startdate:"+startdate+"|enddate:"+enddate+"|allday:"+all_day);
-    }
-    
-}
-*/
-
-
-/*
-function clicker(){
-    $("#0800").click(function() {
-	//log($(this).find("td"));
-	//log("#0800");
-    });
-    $(".cells").click(function() {
-//	insert_cell("#0800", "td.Salon.C", "bla");
-	$(this).each(function(){
-//	    log($(this).html());
-	});
-    });
-    
-}
-*/
-
-	
-
-/*
-function test_js(){
-    $(function() {
-        $(".obj").draggable({
-	    revert:true,
-	    snap:true,
-	    snapMode:"both",
-	    distance: 2,
-	    opacity: true,
-	    grid: [128,128],
-
-
-	});
-	$(".timeslot").droppable({
-	    
-	    over: function() {
-		//d = $(this).get(0);
-		d = $(this);
-	    },
-	    drop: handelDrop,
-	   
-	});
-});
-
-
-}
-*/

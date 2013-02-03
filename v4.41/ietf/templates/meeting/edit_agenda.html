@@ -30,9 +30,11 @@ function my_js_callback(data){
 
 function setup_slots(){
 {% for t in timeslots %}
+	<!-- ------------------------- >
 	var e_obj = new event_obj("{{ t.session.group.name }}", "{{ t.name }}","{{t.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}", "{{t.id}}");
-	meeting_objs.push(e_obj);
-
+	
+	$.extend(meeting_objs,{ "{{t.id}}":e_obj});
+	<!-- ------------------------- >
 {% endfor %}
 
 

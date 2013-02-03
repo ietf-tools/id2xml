@@ -286,17 +286,17 @@ def edit_agenda(request, num=None):
 
 
 def iphone_agenda(request, num):
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
 
     import sys
-    sys.stdout.write("agenda_info returned: %s[%d] %s %s" % (timeslots[0],
-                                                         len(timeslots),
+    sys.stdout.write("agenda_info returned: %s[%d] %s %s" % (scheduledsessions[0],
+                                                         len(scheduledsessions),
                                                          meeting,
                                                          venue));
-    groups_meeting = [];
+
+    groups_meeting = set();
     for ss in scheduledsessions:
-        groups_meeting.append(ss.session.acronym())
-    groups_meeting = set(groups_meeting);
+        groups_meeting.add(ss.session.group.acronym)
 
     wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).filter(group_acronym__acronym__in = groups_meeting).order_by('group_acronym__acronym')
     rgs = IRTF.objects.all().filter(acronym__in = groups_meeting).order_by('acronym')

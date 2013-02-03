@@ -115,11 +115,11 @@
       {% endfor %}
       {% endif %}
       {% else %}
-      {% for session in slot.sessions %}
+      {% for scheduledsession in slot.scheduledsessions %}
       <tr>
 	 <td colspan="4">
 	    <a name="{{slot.meeting_date|date:"Y-m-d"}}_{{slot.time_desc|slice:":4"}}" />
-	    {{ slot.time_desc }}  {{ session.acronym_name|escape }} - <a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{session.room_id.room_name|slugify}}">{{ session.room_id.room_name}}</a>
+	    {{ scheduledsession.session.time_desc }}  {{ scheduledsession.session.acronym_name|escape }} - <a href="http://tools.ietf.org/agenda/{{meeting.num}}/venue/?room={{scheduledsession.session.room_id.room_name|slugify}}">{{ scheduledsession.session.room_id.room_name}}</a>
 	 </td>
       </tr>
       {% endfor %}

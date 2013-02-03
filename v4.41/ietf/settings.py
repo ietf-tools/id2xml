@@ -86,8 +86,7 @@ MEDIA_URL = ''
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
-#DAJAXICE_MEDIA_PREFIX="dajaxice"
-DAJAXICE_MEDIA_PREFIX="dajaxice"
+DAJAXICE_MEDIA_PREFIX=""
 
 AUTH_PROFILE_MODULE = 'person.Person'
 AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.RemoteUserBackend', )

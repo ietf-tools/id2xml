@@ -84,32 +84,6 @@ def get_plenary_agenda(meeting_num, id):
         return "The Plenary has not been scheduled"
 
 def agenda_info(num=None):
-    if num:
-        meetings = [ num ]
-    else:
-        meetings =list(Meeting.objects.all())
-        meetings.reverse()
-        meetings = [ meeting.meeting_num for meeting in meetings ]
-    for n in meetings:
-        try:
-            timeslots = MeetingTime.objects.select_related().filter(meeting=n).order_by("day_id", "time_desc")
-            update = Switches.objects.get(id=1)
-            meeting= OldMeeting.objects.get(meeting_num=n)
-            venue  = MeetingVenue.objects.get(meeting_num=n)
-            break
-        except (MeetingTime.DoesNotExist, Switches.DoesNotExist, OldMeeting.DoesNotExist, MeetingVenue.DoesNotExist):
-            continue
-    else:
-        raise Http404("No meeting information for meeting %s available" % num)
-    ads = list(IESGHistory.objects.select_related().filter(meeting=n))
-    if not ads:
-        ads = list(IESGHistory.objects.select_related().filter(meeting=str(int(n)-1)))
-    ads.sort(key=(lambda item: item.area.area_acronym.acronym))
-    plenaryw_agenda = get_plenary_agenda(n, -1)
-    plenaryt_agenda = get_plenary_agenda(n, -2)
-    return timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
-
-def agenda_infoREDESIGN(num=None):
     try:
         if num != None:
             meeting = OldMeeting.objects.get(number=num)
@@ -121,12 +95,22 @@ def agenda_infoREDESIGN(num=None):
     # now go through the timeslots, only keeping those that are
     # sessions/plenary/training and don't occur at the same time
     timeslots = []
-    time_seen = set()
-    for t in MeetingTime.objects.filter(meeting=meeting, type__in=("session", "plenary", "other")).order_by("time").select_related():
-        if not t.time in time_seen:
-            time_seen.add(t.time)
-            timeslots.append(t)
+    scheduledsessions = []
+    import sys
+    
+    officialagenda = meeting.official_agenda
 
+    if officialagenda is not None:
+        time_seen = set()
+
+        for ss in officialagenda.scheduledsession_set.all().order_by("timeslot__time"):
+            t = ss.timeslot
+            scheduledsessions.append(ss)
+            if not t.time in time_seen:
+                time_seen.add(t.time)
+                timeslots.append(t)
+        time_seen = None
+    
     update = Switches().from_object(meeting)
     venue = meeting.meeting_venue
 
@@ -142,7 +126,7 @@ def agenda_infoREDESIGN(num=None):
                 ads.extend(IESGHistory().from_role(x, meeting_time) for x in g.role_set.filter(name="ad").select_related('group', 'person'))
     
     active_agenda = State.objects.get(type='agenda', slug='active')
-    plenary_agendas = Document.objects.filter(session__meeting=meeting, session__timeslot__type="plenary", type="agenda", ).distinct()
+    plenary_agendas = Document.objects.filter(session__meeting=meeting, session__scheduledsession__timeslot__type="plenary", type="agenda", ).distinct()
     plenaryw_agenda = plenaryt_agenda = "The Plenary has not been scheduled"
     for agenda in plenary_agendas:
         if active_agenda in agenda.states.all():
@@ -161,10 +145,7 @@ def agenda_infoREDESIGN(num=None):
             else:
                 plenaryw_agenda = s
 
-    return timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
-
-if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-    agenda_info = agenda_infoREDESIGN
+    return timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda_original(request, num=None):
@@ -327,10 +308,14 @@ def edit_agenda(request, num=None):
 def iphone_agenda(request, num):
     timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
 
+    import sys
+    sys.stdout.write("agenda_info returned: %s[%d] %s %s" % (timeslots[0],
+                                                         len(timeslots),
+                                                         meeting,
+                                                         venue));
     groups_meeting = [];
-    for slot in timeslots:
-        for session in slot.sessions():
-            groups_meeting.append(session.acronym())
+    for ss in scheduledsessions:
+        groups_meeting.append(ss.session.acronym())
     groups_meeting = set(groups_meeting);
 
     wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).filter(group_acronym__acronym__in = groups_meeting).order_by('group_acronym__acronym')
@@ -338,19 +323,34 @@ def iphone_agenda(request, num):
     areas = Area.objects.filter(status=Area.ACTIVE).order_by('area_acronym__acronym')
     template = "meeting/m_agenda.html"
     return render_to_response(template,
-            {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
-                "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, 
-                "wg_list" : wgs, "rg_list" : rgs, "area_list" : areas},
+            {"timeslots":timeslots,
+             "scheduledsessions":scheduledsessions,
+             "update":update,
+             "meeting":meeting,
+             "venue":venue,
+             "ads":ads,
+             "plenaryw_agenda":plenaryw_agenda,
+             "plenaryt_agenda":plenaryt_agenda, 
+             "wg_list" : wgs,
+             "rg_list" : rgs,
+             "area_list" : areas},
             context_instance=RequestContext(request))
 
  
 def text_agenda(request, num=None):
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num)
     plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
     plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
+
     return HttpResponse(render_to_string("meeting/agenda.txt",
-        {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
-            "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },
+        {"timeslots":timeslots,
+         "scheduledsessions":scheduledsessions,
+         "update":update,
+         "meeting":meeting,
+         "venue":venue,
+         "ads":ads,
+         "plenaryw_agenda":plenaryw_agenda,
+         "plenaryt_agenda":plenaryt_agenda, },
         RequestContext(request)), mimetype="text/plain")
     
 def session_agenda(request, num, session):

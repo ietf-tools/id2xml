@@ -30,7 +30,7 @@ class AgendaInfoTestCase(TestCase):
             #                                         timeslots[slotnum].time,
             #                                         timeslots[slotnum+1].pk,
             #                                         timeslots[slotnum+1].time))
-            self.assertTrue(timeslots[slotnum].time < timeslots[slotnum+1].time)
+            self.assertTrue(timeslots[slotnum].time() < timeslots[slotnum+1].time())
 
     def test_AgendaInfoNotFound(self):
         from django.http import Http404

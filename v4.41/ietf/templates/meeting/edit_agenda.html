@@ -62,7 +62,7 @@ function setup_slots(){
 {% comment %} {% for day,value in date_slices.items %} {% endcomment %}
 
 
-  {% for day in meeting_days %}
+  {% for day in date_slices %}
 
   <table id="meetings" class="{{day}} ietf-navbar" >
 

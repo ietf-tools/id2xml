@@ -166,8 +166,26 @@ class NamedTimeSlot(object):
         else:
             return [ ]
 
+def get_ntimeslots_from_ss(agenda, scheduledsessions):
+    ntimeslots = []
+    time_seen = set()
         
+    for ss in scheduledsessions:
+        t = ss.timeslot
+        if not t.time in time_seen:
+            time_seen.add(t.time)
+            ntimeslots.append(NamedTimeSlot(agenda, t))
+    time_seen = None
 
+    return ntimeslots
+
+def get_ntimeslots_from_agenda(agenda):
+    # now go through the timeslots, only keeping those that are
+    # sessions/plenary/training and don't occur at the same time
+
+    scheduledsessions = agenda.scheduledsession_set.all().order_by("timeslot__time")
+    ntimeslots = get_ntimeslots_from_ss(agenda, scheduledsessions)
+    return ntimeslots, scheduledsessions
 
 def agenda_info(num=None, name=None):
     """
@@ -181,12 +199,6 @@ def agenda_info(num=None, name=None):
     except OldMeeting.DoesNotExist:
         raise Http404("No meeting information for meeting %s available" % num)
 
-    # now go through the timeslots, only keeping those that are
-    # sessions/plenary/training and don't occur at the same time
-    ntimeslots = []
-    scheduledsessions = []
-    import sys
-    
     if name is not None:
         try:
             agenda = meeting.namedagenda_set.get(name=name)
@@ -198,16 +210,7 @@ def agenda_info(num=None, name=None):
     if agenda is None:
         raise Http404("Meeting %s has no agenda set yet" % (num))
 
-    time_seen = set()
-
-    for ss in agenda.scheduledsession_set.all().order_by("timeslot__time"):
-        t = ss.timeslot
-        scheduledsessions.append(ss)
-        if not t.time in time_seen:
-            time_seen.add(t.time)
-            ntimeslots.append(NamedTimeSlot(agenda, t))
-            
-    time_seen = None
+    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(agenda)
     
     update = Switches().from_object(meeting)
     venue = meeting.meeting_venue
@@ -311,7 +314,6 @@ def get_wg_list(scheduledsessions):
     wg_name_list = get_wg_name_list(scheduledsessions)
     return Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
 
-
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda(request, num=None, namedagenda_name=None):
@@ -328,7 +330,7 @@ def html_agenda(request, num=None, namedagenda_name=None):
 
     meeting = get_meeting(num)
     namedagenda = get_namedagenda(meeting, namedagenda_name)
-        
+
     scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
@@ -347,22 +349,27 @@ def html_agenda(request, num=None, namedagenda_name=None):
 
 ##########################################################################################################################
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda(request, num=None):
+def edit_agenda(request, num=None, namedagenda_name=None):
+
     meeting = get_meeting(num)
     namedagenda = get_namedagenda(meeting, namedagenda_name)
+
+    # get_modified_from needs the query set, not the list
     scheduledsessions = get_scheduledsessions_from_namedagenda(namedagenda)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
+
+    ntimeslots = get_ntimeslots_from_ss(namedagenda, scheduledsessions)
 
     area_list = get_area_list(scheduledsessions, num)
     wg_name_list = get_wg_name_list(scheduledsessions)
     wg_list = get_wg_list(wg_name_list)
-     
-    time_slices,date_slices = build_agenda_slices(scheduledssessions)
+    
+    time_slices,date_slices = build_agenda_slices(scheduledsessions)
 
     rooms = meeting.room_set
 
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
-                                         {"timeslots":timeslots,
+                                         {"timeslots":ntimeslots,
                                           "rooms":rooms,
                                           "time_slices":time_slices,
                                           "date_slices":date_slices  ,
@@ -371,10 +378,11 @@ def edit_agenda(request, num=None):
                                           "area_list": area_list,
                                           "wg_list": wg_list ,
                                           "show_inline": set(["txt","htm","html"]) },
-                                         RequestContext(request)), mimetype="text/html")
-
+-                                         RequestContext(request)), mimetype="text/html")
 
 ###########################################################################################################################
+
+
 def iphone_agenda(request, num, name):
     timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
 

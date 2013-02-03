@@ -139,6 +139,10 @@ function handelDrop(event, ui){
     $(d).append(ui.draggable);
 }
 
+function dajaxice_callback(message){
+    //console.log("dajaxice says:"+message);
+}
+
 function id_to_json(id){
     var split = id.split('_');
     
@@ -174,17 +178,21 @@ function droppable(){
 		var temp_id = ui.draggable.attr('id'); // the django
 
 		/* set things to the new values */
-		meeting_objs[temp_id].time = event_json.time;
-		meeting_objs[temp_id].room = event_json.room;
-		meeting_objs[temp_id].date = event_json.date;
+		new_event = meeting_objs[temp_id];
+
+		new_event.time = event_json.time;
+		new_event.room = event_json.room;
+		new_event.date = event_json.date;
+
 		
 		/* create the template */
-		var eTemplate = event_template(meeting_objs[temp_id].title, 
-					       meeting_objs[temp_id].description,
-					       meeting_objs[temp_id].time, 
-					       meeting_objs[temp_id].django_id
+		var eTemplate = event_template(new_event.title, 
+					       new_event.description,
+					       new_event.time, 
+					       new_event.django_id
 					      );
 		
+		Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,{'new_event':new_event});
 		$(this).append(eTemplate); // add the html code to the new slot.
 		ui.draggable.remove(); // remove the old one. 
 		droppable(); // we need to run this again to toggle the new listeners

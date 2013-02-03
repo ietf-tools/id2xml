@@ -1,3 +1,7 @@
+/* logging helper function */
+function log(text){
+    console.log(text);
+}
 
 /* refactor this out into the html */
 $(document).ready(function() {
@@ -5,27 +9,66 @@ $(document).ready(function() {
 
 });
 
-
+/* initStuff() 
+   This is ran at page load and sets up the entire page. 
+*/
 function initStuff(){
     log("initstuff() ran");
     listeners();
     log("listeners() ran");
-//    populate_events("event 2");
-//    CreateCalendar();
-//    test_js();
-    clicker()
     setup_slots();
+    log("setup_slots() ran");
     sort_js();
     log("sort_js() ran");
-
- 
+    load_events();
+    log("load_events() ran");
 }
 
 
+var meeting_objs = [];
 
-/* logging helper function */
-function log(text){
-    console.log(text);
+function print_all(){
+    console.log("all");
+    console.log(meeting_objs.length);
+    for(var i=0; i<meeting_objs.length; i++){
+	meeting_objs[i].print_out();
+    }
+    console.log("done");
+}
+
+
+function event_obj(title,description,room, time,date,django_id){
+    this.title = title;
+    this.description = description;
+    this.room = room;
+    this.time = time;
+    this.date = date;
+    this.django_id = django_id;
+    
+    /* function declerations */
+    this.print_out = function() {
+	console.log("---- Django id:"+this.django_id+" ------------------------------");
+	console.log("title:"+this.title);
+	console.log("description:"+this.description);
+	console.log("room:"+this.room);
+	console.log("time:"+this.time);
+	console.log("date:"+this.date);
+
+    }
+}
+
+
+/* this pushes every event into the calendars */
+function load_events(){
+    for(var i = 0; i<meeting_objs.length; i++){
+	populate_events(meeting_objs[i].title,
+		        meeting_objs[i].description, 
+			meeting_objs[i].room, 
+			meeting_objs[i].time, 
+			meeting_objs[i].date,
+			meeting_objs[i].django_id
+		       );
+    }
 }
 
 
@@ -52,26 +95,22 @@ function listeners(){
 }
 
 function insert_cell(time,date,room,text){
-   
-    slot_id = ("#"+room+"-"+date+"-"+time);
-   
+    slot_id = ("#"+room+"_"+date+"_"+time);
     try{
 	var found = $(slot_id).append(text);
 	if(found.length == 0){
-	    log(slot_id);
-	    log(text)
+	 //   log(slot_id);
+	 //   log(text)
 	}
 
     }
     catch(err){
 	log("error");
 	log(err);
-    }
-
-    
+    } 
 }
-function populate_events(title,description,room, time,date){
-    var eTemplate =     event_template(title, description,time);
+function populate_events(title,description,room, time,date, django_id){
+    var eTemplate =     event_template(title, description,time, django_id);
     var t = title+" "+description;
     var good = insert_cell(time,date, room.split(/[ ]/).join('.'), eTemplate);
     if(good < 1){
@@ -80,62 +119,13 @@ function populate_events(title,description,room, time,date){
 }
 
 
-function insert_cell_old(time,date, room, text){
-    //log()//.find(room))
-//    log("#"+time+" "+room+" "+text);
-//    log(time+" "+room+" "+text+" "+date);
-    if(date == "2012-11-03"){
-	log(time+" "+room+" "+text+" "+date);
-    }
 
-
-    room = "td."+room;
-    time = "#"+time;
-    date = "."+date;
-
-    try{
-	var temp = $(date).find(".cells");
-	temp = $(temp).find(time);
-	temp = temp.find(room);
-	if(temp.length == 0 ){
-	    //log("null");
-	}
-	else{	
-	    temp.append(text);
-	    return 1;
-	
-	}
-    }
-    catch(err){
-	log("err....");
-//	log(room);
-	log(err);
-	return -1;
-    }
-   
-}
-
-
-function clicker(){
-    $("#0800").click(function() {
-	//log($(this).find("td"));
-	//log("#0800");
-    });
-    $(".cells").click(function() {
-//	insert_cell("#0800", "td.Salon.C", "bla");
-	$(this).each(function(){
-//	    log($(this).html());
-	});
-    });
-    
-}
-
-function event_template(event_title, description, time){
+function event_template(event_title, description, time, django_id){
 
     var part1 = "";
     var part2 = "";
     var part3 = "";
-    var part2 = "<table class='meeting_event'><tr><th>"+event_title+"</th></tr><tr><td style='height:10px'> .."+description+" ..</td></tr></table>"
+    var part2 = "<table class='meeting_event' id='"+django_id+"'><tr><th>"+event_title+"</th></tr><tr><td style='height:10px'> .."+description+" ..</td></tr></table>"
     return $(part1+part2+part3);
 }
     
@@ -143,38 +133,10 @@ function event_template(event_title, description, time){
 
 
 
-function test_js(){
-    $(function() {
-        $(".obj").draggable({
-	    revert:true,
-	    snap:true,
-	    snapMode:"both",
-	    distance: 2,
-	    opacity: true,
-	    grid: [128,128],
-
-
-	});
-	$(".timeslot").droppable({
-	    
-	    over: function() {
-		//d = $(this).get(0);
-		d = $(this);
-	    },
-	    drop: handelDrop,
-	   
-	});
-});
-
-
-}
-
 function handelDrop(event, ui){
     log(ui.draggable);
     log(d);
-
     $(d).append(ui.draggable);
-    
 }
 
 function sort_js(){
@@ -202,34 +164,34 @@ function sort_js(){
 	    },
 	    drop : function(event, ui){
 		$(this).css("background","");
-//		log($(this));
 		log("found:");
+		log($(this).attr('id'));
 		log($(this).find(".meeting_event"));
 		$(this).find(".ui-state-default").remove();
 		
-		
-//		$( "<div class='meeting_event'></div>").text(ui.draggable.text() ).appendTo(this);
-//		(ui.draggable.html() ).appendTo(this);
-		log("html>>");
+//		log("html>>");
 
-		log(ui.draggable.html());
+		log(ui.draggable.attr('id'));
 		
 		var table_code = "<table class='meeting_event'>";
 		table_code = table_code+ui.draggable.html()+"</table>";
-		
+	
+/*	
 		log("----------------------");
 		log(table_code);
 		log("----------------------");
+*/
 		$(this).append(table_code);
 		log($(this).html());
 //		log(ui.draggable.html());
 
+/*
 		log($(this).css("height"));
 		var height = $(this).css("height")
 
 		log("to");
 		log(height);
-
+*/
 
 		ui.draggable.remove();
 		sort_js(); // we need to run this again to toggle the new listeners
@@ -244,7 +206,34 @@ function sort_js(){
 
 
 
+function eventClicked(event){
+    log("event clicked");
+    log(event);
 
+    $("#event_StartDate").val(event.start);
+    $("#event_EndDate").val(event.end);
+    $("#event_Title").val(event.title);
+    
+    var all_day = null;
+    
+}
+
+function select_function(start,end,allDay){
+    var name = "select_function:";
+    log(name+"  start:["+start+"] End:["+end+"] allday:["+allDay+"]");
+    $("#event_StartDate").val(start);
+    $("#event_EndDate").val(end);
+    
+}
+
+
+var cal_events = [ ];
+
+
+
+	
+
+/*
 function add_event(){
     var startdate = $("#event_StartDate").val();
     var enddate = $("#event_EndDate").val();
@@ -280,31 +269,51 @@ function add_event(){
     }
     
 }
+*/
 
-function eventClicked(event){
-    log("event clicked");
-    log(event);
 
-    $("#event_StartDate").val(event.start);
-    $("#event_EndDate").val(event.end);
-    $("#event_Title").val(event.title);
-    
-    var all_day = null;
-    
-}
-
-function select_function(start,end,allDay){
-    var name = "select_function:";
-    log(name+"  start:["+start+"] End:["+end+"] allday:["+allDay+"]");
-    $("#event_StartDate").val(start);
-    $("#event_EndDate").val(end);
+/*
+function clicker(){
+    $("#0800").click(function() {
+	//log($(this).find("td"));
+	//log("#0800");
+    });
+    $(".cells").click(function() {
+//	insert_cell("#0800", "td.Salon.C", "bla");
+	$(this).each(function(){
+//	    log($(this).html());
+	});
+    });
     
 }
-
-
-var cal_events = [ ];
-
-
+*/
 
 	
-	
+
+/*
+function test_js(){
+    $(function() {
+        $(".obj").draggable({
+	    revert:true,
+	    snap:true,
+	    snapMode:"both",
+	    distance: 2,
+	    opacity: true,
+	    grid: [128,128],
+
+
+	});
+	$(".timeslot").droppable({
+	    
+	    over: function() {
+		//d = $(this).get(0);
+		d = $(this);
+	    },
+	    drop: handelDrop,
+	   
+	});
+});
+
+
+}
+*/

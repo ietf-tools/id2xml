@@ -219,9 +219,6 @@ def html_agenda(request, num=None):
 
     wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
     
-    
-    ################## just some debugging stuff ############
-    print "timeslots:"
     time_slices = []
     date_slices = {}
     for t in timeslots:
@@ -289,20 +286,11 @@ def edit_agenda(request, num=None):
 
     wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
     
-    
-    ################## just some debugging stuff ############
-    print "timeslots:"
     time_slices = []
     date_slices = []
     for t in timeslots:
+#        print t.id, t.pk
         if(t.session != None):# and len(t.session.agenda_note)>1):
-
-#            if t.meeting.number != None:
-#                print t.name," ", t.meeting.number
-#            else:
-#                print t.name
-#            print "\t",t.location
-#            print "\t",t.time.strftime("%H%M"), type(t.time)
             if t.time.strftime("%H%M") not in time_slices:
                 time_slices.append(t.time.strftime("%H%M"))
             else:
@@ -317,21 +305,12 @@ def edit_agenda(request, num=None):
                     print "t.session.group.name\t",t.session.group.name
                     print "t.session.group.acronym\t",t.session.group.acronym
 
-#            print t.time
-#            print "\t",t.duration
-#            print "\t",t.session.group.name
-#            print "\t",t.session.group.acronym
     ########################################################
     from ietf.meeting.models import Room
     rooms = Room.objects.filter(meeting__number=num)
     time_slices.append("0830")
             
-    #time_slices = ["0800","0830","0900","0930", "1000","1030","1100","1120","1200","1230","1300","1330","1400","1430", "1500","1600","1700","1800","1900"]
-
-#    print "area_list", area_list
-    
     time_slices.sort()
-    print len(timeslots)
     return HttpResponse(render_to_string("meeting/edit_agenda.html",
         {"timeslots":timeslots,"rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list ,

@@ -890,14 +890,14 @@ class Draft():
 		'informative': 'info',
 		'informational': 'info',
 		'non-normative': 'info',
-		'': 'old'
+		None: 'old'
 		}
 	# Bill's horrible "references section" regexps, built up over lots of years
 	# of fine tuning for different formats.
 	# Examples:
 	# Appendix A. References:
 	# A.1. Informative References:
-	sectionre = re.compile( r'(?i)(?:Appendix\s+)?(?:(?:[A-Z]\.)?[0-9.]*\s+)?(?:(\S+)\s*)references:?$' )
+	sectionre = re.compile( r'(?i)(?:Appendix\s+)?(?:(?:[A-Z]\.)?[0-9.]*\s+)?(?:(\S+)\s*)?references:?$' )
 	# 9.1 Normative
 	sectionre2 = re.compile( r'(?i)(?:(?:[A-Z]\.)?[0-9.]*\s+)?(\S+ormative)$' )
 	# One other reference section type seen:
@@ -912,7 +912,10 @@ class Draft():
 	    line = self.lines[ i ].strip()
 	    m = re.match( sectionre, line )
 	    if m:
-		refType = typemap.get( m.group( 1 ).lower(), 'unk' )
+		match = m.group( 1 )
+		if match is not None:
+		    match = match.lower()
+		refType = typemap.get( match, 'unk' )
 		continue
 	    m = re.match( sectionre2, line )
 	    if m:

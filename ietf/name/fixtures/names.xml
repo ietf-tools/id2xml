@@ -69,27 +69,51 @@
     </object>
     <object pk="obs" model="name.docrelationshipname">
         <field type="CharField" name="name">Obsoletes</field>
-        <field type="TextField" name="desc"></field>
+        <field type="TextField" name="desc">Obsoletes</field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
     </object>
     <object pk="updates" model="name.docrelationshipname">
         <field type="CharField" name="name">Updates</field>
-        <field type="TextField" name="desc"></field>
+        <field type="TextField" name="desc">Updates</field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
     </object>
     <object pk="replaces" model="name.docrelationshipname">
         <field type="CharField" name="name">Replaces</field>
-        <field type="TextField" name="desc"></field>
+        <field type="TextField" name="desc">Replaces</field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
     </object>
     <object pk="conflrev" model="name.docrelationshipname">
         <field type="CharField" name="name">conflict reviews</field>
-        <field type="TextField" name="desc"></field>
+        <field type="TextField" name="desc">Conflict Reviews</field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
+    </object>
+    <object pk="refnorm" model="name.docrelationshipname">
+        <field type="CharField" name="name">Normative Reference</field>
+        <field type="TextField" name="desc">Normative Reference</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">1</field>
+    </object>
+    <object pk="refinfo" model="name.docrelationshipname">
+        <field type="CharField" name="name">Informative Reference</field>
+        <field type="TextField" name="desc">Informative Reference</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">2</field>
+    </object>
+    <object pk="refold" model="name.docrelationshipname">
+        <field type="CharField" name="name">Reference</field>
+	<field type="TextField" name="desc">A reference found in a document which does not have split normative/informative reference sections.</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">3</field>
+    </object>
+    <object pk="refunk" model="name.docrelationshipname">
+        <field type="CharField" name="name">Possible Reference</field>
+        <field type="TextField" name="desc">Reference of unknown type, likely found in the text of the document.</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">4</field>
     </object>
     <object pk="stream-s" model="name.docremindertypename">
         <field type="CharField" name="name">Stream state should change</field>

@@ -883,6 +883,64 @@ class Draft():
 
     # ------------------------------------------------------------------
     def get_refs(self):
+	refType = 'unk'
+	refs = {}
+	typemap = {
+		'normative': 'norm',
+		'informative': 'info',
+		'informational': 'info',
+		'non-normative': 'info',
+		'': 'old'
+		}
+	# Bill's horrible "references section" regexps, built up over lots of years
+	# of fine tuning for different formats.
+	# Examples:
+	# Appendix A. References:
+	# A.1. Informative References:
+	sectionre = re.compile( r'(?i)(?:Appendix\s+)?(?:(?:[A-Z]\.)?[0-9.]*\s+)?(?:(\S+)\s*)references:?$' )
+	# 9.1 Normative
+	sectionre2 = re.compile( r'(?i)(?:(?:[A-Z]\.)?[0-9.]*\s+)?(\S+ormative)$' )
+	# One other reference section type seen:
+	sectionre3 = re.compile( r'(?i)References \((\S+ormative)\)$' )
+	# An Internet-Draft reference.
+	idref = re.compile( r'(?i)\b(draft-(?:[-\w]+(?=-\d\d)|[-\w]+))(-\d\d)?\b' )
+	# An RFC-and-other-series reference.
+	rfcref = re.compile( r'(?i)\b(rfc|std|bcp|fyi)[- ]?(\d+)\b' )
+	# An Internet-Draft or RFC reference hyphenated by a well-meaning line break.
+	eol = re.compile( r'(?i)\b(draft[-\w]*-|rfc)$' )
+	for i in range( 15, len( self.lines ) ):
+	    line = self.lines[ i ].strip()
+	    m = re.match( sectionre, line )
+	    if m:
+		refType = typemap.get( m.group( 1 ).lower(), 'unk' )
+		continue
+	    m = re.match( sectionre2, line )
+	    if m:
+		refType = typemap.get( m.group( 1 ).lower(), 'unk' )
+		continue
+	    m = re.match( sectionre3, line )
+	    if m:
+		refType = typemap.get( m.group( 1 ).lower(), 'unk' )
+		continue
+	    # If something got split badly, rejoin it.
+	    if re.search( eol, line ):
+		line += self.lines[ i + 1 ].lstrip()
+	    m = re.search( idref, line )
+	    if m:
+		draft = m.group( 1 )
+		refs[ draft ] = refType
+		continue
+	    m = re.search( rfcref, line )
+	    if m:
+		( series, number ) = m.groups()
+		name = series.lower() + number.lstrip( '0' )
+		refs[ name ] = refType
+		continue
+	return refs
+
+
+
+    def old_get_refs( self ):
         refs = []
         normrefs = []
         rfcrefs = []

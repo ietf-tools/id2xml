@@ -1,6 +1,8 @@
 from django.db.models import Q
 
+from django import forms
 from ietf.doc.models import Document
+from ietf.doc.models import DocAlias
 from ietf.group.models import Group
 from ietf.person.models import Person
 from ietf.doc.models import State
@@ -26,6 +28,8 @@ class RuleManager(object):
     def show_value(self):
         return self.value
 
+    def check_value(self):
+        return None
 
 class WgAsociatedRule(RuleManager):
     codename = 'wg_asociated'
@@ -93,31 +97,73 @@ class ShepherdRule(RuleManager):
     def get_documents(self):
         return Document.objects.filter(type='draft', states__slug='active').filter(shepherd__name__icontains=self.value).distinct()
 
+class ReferenceToIdRule(RuleManager):
+    codename = 'reference_to_id'
+    description = 'All I-Ds that have a reference to a particular I-D'
 
-# class ReferenceToRFCRule(RuleManager):
-#     codename = 'reference_to_rfc'
-#     description = 'All I-Ds that have a reference to a particular RFC'
-# 
-#     def get_documents(self):
-#         return Document.objects.filter(type='draft', states__slug='active').filter(relateddocument__target__document__states__slug='rfc', relateddocument__target__name__icontains=self.value).distinct()
-# 
-# 
-# class ReferenceToIDRule(RuleManager):
-#     codename = 'reference_to_id'
-#     description = 'All I-Ds that have a reference to a particular I-D'
-# 
-#     def get_documents(self):
-#         return Document.objects.filter(type='draft', states__slug='active').filter(relateddocument__target__document__type='draft', relateddocument__target__name__icontains=self.value).distinct()
-# 
-# 
+    def get_documents(self):
+       return Document.objects.filter(type='draft', states__slug='active').filter(relateddocument__target__name__icontains=self.value).distinct()
+
+    def check_value(self):
+        value = self.value.lower().strip()
+        value = value.split('.')[0]
+        value = value.split('-')
+        if value[-1].isdigit():
+            value = value[:-1]
+        value = '-'.join(value)
+        if DocAlias.objects.filter(name=value):
+            self.value = value
+            return
+        raise forms.ValidationError("Incorrrect draft name - " + value)
+
+
+class ReferenceToRFCRule(RuleManager):
+    codename = 'reference_to_rfc'
+    description = 'All I-Ds that have a reference to a particular RFC'
+
+    def get_documents(self):
+        return Document.objects.filter(type='draft', states__slug='active').filter(relateddocument__target__name__icontains=self.value).distinct()
+
+    def show_value(self):
+        return self.value
+
+    def check_value(self):
+        value = self.value.lower().strip()
+        value = value.strip('rfc')
+        if not value.isdigit():
+            raise forms.ValidationError("Incorrrect RFC number - " + 'rfc' + value)
+        value = value.lstrip('0')
+        value = 'rfc' + value
+        if DocAlias.objects.filter(name=value):
+            self.value = value
+            return
+        raise forms.ValidationError("Incorrrect RFC number - " + value)
+
+class RfcReferenceToRFCRule(RuleManager):
+    codename = 'rfc_reference_to_rfc'
+    description = 'All RFCs that reference an RFC'
+
+    def get_documents(self):
+        return Document.objects.filter(type='draft', states__slug='rfc').filter(relateddocument__target__name__icontains=self.value).distinct()
+
+    def check_value(self):
+        value = self.value.lower().strip()
+        value = value.strip('rfc')
+        if not value.isdigit():
+            raise forms.ValidationError("Incorrrect RFC number - " + 'rfc' + value)
+        value = value.lstrip('0')
+        value = 'rfc' + value
+        if DocAlias.objects.filter(name=value):
+            self.value = value
+            return
+        raise forms.ValidationError("Incorrrect RFC number - " + value)
+
 # class ReferenceFromRFCRule(RuleManager):
 #     codename = 'reference_from_rfc'
 #     description = 'All I-Ds that are referenced by a particular RFC'
 # 
 #     def get_documents(self):
 #         return Document.objects.filter(type='draft', states__slug='active').filter(relateddocument__source__states__slug='rfc', relateddocument__source__name__icontains=self.value).distinct()
-# 
-# 
 # 
 # class ReferenceFromIDRule(RuleManager):
 #     codename = 'reference_from_id'

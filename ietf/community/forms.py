@@ -32,6 +32,18 @@ class RuleForm(forms.ModelForm):
                 result.append({'type': i.codename,
                                'options': options})
         return result
+
+    def clean(self):
+        cleaned_data = super(RuleForm, self).clean()
+        rule_type = cleaned_data.get('rule_type')
+        for i in RuleManager.__subclasses__():
+            if i.codename == rule_type:
+                v = i(cleaned_data.get('value'))
+                v.check_value()
+                cleaned_data['value'] = v.value
+                break
+        return cleaned_data
+
         
 
 class DisplayForm(forms.ModelForm):

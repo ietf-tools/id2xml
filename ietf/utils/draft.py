@@ -926,7 +926,7 @@ class Draft():
 		refType = typemap.get( m.group( 1 ).lower(), 'unk' )
 		continue
 	    # If something got split badly, rejoin it.
-	    if re.search( eol, line ):
+	    if re.search( eol, line ) and i < len( self.lines ) - 1:
 		line += self.lines[ i + 1 ].lstrip()
 	    m = re.search( idref, line )
 	    if m:
@@ -939,6 +939,11 @@ class Draft():
 		name = series.lower() + number.lstrip( '0' )
 		refs[ name ] = refType
 		continue
+	# References to BCP78 and BCP79 in boilerplate will appear as "unk".
+	# Remove them.
+	for boilerplate in ( 'bcp78', 'bcp79' ):
+	    if refs.get( boilerplate ) == 'unk':
+		del refs[ boilerplate ]
 	return refs
 
 

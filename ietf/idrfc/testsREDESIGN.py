@@ -1426,21 +1426,22 @@ class IndividualInfoFormsTestCase(django.test.TestCase):
         r = self.client.get(url)
         self.assertEquals(r.status_code,200)
         q = PyQuery(r.content)
-        self.assertEquals(len(q('form textarea[id=id_content')),1)
+        self.assertEquals(len(q('form textarea[id=id_content]')),1)
 
         # direct edit
-        r = self.client.post(url,dict(content='here is a new writeup'))
+        r = self.client.post(url,dict(content='here is a new writeup',submit_response="1"))
+        print r.content
         self.assertEquals(r.status_code,302)
         self.doc = Document.objects.get(name=self.docname)
-        self.assertTrue(self.doc.latest_event(WriteupDocEvent,type="changed_protocol_writeup").texrt.startswith('here is a new writeup'))
+        self.assertTrue(self.doc.latest_event(WriteupDocEvent,type="changed_protocol_writeup").text.startswith('here is a new writeup'))
 
         # file upload
-        test_file = StringIO("This is a different writeup.")
+        test_file = StringIO.StringIO("This is a different writeup.")
         test_file.name = "unnamed"
         r = self.client.post(url,dict(txt=test_file,submit_response="1"))
         self.assertEquals(r.status_code, 302)
         doc = Document.objects.get(name=self.docname)
-        self.assertTrue(self.doc.latest_event(WriteupDocEvent,type="changed_protocol_writeup").texrt.startswith('This is a different writeup.'))
+        self.assertTrue(self.doc.latest_event(WriteupDocEvent,type="changed_protocol_writeup").text.startswith('This is a different writeup.'))
 
         # template reset
         r = self.client.post(url,dict(txt=test_file,reset_text="1"))

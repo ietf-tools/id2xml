@@ -156,7 +156,7 @@ class ManageWorkflowTestCase(django.test.TestCase):
         r = self.client.get(url)
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEquals(len(q("form.set-state").find("input[name=state][value='%s']" % state.pk).parents("form").find("input[name=active][value=0]")), 1)
+        self.assertEquals(len(q("form.set-state").find("input[name=state][value='%s']" % state.pk).parents("form").find("input[name=active][value='0']")), 1)
 
         # deactivate state
         r = self.client.post(url,
@@ -165,7 +165,7 @@ class ManageWorkflowTestCase(django.test.TestCase):
                                   active="0"))
         self.assertEquals(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEquals(len(q("form.set-state").find("input[name=state][value='%s']" % state.pk).parents("form").find("input[name=active][value=1]")), 1)
+        self.assertEquals(len(q("form.set-state").find("input[name=state][value='%s']" % state.pk).parents("form").find("input[name=active][value='1']")), 1)
         group = Group.objects.get(acronym=group.acronym)
         self.assertTrue(state in group.unused_states.all())
 

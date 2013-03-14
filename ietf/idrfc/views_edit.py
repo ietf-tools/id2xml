@@ -955,8 +955,8 @@ def edit_shepherd(request, name):
         if doc.shepherd:
             e = doc.shepherd.email_set.order_by("-active", "-time")
             if e:
-                current_shepherd=e[0]
-        init = { "shepherd": current_shepherd.pk}
+                current_shepherd=e[0].pk
+        init = { "shepherd": current_shepherd}
         form = ShepherdForm(initial=init)
 
     return render_to_response('idrfc/change_shepherd.html',

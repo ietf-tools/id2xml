@@ -108,7 +108,7 @@ def get_from_choices(user):
         f = (FROM_LIST[15],)
     elif Role.objects.filter(person=person,
                              group__acronym='iab',
-                             name='execdir':
+                             name='execdir'):
         f = (FROM_LIST[6],)
     return zip(f,f)
     

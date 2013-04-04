@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load ietf_filters %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% load humanize %}
+
+{% load dajaxice_templatetags %}
+
+{% block morecss %}
+{% for area in area_list %}
+.{{ area.upcase_acronym}}-scheme, .meeting_event th.{{ area.upcase_acronym}}-scheme, #{{ area.upcase_acronym }}-groups, #selector-{{ area.upcase_acronym }} { color:{{ area.fg_color }}; background-color: {{ area.bg_color }} }
+{% endfor %}
+{% endblock morecss %}
+
+{% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
+{% load agenda_custom_tags %}
+{% block pagehead %}
+<link rel='stylesheet' type='text/css' href='/css/ietf.css' />
+
+<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery-ui.custom.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.widget.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.droppable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
+{% dajaxice_js_import %}
+
+<script type='text/javascript' src='/js/agenda_edit.js'></script>
+<script type='text/javascript' src='/js/agenda_helpers.js'></script>
+<script type='text/javascript' src='/js/agenda_objects.js'></script>
+
+<script type='text/javascript' src='/js/agenda_listeners.js'></script>
+
+
+<script type='text/javascript'>
+
+{% comment %}
+function my_js_callback(data){
+    alert(data.message);
+}<!-- dajaxice example --> {% endcomment %}
+
+
+var meeting_base_url = "{{ meeting_base_url }}";
+var site_base_url = "{{ site_base_url }}";
+
+function setup_slots(){
+{% for day in time_slices %}
+    days.push("{{day}}");
+{% endfor %}
+
+{% for s in sessions %}
+    meeting_objs["{{s.id}}"]=event_obj( "{{ s.short_name }}",
+                               "{{ s.group.name }}",
+                               "{{s.id}}", 
+                               "{{s.owner.owner}}",
+                               "{{s.group.id}}",
+                               "{{s.group.parent.acronym|upper}}");
+{% endfor %}
+
+{% for s in scheduledsessions %}
+    var s_obj= new slot_obj("{{s.id}}",
+                            "{{s.empty_str}}",
+			    "{{s.timeslot.id}}",
+			    "{{s.session.id}}",
+			    "{{s.timeslot.location|slugify}}",
+			    "{{s.timeslot.time|date:'Hi' }}",
+			    "{{s.timeslot.time|date:'Y-m-d'}}",
+			    "{{s.timeslot.js_identifier}}");
+    if(slot_status["{{s.timeslot.js_identifier}}"] != null){ // the key so two sessions in the same timeslot
+
+    }
+    else{ // doesn't exist so we create it.
+	$.extend(slot_status, { "{{s.timeslot.js_identifier}}":[]});
+    }
+    slot_status["{{s.timeslot.js_identifier}}"].push(s_obj);
+{% endfor %}
+
+   var s_obj= slot_obj("0",true,"Unassigned",null,"Unassigned",null,null,"sortable-list");
+   $.extend(slot_status, { "sortable-list" :[]});
+   slot_status["sortable-list"].push(s_obj);
+   console.log("setup_slots run");
+
+   calculate_room_select_box();
+
+   console.log("{{timeslots|length}}");
+
+{% for area in area_list %}
+   legend_status["{{area.upcase_acronym}}"] = true;
+{% endfor %}
+
+}
+
+
+
+
+
+</script>
+<style type='text/css'>
+
+</style>
+{% endblock pagehead %}
+
+
+{% block noTable %}
+</tr></table></div>
+<div class="wrapper">
+<div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
+<
+
+</div>
+
+<div id="sortable-list" class="ui-droppable bucket-list room_title">
+	<div class="agenda_slot_title" ><b>Unassigned Events:</b></div>
+</div>
+
+
+<div class="agenda_div">
+
+<table id="meetings" class="ietf-navbar" style="width:100%">
+  <th class="schedule_title">name: {{schedule.name}}</th>
+{% for day in time_slices %} 
+  <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class="agenda_slot_title">{{day|date:'D'}}&nbsp;({{day}})  </th>
+{% endfor %}
+    <tr>
+      <th><div id="spinner"><!-- spinney goes here --></div></th>
+    {% for day in time_slices %}
+	  {% for slot in date_slices|lookup:day %}
+	      <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+	  {% endfor %}
+
+    {% endfor %}
+
+
+
+
+
+  {% for r in rooms %} 
+  <tr id="{{r|nospace}}" class="agenda_slot"> 
+    <th class="vert_time">{{r}}</th>
+    {% for day in time_slices %}
+      {% for slot in date_slices|lookup:day %}
+        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'alt' '' %}" ></td>
+      {% endfor %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+ 
+
+
+</div>
+
+
+<div id="session-info" class="ui-droppable bucket-list room_title">
+  <div class="agenda_slot_title"><b>Session Information:</b></div>
+  <div class="ss_info_box">
+    <div class="ss_info ss_info_left">
+      <table>
+	<tr><td class="ss_info_name_short">Group:</td><td id="info_grp"></td></tr>
+	<tr><td class="ss_info_name_short">Name:</td><td id="info_name"></td></tr>
+	<tr><td class="ss_info_name_short">Area:</td><td id="info_area"></td></tr>
+      </table>
+    </div>
+    <div class="ss_info ss_info_right">
+      <table>
+	<tr><td class="ss_info_name_long">Duration:</td><td id="info_duration"></td></tr>
+	<tr><td class="ss_info_name_long">Location:</td><td id="info_location"></td></tr>
+	<tr><td class="ss_info_name_long">Responsible AD:</td><td id="info_responsible"></td></tr>
+	<tr><td class="ss_info_name_long">Requested By:</td><td id="info_requestedby"></td></tr>
+      </table>
+    </div>
+    
+    <div id="conflict_table">
+      <table>
+	<tr>
+	  <th class="heading" colspan=2>conflict 1</th>
+	  <th class="border"></th>
+	  <th class="heading" colspan=2>conflict 2</th>
+	  <th class="border"></th>
+	  <th class="heading" colspan=2>conflict 3</th>
+	</tr>
+	<tbody id="conflict_table_body">
+	  <tr id="row01">
+	    <td class="conflict1"></td>
+	    <td class="conflict1"></td>
+	    <td class="border"></td>
+	    <td class="conflict2"></td>
+	    <td class="conflict2"></td>
+	    <td class="border"></td>
+	    <td class="conflict3"></td>
+	    <td class="conflict3"></td>
+	  </tr>
+	  <tr id="row02">
+	    <td class="conflict1"></td>
+	    <td class="conflict1"></td>
+	    <td class="border"></td>
+	    <td class="conflict2"></td>
+	    <td class="conflict2"></td>
+	    <td class="border"></td>
+	    <td class="conflict3"></td>
+	    <td class="conflict3 empty"></td>
+	  </tr>
+	  <tr id="row03">
+	    <td class="conflict1 empty"></td>
+	    <td class="conflict1 empty"></td>
+	    <td class="border"></td>
+	    <td class="conflict2 empty"></td>
+	    <td class="conflict2 empty"></td>
+	    <td class="border"></td>
+	    <td class="conflict3 empty"></td>
+	    <td class="conflict3 empty"></td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
+    <div class="color_legend">
+      {% for area in area_list %}
+      <span class="{{area.upcase_acronym}}-scheme"><input class='color_checkboxes' type="checkbox" id="{{area.upcase_acronym}}" value="{{area.upcase_acronym}}-value" checked>{{area.upcase_acronym}}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="agenda_save_box">
+    <div id="agenda_title"><b>Agenda name: </b><span>{{schedule.name}}</span></div>
+    <div id="agenda_saveas">
+      <form action="{{saveasurl}}" method="post">{% csrf_token %}
+        {{ saveas.as_p }}
+        <input type="submit" name="saveas" value="saveas">
+      </form>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+
+
+
+
+{% endblock %}
+

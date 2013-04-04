@@ -13,6 +13,9 @@ except ImportError:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# a place to put logs if necessary.
+LOG_DIR  = '/var/log/dataracker'
+
 import sys
 sys.path.append(os.path.abspath(BASE_DIR + "/.."))
 sys.path.append(os.path.abspath(BASE_DIR + "/../redesign"))
@@ -86,8 +89,8 @@ MEDIA_URL = ''
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
-#DAJAXICE_MEDIA_PREFIX="dajaxice"
-DAJAXICE_MEDIA_PREFIX=""
+DAJAXICE_MEDIA_PREFIX="dajaxice"
+
 
 AUTH_PROFILE_MODULE = 'person.Person'
 AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.RemoteUserBackend', )
@@ -100,6 +103,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -188,6 +192,7 @@ INSTALLED_APPS = (
     'ietf.secr.rolodex',
     'ietf.secr.telechat',
     'ietf.secr.sreq',
+    'dajaxice',
 )
 
 INTERNAL_IPS = (

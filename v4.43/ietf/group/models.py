@@ -3,6 +3,7 @@
 from django.db import models
 from ietf.name.models import *
 from ietf.person.models import Email, Person
+from ietf.group.colors import fg_group_colors, bg_group_colors
 
 import datetime
 
@@ -42,7 +43,7 @@ class Group(GroupInfo):
 
     acronym = models.SlugField(max_length=40, unique=True, db_index=True)
     charter = models.OneToOneField('doc.Document', related_name='chartered_group', blank=True, null=True)
-    
+
     def latest_event(self, *args, **filter_args):
         """Get latest event of optional Python type and with filter
         arguments, e.g. g.latest_event(type="xyz") returns a GroupEvent
@@ -51,6 +52,38 @@ class Group(GroupInfo):
         model = args[0] if args else GroupEvent
         e = model.objects.filter(group=self).filter(**filter_args).order_by('-time', '-id')[:1]
         return e[0] if e else None
+
+    # these are copied to Group because it is still proxied.
+    @property
+    def upcase_acronym(self):
+        return self.acronym.upper()
+
+    @property
+    def fg_color(self):
+        return fg_group_colors[self.upcase_acronym]
+
+    @property
+    def bg_color(self):
+        return bg_group_colors[self.upcase_acronym]
+
+    def url(self, sitefqdn):
+        return "%s/group/%s.json" % (sitefqdn, self.acronym)
+
+    def json_dict(self, sitefqdn):
+        group1= dict()
+        group1['href'] = self.url(sitefqdn)
+        group1['acronym'] = self.acronym
+        group1['name']    = self.name
+        group1['state']   = self.state.slug
+        group1['type']    = self.type.slug
+        group1['parent']  = self.parent.url(sitefqdn)
+        if self.ad is not None:
+            group1['ad']      = self.ad.url(sitefqdn)
+        group1['list_email'] = self.list_email
+        group1['list_subscribe'] = self.list_subscribe
+        group1['list_archive'] = self.list_archive
+        group1['comments']     = self.comments
+        return group1
 
 class GroupHistory(GroupInfo):
     group = models.ForeignKey(Group, related_name='history_set')

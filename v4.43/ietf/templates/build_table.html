@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<title></title>
+
+<style>
+    .items
+{
+font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+width:100%;
+border-collapse:collapse;
+}
+.items td, .items th 
+{
+    width:100px;
+font-size:0.8em;
+border:1px solid white;
+padding:3px 7px 2px 7px;
+}
+.items th 
+{
+font-size:0.8em;
+text-align:left;
+padding-top:5px;
+padding-bottom:4px;
+
+    background-color:#282828;
+color:#ffffff;
+}
+.items tr.alt td 
+{
+color:#000000;
+
+    background-color:#B8B8B8; 
+}
+</style>
+
+<script>
+
+$(document).ready(function() {
+
+    var p = $.getJSON('http://localhost:8000/meeting/85/agenda/edit/rooms',function(data){
+	var dJson = jQuery.parseJSON(data);
+	console.log(dJson);
+	var sorted_keys = [];
+	$.each(dJson, function(k,v){
+	    sorted_keys.push(k);
+	});
+	sorted_keys.sort();
+	console.log(sorted_keys.length);
+	for(i=0;i<sorted_keys.length;i++){
+	    console.log(i);
+	    console.log(dJson[sorted_keys[i]]);
+	    
+	    //build_table(dJson[sorted_keys[i]],sorted_keys[i]);
+	    build_agenda(dJson[sorted_keys[i]],sorted_keys[i]);
+	}
+    });
+    
+});
+
+function generate_titles(obj){
+    var th = "";
+    $.each(obj, function(k,v){
+	th = th+'<th>';
+	th = th+k;
+	th = th+'</th>';
+    });
+    
+
+    return th
+}
+
+/* these are because accessing deep in a nested loop doesn't work
+   I'm sure you can get global but I didn't look it up.
+*/
+var time = null;
+function set_time(inp){
+    time = inp;
+}
+function get_time(){
+    return time
+}
+
+var obj = null;
+function get_obj(){
+    return obj
+}
+
+
+
+
+function build_table(json,title){
+    //obj = jQuery.parseJSON(json)
+    obj = json
+//    console.log(obj)
+    var stuff = [];
+    stuff.push('<b>')
+    stuff.push(title)
+    stuff.push('</b>')
+    stuff.push('<table class="items">')
+    var i = 0;
+    stuff.push(generate_titles(obj[0]));
+    time = obj[0]['time'].split(' ')[0]
+    //console.log(time);
+    $.each(obj, function(){
+	//console.log(i)
+
+	
+	if(i%2 == 0){
+	    stuff.push('<tr>');
+	}
+	else{
+	    stuff.push('<tr class="alt">');
+
+	}
+	$.each(this, function(k,v) {
+//	    console.log(obj[i]['time'])
+	    //console.log(k);
+//	    console.log(get_obj())
+	    t_obj = get_obj();
+	    //console.log(t_obj[i]['time'].split(' ')[0])
+	    try{
+		var temp_time = t_obj[i]['time'].split(' ')[0];
+		if( temp_time != get_time()){
+		    set_time(temp_time);
+		    stuff.push('</tr></table><br>');
+		    stuff.push('<table class="items">');
+		    stuff.push(generate_titles(obj[0]));
+		    if(i%2 == 0){
+			stuff.push('<tr>');
+		    }
+		    else{
+
+			stuff.push('<tr class="alt">');
+		    }
+		    
+		}
+		stuff.push('<td  style="border:1px solid black">')
+		stuff.push(v);
+		stuff.push('</td>');
+	    }
+	    catch(err){
+		console.log(err)
+	    }
+	    
+	    
+	});
+	    stuff.push('</tr>')
+	i++;
+    });
+    //console.log(stuff);
+    stuff.push('</table>')
+//    stuff = stuff.toString();
+    stuff = stuff.join('');
+    //console.log(stuff);
+    $(stuff).appendTo('#agenda');
+}
+
+function get_unique(json,key){
+    var unique = [];
+    for(m=0;m<json.length;m++){
+	var name = json[m][key];
+    	var found = false;
+    	for(c=0;c<unique.length;c++){
+    	    if(unique[c] == name){
+    		found = true;
+    		//break;
+    	    }
+    	}
+    	if(found == false){
+    	    unique.push(name);
+    	}
+
+    }
+    return unique;
+	
+
+}
+
+function build_agenda(json,title){
+    var html = []
+    var rooms = get_unique(json,'room');
+    var times = get_unique(json,'time');
+
+    var new_times = []
+    for(d=0;d<times.length;d++){
+	new_times.push(times[d].split(' ')[1]);
+    }
+    console.log(new_times)
+    times = new_times;
+
+    html.push("<table class='items'><tr>");
+    for(x=0;x<times.length;x++){
+	html.push("<td>"+times[x]+"</td>");
+    }
+    html.push("</tr>");
+    
+    for(x=0;x<times.length;x++){
+	html.push("<tr>");
+	for(y=0;y<rooms.length;y++){
+	    html.push("<td> bla </td>");
+	}
+	html.push("</tr>");
+    }
+    html.push("</table>");
+    $(html).appendTo("#agenda");
+
+}
+
+
+
+//console.log(json);
+
+
+
+</script>
+
+
+
+</head>
+
+<body>
+
+<div id="agenda">
+
+</div>
+
+
+
+
+
+
+</body> </html>

@@ -19,8 +19,13 @@ from ietf.announcements.sitemaps import NOMCOMAnnouncementsMap
 from django.conf import settings
 
 admin.autodiscover()
-admin.site.disable_action('delete_selected')
 
+# sometimes, this code gets called more than once, which is an
+# that seems impossible to work around.
+try:
+    admin.site.disable_action('delete_selected')
+except KeyError:
+    pass
 
 from dajaxice.core import dajaxice_autodiscover
 dajaxice_autodiscover()
@@ -64,6 +69,7 @@ urlpatterns = patterns('',
     (r'^liaison/', include('ietf.liaisons.urls')),
     (r'^list/', include('ietf.mailinglists.urls')),
     (r'^meeting/', include('ietf.meeting.urls')),
+    (r'^group/', include('ietf.group.urls')),
     (r'^person/', include('ietf.person.urls')),
     (r'^release/$', 'ietf.release.views.release'),
     (r'^release/(?P<version>.+)/$', 'ietf.release.views.release'),

@@ -107,8 +107,20 @@ def agenda_html_request(request,num=None, schedule_name=None):
         # GET and HEAD.
         return html_agenda(request, num, schedule_name)
 
-@decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None, schedule_name=None):
+def get_agenda_info(request, num=None, schedule_name=None):
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+    modified = get_modified_from_scheduledsessions(scheduledsessions)
+
+    area_list = get_areas()
+    wg_list = get_wg_list(scheduledsessions)
+    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, False)
+    rooms = meeting.room_set
+
+    return scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms
+
+def mobile_user_agent_detect():
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -117,21 +129,14 @@ def html_agenda(request, num=None, schedule_name=None):
         user_agent = request.META["HTTP_USER_AGENT"]
     else:
         user_agent = ""
+
+@decorator_from_middleware(GZipMiddleware)
+def html_agenda(request, num=None, schedule_name=None):
+    user_agent = mobile_user_agent_detect()
     if "iPhone" in user_agent:
         return iphone_agenda(request, num, schedule_name)
 
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
-
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
-
-    area_list = get_areas()
-    wg_list = get_wg_list(scheduledsessions)
-
-    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, False)
-
-    rooms = meeting.room_set
+    scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
 
     return HttpResponse(render_to_string("meeting/agenda.html",
         {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
@@ -141,6 +146,22 @@ def html_agenda(request, num=None, schedule_name=None):
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
 
+@decorator_from_middleware(GZipMiddleware)
+def html_agenda_utc(request, num=None, schedule_name=None):
+
+    user_agent = mobile_user_agent_detect()
+    if "iPhone" in user_agent:
+        return iphone_agenda(request, num)
+
+    scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
+
+    return HttpResponse(render_to_string("meeting/agenda_utc.html",
+        {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+         "area_list": area_list, "wg_list": wg_list,
+         "fg_group_colors": fg_group_colors,
+         "bg_group_colors": bg_group_colors,
+         "show_inline": set(["txt","htm","html"]) },
+        RequestContext(request)), mimetype="text/html")
 
 class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)

@@ -39,7 +39,7 @@ active_ballot_positions: takes one argument, doc.  returns a dictionary with a k
 NOTE: this function has been deprecated as of Datatracker 4.34.  Should now use methods on the Document.
 For example: doc.active_ballot().active_ad_positions()
 
-_agenda_data: takes a request object and a date string 
+_agenda_data: takes a request object and a date string in the format YYYY-MM-DD.
     - 2012-07-28 this function was changed to return Document objects instead
       of old InternetDraft wrappers
 '''
@@ -50,14 +50,14 @@ _agenda_data: takes a request object and a date string
 def get_doc_list(agenda):
     '''
     This function takes an agenda dictionary and returns a list of
-    Document names in the order they appear in the agenda sections 1-3.
+    Document objects in the order they appear in the agenda sections 1-3.
     '''
     docs = []
     for key in sorted(agenda['docs']):
         docs.extend(agenda['docs'][key])
     
-    return [x['obj'].name for x in docs]
-
+    return [x['obj'] for x in docs]
+    
 def get_doc_writeup(doc):
     '''
     This function takes a Document object and returns the ballot writeup for display
@@ -191,10 +191,6 @@ def doc_detail(request, date, name):
         
     started_process = doc.latest_event(type="started_iesg_process")
     login = request.user.get_profile()
-
-    # is it necessary to check iesg_state?
-    #if not doc.get_state(state_type='draft-iesg') or not started_process:
-    #    raise Http404()
     
     if doc.active_ballot():
         ballots = doc.active_ballot().active_ad_positions()  # returns dict of ad:ballotpositiondocevent
@@ -226,9 +222,9 @@ def doc_detail(request, date, name):
     # nav button logic
     doc_list = get_doc_list(agenda)
     nav_start = nav_end = False
-    if name == doc_list[0]:
+    if doc == doc_list[0]:
         nav_start = True
-    if name == doc_list[-1]:
+    if doc == doc_list[-1]:
         nav_end = True
     
     if request.method == 'POST':
@@ -306,10 +302,17 @@ def doc_detail(request, date, name):
     else:
         formset = BallotFormset(initial=initial_ballot)
         state_form = ChangeStateForm(initial=initial_state)
+        
+        # if this is a conflict review document add referenced document
+        if doc.type_id == 'conflrev':
+            conflictdoc = doc.relateddocument_set.get(relationship__slug='conflrev').target.document 
+        else:
+            conflictdoc = None
     
     return render_to_response('telechat/doc.html', {
         'date': date,
         'document': doc,
+        'conflictdoc': conflictdoc,
         'agenda': agenda,
         'formset': formset,
         'header': header,
@@ -329,16 +332,17 @@ def doc_navigate(request, date, name, nav):
     nav  - [next|previous] which direction the user wants to navigate in the list of docs
     The view retrieves the appropriate document and redirects to the doc view.
     '''
+    doc = get_object_or_404(Document, docalias__name=name)
     agenda = _agenda_data(request, date=date)
     target = name
     
-    names = get_doc_list(agenda)
-    index = names.index(name)
+    docs = get_doc_list(agenda)
+    index = docs.index(doc)
     
-    if nav == 'next' and index < len(names) - 1:
-        target = names[index + 1]
+    if nav == 'next' and index < len(docs) - 1:
+        target = docs[index + 1].name
     elif nav == 'previous' and index != 0:
-        target = names[index - 1]
+        target = docs[index - 1].name
     
     url = reverse('telechat_doc_detail', kwargs={'date':date,'name':target})
     return HttpResponseRedirect(url)

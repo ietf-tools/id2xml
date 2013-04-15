@@ -17,6 +17,7 @@
     </h3>
     <br />
     <h3>{{ document.name }}-{{ document.rev }} ({{ document.intended_std_level }})</h3>
+    {% if conflictdoc %}References: <a href="{{ conflictdoc.get_absolute_url }}">{{ conflictdoc }}</a><br />{% endif %}
     <a href="#writeup">Ballot Writeup</a><br />
     Token: {{ document.ad.name }}<br />
     Number of Open Positions: {{ open_positions }}<br />

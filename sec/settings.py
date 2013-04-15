@@ -282,6 +282,22 @@ MAX_UPLOAD_SIZE = 40960000
 PROCEEDINGS_DIR = '/a/www/www6s/proceedings/'
 AGENDA_PATH = '/a/www/www6s/proceedings/'   # for code merge
 
+# Secretariat Tool
+# this is a tuple of regular expressions.  if the incoming URL matches one of
+# these, than non secretariat access is allowed.
+SECR_AUTH_UNRESTRICTED_URLS = (
+    #(r'^/$'),
+    (r'^/secr/announcement/'),
+    (r'^/secr/proceedings/'),
+    (r'^/secr/sreq/'),
+)
+SECR_BLUE_SHEET_PATH = '/a/www/ietf-datatracker/documents/blue_sheet.rtf'
+SECR_BLUE_SHEET_URL = 'https://datatracker.ietf.org/documents/blue_sheet.rtf'
+SECR_INTERIM_LISTING_DIR = '/a/www/www6/meeting/interim'
+SECR_MAX_UPLOAD_SIZE = 40960000
+SECR_PROCEEDINGS_DIR = '/a/www/www6s/proceedings/'
+SECR_STATIC_URL = '/secr-static/'
+
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *

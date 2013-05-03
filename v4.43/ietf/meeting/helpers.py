@@ -11,6 +11,7 @@ from tempfile import mkstemp
 from django import forms
 from django.http import Http404
 from django.db.models import Max, Q
+from django.conf import settings
 
 import debug
 import urllib

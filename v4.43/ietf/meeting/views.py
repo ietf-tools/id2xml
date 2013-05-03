@@ -44,7 +44,7 @@ from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule
 from ietf.meeting.helpers import get_modified_from_scheduledsessions
 from ietf.meeting.helpers import get_wg_list, session_draft_list
-from ietf.meeting.helpers import get_meeting, get_schedule
+from ietf.meeting.helpers import get_meeting, get_schedule, read_agenda_file
 
 @decorator_from_middleware(GZipMiddleware)
 def show_html_materials(request, meeting_num=None, schedule_name=None):
@@ -120,7 +120,7 @@ def get_agenda_info(request, num=None, schedule_name=None):
 
     return scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms
 
-def mobile_user_agent_detect():
+def mobile_user_agent_detect(request):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -129,10 +129,11 @@ def mobile_user_agent_detect():
         user_agent = request.META["HTTP_USER_AGENT"]
     else:
         user_agent = ""
+    return user_agent
 
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda(request, num=None, schedule_name=None):
-    user_agent = mobile_user_agent_detect()
+    user_agent = mobile_user_agent_detect(request)
     if "iPhone" in user_agent:
         return iphone_agenda(request, num, schedule_name)
 
@@ -149,7 +150,7 @@ def html_agenda(request, num=None, schedule_name=None):
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda_utc(request, num=None, schedule_name=None):
 
-    user_agent = mobile_user_agent_detect()
+    user_agent = mobile_user_agent_detect(request)
     if "iPhone" in user_agent:
         return iphone_agenda(request, num)
 
@@ -276,7 +277,8 @@ def iphone_agenda(request, num, name):
 
     groups_meeting = set();
     for ss in scheduledsessions:
-        groups_meeting.add(ss.session.group.acronym)
+        if ss.session is not None:
+            groups_meeting.add(ss.session.group.acronym)
 
     wgs = IETFWG.objects.filter(status=IETFWG.ACTIVE).filter(group_acronym__acronym__in = groups_meeting).order_by('group_acronym__acronym')
     rgs = IRTF.objects.all().filter(acronym__in = groups_meeting).order_by('acronym')

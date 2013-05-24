@@ -71,19 +71,18 @@ def main(request):
 @check_for_cancel('../')
 def confirm(request):
     
-    # testing
-    #assert False, (request.session.get_expiry_age(),request.session.get_expiry_date())
-    
     if request.method == 'POST':
         form = AnnounceForm(request.session['data'],user=request.user)
         message = form.save(user=request.user,commit=True)
+        extra = {'Reply-To':message.reply_to}
         send_mail_text(None, 
                        message.to,
                        message.frm,
                        message.subject,
                        message.body,
                        cc=message.cc,
-                       bcc=message.bcc)
+                       bcc=message.bcc,
+                       extra=extra)
 
         # clear session
         request.session.clear()

@@ -90,8 +90,8 @@ def build_nonsession(request, meeting):
         if slot.type.slug in ('other','plenary'):
             session = Session(meeting=meeting,
                               name=slot.name,
-                              short=slot.session.short,
-                              group=slot.session.group,
+                              short=get_session(slot).short,
+                              group=get_session(slot).group,
                               requested_by=system,
                               status_id='sched')
             session.save()

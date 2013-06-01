@@ -590,30 +590,31 @@ def edit_relations(request, name):
     relation_slugs = DocRelationshipName.objects.filter(slug__in=RELATION_SLUGS)
 
     if request.method == 'POST':
-        form = EditStatusChangeForm(request.POST)
-        if form.is_valid():
+        if 'Cancel' not in request.POST:
+            form = EditStatusChangeForm(request.POST)
+            if form.is_valid():
+    
+                old_relations={}
+                for rel in status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS):
+                    old_relations[rel.target.document.canonical_name()]=rel.relationship.slug
+                new_relations=form.cleaned_data['relations']
+                status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS).delete()
+                for key in new_relations:
+                    status_change.relateddocument_set.create(target=DocAlias.objects.get(name=key),
+                                                             relationship_id=new_relations[key])
+                c = DocEvent(type="added_comment", doc=status_change, by=login)
+                c.desc = "Affected RFC list changed.\nOLD:"
+                for relname,relslug in (set(old_relations.items())-set(new_relations.items())):
+                    c.desc += "\n  "+relname+": "+DocRelationshipName.objects.get(slug=relslug).name
+                c.desc += "\nNEW:"
+                for relname,relslug in (set(new_relations.items())-set(old_relations.items())):
+                    c.desc += "\n  "+relname+": "+DocRelationshipName.objects.get(slug=relslug).name
+                #for rel in status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS):
+                #    c.desc +="\n"+rel.relationship.name+": "+rel.target.document.canonical_name()
+                c.desc += "\n"
+                c.save()
 
-            old_relations={}
-            for rel in status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS):
-                old_relations[rel.target.document.canonical_name()]=rel.relationship.slug
-            new_relations=form.cleaned_data['relations']
-            status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS).delete()
-            for key in new_relations:
-                status_change.relateddocument_set.create(target=DocAlias.objects.get(name=key),
-                                                         relationship_id=new_relations[key])
-            c = DocEvent(type="added_comment", doc=status_change, by=login)
-            c.desc = "Affected RFC list changed.\nOLD:"
-            for relname,relslug in (set(old_relations.items())-set(new_relations.items())):
-                c.desc += "\n  "+relname+": "+DocRelationshipName.objects.get(slug=relslug).name
-            c.desc += "\nNEW:"
-            for relname,relslug in (set(new_relations.items())-set(old_relations.items())):
-                c.desc += "\n  "+relname+": "+DocRelationshipName.objects.get(slug=relslug).name
-            #for rel in status_change.relateddocument_set.filter(relationship__slug__in=RELATION_SLUGS):
-            #    c.desc +="\n"+rel.relationship.name+": "+rel.target.document.canonical_name()
-            c.desc += "\n"
-            c.save()
-
-            return HttpResponseRedirect(status_change.get_absolute_url())
+        return HttpResponseRedirect(status_change.get_absolute_url())
 
     else: 
         relations={}

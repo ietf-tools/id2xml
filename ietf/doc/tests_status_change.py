@@ -16,7 +16,7 @@ from ietf.utils.mail import outbox
 from ietf.doc.utils import create_ballot_if_not_open
 from ietf.doc.views_status_change import default_approval_text
 
-from ietf.doc.models import Document,DocEvent,NewRevisionDocEvent,BallotPositionDocEvent,TelechatDocEvent,DocAlias,State
+from ietf.doc.models import Document,DocEvent,NewRevisionDocEvent,BallotPositionDocEvent,TelechatDocEvent,WriteupDocEvent,DocAlias,State
 from ietf.name.models import StreamName
 from ietf.group.models import Person
 from ietf.iesg.models import TelechatDate
@@ -201,6 +201,51 @@ class StatusChangeTestCase(django.test.TestCase):
         self.assertEquals(r.status_code, 302)
         doc = Document.objects.get(name='status-change-imaginary-mid-review')
         self.assertEquals(doc.latest_event(TelechatDocEvent, "scheduled_for_telechat").telechat_date,None)
+
+    def test_edit_lc(self):
+        doc = Document.objects.get(name='status-change-imaginary-mid-review')
+        url = urlreverse('status_change_last_call',kwargs=dict(name=doc.name))
+
+        login_testing_unauthorized(self, "ad", url)
+
+        # additional setup
+        doc.relateddocument_set.create(target=DocAlias.objects.get(name='rfc9999'),relationship_id='tois')
+        doc.relateddocument_set.create(target=DocAlias.objects.get(name='rfc9998'),relationship_id='tohist')
+        doc.ad =  Person.objects.get(name='Ad No2')
+        doc.save()
+        
+        # get
+        r = self.client.get(url)
+        self.assertEquals(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEquals(len(q('form.edit-last-call-text')),1)
+
+        self.assertTrue( 'RFC9999 from Proposed Standard to Internet Standard' in ''.join(wrap(r.content,2**16)))
+        self.assertTrue( 'RFC9998 from Informational to Historic' in ''.join(wrap(r.content,2**16)))
+        
+        # save
+        r = self.client.post(url,dict(last_call_text="Bogus last call text",save_last_call_text="1"))
+        self.assertEquals(r.status_code, 200)
+
+        last_call_event = doc.latest_event(WriteupDocEvent, type="changed_last_call_text")
+        self.assertEquals(last_call_event.text,"Bogus last call text")
+
+        # reset
+        r = self.client.post(url,dict(regenerate_last_call_text="1"))
+        self.assertEquals(r.status_code,200)
+        self.assertTrue( 'RFC9999 from Proposed Standard to Internet Standard' in ''.join(wrap(r.content,2**16)))
+        self.assertTrue( 'RFC9998 from Informational to Historic' in ''.join(wrap(r.content,2**16)))
+      
+        # request last call
+        messages_before = len(outbox)
+        r = self.client.post(url,dict(last_call_text='stuff',send_last_call_request='Save+and+Request+Last+Call'))
+        self.assertEquals(r.status_code,200)
+        self.assertTrue( 'Last Call Requested' in ''.join(wrap(r.content,2**16)))
+        self.assertEquals(len(outbox), messages_before + 1)
+        self.assertTrue('iesg-secretary' in outbox[-1]['To'])
+        self.assertTrue('Last Call:' in outbox[-1]['Subject'])
+        self.assertTrue('Last Call Request has been submitted' in ''.join(wrap(unicode(outbox[-1]),2**16)))
+
 
     def test_approve(self):
         doc = Document.objects.get(name='status-change-imaginary-mid-review')

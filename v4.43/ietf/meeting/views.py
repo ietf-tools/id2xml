@@ -132,37 +132,27 @@ def mobile_user_agent_detect(request):
     return user_agent
 
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None, schedule_name=None):
+def html_agenda_1(request, num, schedule_name, template_version="meeting/agenda.html"):
     user_agent = mobile_user_agent_detect(request)
     if "iPhone" in user_agent:
         return iphone_agenda(request, num, schedule_name)
 
     scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
 
-    return HttpResponse(render_to_string("meeting/agenda.html",
+    return HttpResponse(render_to_string(template_version,
         {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list,
          "fg_group_colors": fg_group_colors,
          "bg_group_colors": bg_group_colors,
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
+
+def html_agenda(request, num=None, schedule_name=None):
+    return html_agenda_1(request, num, schedule_name, "meeting/agenda.html")
 
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda_utc(request, num=None, schedule_name=None):
-
-    user_agent = mobile_user_agent_detect(request)
-    if "iPhone" in user_agent:
-        return iphone_agenda(request, num)
-
-    scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
-
-    return HttpResponse(render_to_string("meeting/agenda_utc.html",
-        {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
-         "area_list": area_list, "wg_list": wg_list,
-         "fg_group_colors": fg_group_colors,
-         "bg_group_colors": bg_group_colors,
-         "show_inline": set(["txt","htm","html"]) },
-        RequestContext(request)), mimetype="text/html")
+    return html_agenda_1(request, num, schedule_name, "meeting/agenda_utc.html")
 
 class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)

@@ -38,9 +38,9 @@ def check_access(user):
                            group__acronym='iab',
                            name='execdir'):
         return True
-    
+
     return False
-    
+
 # --------------------------------------------------
 # STANDARD VIEW FUNCTIONS
 # --------------------------------------------------
@@ -54,12 +54,16 @@ def main(request):
     '''
     if not check_access(request.user):
         return HttpResponseForbidden('Restricted to: Secretariat, IAD, or chair of IETF, IAB, RSOC, RSE, IAOC, NomCom.')
-    
+
     form = AnnounceForm(request.POST or None,user=request.user)
-    
+
     if form.is_valid():
-        request.session['data'] = form.cleaned_data
-        
+        # nomcom is a ModelChoice, store pk, not Group object
+        data = form.cleaned_data
+        if data['nomcom']:
+            data['nomcom'] = data['nomcom'].pk
+        request.session['data'] = data
+
         url = reverse('announcement_confirm')
         return HttpResponseRedirect(url)
 
@@ -70,12 +74,12 @@ def main(request):
 
 @check_for_cancel('../')
 def confirm(request):
-    
+
     if request.method == 'POST':
         form = AnnounceForm(request.session['data'],user=request.user)
         message = form.save(user=request.user,commit=True)
         extra = {'Reply-To':message.reply_to}
-        send_mail_text(None, 
+        send_mail_text(None,
                        message.to,
                        message.frm,
                        message.subject,
@@ -86,23 +90,23 @@ def confirm(request):
 
         # clear session
         request.session.clear()
-        
+
         messages.success(request, 'The announcement was sent.')
         url = reverse('announcement')
         return HttpResponseRedirect(url)
-    
+
     if request.session.get('data',None):
         data = request.session['data']
     else:
         messages.error(request, 'No session data.  Your session may have expired or cookies are disallowed.')
         redirect_url = reverse('announcement')
         return HttpResponseRedirect(redirect_url)
-    
+
     if data['to'] == 'Other...':
         to = ','.join(data['to_custom'])
     else:
         to = data['to']
-        
+
     return render_to_response('announcement/confirm.html', {
         'message': data,
         'to': to},

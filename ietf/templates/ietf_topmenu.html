@@ -21,48 +21,49 @@
 		{% if not request.user.is_authenticated %}
 			<li><a href="http://{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">Sign in</a></li>
 		{% endif %}
-	</ul>
-</li>
-
-{% comment %}
-	
 {% if user|has_role:"Area Director" %}
-	<li class="dropdown">AD Dashboard</li>
-	<li><a href="{% url drafts_for_ad name=user.get_profile.full_name_as_key %}">My Documents (Old)</a></li>
-	<li><a href="{% url docs_for_ad name=user.get_profile.full_name_as_key %}">My Documents (New)</a></li>
-	<li><a href="{% url ietf.iesg.views.agenda_documents %}">Next Telechat</a></li>
-	<li><a href="{% url ietf.iesg.views.discusses %}">Discusses</a></li>
-	<li><a href="{% url ietf.iesg.views.milestones_needing_review %}">Milestones</a></li>
-	{# FIXME: this link should be removed when the old WG Actions are completely dead #}
-	<li><a href="{% url ietf.iesg.views.working_group_actions %}">Working Groups</a></li>
+		<li class="divider"></li>
+		<li class="nav-header">AD Dashboard</li>
+		<li><a href="{% url drafts_for_ad name=user.get_profile.full_name_as_key %}">My documents (old)</a></li>
+		<li><a href="{% url docs_for_ad name=user.get_profile.full_name_as_key %}">My documents (new)</a></li>
+		<li><a href="{% url ietf.iesg.views.agenda_documents %}">Next telechat</a></li>
+		<li><a href="{% url ietf.iesg.views.discusses %}">Discusses</a></li>
+		<li><a href="{% url ietf.iesg.views.milestones_needing_review %}">Milestones</a></li>
+		{# FIXME: this link should be removed when the old WG Actions are completely dead #}
+		<li><a href="{% url ietf.iesg.views.working_group_actions %}">Working groups</a></li>
 {% endif %}
 {% if user|has_role:"Secretariat" %}
-	<li class="dropdown">Secretariat</li>
-	<li><a href="/admin/iesg/telechatdate/">Telechat Dates</a></li>
-	<li><a href="/admin/iesg/telechatagendaitem/">Management Items</a></li>
-	<li><a href="{% url ietf.iesg.views.milestones_needing_review %}">Milestones</a></li>
-	{# FIXME: this link should be removed when the old WG Actions are completely dead #}
-	<li><a href="{% url ietf.iesg.views.working_group_actions %}">Working Groups</a></li>
-	<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a>
+		<li class="divider"></li>
+		<li class="nav-header">Secretariat</li>
+		<li><a href="/admin/iesg/telechatdate/">Telechat dates</a></li>
+		<li><a href="/admin/iesg/telechatagendaitem/">Management items</a></li>
+		<li><a href="{% url ietf.iesg.views.milestones_needing_review %}">Milestones</a></li>
+		{# FIXME: this link should be removed when the old WG Actions are completely dead #}
+		<li><a href="{% url ietf.iesg.views.working_group_actions %}">Working groups</a></li>
+		<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a>
 {% endif %}
 {% if user %}
 	{% get_user_managed_streams user as stream_list %}
 	{% if stream_list %}
-		<li class="dropdown">Streams</li>
+		<li class="divider"></li>
+		<li class="nav-header">Streams</li>
 		{% for stream in stream_list %}
 			<li><a href="{% url stream_delegates stream.name %}">{{ stream.name }} stream</a></li>
 		{% endfor %}
 	{% endif %}
 {% endif %}
 {% if user|has_role:"IANA" %}
-	<li class="dropdown">IANA</li>
-	<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
+		<li class="divider"></li>
+		<li class="nav-header">IANA</li>
+		<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
 {% endif %}
 {% if user|has_role:"RFC Editor" %}
-	<li class="dropdown">RFC Editor</li>
-	<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
+		<li class="divider"></li>
+		<li class="nav-header">RFC Editor</li>
+		<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
 {% endif %}
-{% endcomment %}
+	</ul>
+</li>
 
 <li class="dropdown">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Groups</a>

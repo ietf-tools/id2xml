@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+{% load ietf_filters %}
+<!--[if lt IE 7]>	   <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>		   <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>		   <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>
+			{% block title %}No title{% endblock %}
+			{% if server_mode %}
+				{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
+			{% endif %}
+		</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<style>
+			{% block morecss %}{% endblock %}
+		</style>
+		<link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
+		<link rel="stylesheet" href="/css/ietf.css">
+
+		<script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+
+		{% block pagehead %}{% endblock %}
+
+		{% ifnotequal server_mode "production" %}
+			<link rel="icon" href="/images/ietf-dev-icon.bmp" />
+		{% else %}
+			<link rel="icon" href="/images/ietf-icon-blue.bmp" />
+		{% endifnotequal %}
+
+		<link rel="search" href="/js/datatracker-search.xml" type="application/opensearchdescription+xml" title="IETF Datatracker Search" />
+	</head>
+
+	<body {% block bodyAttrs %}{%endblock%}>
+		<!--[if lt IE 7]>
+			<p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+		<![endif]-->
+
+		<div class="navbar navbar-static-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</a>
+					<a class="brand" href="/">
+					IETF Datatracker
+					{% if server_mode %}
+						{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
+					{% endif %}
+					</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav">
+							{% include "ietf_topmenu.html" %}      
+						</ul>
+
+						<form class="navbar-search pull-right" action="/doc/search/" method="get">
+							<input class="search-query" type="text" name="name" placeholder="Search documents" />
+							<input type="hidden" name="activedrafts" value="on"/>
+							<input type="hidden" name="rfcs" value="on"/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content container-fluid">
+					{% block content %}{% endblock %}
+					{% block content_end %}{% endblock %} 
+
+			<footer>
+				<hr>
+				<div class="text-center">
+				  <small>
+						<ul class="nav nav-pills center-pills">
+							<li><a href="http://www.ietf.org/">IETF</a></li>
+							<li><a href="http://tools.ietf.org/">IETF Tools</a></li>
+							<li><a href="http://www.iab.org/">IAB</a></li>
+							<li><a href="http://www.irtf.org/">IRTF</a></li>
+							<li><a href="http://www.rfc-editor.org/">RFC Editor</a></li>
+							<li><a href="http://www.iana.org/">IANA</a></li>
+							<li><a href="http://iaoc.ietf.org">IASA &amp; IAOC</a></li>
+							<li><a href="http://trustee.ietf.org/">IETF Trust</a></li>
+						</ul>
+					</small>
+				</div>
+
+				<div class="muted">
+					<small>
+						{% if version_num %}
+							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
+						{% endif %}
+							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
+						
+						{% if messages %}
+							<ul class="messages">
+							{% for message in messages %}
+								<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+							{% endfor %}
+							</ul>
+						{% endif %}
+						
+						{% include "debug.html" %}
+					</small>
+				</div>				
+			</footer>
+		</div>  
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+		<script src="js/vendor/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+			{% block scripts %}{% endblock %}
+			//]]>
+		</script>
+		{% block js %}{% endblock %}
+<!--		<script>
+			var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+			(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+			g.src='//www.google-analytics.com/ga.js';
+			s.parentNode.insertBefore(g,s)}(document,'script'));
+		</script>
+-->	</body>
+</html>

@@ -1,0 +1,12 @@
+{% for area in areas %}
+	{% if area.area.active_wgs %}
+	<li class="dropdown-submenu">
+		<a href="#">{{area.short_name }}</a>
+		<ul class="dropdown-menu">
+		{% for wg in area.area.active_wgs %}
+			<li><a href="/wg/{{wg.group_acronym}}/">{{wg.group_acronym}} &mdash; {{wg.group_acronym.name}}</a></li>
+		{% endfor %}
+		</ul>
+	</li>
+	{% endif %}
+{% endfor %}

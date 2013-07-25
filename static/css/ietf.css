@@ -1,0 +1,22 @@
+/*
+ * Site-wide CSS for the IETF datatracker.
+ *
+ * Styles only used for one page go into the morecss block of
+ * that page template! (And not into the HTML of the page...)
+ */
+
+/* Add some padding on top */ 
+.content { padding-top: 20px; }
+ 
+/* Helper style for tables */
+.nowrap { white-space: nowrap; }
+
+/* Helper to center navigation pills */
+.center-pills {	display: inline-block; }
+
+/* Helper to constrain the size of the main logo */
+.ietflogo { width: 75%;	max-width: 300px; }
+
+/* See http://stackoverflow.com/questions/8878033/how-to-make-twitter-bootstrap-menu-dropdown-on-hover-rather-than-click */
+ul.nav li.dropdown:hover > ul.dropdown-menu { display: block; }
+.navbar .dropdown-menu { margin-top: 0px; }

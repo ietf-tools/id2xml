@@ -52,18 +52,26 @@ def get_short_name(area):
         return area_name
 
 class WgMenuNode(template.Node):
-    def __init__(self):
-        pass
+    def __init__(self, flavor=""):
+        self.flavor = flavor
     def render(self, context):
-        x = cache.get('idrfc_wgmenu')
-        if x:
-            return x
-        areas = [{'area':x, 'short_name':get_short_name(x)} for x in Area.active_areas()]
-        x = loader.render_to_string('base_wgmenu.html', {'areas':areas})
-        cache.set('idrfc_wgmenu', x, 30*60)
-        return x
+	if (self.flavor == 'ietf'):
+		template = 'ietf_wgmenu.html'
+	else:
+		template = 'base_wgmenu.html'
+	x = cache.get(template)
+	if x:
+		return x
+	areas = [{'area':x, 'short_name':get_short_name(x)} for x in Area.active_areas()]
+	x = loader.render_to_string(template, {'areas':areas})
+	cache.set(template, x, 30*60)
+	return x
     
 def do_wg_menu(parser, token):
-    return WgMenuNode()
+    try:
+    	tag_name, flavor = token.split_contents()
+    except ValueError:
+    	flavor = ''
+    return WgMenuNode(flavor)
 
 register.tag('wg_menu', do_wg_menu)

@@ -27,11 +27,8 @@
 
 		{% block pagehead %}{% endblock %}
 
-		{% ifnotequal server_mode "production" %}
-			<link rel="icon" href="/images/ietf-dev-icon.bmp" />
-		{% else %}
-			<link rel="icon" href="/images/ietf-icon-blue.bmp" />
-		{% endifnotequal %}
+		<link rel="shortcut icon" href="/img/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.ico">
+		<link rel="apple-touch-icon-precomposed" href="/img/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.png">
 
 		<link rel="search" href="/js/datatracker-search.xml" type="application/opensearchdescription+xml" title="IETF Datatracker Search" />
 	</head>

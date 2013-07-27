@@ -163,6 +163,7 @@ class AnnounceForm(forms.ModelForm):
             self.initial['nomcom'] = nomcom_roles[0].group.pk
         if not nomcom_roles and not secr_roles:
             self.fields['nomcom'].widget = forms.HiddenInput()
+        self.initial['reply_to'] = 'ietf@ietf.org'
 
     def clean(self):
         super(AnnounceForm, self).clean()

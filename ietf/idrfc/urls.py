@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     url(r'^ad/(?P<name>[A-Za-z0-9.-]+)/$', views_search.drafts_for_ad, name="drafts_for_ad"),
 #    url(r'^ad2/(?P<name>[A-Za-z0-9.-]+)/$', views_search.docs_for_ad, name="docs_for_ad"),
     url(r'^ad2/(?P<name>[A-Za-z0-9.-]+)/$', views_search.docs_for_ad, name="docs_for_ad"),
+    url(r'^ajax/internet_draft/?$', views_edit.doc_ajax_internet_draft, name="doc_ajax_internet_draft"),
 
 #    (r'^all/$', views_search.all), # XXX CHECK MERGE
 #    (r'^active/$', views_search.active), # XXX CHECK MERGE
@@ -73,6 +74,7 @@ urlpatterns = patterns('',
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/addcomment/$', views_edit.add_comment, name='doc_add_comment'),
 
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/stream/$', views_edit.change_stream, name='doc_change_stream'),
+    url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/replaces/$', views_edit.replaces, name='doc_change_replaces'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/notify/$', views_edit.edit_notices, name='doc_change_notify'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/status/$', views_edit.change_intention, name='doc_change_intended_status'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/telechat/$', views_edit.telechat_date, name='doc_change_telechat_date'),

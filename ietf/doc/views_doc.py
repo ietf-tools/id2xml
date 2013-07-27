@@ -49,6 +49,7 @@ from ietf.utils.history import find_history_active_at
 from ietf.ietfauth.utils import *
 from ietf.doc.views_status_change import RELATION_SLUGS as status_change_relationships
 from ietf.wgcharter.utils import historic_milestones_for_charter
+from ietf.secr.lib import jsonapi
 
 def render_document_top(request, doc, tab, name):
     tabs = []

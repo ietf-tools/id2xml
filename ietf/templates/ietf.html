@@ -54,7 +54,9 @@
 					</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
-							{% include "ietf_topmenu.html" %}      
+							{% with "top" as flavor %}
+								{% include "ietf_menu.html" %}      
+							{% endwith %}
 						</ul>
 
 						<form class="navbar-search pull-right" action="/doc/search/" method="get">
@@ -68,12 +70,23 @@
 		</div>
 
 		<div class="content container-fluid">
+			<div class="row-fluid">
+				<div class="hidden-phone span3">
+					<ul class="well nav nav-list">
+						{% with "left" as flavor %}
+							{% include "ietf_menu.html" %}
+						{% endwith %}
+					</ul>
+				</div>
+				<div class="span9">
 					{% block content %}{% endblock %}
 					{% block content_end %}{% endblock %} 
+				</div>
+			</div>
 
 			<footer>
-				<hr>
-				<div class="text-center">
+				<div class="hidden-phone text-center">
+					<hr>
 				  <small>
 						<ul class="nav nav-pills center-pills">
 							<li><a href="http://www.ietf.org/">IETF</a></li>
@@ -114,6 +127,7 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
 		<script src="/js/vendor/bootstrap.min.js"></script>
+		<script src="/js/ietf.js"></script>
 		<script type="text/javascript">
 			//<![CDATA[
 			{% block scripts %}{% endblock %}

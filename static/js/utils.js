@@ -212,14 +212,16 @@ $(document).ready(function() {
   }
 
   // validate form upload form before uploading file
-  $('#upload_materials_form').submit(function() {
-    var x=$('#id_slide_name').val();
-    if (x==null || x=="")
-    {
-        $('#id_slide_name').before('<ul class="errorlist"><li>This field is required.</li></ul>');
-        return false;
-    }
-  });
+  if ($('#upload_materials_form').length) {
+    $('#upload_materials_form').submit(function() {
+        var x=$('#id_slide_name').val();
+        if (x==null || x=="")
+        {
+            $('#id_slide_name').before('<ul class="errorlist"><li>This field is required.</li></ul>');
+            return false;
+        }
+    });
+  }
 
 
 });

@@ -79,7 +79,7 @@ function init_proceedings_upload() {
   $('#slides.sortable tbody').sortable({
      axis:'y',
      //containment:'parent',
-     update: function(event, ui){  
+     update: function(event, ui){
          var data = $(this).sortable("toArray");
          var element_id = ui.item.attr("id");
          var slide_name = $("tr#"+element_id+" td.hidden").text();
@@ -147,7 +147,7 @@ $(document).ready(function() {
   }
 
 
-  // unset Primary Area selection unless it appears as URL parameter 
+  // unset Primary Area selection unless it appears as URL parameter
   //if (($('#id_primary_area').length) && (get_param('primary_area') == '')) {
   //    $('#id_primary_area')[0].selectedIndex = -1;
 
@@ -155,7 +155,7 @@ $(document).ready(function() {
   if ($('#areas-button-list').length) {
       init_area_table();
   }
-  // Setup autocomplete for adding names 
+  // Setup autocomplete for adding names
   if ($('input.name-autocomplete').length) {
       $('input.name-autocomplete').autocomplete({
           source: "/areas/getpeople/",
@@ -206,9 +206,20 @@ $(document).ready(function() {
       init_proceedings_table();
   }
 
-  // special features for Proceedings Upload Material Page 
+  // special features for Proceedings Upload Material Page
   if ($('#proceedings-upload-table').length) {
       init_proceedings_upload();
   }
+
+  // validate form upload form before uploading file
+  $('#upload_materials_form').submit(function() {
+    var x=$('#id_slide_name').val();
+    if (x==null || x=="")
+    {
+        $('#id_slide_name').before('<ul class="errorlist"><li>This field is required.</li></ul>');
+        return false;
+    }
+  });
+
 
 });

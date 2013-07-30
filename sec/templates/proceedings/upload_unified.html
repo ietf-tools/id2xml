@@ -11,8 +11,8 @@
   <script type="text/javascript" src="/js/utils.js"></script>
 {% endblock %}
 
-{% block breadcrumbs %}{{ block.super }} 
-  
+{% block breadcrumbs %}{{ block.super }}
+
   {% if meeting.type_id == "interim" %}
     &raquo; <a href="{% url proceedings %}">Proceedings</a>
     &raquo; <a href="{% url proceedings_select_interim %}">Interim Select Group</a>
@@ -74,22 +74,22 @@
              </tr>
          </tbody>
        </table>
-     
+
      <div class="inline-related">
        <h2>Slides&nbsp;&nbsp;<span class="highlight">NEW!  Drag and drop to re-order slides</span></h2>
          {% include "includes/slides.html" %}
          <p>(<span class="required"> *</span> - Waiting to be converted to PDF format.)</p>
      </div> <!-- inline-group -->
-     
+
      <div class="inline-related">
        <h2>Upload Materials</h2>
-       <form enctype="multipart/form-data" action="." method="post">
+       <form id="upload_materials_form" enctype="multipart/form-data" action="." method="post">
        <table class="center" id="proceedings-upload-table">
        {{ form.as_table }}
        </table>
 
        {% include "includes/buttons_submit_back.html" %}
- 
+
        </form>
       </div> <!-- inline-group -->
 </div> <!-- module -->

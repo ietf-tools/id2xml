@@ -92,7 +92,7 @@ def document_main(request, name, rev=None):
 
     group = doc.group
     if doc.type_id == 'conflrev':
-        conflictdoc = doc.related_that_doc('conflrev').get().document
+        conflictdoc = doc.related_that_doc('conflrev')[0].document
     
     revisions = []
     for h in doc.history_set.order_by("time", "id"):
@@ -273,11 +273,11 @@ def document_main(request, name, rev=None):
         search_archive = urllib.quote(search_archive, safe="~")
 
         # conflict reviews
-        conflict_reviews = [d.name for d in doc.related_that("conflrev")]
+        conflict_reviews = [d.document.name for d in doc.related_that("conflrev")]
 
         status_change_docs = doc.related_that(status_change_relationships)
-        status_changes = [ rel for rel in status_change_docs  if rel.get_state_slug() in ('appr-sent','appr-pend')]
-        proposed_status_changes = [ rel for rel in status_change_docs  if rel.get_state_slug() in ('needshep','adrev','iesgeval','defer','appr-pr')]
+        status_changes = [ rel.document for rel in status_change_docs  if rel.document.get_state_slug() in ('appr-sent','appr-pend')]
+        proposed_status_changes = [ rel.document for rel in status_change_docs  if rel.document.get_state_slug() in ('needshep','adrev','iesgeval','defer','appr-pr')]
 
         # remaining actions
         actions = []

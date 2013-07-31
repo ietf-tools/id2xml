@@ -5,7 +5,7 @@
 	    <table cellpadding="1" cellspacing="0" border="0">
 
 		  <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
-		  {% for ipr in iprs|dictsort:"submitted_date" %}
+		  {% for ipr in iprs %}
 		  <tr valign="top" bgcolor="#dadada">
 		     <td width="100">{{ ipr.submitted_date }}</td>
 		     <td width="90"><li>ID # {{ ipr.ipr_id }}</li></td>
@@ -18,7 +18,7 @@
 		  <tbody bgcolor="#{% cycle dadada,eaeaea as bgcolor %}">
 		     <tr >
 			<td colspan="3">
-			   Search result on {{ doc|rfcspace|lstrip:"0"|rfcnospace }}, "{{ doc.title|escape }}"{% ifnotequal doc first %}{% if doc.related %}, {{ doc.relation }} {{ doc.related|rfcspace|lstrip:"0"|rfcnospace  }}, "{{ doc.related.title }}"{% endif %}
+			   Search result on {{ doc|rfcspace|lstrip:"0"|rfcnospace }}, "{{ doc.title|escape }}"{% ifnotequal doc first %}{% if doc.related %}, that was {{ doc.relation|lower }} {{ doc.related|rfcspace|lstrip:"0"|rfcnospace  }}, "{{ doc.related.title }}"{% endif %}
 			   {% endifnotequal %}
 			</td>
 		     </tr>

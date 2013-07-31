@@ -3,6 +3,8 @@
 from django.conf import settings
 from django.db.models import Q
 from ietf.idtracker.models import InternetDraft, Rfc
+from ietf.doc.models import DocAlias
+from ietf.ipr.models import IprDraftProxy
 
 inverse = {
             'updates': 'is_updated_by',
@@ -38,49 +40,21 @@ def set_relation(first, rel, second):
     set_related(first, rel, second)
     set_related(second, inverse[rel], first)
 
-def related_docs(doc, found = []):    
-    """Get a list of document related to the given document.
-    """
-    #print "\nrelated_docs(%s, %s)" % (doc, found) 
-    found.append(doc)
-    if isinstance(doc, Rfc):
-        try:
-            item = InternetDraft.objects.get(rfc_number=doc.rfc_number)
-            if not item in found:
-                set_relation(doc, 'is_rfc_of', item)
-                found = related_docs(item, found)
-        except InternetDraft.DoesNotExist:
-            pass
-        for entry in doc.updated_or_obsoleted_by.all():
-            item = entry.rfc
-            if not item in found:
-                action = inverse[entry.action.lower()]
-                set_relation(doc, action, item)
-                found = related_docs(item, found)
-        for entry in doc.updates_or_obsoletes.all():
-            item = entry.rfc_acted_on
-            if not item in found:
-                action = entry.action.lower()
-                set_relation(doc, action, item)
-                found = related_docs(item, found)
-    if isinstance(doc, InternetDraft):
-        if doc.replaced_by_id:
-            item = doc.replaced_by
-            if not item in found:
-                set_relation(doc, 'is_replaced_by', item)
-                found = related_docs(item, found)
-        for item in doc.replaces_set.all():
-            if not item in found:
-                set_relation(doc, 'replaces', item)
-                found = related_docs(item, found)
-        if doc.rfc_number:
-            item = Rfc.objects.get(rfc_number=doc.rfc_number)
-            if not item in found:
-                set_relation(doc, 'is_draft_of', item)
-                found = related_docs(item, found)
-    return found
+def related_docs(alias, _):
+    from ietf.doc.proxy import DraftLikeDocAlias
+    results = [x for x in DraftLikeDocAlias.objects.filter(document=alias.document)]
+    rels = alias.document.all_relations_that_doc(['replaces','obs'])
+    for rel in rels:
+        res = DraftLikeDocAlias.objects.get(name=rel.target.document.name,document=rel.target.document)
+        rel_aliases = [res] + list(DraftLikeDocAlias.objects.filter(document=res.document)) 
+        for x in rel_aliases:
+            x.related = DraftLikeDocAlias.objects.get(name=rel.source.name,document=rel.source)
+            x.relation = rel.relationship.revname
+        results += rel_aliases 
+    return list(set(results))
+# THAT IS TERRIBLE - REDO THAT not using doc.proxy
 
-def related_docsREDESIGN(alias, _):
+def old_related_docs(alias, _):
     """Get related document aliases to given alias through depth-first search."""
     from ietf.doc.models import RelatedDocument
     from ietf.doc.proxy import DraftLikeDocAlias
@@ -133,5 +107,3 @@ def related_docsREDESIGN(alias, _):
 
     return res
 
-if settings.USE_DB_REDESIGN_PROXY_CLASSES:
-    related_docs = related_docsREDESIGN

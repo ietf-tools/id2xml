@@ -112,6 +112,7 @@ def search(request, type="", q="", id=""):
                     docs = related_docs(first, [])
                     #docs = get_doclist.get_doclist(first)
                     iprs, docs = iprs_from_docs(docs)
+                    iprs.sort(key=lambda x:(x.submitted_date,x.ipr_id))
                     return render("ipr/search_doc_result.html", {"q": q, "first": first, "iprs": iprs, "docs": docs, "doc": doc },
                                   context_instance=RequestContext(request) )
                 elif start.count():

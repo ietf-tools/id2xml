@@ -1,13 +1,5 @@
-/* body { */
-/*     margin-top: 40px; */
-/*     /\* text-align: center; *\/ */
-/*     font-size: 14px; */
-/*     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif; */
-/*     vertical-align:text-top; */
-/* } */
-
-/* we had previously overwritten the tag covering the entire body. */
 .custom_text_stuff{
+  position: relative;
     margin-top: 40px;
     text-align: center;
     font-size: 14px;
@@ -72,11 +64,11 @@ table.meeting_event {
     border-radius: 4px;
     background-color:#2b95b5;
     color:white;
-    font-size: 10px; 
+    font-size: 10px;
     text-align:center;
     border:1px solid blue;
     height:8px;
-  
+
 }
 /* #EDF5FF */
 .menu{
@@ -103,9 +95,9 @@ table.meeting_event {
     border-radius: 4px;
     background-color:#2b95b5;
     color:white;
-    border:1px solid black; 
-    width:25px; 
-    height:15px; 
+    border:1px solid black;
+    width:25px;
+    height:15px;
     float:left;
     cursor:pointer;
 
@@ -131,7 +123,7 @@ td.agenda_slot{
 }
 
 .agenda_slot{
-    background-color:#E6E6E6;
+    /* background-color:#E6E6E6; */
     padding:0px;
     width:100px;
     min-width:100px;
@@ -186,7 +178,7 @@ div.agenda_slot{
   position: absolute;
   left: 5px;
   top: 15px;
-  width: 320px; 
+  width: 320px;
 }
 
 .ss_info_right {
@@ -242,7 +234,7 @@ div.agenda_slot{
     /* border-top: 1px solid #89D; */
     border:1px solid #89D;
     padding:0px;
-    
+
 }
 .ss_info td{
     min-width:200px;
@@ -292,7 +284,7 @@ td.ss_info_name_short{
   font-size: 11px;
   background-color: #EDF5FF;
   /* bottom: 3px; */
-  margin: 3px; 
+  margin: 3px;
   /* margin-top:3px; */
   /* margin-bottom:3px; */
   padding: 5px;
@@ -307,7 +299,7 @@ td.ss_info_name_short{
 
 .color_legend {
   position: absolute;
-  
+
   left: 3px;
   bottom: 2px;
   padding-bottom: 3px;
@@ -343,7 +335,7 @@ div#conflict_table {
   border-bottom: 2px solid #89D;
 }
 
-#conflict_table th.border {  
+#conflict_table th.border {
   min-width: 0;
   width: 2px;
   border-bottom: 2px solid #89D;
@@ -367,7 +359,89 @@ div#conflict_table {
 .agenda_column_2012-03-30__1120 {
   background-color: red;
   text-decoration: line-through;
-  
+
+}
+
+#spinner{
+
+  height:50%;
+  /* margin-top:50%; */
+  /* margin-bottom:50%; */
+}
+
+
+.spacer{
+    background-color:#edf5ff;
+    width:1px;
+}
+.spacer_grip{
+   /* background-color:green; */
+   min-width:4px;
+   width:4px;
+   min-height:40px;
+   height:100%;
+   /* border:1px solid red; */
+   float:right;
+/*   margin-left:-100%; */
+   padding:0px;
+   /* cursor:se-resize; */
+
+background: #99beff; /* Old browsers */
+background: -moz-linear-gradient(left, #99beff 0%, #1e5799 100%); /* FF3.6+ */
+
+/* expect error on firefox */
+background: -webkit-gradient(linear, left top, right top, color-stop(0%,#99beff), color-stop(100%,#1e5799)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(left, #99beff 0%,#1e5799 100%); /* IE10+ */
+background: linear-gradient(to right, #99beff 0%,#1e5799 100%); /* W3C */
+
+/* expect error on firefox */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', endColorstr='#1e5799',GradientType=1 ); /* IE6-9 */
+}
+
+.ui-resizable{
+    float:right;
+
+}
+.ui-resizable-e{
+    cursor: w-resize;
+
+}
+.ui-resizable-w{
+    cursor: e-resize;
+
+}
+
+
+.small{
+    font: 13px/1.231 arial,helvetica,clean,sans-serif;
+}
+
+.very_small{
+    font: 10px/1.231 arial,helvetica,clean,sans-serif;
+}
+
+
+.right{
+    float:right;
+}
+
+.left{
+    float:left;
+}
+
+.free_slot{
+    background-color:rgb(0, 102, 153);
+
+}
+
+.show_conflict_view_highlight{
+    background-color: red;
+}
+
+.show_conflict_specific_box {
+  border: 5px solid red;
 }
 
 #spinner{
@@ -414,7 +488,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
 }
 .ui-resizable-w{
     cursor: e-resize;
-    
+
 }
 
 
@@ -436,7 +510,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
 
 .free_slot{
     background-color:rgb(0, 102, 153);
-    
+
 }
 
 .show_conflict_view_highlight{
@@ -462,12 +536,18 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
 
 
 }
+
 .top_left{
-    position:absolute;
+    /* position:absolute; */
     top:0;
     left:0;
 }
 
+.bottom_left{
+    /* position:absolute; */
+    bottom:0;
+    left:0;
+}
 
 
 .close{
@@ -485,10 +565,24 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
 
 }
 
+.delete {
+    font-size: 14px;
+    cursor: pointer;
+    background-color: white;
+    color:black;
+    min-width:15px;
+    width:15px;
+    max-width:15px;
+    min-height:15px;
+    height:15px;
+    max-height:15px;
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
 .minimal_table{
     border-collapse:collapse;
     margin:0px;
-
 }
 
 
@@ -497,16 +591,15 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
     cursor:pointer;
 }
 
-
 .show_hidden_things{
-    
+
     position: absolute;
     right:    200px;
     bottom:   5px;
     border: 1px solid #89D;
     font-size: 11px;
     background-color: #EDF5FF;
-    margin: 3px; 
+    margin: 3px;
     padding: 5px;
     max-width:  150px;
     min-height:97px;
@@ -527,3 +620,180 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
     margin-right:4px;
 
 }
+
+.highlight_free_slot{
+    background-color:green;
+
+}
+
+
+#show_all{
+
+
+}
+
+
+/* from: http://www.usabilitypost.com/2012/01/10/pressed-button-state-with-css3/# */
+.styled_button {
+    /* padding: 10px 15px; */
+    background: #4479BA;
+    color: #FFF;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: solid 1px #20538D;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    -webkit-transition-duration: 0.2s;
+    -moz-transition-duration: 0.2s;
+    transition-duration: 0.2s;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+.styled_button:hover {
+    cursor:pointer;
+    background: #356094;
+    border: solid 1px #2A4E77;
+    text-decoration: none;
+}
+.styled_button:active {
+    -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    background: #2E5481;
+    border: solid 1px #203E5F;
+}
+
+.agenda_slot_alt {
+    /* for now, use no alternating theme */
+    /* border: 1px dashed #E3E3E3; */ /* darker greyish */
+}
+
+.agenda_slot_plenary {
+    /* background-color: #d38f2d;  */ /* dark orange */
+    background-image: url('/images/orange_hatch.png');
+}
+
+.agenda_slot_session {
+    background-color: #E6E6E6;  /* light grey-ish */
+}
+
+.agenda_slot_reserved {
+    background-color: #a62b2b; /* dark red */
+}
+
+.agenda_slot_other {
+    background-color: #9448d4;  /* purple */
+}
+
+.agenda_slot_unavailable {
+    background-color: #4c4c4c;  /* dark grey */
+}
+
+/* this is for timeslot edit page */
+
+.addbutton {
+    font-size: 6pt;
+    cursor: pointer;
+    float: left;
+    max-width: 35px;
+    width: 35px;
+    height: 10px;
+    padding: 5px 1px 3px 1px;
+    border: 2px solid black;
+    margin: 5px 5px 3px 1px;
+}
+
+#add_room_dialog {
+}
+
+#addday_form {
+}
+
+/*
+.ui-dialog {
+    border: 3px solid black;
+    padding: 5px;
+    background-color: #fff;
+}
+*/
+
+.dialog {
+    display: none;
+}
+.capacity {
+    font: 10px/1.231 arial,helvetica,clean,sans-serif;
+    font-style:italic;
+}
+
+/* this is for the agenda summary page */
+.towtruck {
+  position: fixed;
+  bottom: 5px;
+  right: 15px;
+}
+
+.agenda_list_title {
+  font-size: 44px;
+  font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+  text-decoration: underline;
+}
+
+div.agenda_list {
+  margin-left: 25%;
+  margin-right: 25%;
+  max-width: 500px;
+  padding-top:  10px;
+  padding-left: 20px;
+  padding-right:20px;
+  border: 2px dashed #444444;
+  background-color: #bbbbbb;
+  min-height: 600px;
+  padding-bottom: 40px;
+}
+
+div.agenda_list tr.heading td {
+    padding-top: 30px;
+    padding-bottom: 5px;
+    font-size: 32px;
+}
+
+div.agenda_list tr th {
+  border-bottom: 2px solid black;
+  padding-bottom: 3px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+}
+
+
+div.agenda_list tr {
+  margin-top: 8px;
+}
+
+div.agenda_list tr td.agenda_data {
+  margin-top: 8px;
+  margin-bottom: 3px;
+  padding: 3px 5px 1px 3px;
+  width: 100px;
+  text-align: left;
+}
+
+.agenda_data span {
+    cursor:pointer;
+}
+
+.agenda_official_row {
+  background-color: #dddddd;
+}
+
+div.line{
+  transform-origin: 0 100%;
+  height: 3px; /* Line width of 3 */
+  background: #000; /* Black fill */
+}
+

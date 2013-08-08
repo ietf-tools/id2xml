@@ -90,6 +90,12 @@ class BaseHandler(object):
                 callback, callback_args, callback_kwargs = resolver.resolve(
                         request.path_info)
 
+                # record the callback used for use by unit testing
+                try:
+                    request.recorded_callback = callback
+                except KeyError:
+                    pass
+
                 # Apply view middleware
                 for middleware_method in self._view_middleware:
                     response = middleware_method(request, callback, callback_args, callback_kwargs)

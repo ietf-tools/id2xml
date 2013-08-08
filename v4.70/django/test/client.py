@@ -30,6 +30,9 @@ BOUNDARY = 'BoUnDaRyStRiNg'
 MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 CONTENT_TYPE_RE = re.compile('.*; charset=([\w\d-]+);?')
 
+class TestRequest(WSGIRequest):
+    recorded_callback = None
+
 class FakePayload(object):
     """
     A wrapper around StringIO that restricts what can be read since data from
@@ -71,7 +74,7 @@ class ClientHandler(BaseHandler):
 
         signals.request_started.send(sender=self.__class__)
         try:
-            request = WSGIRequest(environ)
+            request = TestRequest(environ)
             # sneaky little hack so that we can easily get round
             # CsrfViewMiddleware.  This makes life easier, and is probably
             # required for backwards compatibility with external tests against

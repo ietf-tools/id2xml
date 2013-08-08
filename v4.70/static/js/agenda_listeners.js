@@ -11,8 +11,28 @@
 *
 */
 
+function resize_listeners() {
+    for(i = 0; i<days.length;i++){
+        $("#resize-"+days[i]+"-spacer").resizable({maxHeight:10,
+						   handles: "e, s",
+						   minWidth:2,
+
+						  });
+
+    }
+
+}
+
+
+
 /* this function needs to be renamed... it should only deal with listeners who need to be unbound prior to rebinding. */
 function listeners(){
+    //$(".agenda_slot td").not(".meeting_event ui-draggable").unbind('click');
+    //$(".agenda_slot td").not(".meeting_event ui-draggable").click(function(event){ console.log("#meetings clicked"); console.log(event); });
+    // $($("#meetings").not('.meeting_event').not('.ui-draggable')).click(function(){ console.log("#meetings clicked") }); //show_all_conflicts);
+    $("#meetings").unbind('click');
+    $("#meetings").click(all_click);
+
     $('.meeting_event').unbind('click'); // If we don't unbind it, things end up getting stacked, and tons of ajax things are sent.
     $('.meeting_event').click(meeting_event_click);
 
@@ -25,46 +45,49 @@ function listeners(){
     $('.color_checkboxes').unbind('click');
     $('.color_checkboxes').click(color_legend_click);
 
-    for(i = 0; i<days.length;i++){  
-        $("#resize-"+days[i]+"-spacer").resizable({maxHeight:10, 
-						   handles: "e, s",
-						   minWidth:2,
-						   
-						  });
-        
-    }
-
-    /* listener for when one clicks the 'show all' checkbox */
-    $('.cb_all_conflict').unbind('click');
-    $('.cb_all_conflict').click(cb_all_conflict);
+    resize_listeners()
 
     $('#find_free').unbind('click');
     $('#find_free').click(function(event){ find_free(); });
 
 
+    /* listener for when one clicks the 'show all' checkbox */
+    $('.cb_all_conflict').unbind('click');
+    $('.cb_all_conflict').click(cb_all_conflict);
+
     /* hiding rooms */
     $(".close_room").unbind('click');
     $(".close_room").click(close_room)
-
-    $("#show_hidden_rooms").unbind('click');
-    $("#show_hidden_rooms").click(show_hidden_rooms);
-
 
     /* hiding days */
     $(".close_day").unbind('click');
     $(".close_day").click(close_day);
 
 
-    $("#show_hidden_days").unbind('click');
-    $("#show_hidden_days").click(show_hidden_days);
+    // $("#show_hidden_days").unbind('click');
+    // $("#show_hidden_days").click(show_hidden_days);
+    // $("#show_hidden_rooms").unbind('click');
+    // $("#show_hidden_rooms").click(show_hidden_rooms);
 
 
     $("#show_all_area").unbind('click');
     $("#show_all_area").click(show_all_area);
 
-    
+    $("#show_all_button").unbind('click');
+    $("#show_all_button").click(show_all);
+
+
 }
 
+function all_click(event){
+    var classes = $(event.srcElement).attr('class').split(' ');
+    console.log(classes);
+    if(classes.indexOf('meeting_obj') < 0){
+	show_all_conflicts();
+    }
+    // console.log(this);
+    // console.log($(this));
+}
 
 /************ click functions *********************************************************************/
 function cb_all_conflict(event){
@@ -72,10 +95,10 @@ function cb_all_conflict(event){
     try{
 	var conflict_clicked = conflict_clicked.substr(3);
     }catch(err){
-	
+
     }
     $("."+conflict_clicked+" input").click();
-    
+
 
 }
 
@@ -105,20 +128,25 @@ function close_day(event){
     $("#hidden_days").html(hidden_days.length.toString()+"/"+total_days.toString());
 }
 
+function show_all(){
+    show_hidden_days();
+    show_hidden_rooms();
+}
+
 function show_hidden_days(event){
     $.each(hidden_days, function(index,room){
 	$(room).show("fast");
     });
     hidden_days = [];
     $("#hidden_days").html(hidden_days.length.toString()+"/"+total_days.toString());
-    
+
 }
 
 function show_all_area(event){
     var areas = find_same_area($("#info_area").children().text());
     console.log(areas);
     $.each(areas, function(index,obj){
-	
+
 	var selector = $("#"+obj.slot_status_key);
 	if(slot_item_hidden(selector) ){
 	    $("#"+obj.slot_status_key).effect("highlight", {color:"lightcoral"}, 2000);
@@ -132,13 +160,13 @@ function show_all_area(event){
 function slot_item_hidden(selector){
 // checking if the thing we will visually display is hidden. (performing effects will break the previous hide)
     var show = true;
-    
-    $.each(hidden_days, function(index,value){ 
+
+    $.each(hidden_days, function(index,value){
 	if(selector.hasClass(value.substr(1))){
 	    show=false;
 	    return show;
 	}
-    });    
+    });
     return show;
 }
 
@@ -152,14 +180,26 @@ function find_empty_slot(){
 	    free_slots.push(item);
 	}
     });
-    
+
     if(free_slots.length > 0){
-	return free_slots[0]; // just return the first one. 
+	return free_slots[0]; // just return the first one.
     }
     else{
 	return null;
     }
 
+}
+
+function find_free(){
+    var empty_slot = find_empty_slot();
+    if(empty_slot != null){
+	$(empty_slot).effect("highlight", {},3000);
+	if(current_item != null){
+	    $(current_item).addClass('ui-effects-transfer');
+	    $(current_item).effect("transfer", {to: $(empty_slot) }, 1000);
+	}
+	$(current_item).removeClass('ui-effects-transfer');
+    }
 }
 
 function find_free(){
@@ -181,7 +221,16 @@ function expand_spacer(target) {
     current_width = parseInt(current_width) + 20;
     $(target).css('min-width',current_width);
     $(target).css('width',current_width);
- 
+
+}
+
+function expand_spacer(target) {
+    var current_width = $(target).css('min-width');
+    current_width = current_width.substr(0,current_width.search("px"));
+    current_width = parseInt(current_width) + 20;
+    $(target).css('min-width',current_width);
+    $(target).css('width',current_width);
+
 }
 
 /* the functionality of these listeners will never change so they do not need to be run twice  */
@@ -214,7 +263,6 @@ function conflict_click(event){
 	conflict_status[clicked] = true;
 	constraint.show_conflict_view();
     }
-
 }
 
 
@@ -241,7 +289,7 @@ function set_transparent(){
 		    }
 		}
 	    }
-	    
+
 	})
     })
 
@@ -253,6 +301,7 @@ var __DEBUG__SLOT_OBJ;
 var current_item = null;
 var current_timeslot = null;
 function meeting_event_click(event){
+    hide_all_conflicts();
     try{
 	clear_highlight(find_friends(current_item));
     }catch(err){ }
@@ -281,7 +330,6 @@ function meeting_event_click(event){
 	session.load_session_obj(fill_in_session_info, slot_obj);
 	return;
     }
-
 
     for(var i = 0; i<slot.length; i++){
 	session_id = slot[i].session_id;
@@ -456,6 +504,8 @@ function draw_constraints(session) {
     $('.conflict_checkboxes').unbind('click');
     $('.conflict_checkboxes').click(conflict_click);
 
+    $('.conflict_checkboxes').click();
+
 }
 
 var menu_bar_hidden = false;
@@ -565,19 +615,6 @@ function update_from_slot(meeting_id, from_slot_id){
 }
 
 
-/* move_slot
-   @args: meeting_id - id of the thing we are moving
-          from_slot_id - id of the slot it's moving from
-	  to_slot_id - id of the slot it's moving to
-	  force - if there isn't a free slot here, should we 'force' it in?
-	          This should happen with the bucket list as it should continously grow.
- */
-function move_slot(meeting_id,from_slot_id,to_slot_id,force){
-    // not implemented.
-
-
-}
-
 
 function drop_drop(event, ui){
 
@@ -633,24 +670,25 @@ function drop_drop(event, ui){
 
 
     /* set colors */
+    $(this).removeClass('highlight_free_slot');
     if(check_free({id:to_slot_id}) ){
-	$(this).css('background-color', color_droppable_empty_slot)
+	// $(this).css('background-color', color_droppable_empty_slot)
 	$(this).addClass('free_slot')
     }
     else{
-	$(this).css('background-color',none_color);
+	// $(this).css('background-color',none_color);
 	$(this).removeClass('free_slot')
     }
 
     if(check_free({id:from_slot_id}) ){
-	$("#"+from_slot_id).css('background-color', color_droppable_empty_slot)
+	// $("#"+from_slot_id).css('background-color', color_droppable_empty_slot)
 	$("#"+from_slot_id).addClass('free_slot');
     }
     else{
-	$("#"+from_slot_id).css('background-color',none_color);
+	// $("#"+from_slot_id).css('background-color',none_color);
 	$("#"+from_slot_id).removeClass('free_slot');
     }
-    $("#"+"sortable-list").css('background-color',none_color);
+    // $("#"+"sortable-list").css('background-color',none_color);
     $("#"+"sortable-list").removeClass('free_slot');
     /******************************************************/
 
@@ -661,18 +699,19 @@ function drop_drop(event, ui){
 	    break;
 	}
     }
-    if(schedulesession_id != null){ 
+    if(schedulesession_id != null){
 	start_spin();
 	Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
 					      {
 						  'session_id':meeting_objs[meeting_id].session_id,
 						  'scheduledsession_id': schedulesession_id,
 					      });
-	
+
     }
     else{
 	console.log("issue sending ajax call!!!");
     }
+
     droppable();
     listeners();
 }
@@ -718,33 +757,6 @@ function drop_bucket(event,ui){
 
 }
 
-
-
-function drop_bucket2(event,ui){
-
-    var temp_session_id = ui.draggable.attr('id'); // the django session id
-    var idd = temp_session_id.substring(8,temp_session_id.length);
-    var session_obj =  meeting_objs[idd];
-
-    slot_status[session_obj.slot_status_key].session_id = null;
-    slot_status[session_obj.slot_status_key][0].empty = true;
-    $("#"+session_obj.slot_status_key).css('background',color_droppable_empty_slot);
-    session_obj.placed = false;
-    session_obj.slot_status_key = null;
-
-    var eTemplate = event_template(session_obj.title, session_obj.description,
-                                   session_obj.session_id, session_obj.area);
-    $(this).append(eTemplate);
-
-
-    ui.draggable.remove();
-    // dajaxice call should say this session has no timeslot.
-    // Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,{'new_event':new_event}); /* dajaxice_callback does nothing */
-    droppable();
-    listeners();
-
-}
-
 /* first thing that happens when we grab a meeting_event */
 function drop_activate(event, ui){
     $(event.draggable).css("background",dragging_color);
@@ -754,18 +766,20 @@ function drop_activate(event, ui){
 /* what happens when moving a meeting event over something that is 'droppable' */
 function drop_over(event, ui){
     if(check_free(this)){
-	$(this).css("background",highlight);
+	$(this).addClass('highlight_free_slot');
     }
-    $(ui.draggable).css("background",dragging_color);
-    $(event.draggable).css("background",dragging_color);
+    // $(ui.draggable).css("background",dragging_color);
+    // $(event.draggable).css("background",dragging_color);
 }
 
 /* when we have actually dropped the meeting event */
 function drop_out(event, ui){
     if(check_free(this)){
-	$(this).css("background",color_droppable_empty_slot);
-	$(this).addClass("free_slot");
+	if($(this).attr('id') != bucketlist){
+	    $(this).addClass("free_slot");
+	}
     }
+    $(this).removeClass('highlight_free_slot');
 }
 
 

@@ -11,6 +11,7 @@ from tempfile import mkstemp
 from django import forms
 from django.http import Http404
 from django.db.models import Max, Q
+from django.conf import settings
 
 import debug
 import urllib
@@ -106,6 +107,10 @@ class NamedTimeSlot(object):
             return [ {"area":ss.area+ss.acronym_name, "info":ss} for ss in things ]
         else:
             return [ ]
+
+    @property
+    def slot_decor(self):
+        return self.timeslot.slot_decor
 
 def get_ntimeslots_from_ss(agenda, scheduledsessions):
     ntimeslots = []
@@ -204,7 +209,6 @@ def get_area_list_from_sessions(scheduledsessions, num):
         'session__group__parent__acronym',flat=True)
 
 def build_all_agenda_slices(scheduledsessions, all = False):
-
     ################## just some debugging stuff ############
     time_slices = []
     #date_slices = set()
@@ -235,6 +239,7 @@ def build_all_agenda_slices(scheduledsessions, all = False):
 
 
     return time_slices,date_slices
+
 
 def get_scheduledsessions_from_schedule(schedule):
    ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).order_by('timeslot__time','timeslot__name')

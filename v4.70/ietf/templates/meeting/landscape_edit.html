@@ -26,7 +26,7 @@
 
 
 {% if server_mode %}
-	{% ifnotequal server_mode "production" %} 
+	{% ifnotequal server_mode "production" %}
 	<script src="https://towtruck.mozillalabs.com/towtruck.js"></script>
 	{% endifnotequal %}
 {% endif %}
@@ -65,7 +65,7 @@ function setup_slots(){
 {% for s in sessions %}
     meeting_objs["{{s.id}}"]=event_obj( "{{ s.short_name }}",
                                "{{ s.group.name }}",
-                               "{{s.id}}", 
+                               "{{s.id}}",
                                "{{s.owner.owner}}",
                                "{{s.group.id}}",
                                "{{s.group.parent.acronym|upper}}",
@@ -73,31 +73,29 @@ function setup_slots(){
 {% endfor %}
 
 {% for s in scheduledsessions %}
-    var s_obj= new slot_obj("{{s.id}}",
-                            "{{s.empty_str}}",
-			    "{{s.timeslot.id}}",
-			    "{{s.session.id}}",
-			    "{{s.timeslot.location|slugify}}",
-			    "{{s.timeslot.time|date:'Hi' }}",
-			    "{{s.timeslot.time|date:'Y-m-d'}}",
-			    "{{s.timeslot.js_identifier}}");
-    if(slot_status["{{s.timeslot.js_identifier}}"] != null){ // the key so two sessions in the same timeslot
-
-    }
-    else{ // doesn't exist so we create it.
-	$.extend(slot_status, { "{{s.timeslot.js_identifier}}":[]});
-    }
-    slot_status["{{s.timeslot.js_identifier}}"].push(s_obj);
+   make_ss({ "scheduledsession_id": "{{s.id}}",
+     "empty": "{{s.empty_str}}",
+     "timeslot_id":"{{s.timeslot.id}}",
+     "session_id" :"{{s.session.id}}",
+     "room"       :"{{s.timeslot.location|slugify}}",
+     "roomtype"   :"{{s.timeslot.type|lower}}",
+     "time"       :"{{s.timeslot.time|date:'Hi' }}",
+     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
+     "domid"      :"{{s.timeslot.js_identifier}}"});
 {% endfor %}
 
-   var s_obj= slot_obj("0",true,"Unassigned",null,"Unassigned",null,null,"sortable-list");
-   $.extend(slot_status, { "sortable-list" :[]});
-   slot_status["sortable-list"].push(s_obj);
+   make_ss({ "scheduledsession_id": 0,
+     "empty": true,
+     "timeslot_id":"Unassigned",
+     "session_id" :null,
+     "room"       :"Unassigned",
+     "time"       :null,
+     "date"       :null,
+     "domid"      :"sortable-list"});
+
    console.log("setup_slots run");
 
    calculate_room_select_box();
-
-   console.log("{{timeslots|length}}");
 
 {% for area in area_list %}
    legend_status["{{area.upcase_acronym}}"] = true;
@@ -120,7 +118,7 @@ function setup_slots(){
 </tr></table></div>
 <div class="wrapper custom_text_stuff">
 <div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
-<
+&lt;
 
 </div>
 
@@ -133,11 +131,11 @@ function setup_slots(){
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
   <th class="schedule_title"><span id="schedule_name">name: {{schedule.name}}</span><div id="spinner"><!-- spinney goes here --></div></th>
-{% for day in time_slices %} 
+{% for day in time_slices %}
   <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title">
     <div id="close_{{day|date:'Y-m-d'}}" class="close top_left very_small close_day">x</div>
-    {{day|date:'D'}}&nbsp;({{day}})  
- 
+    {{day|date:'D'}}&nbsp;({{day}})
+
   </th>
   <th class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer" id="">
     <div class="ui-widget-content ui-resizable" id="resize-{{day|date:'Y-m-d'}}-spacer">
@@ -146,10 +144,10 @@ function setup_slots(){
 </th>
 {% endfor %}
     <tr>
-      <th></th>
+      <th><button id="show_all_button" class="styled_button">show all</button></th>
     {% for day in time_slices %}
 	  {% for slot in date_slices|lookup:day %}
-	      <th class="day_{{day}} room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+	      <th class="day_{{day}}-{{slot.0|date:'Hi'}} day_{{day}} room_title ">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
 
 	  {% endfor %}
               <th class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer">
@@ -161,23 +159,23 @@ function setup_slots(){
 
 
 
-  {% for r in rooms %} 
-  <tr id="{{r|to_acceptable_id}}" class="agenda_slot"> 
+  {% for r in rooms %}
+  <tr id="{{r|to_acceptable_id}}" class="agenda_slot">
     <th class="vert_time">
       <div class="close very_small close_room top_left small_button" id="close_{{r|to_acceptable_id}}">X</div>
-      <div class="right room_name">{{r}}</div>
-      
+      <div class="right room_name">{{r}} <span class="capacity">({{r.capacity}})</span></div>
+
       <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r}}</span></th> -->
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
-        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'alt' '' %}" ></td>
+        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'agenda_slot_alt' '' %} agenda_slot_unavailable" ></td>
       {% endfor %}
         <td class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer"></td>
     {% endfor %}
   </tr>
   {% endfor %}
 </table>
- 
+
 
 
 </div>
@@ -203,7 +201,7 @@ function setup_slots(){
 	<tr><td class="ss_info_name_long">Requested By:</td><td id="info_requestedby"></td></tr>
       </table>
     </div>
-    
+
     <div id="conflict_table">
       <table>
 	<tr>
@@ -255,22 +253,22 @@ function setup_slots(){
       {% endfor %}
     </div>
   </div>
-  
+
   <div class="show_hidden_things">
     <div class="hide_buttons">
       <div class="very_small left">hidden rooms:<span id="hidden_rooms" >0/{{rooms|length}}</span></div>
       <div class="right"><button class="small_button" id="show_hidden_rooms">Show</button></div>
     </div>
-    
+
     <div class="hide_buttons">
       <div class="very_small left">hidden days:<span id="hidden_days" >0/{{time_slices|length}}</span></div>
       <div class="right"><button class="small_button" id="show_hidden_days">Show</button></div>
     </div>
-    
+
   </div>
 
   <div class="agenda_save_box">
-    
+
     <div id="agenda_title"><b>Agenda name: </b><span>{{schedule.name}}</span></div>
     <div id="agenda_saveas">
       <form action="{{saveasurl}}" method="post">{% csrf_token %}
@@ -285,7 +283,7 @@ function setup_slots(){
 </div>
 
 {% if server_mode %}
-	{% ifnotequal server_mode "production" %} 
+	{% ifnotequal server_mode "production" %}
 	<button onclick="TowTruck(this); return false;">Start TowTruck</button>
 	{% endifnotequal %}
 {% endif %}

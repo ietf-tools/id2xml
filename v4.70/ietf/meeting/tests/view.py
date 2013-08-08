@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.test.client import Client
 from ietf.meeting.models  import TimeSlot, Session, ScheduledSession
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
+from ietf.meeting.helpers import get_meeting
 
 class ViewTestCase(TestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
@@ -33,7 +34,6 @@ class ViewTestCase(TestCase):
         self.assertEqual(slot.js_identifier, "252b_2012-03-27_0900")
 
     def test_agenda_save(self):
-        from ietf.meeting.views import get_meeting
         #
         # determine that there isn't a schedule called "fred"
         mtg = get_meeting(83)

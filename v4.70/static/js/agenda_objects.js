@@ -23,6 +23,25 @@
 */
 
 
+function createLine(x1,y1, x2,y2){
+    var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+  var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  var transform = 'rotate('+angle+'deg)';
+
+    var line = $('<div>')
+        .appendTo('#meetings')
+        .addClass('line')
+        .css({
+          'position': '',
+          'transform': transform
+        })
+        .width(length)
+        .offset({left: x1, top: y1});
+
+    return line;
+}
+
+
 function empty_callback(inp){
 //    console.log('inp:', inp);
 }
@@ -34,10 +53,89 @@ function get_all_constraints(){
 
 }
 
+function display_conflicts(){
+    get_all_conflicts();
+    show_all_conflicts();
+}
+
+var all_conflicts = [];
+
+function show_all_conflicts(){
+    clear_conflict_classes();
+    for(var i =0; i<all_conflicts.length;i++){
+	if(all_conflicts[i][0].attr('class').split(' ').indexOf('show_conflict_specific_box') < 0){
+	    //console.log(all_conflicts[i][0]);
+	    all_conflicts[i][0].addClass("show_conflict_specific_box");
+	    all_conflicts[i][1].addClass("show_conflict_specific_box");
+	}
+	else{
+	    //console.log(all_conflicts[i][0].attr('class').split(' '));
+	    }
+
+    }
+}
+function hide_all_conflicts(){
+   for(var i =0; i<all_conflicts.length;i++){
+	    all_conflicts[i][0].removeClass("show_conflict_specific_box");
+	    all_conflicts[i][1].removeClass("show_conflict_specific_box");
+    }
+
+}
+
+
+var CONFLICT_LOAD_COUNT = 0;
+
+function get_all_conflicts(){
+    console.log("get_all_conflicts()");
+    for(s in meeting_objs){
+	try{
+	    meeting_objs[s].retrieve_constraints_by_session(then_this,
+							    function(){
+								CONFLICT_LOAD_COUNT++;
+								console.log(CONFLICT_LOAD_COUNT+"/"+meeting_objs_length);
+
+							    });
+	}
+	catch(err){
+	   // console.log(err);
+	}
+
+    }
+}
+
+var __DEBUG_SHOW_CONSTRAINT = null;
+function then_this(inp){
+    //console.log(inp);
+    try{
+	var vertical_location = "."+$("#"+inp.slot_status_key).attr('class').split(' ')[1];  // the timeslot for all rooms.
+	}
+    catch(err){
+    }
+
+    if(inp.constraints.conflict != null){
+	$.each(inp.constraints.conflict, function(i){
+	    classes=inp.constraints.conflict[i].column_class();
+	    if(classes != null){
+		$.each(classes, function(index,value){
+		    if(value[1] == vertical_location){
+			// there is a conflict!
+			__DEBUG_SHOW_CONSTRAINT = $("#"+value[0]).children()[0];
+			var conflict_pair = [$("#session_"+inp.session_id),$("#"+value[0])];
+			all_conflicts.push(conflict_pair);
+		    }
+
+		});
+	    }
+	});
+    }
+
+}
+
+
 function show_non_conflicting_spots(ss_id){
     var conflict_spots = []
     $.each(conflict_classes, function(key){
-	conflict_spots.push(conflict_classes[key].session.slot_status_key); 
+	conflict_spots.push(conflict_classes[key].session.slot_status_key);
     });
     var empty_slots = find_empty_slots();
     conflict_spots.forEach(function(val){
@@ -123,36 +221,47 @@ var daysofweek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // ScheduledSession is DJANGO name for this object, but needs to be renamed.
 // It represents a TimeSlot that can be assigned in this schedule.
-function ScheduledSlot() {}
+//   { "scheduledsession_id": "{{s.id}}",
+//     "empty": "{{s.empty_str}}",
+//     "timeslot_id":"{{s.timeslot.id}}",
+//     "session_id" :"{{s.session.id}}",
+//     "room"       :"{{s.timeslot.location|slugify}}",
+//     "time"       :"{{s.timeslot.time|date:'Hi' }}",
+//     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
+//     "domid"      :"{{s.timeslot.js_identifier}}"}
 
-function slot_obj(scheduledsession_id, empty, timeslot_id, session_id, room, time, date, domid) {
-    ss = new ScheduledSlot();
-    ss.scheduledsession_id = scheduledsession_id;
-    ss.empty       = empty;
-    ss.timeslot_id = timeslot_id;
-    ss.session_id  = session_id;
-    ss.date        = date;
-    ss.time        = time;
-    ss.room        = room;
+function ScheduledSlot(){
+}
 
-    ss.column_class= ".agenda-column-"+date+"-"+time;
+ScheduledSlot.prototype.initialize = function(json) {
+    for(var key in json) {
+	this[key]=json[key];
+    }
 
-    var d = new Date(ss.date);
+    /* this needs to be an object */
+    this.column_class=[this.room+"_"+this.date+"_"+this.time,
+                       ".agenda-column-"+this.date+"-"+this.time];
+
+    var d = new Date(this.date);
     var t = d.getUTCDay();
-    if(ss.room == "Unassigned"){
-	ss.short_string = "Unassigned";
+    if(this.room == "Unassigned"){
+	this.short_string = "Unassigned";
     }
     else{
-	ss.short_string = daysofweek[t] + ", "+ ss.time + ", " + upperCaseWords(ss.room);
+	this.short_string = daysofweek[t] + ", "+ this.time + ", " + upperCaseWords(this.room);
     }
-    if(domid) {
-	ss.domid = domid;
-    } else {
-	ss.domid = json_to_id(this);
-//	console.log("gen "+timeslot_id+" is domid: "+ss.domid);
+    if(!this.domid) {
+    	this.domid = json_to_id(this);
+        //console.log("gen "+timeslot_id+" is domid: "+this.domid);
     }
-    return ss;
-}
+    //console.log("extend "+this.domid+" with "+JSON.stringify(this));
+
+    // the key so two sessions in the same timeslot
+    if(slot_status[this.domid] == null) {
+	slot_status[this.domid]=[];
+    }
+    slot_status[this.domid].push(this);
+};
 
 ScheduledSlot.prototype.session = function() {
     if(this.session_id != undefined) {
@@ -161,6 +270,11 @@ ScheduledSlot.prototype.session = function() {
 	return undefined;
     }
 };
+
+function make_ss(json) {
+    var ss = new ScheduledSlot();
+    ss.initialize(json);
+}
 
 
 // SESSION OBJECTS
@@ -239,7 +353,7 @@ Session.prototype.generate_info_table = function(ss) {
     $("#info_location").html(generate_select_box()+"<button id='info_location_set'>set</button>");
 
     // XXX we use *GLOBAL* current_timeslot rather than ss.timeslot_id!!!
-    // when it's coming from the bucket list, the ss.timeslot_id will be null and thus not pick a value. here we put the logic. 
+    // when it's coming from the bucket list, the ss.timeslot_id will be null and thus not pick a value. here we put the logic.
     // if(ss.timeslot_id == null){
 	$("#info_name_select").val(ss.session_id);
 //    }
@@ -253,7 +367,7 @@ Session.prototype.generate_info_table = function(ss) {
 
     if(ss.timeslot_id == null){
 	$("#info_location_select").val(meeting_objs[ss.scheduledsession_id]);
-    }else{	
+    }else{
 	$("#info_location_select").val(ss.timeslot_id); // ***
     }
     $("#info_location_select").val($("#info_location_select_option_"+ss.timeslot_id).val());
@@ -275,14 +389,17 @@ Session.prototype.group = function(andthen) {
 };
 
 function load_all_groups() {
-    $.each(meeting_objs, function(key) {
-	       session = meeting_objs[key];
-	       // load the group object
-	       session.group();
-	   });
+    for(key in meeting_objs) {
+        session = meeting_objs[key];
+        // load the group object
+        group = session.group(null);
+        group.add_session(session);
+        log("group: ", group, "has session: ", session.session_id);
+    }
 }
+
 var __DEBUG_THIS_SLOT;
-Session.prototype.retrieve_constraints_by_session = function(andthen) {
+Session.prototype.retrieve_constraints_by_session = function(andthen, success) {
     __DEBUG_THIS_SLOT = this;
     if("constraints" in this && "conflict" in this.constraints) {
 	/* everything is good, call continuation function */
@@ -292,9 +409,25 @@ Session.prototype.retrieve_constraints_by_session = function(andthen) {
        var href = meeting_base_url+'/session/'+session_obj.session_id+"/constraints.json";
        $.getJSON( href, "", function(constraint_list) {
                       fill_in_constraints(session_obj, true,  constraint_list, andthen);
-                  });
-    } 
+       }).done(success);
+    }
 };
+
+
+Session.prototype.retrieve_contraint = function(){
+    var session_obj = this;
+    var href = meeting_base_url+'/session/'+session_obj.session_id+"/constraints.json";
+    $.getJSON( href, "", function(constraint_list) {
+//	console.log(constraint_list);
+	andthen();
+	// fill_in_constraints(session_obj, true,  constraint_list, andthen);
+    });
+
+}
+
+
+
+
 
 
 
@@ -317,8 +450,14 @@ Group.prototype.load_group_obj = function(andthen) {
     } else {
         andthen(group_obj);
     }
-}
+};
 
+Group.prototype.add_session = function(session) {
+    if(this.all_sessions == undefined) {
+        this.all_sessions = [];
+    }
+    this.all_sessions.push(session);
+};
 Group.prototype.add_column_class = function(column_class) {
     if(this.column_class == undefined) {
 	this.column_class = [];
@@ -327,7 +466,6 @@ Group.prototype.add_column_class = function(column_class) {
 };
 
 function find_group_by_href(href) {
-    //console.log("group href", href, group_objs[href]);
     if(group_objs[href] == undefined) {
 	group_objs[href]=new Group();
 	g = group_objs[href];
@@ -368,22 +506,58 @@ Constraint.prototype.column_class = function() {
 
 // red is arbitrary here... There should be multiple shades of red for
 // multiple types of conflicts.
+
+
+
+var __CONSTRAINT_DEBUG = null;
 Constraint.prototype.show_conflict_view = function() {
     classes=this.column_class()
+    //console.log("show_conflict_view", this);
+    __CONSTRAINT_DEBUG = this;
+//    console.log("viewing", this.thisgroup.href);
 
     for(ccn in classes) {
-	cc = classes[ccn];
-	$(cc).addClass("show_conflict_view_highlight");
+	var cc = classes[ccn];
+
+        /* this extracts the day from this structure */
+	var th_time = ".day_"+cc[1].substr(15);
+//        console.log("299", th_time);
+	$(th_time).addClass("show_conflict_view_highlight");
     }
+
+//    console.log("make box", this.thisgroup.href);
+    sessions = this.othergroup.all_sessions
+    if(sessions) {
+      $.each(sessions, function(key) {
+  //             console.log("2 make box", key);
+               var nid = "#session_"+this.session_id;
+//               console.log("279", this.session_id, nid);
+               $(nid).addClass("show_conflict_specific_box");
+           });
+    }
+//    console.log("viewed", this.thisgroup.href);
 };
+
 Constraint.prototype.clear_conflict_view = function() {
     classes=this.column_class()
-
+    //console.log("hiding", this.thisgroup.href);
     for(ccn in classes) {
-	cc = classes[ccn];
-	$(cc).removeClass("show_conflict_view_highlight");
-	// $(cc).css("background", "");
+	var cc = classes[ccn];
+	var th_time = ".day_"+cc[1].substr(15);
+//        console.log("259", th_time);
+	$(th_time).removeClass("show_conflict_view_highlight"); //css('background-color',"red");
     }
+
+  //  console.log("boxes for", this.thisgroup.href);
+    sessions = this.othergroup.all_sessions
+    if(sessions) {
+      $.each(sessions, function(key) {
+               var nid = "#session_"+this.session_id;
+//               console.log("269", this.session_id, nid);
+               $(nid).removeClass("show_conflict_specific_box");
+           });
+    }
+//    console.log("hid", this.thisgroup.href);
 };
 
 
@@ -405,7 +579,7 @@ Constraint.prototype.build_conflict_view = function() {
 Constraint.prototype.build_othername = function() {
     this.othergroup_name = this.othergroup.acronym;
 };
-    
+
 
 Constraint.prototype.conflict_view = function() {
     this.dom_id = "constraint_"+this.constraint_id;
@@ -422,7 +596,7 @@ Constraint.prototype.conflict_view = function() {
     } else {
         this.build_othername();
     }
-        
+
     return this.build_conflict_view();
 };
 
@@ -545,6 +719,7 @@ Session.prototype.sort_constraints = function() {
 	var sort3 = this.constraints.conflic3;
 	this.conflicts[3] = split_constraint_list_at(sort3, half);
     }
+
 };
 
 

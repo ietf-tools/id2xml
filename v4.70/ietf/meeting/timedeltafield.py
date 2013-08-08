@@ -28,7 +28,7 @@ class TimedeltaField(models.Field):
     """
     __metaclass__ = models.SubfieldBase
     empty_strings_allowed = False
-    
+
     def __init__(self, *args, **kwargs):
         super(TimedeltaField, self).__init__(*args, **kwargs)
 

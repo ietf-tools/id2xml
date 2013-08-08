@@ -1,7 +1,11 @@
 import sys
 from django.test import TestCase
 from django.test.client import Client
-from ietf.meeting.models  import TimeSlot, Session
+from ietf.name.models     import SessionStatusName
+from ietf.person.models   import Person
+from ietf.group.models    import Group
+from ietf.meeting.models  import TimeSlot, Session, Meeting
+from ietf.meeting.helpers import get_meeting
 
 class AgendaInfoTestCase(TestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
@@ -9,6 +13,14 @@ class AgendaInfoTestCase(TestCase):
                  'constraint83.json',
                  'workinggroups.json',
                  'person.json', 'users.json' ]
+
+    def test_SessionUnicode(self):
+        m1 = get_meeting("83")
+        g1 = Group.objects.get(acronym = "pkix")
+        p1 = Person.objects.get(pk = 5376)       # Russ Housley
+        st1 = SessionStatusName.objects.get(slug = "appr")
+        s1 = m1.session_set.create(name = "newone", group = g1, requested_by = p1, status = st1)
+        self.assertEqual(s1.__unicode__(), "IETF-83: pkix (unscheduled)")
 
     def test_AgendaInfo(self):
         from ietf.meeting.views import agenda_info

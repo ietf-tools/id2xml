@@ -22,7 +22,7 @@ def get_id(room,day):
     x = TimeSlot.objects.filter(time=date)
     return "bla"
 
-# returns the length of the value of a dict. 
+# returns the length of the value of a dict.
 # We are doing this to how long the title for the calendar should be. (this should return the number of time slots)
 @register.filter(name='colWidth')
 def get_col_width(dict, index):
@@ -30,17 +30,19 @@ def get_col_width(dict, index):
         return len(dict[index])
     return 0
 
-# Replaces characters that are not acceptable html ID's. ' ','&','/','\' to '_'
+# Replaces characters that are not acceptable html ID's
 @register.filter(name='to_acceptable_id')
 def to_acceptable_id(inp):
+    # see http://api.jquery.com/category/selectors/?rdfrom=http%3A%2F%2Fdocs.jquery.com%2Fmw%2Findex.php%3Ftitle%3DSelectors%26redirect%3Dno
+    # for more information.
+    invalid = ["!","\"", "#","$","%","&","'","(",")","*","+",",",".","/",":",";","<","=",">","?","@","[","\\","]","^","`","{","|","}","~"," "]
     out = str(inp)
-    out = out.replace(' ','_')
-    out = out.replace('&','_')
-    out = out.replace('/','_')
-    out = out.replace('\\','_')
+    for i in invalid:
+        out = out.replace(i,'_')
     return out
 
-    
+
 @register.filter(name='durationFormat')
 def durationFormat(inp):
-    return "%.1f h" % (float(inp)/3600)
+    return "%.1f" % (float(inp)/3600)
+

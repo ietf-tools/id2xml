@@ -21,16 +21,16 @@ class Migration(DataMigration):
                # assume that we have done this meeting already.
                sys.stdout.write("already done\n")
                continue
-            
+
             na = Schedule(name=("mtg:%s"%(meeting.number))[0:15],
                              owner=wanda,
                              visible=True, public=True)
-            na.meeting = meeting;
+            na.meeting = meeting
             na.save()
             meeting.agenda = na
             meeting.save()
             sys.stdout.write("\n  creating schedule %s\n" %(na.name))
-                                          
+
             for slot in meeting.timeslot_set.all():
                 session = slot.session
 
@@ -39,7 +39,7 @@ class Migration(DataMigration):
                     wg = "none"
                 else:
                     wg = session.group.acronym
-                    
+
                 sys.stdout.write ("  session for wg:%s       \r" % (wg))
                 ss = ScheduledSession(timeslot = slot,
                                       session  = slot.session,

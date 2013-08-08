@@ -6,6 +6,10 @@ from django.db import models
 from django.conf import settings
 from timedeltafield import TimedeltaField
 
+# mostly used by json_dict()
+from django.template.defaultfilters import slugify, date as date_format, time as time_format
+from django.utils import formats
+
 from ietf.group.models import Group
 from ietf.person.models import Person
 from ietf.doc.models import Document
@@ -109,6 +113,10 @@ class Meeting(models.Model):
     def url(self, sitefqdn, exten=".json"):
         return "%s/meeting/%s%s" % (sitefqdn, self.number, exten)
 
+    @property
+    def relurl(self):
+        return self.url("")
+
     def json_dict(self, sitefqdn):
         # unfortunately, using the datetime aware json encoder seems impossible,
         # so the dates are formatted as strings here.
@@ -128,6 +136,32 @@ class Meeting(models.Model):
             'reg_area':                self.reg_area
             }
 
+    def build_timeslices(self):
+        days = []          # the days of the meetings
+        time_slices = {}   # the times on each day
+        slots = {}
+
+        ids = []
+        for ts in self.timeslot_set.all():
+            if ts.location is None:
+                continue
+            ymd = ts.time.date()
+            if ymd not in time_slices:
+                time_slices[ymd] = []
+                slots[ymd] = []
+                days.append(ymd)
+
+            if ymd in time_slices:
+                # only keep unique entries
+                if [ts.time, ts.time + ts.duration] not in time_slices[ymd]:
+                    time_slices[ymd].append([ts.time, ts.time + ts.duration])
+                    slots[ymd].append(ts)
+
+        days.sort()
+        for ymd in time_slices:
+            time_slices[ymd].sort()
+            slots[ymd].sort(lambda x,y: cmp(x.time, y.time))
+        return days,time_slices,slots
 
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
@@ -136,6 +170,40 @@ class Room(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def delete_timeslots(self):
+        for ts in self.timeslot_set.all():
+            ts.scheduledsession_set.all().delete()
+            ts.delete()
+
+    def create_timeslots(self):
+        days, time_slices, slots  = self.meeting.build_timeslices()
+        for day in days:
+            for ts in slots[day]:
+                ts0 = TimeSlot.objects.create(type_id=ts.type_id,
+                                    meeting=self.meeting,
+                                    name=ts.name,
+                                    time=ts.time,
+                                    location=self,
+                                    duration=ts.duration)
+                for sched in self.meeting.schedule_set.all():
+                    sched.scheduledsession_set.create(timeslot=ts0,
+                                                      schedule=sched)
+
+    def url(self, sitefqdn):
+        return "%s/meeting/%s/room/%s.json" % (sitefqdn, self.meeting.number, self.id)
+
+    @property
+    def relurl(self):
+        return self.url("")
+
+    def json_dict(self, sitefqdn):
+        return {
+            'href':                 self.url(sitefqdn),
+            'name':                 self.name,
+            'capacity':             self.capacity,
+            }
+
 
 class TimeSlot(models.Model):
     """
@@ -250,8 +318,7 @@ class TimeSlot(models.Model):
         #  {{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}"
         # also must match:
         #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
-        from django.template.defaultfilters import slugify
-        return "%s_%s_%s" % (slugify(self.location.name), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
+        return "%s_%s_%s" % (slugify(self.get_location()), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
 
 
     @property
@@ -261,6 +328,64 @@ class TimeSlot(models.Model):
     @property
     def is_plenary_type(self, name, agenda=None):
         return self.scheduledsessions_at_same_time(agenda)[0].acronym == name
+
+    @property
+    def slot_decor(self):
+        if self.type_id == "plenary":
+            return "plenary";
+        elif self.type_id == "session":
+            return "session";
+        elif self.type_id == "non-session":
+            return "non-session";
+        else:
+            return "reserved";
+
+    def json_dict(self, selfurl):
+        ts = dict()
+        ts['timeslot_id'] = self.id
+        ts['room']        = slugify(self.location)
+        ts['roomtype'] = self.type.slug
+        ts["time"]     = date_format(self.time, 'Hi')
+        ts["date"]     = time_format(self.time, 'Y-m-d')
+        ts["domid"]    = self.js_identifier
+        return ts
+
+    def url(self, sitefqdn):
+        return "%s/meeting/%s/timeslot/%s.json" % (sitefqdn, self.meeting.number, self.id)
+
+    @property
+    def relurl(self):
+        return self.url("")
+
+
+    """
+    This routine takes the current timeslot, which is assumed to have no location,
+    and assigns a room, and then creates an identical timeslot for all of the other
+    rooms.
+    """
+    def create_concurrent_timeslots(self):
+        ts = self
+        for room in self.meeting.room_set.all():
+            ts.location = room
+            ts.save()
+            # this is simplest way to "clone" an object...
+            ts.id = None
+
+    """
+    This routine deletes all timeslots which are in the same time as this slot.
+    """
+    def delete_concurrent_timeslots(self):
+        # can not include duration in filter, because there is no support
+        # for having it a WHERE clause.
+        # below will delete self as well.
+        for ts in self.meeting.timeslot_set.filter(time=self.time).all():
+            if ts.duration!=self.duration:
+                continue
+
+            # now remove any schedule that might have been made to this
+            # timeslot.
+            ts.scheduledsession_set.all().delete()
+            ts.delete()
 
 class Schedule(models.Model):
     """
@@ -275,13 +400,83 @@ class Schedule(models.Model):
     meeting  = models.ForeignKey(Meeting, null=True)
     name     = models.CharField(max_length=16, blank=False)
     owner    = models.ForeignKey(Person)
-    visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
-    public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
+    visible  = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
+    public   = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
     # considering copiedFrom = models.ForeignKey('Schedule', blank=True, null=True)
 
     def __unicode__(self):
         return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
 
+    def url(self, sitefqdn):
+        return "%s/meeting/%s/agenda/%s" % (sitefqdn, self.meeting.number, self.name)
+
+    @property
+    def relurl(self):
+        return self.url("")
+
+    def url_edit(self, sitefqdn):
+        return "%s/meeting/%s/agenda/%s/edit" % (sitefqdn, self.meeting.number, self.name)
+
+    @property
+    def relurl_edit(self):
+        return self.url_edit("")
+
+    @property
+    def visible_token(self):
+        if self.visible:
+            return "visible"
+        else:
+            return "hidden"
+
+    @property
+    def public_token(self):
+        if self.public:
+            return "public"
+        else:
+            return "private"
+
+    @property
+    def is_official(self):
+        return (self.meeting.agenda == self)
+
+    @property
+    def official_class(self):
+        if self.is_official:
+            return "agenda_official"
+        else:
+            return "agenda_unofficial"
+
+    @property
+    def official_token(self):
+        if self.is_official:
+            return "official"
+        else:
+            return "unofficial"
+
+    def delete_scheduledsessions(self):
+        self.scheduledsession_set.all().delete()
+
+    # I'm loath to put calls to reverse() in there.
+    # is there a better way?
+    def url(self, sitefqdn):
+        # XXX need to include owner.
+        return "%s/meeting/%s/agendas/%s.json" % (sitefqdn, self.meeting.number, self.name)
+
+    def json_dict(self, sitefqdn):
+        sch = dict()
+        sch['schedule_id'] = self.id
+        sch['href']        = self.url(sitefqdn)
+        if self.visible:
+            sch['visible']  = "visible"
+        else:
+            sch['visible']  = "hidden"
+        if self.public:
+            sch['public']   = "public"
+        else:
+            sch['public']   = "private"
+        sch['owner']       = self.owner.url(sitefqdn)
+        # should include href to list of scheduledsessions, but they have no direct API yet.
+        return sch
 
 class ScheduledSession(models.Model):
     """
@@ -386,6 +581,21 @@ class ScheduledSession(models.Model):
         else:
             return "True"
 
+    def json_dict(self, selfurl):
+        ss = dict()
+        ss['scheduledsession_id'] = self.id
+        #ss['href']          = self.url(sitefqdn)
+        ss['empty'] =  self.empty_str
+        ss['timeslot_id'] = self.timeslot.id
+        if self.session:
+            ss['session_id']  = self.session.id
+        ss['room'] = slugify(self.timeslot.location)
+        ss['roomtype'] = self.timeslot.type.slug
+        ss["time"]     = date_format(self.timeslot.time, 'Hi')
+        ss["date"]     = time_format(self.timeslot.time, 'Y-m-d')
+        ss["domid"]    = self.timeslot.js_identifier
+        return ss
+
 
 class Constraint(models.Model):
     """
@@ -470,8 +680,11 @@ class Session(models.Model):
         if self.meeting.type_id == "interim":
             return self.meeting.number
 
-        ss0 = self.scheduledsession_set.order_by('timeslot__time')[0]
-        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0.timeslot.time.strftime("%H%M") if ss0 else "(unscheduled)")
+        ss0name = "(unscheduled)"
+        ss = self.scheduledsession_set.order_by('timeslot__time')
+        if ss:
+            ss0name = ss[0].timeslot.time.strftime("%H%M")
+        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0name)
 
     @property
     def short_name(self):

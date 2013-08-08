@@ -67,7 +67,7 @@ def update_timeslot(request, session_id=None, scheduledsession_id=None):
     except Exception as e:
         return json.dumps({'error':'invalid scheduledsession'})
 
-    return json.dumps({'message':'im happy!'})
+    return json.dumps({'message':'valid'})
 
 #
 # this get_info needs to be replaced once we figure out how to get rid of silly

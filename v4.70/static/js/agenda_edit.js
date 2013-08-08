@@ -1,3 +1,4 @@
+
 /*
 *   agenda_listeners.js
 *
@@ -36,15 +37,19 @@ var color_droppable_empty_slot = 'rgb(0, 102, 153)';
 var last_json_txt   = "";   // last txt from a json call.
 var last_json_reply = [];   // last parsed content
 
+var hidden_rooms = [];
+var total_rooms = 0; // the number of rooms
+var hidden_days = [];
+var total_days = 0; // the number of days
 /****************************************************/
-
 
 /////////////-END-GLOBALS-///////////////////////////////////////
 
 /* refactor this out into the html */
 $(document).ready(function() {
     initStuff();
- //   $("#CLOSE_IETF_MENUBAR").click();
+
+   $("#CLOSE_IETF_MENUBAR").click();
 
 });
 
@@ -71,7 +76,16 @@ function initStuff(){
 
 
 function dajaxice_callback(message){
-
+    /* if the message is empty, we got nothing back from the server, which probably 
+       means you are offline.
+    */
+    if(message == ""){
+	console.log("No response from server....");
+    }
+    /* do something more intelligent here like if the server returned invalid, we would revert the move */
+    else{
+	stop_spin();
+    }
 }
 
 function print_all_ss(objs){

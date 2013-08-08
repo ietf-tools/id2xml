@@ -23,12 +23,25 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
+
+
+{% if server_mode %}
+	{% ifnotequal server_mode "production" %} 
+	<script src="https://towtruck.mozillalabs.com/towtruck.js"></script>
+	{% endifnotequal %}
+{% endif %}
+
+
+
+
+
+
 {% dajaxice_js_import %}
 
+<script type='text/javascript' src='/js/spin.js'></script>
 <script type='text/javascript' src='/js/agenda_edit.js'></script>
 <script type='text/javascript' src='/js/agenda_helpers.js'></script>
 <script type='text/javascript' src='/js/agenda_objects.js'></script>
-
 <script type='text/javascript' src='/js/agenda_listeners.js'></script>
 
 
@@ -42,7 +55,8 @@ function my_js_callback(data){
 
 var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
-
+total_days = {{time_slices|length}};
+total_rooms = {{rooms|length}};
 function setup_slots(){
 {% for day in time_slices %}
     days.push("{{day}}");
@@ -54,7 +68,8 @@ function setup_slots(){
                                "{{s.id}}", 
                                "{{s.owner.owner}}",
                                "{{s.group.id}}",
-                               "{{s.group.parent.acronym|upper}}");
+                               "{{s.group.parent.acronym|upper}}",
+                               "{{s.requested_duration.seconds|durationFormat}}");
 {% endfor %}
 
 {% for s in scheduledsessions %}
@@ -103,7 +118,7 @@ function setup_slots(){
 
 {% block noTable %}
 </tr></table></div>
-<div class="wrapper">
+<div class="wrapper custom_text_stuff">
 <div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
 <
 
@@ -117,16 +132,28 @@ function setup_slots(){
 <div class="agenda_div">
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
-  <th class="schedule_title">name: {{schedule.name}}</th>
+  <th class="schedule_title"><span id="schedule_name">name: {{schedule.name}}</span><div id="spinner"><!-- spinney goes here --></div></th>
 {% for day in time_slices %} 
-  <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class="agenda_slot_title">{{day|date:'D'}}&nbsp;({{day}})  </th>
+  <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title">
+    <div id="close_{{day|date:'Y-m-d'}}" class="close top_left very_small close_day">x</div>
+    {{day|date:'D'}}&nbsp;({{day}})  
+ 
+  </th>
+  <th class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer" id="">
+    <div class="ui-widget-content ui-resizable" id="resize-{{day|date:'Y-m-d'}}-spacer">
+      <div class="spacer_grip ui-resizable-handle ui-resizable-e"></div>
+    </div>
+</th>
 {% endfor %}
     <tr>
-      <th><div id="spinner"><!-- spinney goes here --></div></th>
+      <th></th>
     {% for day in time_slices %}
 	  {% for slot in date_slices|lookup:day %}
-	      <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+	      <th class="day_{{day}} room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+
 	  {% endfor %}
+              <th class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer">
+	      </div></th>
 
     {% endfor %}
 
@@ -135,12 +162,17 @@ function setup_slots(){
 
 
   {% for r in rooms %} 
-  <tr id="{{r|nospace}}" class="agenda_slot"> 
-    <th class="vert_time">{{r}}</th>
+  <tr id="{{r|to_acceptable_id}}" class="agenda_slot"> 
+    <th class="vert_time">
+      <div class="close very_small close_room top_left small_button" id="close_{{r|to_acceptable_id}}">X</div>
+      <div class="right room_name">{{r}}</div>
+      
+      <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r}}</span></th> -->
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
-        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'alt' '' %}" ></td>
+        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'alt' '' %}" ></td>
       {% endfor %}
+        <td class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer"></td>
     {% endfor %}
   </tr>
   {% endfor %}
@@ -153,14 +185,16 @@ function setup_slots(){
 
 <div id="session-info" class="ui-droppable bucket-list room_title">
   <div class="agenda_slot_title"><b>Session Information:</b></div>
+
   <div class="ss_info_box">
     <div class="ss_info ss_info_left">
       <table>
 	<tr><td class="ss_info_name_short">Group:</td><td id="info_grp"></td></tr>
 	<tr><td class="ss_info_name_short">Name:</td><td id="info_name"></td></tr>
-	<tr><td class="ss_info_name_short">Area:</td><td id="info_area"></td></tr>
+	<tr><td class="ss_info_name_short">Area:</td><td><span id="info_area"></span><button id="show_all_area" class="right">Show All</button></td></tr>
       </table>
     </div>
+
     <div class="ss_info ss_info_right">
       <table>
 	<tr><td class="ss_info_name_long">Duration:</td><td id="info_duration"></td></tr>
@@ -173,11 +207,11 @@ function setup_slots(){
     <div id="conflict_table">
       <table>
 	<tr>
-	  <th class="heading" colspan=2>conflict 1</th>
+	  <th class="heading" colspan=2>conflict 1 <span class="small right cb_all_conflict">show all<input id="cb_conflict1" type="checkbox"></span></th>
 	  <th class="border"></th>
-	  <th class="heading" colspan=2>conflict 2</th>
+	  <th class="heading" colspan=2>conflict 2<span class="small right cb_all_conflict">show all<input id="cb_conflict2" type="checkbox"></span></th>
 	  <th class="border"></th>
-	  <th class="heading" colspan=2>conflict 3</th>
+	  <th class="heading" colspan=2>conflict 3<span class="small right cb_all_conflict">show all<input id="cb_conflict3" type="checkbox"></span></th>
 	</tr>
 	<tbody id="conflict_table_body">
 	  <tr id="row01">
@@ -210,17 +244,33 @@ function setup_slots(){
 	    <td class="conflict3 empty"></td>
 	    <td class="conflict3 empty"></td>
 	  </tr>
+
 	</tbody>
       </table>
     </div>
+    <div class="agenda_find_free"><button class="small_button" id="find_free">Find Free</button></div>
     <div class="color_legend">
       {% for area in area_list %}
       <span class="{{area.upcase_acronym}}-scheme"><input class='color_checkboxes' type="checkbox" id="{{area.upcase_acronym}}" value="{{area.upcase_acronym}}-value" checked>{{area.upcase_acronym}}</span>
       {% endfor %}
     </div>
   </div>
+  
+  <div class="show_hidden_things">
+    <div class="hide_buttons">
+      <div class="very_small left">hidden rooms:<span id="hidden_rooms" >0/{{rooms|length}}</span></div>
+      <div class="right"><button class="small_button" id="show_hidden_rooms">Show</button></div>
+    </div>
+    
+    <div class="hide_buttons">
+      <div class="very_small left">hidden days:<span id="hidden_days" >0/{{time_slices|length}}</span></div>
+      <div class="right"><button class="small_button" id="show_hidden_days">Show</button></div>
+    </div>
+    
+  </div>
 
   <div class="agenda_save_box">
+    
     <div id="agenda_title"><b>Agenda name: </b><span>{{schedule.name}}</span></div>
     <div id="agenda_saveas">
       <form action="{{saveasurl}}" method="post">{% csrf_token %}
@@ -234,9 +284,9 @@ function setup_slots(){
 
 </div>
 
-
-
-
-
+{% if server_mode %}
+	{% ifnotequal server_mode "production" %} 
+	<button onclick="TowTruck(this); return false;">Start TowTruck</button>
+	{% endifnotequal %}
+{% endif %}
 {% endblock %}
-

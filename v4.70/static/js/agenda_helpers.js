@@ -9,10 +9,11 @@
 *   
 */
 
-/* logging helper function */
+
 function log(text){
     console.log(text);
 }
+
 
 
 function print_all(){
@@ -38,6 +39,20 @@ function find_session_id(session_id){
     });
 }
 
+function find_same_area(area){
+    var areas = []
+    area = area.toUpperCase();
+    $.each(meeting_objs, function(index,obj){
+	if(obj.area == area){
+	    areas.push({id:index,slot_status_key:obj.slot_status_key})
+	    }
+    });
+    return areas
+}
+
+function style_empty_slots(){
+    
+}
 
 /* this pushes every event into the agendas */
 function load_events(){
@@ -55,13 +70,14 @@ function load_events(){
     $.each(slot_status, function(key) {
         ssid_arr = slot_status[key]
 	if(key == "sortable-list"){
-	    console.log("sortable list");
+	    //console.log("sortable list");
 	}else{
 	
 	for(var q = 0; q<ssid_arr.length; q++){
 	    ssid = ssid_arr[q];
             slot_id = ("#"+ssid.domid);
-            $(slot_id).css('background-color',color_droppable_empty_slot ); //'#006699'
+//            $(slot_id).css('background-color',color_droppable_empty_slot ); //'#006699'
+	    $(slot_id).addClass('free_slot');
             session = meeting_objs[ssid.session_id];
             if (session != null) {
 	       	session.slot_status_key = key;
@@ -103,7 +119,7 @@ function populate_events(js_room_id, title, description, session_id, owner, area
 
 function event_template(event_title, description, session_id, area){
     //console.log("area:"+area)
-    return "<table class='meeting_event' id='session_"+session_id+"'><tr id='meeting_event_title'><th class='"+area+"-scheme'>"+event_title+"</th></tr>";
+    return "<table class='meeting_event' id='session_"+session_id+"'><tr id='meeting_event_title'><th class='"+area+"-scheme'>"+event_title+"<span> ("+meeting_objs[session_id].duration+")</span>"+"</th></tr>";
 }
 
 function check_free(inp){
@@ -128,6 +144,7 @@ function clear_highlight(inp_arr){ // @args: array from slot_status{}
 	return false;
     }
     for(var i =0; i<inp_arr.length; i++){
+	$("#session_"+inp_arr[i].session_id).removeClass('free_slot');
 	$("#session_"+inp_arr[i].session_id).css('background-color','');
     }
     return true;
@@ -233,13 +250,20 @@ function calculate_name_select_box(){
     temp_sorted =mobj_array;
     for(var i = 0; i < mobj_array.length; i++){
 	//console.log("select box mobj["+i+"]="+mobj_array[i]);
-	html=html+"<option value='"+mobj_array[i].slot_status_key;
+	// html=html+"<option value='"+mobj_array[i].slot_status_key;
+	html=html+"<option value='"+mobj_array[i].session_id;
         html=html+"' id='info_name_select_option_";
 	ts_id = "err";
+	console.log(mobj_array[i].session_id);
 	try{
-	    ts_id = slot_status[mobj_array[i].slot_status_key][0].timeslot_id;
+	    //ts_id = slot_status[mobj_array[i].slot_status_key][0].timeslot_id;
+	    ts_id = mobj_array[i].session_id
+	    
+	    
 	    //console.log("ts_id="+ts_id);
 	}catch(err){
+	    console.log(err); // bucket list items.
+	    
 	}
         html=html+ts_id+"'>";
     
@@ -278,6 +302,7 @@ function insert_cell(js_room_id, text, replace){
 	    
         }
         $(slot_id).css('background','');
+	$(slot_id).removeClass('free_slot');
         if(found.length == 0){
             // do something here, if length was zero... then?
         }
@@ -386,6 +411,80 @@ function auto_remove(){
     })
 }
 
+
+/* for the spinnner */
+
+/* spinner code from:  
+       http://fgnass.github.com/spin.js/   
+       
+       ex: $("#spinner").spin()      < start the spin
+           $("#spinner").spin(false) < stop the spin
+    
+       http://gist.github.com/itsflorida   < jquery functionality. 
+
+       lines: 30,            // The number of lines to draw
+       length: 7,            // The length of each line
+       width: 1,             // The line thickness
+       radius: 20,           // The radius of the inner circle
+       corners: 1,           // Corner roundness (0..1)
+       rotate: 0,            // The rotation offset
+       color: '#000',        // #rgb or #rrggbb
+       speed: 1,             // Rounds per second
+       trail: 60,            // Afterglow percentage
+       shadow: false,        // Whether to render a shadow
+       hwaccel: true,        // Whether to use hardware acceleration
+       className: 'spinner', // The CSS class to assign to the spinner
+       zIndex: 2e9,          // The zindex (defaults to 2000000000)
+       top: 'auto',          // Top position relative to parent in px
+       left: 'auto'          // Left position relative to parent in px
+
+*/
+
+(function($) {
+    $.fn.spin = function(opts, color) {
+        if (Spinner) {
+           return this.each(function() {
+               var $this = $(this),
+               data = $this.data();
+                               
+               if (data.spinner) {
+                   data.spinner.stop();
+                   delete data.spinner;
+               }
+               if (opts !== false) {
+                   if (typeof opts === "string") {
+                       if (opts in presets) {
+                           opts = presets[opts];
+                       } else {
+                           opts = {};
+                       }
+                       if (color) {
+                           opts.color = color;
+                       }
+                   }
+                   data.spinner = new Spinner($.extend({color: $this.css('color')}, opts)).spin(this);
+               }
+           });
+       } else {
+           throw "Spinner class not available.";
+       }
+    };
+})(jQuery);
+
+
+function start_spin(opts){
+//spinner
+    // $("#schedule_name").hide();
+    $("#spinner").show();
+    $("#spinner").spin({lines:16, radius:8, length:16, width:4});
+    
+}
+function stop_spin(){
+//spinner
+    $("#schedule_name").show();
+    $("#spinner").hide();
+    $("#spinner").spin(false);
+}
 
 /*
  * Local Variables:

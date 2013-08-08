@@ -1,11 +1,19 @@
-body {
+/* body { */
+/*     margin-top: 40px; */
+/*     /\* text-align: center; *\/ */
+/*     font-size: 14px; */
+/*     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif; */
+/*     vertical-align:text-top; */
+/* } */
+
+/* we had previously overwritten the tag covering the entire body. */
+.custom_text_stuff{
     margin-top: 40px;
     text-align: center;
     font-size: 14px;
     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
     vertical-align:text-top;
 }
-
 
 .room_title{
     border:1px solid black;
@@ -22,7 +30,7 @@ body {
     width:100px;
     min-width:100px;
     font-size:12px;
-
+    position:relative;
 
 
 
@@ -33,6 +41,7 @@ body {
   background-color:#2647A0;
   overflow-x: hidden;
   padding: 7px 3px;
+  position:relative;
 }
 
 .bucket-list .agenda_slot_title {
@@ -263,6 +272,17 @@ td.ss_info_name_short{
     min-width:50px;
 }
 
+.agenda_find_free{
+    /* position:absolute; */
+    /* left: 3px; */
+    border: 1px solid #89D;
+    background-color: #EDF5FF;
+    padding: 5px;
+    max-width:  150px;
+    float:left;
+    margin-top:70px;
+    margin-left:3px;
+}
 
 .agenda_save_box {
   position: absolute;
@@ -277,6 +297,7 @@ td.ss_info_name_short{
   /* margin-bottom:3px; */
   padding: 5px;
   max-width:  150px;
+  min-height:97px;
 }
 
 .schedule_title {
@@ -301,12 +322,12 @@ td.ss_info_name_short{
 }
 
 div#conflict_table {
+  font-size: 8pt;
   position: absolute;
   left: 620px;
   top: 14px;
   margin-left: 10px;
   margin-top:  3px;
-  
 }
 
 #conflict_table table {
@@ -349,6 +370,160 @@ div#conflict_table {
   
 }
 
+#spinner{
+
+  height:50%;
+  /* margin-top:50%; */
+  /* margin-bottom:50%; */
+}
+
+
+.spacer{
+    background-color:#edf5ff;
+    width:1px;
+}
+.spacer_grip{
+   /* background-color:green; */
+   min-width:4px;
+   width:4px;
+   min-height:40px;
+   height:100%;
+   /* border:1px solid red; */
+   float:right;
+/*   margin-left:-100%; */
+   padding:0px;
+   /* cursor:se-resize; */
+
+background: #99beff; /* Old browsers */
+background: -moz-linear-gradient(left, #99beff 0%, #1e5799 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, right top, color-stop(0%,#99beff), color-stop(100%,#1e5799)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(left, #99beff 0%,#1e5799 100%); /* IE10+ */
+background: linear-gradient(to right, #99beff 0%,#1e5799 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', endColorstr='#1e5799',GradientType=1 ); /* IE6-9 */
+}
+
+.ui-resizable{
+    float:right;
+
+}
+.ui-resizable-e{
+    cursor: w-resize;
+
+}
+.ui-resizable-w{
+    cursor: e-resize;
+    
+}
+
+
+.small{
+    font: 13px/1.231 arial,helvetica,clean,sans-serif;
+}
+.very_small{
+    font: 10px/1.231 arial,helvetica,clean,sans-serif;
+}
+
+
+.right{
+    float:right;
+}
+
+.left{
+    float:left;
+}
+
+.free_slot{
+    background-color:rgb(0, 102, 153);
+    
+}
+
+.show_conflict_view_highlight{
+    background-color:red;
+}
+
 /* ::-webkit-scrollbar{ */
 /*     width:3px; */
 /* } */
+
+
+.ui-effects-transfer { border: 2px solid black; }
+
+
+.hide_room{
+    position:absolute;
+    top:0;
+    left:0;
+}
+.light_blue_border{
+    border: 1px solid #94d3e6;
+    height:100%;
+
+
+}
+.top_left{
+    position:absolute;
+    top:0;
+    left:0;
+}
+
+
+
+.close{
+    cursor:pointer;
+    background-color:white;
+    color:black;
+    min-width:11px;
+    width:11px;
+    max-width:11px;
+    min-height:11px;
+    height:11px;
+    max-height:11px;
+    border: 1px solid black;
+    border-radius: 50%;
+
+}
+
+.minimal_table{
+    border-collapse:collapse;
+    margin:0px;
+
+}
+
+
+.small_button{
+    font-size:8px;
+    cursor:pointer;
+}
+
+
+.show_hidden_things{
+    
+    position: absolute;
+    right:    200px;
+    bottom:   5px;
+    border: 1px solid #89D;
+    font-size: 11px;
+    background-color: #EDF5FF;
+    margin: 3px; 
+    padding: 5px;
+    max-width:  150px;
+    min-height:97px;
+    min-width:150px;
+}
+
+
+.hide_buttons{
+    margin:4px;
+    float:left;
+    min-width:150px;
+    border-bottom:1px solid #89D;
+
+}
+
+.room_name{
+    margin-left:12px;
+    margin-right:4px;
+
+}

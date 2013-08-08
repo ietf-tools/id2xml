@@ -153,7 +153,7 @@ class ApiTestCase(TestCase):
         resp = self.client.get('/group/pkix.json')
         #print "json: %s" % (resp.content)
         mtginfo = json.loads(resp.content)
-        self.assertNotNone(mtginfo)
+        self.assertNotEqual(mtginfo, None)
 
 
 

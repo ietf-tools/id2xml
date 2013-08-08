@@ -120,6 +120,9 @@ class Meeting(models.Model):
     def json_dict(self, sitefqdn):
         # unfortunately, using the datetime aware json encoder seems impossible,
         # so the dates are formatted as strings here.
+        agenda_url = ""
+        if self.agenda:
+            agenda_url = self.agenda.url(sitefqdn)
         return {
             'href':                 self.url(sitefqdn),
             'name':                 self.number,
@@ -127,6 +130,7 @@ class Meeting(models.Model):
             'submission_cut_off_date': fmt_date(self.get_submission_cut_off_date()),
             'submission_correction_date': fmt_date(self.get_submission_correction_date()),
             'date':                    fmt_date(self.date),
+            'agenda_href':             agenda_url,
             'city':                    self.city,
             'country':                 self.country,
             'time_zone':               self.time_zone,
@@ -626,12 +630,12 @@ class Constraint(models.Model):
         ct1['href']          = self.url(sitefqdn)
         ct1['name']          = self.name.slug
         if self.person is not None:
-            ct1['person'] = self.person.url(sitefqdn)
+            ct1['person_href'] = self.person.url(sitefqdn)
         if self.source is not None:
-            ct1['source'] = self.source.url(sitefqdn)
+            ct1['source_href'] = self.source.url(sitefqdn)
         if self.target is not None:
-            ct1['target'] = self.target.url(sitefqdn)
-        ct1['meeting'] = self.meeting.url(sitefqdn)
+            ct1['target_href'] = self.target.url(sitefqdn)
+        ct1['meeting_href'] = self.meeting.url(sitefqdn)
         return ct1
 
 

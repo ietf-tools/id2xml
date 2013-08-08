@@ -7,9 +7,9 @@ from django.shortcuts import get_object_or_404
 
 from ietf.ietfauth.decorators import group_required, has_role
 from ietf.name.models import TimeSlotTypeName
-from django.http import HttpResponseRedirect, HttpResponse, Http404, QueryDict
+from django.http import HttpResponseRedirect, HttpResponse, Http404, QueryDict, Http403
 
-from ietf.meeting.helpers import get_meeting, get_schedule
+from ietf.meeting.helpers import get_meeting, get_schedule, get_schedule_by_id, agenda_permissions
 from ietf.meeting.views   import edit_timeslots, edit_agenda
 
 
@@ -26,50 +26,71 @@ from ietf.settings import LOG_DIR
 log = logging.getLogger(__name__)
 
 @dajaxice_register
-def sayhello(request):
-    return json.dumps({'message':'Hello World'})
+def readonly(request, meeting_num, schedule_id):
+    meeting = get_meeting(meeting_num)
+    schedule = get_schedule_by_id(meeting, schedule_id)
 
-@group_required('Area_Director','Secretariat')
-@dajaxice_register
-def update_timeslot(request, session_id=None, scheduledsession_id=None):
-    if(session_id == None or scheduledsession_id == None):
-        if(scheduledsession_id == None):
-            pass # most likely the user moved the item and dropped it in the same box. js should never make the call in this case.
-        else:
-            log.debug("session_id=%s , scheduledsession_id=%s doing nothing and returning" % (session_id, scheduledsession_id))
+    secretariat = False
+    write_perm  = False
 
-        return
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    read_only = not canedit
 
-    # if(scheduledsession_id == "Unassigned"):
+    user = request.user
+    if has_role(user, "Secretariat"):
+        secretariat = True
+        write_perm  = True
 
-    #     return
-    session_id = int(session_id)
-
-
-    # log.info("%s is updating scheduledsession_id=%u to session_id=%u" %
-    #          (request.user, ss_id, session_id))
-
+    if has_role(user, "Area Director"):
+        write_perm  = True
 
     try:
-       session = Session.objects.get(pk=session_id)
+        person = user.get_profile()
+        if person is not None and schedule.owner == user.person:
+            read_only = False
     except:
-        return json.dumps({'error':'invalid session'})
+        # specific error if user has no profile...
+        pass
 
-    #log.debug(session)
+    return json.dumps(
+        {'secretariat': secretariat,
+         'write_perm':  write_perm,
+         'owner_href':  schedule.owner.url(request.get_host_protocol()),
+         'read_only':   read_only})
 
-    ss_id = int(scheduledsession_id)
-    for ss in session.scheduledsession_set.all():
-        ss.session = None
-        ss.save()
+@group_required('Area Director','Secretariat')
+@dajaxice_register
+def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None):
+    schedule = get_object_or_404(Schedule, pk = int(schedule_id))
+    meeting  = schedule.meeting
+    ss_id = 0
+    ss = None
+
+    print "schedule.owner: %s user: %s" % (schedule.owner, request.user.get_profile())
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+
+    if not canedit:
+        raise Http403
+        return json.dumps({'error':'no permission'})
+
+    session_id = int(session_id)
+    session = get_object_or_404(meeting.session_set, pk=session_id)
+
+    if scheduledsession_id is not None:
+        ss_id = int(scheduledsession_id)
+
+    if ss_id != 0:
+        ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
+
+    for ssO in schedule.scheduledsession_set.filter(session = session):
+        ssO.session = None
+        ssO.save()
 
     try:
         # find the scheduledsession, assign the Session to it.
-        if(ss_id == 0):
-            ss.session = None
-        else:
-            ss = ScheduledSession.objects.get(pk=ss_id)
+        if ss:
             ss.session = session
-        ss.save()
+            ss.save()
     except Exception as e:
         return json.dumps({'error':'invalid scheduledsession'})
 
@@ -238,7 +259,7 @@ def timeslot_sloturl(request, num=None, slotid=None):
 AgendaEntryForm = modelform_factory(Schedule, exclude=('meeting','owner'))
 EditAgendaEntryForm = modelform_factory(Schedule, exclude=('meeting','owner', 'name'))
 
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 def agenda_list(request, mtg):
     agendas = mtg.schedule_set.all()
     json_array=[]
@@ -248,7 +269,7 @@ def agenda_list(request, mtg):
                         mimetype="application/json")
 
 # duplicates save-as functionality below.
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 def agenda_add(request, meeting):
     # authorization was enforced by the @group_require decorator above.
 
@@ -269,7 +290,7 @@ def agenda_add(request, meeting):
         return HttpResponseRedirect(
             reverse(edit_agenda, args=[meeting.number, newagenda.name]))
 
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 def agenda_update(request, meeting, schedule):
     # authorization was enforced by the @group_require decorator above.
 
@@ -283,20 +304,32 @@ def agenda_update(request, meeting, schedule):
     user = request.user
     if has_role(user, "Secretariat"):
         if "public" in update_dict:
+            value1 = True
             value = update_dict["public"]
-            if value == "0" or value == 0:
-                value = False
-            log.debug("setting public for %s to %s" % (schedule, value))
-            schedule.public = value
+            if value == "0" or value == 0 or value=="false":
+                value1 = False
+            log.debug("setting public for %s to %s" % (schedule, value1))
+            schedule.public = value1
 
     if "visible" in update_dict:
+        value1 = True
         value = update_dict["visible"]
-        if value == "0" or value == 0:
-            value = False
-        log.debug("setting visible for %s to %s" % (schedule, value))
-        schedule.visible = value
+        if value == "0" or value == 0 or value=="false":
+            value1 = False
+        log.debug("setting visible for %s to %s" % (schedule, value1))
+        schedule.visible = value1
+
+    if "name" in update_dict:
+        value = update_dict["name"]
+        log.debug("setting name for %s to %s" % (schedule, value))
+        schedule.name = value
 
     schedule.save()
+
+    # enforce that a non-public schedule can not be the public one.
+    if meeting.agenda == schedule and not schedule.public:
+        meeting.agenda = None
+        meeting.save()
 
     if "HTTP_ACCEPT" in request.META and "application/json" in request.META['HTTP_ACCEPT']:
         return HttpResponse(json.dumps(schedule.json_dict(request.get_host_protocol())),
@@ -367,12 +400,14 @@ def meeting_update(request, meeting):
             meeting.agenda = None
         else:
             schedule = get_schedule(meeting, value)
+            if not schedule.public:
+                return HttpResponse(status = 406)
             #log.debug("3 meeting.agenda: %s" % (schedule))
             meeting.agenda = schedule
 
     #log.debug("2 meeting.agenda: %s" % (meeting.agenda))
     meeting.save()
-    return HttpResponse(status = 200)
+    return meeting_get(request, meeting)
 
 def meeting_json(request, meeting_num):
     meeting = get_meeting(meeting_num)
@@ -431,7 +466,7 @@ def session_json(request, num, sessionid):
 def session_constraints(request, num=None, sessionid=None):
     meeting = get_meeting(num)
 
-    print "Getting meeting=%s session contraints for %s" % (num, sessionid)
+    #print "Getting meeting=%s session contraints for %s" % (num, sessionid)
     try:
         session = meeting.session_set.get(pk=int(sessionid))
     except Session.DoesNotExist:

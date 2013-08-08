@@ -1,6 +1,6 @@
 
 /*
-*   agenda_listeners.js
+*   agenda_edit.js
 *
 *   Orlando Project: Credil 2013 ( http://credil.org/ )
 *   Author: Justin Hornosty ( justin@credil.org )
@@ -17,19 +17,22 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
+var meeting_number = 0;   // is the meeting name.
+var schedule_id    = 0;   // what is the schedule we are editing.
+var schedule_owner_href = '';  // who owns this schedule
+var is_secretariat = false;
 var meeting_objs = {};    // contains a list of session objects
-var slot_status = {};     // the status of the slot, in format { room_year-month-day_hour: { free: t/f, timeslotid: id } }
+var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
 
 var group_objs = {};      // list of working groups
 
+var read_only = true;     // it is true until we learn otherwise.
 var days = [];
 var legend_status = {};   // agenda area colors.
 
 var duplicate_sessions = {};
 /********* colors ************************************/
 
-var highlight = "red"; // when we click something and want to highlight it.
-var highlight_free = "green"
 var dragging_color = "blue"; // color when draging events.
 var none_color = '';  // when we reset the color. I believe doing '' will force it back to the stylesheet value.
 var color_droppable_empty_slot = 'rgb(0, 102, 153)';
@@ -43,7 +46,7 @@ var total_rooms = 0; // the number of rooms
 var hidden_days = [];
 var total_days = 0; // the number of days
 
-var bucketlist = "sortable-list" // for if/when the id for bucket list changes.
+var bucketlist_id = "sortable-list" // for if/when the id for bucket list changes.
 /****************************************************/
 
 /////////////-END-GLOBALS-///////////////////////////////////////
@@ -60,16 +63,19 @@ $(document).ready(function() {
    This is ran at page load and sets up the entire page.
 */
 function initStuff(){
-    log("initstuff() ran");
+    log("initstuff() running...");
     setup_slots();
     log("setup_slots() ran");
     droppable();
     log("droppable() ran");
+    load_all_groups();        // should be in a single big block.
+    log("groups loaded");
     load_events();
     log("load_events() ran");
     load_all_groups();        // should be in a single big block.
     log("groups loaded");
     find_meeting_no_room();
+
     listeners();
     static_listeners();
     log("listeners() ran");
@@ -78,14 +84,67 @@ function initStuff(){
 
     start_spin();
 
+    read_only = true;
+    log("do read only check");
+    read_only_check();
+    stop_spin();
+
     meeting_objs_length = Object.keys(meeting_objs).length;
 
     /* Comment this out for fast loading */
-    get_all_conflicts();
-    do_work(function(){ return CONFLICT_LOAD_COUNT >= meeting_objs_length }, function(){ stop_spin(); display_conflicts(); });
+    if(true) {
+        start_spin();
+        get_all_conflicts();
+        do_work(function() {
+            return CONFLICT_LOAD_COUNT >= meeting_objs_length;
+        },
+                function() {
+                    stop_spin();
+                    show_all_conflicts();
+                });
+    }
 
 }
 
+var __READ_ONLY;
+function read_only_result(msg) {
+    __READ_ONLY = msg;
+    is_secretariat = msg.secretariat;
+
+    read_only = msg.read_only;
+    console.log("read only", read_only);
+
+    if(!read_only) {
+	$("#read_only").css("display", "none");
+    }
+
+    if(msg.write_perm) {
+        $(".agenda_save_box").css("display", "block");
+        if(read_only) {
+            $(".agenda_save_box").css("position", "fixed");
+            $(".agenda_save_box").css("top", "20px");
+            $(".agenda_save_box").css("right", "10px");
+            $(".agenda_save_box").css("bottom", "auto");
+            $(".agenda_save_box").css("border", "3px solid blue");
+        }
+    } else {
+        $(".agenda_save_box").html("please login to save");
+    }
+
+    schedule_owner_href = msg.owner_href;
+    // XX go fetch the owner and display it.
+    console.log("owner href:", schedule_owner_href);
+
+    listeners();
+    droppable();
+}
+
+function read_only_check() {
+    Dajaxice.ietf.meeting.readonly(read_only_result,
+                                    {'meeting_num': meeting_number,
+                                     'schedule_id': schedule_id,
+                                    });
+}
 
 function dajaxice_callback(message){
     /* if the message is empty, we got nothing back from the server, which probably

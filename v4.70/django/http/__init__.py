@@ -21,6 +21,9 @@ RESERVED_CHARS="!*'();:@&=+$,/?%#[]"
 
 absolute_http_url_re = re.compile(r"^https?://", re.I)
 
+class Http403(Exception):
+    pass
+
 class Http404(Exception):
     pass
 

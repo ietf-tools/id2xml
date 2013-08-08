@@ -2,6 +2,7 @@
 
 #import models
 import datetime
+import sys
 import os
 import re
 import tarfile
@@ -22,6 +23,7 @@ from ietf.ietfauth.decorators import group_required, has_role
 from django.middleware.gzip import GZipMiddleware
 from django.db.models import Max
 from ietf.group.colors import fg_group_colors, bg_group_colors
+from django.forms.models import modelform_factory
 
 import debug
 import urllib
@@ -44,7 +46,8 @@ from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule
 from ietf.meeting.helpers import get_modified_from_scheduledsessions
 from ietf.meeting.helpers import get_wg_list, session_draft_list
-from ietf.meeting.helpers import get_meeting, get_schedule, read_agenda_file
+from ietf.meeting.helpers import get_meeting, get_schedule, read_agenda_file, agenda_permissions
+
 
 @decorator_from_middleware(GZipMiddleware)
 def materials(request, meeting_num=None, schedule_name=None):
@@ -168,7 +171,7 @@ def html_agenda_utc(request, num=None, schedule_name=None):
 class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)
 
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 def agenda_create(request, num=None, schedule_name=None):
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, schedule_name)
@@ -255,26 +258,20 @@ def edit_timeslots(request, num=None):
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 @decorator_from_middleware(GZipMiddleware)
 def edit_agenda(request, num=None, schedule_name=None):
 
     if request.method == 'POST':
         return agenda_create(request, num, schedule_name)
 
+    user  = request.user
+    requestor = user.get_profile()
+
     meeting = get_meeting(num)
+    #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, schedule_name ))
     schedule = get_schedule(meeting, schedule_name)
-
-    # get_modified_from needs the query set, not the list
-    sessions = meeting.session_set.order_by("id", "group", "requested_by")
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
-
-    area_list = get_areas()
-    wg_name_list = get_wg_name_list(scheduledsessions)
-    wg_list = get_wg_list(wg_name_list)
-
-    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, True)
+    #sys.stdout.write("2 requestor: %u for sched owned by: %u \n" % ( requestor.id, schedule.owner.id ))
 
     meeting_base_url = meeting.url(request.get_host_protocol(), "")
     site_base_url =request.get_host_protocol()
@@ -283,6 +280,29 @@ def edit_agenda(request, num=None, schedule_name=None):
     saveas = SaveAsForm()
     saveasurl=reverse(edit_agenda,
                       args=[meeting.number, schedule.name])
+
+    cansee,canedit = agenda_permissions(meeting, schedule, user)
+
+    if not cansee:
+        sys.stdout.write("visible: %s public: %s owner: %s rquest from: %s\n" % (
+                schedule.visible, schedule.public, schedule.owner, requestor))
+        return HttpResponse(render_to_string("meeting/private_agenda.html",
+                                             {"schedule":schedule,
+                                              "meeting": meeting,
+                                              "meeting_base_url":meeting_base_url},
+                                             RequestContext(request)), status=403, mimetype="text/html")
+
+    sessions = meeting.session_set.order_by("id", "group", "requested_by")
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+
+    # get_modified_from needs the query set, not the list
+    modified = get_modified_from_scheduledsessions(scheduledsessions)
+
+    area_list = get_areas()
+    wg_name_list = get_wg_name_list(scheduledsessions)
+    wg_list = get_wg_list(wg_name_list)
+
+    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, True)
 
     return HttpResponse(render_to_string("meeting/landscape_edit.html",
                                          {"schedule":schedule,
@@ -303,12 +323,32 @@ def edit_agenda(request, num=None, schedule_name=None):
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################
+#  show the properties associated with an agenda (visible, public)
+#    this page uses ajax PUT requests to the API
+#
+AgendaPropertiesForm = modelform_factory(Schedule, fields=('name','visible', 'public'))
+
+@group_required('Area Director','Secretariat')
+@decorator_from_middleware(GZipMiddleware)
+def edit_agenda_properties(request, num=None, schedule_name=None):
+
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+    form     = AgendaPropertiesForm(instance=schedule)
+
+    return HttpResponse(render_to_string("meeting/properties_edit.html",
+                                         {"schedule":schedule,
+                                          "form":form,
+                                          "meeting":meeting},
+                                         RequestContext(request)), mimetype="text/html")
+
+##############################################################################
 # show list of agendas.
 #
 
-@group_required('Area_Director','Secretariat')
+@group_required('Area Director','Secretariat')
 @decorator_from_middleware(GZipMiddleware)
-def edit_agendas(request, num=None):
+def edit_agendas(request, num=None, order=None):
 
     #if request.method == 'POST':
     #    return agenda_create(request, num, schedule_name)
@@ -320,8 +360,11 @@ def edit_agendas(request, num=None):
     if not has_role(user, 'Secretariat'):
         schedules = schedules.filter(visible = True) | schedules.filter(owner = user.get_profile())
 
+    schedules = schedules.order_by('owner', 'name')
+
     return HttpResponse(render_to_string("meeting/agenda_list.html",
                                          {"meeting":   meeting,
+                                          "sitefqdn":  request.get_host_protocol(),
                                           "schedules": schedules.all()
                                           },
                                          RequestContext(request)),

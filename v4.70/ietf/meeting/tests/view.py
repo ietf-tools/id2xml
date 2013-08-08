@@ -7,6 +7,8 @@ from django.test.client import Client
 from ietf.meeting.models  import TimeSlot, Session, ScheduledSession
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from ietf.meeting.helpers import get_meeting
+from django.core.urlresolvers import reverse
+from ietf.meeting.views import edit_agenda
 
 class ViewTestCase(TestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
@@ -51,11 +53,81 @@ class ViewTestCase(TestCase):
         self.assertNotEqual(fred, None, "fred not found")
 
     def test_agenda_edit_url(self):
-        from django.core.urlresolvers import reverse
-        from ietf.meeting.views import edit_agenda
         url = reverse(edit_agenda,
                       args=['83', 'fred'])
         self.assertEqual(url, "/meeting/83/schedule/fred/edit")
+
+    def test_agenda_edit_visible_farrel(self):
+        # farrel is an AD
+        url = reverse(edit_agenda,
+                      args=['83', 'russ_83_visible'])
+        resp = self.client.get(url, **auth_ferrel)
+        # a visible agenda can be seen by any logged in AD/Secretariat
+        self.assertEqual(resp.status_code, 200)
+
+    def test_agenda_edit_visible_joeblow(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'russ_83_visible'])
+        resp = self.client.get(url, **auth_joeblow)
+        # a visible agenda can not be seen unless logged in
+        self.assertEqual(resp.status_code, 403)
+
+    def test_agenda_edit_visible_authwlo(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'russ_83_visible'])
+        resp = self.client.get(url, **auth_wlo)
+        # secretariat can always see things
+        self.assertEqual(resp.status_code, 200)
+
+    def test_agenda_edit_public_farrel(self):
+        # farrel is an AD
+        url = reverse(edit_agenda,
+                      args=['83', 'mtg:83'])
+        resp = self.client.get(url, **auth_ferrel)
+        self.assertEqual(resp.status_code, 200) # a public agenda can be seen by any logged in AD/Secretariat
+
+    def test_agenda_edit_public_joeblow(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'mtg:83'])
+        resp = self.client.get(url, **auth_joeblow)
+        #self.assertEqual(resp.status_code, 200) # a public agenda can be seen by unlogged in people (read-only) XXX
+        self.assertEqual(resp.status_code, 403) # a public agenda can not be seen by unlogged in people
+
+    def test_agenda_edit_public_authwlo(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'mtg:83'])
+        resp = self.client.get(url, **auth_wlo)
+        self.assertEqual(resp.status_code, 200) # a public agenda can be seen by the secretariat
+
+    def test_agenda_edit_private_russ(self):
+        # farrel is an AD
+        url = reverse(edit_agenda,
+                      args=['83', 'russ_83_inv'])
+        resp = self.client.get(url, **auth_ferrel)
+        # a private agenda can only be seen its owner
+        self.assertEqual(resp.status_code, 403)  # even a logged in AD can not see another
+
+    def test_agenda_edit_private_farrel(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'sf_83_invisible'])
+        resp = self.client.get(url, **auth_ferrel)
+        self.assertEqual(resp.status_code, 200)  # a private agenda can only be seen its owner XXX
+
+    def test_agenda_edit_private_joeblow(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'sf_83_invisible'])
+        resp = self.client.get(url, **auth_joeblow)
+        self.assertEqual(resp.status_code, 403)  # a private agenda can not be seen by the public
+
+    def test_agenda_edit_private_authwlo(self):
+        url = reverse(edit_agenda,
+                      args=['83', 'sf_83_invisible'])
+        self.assertEqual(url, "/meeting/83/schedule/sf_83_invisible/edit")
+        resp = self.client.get(url, **auth_wlo)
+        self.assertEqual(resp.status_code, 200) # secretariat can see any agenda, even a private one.
+
+
+
 
 
 

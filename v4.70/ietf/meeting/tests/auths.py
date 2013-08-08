@@ -13,7 +13,8 @@ auth_ietfchair = {'REMOTE_USER':'rhousley'}
 # this is a generic user who has no special role
 auth_joeblow = {'REMOTE_USER':'joeblow'}
 
-auth_ferrel = {'REMOTE_USER':''}
+# this is user who is an AD
+auth_ferrel = {'REMOTE_USER':'stephen.farrell@cs.tcd.ie'}
 
 
 class AuthDataTestCase(TestCase):

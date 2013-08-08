@@ -86,6 +86,7 @@ function move_slot(from,to){
     //    start_spin();
     Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
     					  {
+                                              'schedule_id':schedule_id,
     					      'session_id':session_id,
     					      'scheduledsession_id': scheduledsession_id,
     					  });
@@ -157,13 +158,14 @@ function load_events(){
 	for(var q = 0; q<ssid_arr.length; q++){
 	    ssid = ssid_arr[q];
             slot_id = ("#"+ssid.domid);
-//            $(slot_id).css('background-color',color_droppable_empty_slot ); //'#006699'
+            //$(slot_id).css('background-color',color_droppable_empty_slot ); //'#006699'
 
 	    //console.log("removing class from "+ssid.domid);
 	    /* also, since we are HERE, set the class to indicate if slot is available */
 	    $(slot_id).addClass("agenda_slot_" + ssid.roomtype);
 	    $(slot_id).addClass('free_slot');
 	    $(slot_id).removeClass("agenda_slot_unavailable");
+	    $(slot_id).removeClass("agenda_slot_session");
 
             session = meeting_objs[ssid.session_id];
             if (session != null) {
@@ -173,6 +175,8 @@ function load_events(){
 
 		// connect to the group.
 		session.group();
+                session.column_class = ssid.column_class;
+                //console.log("session:",session.title, "column_class", ssid.column_class);
 
                 populate_events(key,
                                 session.title,
@@ -183,9 +187,10 @@ function load_events(){
 
 		// note in the group, what the class of column is.
 		// this is an array, as the group might have multiple
-		// sessions.
+		// sessions!
 		group = session.group();
-		group.add_column_class(ssid.column_class);
+                group.add_column_class(ssid.column_class);
+		group.add_session(session);
 
             } else {
 		//log("ssid: "+key+" is null");
@@ -206,7 +211,7 @@ function populate_events(js_room_id, title, description, session_id, owner, area
 
 function event_template(event_title, description, session_id, area){
     //console.log("area:"+area)
-    return "<table class='meeting_event' id='session_"+session_id+"'><tr id='meeting_event_title'><th class='"+area+"-scheme meeting_obj'>"+event_title+"<span> ("+meeting_objs[session_id].duration+")</span>"+"</th></tr>";
+    return "<table class='meeting_event "+ event_title +"' id='session_"+session_id+"'><tr id='meeting_event_title'><th class='"+area+"-scheme meeting_obj'>"+event_title+"<span> ("+meeting_objs[session_id].duration+")</span>"+"</th></tr>";
 }
 
 function check_free(inp){
@@ -280,9 +285,11 @@ function empty_info_table(){
     $("#info_name").html("");
     $("#info_area").html("");
     $("#info_duration").html("");
-    $("#info_location").html(generate_select_box()+"<button id='info_location_set'>Set</button>");
-    $("#info_location_select").val("");
-    $("#info_location_select").val($("#info_location_select_option_"+current_timeslot).val());
+    if(!read_only) {
+        $("#info_location").html(generate_select_box()+"<button id='info_location_set'>Set</button>");
+        $("#info_location_select").val("");
+        $("#info_location_select").val($("#info_location_select_option_"+current_timeslot).val());
+    }
     $("#info_responsible").html("");
     $("#info_requestedby").html("");
 }
@@ -343,11 +350,7 @@ function calculate_name_select_box(){
 	ts_id = "err";
 	//console.log(mobj_array[i].session_id);
 	try{
-	    //ts_id = slot_status[mobj_array[i].slot_status_key][0].timeslot_id;
-	    ts_id = mobj_array[i].session_id
-
-
-	    //console.log("ts_id="+ts_id);
+	    ts_id = mobj_array[i].session_id;
 	}catch(err){
 	    console.log(err); // bucket list items.
 

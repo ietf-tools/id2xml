@@ -117,12 +117,12 @@ tr.agenda_slot{
 td.agenda_slot{
     /* overflow-y:auto; */
     /* height:20px; */
-    /* max-height:20px; */
+    height: 40px;
     /* min-height:20px; */
    /* height:50px; */
 }
 
-.agenda_slot{
+.agenda_slot {
     /* background-color:#E6E6E6; */
     padding:0px;
     width:100px;
@@ -441,80 +441,23 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
 }
 
 .show_conflict_specific_box {
-  border: 5px solid red;
+  border: 2px solid red;
 }
 
-#spinner{
-
-  height:50%;
-  /* margin-top:50%; */
-  /* margin-bottom:50%; */
+.same_group {
+    background-color: green;
+}
+.selected_group {
+    background-color: purple;
+}
+.selected_slot {
+    background-color: purple;
 }
 
-
-.spacer{
-    background-color:#edf5ff;
-    width:1px;
-}
-.spacer_grip{
-   /* background-color:green; */
-   min-width:4px;
-   width:4px;
-   min-height:40px;
-   height:100%;
-   /* border:1px solid red; */
-   float:right;
-/*   margin-left:-100%; */
-   padding:0px;
-   /* cursor:se-resize; */
-
-background: #99beff; /* Old browsers */
-background: -moz-linear-gradient(left, #99beff 0%, #1e5799 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, right top, color-stop(0%,#99beff), color-stop(100%,#1e5799)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(left, #99beff 0%,#1e5799 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(left, #99beff 0%,#1e5799 100%); /* IE10+ */
-background: linear-gradient(to right, #99beff 0%,#1e5799 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', endColorstr='#1e5799',GradientType=1 ); /* IE6-9 */
-}
-
-.ui-resizable{
-    float:right;
-
-}
-.ui-resizable-e{
-    cursor: w-resize;
-
-}
-.ui-resizable-w{
-    cursor: e-resize;
-
-}
-
-
-.small{
-    font: 13px/1.231 arial,helvetica,clean,sans-serif;
-}
-.very_small{
-    font: 10px/1.231 arial,helvetica,clean,sans-serif;
-}
-
-
-.right{
-    float:right;
-}
-
-.left{
-    float:left;
-}
-
-.free_slot{
-    background-color:rgb(0, 102, 153);
-
-}
-
-.show_conflict_view_highlight{
-    background-color:red;
+table.actual_conflict {
+  padding-left: 20px;
+  background-image: url('/images/clker-1195427724688380074fire_cefa_01.png');
+  background-repeat: no-repeat;
 }
 
 /* ::-webkit-scrollbar{ */
@@ -784,7 +727,7 @@ div.agenda_list tr td.agenda_data {
 }
 
 .agenda_data span {
-    cursor:pointer;
+    /* cursor:pointer; */
 }
 
 .agenda_official_row {
@@ -797,3 +740,44 @@ div.line{
   background: #000; /* Black fill */
 }
 
+#read_only {
+    position: relative;
+    margin-top: 15px;
+    margin-bottom: 4px;
+    margin-left: 40%;
+    padding: 2px 6px;
+    font-size: 16pt;
+    width: 500px;
+    text-align: center;
+    border: 2px double;
+    border-radius: 9px;
+}
+
+#read_only p {
+    padding: 0px;
+}
+
+#agenda_edit_properties {
+    position: relative;
+    border: 2px solid black;
+    border-radius: 5px;
+    background: white;
+    padding: 30px;
+    height: 250px;
+    width:  450px;
+    top: 30%;
+    left: 40%;
+}
+
+#agenda_edit_properties fieldset {
+    border: none;
+}
+
+#agenda_edit_properties td {
+    text-align: left;
+    font-size: 10pt;
+}
+
+#agenda_edit_properties div#title table {
+    display: inline;
+}

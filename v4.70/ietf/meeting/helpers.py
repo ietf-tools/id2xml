@@ -18,6 +18,7 @@ import urllib
 
 from django.shortcuts import get_object_or_404
 from ietf.idtracker.models import InternetDraft
+from ietf.ietfauth.decorators import has_role
 from ietf.utils.history import find_history_active_at
 from ietf.doc.models import Document, State
 
@@ -316,3 +317,37 @@ def get_schedule(meeting, name=None):
         schedule = get_object_or_404(meeting.schedule_set, name=name)
     return schedule
 
+def get_schedule_by_id(meeting, schedid):
+    if schedid is None:
+        schedule = meeting.agenda
+    else:
+        schedule = get_object_or_404(meeting.schedule_set, id=int(schedid))
+    return schedule
+
+def agenda_permissions(meeting, schedule, user):
+    # do this in positive logic.
+    cansee = False
+    canedit= False
+    requestor= None
+
+    try:
+        requestor = user.get_profile()
+    except:
+        pass
+
+    #sys.stdout.write("requestor: %s for sched: %s \n" % ( requestor, schedule ))
+    if has_role(user, 'Secretariat'):
+        cansee = True
+        # secretariat is not superuser for edit!
+
+    if (has_role(user, 'Area Director') and schedule.visible):
+        cansee = True
+
+    if schedule.public:
+        cansee = True
+
+    if requestor is not None and schedule.owner == requestor:
+        cansee = True
+        canedit = True
+
+    return cansee,canedit

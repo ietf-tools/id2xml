@@ -53,10 +53,13 @@ function my_js_callback(data){
 }<!-- dajaxice example --> {% endcomment %}
 
 
+meeting_number = {{ meeting.number }};
+schedule_id    = {{ schedule.id }};
 var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
 total_days = {{time_slices|length}};
 total_rooms = {{rooms|length}};
+
 function setup_slots(){
 {% for day in time_slices %}
     days.push("{{day}}");
@@ -116,6 +119,15 @@ function setup_slots(){
 
 {% block noTable %}
 </tr></table></div>
+<div id="read_only">
+<p>
+You do not have write permission to agenda: {{schedule.name}}
+</p>
+</p>
+Please save this agenda to your account first.
+</p>
+</div>
+
 <div class="wrapper custom_text_stuff">
 <div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
 &lt;

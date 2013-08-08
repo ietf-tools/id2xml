@@ -15,14 +15,14 @@ set :scm_user, ENV['LOGNAME']
 set :ssh_options, { :forward_agent => true }
 
 # GIT
-#set :scm, :git
-#set :branch, 'master'
-#set :repository,  "git+ssh://#{scm_user}@code.gatineau.credil.org/git/orlando/ietfdb"
-#set :git_enable_submodules, true
+set :scm, :git
+set :branch, 'master'
+set :repository,  "git+ssh://#{scm_user}@code.gatineau.credil.org/git/orlando/ietfdb"
+set :git_enable_submodules, true
 
 # SVN
-set :scm, :subversion
-set :repository,  "http://svn.tools.ietf.org/svn/tools/ietfdb/branch/ssw/agenda/v4.35.1"
+#set :scm, :subversion
+#set :repository,  "http://svn.tools.ietf.org/svn/tools/ietfdb/branch/ssw/agenda/v4.41"
 
 set :django_environment, "cd #{release_path}"
 

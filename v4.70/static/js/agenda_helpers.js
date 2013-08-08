@@ -194,14 +194,13 @@ function load_events(){
 
                 if(ssid.extendedto != undefined) {
                     session.double_wide = true;
+                    session.slot2 = ssid.extendedto;
                 }
                 if(ssid.extendedfrom == undefined) {
 	       	    session.slot_status_key = key;
                 }
 
 	        $(slot_id).removeClass('free_slot');
-		// connect to the group.
-		session.group();
                 session.add_column_class(ssid.column_class);
                 //console.log("session:",session.title, "column_class", ssid.column_class);
 
@@ -210,19 +209,27 @@ function load_events(){
                 }
 		//log("setting "+slot_id+" as used");
 
-		// note in the group, what the class of column is.
-		// this is an array, as the group might have multiple
-		// sessions!
-		group = session.group();
-                group.add_column_classes(ssid.column_class_list);
-		group.add_session(session);
-
-                session.placed();
+                session.placed(ssid);
             } else {
 	        $(slot_id).addClass('free_slot');
             }
 	}
 	}
+    });
+
+    $.each(meeting_objs, function(key) {
+        session = meeting_objs[key];
+
+	// note in the group, what the set of column classes is.
+	// this is an array, as the group might have multiple
+	// sessions!
+	group = session.group;
+        if(group == undefined) {
+            console.log("session: ", session.title, "has no group_href:", session.group_href);
+        } else {
+            group.add_column_classes(session.column_class_list);
+	    group.add_session(session);
+        }
     });
 
 }

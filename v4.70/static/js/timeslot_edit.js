@@ -26,7 +26,6 @@ var days = [];
 var legend_status = {};   // agenda area colors.
 
 var duplicate_sessions = {};
-var bucketlist_id = "sortable-list" // for if/when the id for bucket list changes.
 
 /********* colors ************************************/
 

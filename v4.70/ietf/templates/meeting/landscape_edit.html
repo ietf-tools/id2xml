@@ -75,7 +75,9 @@ function setup_slots(){
                 "owner": "{{s.owner.owner}}",
                 "group_id":"{{s.group.id}}",
                 "area":"{{s.group.parent.acronym|upper}}",
-                "duration":"{{s.requested_duration.seconds|durationFormat}}"});
+                "duration":"{{s.requested_duration.seconds|durationFormat}}",
+                "attendees":"{{s.attendees}}",
+	       });
 {% endfor %}
 
 {% for s in scheduledsessions %}
@@ -83,8 +85,8 @@ function setup_slots(){
      "empty": "{{s.empty_str}}",
      "timeslot_id":"{{s.timeslot.id}}",
      "session_id" :"{{s.session.id}}",
-     {% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
-     {% endif %}"room"       :"{{s.timeslot.location|slugify}}",
+     {% if s.session %}{% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
+     {% endif %}{% endif %}"room"       :"{{s.timeslot.location|slugify}}",
      {% if s.slot_to_the_right %}"following_timeslot_id":"{{s.slot_to_the_right.id}}",
      {% endif %}"roomtype"   :"{{s.slottype|lower}}",
      "time"       :"{{s.timeslot.time|date:'Hi' }}",
@@ -135,16 +137,17 @@ Please save this agenda to your account first.
 
 <div class="wrapper custom_text_stuff">
 
-<div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
-&lt;
-</div>
+
 <div id="unassigned-items">
-  <div id="all_agendas">
+  <div id="recalculate" class="events_bar_buttons">
+    <button class="styled_button">recalculate</button>
+  </div>
+  <div id="all_agendas" class="events_bar_buttons">
     <a href="{% url ietf.meeting.views.edit_agendas meeting.number %}">
       <button class="styled_button">all agendas</button>
     </a>
   </div>
-  <div id="unassigned_order">
+  <div id="unassigned_order" class="events_bar_buttons">
     <select id="unassigned_sort_button" class="dialog">
       <option id="unassigned_alpha" value="alphaname" selected>Alphabetical</option>
       <option id="unassigned_area" value="area">By Area</option>
@@ -153,7 +156,11 @@ Please save this agenda to your account first.
     </select>
   </div>
   <div class="agenda_slot_title" >
+    <div style="ui-icon ui-icon-arrow-1-w" id="CLOSE_IETF_MENUBAR">
+      &lt;
+    </div>
     <b>Unassigned Events:</b>
+    <span id="schedule_name">name: {{schedule.name}}</span>
   </div>
   <div id="sortable-list" class="ui-droppable bucket-list room_title">
   </div>
@@ -188,7 +195,7 @@ Please save this agenda to your account first.
 </div>
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
-  <th class="schedule_title"><span id="schedule_name">name: {{schedule.name}}</span><div id="spinner"><!-- spinney goes here --></div></th>
+  <th class="schedule_title"><div id="spinner"><!-- spinney goes here --></div></th>
 {% for day in time_slices %}
   <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title">
     <div id="close_{{day|date:'Y-m-d'}}" class="close top_left very_small close_day">x</div>
@@ -226,7 +233,7 @@ Please save this agenda to your account first.
       <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r}}</span></th> -->
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
-        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot agenda_slot_unavailable" ></td>
+        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot agenda_slot_unavailable" capacity="{{r.capacity}}" ></td>
       {% endfor %}
         <td class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer"></td>
     {% endfor %}
@@ -344,6 +351,26 @@ Please save this agenda to your account first.
 </div>
 
 </div>
+
+<!-- some boxes for dialogues -->
+<div id="dialog-confirm" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    <span id="dialog-confirm-text"></span>
+  </p>
+</div>
+
+<div id="can-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
+</div>
+
+<div id="can-not-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    You can not extend this session. The slot is not available.
+  </p>
+</div>
+
+
 
 {% if server_mode %}
 	{% ifnotequal server_mode "production" %}

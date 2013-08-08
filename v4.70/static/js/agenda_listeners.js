@@ -11,6 +11,8 @@
 *
 */
 
+var bucketlist_id = "sortable-list" // for if/when the id for bucket list changes.
+
 function resize_listeners() {
     for(i = 0; i<days.length;i++){
         $("#resize-"+days[i]+"-spacer").resizable({maxHeight:10,
@@ -32,7 +34,8 @@ function listeners(){
     $("#meetings").unbind('click');
     $("#meetings").click(all_click);
 
-    $('.meeting_event').unbind('click'); // If we don't unbind it, things end up getting stacked, and tons of ajax things are sent.
+    // If we don't unbind it, things end up getting stacked, and tons of ajax things are sent.
+    $('.meeting_event').unbind('click');
     $('.meeting_event').click(meeting_event_click);
 
     $('#info_location_select').unbind('change');
@@ -79,22 +82,42 @@ function listeners(){
 
 }
 
-function toggle_dialog(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, dom_obj){
+function toggle_dialog(session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, dom_obj, slot_occupied, too_small){
     var result = "null";
+    var message = "";
+    console.log(session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, dom_obj);
+    if(slot_occupied && !too_small){
+	message = "Are you sure you want to put two sessions into the same slot?"
+    }
+    else if(too_small && !slot_occupied){
+	message = "The room you are moving to has a lower room capacity then the requested capacity,<br>Are you sure you want to continue?";
+    }
+    else if(too_small && slot_occupied){
+	message = "The slot you are moving to already has a session in it, the room is also smaller than the requested amount.<br>Are you sure you want to continue?";
+    }
+    else{
+	console.log("error, from toggle_dialog:",session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, dom_obj, slot_occupied, too_small);
+	return
+	}
+
+    $("#dialog-confirm-text").html(message);
     $( "#dialog-confirm" ).dialog({
-	resizable: false,
-	height:140,
+	resizable: true,
 	modal: true,
 	buttons: {
             "Yes": function() {
 		$( this ).dialog( "close" );
 		result = "yes";
-		move_slot(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, dom_obj,true /* force */);
+                session.double_wide = false;
+		move_slot(session,
+                          to_slot_id, to_slot,
+                          from_slot_id, from_slot,
+                          bucket_list, event, ui, dom_obj, /* same_timeslot=*/true);
             },
-	    "Swap Slots": function(){
-		$( this ).dialog( "close" );
-		result = "swap";
-	    },
+	    //"Swap Slots": function(){
+	    //	$( this ).dialog( "close" );
+	    //	result = "swap";
+	    //},
             Cancel: function() {
 		$( this ).dialog( "close" );
 		result = "cancel"
@@ -220,15 +243,27 @@ function slot_item_hidden(selector){
 
 
 function find_empty_slot(){
-    var free_slots = []
+    // var free_slots = [];
+
     $.each($(".free_slot"), function(index,item){
 	if(!$(item).hasClass("show_conflict_view_highlight")){
-	    free_slots.push(item);
+	       free_slots.push(item);
 	}
     });
-
+    var perfect_slots = []; // array of slots that have a capacity higher than the session.
     if(free_slots.length > 0){
-	return free_slots[0]; // just return the first one.
+	for(var i = 0; i< free_slots.length; i++){
+	    if(parseInt($(free_slots[i]).attr("capacity")) >= parseInt(meeting_objs[current_item.attr('session_id')].attendees) ){
+		perfect_slots.push(free_slots[i]);
+	    }
+	}
+	if(perfect_slots.length > 0){
+	    return perfect_slots[0];
+	}
+	else{
+	    return free_slots[0]; // just return the first one.
+	}
+
     }
     else{
 	return null;
@@ -240,7 +275,7 @@ function extend_slot(event) {
     // event is just the button push, ignore it.
 
     session = last_session;
-    slot    = current_timeslot;
+    slot    = session.slot;
 
     console.log("session", session.title, "slot:", slot.scheduledsession_id);
 
@@ -263,6 +298,8 @@ function extend_slot(event) {
                     slot.extendedto.extendedfrom = slot;
                     session.double_wide = true;
                     session.repopulate_event(slot.domid);
+                    droppable();
+                    listeners();
 		    $( this ).dialog( "close" );
                 },
                 Cancel: function() {
@@ -273,6 +310,99 @@ function extend_slot(event) {
         });
     } else {
         $( "#can-not-extend-dialog" ).dialog();
+    }
+}
+
+function find_free(){
+    var empty_slot = find_empty_slot();
+    if(empty_slot != null){
+	$(empty_slot).effect("highlight", {},3000);
+	if(current_item != null){
+	    $(current_item).addClass('ui-effects-transfer');
+	    $(current_item).effect("transfer", {to: $(empty_slot) }, 1000);
+	}
+	$(current_item).removeClass('ui-effects-transfer');
+    }
+}
+
+
+function expand_spacer(target) {
+    var current_width = $(target).css('min-width');
+    current_width = current_width.substr(0,current_width.search("px"));
+    current_width = parseInt(current_width) + 20;
+    $(target).css('min-width',current_width);
+    $(target).css('width',current_width);
+
+}
+
+function sort_by_alphaname(a,b) {
+    am = meeting_objs[$(a).attr('session_id')]
+    bm = meeting_objs[$(b).attr('session_id')]
+    if(am.title < bm.title) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+function sort_by_area(a,b) {
+    am = meeting_objs[$(a).attr('session_id')]
+    bm = meeting_objs[$(b).attr('session_id')]
+    if(am.area < bm.area) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+function sort_by_duration(a,b) {
+    am = meeting_objs[$(a).attr('session_id')]
+    bm = meeting_objs[$(b).attr('session_id')]
+    if(am.duration < bm.duration) {
+        // sort duration biggest to smallest.
+        return 1;
+    } else if(am.duration == bm.duration &&
+              am.title    < bm.title) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+function sort_by_specialrequest(a,b) {
+    am = meeting_objs[$(a).attr('session_id')]
+    bm = meeting_objs[$(b).attr('session_id')]
+    if(am.special_request == '*' && bm.special_request == '') {
+        return -1;
+    } else if(am.special_request == '' && bm.special_request == '*') {
+        return 1;
+    } else if(am.title < bm.title) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
+function sort_unassigned() {
+    $('#'+bucketlist_id+" div.meeting_box_container").sort(unassigned_sort_function).appendTo('#'+bucketlist_id);
+}
+
+var unassigned_sort_function = sort_by_alphaname;
+function unassigned_sort_change(){
+    var last_sort_method = unassigned_sort_function;
+    var sort_method= $("#unassigned_sort_button").attr('value');
+
+    if(sort_method == "alphaname") {
+        unassigned_sort_function = sort_by_alphaname;
+    } else if(sort_method == "area") {
+        unassigned_sort_function = sort_by_area;
+    } else if(sort_method == "duration") {
+        unassigned_sort_function = sort_by_duration;
+    } else if(sort_method == "special") {
+        unassigned_sort_function = sort_by_specialrequest;
+    } else {
+        unassigned_sort_function = sort_by_alphaname;
+    }
+
+    if(unassigned_sort_function != last_sort_method) {
+        sort_unassigned();
     }
 }
 
@@ -386,7 +516,23 @@ function static_listeners(){
     $('#unassigned_sort_button').change(unassigned_sort_change);
     $('#unassigned_sort_button').css('display','block');
     $("#unassigned_alpha").attr('selected',true);
+    $("#recalculate").click(recalculate);
     sort_unassigned();
+}
+
+// recalculate all conflicts from scratch
+function recalculate(event) {
+    start_spin();
+    console.log("loading all conflicts");
+    get_all_conflicts();
+    do_work(function() {
+        return CONFLICT_LOAD_COUNT >= meeting_objs_length;
+    },
+            function() {
+                stop_spin();
+                console.log("showing all conflicts");
+                show_all_conflicts();
+            });
 }
 
 function color_legend_click(event){
@@ -447,6 +593,7 @@ function set_transparent(){
 
 }
 
+var __debug_meeting_click = false;
 var clicked_event;
 var __DEBUG__SESSION_OBJ;
 var __DEBUG__SLOT_OBJ;
@@ -459,6 +606,10 @@ function meeting_event_click(event){
     try{
 	clear_highlight(find_friends(current_item));
     }catch(err){ }
+
+    if(__debug_meeting_click) {
+        console.log("1 meeting_click:", event);
+    }
 
     // keep event from going up the chain.
     event.preventDefault();
@@ -473,44 +624,38 @@ function meeting_event_click(event){
     conflict_classes = {};
 
     var slot_id = $(event.target).closest('.agenda_slot').attr('id');
-    //console.log("meeting_click:", slot_id);
-    var meeting_event_id = $(this).attr('id');
+    var container  = $(event.target).closest('.meeting_box_container');
 
-    clicked_event = event;
-
-    slot = slot_status[slot_id];
-    meeting_event_id = meeting_event_id.substring(8,meeting_event_id.length);
-    var session = meeting_objs[meeting_event_id];
-    last_session = session;
-
-    if(slot == null){ // not in a real slot...
+    if(container == undefined) {
         // 20130606 XXX WHEN IS THIS USED?
 	var slot_obj = {   slot_id: meeting_event_id ,
             scheduledsession_id:meeting_event_id,
             timeslot_id: null,
             session_id: meeting_event_id,
          }
-	session.load_session_obj(fill_in_session_info, slot_obj);
+	session.load_session_obj(fill_in_session_info, session.slot);
 	return;
     }
 
-    for(var i = 0; i<slot.length; i++){
-	session_id = slot[i].session_id;
-	if(session_id == meeting_event_id){
-            session.selectit();
-	    current_item = session.element();
+    var session_id = container.attr('session_id');
+    var session = meeting_objs[session_id];
+    last_session = session;
 
-            current_timeslot    = slot[i];
-	    current_timeslot_id = slot[i].timeslot_id;
+    session.selectit();
+    current_item = session.element();
 
-	    empty_info_table();
-            //console.log("2 meeting_click:", slot[i]);
-	    session.load_session_obj(fill_in_session_info, slot[i]);
-	}
-	__DEBUG__SLOT_OBJ = slot[i];
-	__DEBUG__SESSION_OBJ = session;
+    current_timeslot    = session.slot;
+    if(current_timeslot != undefined) {
+        current_timeslot_id = current_timeslot.timeslot_id;
+    }
+    if(__debug_meeting_click) {
+        console.log("2 meeting_click:", current_timeslot, session);
     }
 
+    empty_info_table();
+    session.load_session_obj(fill_in_session_info, session.slot);
+    __DEBUG__SLOT_OBJ = slot[i];
+    __DEBUG__SESSION_OBJ = session;
 }
 
 var last_item = null; // used during location change we make the background color
@@ -604,7 +749,7 @@ function fill_in_session_info(session, success, extra) {
     if(session == null || session == "None" || !success){
 	empty_info_table();
     }
-    $('#ss_info').html(session.generate_info_table(extra));
+    $('#ss_info').html(session.generate_info_table());
     $('#double_slot').click(extend_slot);
     $(".agenda_double_slot").removeClass("button_disabled");
     $(".agenda_double_slot").addClass("button_enabled");
@@ -743,24 +888,24 @@ function droppable(){
 
 
 var arr_key_index = null;
-function update_to_slot(meeting_id, to_slot_id, force){
-    console.log("meeting_id:",meeting_id);
+function update_to_slot(session_id, to_slot_id, force){
+    console.log("meeting_id:",session_id);
     var to_slot = slot_status[to_slot_id];
 
     var found = false;
     for(var i=0; i<to_slot.length; i++){
 	if(to_slot[i].empty == "True" || to_slot[i].empty == true){ // we found a empty place to put it.
 	    // setup slot_status info.
-	    to_slot[i].session_id = meeting_id;
+	    to_slot[i].session_id = session_id;
 
             if(to_slot_id != bucketlist_id) {
 	        to_slot[i].empty = false;
             }
 
 	    // update meeting_obj
-	    //meeting_objs[meeting_id].slot_status_key = to_slot[i].domid
+	    //meeting_objs[session_id].slot_status_key = to_slot[i].domid
 	    arr_key_index = i;
-	    meeting_objs[meeting_id].placed();
+	    meeting_objs[session_id].placed();
 	    found = true;
 	    // update from_slot
 
@@ -772,12 +917,14 @@ function update_to_slot(meeting_id, to_slot_id, force){
         var unassigned_slot_obj = new ScheduledSlot();
         unassigned_slot_obj.scheduledsession_id = to_slot[0].scheduledsession_id;
         unassigned_slot_obj.timeslot_id         = to_slot[0].timeslot_id;
-        unassigned_slot_obj.session_id          = meeting_id;
+        unassigned_slot_obj.session_id          = session_id;
         // unassigned_slot_obj.session_id          = to_slot[0].session_id;
-	console.log("meeting_id:",meeting_id);
-	console.log("to_slot (BEFORE):", to_slot, to_slot.length);
+
+	//console.log("session_id:",session_id);
+	//console.log("to_slot (BEFORE):", to_slot, to_slot.length);
+
 	to_slot.push(unassigned_slot_obj);
-	console.log("to_slot (AFTER):", to_slot, to_slot.length);
+	//console.log("to_slot (AFTER):", to_slot, to_slot.length);
 	arr_key_index = to_slot.length-1;
 	found = true;
 	return found;
@@ -786,14 +933,14 @@ function update_to_slot(meeting_id, to_slot_id, force){
 }
 
 
-function update_from_slot(meeting_id, from_slot_id){
+function update_from_slot(session_id, from_slot_id){
 
-    var from_slot = slot_status[meeting_objs[meeting_id].slot_status_key]; // remember this is an array...
+    var from_slot = slot_status[meeting_objs[session_id].slot_status_key]; // remember this is an array...
     var found = false;
 
     if(from_slot_id != null){ // it will be null if it's coming from a bucketlist
 	for(var k = 0; k<from_slot.length; k++){
-	    if(from_slot[k].session_id == meeting_id){
+	    if(from_slot[k].session_id == session_id){
 		found = true;
 		from_slot[k].empty = true;
 		from_slot[k].session_id = null;
@@ -812,8 +959,9 @@ function update_from_slot(meeting_id, from_slot_id){
 
 function drop_drop(event, ui){
 
-    var meeting_id = ui.draggable.attr('id'); // the meeting id.
-    meeting_id = meeting_id.substring(8,meeting_id.length); // it has session_ infront of it. so make it this.
+    var session_id = ui.draggable.attr('session_id');   // the session was added as an attribute
+    console.log("UI:", ui, session_id);
+    var session    = meeting_objs[session_id];
 
     var session = meeting_objs[meeting_id];
 
@@ -823,39 +971,111 @@ function drop_drop(event, ui){
     var from_slot_id = session.slot_status_key;
     var from_slot = slot_status[session.slot_status_key]; // remember this is an array...
 
+    var room_capacity = parseInt($(this).attr('capacity'));
+    var session_attendees = parseInt(session.attendees);
+
+    var too_small = false;
+    var occupied = false;
+
+    if(session_attendees > room_capacity){
+	too_small = true;
+    }
+
     console.log("from -> to", from_slot_id, to_slot_id);
     bucket_list = (to_slot_id == bucketlist_id);
     if(!check_free({id:to_slot_id}) ){
 	console.log("not free...");
 	if(!bucket_list) {
-	    toggle_dialog(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, this);
-	    return
+	    occupied = true
 	}
     }
-    move_slot(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui, this);
+
+    if(too_small || occupied){
+	toggle_dialog(session,
+                          to_slot_id, to_slot,
+                          from_slot_id, from_slot,
+                          bucket_list, event, ui, this, occupied, too_small);
+	return
+    }
+
+    clear_conflict_classes();
+    // clear double wide setting for now.
+    // (could return if necessary)
+    session.double_wide = false;
+
+    move_slot(session,
+              to_slot_id, to_slot,
+              from_slot_id, from_slot,
+              bucket_list, event, ui, this, /* force=*/false);
 }
 
-function move_slot(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_slot, bucket_list, event, ui,thiss,force){
-/* thiss: is a jquery selector of where the slot will be appeneded to
-   Naming is in regards to that most often function is called from drop_drop where 'this' is the dom dest.
-*/
+function recalculate_conflicts_for_session(session, old_column_classes, new_column_classes)
+{
+    // go recalculate things
+    session.clear_conflict();
+    session.retrieve_constraints_by_session(find_and_populate_conflicts,
+                                            function() {});
+
+    var sk;
+    for(sk in meeting_objs) {
+        var s = meeting_objs[sk];
+
+        for(ocn in old_column_classes) {
+            var old_column_class = old_column_classes[ocn];
+
+            for(ncn in new_column_classes) {
+                var new_column_class = new_column_classes[ncn];
+
+                //console.log("recalc? looking at ",s.title, old_column_class.column_tag, new_column_class.column_tag);
+                for(ccn in s.column_class_list) {
+                    var column_class = s.column_class_list[ccn];
+
+                    if(s != session && column_class != undefined &&
+                       (column_class.column_tag == new_column_class.column_tag||
+                        column_class.column_tag == old_column_class.column_tag)) {
+                        console.log("recalculating conflicts for:", s.title);
+                        s.clear_conflict();
+                        s.retrieve_constraints_by_session(find_and_populate_conflicts,
+                                                          function() {});
+                    }
+                }
+            }
+        }
+    }
+    console.log("new conflict for ",session.title," is ", session.conflicted);
+    show_all_conflicts();
+}
+
+var _LAST_MOVED;
+function move_slot(session,
+                   to_slot_id, to_slot,
+                   from_slot_id, from_slot,
+                   bucket_list, event, ui, thiss,
+                   same_timeslot){
+
+    /* thiss: is a jquery selector of where the slot will be appeneded to
+       Naming is in regards to that most often function is called from drop_drop where 'this' is the dom dest.
+    */
+    var update_to_slot_worked = false;
+
+    _LAST_MOVED = session;
 
     console.log("from_slot", from_slot);
     var update_to_slot_worked = false;
-    if(force == null){
-	force = false;
+    if(same_timeslot == null){
+	same_timeslot = false;
     }
-    if(bucket_list){
-	update_to_slot_worked = update_to_slot(meeting_id, to_slot_id, true);
+    if(bucket_list) {
+	update_to_slot_worked = update_to_slot(session.session_id, to_slot_id, true);
     }
     else{
-	update_to_slot_worked = update_to_slot(meeting_id, to_slot_id, force);
+	update_to_slot_worked = update_to_slot(session.session_id, to_slot_id, same_timeslot);
     }
 
     console.log("update_slot_worked", update_to_slot_worked);
     if(update_to_slot_worked){
-	if(update_from_slot(meeting_id, from_slot_id)){
-	    remove_duplicate(from_slot_id,meeting_id);
+	if(update_from_slot(session.session_id, from_slot_id)){
+	    remove_duplicate(from_slot_id, session.session_id);
 	    // do something
 	}
 	else{
@@ -872,9 +1092,10 @@ function move_slot(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_
     session.slot_status_key = to_slot[arr_key_index].domid
     //*****  do dajaxice call here  ****** //
 
-    console.log("this:", thiss);
-    var eTemplate = event_template(session.title, session.description, session.session_id,session.area);
-    $(thiss).append(eTemplate)
+    var eTemplate = session.event_template()
+
+    //console.log("this:", thiss);
+    $(thiss).append(eTemplate);
 
     ui.draggable.remove();
 
@@ -905,49 +1126,49 @@ function move_slot(meeting_id, session, to_slot_id, to_slot, from_slot_id, from_
     var schedulesession_id = null;
     var scheduledsession = null;
     for(var i =0; i< to_slot.length; i++){
-	if (to_slot[i].session_id == meeting_id){
+	if (to_slot[i].session_id == session.session_id){
             scheduledsession = to_slot[i];
 	    schedulesession_id = to_slot[i].scheduledsession_id;
 	    break;
 	}
     }
     if(schedulesession_id != null){
-	start_spin();
-	console.log('schedule_id',schedule_id,'session_id',meeting_objs[meeting_id].session_id,'scheduledsession_id', schedulesession_id);
+        session.placed(scheduledsession);
+        start_spin();
+	console.log('schedule_id',schedule_id,
+                    'session_id', session.session_id,
+                    'scheduledsession_id', schedulesession_id);
+
+        if(session.slot2) {
+            session.double_wide = false;
+	    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
+					      {
+                                                  'schedule_id':schedule_id,
+						  'session_id': session.session_id,
+						  'scheduledsession_id': 0,
+					      });
+            session.slot2 = undefined;
+        }
+
 	if(same_timeslot){
 	    	Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
 					      {
                                                   'schedule_id':schedule_id,
-						  'session_id':meeting_objs[meeting_id].session_id,
+						  'session_id': session.session_id,
 						  'scheduledsession_id': schedulesession_id,
+                                                  'extended_from_id': 0,
 						  'duplicate':true
 					      });
-	}else{
+	}else {
 	    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
 						  {
                                                       'schedule_id':schedule_id,
-						      'session_id':meeting_objs[meeting_id].session_id,
+						      'session_id': session.session_id,
 						      'scheduledsession_id': schedulesession_id,
 						  });
 	}
-        old_column_class = session.column_class;
-        if(bucket_list) {
-            session.on_bucket_list();
-            new_column_class = new ColumnClass();
-        } else {
-            new_column_class = scheduledsession.column_class;
-        }
-        console.log("setting column_class for ",session.title," to ",new_column_class.column_tag, "was: ", old_column_classes[0].column_tag);
-        session.column_class_list = [];
-        session.add_column_class(new_column_class);
-        console.log("unset conflict for ",session.title," is ", session.conflicted);
 
-        _LAST_MOVED_OLD = old_column_classes;
-        _LAST_MOVED_NEW = new_column_class;
-
-        session.group_obj.del_column_classes(old_column_classes);
-        session.group_obj.add_column_class(new_column_class);
-        recalculate_conflicts_for_session(session, old_column_classes, new_column_class);
+        session.update_column_classes([scheduledsession], bucket_list);
     }
     else{
 	console.log("issue sending ajax call!!!");

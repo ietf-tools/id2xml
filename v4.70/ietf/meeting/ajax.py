@@ -64,7 +64,8 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     schedule = get_object_or_404(Schedule, pk = int(schedule_id))
     meeting  = schedule.meeting
     ss_id = 0
-    ess_id =0
+    ess_id = 0
+    ess = None
     ss = None
 
     print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
@@ -89,7 +90,12 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     if ess_id == 0:
         # if this is None, then we must be moving.
         for ssO in schedule.scheduledsession_set.filter(session = session):
+            print "sched(%s): removing session %s from slot %u" % ( schedule, session, ssO.pk )
+            #if ssO.extendedfrom is not None:
+            #    ssO.extendedfrom.session = None
+            #    ssO.extendedfrom.save()
             ssO.session = None
+            ssO.extendedfrom = None
             ssO.save()
     else:
         ess = get_object_or_404(schedule.scheduledsession_set, pk = ess_id)

@@ -33,7 +33,7 @@
   background-color:#2647A0;
   overflow-x: hidden;
   padding: 7px 10px;
-  margin-left: 10px;
+  /* margin-left: 10px; */
   position:relative;
   text-align: left;
 }
@@ -47,11 +47,18 @@
     position: relative;
 }
 
-#all_agendas {
+.events_bar_buttons {
     position: absolute;
     top:   3px;
-    right: 5px;
     z-index: 5;
+}
+
+#recalculate {
+    right: 200px;
+}
+
+#all_agendas {
+    right: 5px;
 }
 
 #unassigned_order {
@@ -151,6 +158,9 @@ table.meeting_event {
     height:15px;
     float:left;
     cursor:pointer;
+    margin-right:10px;
+    text-align:center;
+    padding-bottom:2px;
 
 }
 
@@ -367,6 +377,11 @@ td.ss_info_name_short{
   font-size: 10px;
   font-family: serif;  /* live life a bit */
 }
+
+#schedule_name{
+    margin-left:10%;
+}
+
 
 .color_legend {
   position: absolute;
@@ -653,6 +668,11 @@ table.actual_conflict {
 
 #show_all{
 
+
+}
+
+#show_all_button{
+    margin-top:4px;
 
 }
 

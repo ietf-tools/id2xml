@@ -74,8 +74,11 @@ function increment_conflict_load_count() {
 function get_all_conflicts(){
     //console.log("get_all_conflicts()");
     for(s in meeting_objs){
-       try {
-           meeting_objs[s].retrieve_constraints_by_session(find_and_populate_conflicts,
+        session = meeting_objs[s];
+        session.clear_conflict();
+        session.display_conflict();
+        try {
+           session.retrieve_constraints_by_session(find_and_populate_conflicts,
                                                             increment_conflict_load_count);
        }
        catch(err){
@@ -85,26 +88,36 @@ function get_all_conflicts(){
     }
 }
 
+var __debug_conflict_calculate = false;
+
 function calculate_real_conflict(conflict, vertical_location, room_tag, session_obj) {
-    //console.log("  conflict check:", conflict.othergroup.acronym, "me:", vertical_location);
+    if(__debug_conflict_calculate) {
+        console.log("  conflict check:", conflict.othergroup.acronym, "me:", vertical_location);
+    }
 
     var osessions = conflict.othergroup.all_sessions;
-    //console.log("ogroup: ", conflict.othergroup.href, "me: ", session_obj.group_obj.href);
-    if(conflict.othergroup === session_obj.group_obj) {
+    if(__debug_conflict_calculate) {
+        console.log("ogroup: ", conflict.othergroup.href, "me: ", session_obj.group.href);
+    }
+    if(conflict.othergroup === session_obj.group) {
         osessions = conflict.thisgroup.all_sessions;
     }
     if(osessions != null) {
         $.each(osessions, function(index) {
             osession = osessions[index];
-            var value = osession.column_class;
-            if(value != undefined) {
-                //console.log("    vs: ",index, "session_id:",osession.session_id," at: ",value.column_tag);
-                if(value.column_tag == vertical_location &&
-                   value.room_tag   != room_tag) {
-                    console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym, " #session_",session_obj.session_id);
-                    // there is a conflict!
-                    __DEBUG_SHOW_CONSTRAINT = $("#"+value[0]).children()[0];
-                    session_obj.add_conflict();
+            for(ccn in osession.column_class_list) {
+                var value = osession.column_class_list[ccn];
+                if(value != undefined) {
+                    if(__debug_conflict_calculate) {
+                        console.log("    vs: ",index, "session_id:",osession.session_id," at: ",value.column_tag);
+                    }
+                    if(value.column_tag == vertical_location &&
+                       value.room_tag   != room_tag) {
+                        console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym, " #session_",session_obj.session_id);
+                        // there is a conflict!
+                        __DEBUG_SHOW_CONSTRAINT = $("#"+value[0]).children()[0];
+                        session_obj.add_conflict();
+                    }
                 }
             }
         });
@@ -113,32 +126,37 @@ function calculate_real_conflict(conflict, vertical_location, room_tag, session_
 
 var __DEBUG_SHOW_CONSTRAINT = null;
 function find_and_populate_conflicts(session_obj) {
-    //console.log("populating conflict:", session_obj.title);
+    if(__debug_conflict_calculate) {
+        console.log("populating conflict:", session_obj.title);
+    }
 
-    var vertical_location = null;
     var room_tag = null;
     if(session_obj.column_class != null) {
         vertical_location = session_obj.column_class.column_tag;
         room_tag = session_obj.column_class.room_tag;
     }
 
-    if(session_obj.constraints.conflict != null){
-        $.each(session_obj.constraints.conflict, function(i){
-            var conflict = session_obj.constraints.conflict[i];
-            calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
-        });
-    }
-    if(session_obj.constraints.conflic2 != null){
-        $.each(session_obj.constraints.conflic2, function(i){
-            var conflict = session_obj.constraints.conflic2[i];
-            calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
-        });
-    }
-    if(session_obj.constraints.conflic3 != null){
-        $.each(session_obj.constraints.conflic3, function(i){
-            var conflict = session_obj.constraints.conflic3[i];
-            calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
-        });
+    for(ccn in session_obj.column_class_list) {
+        var vertical_location = session_obj.column_class_list[ccn].column_tag;
+
+        if(session_obj.constraints.conflict != null){
+            $.each(session_obj.constraints.conflict, function(i){
+                var conflict = session_obj.constraints.conflict[i];
+                calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
+            });
+        }
+        if(session_obj.constraints.conflic2 != null){
+            $.each(session_obj.constraints.conflic2, function(i){
+                var conflict = session_obj.constraints.conflic2[i];
+                calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
+            });
+        }
+        if(session_obj.constraints.conflic3 != null){
+            $.each(session_obj.constraints.conflic3, function(i){
+                var conflict = session_obj.constraints.conflic3[i];
+                calculate_real_conflict(conflict, vertical_location, room_tag, session_obj);
+            });
+        }
     }
 }
 
@@ -347,7 +365,7 @@ function Session() {
     this.last_timeslot_id = null;
     this.slot_status_key = null;
     this.href       = false;
-    this.group_obj  = undefined;
+    this.group      = undefined;
     this.column_class_list = [];
     this.loaded = false;
     this.area = "noarea";
@@ -377,10 +395,9 @@ function session_obj(json) {
     if(session_objs[session.title] == undefined) {
         session_objs[session.title] = [];
     }
-    session_objs[session.title].push(session);
+    session_objs[session.title].push(session);   // an array since there can be more than one session/wg
 
     meeting_objs[session.session_id] = session;
-
 
     return session;
 }
@@ -539,11 +556,155 @@ Session.prototype.event_template = function() {
         "</th></tr></table></div></div>";
 };
 
+Session.prototype.element = function() {
+    return $("#session_"+this.session_id);
+};
+
+Session.prototype.selectit = function() {
+    clear_all_selections();
+    // mark self as selected
+    $("." + this.title).addClass("same_group");
+    this.element().removeClass("save_group");
+    this.element().addClass("selected_group");
+};
+Session.prototype.unselectit = function() {
+    clear_all_selections();
+};
+
+Session.prototype.on_bucket_list = function() {
+    this.is_placed = false;
+    this.element().parent("div").addClass("meeting_box_bucket_list");
+};
+Session.prototype.placed = function(where) {
+    this.is_placed = true;
+    this.slot      = where;
+    this.element().parent("div").removeClass("meeting_box_bucket_list");
+};
+
+Session.prototype.populate_event = function(js_room_id) {
+    var eTemplate =     this.event_template()
+    insert_cell(js_room_id, eTemplate, false);
+};
+Session.prototype.repopulate_event = function(js_room_id) {
+    var eTemplate =     this.event_template()
+    insert_cell(js_room_id, eTemplate, true);
+};
+
+Session.prototype.visible_title = function() {
+    return this.special_request + this.title;
+};
+
+var _conflict_debug = false;
+Session.prototype.mark_conflict = function(value) {
+    this.conflicted = value;
+};
+Session.prototype.add_conflict = function() {
+    this.conflicted = true;
+};
+Session.prototype.clear_conflict = function() {
+    this.conflicted = false;
+};
+Session.prototype.show_conflict = function() {
+    if(_conflict_debug) {
+        console.log("adding conflict for", this.title);
+    }
+    this.element().addClass("actual_conflict");
+};
+Session.prototype.hide_conflict = function() {
+    if(_conflict_debug) {
+        console.log("removing conflict for", this.title);
+    }
+    this.element().removeClass("actual_conflict");
+};
+Session.prototype.display_conflict = function() {
+    if(this.conflicted) {
+        this.show_conflict();
+    } else {
+        this.hide_conflict();
+    }
+};
+
+Session.prototype.area_scheme = function() {
+    return this.area.toUpperCase() + "-scheme";
+};
+
+Session.prototype.add_column_class = function(column_class) {
+    if(__column_class_debug) {
+        console.log("adding:",column_class, "to ", this.title);
+    }
+    this.column_class_list.push(column_class);
+};
+
+var _LAST_MOVED_OLD;
+var _LAST_MOVED_NEW;
+Session.prototype.update_column_classes = function(scheduledsession_list, bucket_list) {
+
+    // COLUMN CLASSES MUST BE A LIST because of multiple slot use
+
+    var old_column_classes = this.column_class_list;
+    if(old_column_classes.length == 0) {
+        console.log("old column class was undefined for session:", session.title);
+        old_column_classes = [new ColumnClass()];
+    }
+
+    // zero out list.
+    this.column_class_list = [];
+    var new_column_tag = "none";
+    if(bucket_list) {
+        this.on_bucket_list();
+
+    } else {
+        for(ssn in scheduledsession_list) {
+            ss = scheduledsession_list[ssn];
+            this.add_column_class(ss.column_class);
+        }
+        new_column_tag = this.column_class_list[0].column_tag;
+    }
+
+    console.log("setting column_class for ",this.title," to ",
+                new_column_tag, "was: ", old_column_classes[0].column_tag);
+
+    console.log("unset conflict for ",this.title," is ", this.conflicted);
+
+    _LAST_MOVED_OLD = old_column_classes;
+    _LAST_MOVED_NEW = this.column_class_list;
+
+    this.group.del_column_classes(old_column_classes);
+    this.group.add_column_classes(this.column_classes);
+    recalculate_conflicts_for_session(this, old_column_classes, this.column_class_list);
+};
+
+
+Session.prototype.event_template = function() {
+    // the extra div is present so that the table can have a border which does not
+    // affect the total height of the box.  The border otherwise screws up the height,
+    // causing things to the right to avoid this box.
+    var bucket_list_style = "meeting_box_bucket_list"
+    if(this.is_placed) {
+        bucket_list_style = "";
+    }
+    if(this.double_wide) {
+        bucket_list_style = bucket_list_style + " meeting_box_double";
+    }
+    // see comment in ietf.ccs, and
+    // http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
+    return "<div class='meeting_box_container' session_id=\""+this.session_id+"\"><div class=\"meeting_box "+bucket_list_style+"\" ><table class='meeting_event "+
+        this.title +
+        "' id='session_"+
+        this.session_id+
+        "' session_id=\""+this.session_id+"\"" +
+        "><tr id='meeting_event_title'><th class='"+
+        this.area_scheme() +" meeting_obj'>"+
+        this.visible_title()+
+        "<span> ("+this.duration+")</span>"+
+        "</th></tr></table></div></div>";
+};
+
 function andthen_alert(object, result, arg) {
     alert("result: "+result+" on obj: "+object);
 };
 
-Session.prototype.generate_info_table = function(ss) {
+Session.prototype.generate_info_table = function() {
     $("#info_grp").html(name_select_html);
     $("#info_name_select").val($("#info_name_select_option_"+this.session_id).val());
     if(this.description.length > 33) {
@@ -571,12 +732,15 @@ Session.prototype.generate_info_table = function(ss) {
 
     this.selectit();
 
-    if(ss.timeslot_id == null){
-       $("#info_location_select").val(meeting_objs[ss.scheduledsession_id]);
-    }else{
-       $("#info_location_select").val(ss.timeslot_id); // ***
+    if(this.slot != undefined) {
+        ss = this.slot;
+        if(ss.timeslot_id == null){
+            $("#info_location_select").val(meeting_objs[ss.scheduledsession_id]);
+        }else{
+            $("#info_location_select").val(ss.timeslot_id); // ***
+        }
+        $("#info_location_select").val($("#info_location_select_option_"+ss.timeslot_id).val());
     }
-    $("#info_location_select").val($("#info_location_select_option_"+ss.timeslot_id).val());
 
     listeners();
 
@@ -584,21 +748,10 @@ Session.prototype.generate_info_table = function(ss) {
     $("#info_requestedby").html(this.requested_by +" ("+this.requested_time+")");
 };
 
-
-Session.prototype.group = function(andthen) {
-    if(this.group_obj == undefined) {
-       this.group_obj = find_group_by_href(this.group_href);
-    }
-    return this.group_obj;
-};
-
 function load_all_groups() {
     for(key in meeting_objs) {
         session = meeting_objs[key];
-        // load the group object
-        group = session.group(null);
-        group.add_session(session);
-        log("group: ", group, "has session: ", session.session_id);
+        session.group = create_group_by_href(session.group_href);
     }
 }
 
@@ -652,11 +805,13 @@ function Group() {
 }
 
 Group.prototype.loaded_andthen = function() {
+    me = this;
     $.each(this.andthen_list, function(index, andthen) {
-        andthen(this);
+        andthen(me);
     });
     this.andthen_list = [];
 };
+
 Group.prototype.load_group_obj = function(andthen) {
     //console.log("group ",this.href);
     var group_obj = this;
@@ -716,19 +871,28 @@ Group.prototype.del_column_classes = function(column_class_list) {
 };
 
 
-function find_group_by_href(href) {
+function create_group_by_href(href) {
     if(group_objs[href] == undefined) {
        group_objs[href]=new Group();
-       g = group_objs[href];
+        g = group_objs[href];
         g.loaded = false;
         g.loading= false;
     }
     g = group_objs[href];
     if(!g.loaded) {
         g.href = href;
-        //console.log("loading group href", href);
-       g.load_group_obj(function(obj) {});
+        console.log("loading group href", href);
+        g.load_group_obj(function() {});
     }
+    return g;
+}
+
+function find_group_by_href(href) {
+    g=group_objs[href];
+    if(g == undefined) {
+        g = create_group_by_href(href);
+    }
+    //console.log("finding group by ", href, "gives: ", g);
     return g;
 }
 
@@ -775,7 +939,7 @@ var __column_class_debug = false;
 // but, when a session is selected, the conflict boxes are filled in,
 // and then they are all clicked in order to highlight everything.
 Constraint.prototype.show_conflict_view = function() {
-    classes=this.column_class_list()
+    classes=this.column_class_list();
     //console.log("show_conflict_view", this);
     __CONSTRAINT_DEBUG = this;
     if(__column_class_debug) {
@@ -834,18 +998,9 @@ Constraint.prototype.conflict_view = function() {
     this.dom_id = "constraint_"+this.constraint_id;
 
     var theconstraint = this;
-    if(!this.othergroup.loaded) {
-
-        __DEBUG__OTHERGROUP = this;
-        this.othergroup_name = "...";
-        this.othergroup.load_group_obj(function (obj) {
-                                           theconstraint.othergroup = obj;
-                                           theconstraint.build_othername();
-                                           $("#"+theconstraint.dom_id).html(theconstraint.build_conflict_view());
-                                       });
-    } else {
-        this.build_othername();
-    }
+    // this used to force loading of groups, async, but now all groups are loaded at
+    // page load time.
+    this.build_othername();
 
     return this.build_conflict_view();
 };
@@ -867,11 +1022,11 @@ Session.prototype.add_constraint_obj = function(obj) {
 
     var ogroupname;
     if(obj.source_href == this.group_href) {
-        obj.thisgroup  = this.group();
+        obj.thisgroup  = this.group;
         obj.othergroup = find_group_by_href(obj.target_href);
        ogroupname = obj.target_href;
     } else {
-        obj.thisgroup  = this.group();
+        obj.thisgroup  = this.group;
         obj.othergroup = find_group_by_href(obj.source_href);
        ogroupname = obj.source_href;
     }
@@ -907,10 +1062,10 @@ function split_list_at(things, keys, place) {
 
 function constraint_compare(a, b)
 {
-    if(a==undefined) {
+    if(a==undefined || a.othergroup == undefined) {
        return -1;
     }
-    if(b==undefined) {
+    if(b==undefined || b.othergroup == undefined) {
        return 1;
     }
     return (a.othergroup.href > b.othergroup.href ? 1 : -1);

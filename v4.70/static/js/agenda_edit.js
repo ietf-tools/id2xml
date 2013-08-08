@@ -31,7 +31,7 @@ var group_objs = {};      // list of working groups
 var read_only = true;     // it is true until we learn otherwise.
 var days = [];
 var legend_status = {};   // agenda area colors.
-
+var load_conflicts = true;
 var duplicate_sessions = {};
 /********* colors ************************************/
 
@@ -48,7 +48,6 @@ var total_rooms = 0; // the number of rooms
 var hidden_days = [];
 var total_days = 0; // the number of days
 
-var bucketlist_id = "sortable-list" // for if/when the id for bucket list changes.
 /****************************************************/
 
 /////////////-END-GLOBALS-///////////////////////////////////////
@@ -94,17 +93,10 @@ function initStuff(){
     meeting_objs_length = Object.keys(meeting_objs).length;
 
     /* Comment this out for fast loading */
-    load_conflicts = false;
+    //load_conflicts = false;
+
     if(load_conflicts) {
-        start_spin();
-        get_all_conflicts();
-        do_work(function() {
-            return CONFLICT_LOAD_COUNT >= meeting_objs_length;
-        },
-                function() {
-                    stop_spin();
-                    show_all_conflicts();
-                });
+        recalculate(null);
     }
 
 }

@@ -73,8 +73,6 @@ function initStuff(){
     log("groups loaded");
     load_events();
     log("load_events() ran");
-    load_all_groups();        // should be in a single big block.
-    log("groups loaded");
     find_meeting_no_room();
 
     listeners();

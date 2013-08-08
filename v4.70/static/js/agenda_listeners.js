@@ -66,12 +66,10 @@ function listeners(){
     $(".close_day").unbind('click');
     $(".close_day").click(close_day);
 
-
     // $("#show_hidden_days").unbind('click');
     // $("#show_hidden_days").click(show_hidden_days);
     // $("#show_hidden_rooms").unbind('click');
     // $("#show_hidden_rooms").click(show_hidden_rooms);
-
 
     $("#show_all_area").unbind('click');
     $("#show_all_area").click(show_all_area);
@@ -241,9 +239,9 @@ function slot_item_hidden(selector){
 
 
 
+var free_slots = [];
 
 function find_empty_slot(){
-    // var free_slots = [];
 
     $.each($(".free_slot"), function(index,item){
 	if(!$(item).hasClass("show_conflict_view_highlight")){
@@ -298,9 +296,15 @@ function extend_slot(event) {
                     slot.extendedto.extendedfrom = slot;
                     session.double_wide = true;
                     session.repopulate_event(slot.domid);
+                    session.placed(slot.extendedto, false);
                     droppable();
                     listeners();
 		    $( this ).dialog( "close" );
+
+                    // may have caused some new conflicts!!!!
+                    recalculate_conflicts_for_session(session,
+                                                      [slot.column_class],
+                                                      [slot.column_class, slot.extendedto.column_class]);
                 },
                 Cancel: function() {
 		    $( this ).dialog( "close" );
@@ -406,107 +410,6 @@ function unassigned_sort_change(){
     }
 }
 
-function find_free(){
-    var empty_slot = find_empty_slot();
-    if(empty_slot != null){
-	$(empty_slot).effect("highlight", {},3000);
-	if(current_item != null){
-	    $(current_item).addClass('ui-effects-transfer');
-	    $(current_item).effect("transfer", {to: $(empty_slot) }, 1000);
-	}
-	$(current_item).removeClass('ui-effects-transfer');
-    }
-}
-
-
-function expand_spacer(target) {
-    var current_width = $(target).css('min-width');
-    current_width = current_width.substr(0,current_width.search("px"));
-    current_width = parseInt(current_width) + 20;
-    $(target).css('min-width',current_width);
-    $(target).css('width',current_width);
-
-}
-
-function sort_by_alphaname(a,b) {
-    am = meeting_objs[$(a).attr('session_id')]
-    bm = meeting_objs[$(b).attr('session_id')]
-    if(am.title < bm.title) {
-        return -1;
-    } else {
-        return 1;
-    }
-}
-function sort_by_area(a,b) {
-    am = meeting_objs[$(a).attr('session_id')]
-    bm = meeting_objs[$(b).attr('session_id')]
-    if(am.area < bm.area) {
-        return -1;
-    } else {
-        return 1;
-    }
-}
-function sort_by_duration(a,b) {
-    am = meeting_objs[$(a).attr('session_id')]
-    bm = meeting_objs[$(b).attr('session_id')]
-    if(am.duration < bm.duration) {
-        // sort duration biggest to smallest.
-        return 1;
-    } else if(am.duration == bm.duration &&
-              am.title    < bm.title) {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-function sort_by_specialrequest(a,b) {
-    am = meeting_objs[$(a).attr('session_id')]
-    bm = meeting_objs[$(b).attr('session_id')]
-    if(am.special_request == '*' && bm.special_request == '') {
-        return -1;
-    } else if(am.special_request == '' && bm.special_request == '*') {
-        return 1;
-    } else if(am.title < bm.title) {
-        return -1;
-    } else {
-        return 1;
-    }
-}
-
-function sort_unassigned() {
-    $('#'+bucketlist_id+" div.meeting_box_container").sort(unassigned_sort_function).appendTo('#'+bucketlist_id);
-}
-
-var unassigned_sort_function = sort_by_alphaname;
-function unassigned_sort_change(){
-    var last_sort_method = unassigned_sort_function;
-    var sort_method= $("#unassigned_sort_button").attr('value');
-
-    if(sort_method == "alphaname") {
-        unassigned_sort_function = sort_by_alphaname;
-    } else if(sort_method == "area") {
-        unassigned_sort_function = sort_by_area;
-    } else if(sort_method == "duration") {
-        unassigned_sort_function = sort_by_duration;
-    } else if(sort_method == "special") {
-        unassigned_sort_function = sort_by_specialrequest;
-    } else {
-        unassigned_sort_function = sort_by_alphaname;
-    }
-
-    if(unassigned_sort_function != last_sort_method) {
-        sort_unassigned();
-    }
-}
-
-function expand_spacer(target) {
-    var current_width = $(target).css('min-width');
-    current_width = current_width.substr(0,current_width.search("px"));
-    current_width = parseInt(current_width) + 20;
-    $(target).css('min-width',current_width);
-    $(target).css('width',current_width);
-
-}
 
 /* the functionality of these listeners will never change so they do not need to be run twice  */
 function static_listeners(){
@@ -654,7 +557,7 @@ function meeting_event_click(event){
 
     empty_info_table();
     session.load_session_obj(fill_in_session_info, session.slot);
-    __DEBUG__SLOT_OBJ = slot[i];
+    __DEBUG__SLOT_OBJ = current_timeslot;
     __DEBUG__SESSION_OBJ = session;
 }
 
@@ -799,7 +702,7 @@ function draw_constraints(session) {
                                          group_name_or_empty(conflict3_a[i])+
                                          "</td>"+
                                          "<td class='conflict3'>"+
-                                         group_name_or_empty(conflict1_b[i])+
+                                         group_name_or_empty(conflict3_b[i])+
                                          "</tr>");
 
         highlight_conflict(conflict1_a[i]);
@@ -905,7 +808,7 @@ function update_to_slot(session_id, to_slot_id, force){
 	    // update meeting_obj
 	    //meeting_objs[session_id].slot_status_key = to_slot[i].domid
 	    arr_key_index = i;
-	    meeting_objs[session_id].placed();
+	    meeting_objs[session_id].placed(to_slot, true);
 	    found = true;
 	    // update from_slot
 
@@ -962,8 +865,6 @@ function drop_drop(event, ui){
     var session_id = ui.draggable.attr('session_id');   // the session was added as an attribute
     console.log("UI:", ui, session_id);
     var session    = meeting_objs[session_id];
-
-    var session = meeting_objs[meeting_id];
 
     var to_slot_id = $(this).attr('id'); // where we are dragging it.
     var to_slot = slot_status[to_slot_id]
@@ -1023,8 +924,12 @@ function recalculate_conflicts_for_session(session, old_column_classes, new_colu
         for(ocn in old_column_classes) {
             var old_column_class = old_column_classes[ocn];
 
+            if(old_column_class == undefined) continue;
+
             for(ncn in new_column_classes) {
                 var new_column_class = new_column_classes[ncn];
+
+                if(new_column_class == undefined) continue;
 
                 //console.log("recalc? looking at ",s.title, old_column_class.column_tag, new_column_class.column_tag);
                 for(ccn in s.column_class_list) {
@@ -1060,7 +965,11 @@ function move_slot(session,
 
     _LAST_MOVED = session;
 
-    console.log("from_slot", from_slot);
+    if(from_slot != undefined) {
+        console.log("from_slot", from_slot.domid);
+    } else {
+        console.log("from_slot was unassigned");
+    }
     var update_to_slot_worked = false;
     if(same_timeslot == null){
 	same_timeslot = false;
@@ -1133,7 +1042,7 @@ function move_slot(session,
 	}
     }
     if(schedulesession_id != null){
-        session.placed(scheduledsession);
+        session.placed(scheduledsession, true);
         start_spin();
 	console.log('schedule_id',schedule_id,
                     'session_id', session.session_id,
@@ -1183,7 +1092,6 @@ function move_slot(session,
 function drop_activate(event, ui){
     $(event.draggable).css("background",dragging_color);
     // $(event.currentTarget).addClass('highlight_current_moving');
-    // $("#session_"+session_id).css('background-color',highlight);
 }
 
 

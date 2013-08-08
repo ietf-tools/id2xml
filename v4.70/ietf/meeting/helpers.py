@@ -140,7 +140,7 @@ def find_ads_for_meeting(meeting):
     # get list of ADs which are/were active at the time of the meeting.
     for g in Group.objects.filter(type="area").order_by("acronym"):
         history = find_history_active_at(g, meeting_time)
-        if history:
+        if history and history != g:
             if history.state_id == "active":
                 ads.extend(IESGHistory().from_role(x, meeting_time) for x in history.rolehistory_set.filter(name="ad").select_related())
         else:
@@ -255,7 +255,13 @@ def build_all_agenda_slices(scheduledsessions, all = False):
 
 
 def get_scheduledsessions_from_schedule(schedule):
+   ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).exclude(session__isnull = True).order_by('timeslot__time','timeslot__name','session__group__group')
+
+   return ss
+
+def get_all_scheduledsessions_from_schedule(schedule):
    ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).order_by('timeslot__time','timeslot__name')
+
    return ss
 
 def get_modified_from_scheduledsessions(scheduledsessions):
@@ -353,6 +359,12 @@ def agenda_permissions(meeting, schedule, user):
         # secretariat is not superuser for edit!
 
     if (has_role(user, 'Area Director') and schedule.visible):
+        cansee = True
+
+    if (has_role(user, 'IAB Chair') and schedule.visible):
+        cansee = True
+
+    if (has_role(user, 'IRTF Chair') and schedule.visible):
         cansee = True
 
     if schedule.public:

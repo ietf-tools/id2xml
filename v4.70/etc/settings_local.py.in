@@ -18,6 +18,7 @@ DATABASES = {
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@SECRETSECRET@'
+CACHE_BACKEND = 'file:///@TOPDIR@/django_cache'
 
 import logging
 logging.basicConfig(filename='@TOPDIR@/ajax.log',

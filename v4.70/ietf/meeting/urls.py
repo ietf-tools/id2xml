@@ -7,8 +7,7 @@ from ietf.meeting import ajax
 
 urlpatterns = patterns('',
     (r'^(?P<meeting_num>\d+)/materials.html$', views.materials),
-    (r'^agenda/$', views.html_agenda),
-    (r'^agenda(?:.html)?$', views.html_agenda),
+    (r'^agenda/$',          views.agenda_html_request),
     (r'^agenda-utc(?:.html)?$', views.html_agenda_utc),
     (r'^agenda(?:.html)?$', views.agenda_html_request),
     (r'^agenda/edit$', views.edit_agenda),

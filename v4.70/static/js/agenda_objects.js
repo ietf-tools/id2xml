@@ -92,7 +92,12 @@ var __debug_conflict_calculate = false;
 
 function calculate_real_conflict(conflict, vertical_location, room_tag, session_obj) {
     if(__debug_conflict_calculate) {
-        console.log("  conflict check:", conflict.othergroup.acronym, "me:", vertical_location);
+        console.log("  conflict check:", conflict.othergroup.acronym, "me:", vertical_location, room_tag);
+    }
+
+    if(session_obj.group.href == conflict.othergroup.href) {
+        console.log("session: ",session_obj.session_id, "lists conflict with self");
+        return;
     }
 
     var osessions = conflict.othergroup.all_sessions;
@@ -113,7 +118,7 @@ function calculate_real_conflict(conflict, vertical_location, room_tag, session_
                     }
                     if(value.column_tag == vertical_location &&
                        value.room_tag   != room_tag) {
-                        console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym, " #session_",session_obj.session_id);
+                        console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym, " #session_",session_obj.session_id, value.room_tag, room_tag, value.column_tag, vertical_location);
                         // there is a conflict!
                         __DEBUG_SHOW_CONSTRAINT = $("#"+value[0]).children()[0];
                         session_obj.add_conflict();
@@ -131,13 +136,10 @@ function find_and_populate_conflicts(session_obj) {
     }
 
     var room_tag = null;
-    if(session_obj.column_class != null) {
-        vertical_location = session_obj.column_class.column_tag;
-        room_tag = session_obj.column_class.room_tag;
-    }
 
     for(ccn in session_obj.column_class_list) {
         var vertical_location = session_obj.column_class_list[ccn].column_tag;
+        var room_tag          = session_obj.column_class_list[ccn].room_tag;
 
         if(session_obj.constraints.conflict != null){
             $.each(session_obj.constraints.conflict, function(i){
@@ -435,26 +437,6 @@ Session.prototype.load_session_obj = function(andthen, arg) {
            andthen(this, true, arg);
        }
     }
-    return "<div class=\""+bucket_list_style+" meeting_box\" session_id=\""+this.session_id+"\"><table class='meeting_event "+
-        this.title +
-        "' id='session_"+
-        this.session_id+
-        "'><tr id='meeting_event_title'><th class='"+
-        this.area_scheme() +" meeting_obj'>"+
-        this.visible_title()+
-        "<span> ("+this.duration+")</span>"+
-        "</th></tr></table></div>";
-};
-
-Session.prototype.selectit = function() {
-    clear_all_selections();
-    // mark self as selected
-    $("." + this.title).addClass("same_group");
-    $("#session_"+session_id).removeClass("save_group");
-    $("#session_"+session_id).addClass("selected_group");
-};
-Session.prototype.unselectit = function() {
-    clear_all_selections();
 };
 
 Session.prototype.element = function() {
@@ -474,110 +456,21 @@ Session.prototype.unselectit = function() {
 
 Session.prototype.on_bucket_list = function() {
     this.is_placed = false;
+    this.column_class_list = [];
     this.element().parent("div").addClass("meeting_box_bucket_list");
 };
-Session.prototype.placed = function() {
+Session.prototype.placed = function(where, forceslot) {
     this.is_placed = true;
-    this.element().parent("div").removeClass("meeting_box_bucket_list");
-};
 
-Session.prototype.populate_event = function(js_room_id) {
-    var eTemplate =     this.event_template()
-    insert_cell(js_room_id, eTemplate, false);
-};
-Session.prototype.repopulate_event = function(js_room_id) {
-    var eTemplate =     this.event_template()
-    insert_cell(js_room_id, eTemplate, true);
-};
-
-Session.prototype.visible_title = function() {
-    return this.special_request + this.title;
-};
-
-var _conflict_debug = false;
-Session.prototype.mark_conflict = function(value) {
-    this.conflicted = value;
-};
-Session.prototype.add_conflict = function() {
-    this.conflicted = true;
-};
-Session.prototype.clear_conflict = function() {
-    this.conflicted = false;
-};
-Session.prototype.show_conflict = function() {
-    if(_conflict_debug) {
-        console.log("adding conflict for", this.title);
+    // forceslot is set on a move, but unset on initial placement,
+    // as placed might be called more than once for a double slot session.
+    if(forceslot || this.slot==undefined) {
+        this.slot      = where;
     }
-    this.element().addClass("actual_conflict");
-};
-Session.prototype.hide_conflict = function() {
-    if(_conflict_debug) {
-        console.log("removing conflict for", this.title);
+    if(where != undefined) {
+        this.add_column_class(where.column_class);
     }
-    this.element().removeClass("actual_conflict");
-};
-Session.prototype.display_conflict = function() {
-    if(this.conflicted) {
-        this.show_conflict();
-    } else {
-        this.hide_conflict();
-    }
-};
-
-Session.prototype.area_scheme = function() {
-    return this.area.toUpperCase() + "-scheme";
-};
-
-Session.prototype.add_column_class = function(column_class) {
-    this.column_class_list.push(column_class);
-};
-
-Session.prototype.event_template = function() {
-    // the extra div is present so that the table can have a border which does not
-    // affect the total height of the box.  The border otherwise screws up the height,
-    // causing things to the right to avoid this box.
-    var bucket_list_style = "meeting_box_bucket_list"
-    if(this.is_placed) {
-        bucket_list_style = "";
-    }
-    if(this.double_wide) {
-        bucket_list_style = bucket_list_style + " meeting_box_double";
-    }
-    // see comment in ietf.ccs, and
-    // http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
-    return "<div class='meeting_box_container' session_id=\""+this.session_id+"\"><div class=\"meeting_box "+bucket_list_style+"\" ><table class='meeting_event "+
-        this.title +
-        "' id='session_"+
-        this.session_id+
-        "'><tr id='meeting_event_title'><th class='"+
-        this.area_scheme() +" meeting_obj'>"+
-        this.visible_title()+
-        "<span> ("+this.duration+")</span>"+
-        "</th></tr></table></div></div>";
-};
-
-Session.prototype.element = function() {
-    return $("#session_"+this.session_id);
-};
-
-Session.prototype.selectit = function() {
-    clear_all_selections();
-    // mark self as selected
-    $("." + this.title).addClass("same_group");
-    this.element().removeClass("save_group");
-    this.element().addClass("selected_group");
-};
-Session.prototype.unselectit = function() {
-    clear_all_selections();
-};
-
-Session.prototype.on_bucket_list = function() {
-    this.is_placed = false;
-    this.element().parent("div").addClass("meeting_box_bucket_list");
-};
-Session.prototype.placed = function(where) {
-    this.is_placed = true;
-    this.slot      = where;
+    //console.log("session:",session.title, "column_class", ssid.column_class);
     this.element().parent("div").removeClass("meeting_box_bucket_list");
 };
 
@@ -661,8 +554,14 @@ Session.prototype.update_column_classes = function(scheduledsession_list, bucket
         new_column_tag = this.column_class_list[0].column_tag;
     }
 
+    var old_column_class_name = "none";
+    if(old_column_classes != undefined &&
+       old_column_classes[0] != undefined) {
+        old_colum_class_name = old_column_classes[0].column_tag;
+    }
+
     console.log("setting column_class for ",this.title," to ",
-                new_column_tag, "was: ", old_column_classes[0].column_tag);
+                new_column_tag, "was: ", old_column_class_name);
 
     console.log("unset conflict for ",this.title," is ", this.conflicted);
 
@@ -835,7 +734,7 @@ Group.prototype.load_group_obj = function(andthen) {
             andthen(group_obj);
         }
     }
-};
+}
 
 Group.prototype.add_session = function(session) {
     if(this.all_sessions == undefined) {
@@ -870,7 +769,7 @@ Group.prototype.del_column_classes = function(column_class_list) {
     }
 };
 
-
+var __debug_group_load = false;
 function create_group_by_href(href) {
     if(group_objs[href] == undefined) {
        group_objs[href]=new Group();
@@ -881,7 +780,9 @@ function create_group_by_href(href) {
     g = group_objs[href];
     if(!g.loaded) {
         g.href = href;
-        console.log("loading group href", href);
+        if(__debug_group_load) {
+            console.log("loading group href", href);
+        }
         g.load_group_obj(function() {});
     }
     return g;
@@ -993,7 +894,6 @@ Constraint.prototype.build_othername = function() {
     this.othergroup_name = this.othergroup.acronym;
 };
 
-var __DEBUG__OTHERGROUP;
 Constraint.prototype.conflict_view = function() {
     this.dom_id = "constraint_"+this.constraint_id;
 

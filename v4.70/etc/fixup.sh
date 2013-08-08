@@ -65,6 +65,7 @@ mkdir -p $TOPDIR/run/log
 mkdir -p $TOPDIR/run/log/apache2
 mkdir -p $TOPDIR/run/lock
 mkdir -p $TOPDIR/log
+mkdir -p $TOPDIR/django_cache
 
 localize etc/apache2.conf
 localize etc/runweb.sh

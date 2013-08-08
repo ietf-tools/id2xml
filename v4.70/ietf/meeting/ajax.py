@@ -1,6 +1,7 @@
 from django.utils import simplejson as json
 from dajaxice.core import dajaxice_functions
 from dajaxice.decorators import dajaxice_register
+from django.views.decorators.cache import cache_page
 from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
@@ -60,7 +61,7 @@ def readonly(request, meeting_num, schedule_id):
 
 @group_required('Area Director','Secretariat')
 @dajaxice_register
-def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, duplicate=False):
+def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, extended_from_id=None, duplicate=False):
     schedule = get_object_or_404(Schedule, pk = int(schedule_id))
     meeting  = schedule.meeting
     ss_id = 0
@@ -87,6 +88,9 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     if ss_id != 0:
         ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
 
+    # need a way to clean up a two sessions in one slot situation, the
+    # extra scheduledsessions need to be cleaned up.
+
     if ess_id == 0:
         # if this is None, then we must be moving.
         for ssO in schedule.scheduledsession_set.filter(session = session):
@@ -104,7 +108,7 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     try:
         # find the scheduledsession, assign the Session to it.
         if ss:
-            print "ss.session: %s session:%s"%(ss, session)
+            print "ss.session: %s session:%s duplicate=%s"%(ss, session, duplicate)
             ss.session = session
             if(duplicate):
                 ss.id = None
@@ -480,7 +484,8 @@ def session_json(request, num, sessionid):
 
 # current dajaxice does not support GET, only POST.
 # it has almost no value for GET, particularly if the results are going to be
-# public anyway.
+# public anyway.   Cache for 1 day.
+@cache_page(86400)
 def session_constraints(request, num=None, sessionid=None):
     meeting = get_meeting(num)
 

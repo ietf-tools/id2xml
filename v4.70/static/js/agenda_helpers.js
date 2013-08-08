@@ -8,17 +8,6 @@
 *
 *
 */
-function do_work(result,callback){
-    setTimeout(function(){
-	if(!result()){
-	    setTimeout(arguments.callee,1);
-	}
-	else{
-	    callback();
-	}
-    });
-}
-
 
 /* do_work:
    when we are waiting for something to either resolve to true, or another similar job
@@ -161,7 +150,7 @@ function load_events(){
             // well as backwards.
             if(ssid.extendedfrom_id != false) {
                 other = slot_objs[ssid.extendedfrom_id];
-                console.log("slot:",ssid.scheduledsession_id, "extended from: ",key,ssid.extendedfrom_id," is: ", other);
+                console.log("slot:",ssid.scheduledsession_id, "extended from: ",key,ssid.extendedfrom_id); // ," is: ", other);
                 if(other != undefined) {
                     ssid.extendedfrom = other;
                     other.extendedto  = ssid;
@@ -172,6 +161,24 @@ function load_events(){
 	}
     });
 
+    // go through the slots again, and if one slot has been extended, then
+    // extend any other "sister" slots as well.
+    $.each(slot_status, function(key) {
+        ssid_arr = slot_status[key];
+
+        var extendedto = undefined;
+	for(var q = 0; q<ssid_arr.length; q++){
+	    ssid = ssid_arr[q];
+            if(extendedto == undefined &&
+               ssid.extendedto != undefined) {
+                extendedto = ssid.extendedto;
+            }
+        }
+	for(var q = 0; q<ssid_arr.length; q++){
+	    ssid = ssid_arr[q];
+            ssid.extendedto = extendedto;
+        }
+    });
 
     $.each(slot_status, function(key) {
         ssid_arr = slot_status[key]
@@ -201,15 +208,13 @@ function load_events(){
                 }
 
 	        $(slot_id).removeClass('free_slot');
-                session.add_column_class(ssid.column_class);
-                //console.log("session:",session.title, "column_class", ssid.column_class);
 
                 if(ssid.extendedfrom == undefined) {
                     session.populate_event(key);
                 }
 		//log("setting "+slot_id+" as used");
 
-                session.placed(ssid);
+                session.placed(ssid, false);
             } else {
 	        $(slot_id).addClass('free_slot');
             }

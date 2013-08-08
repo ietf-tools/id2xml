@@ -35,6 +35,7 @@ from ietf.doc.models import Document, State
 from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
 
 # New models
+from ietf.person.models  import Person
 from ietf.meeting.models import Meeting, TimeSlot, Session
 from ietf.meeting.models import Schedule, ScheduledSession, Room
 from ietf.group.models import Group
@@ -43,7 +44,7 @@ from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss
 from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info
 from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pseudo_areas
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
-from ietf.meeting.helpers import get_scheduledsessions_from_schedule
+from ietf.meeting.helpers import get_scheduledsessions_from_schedule, get_all_scheduledsessions_from_schedule
 from ietf.meeting.helpers import get_modified_from_scheduledsessions
 from ietf.meeting.helpers import get_wg_list, session_draft_list
 from ietf.meeting.helpers import get_meeting, get_schedule, read_agenda_file, agenda_permissions
@@ -259,7 +260,8 @@ def edit_timeslots(request, num=None):
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################
-@group_required('Area Director','Secretariat')
+#@group_required('Area Director','Secretariat')
+# disable the above security for now, check it below.
 @decorator_from_middleware(GZipMiddleware)
 def edit_agenda(request, num=None, schedule_name=None):
 
@@ -267,7 +269,14 @@ def edit_agenda(request, num=None, schedule_name=None):
         return agenda_create(request, num, schedule_name)
 
     user  = request.user
-    requestor = user.get_profile()
+    requestor = "AnonymousUser"
+    if not user.is_anonymous():
+        print "user: %s" % (user)
+        try:
+            requestor = user.get_profile()
+        except Person.DoesNotExist:
+            # if we can not find them, leave them alone, only used for debugging.
+            pass
 
     meeting = get_meeting(num)
     #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, schedule_name ))
@@ -285,16 +294,16 @@ def edit_agenda(request, num=None, schedule_name=None):
     cansee,canedit = agenda_permissions(meeting, schedule, user)
 
     if not cansee:
-        sys.stdout.write("visible: %s public: %s owner: %s rquest from: %s\n" % (
-                schedule.visible, schedule.public, schedule.owner, requestor))
+        #sys.stdout.write("visible: %s public: %s owner: %s request from: %s\n" % (
+        #        schedule.visible, schedule.public, schedule.owner, requestor))
         return HttpResponse(render_to_string("meeting/private_agenda.html",
                                              {"schedule":schedule,
                                               "meeting": meeting,
                                               "meeting_base_url":meeting_base_url},
                                              RequestContext(request)), status=403, mimetype="text/html")
 
-    sessions = meeting.session_set.exclude(status__slug='notmeet').order_by("id", "group", "requested_by")
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+    sessions = meeting.session_set.exclude(status__slug='deleted').exclude(status__slug='notmeet').order_by("id", "group", "requested_by")
+    scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
 
     # get_modified_from needs the query set, not the list
     modified = get_modified_from_scheduledsessions(scheduledsessions)

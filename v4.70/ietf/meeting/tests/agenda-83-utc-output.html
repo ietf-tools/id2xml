@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<!-- v4.44-dev, (dev) Latest release: Rev. 556,  -->
+<!-- v4.54-dev, (dev) Latest release: Rev. 582,  -->
 <title>IETF 83 Meeting Agenda - DEVELOPMENT MODE</title>
 <link rel="stylesheet" type="text/css" href="/css/yui/yui-20100305.css"></link>
 <link rel="stylesheet" type="text/css" href="/css/base2.css"></link>
@@ -93,6 +93,9 @@ img.hidden { display: none; }
 <script type="text/javascript" src='/js/jquery-1.5.1.min.js'></script>
 <script type="text/javascript" src='/js/browsertime.js'></script>
 <script type="text/javascript" src='/js/weekview.js'></script>
+<script type="text/javascript" >
+   var lastfrag;
+</script>
 
 
 <script type="text/javascript">
@@ -144,10 +147,6 @@ IETF.user_groups = {};
 
 
 <li class="yuimenuitem"><a class="yuimenuitemlabel">Applications</a><div id="wgs-app" class="yuimenu"><div class="bd"><ul>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
@@ -213,7 +212,6 @@ IETF.user_groups = {};
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 </ul></div></div></li>
 
 
@@ -246,13 +244,12 @@ IETF.user_groups = {};
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 </ul></div></div></li>
 
 
 
 <li class="yuimenuitem"><a class="yuimenuitemlabel">Routing</a><div id="wgs-rtg" class="yuimenu"><div class="bd"><ul>
+<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
@@ -307,8 +304,6 @@ IETF.user_groups = {};
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 <li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
-<li class="yuimenuitem"><a class="yuimenuitemlabel" href="/wg//"> &mdash; </a></li>
 </ul></div></div></li>
 
 
@@ -332,6 +327,7 @@ IETF.user_groups = {};
 
 
    <li><a href="http://testserver/accounts/login/?next=/meeting/83/agenda-utc.html" rel="nofollow">Sign in to track drafts</a></li>
+
 
 
 
@@ -361,7 +357,7 @@ IETF.user_groups = {};
 </div>
 <div style="width: 100%; text-align: center; padding-top:4px;font-size:69%;">
 
-<a href="/release/4.44-dev/">Version 4.44-dev, </a>
+<a href="/release/4.54-dev/">Version 4.54-dev, </a>
 <br/>
 
 <a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
@@ -449,9 +445,9 @@ You can customize the agenda below to show only selected working group sessions.
       <div id='selector-weirds' class="unselected" onclick="toggle(this)">weirds</div>
     </td>
     <td valign="top" id="GEN-groups">
-      <div id='selector-antitrust' class="unselected" onclick="toggle(this)"><i>antitrust</i></div>
-      <div id='selector-rfcform' class="unselected" onclick="toggle(this)"><i>rfcform</i></div>
-      <div id='selector-rpsreqs' class="unselected" onclick="toggle(this)"><i>rpsreqs</i></div>
+      <div id='selector-antitrust' class="unselected" onclick="toggle(this)">antitrust</div>
+      <div id='selector-rfcform' class="unselected" onclick="toggle(this)">rfcform</div>
+      <div id='selector-rpsreqs' class="unselected" onclick="toggle(this)">rpsreqs</div>
     </td>
     <td valign="top" id="INT-groups">
       <div id='selector-6man' class="unselected" onclick="toggle(this)">6man</div>
@@ -559,7 +555,7 @@ You can customize the agenda below to show only selected working group sessions.
       <div id='selector-cdni' class="unselected" onclick="toggle(this)">cdni</div>
       <div id='selector-conex' class="unselected" onclick="toggle(this)">conex</div>
       <div id='selector-decade' class="unselected" onclick="toggle(this)">decade</div>
-      <div id='selector-i2aex' class="unselected" onclick="toggle(this)"><i>i2aex</i></div>
+      <div id='selector-i2aex' class="unselected" onclick="toggle(this)">i2aex</div>
       <div id='selector-ippm' class="unselected" onclick="toggle(this)">ippm</div>
       <div id='selector-mptcp' class="unselected" onclick="toggle(this)">mptcp</div>
       <div id='selector-nfsv4' class="unselected" onclick="toggle(this)">nfsv4</div>
@@ -683,6 +679,11 @@ You can customize the agenda below to show only selected working group sessions.
 
    
    
+   
+   
+
+   
+   
       <tr class="time-title">
          <td colspan="1" class="timecolumn">
 	   <span class="ietf-tiny">Mar 25&nbsp;&nbsp;</span>
@@ -773,6 +774,11 @@ You can customize the agenda below to show only selected working group sessions.
 
    
    
+   
+   
+
+   
+   
       <tr class="time-title">
          <td colspan="1" class="timecolumn">
 	   <span class="ietf-tiny">Mar 25&nbsp;&nbsp;</span>
@@ -785,6 +791,11 @@ You can customize the agenda below to show only selected working group sessions.
            
          </td>
       </tr>
+   
+   
+   
+
+   
    
    
    
@@ -1207,7 +1218,7 @@ You can customize the agenda below to show only selected working group sessions.
        <td>
          <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('83-mon-1300-TSV-i2aex',this);" title="color tag this line"/ class="noprint">
            Infrastructure-to-Application Information Exposure
-            BOF 
+           
            
            <br/><span class="note">Room Changed From 241</span></td>
        <td class="materials"></td>
@@ -1815,7 +1826,7 @@ You can customize the agenda below to show only selected working group sessions.
        <td>
          <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('83-tue-0900-GEN-antitrust',this);" title="color tag this line"/ class="noprint">
            Does the IETF Need an Anti-Trust Policy
-            BOF 
+           
            </td>
        <td class="materials"></td>
      </tr>
@@ -2372,7 +2383,7 @@ You can customize the agenda below to show only selected working group sessions.
        <td>
          <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('83-tue-1710-GEN-rfcform',this);" title="color tag this line"/ class="noprint">
            RFC Format
-            BOF 
+           
            </td>
        <td class="materials"></td>
      </tr>
@@ -3412,6 +3423,201 @@ You can customize the agenda below to show only selected working group sessions.
            
          </td>
       </tr>
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
+   
+   
+   
+     <tr>
+       <td></td>
+       <td colspan="5">
+         <iframe width="100%" height="1px" src="" onload="r(this)"></iframe>
+          
+       </td>
+     </tr>
+   
+
+   
    
    
    
@@ -4878,7 +5084,7 @@ You can customize the agenda below to show only selected working group sessions.
        <td>
          <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('83-fri-1120-GEN-rpsreqs',this);" title="color tag this line"/ class="noprint">
            Remote Participation System Requirements
-            BOF 
+           
            </td>
        <td class="materials"></td>
      </tr>
@@ -5063,7 +5269,7 @@ You can customize the agenda below to show only selected working group sessions.
        <td>
          <img src="/images/color-palette-4x4.gif" alt="" onclick="pickAgendaColor('83-fri-1230-GEN-rpsreqs',this);" title="color tag this line"/ class="noprint">
            Remote Participation System Requirements
-            BOF 
+           
            </td>
        <td class="materials"></td>
      </tr>
@@ -5078,22 +5284,6 @@ You can customize the agenda below to show only selected working group sessions.
      </tr>
 
     
-   
-
-   
-   
-      <tr class="time-title">
-         <td colspan="1" class="timecolumn">
-	   <span class="ietf-tiny">Mar 30&nbsp;&nbsp;</span>
-           1030-1130&nbsp;<span class="ietf-tiny">UTC</span>
-         </td>
-         <td colspan="5">
-           Afternoon session II
-           
-         </td>
-      </tr>
-   
-     
    
 
 </table>

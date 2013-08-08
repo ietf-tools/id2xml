@@ -17,7 +17,7 @@ else
     echo it seems that I can not find the top-level htdocs
     exit 2
 fi
-	
+
 PORT=$(./etc/portnum.sh)
 VERSION=1
 
@@ -78,10 +78,13 @@ localize etc/config.inc.php
 localize etc/mysql.sh
 localize etc/bootstrap.sql
 localize etc/settings_local.py
+
+# writable directories required by settings file.
+mkdir -p tmp/staging
+
 cp etc/settings_local.py ietf
 
 if [ -f php/install-settings.php.in ]; then
     localize php/install-settings.php
 fi
-
 

@@ -8,6 +8,17 @@
 *
 *
 */
+function do_work(result,callback){
+    setTimeout(function(){
+	if(!result()){
+	    setTimeout(arguments.callee,1);
+	}
+	else{
+	    callback();
+	}
+    });
+}
+
 
 /* do_work:
    when we are waiting for something to either resolve to true, or another similar job
@@ -65,9 +76,9 @@ function move_slot(from,to){
 
     if(result){
 	if(update_from_slot(from,from_slot)){
-	    console.log("success");
+	    console.log("move_slot: success");
 	}else{
-	    console.log("fail");
+	    console.log("move_slot: fail");
 	    }
     }
 
@@ -145,6 +156,19 @@ function load_events(){
 	for(var q = 0; q<ssid_arr.length; q++){
 	    ssid = ssid_arr[q];
             insert_cell(ssid.domid, "", true);
+
+            // also see if the slots have any declared relationship, and take it forward as
+            // well as backwards.
+            if(ssid.extendedfrom_id != false) {
+                other = slot_objs[ssid.extendedfrom_id];
+                console.log("slot:",ssid.scheduledsession_id, "extended from: ",key,ssid.extendedfrom_id," is: ", other);
+                if(other != undefined) {
+                    ssid.extendedfrom = other;
+                    other.extendedto  = ssid;
+                } else {
+                    console.log("extended from: ",ssid.extendedfrom_id," not found");
+                }
+            }
 	}
     });
 
@@ -167,22 +191,30 @@ function load_events(){
 
             session = meeting_objs[ssid.session_id];
             if (session != null) {
-	       	session.slot_status_key = key;
+
+                if(ssid.extendedto != undefined) {
+                    session.double_wide = true;
+                }
+                if(ssid.extendedfrom == undefined) {
+	       	    session.slot_status_key = key;
+                }
 
 	        $(slot_id).removeClass('free_slot');
 		// connect to the group.
 		session.group();
-                session.column_class = ssid.column_class;
+                session.add_column_class(ssid.column_class);
                 //console.log("session:",session.title, "column_class", ssid.column_class);
 
-                session.populate_event(key)
+                if(ssid.extendedfrom == undefined) {
+                    session.populate_event(key);
+                }
 		//log("setting "+slot_id+" as used");
 
 		// note in the group, what the class of column is.
 		// this is an array, as the group might have multiple
 		// sessions!
 		group = session.group();
-                group.add_column_class(ssid.column_class);
+                group.add_column_classes(ssid.column_class_list);
 		group.add_session(session);
 
                 session.placed();
@@ -262,14 +294,19 @@ function gen_tr_td(title,data){
 
 /* Mainly for the case where we didn't get any data back from the server */
 function empty_info_table(){
-    $("#info_grp").html("");
+    $("#info_grp").html(name_select_html);
     $("#info_name").html("");
     $("#info_area").html("");
     $("#info_duration").html("");
+
+    $(".agenda_selected_buttons").attr('disabled',true);
+    $(".agenda_double_slot").addClass("button_disabled");
+    $(".agenda_double_slot").removeClass("button_enabled");
+
     if(!read_only) {
         $("#info_location").html(generate_select_box()+"<button id='info_location_set'>Set</button>");
         $("#info_location_select").val("");
-        $("#info_location_select").val($("#info_location_select_option_"+current_timeslot).val());
+        $("#info_location_select").val($("#info_location_select_option_"+current_timeslot_id).val());
     }
     $("#info_responsible").html("");
     $("#info_requestedby").html("");
@@ -404,7 +441,7 @@ function find_meeting_no_room(){
 	if(meeting_objs[key].slot_status_key == null) {
 	    session = meeting_objs[key]
 	    session.slot_status_key = null;
-	    session.populate_event("sortable-list");
+	    session.populate_event(bucketlist_id);
 	}
     })
 }
@@ -458,7 +495,7 @@ function remove_duplicate(timeslot_id, ss_id){
     child = children;
     console.log(children);
     for(var i = 0; i< children.length; i++){ // loop to
-	if($(children[i]).attr('id') == "session_"+ss_id){ // make sure we only remove duplicate.
+	if($(children[i]).attr('session_id') == ss_id) { // make sure we only remove duplicate.
 	    try{
 		$(children[i]).remove();
 	    }catch(exception){

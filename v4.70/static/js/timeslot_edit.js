@@ -19,13 +19,15 @@
 
 var meeting_objs = {};    // contains a list of session objects
 var slot_status = {};     // the status of the slot, in format { room_year-month-day_hour: { free: t/f, timeslotid: id } }
-
+var slot_objs   = {};
 var group_objs = {};      // list of working groups
 
 var days = [];
 var legend_status = {};   // agenda area colors.
 
 var duplicate_sessions = {};
+var bucketlist_id = "sortable-list" // for if/when the id for bucket list changes.
+
 /********* colors ************************************/
 
 var highlight = "red"; // when we click something and want to highlight it.

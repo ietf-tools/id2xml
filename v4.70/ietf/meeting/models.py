@@ -403,6 +403,23 @@ class TimeSlot(models.Model):
             ts.scheduledsession_set.all().delete()
             ts.delete()
 
+    """
+    Find a timeslot that comes next, in the same room.   It must be on the same day,
+    and it must have a gap of 11 minutes or less. (10 is the spec)
+    """
+    @property
+    def slot_to_the_right(self):
+        things = self.meeting.timeslot_set.filter(location = self.location,       # same room!
+                                 type     = self.type,           # must be same type (usually session)
+                                 time__gt = self.time + self.duration,  # must be after this session.
+                                 time__lt = self.time + self.duration + datetime.timedelta(0,11*60))
+        if things:
+            return things[0]
+        else:
+            return None
+
+# end of TimeSlot
+
 class Schedule(models.Model):
     """
     Each person may have multiple agendas saved.
@@ -503,6 +520,7 @@ class ScheduledSession(models.Model):
     timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
     session  = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session")
     schedule = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
+    extendedfrom = models.ForeignKey('ScheduledSession', null=True, default=None, help_text=u"Timeslot this session is an extension of")
     modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
 
@@ -521,6 +539,14 @@ class ScheduledSession(models.Model):
     def acronym(self):
         if self.session and self.session.group:
             return self.session.group.acronym
+
+    @property
+    def slot_to_the_right(self):
+        ss1 = self.schedule.scheduledsession_set.filter(timeslot = self.timeslot.slot_to_the_right)
+        if ss1:
+            return ss1[0]
+        else:
+            return None
 
     @property
     def acronym_name(self):

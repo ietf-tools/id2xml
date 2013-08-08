@@ -133,6 +133,21 @@ def get_ntimeslots_from_agenda(agenda):
     ntimeslots = get_ntimeslots_from_ss(agenda, scheduledsessions)
     return ntimeslots, scheduledsessions
 
+def find_ads_for_meeting(meeting):
+    ads = []
+    meeting_time = datetime.datetime.combine(meeting.date, datetime.time(0, 0, 0))
+
+    # get list of ADs which are/were active at the time of the meeting.
+    for g in Group.objects.filter(type="area").order_by("acronym"):
+        history = find_history_active_at(g, meeting_time)
+        if history:
+            if history.state_id == "active":
+                ads.extend(IESGHistory().from_role(x, meeting_time) for x in history.rolehistory_set.filter(name="ad").select_related())
+        else:
+            if g.state_id == "active":
+                ads.extend(IESGHistory().from_role(x, meeting_time) for x in g.role_set.filter(name="ad").select_related('group', 'person'))
+    return ads
+
 def agenda_info(num=None, name=None):
     """
     XXX this should really be a method on Meeting
@@ -162,16 +177,7 @@ def agenda_info(num=None, name=None):
     update = Switches().from_object(meeting)
     venue = meeting.meeting_venue
 
-    ads = []
-    meeting_time = datetime.datetime.combine(meeting.date, datetime.time(0, 0, 0))
-    for g in Group.objects.filter(type="area").order_by("acronym"):
-        history = find_history_active_at(g, meeting_time)
-        if history and history != g:
-            if history.state_id == "active":
-                ads.extend(IESGHistory().from_role(x, meeting_time) for x in history.rolehistory_set.filter(name="ad").select_related())
-        else:
-            if g.state_id == "active":
-                ads.extend(IESGHistory().from_role(x, meeting_time) for x in g.role_set.filter(name="ad").select_related('group', 'person'))
+    ads = find_ads_for_meeting(meeting)
 
     active_agenda = State.objects.get(type='agenda', slug='active')
     plenary_agendas = Document.objects.filter(session__meeting=meeting, session__scheduledsession__timeslot__type="plenary", type="agenda", ).distinct()

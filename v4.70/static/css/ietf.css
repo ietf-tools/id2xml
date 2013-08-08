@@ -61,8 +61,28 @@
     z-index: 5;
 }
 
+/* this works around a firefox bug that prevents firefox from accepting a
+ * position:relative; on a TD.
+ * so the meeting event is buried in another div that is relative.
+ * http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
+ */
+div.meeting_box_container {
+    position: relative;
+};
+
 div.meeting_box {
     width:  98px;
+}
+
+div.meeting_box_double {
+    z-index: 5;
+    min-width: 170px;
+    position: absolute;
+    left: 20px;
+    top: -10px;
+}
+div.meeting_box_double table {
+    min-width: 170px;
 }
 
 div.meeting_box_bucket_list {
@@ -299,8 +319,6 @@ td.ss_info_name_short{
 }
 
 .agenda_find_free{
-    /* position:absolute; */
-    /* left: 3px; */
     border: 1px solid #89D;
     background-color: #EDF5FF;
     padding: 5px;
@@ -308,6 +326,25 @@ td.ss_info_name_short{
     float:left;
     margin-top:70px;
     margin-left:3px;
+}
+
+.agenda_double_slot {
+    border: 1px solid #89D;
+    background-color: #EDF5FF;
+    padding: 5px;
+    max-width:  150px;
+    float:left;
+    margin-top:70px;
+    margin-left:3px;
+}
+
+.button_disabled {
+    color: #EDF4FF;
+    text-color: #EDF4FF;
+}
+.button_enabled {
+    color: black;
+    text-color: black;
 }
 
 .agenda_save_box {
@@ -339,7 +376,7 @@ td.ss_info_name_short{
   padding-bottom: 3px;
   margin-top: 5px;
   height: 20px;
-  width: 500px;
+  width: 600px;
   text-align:left;
   font-size: 12px;
 }
@@ -832,3 +869,9 @@ div.line{
 #agenda_edit_properties div#title table {
     display: inline;
 }
+
+.highlight_current_moving{
+    background-color:red;
+
+}
+

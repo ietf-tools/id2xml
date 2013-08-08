@@ -49,23 +49,20 @@ function get_all_constraints(){
 
 }
 
-var all_conflicts = {};
-
 function show_all_conflicts(){
-    //console.log("all conflicts");
-    $.each(all_conflicts, function(key) {
-        conflict = all_conflicts[key];
-        //console.log("session:", conflict.title, conflict.session_id);
-        $("#session_" + conflict.session_id).addClass("actual_conflict");
-    });
+    console.log("all conflicts");
+    for(sk in meeting_objs) {
+        var s = meeting_objs[sk];
+        s.display_conflict();
+    }
 }
 
-// not really used anymore
+// not really used anymore -- just for debugging
 function hide_all_conflicts(){
-    $.each(all_conflicts, function(key) {
-        conflict = all_conflicts[key];
-        $("#" + conflict.session_id).removeClass("actual_conflict");
-    });
+    for(sk in meeting_objs) {
+        var s = meeting_objs[sk];
+        s.hide_conflict();
+    }
 }
 
 var CONFLICT_LOAD_COUNT = 0;
@@ -104,10 +101,10 @@ function calculate_real_conflict(conflict, vertical_location, room_tag, session_
                 //console.log("    vs: ",index, "session_id:",osession.session_id," at: ",value.column_tag);
                 if(value.column_tag == vertical_location &&
                    value.room_tag   != room_tag) {
-                    console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym," #session_",session_obj.session_id);
+                    console.log("real conflict:",session_obj.title," with: ",conflict.othergroup.acronym, " #session_",session_obj.session_id);
                     // there is a conflict!
                     __DEBUG_SHOW_CONSTRAINT = $("#"+value[0]).children()[0];
-                    all_conflicts[session_obj.session_id] = session_obj;
+                    session_obj.add_conflict();
                 }
             }
         });
@@ -242,6 +239,7 @@ function ColumnClass(room,date,time) {
     this.room_tag   = this.room+"_"+this.date+"_"+this.time;
     this.th_time    = this.date+"-"+this.time;
     this.column_tag = ".agenda-column-"+this.th_time;
+    this.th_tag     = ".day_" + this.th_time;
 };
 
 
@@ -252,11 +250,15 @@ function ColumnClass(room,date,time) {
 //     "timeslot_id":"{{s.timeslot.id}}",
 //     "session_id" :"{{s.session.id}}",
 //     "room"       :"{{s.timeslot.location|slugify}}",
+//     "extendedfrom_id"    :refers to another scheduledsession by ss.id
 //     "time"       :"{{s.timeslot.time|date:'Hi' }}",
 //     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
 //     "domid"      :"{{s.timeslot.js_identifier}}"}
 
 function ScheduledSlot(){
+    this.extendedfrom = undefined;
+    this.extendedto   = undefined;
+    this.extendedfrom_id = false;
 }
 
 ScheduledSlot.prototype.initialize = function(json) {
@@ -286,6 +288,8 @@ ScheduledSlot.prototype.initialize = function(json) {
        slot_status[this.domid]=[];
     }
     slot_status[this.domid].push(this);
+    //console.log("filling slot_objs", this.scheduledsession_id);
+    slot_objs[this.scheduledsession_id] = this;
 };
 
 ScheduledSlot.prototype.session = function() {
@@ -293,6 +297,26 @@ ScheduledSlot.prototype.session = function() {
        return meeting_objs[this.session_id];
     } else {
        return undefined;
+    }
+};
+ScheduledSlot.prototype.slot_title = function() {
+    return "id#"+this.scheduledsession_id+" dom:"+this.domid;
+};
+ScheduledSlot.prototype.can_extend_right = function() {
+    if(this.following_timeslot == undefined) {
+        if(this.following_timeslot_id != undefined) {
+            this.following_timeslot = slot_objs[this.following_timeslot_id];
+        }
+    }
+    if(this.following_timeslot == undefined) {
+        console.log("can_extend_right:",this.scheduledsession_id," no slot to check");
+        return false;
+    } else {
+        console.log("can_extend_right:",
+                    this.slot_title()," for slot: ",
+                    this.following_timeslot.slot_title(),
+                    "is ",this.following_timeslot.empty);
+        return this.following_timeslot.empty;
     }
 };
 
@@ -324,10 +348,12 @@ function Session() {
     this.slot_status_key = null;
     this.href       = false;
     this.group_obj  = undefined;
-    this.column_class = undefined;     //column_class will be filled by in load_events
+    this.column_class_list = [];
     this.loaded = false;
     this.area = "noarea";
     this.special_request = "";
+    this.conflicted = false;
+    this.double_wide = false;
 }
 
 function session_obj(json) {
@@ -354,6 +380,7 @@ function session_obj(json) {
     session_objs[session.title].push(session);
 
     meeting_objs[session.session_id] = session;
+
 
     return session;
 }
@@ -391,6 +418,26 @@ Session.prototype.load_session_obj = function(andthen, arg) {
            andthen(this, true, arg);
        }
     }
+    return "<div class=\""+bucket_list_style+" meeting_box\" session_id=\""+this.session_id+"\"><table class='meeting_event "+
+        this.title +
+        "' id='session_"+
+        this.session_id+
+        "'><tr id='meeting_event_title'><th class='"+
+        this.area_scheme() +" meeting_obj'>"+
+        this.visible_title()+
+        "<span> ("+this.duration+")</span>"+
+        "</th></tr></table></div>";
+};
+
+Session.prototype.selectit = function() {
+    clear_all_selections();
+    // mark self as selected
+    $("." + this.title).addClass("same_group");
+    $("#session_"+session_id).removeClass("save_group");
+    $("#session_"+session_id).addClass("selected_group");
+};
+Session.prototype.unselectit = function() {
+    clear_all_selections();
 };
 
 Session.prototype.element = function() {
@@ -421,13 +468,51 @@ Session.prototype.populate_event = function(js_room_id) {
     var eTemplate =     this.event_template()
     insert_cell(js_room_id, eTemplate, false);
 };
+Session.prototype.repopulate_event = function(js_room_id) {
+    var eTemplate =     this.event_template()
+    insert_cell(js_room_id, eTemplate, true);
+};
 
 Session.prototype.visible_title = function() {
     return this.special_request + this.title;
 };
 
+var _conflict_debug = false;
+Session.prototype.mark_conflict = function(value) {
+    this.conflicted = value;
+};
+Session.prototype.add_conflict = function() {
+    this.conflicted = true;
+};
+Session.prototype.clear_conflict = function() {
+    this.conflicted = false;
+};
+Session.prototype.show_conflict = function() {
+    if(_conflict_debug) {
+        console.log("adding conflict for", this.title);
+    }
+    this.element().addClass("actual_conflict");
+};
+Session.prototype.hide_conflict = function() {
+    if(_conflict_debug) {
+        console.log("removing conflict for", this.title);
+    }
+    this.element().removeClass("actual_conflict");
+};
+Session.prototype.display_conflict = function() {
+    if(this.conflicted) {
+        this.show_conflict();
+    } else {
+        this.hide_conflict();
+    }
+};
+
 Session.prototype.area_scheme = function() {
     return this.area.toUpperCase() + "-scheme";
+};
+
+Session.prototype.add_column_class = function(column_class) {
+    this.column_class_list.push(column_class);
 };
 
 Session.prototype.event_template = function() {
@@ -438,7 +523,12 @@ Session.prototype.event_template = function() {
     if(this.is_placed) {
         bucket_list_style = "";
     }
-    return "<div class=\""+bucket_list_style+" meeting_box\" session_id=\""+this.session_id+"\"><table class='meeting_event "+
+    if(this.double_wide) {
+        bucket_list_style = bucket_list_style + " meeting_box_double";
+    }
+    // see comment in ietf.ccs, and
+    // http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
+    return "<div class='meeting_box_container' session_id=\""+this.session_id+"\"><div class=\"meeting_box "+bucket_list_style+"\" ><table class='meeting_event "+
         this.title +
         "' id='session_"+
         this.session_id+
@@ -446,21 +536,8 @@ Session.prototype.event_template = function() {
         this.area_scheme() +" meeting_obj'>"+
         this.visible_title()+
         "<span> ("+this.duration+")</span>"+
-        "</th></tr></table></div>";
+        "</th></tr></table></div></div>";
 };
-
-Session.prototype.selectit = function() {
-    clear_all_selections();
-    // mark self as selected
-    $("." + this.title).addClass("same_group");
-    $("#session_"+session_id).removeClass("save_group");
-    $("#session_"+session_id).addClass("selected_group");
-};
-Session.prototype.unselectit = function() {
-    clear_all_selections();
-};
-
-
 
 function andthen_alert(object, result, arg) {
     alert("result: "+result+" on obj: "+object);
@@ -617,6 +694,27 @@ Group.prototype.add_column_class = function(column_class) {
     }
     this.column_class_list.push(column_class);
 };
+Group.prototype.del_column_class = function(column_class) {
+    for(n in this.column_class_list) {
+        if(this.column_class_list[n] == column_class) {
+            delete this.column_class_list[n];
+        }
+    }
+};
+
+Group.prototype.add_column_classes = function(column_class_list) {
+    for(ccn in column_class_list) {
+        cc = column_class_list[ccn];
+        this.add_column_class(cc);
+    }
+};
+Group.prototype.del_column_classes = function(column_class_list) {
+    for(ccn in column_class_list) {
+        cc = column_class_list[ccn];
+        this.del_column_class(cc);
+    }
+};
+
 
 function find_group_by_href(href) {
     if(group_objs[href] == undefined) {
@@ -651,14 +749,11 @@ function Constraint() {
 var conflict_classes = {};
 
 function clear_conflict_classes() {
-    $("#cb_conflict1").prop('checked',false);
-    $("#cb_conflict2").prop('checked',false);
-    $("#cb_conflict3").prop('checked',false);
-    $.each(conflict_classes, function(key) {
-              constraint = conflict_classes[key];
-              constraint.clear_conflict_view();
-          });
-    conflict_classes = {};
+    // remove all conflict boxes from before
+    $(".show_conflict_specific_box").removeClass("show_conflict_specific_box");
+
+    // reset all column headings
+    $(".show_conflict_view_highlight").removeClass("show_conflict_view_highlight");
 }
 function find_conflict(domid) {
     return conflict_classes[domid];
@@ -674,6 +769,7 @@ Constraint.prototype.column_class_list = function() {
 
 
 var __CONSTRAINT_DEBUG = null;
+var __column_class_debug = false;
 
 // one can get here by having the conflict boxes enabled/disabled.
 // but, when a session is selected, the conflict boxes are filled in,
@@ -682,7 +778,9 @@ Constraint.prototype.show_conflict_view = function() {
     classes=this.column_class_list()
     //console.log("show_conflict_view", this);
     __CONSTRAINT_DEBUG = this;
-    //console.log("viewing", this.href, this.thisgroup.href);
+    if(__column_class_debug) {
+        console.log("viewing", this.href, this.thisgroup.href);
+    }
 
     // this highlights the column headings of the sessions that conflict.
     for(ccn in classes) {
@@ -690,9 +788,13 @@ Constraint.prototype.show_conflict_view = function() {
 
         if(cc != undefined) {
             /* this extracts the day from this structure */
-           var th_time = ".day_"+cc.th_time;
-           //console.log("299", th_time);
-           $(th_time).addClass("show_conflict_view_highlight");
+            var th_tag = cc.th_tag;
+            if(__column_class_debug) {
+                console.log("add conflict for column_class", this.session.title, th_tag);
+            }
+            $(th_tag).addClass("show_conflict_view_highlight");
+        } else {
+            console.log("cc is undefined for ccn:",ccn);
         }
     }
 
@@ -702,37 +804,11 @@ Constraint.prototype.show_conflict_view = function() {
     if(sessions) {
       $.each(sessions, function(key) {
           //console.log("2 make box", key);
-          var nid = "#session_"+this.session_id;
-          //console.log("279", this.session_id, nid);
-          $(nid).addClass("show_conflict_specific_box");
+          this.element().addClass("show_conflict_specific_box");
       });
     }
     //console.log("viewed", this.thisgroup.href);
 };
-
-Constraint.prototype.clear_conflict_view = function() {
-    classes=this.column_class_list()
-    //console.log("hiding", this.thisgroup.href);
-    for(ccn in classes) {
-       var cc = classes[ccn];
-        if(cc != undefined) {
-           var th_time = ".day_" + cc.th_time;
-           $(th_time).removeClass("show_conflict_view_highlight"); //css('background-color',"red");
-        }
-    }
-
-    //console.log("boxes for", this.thisgroup.href);
-    sessions = this.othergroup.all_sessions
-    if(sessions) {
-      $.each(sessions, function(key) {
-          var nid = "#session_"+this.session_id;
-          //console.log("269", this.session_id, nid);
-          $(nid).removeClass("show_conflict_specific_box");
-      });
-    }
-    //console.log("hid", this.thisgroup.href);
-};
-
 
 Constraint.prototype.build_conflict_view = function() {
     var bothways = "&nbsp;&nbsp;&nbsp;";

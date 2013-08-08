@@ -18,6 +18,30 @@ class ViewTestCase(TestCase):
                  'groupgroup.json',
                  'person.json', 'users.json' ]
 
+    def test_agenda83txt(self):
+        # verify that the generated text has not changed.
+        import io
+        agenda83txtio = open("ietf/meeting/tests/agenda-83-txt-output.txt", "r")
+        agenda83txt = agenda83txtio.read();  # read entire file
+        resp = self.client.get('/meeting/83/agenda.txt')
+        # to capture new output (and check it for correctness)
+        #out = open("ietf/meeting/tests/agenda-83-txt-output-out.txt", "w")
+        #out.write(resp.content)
+        #out.close()
+        self.assertEqual(resp.content, agenda83txt, "agenda83 txt changed")
+
+    def test_agenda83utc(self):
+        # verify that the generated html has not changed.
+        import io
+        agenda83utcio = open("ietf/meeting/tests/agenda-83-utc-output.html", "r")
+        agenda83utc = agenda83utcio.read();  # read entire file
+        resp = self.client.get('/meeting/83/agenda-utc.html')
+        # to capture new output (and check it for correctness)
+        #out = open("ietf/meeting/tests/agenda-83-utc-output-out.html", "w")
+        #out.write(resp.content)
+        #out.close()
+        self.assertEqual(resp.content, agenda83utc, "agenda83 utc changed")
+
     def test_nameOfClueWg(self):
         clue_session = Session.objects.get(pk=2194)
         self.assertEqual(clue_session.short_name, "clue")

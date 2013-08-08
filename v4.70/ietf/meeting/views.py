@@ -136,37 +136,27 @@ def mobile_user_agent_detect(request):
     return user_agent
 
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda(request, num=None, schedule_name=None):
+def html_agenda_1(request, num, schedule_name, template_version="meeting/agenda.html"):
     user_agent = mobile_user_agent_detect(request)
     if "iPhone" in user_agent:
         return iphone_agenda(request, num, schedule_name)
 
     scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
 
-    return HttpResponse(render_to_string("meeting/agenda.html",
+    return HttpResponse(render_to_string(template_version,
         {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list,
          "fg_group_colors": fg_group_colors,
          "bg_group_colors": bg_group_colors,
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
+
+def html_agenda(request, num=None, schedule_name=None):
+    return html_agenda_1(request, num, schedule_name, "meeting/agenda.html")
 
 @decorator_from_middleware(GZipMiddleware)
 def html_agenda_utc(request, num=None, schedule_name=None):
-
-    user_agent = mobile_user_agent_detect(request)
-    if "iPhone" in user_agent:
-        return iphone_agenda(request, num)
-
-    scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
-
-    return HttpResponse(render_to_string("meeting/agenda_utc.html",
-        {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
-         "area_list": area_list, "wg_list": wg_list,
-         "fg_group_colors": fg_group_colors,
-         "bg_group_colors": bg_group_colors,
-         "show_inline": set(["txt","htm","html"]) },
-        RequestContext(request)), mimetype="text/html")
+    return html_agenda_1(request, num, schedule_name, "meeting/agenda_utc.html")
 
 class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)
@@ -211,12 +201,23 @@ def agenda_create(request, num=None, schedule_name=None):
     if newschedule is None:
         return HttpResponse(status=500)
 
+    # keep a mapping so that extendedfrom references can be chased.
+    mapping = {};
     for ss in schedule.scheduledsession_set.all():
         # hack to copy the object, creating a new one
         # just reset the key, and save it again.
+        oldid = ss.pk
         ss.pk = None
         ss.schedule=newschedule
         ss.save()
+        mapping[oldid] = ss.pk
+
+    # now fix up any extendedfrom references to new set.
+    for ss in newschedule.scheduledsession_set.all():
+        if ss.extendedfrom is not None:
+            ss.extendedfrom = newschedule.scheduledsession_set.get(pk = mapping[ss.extendedfrom.id])
+            ss.save()
+
 
     # now redirect to this new schedule.
     return HttpResponseRedirect(
@@ -234,7 +235,7 @@ def edit_timeslots(request, num=None):
 
     meeting_base_url = meeting.url(request.get_host_protocol(), "")
     site_base_url =request.get_host_protocol()
-    rooms = meeting.room_set
+    rooms = meeting.room_set.order_by("capacity")
     rooms = rooms.all()
 
     from ietf.meeting.ajax import timeslot_roomsurl, AddRoomForm, timeslot_slotsurl, AddSlotForm
@@ -275,7 +276,7 @@ def edit_agenda(request, num=None, schedule_name=None):
 
     meeting_base_url = meeting.url(request.get_host_protocol(), "")
     site_base_url =request.get_host_protocol()
-    rooms = meeting.room_set
+    rooms = meeting.room_set.order_by("capacity")
     rooms = rooms.all()
     saveas = SaveAsForm()
     saveasurl=reverse(edit_agenda,

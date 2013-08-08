@@ -15,6 +15,7 @@
 {% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
 {% load agenda_custom_tags %}
 {% block pagehead %}
+<link rel='stylesheet' type='text/css' href='/css/jquery-ui-themes/jquery-ui-1.8.11.custom.css' />
 <link rel='stylesheet' type='text/css' href='/css/ietf.css' />
 
 <script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
@@ -82,8 +83,10 @@ function setup_slots(){
      "empty": "{{s.empty_str}}",
      "timeslot_id":"{{s.timeslot.id}}",
      "session_id" :"{{s.session.id}}",
-     "room"       :"{{s.timeslot.location|slugify}}",
-     "roomtype"   :"{{s.slottype|lower}}",
+     {% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
+     {% endif %}"room"       :"{{s.timeslot.location|slugify}}",
+     {% if s.slot_to_the_right %}"following_timeslot_id":"{{s.slot_to_the_right.id}}",
+     {% endif %}"roomtype"   :"{{s.slottype|lower}}",
      "time"       :"{{s.timeslot.time|date:'Hi' }}",
      "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
      "domid"      :"{{s.timeslot.js_identifier}}"});
@@ -157,6 +160,32 @@ Please save this agenda to your account first.
 </div>
 
 <div class="agenda_div">
+
+
+<div id="dialog-confirm" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    Are you sure you want to put two sessions into the same slot?
+  </p>
+</div>
+
+<div id="can-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
+</div>
+
+<div id="can-not-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    You can not extend this session. The slot is not available.
+  </p>
+</div>
+
+
+<div id="dialog-confirm" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    Are you sure you want to put two sessions into the same slot?
+  </p>
+</div>
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
   <th class="schedule_title"><span id="schedule_name">name: {{schedule.name}}</span><div id="spinner"><!-- spinney goes here --></div></th>
@@ -276,7 +305,11 @@ Please save this agenda to your account first.
 	</tbody>
       </table>
     </div>
-    <div class="agenda_find_free"><button class="small_button" id="find_free">Find Free</button></div>
+    <div class="agenda_find_free"><button class="agenda_selected_buttons small_button" id="find_free">Find Free</button></div>
+    <div class="agenda_double_slot button_disabled">
+      <button class="agenda_selected_buttons small_button" disabled
+      id="double_slot">Extend</button>
+    </div>
     <div class="color_legend">
       {% for area in area_list %}
       <span class="{{area.upcase_acronym}}-scheme"><input class='color_checkboxes' type="checkbox" id="{{area.upcase_acronym}}" value="{{area.upcase_acronym}}-value" checked>{{area.upcase_acronym}}</span>

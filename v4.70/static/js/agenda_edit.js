@@ -24,6 +24,7 @@ var is_secretariat = false;
 var meeting_objs = {};    // contains a list of session objects -- by session_id
 var session_objs = {};    // contains a list of session objects -- by session_name
 var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
+var slot_objs   = {};     // scheduledsession indexed by id.
 
 var group_objs = {};      // list of working groups
 
@@ -93,7 +94,8 @@ function initStuff(){
     meeting_objs_length = Object.keys(meeting_objs).length;
 
     /* Comment this out for fast loading */
-    if(true) {
+    load_conflicts = false;
+    if(load_conflicts) {
         start_spin();
         get_all_conflicts();
         do_work(function() {
@@ -136,6 +138,7 @@ function read_only_result(msg) {
     // XX go fetch the owner and display it.
     console.log("owner href:", schedule_owner_href);
 
+    empty_info_table();
     listeners();
     droppable();
 }
@@ -151,7 +154,7 @@ function dajaxice_callback(message){
     /* if the message is empty, we got nothing back from the server, which probably
        means you are offline.
     */
-    console.log("callback: "+message);
+    console.log("callback: ",message);
     if(message == ""){
 	console.log("No response from server....");
     }

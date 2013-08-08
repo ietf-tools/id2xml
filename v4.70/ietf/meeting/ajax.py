@@ -60,13 +60,14 @@ def readonly(request, meeting_num, schedule_id):
 
 @group_required('Area Director','Secretariat')
 @dajaxice_register
-def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None):
+def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, duplicate=False):
     schedule = get_object_or_404(Schedule, pk = int(schedule_id))
     meeting  = schedule.meeting
     ss_id = 0
+    ess_id =0
     ss = None
 
-    print "schedule.owner: %s user: %s" % (schedule.owner, request.user.get_profile())
+    print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
     cansee,canedit = agenda_permissions(meeting, schedule, request.user)
 
     if not canedit:
@@ -79,17 +80,28 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None):
     if scheduledsession_id is not None:
         ss_id = int(scheduledsession_id)
 
+    if extended_from_id is not None:
+        ess_id = int(extended_from_id)
+
     if ss_id != 0:
         ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
 
-    for ssO in schedule.scheduledsession_set.filter(session = session):
-        ssO.session = None
-        ssO.save()
+    if ess_id == 0:
+        # if this is None, then we must be moving.
+        for ssO in schedule.scheduledsession_set.filter(session = session):
+            ssO.session = None
+            ssO.save()
+    else:
+        ess = get_object_or_404(schedule.scheduledsession_set, pk = ess_id)
+        ss.extendedfrom = ess
 
     try:
         # find the scheduledsession, assign the Session to it.
         if ss:
+            print "ss.session: %s session:%s"%(ss, session)
             ss.session = session
+            if(duplicate):
+                ss.id = None
             ss.save()
     except Exception as e:
         return json.dumps({'error':'invalid scheduledsession'})

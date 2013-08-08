@@ -67,4 +67,3 @@ def args(obj, arg):
     obj.__callArg += [arg]
     return obj
 
-

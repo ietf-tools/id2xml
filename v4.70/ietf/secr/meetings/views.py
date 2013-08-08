@@ -94,6 +94,7 @@ def build_timeslots(request,meeting,room=None):
                                         location=room,
                                         duration=t.duration)
                 ScheduledSession.objects.create(schedule=schedule,timeslot=ts)
+        meeting.create_all_timeslots();
 
 def build_nonsession(meeting):
     '''

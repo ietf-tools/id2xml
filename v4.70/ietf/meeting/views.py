@@ -41,7 +41,7 @@ from ietf.group.models import Group
 
 from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss
 from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info
-from ietf.meeting.helpers import get_areas, get_area_list_from_sessions
+from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pseudo_areas
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule
 from ietf.meeting.helpers import get_modified_from_scheduledsessions
@@ -298,7 +298,7 @@ def edit_agenda(request, num=None, schedule_name=None):
     # get_modified_from needs the query set, not the list
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
-    area_list = get_areas()
+    area_list = get_pseudo_areas()
     wg_name_list = get_wg_name_list(scheduledsessions)
     wg_list = get_wg_list(wg_name_list)
 

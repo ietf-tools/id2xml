@@ -74,7 +74,7 @@ function move_slot(from,to){
     meeting_objs[from].slot_status_key = to;
     //*****  do dajaxice call here  ****** //
 
-    var eTemplate = event_template(meeting_objs[from].title, meeting_objs[from].description, meeting_objs[from].session_id,meeting_objs[from].area);
+    var eTemplate = meeting.event_template()
 
     $("#session_"+from).remove();
     $("#"+to).append(eTemplate);
@@ -163,26 +163,19 @@ function load_events(){
 	    //console.log("removing class from "+ssid.domid);
 	    /* also, since we are HERE, set the class to indicate if slot is available */
 	    $(slot_id).addClass("agenda_slot_" + ssid.roomtype);
-	    $(slot_id).addClass('free_slot');
-	    $(slot_id).removeClass("agenda_slot_unavailable");
-	    $(slot_id).removeClass("agenda_slot_session");
+            $(slot_id).removeClass("agenda_slot_unavailable");
 
             session = meeting_objs[ssid.session_id];
             if (session != null) {
 	       	session.slot_status_key = key;
 
-                session.placed = true;
-
+	        $(slot_id).removeClass('free_slot');
 		// connect to the group.
 		session.group();
                 session.column_class = ssid.column_class;
                 //console.log("session:",session.title, "column_class", ssid.column_class);
 
-                populate_events(key,
-                                session.title,
-                                session.description,
-                                session.session_id,
-                                session.owner, session.area);
+                session.populate_event(key)
 		//log("setting "+slot_id+" as used");
 
 		// note in the group, what the class of column is.
@@ -192,26 +185,14 @@ function load_events(){
                 group.add_column_class(ssid.column_class);
 		group.add_session(session);
 
+                session.placed();
             } else {
-		//log("ssid: "+key+" is null");
-
+	        $(slot_id).addClass('free_slot');
             }
 	}
 	}
     });
 
-}
-
-
-function populate_events(js_room_id, title, description, session_id, owner, area){
-    var eTemplate =     event_template(title, description, session_id, area);
-    var t = title+" "+description;
-    insert_cell(js_room_id, eTemplate, false);
-}
-
-function event_template(event_title, description, session_id, area){
-    //console.log("area:"+area)
-    return "<table class='meeting_event "+ event_title +"' id='session_"+session_id+"'><tr id='meeting_event_title'><th class='"+area+"-scheme meeting_obj'>"+event_title+"<span> ("+meeting_objs[session_id].duration+")</span>"+"</th></tr>";
 }
 
 function check_free(inp){
@@ -423,11 +404,7 @@ function find_meeting_no_room(){
 	if(meeting_objs[key].slot_status_key == null) {
 	    session = meeting_objs[key]
 	    session.slot_status_key = null;
-	    populate_events("sortable-list",
-                            session.title,
-                            session.description,
-                            session.session_id,
-                            session.owner, session.area);
+	    session.populate_event("sortable-list");
 	}
     })
 }

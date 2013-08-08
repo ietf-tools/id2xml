@@ -21,7 +21,8 @@ var meeting_number = 0;   // is the meeting name.
 var schedule_id    = 0;   // what is the schedule we are editing.
 var schedule_owner_href = '';  // who owns this schedule
 var is_secretariat = false;
-var meeting_objs = {};    // contains a list of session objects
+var meeting_objs = {};    // contains a list of session objects -- by session_id
+var session_objs = {};    // contains a list of session objects -- by session_name
 var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
 
 var group_objs = {};      // list of working groups

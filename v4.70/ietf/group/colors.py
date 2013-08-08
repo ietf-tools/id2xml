@@ -13,6 +13,7 @@ fg_group_colors['RTG']="#880"
 fg_group_colors['SEC']="#488"
 fg_group_colors['TSV']="#484"
 fg_group_colors['IRTF']="#448"
+fg_group_colors['IETF']="blue"
 
 bg_group_colors = dict()
 bg_group_colors['APP']="#eef"
@@ -24,5 +25,6 @@ bg_group_colors['RTG']="#ffe"
 bg_group_colors['SEC']="#dff"
 bg_group_colors['TSV']="#dfd"
 bg_group_colors['IRTF']="#ddf"
+bg_group_colors['IETF']="white"
 
 

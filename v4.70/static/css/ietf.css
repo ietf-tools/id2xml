@@ -32,13 +32,42 @@
   color:white;
   background-color:#2647A0;
   overflow-x: hidden;
-  padding: 7px 3px;
+  padding: 7px 10px;
+  margin-left: 10px;
   position:relative;
+  text-align: left;
 }
 
 .bucket-list .agenda_slot_title {
   padding: 1px;
   font-size: 10px;
+}
+
+#unassigned-items {
+    position: relative;
+}
+
+#all_agendas {
+    position: absolute;
+    top:   3px;
+    right: 5px;
+    z-index: 5;
+}
+
+#unassigned_order {
+    position: absolute;
+    top:   3px;
+    left:  200px;
+    z-index: 5;
+}
+
+div.meeting_box {
+    width:  98px;
+}
+
+div.meeting_box_bucket_list {
+    height: 23px;
+    float: left;
 }
 
 table.meeting_event {
@@ -55,6 +84,9 @@ table.meeting_event {
     float:left;
 }
 
+.noarea-scheme {
+    background-color:#2b95b5;
+}
 
 .meeting_event th {
     /* background:#E6E6FA; */
@@ -62,7 +94,6 @@ table.meeting_event {
     /* background-color:#ff7373; */
 
     border-radius: 4px;
-    background-color:#2b95b5;
     color:white;
     font-size: 10px;
     text-align:center;
@@ -119,7 +150,6 @@ td.agenda_slot{
     /* height:20px; */
     height: 40px;
     /* min-height:20px; */
-   /* height:50px; */
 }
 
 .agenda_slot {
@@ -236,6 +266,10 @@ div.agenda_slot{
     padding:0px;
 
 }
+
+.ss_info td.info_split {
+    min-width:100px;
+}
 .ss_info td{
     min-width:200px;
 /* //  border:1px solid #89D; */
@@ -316,10 +350,21 @@ td.ss_info_name_short{
 div#conflict_table {
   font-size: 8pt;
   position: absolute;
-  left: 620px;
+  left: 650px;
   top: 14px;
   margin-left: 10px;
   margin-top:  3px;
+}
+
+#special_requests {
+    text-align: left;
+    min-height: 30px;
+    width: 620px;
+    overflow: auto;
+    border: 1px solid #89D;
+    background-color: #EDF5FF;
+    border-spacing:0;
+    border-collapse: collapse;
 }
 
 #conflict_table table {
@@ -565,8 +610,7 @@ table.actual_conflict {
 }
 
 .highlight_free_slot{
-    background-color:green;
-
+    background-image: url('/images/green_hatch.png');
 }
 
 
@@ -611,9 +655,10 @@ table.actual_conflict {
     border: solid 1px #203E5F;
 }
 
-.agenda_slot_alt {
+.agenda_row_alt td {
     /* for now, use no alternating theme */
-    /* border: 1px dashed #E3E3E3; */ /* darker greyish */
+    border-bottom: 1px solid orange;
+    margin-bottom: 5px;
 }
 
 .agenda_slot_plenary {
@@ -622,7 +667,7 @@ table.actual_conflict {
 }
 
 .agenda_slot_session {
-    background-color: #E6E6E6;  /* light grey-ish */
+    background-color: #E0E0E0;
 }
 
 .agenda_slot_reserved {
@@ -633,9 +678,15 @@ table.actual_conflict {
     background-color: #9448d4;  /* purple */
 }
 
-.agenda_slot_unavailable {
+.agenda_slot_unavailable,.agenda_slot_unavail {
     background-color: #4c4c4c;  /* dark grey */
 }
+
+.NOAREA-scheme {
+    background-color: blue;
+    color: white;
+}
+
 
 /* this is for timeslot edit page */
 

@@ -167,6 +167,19 @@ class Meeting(models.Model):
             slots[ymd].sort(lambda x,y: cmp(x.time, y.time))
         return days,time_slices,slots
 
+    # this functions makes a list of timeslices and rooms, and
+    # makes sure that all schedules have all of them.
+    def create_all_timeslots(self):
+        alltimeslots = self.timeslot_set.all()
+        for sched in self.schedule_set.all():
+            ts_hash = {}
+            for ss in sched.scheduledsession_set.all():
+                ts_hash[ss.timeslot] = ss
+            for ts in alltimeslots:
+                if not (ts in ts_hash):
+                    ScheduledSession.objects.create(schedule = sched,
+                                                    timeslot = ts)
+
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
     name = models.CharField(max_length=255)
@@ -190,9 +203,7 @@ class Room(models.Model):
                                     time=ts.time,
                                     location=self,
                                     duration=ts.duration)
-                for sched in self.meeting.schedule_set.all():
-                    sched.scheduledsession_set.create(timeslot=ts0,
-                                                      schedule=sched)
+        self.meeting.create_all_timeslots()
 
     def url(self, sitefqdn):
         return "%s/meeting/%s/room/%s.json" % (sitefqdn, self.meeting.number, self.id)
@@ -374,6 +385,7 @@ class TimeSlot(models.Model):
             ts.save()
             # this is simplest way to "clone" an object...
             ts.id = None
+        self.meeting.create_all_timeslots()
 
     """
     This routine deletes all timeslots which are in the same time as this slot.
@@ -578,6 +590,13 @@ class ScheduledSession(models.Model):
         return ""
 
     @property
+    def slottype(self):
+        if self.timeslot and self.timeslot.type:
+            return self.timeslot.type.slug
+        else:
+            return ""
+
+    @property
     def empty_str(self):
         # return JS happy value
         if self.session:
@@ -700,6 +719,13 @@ class Session(models.Model):
             return self.group.acronym
         return u"req#%u" % (id)
 
+    @property
+    def special_request_token(self):
+        if self.comments is not None and len(self.comments)>0:
+            return "*"
+        else:
+            return ""
+
     def constraints(self):
         return Constraint.objects.filter(source=self.group, meeting=self.meeting).order_by('name__name')
 
@@ -736,6 +762,8 @@ class Session(models.Model):
         sess1['agenda_note']    = str(self.agenda_note)
         sess1['attendees']      = str(self.attendees)
         sess1['status']         = str(self.status)
+        if self.comments is not None:
+            sess1['comments']       = str(self.comments)
         sess1['requested_time'] = str(self.requested.strftime("%Y-%m-%d"))
         sess1['requested_by']   = str(self.requested_by)
         sess1['requested_duration']= "%.1f h" % (float(self.requested_duration.seconds) / 3600)

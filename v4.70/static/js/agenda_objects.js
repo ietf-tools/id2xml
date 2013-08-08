@@ -15,10 +15,6 @@
 |      - check_delimiter(inp)
 |      - upperCaseWords(inp)
 |
-|
-|      - event_obj:
-|          - short_string()
-|
 `----
 */
 
@@ -307,7 +303,19 @@ function make_ss(json) {
 
 
 // SESSION OBJECTS
-// really session_obj.
+//
+// initialized from landscape_edit.html template with:
+//   session_obj({"title" : "{{ s.short_name }}",
+//                "description":"{{ s.group.name }}",
+//                "special_request": "{{ s.special_request_token }}",
+//                "session_id":"{{s.id}}",
+//                "owner": "{{s.owner.owner}}",
+//                "group_id":"{{s.group.id}}",
+//                "area":"{{s.group.parent.acronym|upper}}",
+//                "duration":"{{s.requested_duration.seconds|durationFormat}}"});
+//
+
+
 function Session() {
     this.constraints = {};
     this.constraint_load_andthen_list = [];
@@ -317,25 +325,38 @@ function Session() {
     this.href       = false;
     this.group_obj  = undefined;
     this.column_class = undefined;     //column_class will be filled by in load_events
+    this.loaded = false;
+    this.area = "noarea";
+    this.special_request = "";
 }
 
-function event_obj(title, description, session_id, owner, group_id, area,duration) {
+function session_obj(json) {
     session = new Session();
 
-    // this.slug = slug;
-    session.title = title;
-    session.description = description;
-    session.session_id = session_id;
-    session.owner = owner;
-    session.area  = area;
-    session.group_id = group_id;
-    session.loaded = false;
-    session.href       = meeting_base_url+'/session/'+session_id+".json";
-    session.group_href = site_base_url+'/group/'+title+".json";
-    session.duration = duration;
-    return session;
-};
+    for(var key in json) {
+        if(json[key].length > 0) {
+            session[key]=json[key];
+        }
+    }
 
+    if(!session.href) {
+        session.href       = meeting_base_url+'/session/'+session.session_id+".json";
+    }
+    if(!session.group_href) {
+        session.group_href = site_base_url+'/group/'+session.title+".json";
+    }
+
+    // keep a list of sessions by name
+    // this is mostly used for debug purposes only.
+    if(session_objs[session.title] == undefined) {
+        session_objs[session.title] = [];
+    }
+    session_objs[session.title].push(session);
+
+    meeting_objs[session.session_id] = session;
+
+    return session;
+}
 
 // augument to jQuery.getJSON( url, [data], [callback] )
 Session.prototype.load_session_obj = function(andthen, arg) {
@@ -372,6 +393,62 @@ Session.prototype.load_session_obj = function(andthen, arg) {
     }
 };
 
+Session.prototype.element = function() {
+    return $("#session_"+this.session_id);
+};
+
+Session.prototype.selectit = function() {
+    clear_all_selections();
+    // mark self as selected
+    $("." + this.title).addClass("same_group");
+    this.element().removeClass("save_group");
+    this.element().addClass("selected_group");
+};
+Session.prototype.unselectit = function() {
+    clear_all_selections();
+};
+
+Session.prototype.on_bucket_list = function() {
+    this.is_placed = false;
+    this.element().parent("div").addClass("meeting_box_bucket_list");
+};
+Session.prototype.placed = function() {
+    this.is_placed = true;
+    this.element().parent("div").removeClass("meeting_box_bucket_list");
+};
+
+Session.prototype.populate_event = function(js_room_id) {
+    var eTemplate =     this.event_template()
+    insert_cell(js_room_id, eTemplate, false);
+};
+
+Session.prototype.visible_title = function() {
+    return this.special_request + this.title;
+};
+
+Session.prototype.area_scheme = function() {
+    return this.area.toUpperCase() + "-scheme";
+};
+
+Session.prototype.event_template = function() {
+    // the extra div is present so that the table can have a border which does not
+    // affect the total height of the box.  The border otherwise screws up the height,
+    // causing things to the right to avoid this box.
+    var bucket_list_style = "meeting_box_bucket_list"
+    if(this.is_placed) {
+        bucket_list_style = "";
+    }
+    return "<div class=\""+bucket_list_style+" meeting_box\" session_id=\""+this.session_id+"\"><table class='meeting_event "+
+        this.title +
+        "' id='session_"+
+        this.session_id+
+        "'><tr id='meeting_event_title'><th class='"+
+        this.area_scheme() +" meeting_obj'>"+
+        this.visible_title()+
+        "<span> ("+this.duration+")</span>"+
+        "</th></tr></table></div>";
+};
+
 Session.prototype.selectit = function() {
     clear_all_selections();
     // mark self as selected
@@ -392,12 +469,27 @@ function andthen_alert(object, result, arg) {
 Session.prototype.generate_info_table = function(ss) {
     $("#info_grp").html(name_select_html);
     $("#info_name_select").val($("#info_name_select_option_"+this.session_id).val());
-    $("#info_name").html(this.description);
+    if(this.description.length > 33) {
+        $("#info_name").html("<span title=\""+this.description+"\">"+this.description.substring(0,35)+"...</span>");
+    } else {
+        $("#info_name").html(this.description);
+    }
     $("#info_area").html("<span class='"+this.area.toUpperCase()+"-scheme'>"+this.area+"</span>");
     $("#info_duration").html(this.requested_duration);
+    if(this.attendees == "None") {
+        $("#info_capacity").text("size unknown");
+    } else {
+        $("#info_capacity").text(this.attendees + " people");
+    }
 
     if(!read_only) {
         $("#info_location").html(generate_select_box()+"<button id='info_location_set'>set</button>");
+    }
+
+    if("comments" in this && this.comments.length > 0 && this.comments != "None") {
+        $("#special_requests").text(this.comments);
+    } else {
+        $("#special_requests").text("Special requests: None");
     }
 
     this.selectit();
@@ -661,7 +753,6 @@ Constraint.prototype.build_othername = function() {
     this.othergroup_name = this.othergroup.acronym;
 };
 
-
 var __DEBUG__OTHERGROUP;
 Constraint.prototype.conflict_view = function() {
     this.dom_id = "constraint_"+this.constraint_id;
@@ -686,6 +777,7 @@ Constraint.prototype.conflict_view = function() {
 
 // SESSION CONFLICT OBJECTS
 // take an object and add attributes so that it becomes a session_conflict_obj.
+// note that constraints are duplicated: each session has both incoming and outgoing constraints added.
 Session.prototype.add_constraint_obj = function(obj) {
     // turn this into a Constraint object
     //console.log("session: ",JSON.stringify(this));
@@ -698,7 +790,7 @@ Session.prototype.add_constraint_obj = function(obj) {
     obj.session   = this;
 
     var ogroupname;
-    if(obj.source == this.group_href) {
+    if(obj.source_href == this.group_href) {
         obj.thisgroup  = this.group();
         obj.othergroup = find_group_by_href(obj.target_href);
        ogroupname = obj.target_href;
@@ -762,7 +854,7 @@ function split_constraint_list_at(things, place) {
 Session.prototype.sort_constraints = function() {
     // find longest amount
     var big = 0;
-    if("conflicts" in this.constraints) {
+    if("conflict" in this.constraints) {
        big = Object.keys(this.constraints.conflict).length;
     }
 

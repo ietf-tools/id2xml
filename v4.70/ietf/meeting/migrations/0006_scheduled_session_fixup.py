@@ -15,20 +15,20 @@ class Migration(DataMigration):
         Meeting  = orm['meeting.meeting']
         ScheduledSession = orm['meeting.ScheduledSession']
         Schedule = orm['meeting.Schedule']
-        for meeting in Meeting.objects.all():
-            sys.stdout.write ("Processing meeting %s.." % (meeting.number))
-            if meeting.agenda is not None:
+        for mtg in Meeting.objects.all():
+            sys.stdout.write ("Processing meeting %s.." % (mtg.number))
+            if mtg.agenda is not None:
                # assume that we have done this meeting already.
                sys.stdout.write("already done\n")
                continue
 
-            na = Schedule(name=("mtg:%s"%(meeting.number))[0:15],
-                             owner=wanda,
-                             visible=True, public=True)
-            na.meeting = meeting
+            na = Schedule(name=("official%03s"%(meeting.number))[0:15],
+                          owner=wanda,
+                          meeting = mtg,
+                          visible=True, public=True)
             na.save()
-            meeting.agenda = na
-            meeting.save()
+            mtg.agenda = na
+            mtg.save()
             sys.stdout.write("\n  creating schedule %s\n" %(na.name))
 
             for slot in meeting.timeslot_set.all():

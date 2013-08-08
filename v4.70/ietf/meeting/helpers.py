@@ -195,6 +195,12 @@ def agenda_info(num=None, name=None):
 
     return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
+# get list of all areas, + IRTF + IETF (plenaries).
+def get_pseudo_areas():
+    return Group.objects.filter(Q(state="active", name="IRTF")|
+                                Q(state="active", name="IETF")|
+                                Q(state="active", type="area")).order_by('acronym')
+
 # get list of all areas, + IRTF.
 def get_areas():
     return Group.objects.filter(Q(state="active",

@@ -145,7 +145,7 @@ class ApiTestCase(TestCase):
 
         # confirm that it new scheduledsession object has no new session.
         ss_two = ScheduledSession.objects.get(pk=2372)
-        self.assertEqual(ss_two.session, ss_two_saved)
+        self.assertEqual(ss_two, ss_two_saved)
 
         # confirm that it old scheduledsession object still has old session.
         ss_one = ScheduledSession.objects.get(pk=2371)
@@ -514,69 +514,6 @@ class ApiTestCase(TestCase):
         self.assertEqual(m83perm['owner_href'],  "http://testserver/people/108757.json")
         self.assertEqual(m83perm['read_only'],   True)
         self.assertEqual(m83perm['write_perm'],  True)
-
-        self.assertEqual(resp.status_code, 403)
-        # see that in fact the room was not created
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 0)
-
-    def test_createNewSlotSecretariat(self):
-        mtg83 = get_meeting(83)
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 0)
-
-        extra_headers = auth_wlo
-        extra_headers['HTTP_ACCEPT']='text/json'
-
-        # try to create a new room.
-        resp = self.client.post('/meeting/83/timeslots', {
-                'type' : 'plenary',
-                'name' : 'Workshop on Smart Object Security',
-                'time' : '2012-03-23',
-                'duration': '08:00:00',
-            }, **extra_headers)
-        self.assertEqual(resp.status_code, 302)
-
-        # see that in fact wlo can create a new timeslot
-        mtg83 = get_meeting(83)
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 11)
-
-    def test_deleteNewSlotSecretariat(self):
-        mtg83 = get_meeting(83)
-        slot0 = mtg83.timeslot_set.all()[0]
-
-        # try to delete a new room
-        self.client.delete('/meeting/83/timeslot/%s.json' % (slot0.pk), **auth_wlo)
-
-        # see that in fact wlo can delete an existing room.
-        slot0n = mtg83.timeslot_set.filter(pk = slot0.pk)
-        self.assertEqual(len(slot0n), 0)
-
-    #
-    # AGENDA API
-    #
-    def test_getAgendaJson(self):
-        mtg83 = get_meeting(83)
-        a83   = mtg83.agenda
-
-        resp = self.client.get('/meeting/83/agendas/%s.json' % a83.name)
-        a83json = json.loads(resp.content)
-        self.assertNotEqual(a83json, None)
-
-    def test_createNewAgendaNonSecretariat(self):
-        mtg83 = get_meeting(83)
-
-        # try to create a new agenda
-        resp = self.client.post('/meeting/83/agendas', {
-                'type' : 'plenary',
-                'name' : 'Workshop on Smart Object Security',
-                'time' : '2012-03-23',
-                'duration_days' : 0,
-                'duration_hours': 8,
-                'duration_minutes' : 0,
-                'duration_seconds' : 0,
-            }, **auth_joeblow)
 
         self.assertEqual(resp.status_code, 403)
         # see that in fact the room was not created

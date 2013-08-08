@@ -13,3 +13,9 @@
 404	/meeting/99/agenda.txt
 404	/meeting/99/materials.html
 200	/feed/wg-proceedings/
+200	/meeting/83/agenda/edit
+200     /meeting/83/agenda/mtg:83
+404     /meeting/83/agenda/doesnotexist
+200     /meeting/83/agenda/mtg:83/edit
+404     /meeting/83/agenda/doesnotexist/edit
+200     /meeting/83/agenda.ics?APP,-~Other,-~Plenary

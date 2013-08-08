@@ -13,6 +13,9 @@ except ImportError:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# a place to put ajax logs if necessary.
+LOG_DIR  = '/var/log/datatracker'
+
 import sys
 sys.path.append(os.path.abspath(BASE_DIR + "/.."))
 sys.path.append(os.path.abspath(BASE_DIR + "/../redesign"))
@@ -141,7 +144,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'ietf.context_processors.revision_info',
     'ietf.secr.context_processors.secr_revision_info',
     'ietf.secr.context_processors.static',
-    'ietf.context_processors.rfcdiff_prefix', 
+    'ietf.context_processors.rfcdiff_prefix',
 )
 
 INSTALLED_APPS = (
@@ -351,7 +354,7 @@ HTPASSWD_FILE = "/www/htpasswd"
 # DB redesign
 USE_DB_REDESIGN_PROXY_CLASSES = True
 
-SOUTH_TESTS_MIGRATE = False 
+SOUTH_TESTS_MIGRATE = False
 
 # Generation of bibxml files for xml2rfc
 BIBXML_BASE_PATH = '/a/www/ietf-ftp/xml2rfc'

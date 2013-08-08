@@ -17,6 +17,22 @@ countries.sort(lambda x,y: cmp(x[1], y[1]))
 timezones = [(name, name) for name in pytz.common_timezones]
 timezones.sort()
 
+
+# this is used in models to format dates, as the simplejson serializer
+# can not deal with them, and the django provided serializer is inaccessible.
+from django.utils import datetime_safe
+DATE_FORMAT = "%Y-%m-%d"
+TIME_FORMAT = "%H:%M:%S"
+
+def fmt_date(o):
+    d = datetime_safe.new_date(o)
+    return d.strftime(DATE_FORMAT)
+
+def fmt_datetime(o):
+    d = datetime_safe.new_date(o)
+    return d.strftime("%s %s" % (DATE_FORMAT, TIME_FORMAT))
+
+
 class Meeting(models.Model):
     # number is either the number for IETF meetings, or some other
     # identifier for interim meetings/IESG retreats/liaison summits/...
@@ -25,7 +41,7 @@ class Meeting(models.Model):
     # Date is useful when generating a set of timeslot for this meeting, but
     # is not used to determine date for timeslot instances thereafter, as
     # they have their own datetime field.
-    date = models.DateField()           
+    date = models.DateField()
     city = models.CharField(blank=True, max_length=255)
     country = models.CharField(blank=True, max_length=2, choices=countries)
     # We can't derive time-zone from country, as there are some that have
@@ -37,6 +53,7 @@ class Meeting(models.Model):
     break_area = models.CharField(blank=True, max_length=255)
     reg_area = models.CharField(blank=True, max_length=255)
     agenda_note = models.TextField(blank=True, help_text="Text in this field will be placed at the top of the html agenda page for the meeting.  HTML can be used, but will not validated.")
+    agenda     = models.ForeignKey('Schedule',null=True,blank=True, related_name='+')
 
     def __unicode__(self):
         if self.type_id == "ietf":
@@ -83,9 +100,39 @@ class Meeting(models.Model):
     def get_submission_correction_date(self):
         return self.date + datetime.timedelta(days=settings.SUBMISSION_CORRECTION_DAYS)
 
+    def get_schedule_by_name(self, name):
+        qs = self.schedule_set.filter(name=name)
+        if qs:
+            return qs[0]
+        return None
+
+    def url(self, sitefqdn, exten=".json"):
+        return "%s/meeting/%s%s" % (sitefqdn, self.number, exten)
+
+    def json_dict(self, sitefqdn):
+        # unfortunately, using the datetime aware json encoder seems impossible,
+        # so the dates are formatted as strings here.
+        return {
+            'href':                 self.url(sitefqdn),
+            'name':                 self.number,
+            'submission_start_date':   fmt_date(self.get_submission_start_date()),
+            'submission_cut_off_date': fmt_date(self.get_submission_cut_off_date()),
+            'submission_correction_date': fmt_date(self.get_submission_correction_date()),
+            'date':                    fmt_date(self.date),
+            'city':                    self.city,
+            'country':                 self.country,
+            'time_zone':               self.time_zone,
+            'venue_name':              self.venue_name,
+            'venus_addr':              self.venue_addr,
+            'break_area':              self.break_area,
+            'reg_area':                self.reg_area
+            }
+
+
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
     name = models.CharField(max_length=255)
+    capacity = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -105,14 +152,36 @@ class TimeSlot(models.Model):
     duration = TimedeltaField()
     location = models.ForeignKey(Room, blank=True, null=True)
     show_location = models.BooleanField(default=True, help_text="Show location in agenda")
-    session = models.ForeignKey('Session', null=True, blank=True, help_text=u"Scheduled session, if any")
+    sessions = models.ManyToManyField('Session', related_name='slots', through='ScheduledSession', null=True, blank=True, help_text=u"Scheduled session, if any")
     modified = models.DateTimeField(default=datetime.datetime.now)
     #
+
+    @property
+    def time_desc(self):
+        return u"%s-%s" % (self.time.strftime("%H%M"), (self.time + self.duration).strftime("%H%M"))
+
+    def meeting_date(self):
+        return self.time.date()
+
+    def registration(self):
+        # below implements a object local cache
+        # it tries to find a timeslot of type registration which starts at the same time as this slot
+        # so that it can be shown at the top of the agenda.
+        if not hasattr(self, '_reg_info'):
+            try:
+                self._reg_info = TimeSlot.objects.get(meeting=self.meeting, time__month=self.time.month, time__day=self.time.day, type="reg")
+            except TimeSlot.DoesNotExist:
+                self._reg_info = None
+        return self._reg_info
+
+    def reg_info(self):
+        return (self.registration() is not None)
+
     def __unicode__(self):
         location = self.get_location()
         if not location:
             location = "(no location)"
-            
+
         return u"%s: %s-%s %s, %s" % (self.meeting.number, self.time.strftime("%m-%d %H:%M"), (self.time + self.duration).strftime("%H:%M"), self.name, location)
     def end_time(self):
         return self.time + self.duration
@@ -151,16 +220,211 @@ class TimeSlot(models.Model):
         else:
             return None
 
+    def session_name(self):
+        if self.type_id not in ("session", "plenary"):
+            return None
+
+        class Dummy(object):
+            def __unicode__(self):
+                return self.session_name
+        d = Dummy()
+        d.session_name = self.name
+        return d
+
+    def session_for_schedule(self, schedule):
+        ss = scheduledsession_set.filter(schedule=schedule).all()[0]
+        if ss:
+            return ss.session
+        else:
+            return None
+
+    def scheduledsessions_at_same_time(self, agenda=None):
+        if agenda is None:
+            agenda = self.meeting.agenda
+
+        return agenda.scheduledsession_set.filter(timeslot__time=self.time, timeslot__type__in=("session", "plenary", "other"))
+
+    @property
+    def js_identifier(self):
+        # this returns a unique identifier that is js happy.
+        #  {{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}"
+        # also must match:
+        #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
+        from django.template.defaultfilters import slugify
+        return "%s_%s_%s" % (slugify(self.location.name), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
+
+
+    @property
+    def is_plenary(self):
+        return self.type_id == "plenary"
+
+    @property
+    def is_plenary_type(self, name, agenda=None):
+        return self.scheduledsessions_at_same_time(agenda)[0].acronym == name
+
+class Schedule(models.Model):
+    """
+    Each person may have multiple agendas saved.
+    An Agenda may be made visible, which means that it will show up in
+    public drop down menus, etc.  It may also be made public, which means
+    that someone who knows about it by name/id would be able to reference
+    it.  A non-visible, public agenda might be passed around by the
+    Secretariat to IESG members for review.  Only the owner may edit the
+    agenda, others may copy it
+    """
+    meeting  = models.ForeignKey(Meeting, null=True)
+    name     = models.CharField(max_length=16, blank=False)
+    owner    = models.ForeignKey(Person)
+    visible  = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
+    public   = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
+    # considering copiedFrom = models.ForeignKey('Schedule', blank=True, null=True)
+
+    def __unicode__(self):
+        return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
+
+
+class ScheduledSession(models.Model):
+    """
+    This model provides an N:M relationship between Session and TimeSlot.
+    Each relationship is attached to the named agenda, which is owned by
+    a specific person/user.
+    """
+    timeslot = models.ForeignKey('TimeSlot', null=False, blank=False, help_text=u"")
+    session  = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session")
+    schedule = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
+    modified = models.DateTimeField(default=datetime.datetime.now)
+    notes    = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
+
+    @property
+    def room_name(self):
+        return self.timeslot.location.name
+
+    @property
+    def special_agenda_note(self):
+        return self.session.agenda_note if self.session else ""
+
+    @property
+    def acronym(self):
+        if self.session and self.session.group:
+            return self.session.group.acronym
+
+    @property
+    def acronym_name(self):
+        if not self.session:
+            return self.notes
+        if hasattr(self, "interim"):
+            return self.session.group.name + " (interim)"
+        elif self.session.name:
+            return self.session.name
+        else:
+            return self.session.group.name
+
+    @property
+    def session_name(self):
+        if self.timeslot.type_id not in ("session", "plenary"):
+            return None
+        return self.timeslot.name
+
+    @property
+    def area(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group.type_id == "irtf":
+            return "irtf"
+        if self.timeslot.type_id == "plenary":
+            return "1plenary"
+        if not self.session.group.parent or not self.session.group.parent.type_id in ["area","irtf"]:
+            return ""
+        return self.session.group.parent.acronym
+
+    @property
+    def break_info(self):
+        breaks = self.schedule.scheduledsessions_set.filter(timeslot__time__month=self.timeslot.time.month, timeslot__time__day=self.timeslot.time.day, timeslot__type="break").order_by("timeslot__time")
+        now = self.timeslot.time_desc[:4]
+        for brk in breaks:
+            if brk.time_desc[-4:] == now:
+                return brk
+        return None
+
+    @property
+    def area_name(self):
+        if self.timeslot.type_id == "plenary":
+            return "Plenary Sessions"
+        elif self.session and self.session.group and self.session.group.acronym == "edu":
+            return "Training"
+        elif not self.session or not self.session.group or not self.session.group.parent or not self.session.group.parent.type_id == "area":
+            return ""
+        return self.session.group.parent.name
+
+    @property
+    def isWG(self):
+        if not self.session or not self.session.group:
+            return False
+        if self.session.group.type_id == "wg" and self.session.group.state_id != "bof":
+            return True
+
+    @property
+    def group_type_str(self):
+        if not self.session or not self.session.group:
+            return ""
+        if self.session.group and self.session.group.type_id == "wg":
+            if self.session.group.state_id == "bof":
+                return "BOF"
+            else:
+                return "WG"
+
+        return ""
+
+    @property
+    def empty_str(self):
+        # return JS happy value
+        if self.session:
+            return "False"
+        else:
+            return "True"
+
+
 class Constraint(models.Model):
-    """Specifies a constraint on the scheduling between source and
-    target, e.g. some kind of conflict."""
+    """
+    Specifies a constraint on the scheduling.
+    One type (name=conflic?) of constraint is between source WG and target WG,
+           e.g. some kind of conflict.
+    Another type (name=adpresent) of constraing is between source WG and
+           availability of a particular Person, usually an AD.
+    A third type (name=avoidday) of constraing is between source WG and
+           a particular day of the week, specified in day.
+    """
     meeting = models.ForeignKey(Meeting)
     source = models.ForeignKey(Group, related_name="constraint_source_set")
-    target = models.ForeignKey(Group, related_name="constraint_target_set")
-    name = models.ForeignKey(ConstraintName)
+    target = models.ForeignKey(Group, related_name="constraint_target_set", null=True)
+    person = models.ForeignKey(Person, null=True, blank=True)
+    day    = models.DateTimeField(null=True, blank=True)
+    name   = models.ForeignKey(ConstraintName)
 
     def __unicode__(self):
         return u"%s %s %s" % (self.source, self.name.name.lower(), self.target)
+
+    def url(self, sitefqdn):
+        return "%s/meeting/%s/constraint/%s.json" % (sitefqdn, self.meeting.number, self.id)
+
+    def json_dict(self, sitefqdn):
+        ct1 = dict()
+        ct1['constraint_id'] = self.id
+        ct1['href']          = self.url(sitefqdn)
+        ct1['name']          = self.name.slug
+        if self.person is not None:
+            ct1['person'] = self.person.url(sitefqdn)
+        if self.source is not None:
+            ct1['source'] = self.source.url(sitefqdn)
+        if self.target is not None:
+            ct1['target'] = self.target.url(sitefqdn)
+        ct1['meeting'] = self.meeting.url(sitefqdn)
+        return ct1
+
+
 
 class Session(models.Model):
     """Session records that a group should have a session on the
@@ -206,11 +470,61 @@ class Session(models.Model):
         if self.meeting.type_id == "interim":
             return self.meeting.number
 
-        timeslots = self.timeslot_set.order_by('time')
-        return u"%s: %s %s" % (self.meeting, self.group.acronym, timeslots[0].time.strftime("%H%M") if timeslots else "(unscheduled)")
+        ss0 = self.scheduledsession_set.order_by('timeslot__time')[0]
+        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0.timeslot.time.strftime("%H%M") if ss0 else "(unscheduled)")
+
+    @property
+    def short_name(self):
+        if self.name:
+            return self.name
+        if self.short:
+            return self.short
+        if self.group:
+            return self.group.acronym
+        return u"req#%u" % (id)
 
     def constraints(self):
         return Constraint.objects.filter(source=self.group, meeting=self.meeting).order_by('name__name')
 
     def reverse_constraints(self):
         return Constraint.objects.filter(target=self.group, meeting=self.meeting).order_by('name__name')
+
+    def scheduledsession_for_agenda(self, schedule):
+        return self.scheduledsession_set.filter(schedule=schedule)[0]
+
+    def official_scheduledsession(self):
+        return self.scheduledsession_for_agenda(self.meeting.agenda)
+
+    def constraints_dict(self, sitefqdn):
+        constraint_list = []
+        for constraint in self.group.constraint_source_set.filter(meeting=self.meeting):
+            ct1 = constraint.json_dict(sitefqdn)
+            constraint_list.append(ct1)
+
+        for constraint in self.group.constraint_target_set.filter(meeting=self.meeting):
+            ct1 = constraint.json_dict(sitefqdn)
+            constraint_list.append(ct1)
+        return constraint_list
+
+    def url(self, sitefqdn):
+        return "%s/meeting/%s/session/%s.json" % (sitefqdn, self.meeting.number, self.id)
+
+    def json_dict(self, sitefqdn):
+        sess1 = dict()
+        sess1['href']           = self.url(sitefqdn)
+        sess1['group_href']     = self.group.url(sitefqdn)
+        sess1['group_acronym']  = str(self.group.acronym)
+        sess1['name']           = str(self.name)
+        sess1['short_name']     = str(self.name)
+        sess1['agenda_note']    = str(self.agenda_note)
+        sess1['attendees']      = str(self.attendees)
+        sess1['status']         = str(self.status)
+        sess1['requested_time'] = str(self.requested.strftime("%Y-%m-%d"))
+        sess1['requested_by']   = str(self.requested_by)
+        sess1['requested_duration']= "%.1f h" % (float(self.requested_duration.seconds) / 3600)
+        sess1['area']           = str(self.group.parent.acronym)
+        sess1['responsible_ad'] = str(self.group.ad)
+        sess1['GroupInfo_state']= str(self.group.state)
+        return sess1
+
+

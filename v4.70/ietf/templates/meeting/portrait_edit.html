@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load ietf_filters %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% load humanize %}
+
+{% load dajaxice_templatetags %}
+
+{% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
+{% load agenda_custom_tags %}
+{% block pagehead %}
+<link rel='stylesheet' type='text/css' href='/css/ietf.css' />
+
+<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery-ui.custom.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.widget.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.droppable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
+{% dajaxice_js_import %}
+
+<script type='text/javascript' src='/js/agenda_edit.js'></script>
+<script type='text/javascript' src='/js/agenda_helpers.js'></script>
+<script type='text/javascript' src='/js/agenda_objects.js'></script>
+
+<script type='text/javascript' src='/js/agenda_listeners.js'></script>
+
+
+<script type='text/javascript'>
+
+{% comment %}
+function my_js_callback(data){
+    alert(data.message);
+}<!-- dajaxice example --> {% endcomment %}
+
+
+function setup_slots(){
+{% for day in time_slices %}
+days.push("{{day}}");
+{% endfor %}
+{% for s in scheduledsessions %}
+	console.log("{{s.timeslot.id}}");
+var e_obj = new event_obj( "{{ s.session.group.acronym }}","{{ s.session.group.name }}","{{s.timeslot.location|slugify}}" ,"{{ s.timeslot.time|date:'Hi' }}", "{{s.timeslot.time|date:'Y-m-d'}}","{{s.id}}", "{{s.timeslot.id}}", "{{s.owner.owner}}");
+
+	$.extend(meeting_objs,{ "{{s.id}}":e_obj});
+var slot_status_id = { "{{s.timeslot.location|slugify}}_{{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}":{"empty":false,"timeslot_id":"{{s.timeslot.id}}"} };
+$.extend(slot_status, slot_status_id);
+//console.log("{{s}}");
+{% endfor %}
+
+
+
+{% comment %}
+{% for day in date_slices %}
+	{% for r in rooms %}
+		{% for slot in date_slices|lookup:day %}
+			var slot_status_id = { "{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}":false };
+			$.extend(slot_status, slot_status_id);	
+		{% endfor %}
+	{% endfor %}
+{% endfor %}
+{% endcomment %}
+
+
+
+
+console.log("setup_slots run");
+
+{% comment %} 
+{% for t in timeslots %}
+
+	{% for s in t.sessions %}
+
+var e_obj = new event_obj( "{{ s.group.acronym }}","{{ s.group.name }}","{{t.timeslot.location|slugify}}" ,"{{ t.time|date:'Hi' }}", "{{t.time|date:'Y-m-d'}}","{{t.id}}", "{{s.id}}", "{{s.owner}}");
+	//console.log(e_obj);
+	$.extend(meeting_objs,{ "{{s.id}}":e_obj});
+
+	{% endfor %}
+	//console.log(meeting_objs);
+{% endfor %}
+
+{% endcomment %}
+console.log(slot_status);
+console.log(meeting_objs);
+console.log("{{timeslots|length}}");
+
+{% for t in time_slices %}
+console.log("{{t.id}}");
+{% endfor %}
+
+
+}
+
+
+
+
+
+</script>
+<style type='text/css'>
+
+</style>
+{% endblock pagehead %}
+
+
+{% block content %}
+
+<div style="float: left; width:900px; overflow:scroll; height:800px;">
+  
+{% comment %} For each meeting day, we generate a table {% endcomment %}
+{% comment %} <button onclick="Dajaxice.ietf.meeting.sayhello(my_js_callback);">click me </button><!-- dajaxice example --> {% endcomment %}
+
+{% comment %} {% for day,value in date_slices.items %} {% endcomment %}
+
+
+{% for day in time_slices %} 
+  
+  <table id="meetings" class="{{day}} ietf-navbar" style="width:100%"  > <!-- ietf-navbar -->
+
+  <th colspan="{{date_slices|colWidth:day|add:'1'}}" id="{{day}}-btn" style="border:1px solid red; background:#A60000; color:white">{{day}}</th>
+  <tr id="{{day}}tr">
+  <th></th>
+  
+  {% for slot in date_slices|lookup:day %}
+  <th class="room_title">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
+  {% endfor %}
+  <tbody id="{{day}}tbody" class="cells">
+    {% for r in rooms %}
+	<tr id="{{r|nospace}}">
+	    <th class="vert_time">{{r}}</th>
+	    {% for slot in date_slices|lookup:day %}
+	        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="agenda_slot {% cycle 'alt' '' %}" style="background:#606060 "></td>
+	    {% endfor %}
+	</tr>
+    {% endfor %}
+</tbody>
+</table>
+    
+
+ {% endfor %} 
+
+
+</div>
+
+<div id="ss_info" style="height:119px;">
+  
+
+</div> <!-- Not sure why I need this, but it's there to push the sortablelist down (otherwise it moves the table too) -->
+
+<div id="sortable-list" style="margin-top:120px; border:1px solid black;  height:400px; width:200px;overflow:scroll;">
+<div style="background-color:maroon; "><b>Unassigned Events:</b></div>
+
+
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+

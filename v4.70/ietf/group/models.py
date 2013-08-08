@@ -5,6 +5,7 @@ from django.db.models import Q
 
 from ietf.name.models import *
 from ietf.person.models import Email, Person
+from ietf.group.colors import fg_group_colors, bg_group_colors
 
 import datetime
 
@@ -73,6 +74,38 @@ class Group(GroupInfo):
     def get_members(self):
         members = self.role_set.filter(Q(name__slug='member') | Q(name__slug='chair'))
         return members
+
+    # these are copied to Group because it is still proxied.
+    @property
+    def upcase_acronym(self):
+        return self.acronym.upper()
+
+    @property
+    def fg_color(self):
+        return fg_group_colors[self.upcase_acronym]
+
+    @property
+    def bg_color(self):
+        return bg_group_colors[self.upcase_acronym]
+
+    def url(self, sitefqdn):
+        return "%s/group/%s.json" % (sitefqdn, self.acronym)
+
+    def json_dict(self, sitefqdn):
+        group1= dict()
+        group1['href'] = self.url(sitefqdn)
+        group1['acronym'] = self.acronym
+        group1['name']    = self.name
+        group1['state']   = self.state.slug
+        group1['type']    = self.type.slug
+        group1['parent']  = self.parent.url(sitefqdn)
+        if self.ad is not None:
+            group1['ad']      = self.ad.url(sitefqdn)
+        group1['list_email'] = self.list_email
+        group1['list_subscribe'] = self.list_subscribe
+        group1['list_archive'] = self.list_archive
+        group1['comments']     = self.comments
+        return group1
 
 class GroupHistory(GroupInfo):
     group = models.ForeignKey(Group, related_name='history_set')

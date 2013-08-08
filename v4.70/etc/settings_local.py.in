@@ -1,0 +1,25 @@
+DATABASES = {
+    'default' : {
+        'ENGINE'   : 'django.db.backends.mysql',
+        'NAME'     : '@APPNAME@',
+        'USER'     : '@APPNAME@', 
+        'PASSWORD' : '@DBPASSWORD@',
+        'HOST'     : '@DBPATH@',
+        'PORT'     : '',
+
+        'TEST_ENGINE'   : 'django.db.backends.mysql',
+        'TEST_NAME'     : 'test_@APPNAME@',
+        'TEST_USER'     : 'test_@APPNAME@', 
+        'TEST_PASSWORD' : '@DBPASSWORD@',
+        'TEST_HOST'     : '@DBPATH@',
+        'TEST_PORT'     : '',
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = '@SECRETSECRET@'
+
+import logging
+logging.basicConfig(filename='@TOPDIR@/ajax.log',
+                    level=logging.DEBUG) 
+

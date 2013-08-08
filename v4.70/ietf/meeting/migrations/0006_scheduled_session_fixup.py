@@ -17,12 +17,15 @@ class Migration(DataMigration):
         Schedule = orm['meeting.Schedule']
         for mtg in Meeting.objects.all():
             sys.stdout.write ("Processing meeting %s.." % (mtg.number))
-            if mtg.agenda is not None:
-               # assume that we have done this meeting already.
-               sys.stdout.write("already done\n")
-               continue
+            try:
+                if mtg.agenda is not None:
+                    # assume that we have done this meeting already.
+                    sys.stdout.write("already done\n")
+                    continue
+            except Meeting.DoesNotExist:
+                pass
 
-            na = Schedule(name=("official%03s"%(meeting.number))[0:15],
+            na = Schedule(name=("official%03s"%(mtg.number))[0:15],
                           owner=wanda,
                           meeting = mtg,
                           visible=True, public=True)
@@ -31,7 +34,7 @@ class Migration(DataMigration):
             mtg.save()
             sys.stdout.write("\n  creating schedule %s\n" %(na.name))
 
-            for slot in meeting.timeslot_set.all():
+            for slot in mtg.timeslot_set.all():
                 session = slot.session
 
                 # skip slots with no sessions.
@@ -198,6 +201,7 @@ class Migration(DataMigration):
         'meeting.schedule': {
             'Meta': {'object_name': 'Schedule'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'meeting': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['meeting.Meeting']", 'null': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['person.Person']"}),
             'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),

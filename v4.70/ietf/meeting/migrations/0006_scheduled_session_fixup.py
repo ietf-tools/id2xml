@@ -25,7 +25,7 @@ class Migration(DataMigration):
             except Meeting.DoesNotExist:
                 pass
 
-            na = Schedule(name=("official%03s"%(mtg.number))[0:15],
+            na = Schedule(name=("official_%s"%(mtg.number))[0:15],
                           owner=wanda,
                           meeting = mtg,
                           visible=True, public=True)

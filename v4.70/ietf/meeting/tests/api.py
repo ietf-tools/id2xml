@@ -502,6 +502,10 @@ class ApiTestCase(TestCase):
         self.assertEqual(m83perm['write_perm'],  False)
 
     def test_af_IsReadOnlySched24(self):
+        """
+        This test case validates that despite being an AD, and having a login, a schedule
+        that does not belong to him will be marked as readonly.
+        """
         extra_headers = auth_ferrel
         extra_headers['HTTP_ACCEPT']='text/json'
 

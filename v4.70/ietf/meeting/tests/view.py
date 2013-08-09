@@ -11,7 +11,9 @@ from ietf.meeting.helpers import get_meeting
 from django.core.urlresolvers import reverse
 from ietf.meeting.views import edit_agenda
 
-class ViewTestCase(TestCase):
+capture_output = True
+
+class ViewTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',
@@ -26,9 +28,10 @@ class ViewTestCase(TestCase):
         agenda83txt = agenda83txtio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda.txt')
         # to capture new output (and check it for correctness)
-        #out = open("%s/meeting/tests/agenda-83-txt-output-out.txt" % BASE_DIR, "w")
-        #out.write(resp.content)
-        #out.close()
+        if capture_output:
+            out = open("%s/meeting/tests/agenda-83-txt-output-out.txt" % BASE_DIR, "w")
+            out.write(resp.content)
+            out.close()
         self.assertEqual(resp.content, agenda83txt, "agenda83 txt changed")
 
     def test_agenda83utc(self):
@@ -37,10 +40,11 @@ class ViewTestCase(TestCase):
         agenda83utcio = open("%s/meeting/tests/agenda-83-utc-output.html" % BASE_DIR, "r")
         agenda83utc = agenda83utcio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda-utc.html')
-        # to capture new output (and check it for correctness)
-        #out = open("%s/meeting/tests/agenda-83-utc-output-out.html" % BASE_DIR, "w")
-        #out.write(resp.content)
-        #out.close()
+        # to capture new output (and check it for correctness set capture_output above)
+        if capture_output:
+            out = open("%s/meeting/tests/agenda-83-utc-output-out.html" % BASE_DIR, "w")
+            out.write(resp.content)
+            out.close()
         self.assertEqual(resp.content, agenda83utc, "agenda83 utc changed")
 
     def test_nameOfClueWg(self):

@@ -137,15 +137,24 @@ def find_ads_for_meeting(meeting):
     ads = []
     meeting_time = datetime.datetime.combine(meeting.date, datetime.time(0, 0, 0))
 
+    num = 0
     # get list of ADs which are/were active at the time of the meeting.
+    #  (previous [x for x in y] syntax changed to aid debugging)
     for g in Group.objects.filter(type="area").order_by("acronym"):
         history = find_history_active_at(g, meeting_time)
+        num = num +1
         if history and history != g:
+            print " history[%u]: %s" % (num, history)
             if history.state_id == "active":
-                ads.extend(IESGHistory().from_role(x, meeting_time) for x in history.rolehistory_set.filter(name="ad").select_related())
+                for x in history.rolehistory_set.filter(name="ad").select_related():
+                    print "xh[%u]: %s" % (num, x)
+                    ads.append(IESGHistory().from_role(x, meeting_time))
         else:
+            print " group[%u]: %s" % (num, g)
             if g.state_id == "active":
-                ads.extend(IESGHistory().from_role(x, meeting_time) for x in g.role_set.filter(name="ad").select_related('group', 'person'))
+                for x in g.role_set.filter(name="ad").select_related('group', 'person'):
+                    print "xg[%u]: %s (#%u)" % (num, x, x.pk)
+                    ads.append(IESGHistory().from_role(x, meeting_time))
     return ads
 
 def agenda_info(num=None, name=None):

@@ -87,6 +87,10 @@ class NamedTimeSlot(object):
         return self.timeslot.is_plenary_type("plenaryt")
 
     @property
+    def tzname(self):
+        return self.timeslot.tzname
+
+    @property
     def room_name(self):
         if self.timeslot:
             if self.timeslot.location:

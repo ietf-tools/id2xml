@@ -4,6 +4,7 @@ from django.test import TestCase
 #from ietf.person.models import Person
 from django.contrib.auth.models import User
 from django.test.client import Client
+from settings import BASE_DIR
 from ietf.meeting.models  import TimeSlot, Session, ScheduledSession
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from ietf.meeting.helpers import get_meeting
@@ -21,11 +22,11 @@ class ViewTestCase(TestCase):
     def test_agenda83txt(self):
         # verify that the generated text has not changed.
         import io
-        agenda83txtio = open("ietf/meeting/tests/agenda-83-txt-output.txt", "r")
+        agenda83txtio = open("%s/meeting/tests/agenda-83-txt-output.txt" % BASE_DIR, "r")
         agenda83txt = agenda83txtio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda.txt')
         # to capture new output (and check it for correctness)
-        #out = open("ietf/meeting/tests/agenda-83-txt-output-out.txt", "w")
+        #out = open("%s/meeting/tests/agenda-83-txt-output-out.txt" % BASE_DIR, "w")
         #out.write(resp.content)
         #out.close()
         self.assertEqual(resp.content, agenda83txt, "agenda83 txt changed")
@@ -33,11 +34,11 @@ class ViewTestCase(TestCase):
     def test_agenda83utc(self):
         # verify that the generated html has not changed.
         import io
-        agenda83utcio = open("ietf/meeting/tests/agenda-83-utc-output.html", "r")
+        agenda83utcio = open("%s/meeting/tests/agenda-83-utc-output.html" % BASE_DIR, "r")
         agenda83utc = agenda83utcio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda-utc.html')
         # to capture new output (and check it for correctness)
-        #out = open("ietf/meeting/tests/agenda-83-utc-output-out.html", "w")
+        #out = open("%s/meeting/tests/agenda-83-utc-output-out.html" % BASE_DIR, "w")
         #out.write(resp.content)
         #out.close()
         self.assertEqual(resp.content, agenda83utc, "agenda83 utc changed")

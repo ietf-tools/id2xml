@@ -143,9 +143,15 @@ def html_agenda_1(request, num, schedule_name, template_version="meeting/agenda.
         return iphone_agenda(request, num, schedule_name)
 
     scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms = get_agenda_info(request, num, schedule_name)
+    areas = get_areas()
 
     return HttpResponse(render_to_string(template_version,
-        {"scheduledsessions":scheduledsessions, "rooms":rooms, "time_slices":time_slices, "date_slices":date_slices  ,"modified": modified, "meeting":meeting,
+        {"scheduledsessions":scheduledsessions,
+         "rooms":rooms,
+         "areas":areas,
+         "time_slices":time_slices,
+         "date_slices":date_slices,
+         "modified": modified, "meeting":meeting,
          "area_list": area_list, "wg_list": wg_list,
          "fg_group_colors": fg_group_colors,
          "bg_group_colors": bg_group_colors,
@@ -401,6 +407,7 @@ def iphone_agenda(request, num, name):
              "meeting":meeting,
              "venue":venue,
              "ads":ads,
+             "areas":areas,
              "plenaryw_agenda":plenaryw_agenda,
              "plenaryt_agenda":plenaryt_agenda,
              "wg_list" : wgs,

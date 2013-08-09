@@ -46,7 +46,7 @@ Maillot         	OPS 	v6ops       	IPv6 Operations WG
 Maillot         	RTG 	ccamp       	Common Control and Measurement Plane WG
 241             	RTG 	sidr        	Secure Inter-Domain Routing WG
 253             	TSV 	ippm        	IP Performance Metrics WG
-252A            	TSV 	i2aex       	Infrastructure-to-Application Information Exposure BOF - Room Changed From 241
+252A            	TSV 	i2aex       	Infrastructure-to-Application Information Exposure WG - Room Changed From 241
 
 1510-1610  Afternoon Session II
 243             	APP 	urnbis      	Uniform Resource Names, Revised WG
@@ -58,7 +58,7 @@ Maillot         	INT 	pcp         	Port Control Protocol WG
 252A            	SEC 	ipsecme     	IP Security Maintenance and Extensions WG
 212/213         	TSV 	rmt         	Reliable Multicast Transport WG
 
-1630-1930  Technical Plenary - 
+1630-1930  Technical Plenary - Amphitheatre Bleu
 
 
 
@@ -66,7 +66,7 @@ TUESDAY, March 27, 2012
 0800-1800  IETF Registration - Hall Maillot A
 0900-1130  Morning Session I
 243             	APP 	core        	Constrained RESTful Environments WG
-252A            	GEN 	antitrust   	Does the IETF Need an Anti-Trust Policy BOF
+252A            	GEN 	antitrust   	Does the IETF Need an Anti-Trust Policy WG
 Maillot         	INT 	6man        	IPv6 Maintenance WG
 241             	IRTF	dtnrg       	Delay-Tolerant Networking Research Group 
 252B            	RAI 	clue        	ControLling mUltiple streams for tElepresence WG
@@ -97,7 +97,7 @@ Maillot         	RAI 	avtext      	Audio/Video Transport Extensions WG
 
 1710-1810  Afternoon Session III
 212/213         	APP 	marf        	Messaging Abuse Reporting Format WG
-Maillot         	GEN 	rfcform     	RFC Format BOF
+Maillot         	GEN 	rfcform     	RFC Format WG
 242AB           	INT 	dnsext      	DNS Extensions WG
 252A            	IRTF	iccrg       	Internet Congestion Control Research Group 
 243             	OPS 	netconf     	Network Configuration WG
@@ -141,7 +141,7 @@ Maillot         	OPS 	armd        	Address Resolution for Massive numbers of hos
 243             	SEC 	tls         	Transport Layer Security WG
 212/213         	TSV 	pcn         	Congestion and Pre-Congestion Notification WG
 
-1630-1930  IETF Operations and Administration Plenary - 
+1630-1930  IETF Operations and Administration Plenary - Amphitheatre Bleu
 
 
 
@@ -203,7 +203,7 @@ Maillot         	RTG 	mpls        	Multiprotocol Label Switching WG
 
 1120-1220  Afternoon Session I
 253             	APP 	iri         	Internationalized Resource Identifiers WG
-243             	GEN 	rpsreqs     	Remote Participation System Requirements BOF
+243             	GEN 	rpsreqs     	Remote Participation System Requirements WG
 242AB           	INT 	trill       	Transparent Interconnection of Lots of Links WG
 212/213         	IRTF	cfrg        	Crypto Forum Research Group 
 Maillot         	OPS 	dnsop       	Domain Name System Operations WG
@@ -212,9 +212,8 @@ Maillot         	OPS 	dnsop       	Domain Name System Operations WG
 252B            	TSV 	mptcp       	Multipath TCP WG
 
 1230-1330  Afternoon Session II
-243             	GEN 	rpsreqs     	Remote Participation System Requirements BOF
+243             	GEN 	rpsreqs     	Remote Participation System Requirements WG
 212/213         	IRTF	cfrg        	Crypto Forum Research Group 
-252A            	manually created 
 242AB           	OPS 	grow        	Global Routing Operations WG
 253             	RAI 	atoca       	Authority-to-Citizen Alert WG
 241             	RAI 	cuss        	Call Control UUI Service for SIP WG
@@ -225,5 +224,5 @@ Maillot         	OPS 	dnsop       	Domain Name System Operations WG
 AREA DIRECTORS
 
 GEN  General Area        Russ Housley/Vigil Security, LLC
-SEC  Security Area       Stephen Farrell/Trinity College Dublin
+SEC  Security Area       Stephen Farrell/Trinity College Dublin & Sean Turner/IECA
 

@@ -18,8 +18,8 @@
 
 {{ plenaryw_agenda }}{% endif %}{% if slot.has_plenaryt %}
 
-{{ plenaryt_agenda }}{% endif %}{% if not slot.is_plenary %}{% for ss in slot.scheduledsessions_by_area|dictsort:"area" %}
-{{ ss.info.room_name|ljust:14 }}  	{% if ss.info.area %}{{ ss.info.area|upper|ljust:4 }}	{{ ss.info.acronym|ljust:10 }}  	{% endif %}{{ ss.info.acronym_name }} {{ ss.info.group_type_str }}{% if ss.info.special_agenda_note %} - {{ ss.info.special_agenda_note }}{% endif %}{% endfor %}{% endif %}
+{{ plenaryt_agenda }}{% endif %}{% if not slot.is_plenary %}{% for ss in slot.scheduledsessions_by_area|dictsort:"area" %}{% if ss.info.session %}
+{{ ss.info.room_name|ljust:14 }}  	{% if ss.info.area %}{{ ss.info.area|upper|ljust:4 }}	{{ ss.info.acronym|ljust:10 }}  	{% endif %}{{ ss.info.acronym_name }} {{ ss.info.group_type_str }}{% if ss.info.special_agenda_note %} - {{ ss.info.special_agenda_note }}{% endif %}{% endif %}{% endfor %}{% endif %}
 
 {% else %}{% for ss in slot.scheduledsessions_at_same_time %}{{ ss.timeslot.time_desc }}  {{ ss.acronym_name }} - {{ ss.room_name }}
 {% endfor %}{% endif %}{% endfor %}

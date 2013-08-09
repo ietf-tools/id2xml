@@ -44,7 +44,7 @@ class NamedTimeSlot(object):
         self.timeslot = timeslot
 
     def scheduledsessions(self):
-        self.timeslot.scheduledsessions_set.filter(schedule=self.agenda)
+        self.timeslot.scheduledsessions_set.filter(schedule=self.agenda, session__isnull=False)
 
     @property
     def time(self):
@@ -102,7 +102,7 @@ class NamedTimeSlot(object):
 
     @property
     def sessions(self):
-        return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(schedule=self.agenda) ]
+        return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(schedule=self.agenda, schedule__isnull=False) ]
 
     @property
     def scheduledsessions_at_same_time(self):

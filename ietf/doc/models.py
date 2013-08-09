@@ -235,6 +235,9 @@ class Document(DocumentInfo):
             return "charter-ietf-%s" % self.chartered_group.acronym
         return name
 
+    def canonical_docalias(self):
+        return self.docalias_set.get(name=self.name)
+
     def display_name(self):
         name = self.canonical_name()
         if name.startswith('rfc'):
@@ -393,6 +396,10 @@ class Document(DocumentInfo):
         from ietf.ipr.models import IprDocAlias
         return IprDocAlias.objects.filter(doc_alias__document=self)
 
+    def related_ipr(self):
+        """Returns the IPR disclosures against this document and those documents this document transitively obsoletes or replaces"""
+        from ietf.ipr.models import IprDocAlias
+        return IprDocAlias.objects.filter(doc_alias__in=list(self.docalias_set.all())+self.all_related_that_doc(['obs','replaces']))
 
 
 class RelatedDocHistory(models.Model):

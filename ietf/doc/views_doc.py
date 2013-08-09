@@ -49,6 +49,7 @@ from ietf.utils.history import find_history_active_at
 from ietf.ietfauth.utils import *
 from ietf.doc.views_status_change import RELATION_SLUGS as status_change_relationships
 from ietf.wgcharter.utils import historic_milestones_for_charter
+from ietf.ipr.models import IprDocAlias
 
 def render_document_top(request, doc, tab, name):
     tabs = []
@@ -333,9 +334,9 @@ def document_main(request, name, rev=None):
                                        replaces=[d.name for d in doc.related_that_doc("replaces")],
                                        replaced_by=[d.name for d in doc.related_that("replaces")],
                                        updates=[prettify_std_name(d.name) for d in doc.related_that_doc("updates")],
-                                       updated_by=[prettify_std_name(d.canonical_name()) for d in doc.related_that("updates")],
+                                       updated_by=[prettify_std_name(d.document.canonical_name()) for d in doc.related_that("updates")],
                                        obsoletes=[prettify_std_name(d.name) for d in doc.related_that_doc("obs")],
-                                       obsoleted_by=[prettify_std_name(d.canonical_name()) for d in doc.related_that("obs")],
+                                       obsoleted_by=[prettify_std_name(d.document.canonical_name()) for d in doc.related_that("obs")],
                                        conflict_reviews=conflict_reviews,
                                        status_changes=status_changes,
                                        proposed_status_changes=proposed_status_changes,

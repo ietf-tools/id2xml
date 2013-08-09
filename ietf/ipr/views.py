@@ -133,7 +133,7 @@ def show(request, ipr_id=None, removed=None):
 
 
 def form(request):
-    wgs = IETFWG.objects.filter(group_type__group_type_id=1).exclude(group_acronym__acronym='2000').select_related().order_by('acronym.acronym')
+    wgs = Group.objects.filter(type="wg").exclude(acronym="2000").select_related().order_by("acronym")
     log("Search form")
     return render("ipr/search.html", {"wgs": wgs}, context_instance=RequestContext(request))
         

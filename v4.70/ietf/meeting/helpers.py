@@ -158,16 +158,16 @@ def find_ads_for_meeting(meeting):
         history = find_history_active_at(g, meeting_time)
         num = num +1
         if history and history != g:
-            print " history[%u]: %s" % (num, history)
+            #print " history[%u]: %s" % (num, history)
             if history.state_id == "active":
                 for x in history.rolehistory_set.filter(name="ad").select_related():
-                    print "xh[%u]: %s" % (num, x)
+                    #print "xh[%u]: %s" % (num, x)
                     ads.append(IESGHistory().from_role(x, meeting_time))
         else:
-            print " group[%u]: %s" % (num, g)
+            #print " group[%u]: %s" % (num, g)
             if g.state_id == "active":
                 for x in g.role_set.filter(name="ad").select_related('group', 'person'):
-                    print "xg[%u]: %s (#%u)" % (num, x, x.pk)
+                    #print "xg[%u]: %s (#%u)" % (num, x, x.pk)
                     ads.append(IESGHistory().from_role(x, meeting_time))
     return ads
 

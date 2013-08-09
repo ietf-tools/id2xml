@@ -1,6 +1,7 @@
 import base64
 import sys, datetime
-from django.test import TestCase, Client
+from django.test              import Client
+from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 
 #from ietf.person.models import Person
 from django.contrib.auth.models import User
@@ -10,7 +11,7 @@ from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from django.utils import simplejson as json
 from ietf.meeting.helpers import get_meeting
 
-class ApiTestCase(TestCase):
+class ApiTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',

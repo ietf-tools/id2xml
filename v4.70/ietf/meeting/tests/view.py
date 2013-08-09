@@ -1,6 +1,6 @@
 import re
 import sys
-from django.test import TestCase
+from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 #from ietf.person.models import Person
 from django.contrib.auth.models import User
 from django.test.client import Client

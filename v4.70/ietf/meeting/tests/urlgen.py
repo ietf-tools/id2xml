@@ -1,6 +1,7 @@
 import base64
 import sys
-from django.test import TestCase, Client
+from django.test              import Client
+from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 
 from django.contrib.auth.models import User
 from ietf.person.models import Person
@@ -9,7 +10,7 @@ from ietf.meeting.models  import Constraint
 from ietf.group.models    import Group
 
 
-class UrlGenTestCase(TestCase):
+class UrlGenTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',

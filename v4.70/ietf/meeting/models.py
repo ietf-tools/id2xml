@@ -708,9 +708,10 @@ class Session(models.Model):
     materials = models.ManyToManyField(Document, blank=True)
 
     def agenda(self):
-        try:
-            return self.materials.get(type="agenda",states__type="agenda",states__slug="active")
-        except Exception:
+        items = self.materials.filter(type="agenda",states__type="agenda",states__slug="active")
+        if items and items[0] is not None:
+            return items[0]
+        else:
             return None
 
     def minutes(self):

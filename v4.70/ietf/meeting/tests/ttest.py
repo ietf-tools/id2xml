@@ -1,9 +1,9 @@
-from django.test import TransactionTestCase
+from django.test import TestCase
 from django.core.management import call_command
 from django.db import transaction, connections, DEFAULT_DB_ALIAS
 from django.test.testcases import connections_support_transactions, disable_transaction_methods
 
-class AgendaTransactionalTestCase(TransactionTestCase):
+class AgendaTransactionalTestCase(TestCase):
     """
     Does basically the same as TransactionTestCase, but surrounds every test
     with a transaction, which is started after the fixtures are loaded.

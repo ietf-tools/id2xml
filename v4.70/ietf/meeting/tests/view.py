@@ -1,9 +1,9 @@
 import re
 import sys
+from django.test.client       import Client
 from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 #from ietf.person.models import Person
 from django.contrib.auth.models import User
-from django.test.client import Client
 from settings import BASE_DIR
 from ietf.meeting.models  import TimeSlot, Session, ScheduledSession
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel

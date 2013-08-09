@@ -1,13 +1,13 @@
 import sys
-from django.test import TestCase
-from django.test.client import Client
+from django.test              import Client
+from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 from ietf.name.models     import SessionStatusName
 from ietf.person.models   import Person
 from ietf.group.models    import Group
 from ietf.meeting.models  import TimeSlot, Session, Meeting, ScheduledSession
 from ietf.meeting.helpers import get_meeting, get_schedule
 
-class AgendaInfoTestCase(TestCase):
+class AgendaInfoTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',

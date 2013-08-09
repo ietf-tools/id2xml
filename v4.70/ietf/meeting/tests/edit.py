@@ -9,6 +9,8 @@ from django.test.client import Client
 from ietf.meeting.models  import TimeSlot, Session, ScheduledSession
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 
+capture_output = False
+
 class EditTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
@@ -23,9 +25,10 @@ class EditTestCase(AgendaTransactionalTestCase):
                                **auth_wlo)
         m = re.search(".*session_obj.*", resp.content)
         # to capture new output (and check it for correctness)
-        #out = open("ietf/meeting/tests/edit_out.html", "w")
-        #out.write(resp.content)
-        #out.close()
+        if capture_output:
+            out = open("%s/meeting/tests/edit_out.html" % BASE_DIR, "w")
+            out.write(resp.content)
+            out.close()
         self.assertIsNotNone(m)
 
     def test_schedule_lookup(self):

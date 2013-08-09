@@ -11,7 +11,7 @@ from ietf.meeting.helpers import get_meeting
 from django.core.urlresolvers import reverse
 from ietf.meeting.views import edit_agenda
 
-capture_output = True
+capture_output = False
 
 class ViewTestCase(AgendaTransactionalTestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName

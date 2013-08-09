@@ -87,6 +87,16 @@ class NamedTimeSlot(object):
         return self.timeslot.is_plenary_type("plenaryt")
 
     @property
+    def room_name(self):
+        if self.timeslot:
+            if self.timeslot.location:
+                return self.timeslot.location.name
+            else:
+                return "no room set for plenary %u" % (self.timeslot.pk)
+        else:
+            return "bogus NamedTimeSlot"
+
+    @property
     def sessions(self):
         return [ ss.session for ss in self.timeslot.scheduledsession_set.filter(schedule=self.agenda) ]
 

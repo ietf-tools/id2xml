@@ -3,14 +3,14 @@
 import codecs
 import re
 import os.path
-import django.utils.html
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response as render
 from django.template import RequestContext
 from django.conf import settings
-from django.http import Http404
-from ietf.ipr.models import IprRfc, IprDraft, IprDetail
+from ietf.ipr.models import IprDraft, IprDetail
 from ietf.ipr.related import related_docs
 from ietf.utils import log, normalize_draftname
+from ietf.group.models import Group
 
 
 def mark_last_doc(iprs):
@@ -45,8 +45,7 @@ def patent_file_search(url, q):
     return False
 
 def search(request, type="", q="", id=""):
-    from ietf.group.models import Group
-    wgs = Group.objects.filter(type="wg").exclude(acronym="2000").select_related().order_by("acronym")
+    wgs = Group.objects.filter(type="wg").select_related().order_by("acronym")
     args = request.REQUEST.items()
     if args:
         for key, value in args:
@@ -184,6 +183,6 @@ def search(request, type="", q="", id=""):
 
             else:
                 raise Http404("Unexpected search type in IPR query: %s" % type)
-        return django.http.HttpResponseRedirect(request.path)
+        return HttpResponseRedirect(request.path)
 
     return render("ipr/search.html", {"wgs": wgs}, context_instance=RequestContext(request))

@@ -131,14 +131,6 @@ def show(request, ipr_id=None, removed=None):
                     context_instance=RequestContext(request))
 
 
-
-def form(request):
-    wgs = Group.objects.filter(type="wg").exclude(acronym="2000").select_related().order_by("acronym")
-    log("Search form")
-    return render("ipr/search.html", {"wgs": wgs}, context_instance=RequestContext(request))
-        
-
-
 # ---- Helper functions ------------------------------------------------------
 
 def get_section_list(ipr):

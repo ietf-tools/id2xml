@@ -8,7 +8,6 @@ from django.shortcuts import render_to_response as render
 from django.template import RequestContext
 from django.conf import settings
 from django.http import Http404
-from ietf.idtracker.models import IETFWG, InternetDraft, Rfc
 from ietf.ipr.models import IprRfc, IprDraft, IprDetail
 from ietf.ipr.related import related_docs
 from ietf.utils import log, normalize_draftname
@@ -68,10 +67,12 @@ def search(request, type="", q="", id=""):
                     if q:
                         q = normalize_draftname(q)
                         from ietf.doc.proxy import DraftLikeDocAlias
-                        start = DraftLikeDocAlias.objects.filter(name__contains=q, name__startswith="draft")
+                        from ietf.doc.models import DocAlias
+                        start = DocAlias.objects.filter(name__contains=q, name__startswith="draft")
                     if id:
                         from ietf.doc.proxy import DraftLikeDocAlias
-                        start = DraftLikeDocAlias.objects.filter(name=id)
+                        from ietf.doc.models import DocAlias
+                        start = DocAlias.objects.filter(name=id)
                 if type == "rfc_search":
                     if q:
                         try:
@@ -79,13 +80,14 @@ def search(request, type="", q="", id=""):
                         except:
                             q = -1
                         from ietf.doc.proxy import DraftLikeDocAlias
-                        start = DraftLikeDocAlias.objects.filter(name__contains=q, name__startswith="rfc")
+                        from ietf.doc.models import DocAlias
+                        start = DocAlias.objects.filter(name__contains=q, name__startswith="rfc")
                 if start.count() == 1:
                     first = start[0]
                     doc = str(first)
                     # get all related drafts, then search for IPRs on all
 
-                    docs = related_docs(first, [])
+                    docs = related_docs(first)
                     #docs = get_doclist.get_doclist(first)
                     iprs, docs = iprs_from_docs(docs)
                     iprs.sort(key=lambda x:(x.submitted_date,x.ipr_id))

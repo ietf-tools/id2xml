@@ -150,14 +150,15 @@ def search(request, type="", q="", id=""):
             # Search by rfc and id title
             # Document list with IPRs
             elif type == "title_search":
-                from ietf.doc.proxy import DraftLikeDocAlias
-                try:
-                    docs = list(DraftLikeDocAlias.objects.filter(document__title__icontains=q))
-                except:
-                    docs = []
+                docs = list(DocAlias.objects.filter(document__title__icontains=q))
+                related = []
+                for doc in docs:
+                    related += related_docs(doc)
 
-                docs = [ doc for doc in docs if doc.ipr.count() ]
-                iprs, docs = iprs_from_docs(docs)
+                iprs, docs = iprs_from_docs(list(set(docs+related)))
+                docs = [ doc for doc in docs if doc.iprs ]
+                docs = sorted(docs,key=lambda x: max([ipr.submitted_date for ipr in x.iprs]),reverse=True)
+
                 count = len(iprs)
                 return render("ipr/search_doctitle_result.html", {"q": q, "docs": docs, "count": count },
                                   context_instance=RequestContext(request) )

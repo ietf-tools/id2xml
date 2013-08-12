@@ -11,6 +11,7 @@ from ietf.ipr.models import IprDraft, IprDetail
 from ietf.ipr.related import related_docs
 from ietf.utils import log, normalize_draftname
 from ietf.group.models import Group
+from ietf.doc.models import DocAlias
 
 
 def mark_last_doc(iprs):
@@ -25,6 +26,7 @@ def iprs_from_docs(docs):
     for doc in docs:
         from ietf.ipr.models import IprDocAlias
         disclosures = [ x.ipr for x in IprDocAlias.objects.filter(doc_alias=doc, ipr__status__in=[1,3]) ]
+        doc.iprs = None
         if disclosures:
             doc.iprs = disclosures
             iprs += disclosures
@@ -65,12 +67,8 @@ def search(request, type="", q="", id=""):
                 if type == "document_search":
                     if q:
                         q = normalize_draftname(q)
-                        from ietf.doc.proxy import DraftLikeDocAlias
-                        from ietf.doc.models import DocAlias
                         start = DocAlias.objects.filter(name__contains=q, name__startswith="draft")
                     if id:
-                        from ietf.doc.proxy import DraftLikeDocAlias
-                        from ietf.doc.models import DocAlias
                         start = DocAlias.objects.filter(name=id)
                 if type == "rfc_search":
                     if q:
@@ -78,16 +76,11 @@ def search(request, type="", q="", id=""):
                             q = int(q, 10)
                         except:
                             q = -1
-                        from ietf.doc.proxy import DraftLikeDocAlias
-                        from ietf.doc.models import DocAlias
                         start = DocAlias.objects.filter(name__contains=q, name__startswith="rfc")
                 if start.count() == 1:
                     first = start[0]
                     doc = str(first)
-                    # get all related drafts, then search for IPRs on all
-
                     docs = related_docs(first)
-                    #docs = get_doclist.get_doclist(first)
                     iprs, docs = iprs_from_docs(docs)
                     iprs.sort(key=lambda x:(x.submitted_date,x.ipr_id))
                     return render("ipr/search_doc_result.html", {"q": q, "first": first, "iprs": iprs, "docs": docs, "doc": doc },
@@ -140,15 +133,16 @@ def search(request, type="", q="", id=""):
             # Search by wg acronym
             # Document list with IPRs
             elif type == "wg_search":
-                from ietf.doc.proxy import DraftLikeDocAlias
-                try:
-                    docs = list(DraftLikeDocAlias.objects.filter(document__group__acronym=q))
-                    docs += list(DraftLikeDocAlias.objects.filter(document__relateddocument__target__in=docs, document__relateddocument__relationship="replaces"))
-                except:
-                    docs = []
+                docs = list(DocAlias.objects.filter(document__group__acronym=q))
+                related = []
+                for doc in docs:
+                    doc.product_of_this_wg = True
+                    related += related_docs(doc)
 
-                docs = [ doc for doc in docs if doc.ipr.count() ]
-                iprs, docs = iprs_from_docs(docs)
+                iprs, docs = iprs_from_docs(list(set(docs+related)))
+                docs = [ doc for doc in docs if doc.iprs ]
+                docs = sorted(docs,key=lambda x: max([ipr.submitted_date for ipr in x.iprs]),reverse=True)
+                   
                 count = len(iprs)
                 return render("ipr/search_wg_result.html", {"q": q, "docs": docs, "count": count },
                                   context_instance=RequestContext(request) )

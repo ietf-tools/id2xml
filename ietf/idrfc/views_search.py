@@ -132,7 +132,9 @@ def fill_in_search_attributes(docs):
     for d in docs:
         d.iprs = []
 
-# Go rewrite this paying attention to relations? The check against docs_dict[k] below says this is doing too much work
+# Consider reworking the following block using all_relations_that_doc? That might simplify the final assembly
+# down to the code at "if a not in docs_dict"...
+
     rel_docs = []
     rel_id_camefrom = {}
     for d in docs:

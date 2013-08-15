@@ -19,7 +19,7 @@ auth_ferrel = {'REMOTE_USER':'stephen.farrell@cs.tcd.ie'}
 
 
 class AuthDataTestCase(AgendaTransactionalTestCase):
-    fixtures = [ 'names.xml',
+    fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',
                  'workinggroups.json',

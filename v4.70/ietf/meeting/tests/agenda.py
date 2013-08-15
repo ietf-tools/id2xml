@@ -12,6 +12,7 @@ class AgendaInfoTestCase(AgendaTransactionalTestCase):
                  'meeting83.json',
                  'constraint83.json',
                  'workinggroups.json',
+                 'groupgroup.json',
                  'person.json', 'users.json' ]
 
     def test_SessionUnicode(self):

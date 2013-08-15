@@ -535,6 +535,9 @@ class TestCase(TransactionTestCase):
             databases = [DEFAULT_DB_ALIAS]
 
         for db in databases:
+            # should be a no-op, but another test case method might have left junk.
+            call_command('flush', verbosity=0, interactive=False, database=db)
+
             transaction.enter_transaction_management(using=db)
             transaction.managed(True, using=db)
         disable_transaction_methods()

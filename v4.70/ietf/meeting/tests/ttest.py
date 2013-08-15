@@ -27,8 +27,8 @@ class AgendaTransactionalTestCase(TestCase):
             from django.contrib.sites.models import Site
             Site.objects.clear_cache()
             for db in databases:
-                # BUG, if the set of fixtures changes, then it might not
-                # get reloaded properly.
+                # BUG, if the set of fixtures changes between test cases,
+                # then it might not get reloaded properly.
                 if hasattr(self, 'fixtures'):
                     call_command('loaddata', *self.fixtures, **{
                                                              'verbosity': 0,

@@ -9,8 +9,6 @@ class AgendaTransactionalTestCase(TestCase):
     with a transaction, which is started after the fixtures are loaded.
     """
 
-    fixtures_loaded = False
-
     def _fixture_setup(self):
         if not connections_support_transactions():
             return super(TestCase, self)._fixture_setup()
@@ -22,20 +20,25 @@ class AgendaTransactionalTestCase(TestCase):
         else:
             databases = [DEFAULT_DB_ALIAS]
 
-        if not AgendaTransactionalTestCase.fixtures_loaded:
+        if not TestCase.fixtures_loaded:
+
             print "Loading agenda fixtures for the first time"
             from django.contrib.sites.models import Site
             Site.objects.clear_cache()
             for db in databases:
+                # should be a no-op, but another test case method might have left junk.
+                call_command('flush', verbosity=0, interactive=False, database=db)
+
                 # BUG, if the set of fixtures changes between test cases,
                 # then it might not get reloaded properly.
                 if hasattr(self, 'fixtures'):
+                    print "  fixtures: %s" % (self.fixtures)
                     call_command('loaddata', *self.fixtures, **{
                                                              'verbosity': 0,
                                                              'commit': False,
                                                              'database': db
                                                              })
-            AgendaTransactionalTestCase.fixtures_loaded = True
+            TestCase.fixtures_loaded = True
 
         # now start a transaction.
         for db in databases:

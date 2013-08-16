@@ -25,7 +25,7 @@ Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
  <a href="#plenaries"><b>Plenaries</b></a> &nbsp;|&nbsp;
  {% endif %}
  {% if ietf %}
-    {% regroup ietf|dictsort:"group.parent.acronym" by group.parent.acronym as areas %}
+    {% regroup ietf|dictsort:"session.group.parent.acronym" by session.group.parent.acronym as areas %}
     {% for area in areas %}
        {% if not forloop.first %}&nbsp;|&nbsp;{% endif %}
        <a href="#{{area.grouper}}"><b>{{ area.grouper.upper }}</b></a>
@@ -54,7 +54,7 @@ Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
 {% if plenaries %}
     <a name="plenaries"></a>
     <h2 class="ietf-divider">Plenaries</h2>
-    {% for scheduledsessionsession in plenaries %}
+    {% for scheduledsession in plenaries %}
        {% with scheduledsession.session as session %}
           {% include "meeting/group_materials.html" %}
        {% endwith %}

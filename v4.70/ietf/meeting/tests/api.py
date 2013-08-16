@@ -519,11 +519,7 @@ class ApiTestCase(AgendaTransactionalTestCase):
         self.assertEqual(m83perm['owner_href'],  "http://testserver/people/108757.json")
         self.assertEqual(m83perm['read_only'],   True)
         self.assertEqual(m83perm['write_perm'],  True)
-
-        self.assertEqual(resp.status_code, 403)
-        # see that in fact the room was not created
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 0)
+        self.assertEqual(resp.status_code, 200)
 
     def test_createNewAgendaSecretariat(self):
         mtg83 = get_meeting(83)
@@ -707,10 +703,7 @@ class ApiTestCase(AgendaTransactionalTestCase):
         self.assertEqual(m83perm['read_only'],   True)
         self.assertEqual(m83perm['write_perm'],  True)
 
-        self.assertEqual(resp.status_code, 403)
-        # see that in fact the room was not created
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 0)
+        self.assertEqual(resp.status_code, 200)
 
     def test_createNewAgendaSecretariat(self):
         mtg83 = get_meeting(83)
@@ -879,25 +872,6 @@ class ApiTestCase(AgendaTransactionalTestCase):
         self.assertEqual(m83perm['owner_href'],  "http://testserver/people/108757.json")
         self.assertEqual(m83perm['read_only'],   True)
         self.assertEqual(m83perm['write_perm'],  False)
-
-    def test_af_IsReadOnlySched24(self):
-        extra_headers = auth_ferrel
-        extra_headers['HTTP_ACCEPT']='text/json'
-
-        resp = self.client.post('/dajaxice/ietf.meeting.readonly/', {
-            'argv': '{"meeting_num":"83","schedule_id":"24"}'
-            }, **extra_headers)
-
-        m83perm = json.loads(resp.content)
-        self.assertEqual(m83perm['secretariat'], False)
-        self.assertEqual(m83perm['owner_href'],  "http://testserver/people/108757.json")
-        self.assertEqual(m83perm['read_only'],   True)
-        self.assertEqual(m83perm['write_perm'],  True)
-
-        self.assertEqual(resp.status_code, 403)
-        # see that in fact the room was not created
-        slot23 = mtg83.timeslot_set.filter(time=datetime.date(year=2012,month=3,day=23))
-        self.assertEqual(len(slot23), 0)
 
     def test_createNewAgendaSecretariat(self):
         mtg83 = get_meeting(83)

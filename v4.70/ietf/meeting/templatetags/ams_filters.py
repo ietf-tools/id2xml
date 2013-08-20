@@ -1,3 +1,3 @@
 from django import template
-from sec.proceedings.templatetags.ams_filters import register
+from secr.proceedings.templatetags.ams_filters import register
 

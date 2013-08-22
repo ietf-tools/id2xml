@@ -2,7 +2,7 @@
 {% load ietf_filters ietf_streams community_tags %}
 {% load ietf_filters community_tags %}
 
-<li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
+<li {% if flavor == "top" %}class="dropdown"{% else %}class="dropdown-header"{% endif %}>
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}
 		{% if user.is_authenticated %}
 			{{ user }}
@@ -23,7 +23,7 @@
 		{% endif %}
 {% if user|has_role:"Area Director" %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-		<li class="nav-header">AD Dashboard</li>
+		<li class="dropdown-header">AD dashboard</li>
 		<li><a href="{% url drafts_for_ad name=user.get_profile.full_name_as_key %}">My documents (old)</a></li>
 		<li><a href="{% url docs_for_ad name=user.get_profile.full_name_as_key %}">My documents (new)</a></li>
 		<li><a href="{% url ietf.iesg.views.agenda_documents %}">Next telechat</a></li>
@@ -34,7 +34,7 @@
 {% endif %}
 {% if user|has_role:"Secretariat" %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-		<li class="nav-header">Secretariat</li>
+		<li class="dropdown-header">Secretariat</li>
 		<li><a href="/admin/iesg/telechatdate/">Telechat dates</a></li>
 		<li><a href="/admin/iesg/telechatagendaitem/">Management items</a></li>
 		<li><a href="{% url ietf.iesg.views.milestones_needing_review %}">Milestones</a></li>
@@ -46,7 +46,7 @@
 	{% get_user_managed_streams user as stream_list %}
 	{% if stream_list %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-		<li class="nav-header">Streams</li>
+		<li class="dropdown-header">Streams</li>
 		{% for stream in stream_list %}
 			<li><a href="{% url stream_delegates stream.name %}">{{ stream.name }} stream</a></li>
 		{% endfor %}
@@ -54,36 +54,36 @@
 {% endif %}
 {% if user|has_role:"IANA" %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-		<li class="nav-header">IANA</li>
+		<li class="dropdown-header">IANA</li>
 		<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
 {% endif %}
 {% if user|has_role:"RFC Editor" %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-		<li class="nav-header">RFC Editor</li>
+		<li class="dropdown-header">RFC Editor</li>
 		<li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a></li>
 {% endif %}
 	{% if flavor == "top" %}</ul>{% endif %}
 </li>
 
-<li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
+<li {% if flavor == "top" %}class="dropdown"{% else %}class="dropdown-header"{% endif %}>
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}Groups{% if flavor == "top" %}</a>{% endif %}
 	{% if flavor == "top" %}<ul class="dropdown-menu">{% endif %}
 		<li><a href="/wg/">All active WGs</a></li>
 		{% if flavor == "top" %}<li class="divider"></li>
-		<li class="nav-header">By area</li>{% endif %}
+		<li class="dropdown-header">By area</li>{% endif %}
 		{% wg_menu ietf %}
 		{% if flavor == "top" %}<li class="divider"></li>
-		<li class="nav-header">New work</li>{% endif %}
+		<li class="dropdown-header">New work</li>{% endif %}
 		<li><a href="{% url ietf.wginfo.views.chartering_wgs %}">Chartering WGs</a></li>
 		<li><a href="{% url ietf.wginfo.views.bofs %}">BoF proposals</a></li>
 		{% if flavor == "top" %}<li class="divider"></li>
-		<li class="nav-header">Other</li>{% endif %}
+		<li class="dropdown-header">Other</li>{% endif %}
 		<li><a href="http://tools.ietf.org/wg/concluded">Concluded WGs</a></li>
 		<li><a href="http://www.ietf.org/list/nonwg.html">Non-WG mail lists</a></li>
 	{% if flavor == "top" %}</ul>{% endif %}
 </li>
 
-<li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
+<li {% if flavor == "top" %}class="dropdown"{% else %}class="dropdown-header"{% endif %}>
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}Documents{% if flavor == "top" %}</a>{% endif %}
 	{% if flavor == "top" %}<ul class="dropdown-menu">{% endif %}
 
@@ -106,21 +106,21 @@
 	{% if flavor == "top" %}</ul>{% endif %}
 </li>
 
-<li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
+<li {% if flavor == "top" %}class="dropdown"{% else %}class="dropdown-header"{% endif %}>
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}Meetings{% if flavor == "top" %}</a>{% endif %}
 	{% if flavor == "top" %}<ul class="dropdown-menu">{% endif %}
-		{% if flavor == "top" %}<li class="nav-header">Next meetings</li>{% endif %}
+		{% if flavor == "top" %}<li class="dropdown-header">Next meetings</li>{% endif %}
 		<li><a href="http://www.ietf.org/meeting/upcoming.html">Upcoming meetings</a></li>
 		<li><a href="/meeting/agenda/">Next meeting agenda</a></li>
 		<li><a href="/meeting/requests">Request session</a></li>
 		<li><a href="/meeting/">Submit meeting materials</a></li>
 		{% if flavor == "top" %}<li class="divider"></li>
-		<li class="nav-header">Past meetings</li>{% endif %}
+		<li class="dropdown-header">Past meetings</li>{% endif %}
 		<li><a href="http://www.ietf.org/meeting/proceedings.html">Proceedings</a></li>
 	{% if flavor == "top" %}</ul>{% endif %}
 </li>
 
-<li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
+<li {% if flavor == "top" %}class="dropdown"{% else %}class="dropdown-header"{% endif %}>
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}Other{% if flavor == "top" %}</a>{% endif %}
 	{% if flavor == "top" %}<ul class="dropdown-menu">{% endif %}
 		<li><a href="/ipr/">IPR disclosures</a></li>

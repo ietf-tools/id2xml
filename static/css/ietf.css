@@ -17,5 +17,8 @@
 /* Helper to constrain the size of the main logo */
 .ietflogo { width: 75%;	max-width: 300px; }
 
-/* See http://stackoverflow.com/questions/8878033/how-to-make-twitter-bootstrap-menu-dropdown-on-hover-rather-than-click */
-.navbar .dropdown-menu { margin-top: 0px; }
+/* Add some horizontal space after a form label, and make it bold */
+form label { padding-right: .5em; font-weight: bold;}
+
+/* Style Django form errors */
+form .errorlist { color: red; font-weight: bold; }

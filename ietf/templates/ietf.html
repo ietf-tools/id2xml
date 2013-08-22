@@ -13,14 +13,14 @@
 				{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
 			{% endif %}
 		</title>
-		<meta name="description" content="">
+		<!--<meta name="description" content="">-->
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
 		<style>
 			{% block morecss %}{% endblock %}
 		</style>
-		<link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
 		<link rel="stylesheet" href="/css/ietf.css">
 
 		<script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
@@ -38,54 +38,56 @@
 			<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 		<![endif]-->
 
-		<div class="navbar navbar-static-top">
-			<div class="navbar-inner">
-				<div class="container">
-					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</a>
-					<a class="brand" href="/">
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">
 					IETF Datatracker
 					{% if server_mode %}
 						{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
 					{% endif %}
-					</a>
-					<div class="nav-collapse collapse">
-						<ul class="nav">
-							{% with "top" as flavor %}
-								{% include "ietf_menu.html" %}      
-							{% endwith %}
-						</ul>
-
-						<form class="navbar-search pull-right" action="/doc/search/" method="get">
-							<input class="search-query" type="text" name="name" placeholder="Search documents" />
-							<input type="hidden" name="activedrafts" value="on"/>
-							<input type="hidden" name="rfcs" value="on"/>
-						</form>
-					</div>
-				</div>
+				</a>
 			</div>
-		</div>
+			
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					{% with "top" as flavor %}
+						{% include "ietf_menu.html" %}      
+					{% endwith %}
+				</ul>
 
-		<div class="content container-fluid">
-			<div class="row-fluid">
-				<div class="hidden-phone span3">
-					<ul class="well nav nav-list">
+				<form class="navbar-form navbar-right" action="/doc/search/" role="search">
+					<div class="form-group">
+						<input class="form-control" type="text" name="name" placeholder="Search documents" />
+						<input type="hidden" name="activedrafts" value="on"/>
+						<input type="hidden" name="rfcs" value="on"/>
+					</div>
+				</form>
+			</div>
+		</nav>
+
+		<div class="content container">
+			<div class="row">
+				<div class="col-md-3">
+					<ul class="nav nav-stacked panel panel-default panel-body">
 						{% with "left" as flavor %}
 							{% include "ietf_menu.html" %}
 						{% endwith %}
 					</ul>
 				</div>
-				<div class="span9">
+				<div class="col-md-9">
 					{% block content %}{% endblock %}
 					{% block content_end %}{% endblock %} 
 				</div>
 			</div>
 
-			<footer>
-				<div class="hidden-phone text-center">
+			<footer class="row">
+				<div class="col-md-12 hidden-phone text-center">
 					<hr>
 				  <small>
 						<ul class="nav nav-pills center-pills">
@@ -102,8 +104,10 @@
 						</ul>
 					</small>
 				</div>
+			</footer>
 
-				<div class="muted">
+			<footer class="row">
+				<div class="col-md-12">
 					<small>
 						{% if version_num %}
 							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>

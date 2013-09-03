@@ -1,0 +1,6 @@
+<div style="margin-bottom: 1em;">
+  {% for action_name, url in actions %}
+  {% if not forloop.first %} | {% endif%} <a href="{{ url}}">{{ action_name }}</a>
+  {% endfor %}
+</div>
+

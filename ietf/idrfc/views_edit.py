@@ -15,7 +15,7 @@ from django.conf import settings
 from django.forms.util import ErrorList
 from django.contrib.auth.decorators import login_required
 
-from ietf.utils.mail import send_mail_text, send_mail_message
+from ietf.utils.mail import send_mail_text, send_mail_message 
 from ietf.ietfauth.decorators import group_required, has_role, role_required
 from ietf.ietfauth.utils import user_is_person
 from ietf.idtracker.templatetags.ietf_filters import in_group
@@ -369,6 +369,106 @@ def get_initial_state_change_notice(doc):
 def get_new_ballot_id():
     return IDInternal.objects.aggregate(Max('ballot'))['ballot__max'] + 1
     
+def to_iesg(request,name):
+    """ Submit an IETF stream document to the IESG for publication """ 
+    doc = get_object_or_404(Document, docalias__name=name, stream='ietf')
+
+    if doc.get_state_slug() == "expired":
+        raise Http404()
+
+    if not is_authorized_in_doc_stream(request.user, doc):
+        raise Http404()
+    
+    target_state={
+        'iesg' : State.objects.get(type='draft-iesg',slug='pub-req'),
+        'wg'   : State.objects.get(type='draft-stream-ietf',slug='sub-pub'),
+    }
+
+    warn={}
+    if not doc.intended_std_level:
+        warn['intended_std_level'] = True
+    if not doc.shepherd:
+        warn['shepherd'] = True
+    shepherd_writeup = doc.latest_event(WriteupDocEvent, type="changed_protocol_writeup")
+    if not shepherd_writeup:
+        warn['shepherd_writeup'] = True
+    tags = doc.tags.filter(slug__in=get_tags_for_stream_id(doc.stream_id))
+    if tags:
+        warn['tags'] = True
+    notify = doc.notify
+    if not notify:
+        notify = get_initial_notify(doc)
+    ad = doc.ad or doc.group.ad
+
+    if request.method == 'POST':
+
+        if request.POST.get("confirm", ""): 
+
+            save_document_in_history(doc)
+
+            login = request.user.get_profile()
+
+            changes = []
+
+            if not doc.get_state("draft-iesg"):
+
+                e = DocEvent()
+                e.type = "started_iesg_process"
+                e.by = login
+                e.doc = doc
+                e.desc = "IESG process started in state <b>%s</b>" % target_state['iesg'].name
+                e.save()
+
+            if not doc.get_state('draft-iesg')==target_state['iesg']:
+                doc.set_state(target_state['iesg'])
+                changes.append("IESG state set to %s" % target_state['iesg'].name)
+            if not doc.get_state('draft-ietf-stream')==target_state['wg']:
+                doc.set_state(target_state['wg'])
+                changes.append("Working group state set to %s" % target_state['wg'].name)
+
+            if not doc.ad == ad :
+                doc.ad = ad
+                changes.append("Responsible AD changed to %s" % doc.ad)
+
+            if not doc.notify == notify :
+                doc.notify = notify
+                changes.append("State Change Notice email list changed to %s" % doc.notify)
+
+            for c in changes:
+                e = DocEvent(doc=doc, by=login)
+                e.desc = c
+                e.type = "changed_document"
+                e.save()
+
+            # Is this still necessary? I remember Henrik planning to have the model take care of this.
+            doc.time = datetime.datetime.now()
+
+            doc.save()
+
+            extra = {}
+            extra['Cc'] = "%s-chairs@tools.ietf.org, iesg-secretary@ietf.org, %s" % (doc.group.acronym,doc.notify)
+            send_mail(request=request,
+                      to = doc.ad.email_address(),
+                      frm = login.formatted_email(),
+                      subject = "Publication has been requested for %s-%s" % (doc.name,doc.rev),
+                      template = "doc/submit_to_iesg_email.txt",
+                      context = dict(doc=doc,login=login,url="%s%s"%(settings.IDTRACKER_BASE_URL,doc.get_absolute_url()),),
+                      extra = extra)
+
+        return HttpResponseRedirect(doc.get_absolute_url())
+
+    return render_to_response('doc/submit_to_iesg.html',
+                              dict(doc=doc,
+                                   warn=warn,
+                                   target_state=target_state,
+                                   ad=ad,
+                                   shepherd_writeup=shepherd_writeup,
+                                   tags=tags,
+                                   notify=notify,
+                                  ),
+                              context_instance=RequestContext(request))
+
+
 @group_required('Area_Director','Secretariat')
 def edit_info(request, name):
     pass

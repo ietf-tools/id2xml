@@ -373,7 +373,7 @@ def to_iesg(request,name):
     """ Submit an IETF stream document to the IESG for publication """ 
     doc = get_object_or_404(Document, docalias__name=name, stream='ietf')
 
-    if doc.get_state_slug() == "expired":
+    if doc.get_state_slug('draft') == "expired" or doc.get_state_slug('draft-iesg') == 'pub-req' :
         raise Http404()
 
     if not is_authorized_in_doc_stream(request.user, doc):
@@ -550,6 +550,18 @@ def edit_infoREDESIGN(request, name):
             r = form.cleaned_data
             if new_document:
                 doc.set_state(r['create_in_state'])
+
+                # Is setting the WG state here too much of a hidden side-effect?
+                if r['create_in_state'].slug=='pub-req':
+                    if doc.stream and ( doc.stream.slug=='ietf' ) and doc.group and ( doc.group.type.name=='WG'):
+                        submitted_state = State.objects.get(type='draft-stream-ietf',slug='sub-pub')
+                        doc.set_state(submitted_state)
+                        e = DocEvent()
+                        e.type = "changed_document"
+                        e.by = login
+                        e.doc = doc
+                        e.desc = "Working group state set to %s" % submitted_state.name
+                        e.save()
 
                 # fix so Django doesn't barf in the diff below because these
                 # fields can't be NULL

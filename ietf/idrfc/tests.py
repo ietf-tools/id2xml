@@ -367,7 +367,9 @@ class EditInfoTestCase(django.test.TestCase):
 
         # Redo, starting in publication requested to make sure WG state is also set
         draft.unset_state('draft-iesg')
-        draft.unset_state('draft-stream-ietf')
+        draft.set_state(State.objects.get(type='draft-stream-ietf',slug='writeupw'))
+        draft.stream = StreamName.objects.get(slug='ietf')
+        draft.save()
         r = self.client.post(url,
                              dict(intended_std_level=str(draft.intended_std_level_id),
                                   ad=ad.pk,
@@ -378,7 +380,8 @@ class EditInfoTestCase(django.test.TestCase):
                                   ))
         self.assertEquals(r.status_code, 302)
         draft = Document.objects.get(name=draft.name)
-        self.assertEquals(draft.get_state('draft-stream-ietf').slug,'sub-pub')
+        self.assertEquals(draft.get_state_slug('draft-iesg'),'pub-req')
+        self.assertEquals(draft.get_state_slug('draft-stream-ietf'),'sub-pub')
        
 
     def test_edit_consensus(self):

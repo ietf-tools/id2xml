@@ -423,11 +423,22 @@ function static_listeners(){
     sort_unassigned();
 }
 
+// this is a counter that keeps track of when all of the constraints have
+// been loaded.  This could be replaced with a $.Deferred().when mechanism.
+// it is reset in recalculate().
+var CONFLICT_LOAD_COUNT = 0;
+function increment_conflict_load_count() {
+    CONFLICT_LOAD_COUNT++;
+    //console.log(CONFLICT_LOAD_COUNT+"/"+meeting_objs_length);
+}
+
 // recalculate all conflicts from scratch
 function recalculate(event) {
     start_spin();
     console.log("loading all conflicts");
+    CONFLICT_LOAD_COUNT = 0;
     get_all_conflicts();
+
     do_work(function() {
         return CONFLICT_LOAD_COUNT >= meeting_objs_length;
     },

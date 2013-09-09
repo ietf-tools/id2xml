@@ -65,12 +65,6 @@ function hide_all_conflicts(){
     }
 }
 
-var CONFLICT_LOAD_COUNT = 0;
-function increment_conflict_load_count() {
-    CONFLICT_LOAD_COUNT++;
-    //console.log(CONFLICT_LOAD_COUNT+"/"+meeting_objs_length);
-}
-
 function get_all_conflicts(){
     //console.log("get_all_conflicts()");
     for(s in meeting_objs){

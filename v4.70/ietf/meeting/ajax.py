@@ -69,7 +69,7 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     ess = None
     ss = None
 
-    print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
+    #print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
     cansee,canedit = agenda_permissions(meeting, schedule, request.user)
 
     if not canedit:
@@ -94,7 +94,7 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     if ess_id == 0:
         # if this is None, then we must be moving.
         for ssO in schedule.scheduledsession_set.filter(session = session):
-            print "sched(%s): removing session %s from slot %u" % ( schedule, session, ssO.pk )
+            #print "sched(%s): removing session %s from slot %u" % ( schedule, session, ssO.pk )
             #if ssO.extendedfrom is not None:
             #    ssO.extendedfrom.session = None
             #    ssO.extendedfrom.save()
@@ -108,7 +108,7 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     try:
         # find the scheduledsession, assign the Session to it.
         if ss:
-            print "ss.session: %s session:%s duplicate=%s"%(ss, session, duplicate)
+            #print "ss.session: %s session:%s duplicate=%s"%(ss, session, duplicate)
             ss.session = session
             if(duplicate):
                 ss.id = None

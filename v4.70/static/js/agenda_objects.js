@@ -188,13 +188,6 @@ function find_empty_slots(){
 function slot(){
 }
 
-
-/* tests short_string */
-function test_ss(){
-    e = meeting_objs['2656'];
-    return e.short_string();
-}
-
 /*
    check_delimiter(inp), where inp is a string.
        returns char.

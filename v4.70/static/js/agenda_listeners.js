@@ -1141,11 +1141,6 @@ function drag_start(event, ui){
     return;
 }
 
-/* ??? */
-function handelDrop(event, ui){
-    $(d).append(ui.draggable);
-}
-
 /*
  * Local Variables:
  * c-basic-offset:4

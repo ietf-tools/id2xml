@@ -486,7 +486,7 @@ def session_json(request, num, sessionid):
 # it has almost no value for GET, particularly if the results are going to be
 # public anyway.   Cache for 1 day.
 @cache_page(86400)
-def session_constraints(request, num=None, sessionid=None):
+def session_constraints(request, num, sessionid):
     meeting = get_meeting(num)
 
     #print "Getting meeting=%s session contraints for %s" % (num, sessionid)

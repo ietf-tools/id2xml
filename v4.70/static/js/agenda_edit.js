@@ -140,15 +140,14 @@ function read_only_check() {
                                     });
 }
 
-function dajaxice_callback(message){
+function dajaxice_callback(message) {
     /* if the message is empty, we got nothing back from the server, which probably
        means you are offline.
     */
     console.log("callback: ",message);
     if(message == ""){
-	console.log("No response from server....");
+	alert("No response from server. Network may be unavailable");
     }
-    /* do something more intelligent here like if the server returned invalid, we would revert the move */
     else{
 	stop_spin();
     }

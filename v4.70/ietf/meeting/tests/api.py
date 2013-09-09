@@ -487,7 +487,7 @@ class ApiTestCase(AgendaTransactionalTestCase):
         self.assertEqual(m83perm['read_only'],   False)
         self.assertEqual(m83perm['write_perm'],  True)
 
-    def test_wlo_isNonUserCanNotSave(self):
+    def test_joeblow_isNonUserCanNotSave(self):
         extra_headers = auth_joeblow
         extra_headers['HTTP_ACCEPT']='text/json'
 

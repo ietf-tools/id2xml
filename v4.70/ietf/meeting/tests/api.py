@@ -73,7 +73,7 @@ class ApiTestCase(AgendaTransactionalTestCase):
         ss_one = ScheduledSession.objects.get(pk=2371)
         self.assertEqual(ss_one.session, s2157)
 
-        # confirm that it new scheduledsession object still has no value.
+        # confirm that the new scheduledsession has not changed.
         ss_two = ScheduledSession.objects.get(pk=2372)
         self.assertEqual(ss_two.session, old_two_s)
 
@@ -156,7 +156,7 @@ class ApiTestCase(AgendaTransactionalTestCase):
     def test_anyoneGetConflictInfo(self):
         s2157 = Session.objects.get(pk=2157)
 
-        # move this session from one timeslot to another.
+        # confirm that a constraint json is generated properly
         resp = self.client.get('/meeting/83/session/2157/constraints.json')
         conflicts = json.loads(resp.content)
         self.assertNotEqual(conflicts, None)

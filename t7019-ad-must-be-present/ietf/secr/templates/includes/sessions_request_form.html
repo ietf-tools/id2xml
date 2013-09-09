@@ -1,4 +1,4 @@
-         <span class="required">*</span> Required Field 
+         <span class="required">*</span> Required Field
          <form id="session-request-form" action="." method="POST" name="form_post">
          {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
          <table id="sessions-new-table" cellspacing="1" cellpadding="1" border="0">
@@ -50,12 +50,28 @@
              </table>
            </td>
            </tr>
-           <tr bgcolor="#cccccc">
+           <tr class="bg1"><td>People who must be present:</td>
+           <td>
+             <table style="width: 100%;">
+               <tr>
+                 <th style="width: 70%;">Person</th>
+                 <th>Status</td>
+               </tr>
+               {% for person in person_conflict_list %}
+               <tr class="{% cycle 'bg1' 'bg2'%}">
+                  <td>{{ person.name }}</td>
+                  <td> status </td>
+               </tr>
+               {% endfor %}
+             </table>
+           </td>
+           </tr>
+           <tr class="bg2">
              <td valign="top">Special Requests:<br />&nbsp;<br />i.e. Meetecho, WebEx (please state which, and the reason needed), restrictions on meeting times / days, etc.</td>
              <td>{{ form.comments.errors }}{{ form.comments }}</td>
            </tr>
          </table>
-         
+
          {% include "includes/buttons_save_cancel.html" %}
-      
+
          </form>

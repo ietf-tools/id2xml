@@ -153,4 +153,11 @@ class AgendaInfoTestCase(AgendaTransactionalTestCase):
         self.assertEqual(avtcore.pk, 2216)  # sanity check
         self.assertEqual(len(avtcore.scheduledsession_set.filter(schedule = sch83)), 2)
 
+    def test_clue_has_ad_present(self):
+        mtg83 = get_meeting(83)
+        sch83 = get_schedule(mtg83, "mtg:83")
+        clue83 = mtg83.session_set.get(group__acronym='avtcore')
+        is_present = clue83.people_constraints()
+        self.assertEqual(len(is_present), 3)
+
 

@@ -618,8 +618,10 @@ def schedule(request, meeting_id, acronym):
                     day = form.cleaned_data['day']
                     combine = form.cleaned_data.get('combine',None)
                     session = Session.objects.get(id=id)
-                    if session.timeslot_set.all():
-                        initial_timeslot = session.timeslot_set.all()[0]
+                    was_combined = is_combined(session)
+                    initial_timeslots = session.timeslot_set.all()
+                    if initial_timeslots:
+                        initial_timeslot = initial_timeslots[0]
                     else:
                         initial_timeslot = None
 
@@ -651,29 +653,38 @@ def schedule(request, meeting_id, acronym):
                     # ---------------------------------------
 
                     if any(x in form.changed_data for x in ('day','time','room')):
-                        # clear the old timeslot
-                        if initial_timeslot:
+                        # clear the old timeslot(s)
+                        for ts in initial_timeslots:
                             # if the initial timeslot is one of multiple we should delete it
                             tqs = TimeSlot.objects.filter(meeting=meeting,
                                                           type='session',
-                                                          time=initial_timeslot.time,
-                                                          location=initial_timeslot.location)
+                                                          time=ts.time,
+                                                          location=ts.location)
                             if tqs.count() > 1:
-                                initial_timeslot.delete()
+                                ts.delete()
                             else:
-                                initial_timeslot.session = None
-                                initial_timeslot.modified = now
-                                initial_timeslot.save()
+                                ts.session = None
+                                ts.modified = now
+                                ts.save()
+                        # assign new timeslot(s)
+                        new_slots = []
                         if timeslot:
+                            new_slots.append(timeslot)
+                        if was_combined:
+                            new_slots.append(get_next_slot(timeslot))
+                        for ts in new_slots:
                             timeslot.session = session
                             timeslot.modified = now
                             timeslot.save()
+
+                        if new_slots:
                             session.status_id = 'sched'
                         else:
                             session.status_id = 'schedw'
 
                         session.modified = now
                         session.save()
+
 
                     if 'note' in form.changed_data:
                         session.agenda_note = note

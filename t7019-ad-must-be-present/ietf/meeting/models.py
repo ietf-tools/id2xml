@@ -663,11 +663,25 @@ class Constraint(models.Model):
     day    = models.DateTimeField(null=True, blank=True)
     name   = models.ForeignKey(ConstraintName)
 
+    active_status = None
+
     def __unicode__(self):
         return u"%s %s %s" % (self.source, self.name.name.lower(), self.target)
 
     def url(self, sitefqdn):
         return "%s/meeting/%s/constraint/%s.json" % (sitefqdn, self.meeting.number, self.id)
+
+    @property
+    def person_conflicted(self):
+        if self.person is None:
+            return "unknown person"
+        return self.person.name
+
+    def status(self):
+        if self.active_status is not None:
+            return self.active_status
+        else:
+            return True
 
     def json_dict(self, sitefqdn):
         ct1 = dict()

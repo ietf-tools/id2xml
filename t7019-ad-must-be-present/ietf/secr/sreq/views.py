@@ -398,7 +398,43 @@ def edit(request, acronym):
     else:
         form = SessionForm(initial=initial)
 
-    person_conflict_list = []
+    # does not matter which session we pick for people conflicts, as
+    # all conflicts are by group.
+    basic_list_of_essential_people = {}
+
+    # add the co-chairs.
+    chairs  = group.role_set.filter(name='chair')
+    for chairrole in chairs:
+        chair = chairrole.person
+        basic_list_of_essential_people[chair.pk] = chair
+    # add the responsible AD
+    basic_list_of_essential_people[group.ad.pk] = group.ad
+
+    for key in iter(basic_list_of_essential_people):
+        print "key[%s] = %s" % (key, basic_list_of_essential_people[key])
+
+    session = sessions[0]
+
+    # turn it into a plain array so that it can be pushed onto
+    person_conflict_list = [ x for x in session.people_constraints.all() ]
+    person_conflict_keys = [ x.pk for x in person_conflict_list ]
+
+    extra_list = []
+
+    for essentialkey in iter(basic_list_of_essential_people):
+        if not essentialkey in person_conflict_keys:
+            person_conflict = basic_list_of_essential_people[essentialkey]
+            # no conflict recorded for this person, so list it as false with a made up
+            # constraint
+            false_constraint = Constraint()
+            false_constraint.active_status = False
+            false_constraint.meeting = meeting
+            false_constraint.source  = group
+            false_constraint.person  = person_conflict
+            extra_list.append(false_constraint)
+
+
+    person_conflict_list += extra_list
 
     return render_to_response('sreq/edit.html', {
         'meeting': meeting,

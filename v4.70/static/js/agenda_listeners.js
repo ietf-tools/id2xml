@@ -968,6 +968,7 @@ function recalculate_conflicts_for_session(session, old_column_classes, new_colu
     show_all_conflicts();
 }
 
+var _move_debug = false;
 var _LAST_MOVED;
 function move_slot(session,
                    to_slot_id, to_slot,
@@ -980,12 +981,13 @@ function move_slot(session,
     */
     var update_to_slot_worked = false;
 
-    _LAST_MOVED = session;
-
-    if(from_slot != undefined) {
-        console.log("from_slot", from_slot.domid);
-    } else {
-        console.log("from_slot was unassigned");
+    if(_move_debug) {
+        _LAST_MOVED = session;
+        if(from_slot != undefined) {
+            console.log("from_slot", from_slot.domid);
+        } else {
+            console.log("from_slot was unassigned");
+        }
     }
     var update_to_slot_worked = false;
     if(same_timeslot == null){
@@ -998,21 +1000,27 @@ function move_slot(session,
 	update_to_slot_worked = update_to_slot(session.session_id, to_slot_id, same_timeslot);
     }
 
-    console.log("update_slot_worked", update_to_slot_worked);
+    if(_move_debug) {
+        console.log("update_slot_worked", update_to_slot_worked);
+    }
     if(update_to_slot_worked){
 	if(update_from_slot(session.session_id, from_slot_id)){
 	    remove_duplicate(from_slot_id, session.session_id);
 	    // do something
 	}
 	else{
-	    console.log("issue updateing from_slot");
-	    console.log("from_slot_id",from_slot_id, slot_status[from_slot_id]);
+            if(_move_debug) {
+	        console.log("issue updateing from_slot");
+	        console.log("from_slot_id",from_slot_id, slot_status[from_slot_id]);
+            }
 	    return;
 	}
     }
     else{
-	console.log("issue updateing to_slot");
-	console.log("to_slot_id",to_slot_id, slot_status[to_slot_id]);
+        if(_move_debug) {
+	    console.log("issue updateing to_slot");
+	    console.log("to_slot_id",to_slot_id, slot_status[to_slot_id]);
+        }
 	return;
     }
     session.slot_status_key = to_slot[arr_key_index].domid
@@ -1061,9 +1069,11 @@ function move_slot(session,
     if(schedulesession_id != null){
         session.placed(scheduledsession, true);
         start_spin();
-	console.log('schedule_id',schedule_id,
-                    'session_id', session.session_id,
-                    'scheduledsession_id', schedulesession_id);
+        if(_move_debug) {
+	    console.log('schedule_id',schedule_id,
+                        'session_id', session.session_id,
+                        'scheduledsession_id', schedulesession_id);
+        }
 
         if(session.slot2) {
             session.double_wide = false;
@@ -1097,7 +1107,9 @@ function move_slot(session,
         session.update_column_classes([scheduledsession], bucket_list);
     }
     else{
-	console.log("issue sending ajax call!!!");
+        if(_move_debug) {
+	    console.log("issue sending ajax call!!!");
+        }
     }
 
     droppable();

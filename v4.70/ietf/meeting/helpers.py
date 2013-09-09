@@ -22,7 +22,7 @@ from ietf.ietfauth.decorators import has_role
 from ietf.utils.history import find_history_active_at
 from ietf.doc.models import Document, State
 
-from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
+from ietf.proceedings.models import Meeting as OldMeeting, IESGHistory, Switches
 
 # New models
 from ietf.meeting.models import Meeting, TimeSlot, Session
@@ -117,7 +117,6 @@ class NamedTimeSlot(object):
     @property
     def scheduledsessions_by_area(self):
         things = self.scheduledsessions_at_same_time
-        import sys
         if things is not None:
             return [ {"area":ss.area+ss.acronym_name, "info":ss} for ss in things ]
         else:

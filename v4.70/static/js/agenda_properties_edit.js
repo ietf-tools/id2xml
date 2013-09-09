@@ -1,13 +1,14 @@
 /*
 *   agenda_properties_edit.js
 *
-*   Orlando Project: Credil 2013 ( http://credil.org/ )
-*   Author: Justin Hornosty    <justin@credil.org>
-*   Author: Michael Richardson <mcr@sandelman.ca>
+* Copyright (c) 2013, The IETF Trust. See ../../../LICENSE.
 *
+*   www.credil.org: Project Orlando 2013 
+*   Author: Justin Hornosty ( justin@credil.org )
+*           Michael Richardson <mcr@sandelman.ca>
 *
 *   This file should contain functions relating to
-*   editing a single agenda.
+*   editing the properties of a single agenda.
 *
 */
 

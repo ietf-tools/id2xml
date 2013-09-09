@@ -1,8 +1,11 @@
 /*
 *   agenda_helpers.js
 *
-*   Orlando Project: Credil 2013 ( http://credil.org/ )
+* Copyright (c) 2013, The IETF Trust. See ../../../LICENSE.
+*
+*   www.credil.org: Project Orlando 2013 
 *   Author: Justin Hornosty ( justin@credil.org )
+*           Michael Richardson <mcr@sandelman.ca>
 *
 *   Should contain miscellaneous commonly used functions.
 *

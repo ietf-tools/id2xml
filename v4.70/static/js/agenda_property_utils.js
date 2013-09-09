@@ -1,10 +1,11 @@
 /*
 *   agenda_property_utils.js
 *
-*   Orlando Project: Credil 2013 ( http://credil.org/ )
-*   Author: Justin Hornosty    <justin@credil.org>
-*   Author: Michael Richardson <mcr@sandelman.ca>
+* Copyright (c) 2013, The IETF Trust. See ../../../LICENSE.
 *
+*   www.credil.org: Project Orlando 2013 
+*   Author: Justin Hornosty ( justin@credil.org )
+*           Michael Richardson <mcr@sandelman.ca>
 *
 *   Some functions for toggling, saving and deleting agenda properties.
 *

@@ -1,21 +1,23 @@
 /*
-,----
-|
-|   FILE: agenda_objects.js
-|
-|   AUTHOR: Justin Hornosty ( justin@credil.org )
-|     Orlando Project <-> Credil, 2012 ( credil.org )
-|
-|   Description:
-|      Contains the objects relating to django's models.
-|      Manulaption and helper functions are also located here.
-|      Display logic should be contained in credil_agenda.js ( this should be renamed )
-|
-|   Functions:
-|      - check_delimiter(inp)
-|      - upperCaseWords(inp)
-|
-`----
+*
+*  FILE: agenda_objects.js
+* Copyright (c) 2013, The IETF Trust. See ../../../LICENSE.
+*
+*   www.credil.org: Project Orlando 2013 
+*   Author: Justin Hornosty ( justin@credil.org )
+*           Michael Richardson <mcr@sandelman.ca>
+*
+*  Description:
+*      Contains the objects relating to django's models.
+*      As much business logic as possible should be here.
+*      This file should be resuable by other than agenda_edit.js
+*
+*      Display logic should be contained in agenda_listeners.js 
+*
+*   Functions:
+*      - check_delimiter(inp)
+*      - upperCaseWords(inp)
+*
 */
 
 

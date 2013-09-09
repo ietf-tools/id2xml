@@ -1,14 +1,16 @@
-
 /*
-*   agenda_edit.js
 *
-*   Orlando Project: Credil 2013 ( http://credil.org/ )
+*  FILE: agenda_edit.js
+* Copyright (c) 2013, The IETF Trust. See ../../../LICENSE.
+*
+*   www.credil.org: Project Orlando 2013
 *   Author: Justin Hornosty ( justin@credil.org )
+*           Michael Richardson <mcr@sandelman.ca>
 *
-*
-*   This file should contain functions relating to
-*   jquery ui droppable ( http://jqueryui.com/droppable/ )
-*   and other interactions.
+*  Description:
+*      This is the main file for the agenda editing page.
+*      It contains the document read function that starts everything
+*      off, and uses functions and objects from agenda_*.js
 *
 */
 

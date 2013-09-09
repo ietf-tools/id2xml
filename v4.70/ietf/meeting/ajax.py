@@ -88,8 +88,8 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
     if ss_id != 0:
         ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
 
-    # need a way to clean up a two sessions in one slot situation, the
-    # extra scheduledsessions need to be cleaned up.
+    # this cleans up up two sessions in one slot situation, the
+    # ... extra scheduledsessions need to be cleaned up.
 
     if ess_id == 0:
         # if this is None, then we must be moving.
@@ -271,7 +271,8 @@ def timeslot_sloturl(request, num=None, slotid=None):
                             mimetype="application/json")
     elif request.method == 'PUT':
         # not yet implemented!
-        return timeslot_updslot(request, meeting)
+        #return timeslot_updslot(request, meeting)
+        return HttpResponse(status=406)
     elif request.method == 'DELETE':
         return timeslot_delslot(request, meeting, slotid)
 
@@ -449,27 +450,6 @@ def meeting_json(request, meeting_num):
 ## Agenda Editing API functions
 #############################################################################
 
-# this get_info needs to be replaced once we figure out how to get rid of silly
-# ajax state we are passing through.
-# XXX believed to be obsolete now?
-@dajaxice_register
-def get_info(request, scheduledsession_id=None, active_slot_id=None, timeslot_id=None, session_id=None):#, event):
-
-    try:
-        session = Session.objects.get(pk=int(session_id))
-    except Session.DoesNotExist:
-        log.debug("No ScheduledSession was found for id:%s" % (session_id))
-        # in this case we want to return empty the session information and perhaps indicate to the user there is a issue.
-        return
-
-
-    sess1 = session.json_dict(request.get_host_protocol())
-    sess1['active_slot_id'] = str(active_slot_id)
-    sess1['ss_id']          = str(scheduledsession_id)
-    sess1['timeslot_id']    = str(timeslot_id)
-
-    return json.dumps(sess1, sort_keys=True, indent=2)
-
 def session_json(request, num, sessionid):
     meeting = get_meeting(num)
 
@@ -482,10 +462,8 @@ def session_json(request, num, sessionid):
     return HttpResponse(json.dumps(sess1, sort_keys=True, indent=2),
                         mimetype="application/json")
 
-# current dajaxice does not support GET, only POST.
-# it has almost no value for GET, particularly if the results are going to be
-# public anyway.   Cache for 1 day.
-@cache_page(86400)
+# Would like to cache for 1 day, but there are invalidation issues.
+#@cache_page(86400)
 def session_constraints(request, num, sessionid):
     meeting = get_meeting(num)
 

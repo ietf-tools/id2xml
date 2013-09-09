@@ -1038,11 +1038,9 @@ function move_slot(session,
     /* set colours */
     $(thiss).removeClass('highlight_free_slot');
     if(check_free({id:to_slot_id}) ){
-	// $(thiss).css('background-color', color_droppable_empty_slot)
 	$(thiss).addClass('free_slot')
     }
     else{
-	// $(thiss).css('background-color',none_color);
 	$(thiss).removeClass('free_slot')
     }
 

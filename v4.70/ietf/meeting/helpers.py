@@ -244,9 +244,7 @@ def get_area_list_from_sessions(scheduledsessions, num):
         'session__group__parent__acronym',flat=True)
 
 def build_all_agenda_slices(scheduledsessions, all = False):
-    ################## just some debugging stuff ############
     time_slices = []
-    #date_slices = set()
     date_slices = {}
 
     ids = []
@@ -263,16 +261,6 @@ def build_all_agenda_slices(scheduledsessions, all = False):
                     date_slices[ymd].append([ss.timeslot.time, ss.timeslot.time+ss.timeslot.duration])
 
     time_slices.sort()
-    #sorted_keys = sorted(date_slices, key=lambda key: date_slices[key])
-
-    #sorted_date_slices = {}
-    #for i in sorted_keys:
-    #    print i
-    #    sorted_date_slices[i] = date_slices[i]
-    #    print sorted_date_slices[i]
-#    print sorted_date_slices
-
-
     return time_slices,date_slices
 
 

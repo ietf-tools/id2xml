@@ -224,9 +224,7 @@ class TimeSlot(models.Model):
     """
     Everything that would appear on the meeting agenda of a meeting is
     mapped to a time slot, including breaks. Sessions are connected to
-    TimeSlots during scheduling. A template function to populate a
-    meeting with an appropriate set of TimeSlots is probably also
-    needed.
+    TimeSlots during scheduling.
     """
     meeting = models.ForeignKey(Meeting)
     type = models.ForeignKey(TimeSlotTypeName)

@@ -1,6 +1,7 @@
 from django import forms
 
 from ietf.group.models import Group
+from django.forms.formsets import formset_factory
 import os
 
 # -------------------------------------------------
@@ -25,7 +26,7 @@ def check_conflict(groups):
     for group in items:
         if not active_groups.filter(acronym=group):
             raise forms.ValidationError("Invalid or inactive group acronym: %s" % group)
-            
+
 def join_conflicts(data):
     '''
     Takes a dictionary (ie. data dict from a form) and concatenates all
@@ -44,12 +45,22 @@ def join_conflicts(data):
 
 class GroupSelectForm(forms.Form):
     group = forms.ChoiceField()
-    
+
     def __init__(self,*args,**kwargs):
         choices = kwargs.pop('choices')
         super(GroupSelectForm, self).__init__(*args,**kwargs)
         self.fields['group'].widget.choices = choices
 
+BETHERE_CHOICES = ((False , 'No'), (True , 'Yes'))
+# not using the ModelFormset, too complex.
+class MustBePresentForm(forms.Form):
+    from ietf.person.models import Person
+    person   = forms.ModelChoiceField(queryset= Person.objects.all(), required=False)
+    bethere  = forms.ChoiceField(required = False, choices = BETHERE_CHOICES)
+    #bethere  = forms.BooleanField()
+    #pk       = forms.IntegerField(widget = forms.HiddenInput)
+
+MustBePresentFormSet = formset_factory(MustBePresentForm, extra = 1)
 
 class SessionForm(forms.Form):
     num_session = forms.ChoiceField(choices=NUM_SESSION_CHOICES)
@@ -79,34 +90,34 @@ class SessionForm(forms.Form):
         self.fields['wg_selector3'].widget.attrs['onChange'] = "document.form_post.conflict3.value=document.form_post.conflict3.value + ' ' + this.options[this.selectedIndex].value; return handleconflictfield(3);"
         self.fields['wg_selector3'].widget.attrs['onClick'] = "return check_prior_conflict(3);"
         self.fields['third_session'].widget.attrs['onClick'] = "if (document.form_post.num_session.selectedIndex < 2) { alert('Cannot use this field - Number of Session is not set to 2'); return false; } else { if (this.checked==true) { document.form_post.length_session3.disabled=false; } else { document.form_post.length_session3.value=0;document.form_post.length_session3.disabled=true; } }"
-        
+
         # check third_session checkbox if instance and length_session3
         # assert False, (self.instance, self.fields['length_session3'].initial)
         if self.initial and 'length_session3' in self.initial:
             if self.initial['length_session3'] != '0' and self.initial['length_session3'] != None:
                 self.fields['third_session'].initial = True
-                
+
     def clean_conflict1(self):
         conflict = self.cleaned_data['conflict1']
         check_conflict(conflict)
         return conflict
-    
+
     def clean_conflict2(self):
         conflict = self.cleaned_data['conflict2']
         check_conflict(conflict)
         return conflict
-    
+
     def clean_conflict3(self):
         conflict = self.cleaned_data['conflict3']
         check_conflict(conflict)
         return conflict
-    
+
     def clean(self):
         super(SessionForm, self).clean()
         data = self.cleaned_data
         if self.errors:
             return self.cleaned_data
-            
+
         # error if conflits contain dupes
         all_conflicts = join_conflicts(data)
         temp = []
@@ -115,19 +126,19 @@ class SessionForm(forms.Form):
                 temp.append(c)
             else:
                 raise forms.ValidationError('%s appears in conflicts more than once' % c)
-        
+
         # verify session_length and num_session correspond
         # if default (empty) option is selected, cleaned_data won't include num_session key
         if data.get('num_session','') == 2:
             if not data['length_session2']:
                 raise forms.ValidationError('You must enter a length for session 2')
-        
+
         if data.get('third_session',False):
             if not data.get('length_session3',None):
                 raise forms.ValidationError('Length of third session not selected')
-        
+
         return data
-        
+
 class ToolStatusForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea(attrs={'rows':'3','cols':'80'}))
-    
+

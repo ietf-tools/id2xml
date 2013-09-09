@@ -16,16 +16,15 @@
 
 }
 .vert_time{
-    border-bottom:1px solid black;
+    /* border-bottom:1px solid black; */
+    /* border:1px solid black; */
     color:white;
     background-color:#2647A0;
-    width:100px;
+    width:100px; /* otherwise we get overlap */
     min-width:100px;
     font-size:12px;
-    position:relative;
-
-
-
+    position:absolute; /* makes it float independent of scroll */
+    z-index:100; /* meeting events will be on top otherwise */
 }
 
 .agenda_slot_title{
@@ -528,10 +527,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', end
     float:left;
 }
 
-.free_slot{
-    background-color:rgb(0, 102, 153);
-
-}
 
 .show_conflict_view_highlight{
     background-color: red;
@@ -675,6 +670,10 @@ table.actual_conflict {
     margin-top:4px;
 
 }
+
+.free_slot{
+    background-color:rgb(0, 102, 153) !important; /* the important tag should fix any precedence issues */
+ }
 
 
 /* from: http://www.usabilitypost.com/2012/01/10/pressed-button-state-with-css3/# */
@@ -895,3 +894,10 @@ div.line{
 
 }
 
+.highlight_current_selected{ /* replacement for dragging color */
+    background-color:green;
+    }
+
+.th_column{ /* we need this or the other floating th's won't expand correctly */
+    min-width:100px;
+}

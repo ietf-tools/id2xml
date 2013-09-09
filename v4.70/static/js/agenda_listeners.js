@@ -77,6 +77,8 @@ function listeners(){
     $("#show_all_button").unbind('click');
     $("#show_all_button").click(show_all);
 
+    resize_th();
+
 
 }
 
@@ -130,6 +132,14 @@ function toggle_dialog(session, to_slot_id, to_slot, from_slot_id, from_slot, bu
 
 }
 
+function resize_th(){
+/* with the hovering rooms the sizes get messed up
+   this function looks at the tr's height and resizes the room's height */
+    $.each($(".vert_time"), function(k,v){
+	$(v).height($("#"+v.parentElement.id).height()-2); /* -2 so the grid remains */
+    })
+}
+
 
 function clear_all_selections() {
     $(".same_group").removeClass("same_group");
@@ -143,9 +153,9 @@ function all_click(event){
     if(all_classes != undefined) {
             classes = all_classes.split(' ');
     }
-    console.log("all_click:", classes, classes.indexOf('meeting_obj'), meeting_clicked);
+    // console.log("all_click:", classes, classes.indexOf('meeting_obj'), meeting_clicked);
     if(!meeting_clicked && classes!=undefined && classes.indexOf('meeting_obj') < 0){
-        console.log("32 show_all");
+        // console.log("32 show_all");
         clear_all_selections();
         clear_conflict_classes();   // remove the display showing the conflict classes.
         last_session = null;
@@ -479,32 +489,14 @@ function conflict_click(event){
 }
 
 function set_transparent(){
-    $.each(meeting_objs, function(key){
-	$.each(legend_status, function(k){
-	    if(meeting_objs[key].area == k){
-		if(legend_status[k] == true){
-		    if(meeting_objs[key].slot_status_key == null){
-			$("#session_"+key).show();
-		    }
-		    else{
-			$("#session_"+key).css({'opacity':1});
-			$("#session_"+key).draggable("option","cancel",null);
-		    }
-		}
-		else{
-		    if(meeting_objs[key].slot_status_key == null){
-			$("#session_"+key).hide();
-		    }
-		    else{
-			$("#session_"+key).css({'opacity':0.1});
-			$("#session_"+key).draggable("option","cancel",".meeting_event");
-		    }
-		}
-	    }
-
-	})
-    })
-
+    $.each(legend_status, function(k){
+	if(legend_status[k] != true){
+	    $("."+k+"-scheme.meeting_obj").parent().parent().parent().draggable("option","disabled",true);
+	}else{
+	    $("."+k+"-scheme.meeting_obj").parent().parent().parent().draggable("option","disabled",false);
+	}
+	
+    });
 }
 
 var __debug_meeting_click = false;
@@ -588,6 +580,9 @@ var last_name_item = null;
 function info_name_select_change(){
     if(last_session != null) {
         console.log("unselecting:",last_session.title);
+	/* clear set ot conflict views */
+	clear_conflict_classes();
+	conflict_classes = {};
         last_session.unselectit();
     }
     $(".same_group").removeClass("same_group");
@@ -778,6 +773,7 @@ function droppable(){
 	    helper: "clone",
 	    drag: drag_drag,
 	    start: drag_start,
+	    stop: drag_stop,
 	});
 
 	$( "#sortable-list").droppable({
@@ -874,7 +870,7 @@ function update_from_slot(session_id, from_slot_id){
 function drop_drop(event, ui){
 
     var session_id = ui.draggable.attr('session_id');   // the session was added as an attribute
-    console.log("UI:", ui, session_id);
+    // console.log("UI:", ui, session_id);
     var session    = meeting_objs[session_id];
 
     var to_slot_id = $(this).attr('id'); // where we are dragging it.
@@ -889,11 +885,19 @@ function drop_drop(event, ui){
     var too_small = false;
     var occupied = false;
 
+    
+    if(from_slot_id == to_slot_id){ // hasn't moved don't do anything
+	return
+    }
+
+    
     if(session_attendees > room_capacity){
 	too_small = true;
     }
 
-    console.log("from -> to", from_slot_id, to_slot_id);
+    // console.log("from -> to", from_slot_id, to_slot_id);
+
+
     bucket_list = (to_slot_id == bucketlist_id);
     if(!check_free({id:to_slot_id}) ){
 	console.log("not free...");
@@ -1101,8 +1105,8 @@ function move_slot(session,
 
 /* first thing that happens when we grab a meeting_event */
 function drop_activate(event, ui){
-    $(event.draggable).css("background",dragging_color);
-    // $(event.currentTarget).addClass('highlight_current_moving');
+    //$(event.draggable).css("background",dragging_color);
+    $(event.currentTarget).addClass('highlight_current_moving');
 }
 
 
@@ -1111,9 +1115,11 @@ function drop_over(event, ui){
     if(check_free(this)){
 	$(this).addClass('highlight_free_slot');
     }
-
-    $(ui.draggable).css("background",dragging_color);
-    $(event.draggable).css("background",dragging_color);
+    $(event.draggable).addClass('highlight_current_selected');
+    $(ui.draggable).addClass('highlight_current_selected');
+    
+//    $(ui.draggable).css("background",dragging_color);
+//    $(event.draggable).css("background",dragging_color);
 }
 
 /* when we have actually dropped the meeting event */
@@ -1124,6 +1130,14 @@ function drop_out(event, ui){
 	}
     }
     $(this).removeClass('highlight_free_slot');
+    $(event.draggable).removeClass('highlight_current_selected');
+    $(ui.draggable).removeClass('highlight_current_selected');
+
+}
+
+function drag_stop(event,ui){
+    $(event.target).removeClass('highlight_current_selected');
+    $(event.target).removeClass('highlight_current_moving');
 }
 
 

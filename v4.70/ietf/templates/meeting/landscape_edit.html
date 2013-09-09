@@ -21,13 +21,13 @@
 
 
 <script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery-ui.custom.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.widget.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.droppable.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
-<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
-
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery-ui.custom.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.widget.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.droppable.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.sortable.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.accordion.min.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.draggable.min.js'></script>
+<!-- <script type='text/javascript' src='/js/jquery-ui-1.8.11.custom.min.js'></script> -->
 
 {% if server_mode %}
 	{% ifnotequal server_mode "production" %}
@@ -206,7 +206,7 @@ Please save this agenda to your account first.
 </th>
 {% endfor %}
     <tr>
-      <th><button id="show_all_button" class="styled_button">show all</button></th>
+      <th class="th_column"><button id="show_all_button" class="styled_button">show all</button></th>
     {% for day in time_slices %}
 	  {% for slot in date_slices|lookup:day %}
 	      <th class="day_{{day}}-{{slot.0|date:'Hi'}} day_{{day}} room_title ">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>

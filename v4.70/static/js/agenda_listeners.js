@@ -431,7 +431,6 @@ function static_listeners(){
     $('#unassigned_sort_button').change(unassigned_sort_change);
     $('#unassigned_sort_button').css('display','block');
     $("#unassigned_alpha").attr('selected',true);
-    $("#recalculate").click(recalculate);
     sort_unassigned();
 }
 

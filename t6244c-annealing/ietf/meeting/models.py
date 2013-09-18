@@ -525,11 +525,11 @@ class Schedule(models.Model):
         return sch
 
     @property
-    def qs_sessions_with_assignments(self):
+    def qs_scheduledsessions_with_assignments(self):
         return self.scheduledsession_set.filter(session__isnull=False)
 
     @property
-    def qs_sessions_without_assignments(self):
+    def qs_scheduledsessions_without_assignments(self):
         return self.scheduledsession_set.filter(session__isnull=True)
 
     @property
@@ -543,23 +543,28 @@ class Schedule(models.Model):
         sessions    = dict()
         total       = 0
         scheduled   = 0
-        allsessions = self.qs_sessions_with_assignments.all()
+        allschedsessions = self.qs_scheduledsessions_with_assignments.filter(timeslot__type = "session").all()
         for sess in self.meeting.sessions_that_can_meet.all():
             assignments[sess.group] = []
             sessions[sess] = None
             total = total + 1
 
-        for ss in allsessions:
+        for ss in allschedsessions:
             assignments[ss.session.group].append(ss)
-            sessions[sess] = ss
+            # XXX can not deal with a session in two slots
+            sessions[ss.session] = ss
             scheduled = scheduled + 1
         return assignments,sessions,total,scheduled
 
     # calculate badness of entire schedule
     def calc_badness(self):
-        mtg = self.meeting
         # now calculate badness
         assignments = self.group_mapping
+        return self.calc_badness1(assignments)
+
+    # calculate badness of entire schedule
+    def calc_badness1(self, assignments):
+        mtg = self.meeting
         sessions    = mtg.sessions_that_can_meet.all()
         badness = 0
         for sess in sessions:
@@ -821,7 +826,7 @@ class Session(models.Model):
         ss = self.scheduledsession_set.order_by('timeslot__time')
         if ss:
             ss0name = ss[0].timeslot.time.strftime("%H%M")
-        return u"%s: %s %s" % (self.meeting, self.group.acronym, ss0name)
+        return u"%s: %s %s[%u]" % (self.meeting, self.group.acronym, ss0name, self.pk)
 
     @property
     def short_name(self):

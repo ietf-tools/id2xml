@@ -90,14 +90,23 @@ class PlacementTestCase(AgendaTransactionalTestCase):
         """
         kicks starts the placement process.
         There are 149 timeslots total.
-        Says useable (empty) QS: 137.
-        There are 149-137 = 12 timeslots with placements.
+        Says useable (empty) QS: 127.
+        There are 149-127 = 22 timeslots with placements, but it's 8 unique session
+                               requests, because in this dataset, two session were
+                               scheduled into two timeslots.
         There are 145 session requests total.
-        So there are 145-12 = 133 unplaced sessions.
-        So there should be 149 + 133 = 282 slots total.
-        There is an additional item: the luncheon which is wrong.
+        So there are 145-8           = 133 unplaced sessions.
+        So there should be 149 + 133 = 282 slots total - 8.
         """
         sched1  = Schedule.objects.get(pk=103)
         placer1 = CurrentScheduleState(sched1)
-        self.assertEqual(placer1.total_slots, 281) #, "total slots calculation")
+        self.assertEqual(placer1.total_slots, 274) #, "total slots calculation")
+
+    def test_currentScheduleStateIndex(self):
+        sched1  = Schedule.objects.get(pk=103)
+        placer1 = CurrentScheduleState(sched1)
+        placer1.current_assignments["hello"] = "there"
+        self.assertEqual(placer1["hello"], "there")
+        placer1.tempdict["hello"] = "goodbye"
+        self.assertEqual(placer1["hello"], "goodbye")
 

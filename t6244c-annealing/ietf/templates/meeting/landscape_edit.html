@@ -199,7 +199,7 @@ Please save this agenda to your account first.
 <table id="meetings" class="ietf-navbar" style="width:100%">
   <th class="schedule_title"><div id="spinner"><!-- spinney goes here --></div></th>
 {% for day in time_slices %}
-  <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title">
+  <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title agenda_slot_unavailable">
     <div id="close_{{day|date:'Y-m-d'}}" class="close top_left very_small close_day">x</div>
     {{day|date:'D'}}&nbsp;({{day}})
 

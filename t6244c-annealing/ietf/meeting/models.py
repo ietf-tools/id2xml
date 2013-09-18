@@ -942,7 +942,7 @@ class Session(models.Model):
             return BADNESS_UNPLACED
 
         for myss in myss_list:
-            if self.attendees is None or myss.timeslot.location.capacity is None:
+            if self.attendees is None or myss.timeslot is None or myss.timeslot.location.capacity is None:
                 continue
             mismatch = self.attendees - myss.timeslot.location.capacity
             if mismatch > 100:
@@ -976,7 +976,11 @@ class Session(models.Model):
                 # (each group could have multiple slots)
                 #self.badness_log(3, "  [%u] 9group: other sessions: %s\n" % (count, other_sessions))
                 for ss in other_sessions:
-                    #self.badness_log(3, "  [%u] 9group: ss: %s\n" % (count, ss))
+                    self.badness_log(3, "  [%u] 9group: ss: %s\n" % (count, ss))
+                    if ss.session is None:
+                        continue
+                    if ss.timeslot is None:
+                        continue
                     self.badness_log(2, "    [%u] 2group: %s vs ogroup: %s\n" % (count, self.group.acronym, ss.session.group.acronym))
                     if ss.session.group.acronym == self.group.acronym:
                         continue
@@ -984,6 +988,8 @@ class Session(models.Model):
                     # see if they are scheduled at the same time.
                     conflictbadness = 0
                     for myss in myss_list:
+                        if myss.timeslot is None:
+                            continue
                         self.badness_log(2, "      [%u] 4group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot.time, ss.timeslot.time))
                         if ss.timeslot.time == myss.timeslot.time:
                             newcost = constraint.constraint_cost

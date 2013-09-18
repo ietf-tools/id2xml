@@ -33,6 +33,7 @@ class FakeScheduledSession:
     badness  = models.IntegerField(default=0, blank=True, null=True)
 
     available_slot = None
+    origss         = None
 
     def __init__(self, schedule):
         self.timeslot = None
@@ -44,6 +45,7 @@ class FakeScheduledSession:
         self.schedule  = ss.schedule
         self.timeslot  = ss.timeslot
         self.modified  = ss.modified
+        self.origss    = ss
 
     def save(self):
         pass
@@ -162,6 +164,7 @@ class FakeScheduledSession:
 class CurrentScheduleState:
     schedule            = None
     meeting             = None
+    recordsteps         = True
 
     # this maps a *group* to a list of (session,location) pairs, using FakeScheduledSession
     current_assignments = {}
@@ -174,7 +177,7 @@ class CurrentScheduleState:
     total_slots     = 0
     random_generator = None
     badness         = None
-    temperatire     = 1000000
+    temperature     = 1000000
     stepnum         = 0
 
     def __getitem__(self, key):
@@ -219,7 +222,7 @@ class CurrentScheduleState:
             fs.fromScheduledSession(x)
             self.add_to_available_slot(fs)
 
-        print "Starting with %u" % (self.total_slots)
+        #print "Starting with %u" % (self.total_slots)
 
         for sess in self.meeting.sessions_that_can_meet.all():
             fs = FakeScheduledSession(self.schedule)
@@ -227,7 +230,7 @@ class CurrentScheduleState:
             self.sessions[sess] = fs
             self.current_assignments[sess.group] = []
 
-        print "Then had %u" % (self.total_slots)
+        #print "Then had %u" % (self.total_slots)
         # now find slots that are not empty.
         # loop here and the one for useableslots could be merged into one loop
         allschedsessions = self.schedule.qs_scheduledsessions_with_assignments.filter(timeslot__type = "session").all()
@@ -245,19 +248,20 @@ class CurrentScheduleState:
 
             # XXX can not deal with a session in two slots yet?
 
-        print "Scheduled %u" % (self.total_slots)
+        #print "Scheduled %u" % (self.total_slots)
 
         # now need to add entries for those slots which are currently unscheduled.
         for sess,fs in self.sessions.iteritems():
             #print "Considering sess: %s, and loc: %s" % (sess, str(fs.timeslot))
             if fs.timeslot is None:
                 self.add_to_available_slot(fs)
-        print "Finished %u" % (self.total_slots)
+        #print "Finished %u" % (self.total_slots)
 
     def pick_two_slots(self):
         slot1 = self.random_generator.choice(self.available_slots)
         slot2 = self.random_generator.choice(self.available_slots)
         tries = 10
+        self.repicking = 0
         # 1) no point in picking two slots which are the same.
         # 2) no point in picking two slots which have no session (already empty)
         # 3) no point in picking two slots which are both unscheduled sessions
@@ -266,7 +270,8 @@ class CurrentScheduleState:
                (slot1.session is None and slot2.session is None) or
                (slot1.timeslot is None and slot2.timeslot is None)
                ) and tries > 0:
-            print "Repicking slots, had: %s and %s" % (slot1, slot2)
+            self.repicking = self.repicking + 1
+            #print "%u: .. repicking slots, had: %s and %s" % (self.stepnum, slot1, slot2)
             slot1 = self.random_generator.choice(self.available_slots)
             slot2 = self.random_generator.choice(self.available_slots)
             tries = tries - 1
@@ -285,11 +290,11 @@ class CurrentScheduleState:
         oldfs = self.sessions[session]
         # find the group mapping.
         pairs = copy.copy(self.current_assignments[session.group])
-        print "pairs is: %s" % (pairs)
+        #print "pairs is: %s" % (pairs)
         if oldfs in pairs:
             which = pairs.index(oldfs)
             pairs[which:which] = []
-            print "new pairs is: %s" % (pairs)
+            #print "new pairs is: %s" % (pairs)
 
         self.sessions[session] = fslot
         # now fix up the other things.
@@ -304,15 +309,17 @@ class CurrentScheduleState:
     def try_swap(self):
         badness     = self.badness
         slot1,slot2 = self.pick_two_slots()
-        print "start\n slot1: %s.\n slot2: %s.\n badness: %s" % (slot1, slot2,badness)
+        #print "start\n slot1: %s.\n slot2: %s.\n badness: %s" % (slot1, slot2,badness)
         tmp = slot1.session
         slot1.session = slot2.session
         slot2.session = tmp
         self.assign_session(slot1.session, slot1, False)
         self.assign_session(slot2.session, slot2, False)
+        self.slot1 = slot1
+        self.slot2 = slot2
         # self can substitute for current_assignments thanks to getitem() above.
         newbadness  = self.schedule.calc_badness1(self)
-        print "end\n slot1: %s.\n slot2: %s.\n badness: %s" % (slot1, slot2, newbadness)
+        #print "end\n slot1: %s.\n slot2: %s.\n badness: %s" % (slot1, slot2, newbadness)
         return newbadness
 
     def do_step(self):
@@ -321,34 +328,68 @@ class CurrentScheduleState:
         if self.badness is None:
             self.commit_tempdict
             self.badness = newbadness
-            return 0
+            return True, 0
 
         change = newbadness - self.badness
         prob   = self.calc_probability(change)
         dice   = self.random_generator.random()
         if dice < prob:
-            accepted = "accepted"
+            accepted_str = "accepted"
+            accepted = True
             self.commit_tempdict
             self.badness = newbadness
             # save state object
         else:
-            accepted = "rejected"
+            accepted_str = "rejected"
+            accepted = False
             self.tempdict = dict()
-        print "%u: %s delta=%d move dice=%.2f <=> prob=%.2f" % (self.stepnum, accepted, change, dice, prob)
+        acronym1 = "none"
+        if self.slot1.session is not None:
+            acronym1 = self.slot1.session.group.acronym
+        place1   = "none"
+        if self.slot1.timeslot is not None:
+            place1 = str(self.slot1.timeslot.location)
+
+        acronym2= "none"
+        if self.slot2.session is not None:
+            acronym2 = self.slot2.session.group.acronym
+        place2   = "none"
+        if self.slot2.timeslot is not None:
+            place2 = str(self.slot2.timeslot.location)
+        print "%u: %s delta=%7d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s" % (self.stepnum,
+            accepted_str,
+            change, dice, prob,
+            self.repicking, acronym1, place1, acronym2, place2)
         # consider changing temperature.
-        return change
+        return accepted, change
 
     def calc_probability(self, change):
         import math
         return 1/(1 + math.exp(change/self.temperature))
 
     def do_steps(self):
-        change = self.do_step()
-        while abs(change) > 1000 and self.temperature > 0:
-            change = self.do_step()
+        accepted, change = self.do_step()
+        while  self.temperature > 0:
+            accepted,change = self.do_step()
+            if accepted and self.recordsteps:
+                ass1 = AutomaticScheduleStep()
+                ass1.schedule = self.schedule
+                if self.slot1.session is not None:
+                    ass1.session  = self.slot1.session
+                if self.slot1.origss is not None:
+                    ass1.moved_to = self.slot1.origss
+                ass1.stepnum  = self.stepnum
+                ass1.save()
+                ass2 = AutomaticScheduleStep()
+                ass2.schedule = self.schedule
+                if self.slot2.session is not None:
+                    ass2.session  = self.slot2.session
+                if self.slot2.origss is not None:
+                    ass2.moved_to = self.slot2.origss
+                ass2.stepnum  = self.stepnum
+                ass2.save()
+            #print "%u: accepted: %s change %d temp: %d" % (self.stepnum, accepted, change, self.temperature)
         print "Finished after %u steps, badness = %u" % (self.stepnum, self.badness)
-
-
 
 
 class AutomaticScheduleStep(models.Model):

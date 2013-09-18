@@ -510,6 +510,43 @@ class Schedule(models.Model):
         sch['owner']       = self.owner.url(sitefqdn)
         # should include href to list of scheduledsessions, but they have no direct API yet.
         return sch
+    @property
+    def sessions_split(self):
+        allsessions = self.scheduledsession_set.filter(session__isnull=False).all()
+        scheduledsessions = set()
+        unscheduledsessions = set()
+        for sess in self.meeting.session_set.all():
+            unscheduledsessions.add(sess.id)
+        for ss in allsessions:
+            ssid = ss.session.id
+            scheduledsessions.add(ssid)
+            if ssid in unscheduledsessions:
+                unscheduledsessions.remove(ssid)
+        return scheduledsessions, unscheduledsessions
+
+    # this is for cmd line debugging.
+    def session_dump2(self, file):
+        import sys
+        ssall, unssall = self.sessions_split
+        f = open(file, "w")
+        for s in unssall:
+            f.write("s1: %u\n" % (s))
+        for ss in ssall:
+            f.write("s2: %u\n" % (ss))
+        f.close()
+
+    # this is for cmd line debugging.
+    def session_dump(self, file):
+        import sys
+        ssall = self.scheduledsession_set.filter(session__isnull=False).all()
+        f = open(file, "w")
+        for s in self.meeting.session_set.all():
+            f.write("s1: %u\n" % (s.id))
+        for ss in ssall:
+            if ss.session:
+                f.write("s2: %u\n" % (ss.session.id))
+        f.close()
+
 
 class ScheduledSession(models.Model):
     """

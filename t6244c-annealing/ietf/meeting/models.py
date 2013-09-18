@@ -443,6 +443,7 @@ class Schedule(models.Model):
     owner    = models.ForeignKey(Person)
     visible  = models.BooleanField(default=True, help_text=u"Make this agenda available to those who know about it")
     public   = models.BooleanField(default=True, help_text=u"Make this agenda publically available")
+    badness  = models.IntegerField(null=True, blank=True)
     # considering copiedFrom = models.ForeignKey('Schedule', blank=True, null=True)
 
     def __unicode__(self):
@@ -543,6 +544,7 @@ class Schedule(models.Model):
         badness = 0
         for sess in sessions:
             badness += sess.badness(assignments)
+        self.badness = badness
         return badness
 
 

@@ -27,21 +27,26 @@ class ViewTestCase(AgendaTransactionalTestCase):
         agenda83txtio = open("%s/meeting/tests/agenda-83-txt-output.txt" % BASE_DIR, "r")
         agenda83txt = agenda83txtio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda.txt')
+        compare = (resp.content == agenda83txt)
         # to capture new output (and check it for correctness)
-        if capture_output:
+        if capture_output or not compare:
             out = open("%s/meeting/tests/agenda-83-txt-output-out.txt" % BASE_DIR, "w")
             out.write(resp.content)
             out.close()
-        self.assertEqual(resp.content, agenda83txt, "agenda83 txt changed")
+        self.assertTrue(compare, "agenda83 txt changed")
 
     def test_agenda83utc(self):
         # verify that the generated html has not changed.
+        # XXX - if you have charters or agenda materials loaded, then you
+        #       may get a different result. Specifically, the rendering of the
+        #       left-hand working-group menu may have template errors come and go.
         import io
         agenda83utcio = open("%s/meeting/tests/agenda-83-utc-output.html" % BASE_DIR, "r")
         agenda83utc = agenda83utcio.read();  # read entire file
         resp = self.client.get('/meeting/83/agenda-utc.html')
+        compare = (resp.content == agenda83utc)
         # to capture new output (and check it for correctness set capture_output above)
-        if capture_output:
+        if capture_output or not compare:
             out = open("%s/meeting/tests/agenda-83-utc-output-out.html" % BASE_DIR, "w")
             out.write(resp.content)
             out.close()

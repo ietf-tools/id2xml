@@ -383,6 +383,14 @@ SECR_STATIC_URL = '/secr/'
 
 USE_ETAGS=True
 
+# Automatic Scheduling
+BADNESS_CALC_LOG = False
+BADNESS_UNPLACED   = 1000000
+BADNESS_CONFLICT_1 = 100000
+BADNESS_CONFLICT_2 = 10000
+BADNESS_CONFLICT_3 = 1000
+
+
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *

@@ -898,7 +898,8 @@ class Session(models.Model):
         # for each constraint of this sessions' group, by group
         if len(myss_list)==0:
             self.badness_log(1, "group: %s is unplaced\n" % (self.group.acronym))
-            return 10000000
+            from settings import BADNESS_UNPLACED
+            return BADNESS_UNPLACED
 
         for group,constraint in conflicts.items():
             count += 1
@@ -922,6 +923,7 @@ class Session(models.Model):
                             # yes accumulate badness.
                             sessionbadness += newcost
                     ss.badness = sessionbadness
+                    ss.save()
                     badness += sessionbadness
         # done
         return badness

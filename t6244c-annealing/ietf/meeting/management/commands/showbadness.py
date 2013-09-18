@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/dev/howto/custom-management-commands/
 
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
+import cProfile, pstats, io
 import os
 import sys
 import gzip
@@ -24,11 +25,17 @@ class Command(BaseCommand):
     stdout = sys.stdout
 
     verbose = False
+    profile = False
     permit_movement = False
 
     option_list = BaseCommand.option_list + (
-        make_option('--verbose',
+        make_option('--profile',
             action='store_true',
+            dest='profile',
+            default=False,
+            help='Enable verbose mode'),
+        make_option('--verbose',
+            action='count',
             dest='verbose',
             default=False,
             help='Enable verbose mode'),
@@ -42,6 +49,7 @@ class Command(BaseCommand):
     def handle(self, *labels, **options):
         self.verbose  = options.get('verbose', 1)
 
+        pr = cProfile.Profile()
         for schedule_id in labels:
             try:
                 schedule = Schedule.objects.get(pk=schedule_id)
@@ -49,14 +57,18 @@ class Command(BaseCommand):
                 self.stdout.write('Schedule id#%u not found' % (schedule_id))
 
             fitness=0
+            pr.enable()
             schedule.calc_badness()
+            pr.disable()
             for ss in schedule.scheduledsession_set.all():
-                if self.verbose:
-                    self.stdout.write('  %-40s at %32s  badness: %u' % (ss.session.group.acronym,
+                if self.verbose>0 and ss.session and (self.verbose>1 or ss.badness > 0):
+                    self.stdout.write('  %-16s at %24s  badness: %u\n' % (ss.session.group.acronym,
                                                                         ss.timeslot.time,
                                                                         ss.badness))
-            self.stdout.write('total                                                                             badness: %u' % (schedule.badness))
+            self.stdout.write('total                                           badness: %u\n' % (schedule.badness))
             
+        ps = pstats.Stats(pr)
+        #ps.print_stats()
                     
 
             

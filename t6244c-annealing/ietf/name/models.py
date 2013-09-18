@@ -58,12 +58,13 @@ class TimeSlotTypeName(NameModel):
 class ConstraintName(NameModel):
     """Conflict"""
     def cost(self):
+        from settings import BADNESS_CONFLICT_1, BADNESS_CONFLICT_2, BADNESS_CONFLICT_3
         if self.slug == 'conflict':
-            return 100000
+            return BADNESS_CONFLICT_1
         if self.slug == 'conflic2':
-            return 10000
+            return BADNESS_CONFLICT_2
         if self.slug == 'conflic3':
-            return 1000
+            return BADNESS_CONFLICT_3
 
 class LiaisonStatementPurposeName(NameModel):
     """For action, For comment, For information, In response, Other"""

@@ -69,6 +69,22 @@ class ModelTestCase(TestCase):
         badness = ipsecme.badness(assignments)
         self.assertEqual(badness, 1000)
 
+    def test_calculateBadnessMtg83(self):
+        """
+        calculate the fitness for a session that has been placed.
+        """
+
+        # do some setup of these slots
+        schedule = Schedule.objects.get(pk=24)
+        mtg = schedule.meeting
+        # now calculate badness
+        assignments = schedule.group_mapping
+        sessions    = mtg.session_set.all()
+        badness = 0
+        for sess in sessions:
+            badness += sess.badness(assignments)
+        self.assertEqual(badness, 62461000)
+
     def test_calculateUnPlacedSession(self):
         """
         calculate the fitness for a session that has not been placed

@@ -884,27 +884,27 @@ class Session(models.Model):
         myss_list = assignments[self.group]
         # for each constraint of this sessions' group, by group
         if len(myss_list)==0:
-            self.badness_log(2, "group: %s is unplaced\n" % (self.group.acronym))
+            self.badness_log(1, "group: %s is unplaced\n" % (self.group.acronym))
             return 10000000
 
         for group,constraint in conflicts.items():
             count += 1
-            self.badness_log(2, "conflict[%u] has group: %s\n" % (count, group.acronym))
+            self.badness_log(3, "conflict[%u] has group: %s\n" % (count, group.acronym))
             # get the list of sessions for other group.
             sess_count = 0
             if group in assignments:
                 sess_count = len(assignments[group])
-            self.badness_log(2, "  [%u] group: %s present: %u\n" % (count, group.acronym, sess_count))
+            self.badness_log(3, "  [%u] group: %s present: %u\n" % (count, group.acronym, sess_count))
             if group in assignments:
                 other_sessions = assignments[group]
                 for ss in other_sessions:
                     self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot))
                     # see if they are scheduled at the same time.
                     for myss in myss_list:
-                        self.badness_log(1, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot, ss.timeslot))
+                        self.badness_log(2, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot, ss.timeslot))
                         if ss.timeslot.time == myss.timeslot.time:
                             newcost = constraint.constraint_cost
-                            self.badness_log(1, "        [%u] badness gets cost %u\n" % (count, newcost))
+                            self.badness_log(1, "        [%u] group: %s conflicts: %s on %s cost %u\n" % (count, group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
                             # yes accumulate badness.
                             badness += newcost
         # done

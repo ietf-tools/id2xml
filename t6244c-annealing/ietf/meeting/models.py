@@ -942,6 +942,8 @@ class Session(models.Model):
                 # and if it does, see if any of it's sessions conflict with any of my sessions
                 # (each group could have multiple slots)
                 for ss in other_sessions:
+                    if ss.session.group.acronym == group.acronym:
+                        continue
                     self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot.time))
                     # see if they are scheduled at the same time.
                     conflictbadness = 0

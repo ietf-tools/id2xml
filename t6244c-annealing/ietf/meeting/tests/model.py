@@ -76,14 +76,7 @@ class ModelTestCase(TestCase):
 
         # do some setup of these slots
         schedule = Schedule.objects.get(pk=24)
-        mtg = schedule.meeting
-        # now calculate badness
-        assignments = schedule.group_mapping
-        sessions    = mtg.session_set.all()
-        badness = 0
-        for sess in sessions:
-            badness += sess.badness(assignments)
-        self.assertEqual(badness, 62461000)
+        self.assertEqual(schedule.calc_badness(), 62461000)
 
     def test_calculateUnPlacedSession(self):
         """

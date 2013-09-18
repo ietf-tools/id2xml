@@ -526,6 +526,18 @@ class Schedule(models.Model):
             assignments[ss.session.group].append(ss)
         return assignments
 
+    # calculate badness of entire schedule
+    def calc_badness(self):
+        mtg = self.meeting
+        # now calculate badness
+        assignments = self.group_mapping
+        sessions    = mtg.session_set.all()
+        badness = 0
+        for sess in sessions:
+            badness += sess.badness(assignments)
+        return badness
+
+
 class ScheduledSession(models.Model):
     """
     This model provides an N:M relationship between Session and TimeSlot.

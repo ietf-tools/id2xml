@@ -10,12 +10,12 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'ScheduledSession.badness'
         db.add_column('meeting_scheduledsession', 'badness',
-                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
                       keep_default=False)
 
         # Adding field 'Schedule.badness'
         db.add_column('meeting_schedule', 'badness',
-                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
                       keep_default=False)
 
 

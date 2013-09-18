@@ -550,7 +550,7 @@ class ScheduledSession(models.Model):
     extendedfrom = models.ForeignKey('ScheduledSession', null=True, default=None, help_text=u"Timeslot this session is an extension of")
     modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
-    badness  = models.IntegerField(null=True, blank=True)
+    badness  = models.IntegerField(default=0)
 
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)

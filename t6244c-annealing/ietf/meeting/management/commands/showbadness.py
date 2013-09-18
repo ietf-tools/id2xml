@@ -61,7 +61,7 @@ class Command(BaseCommand):
             pr.enable()
 
             badnesses = dict()
-            for session in schedule.meeting.session_set.all():
+            for session in schedule.meeting.sessions_that_can_meet.all():
                 badnesses[session] = None
             schedule.calc_badness()
             for ss in schedule.scheduledsession_set.all():

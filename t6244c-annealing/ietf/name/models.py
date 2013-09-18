@@ -57,6 +57,14 @@ class TimeSlotTypeName(NameModel):
     """Session, Break, Registration, Other(Non-Session), Reserved, unavail"""
 class ConstraintName(NameModel):
     """Conflict"""
+    def cost(self):
+        if self.slug == 'conflict':
+            return 100000
+        if self.slug == 'conflic2':
+            return 10000
+        if self.slug == 'conflic3':
+            return 1000
+
 class LiaisonStatementPurposeName(NameModel):
     """For action, For comment, For information, In response, Other"""
 class NomineePositionState(NameModel):

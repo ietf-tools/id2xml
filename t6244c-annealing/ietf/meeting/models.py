@@ -479,6 +479,10 @@ class Schedule(models.Model):
         else:
             return "agenda_unofficial"
 
+    # returns a dictionary {group -> [scheduledsession+]}
+    # and it has [] if the session is not placed.
+    # if there is more than one session for that group,
+    # then a list of them is returned (always a list)
     @property
     def official_token(self):
         if self.is_official:
@@ -510,43 +514,17 @@ class Schedule(models.Model):
         sch['owner']       = self.owner.url(sitefqdn)
         # should include href to list of scheduledsessions, but they have no direct API yet.
         return sch
+
     @property
-    def sessions_split(self):
+    def group_mapping(self):
+        assignments = dict()
         allsessions = self.scheduledsession_set.filter(session__isnull=False).all()
-        scheduledsessions = set()
-        unscheduledsessions = set()
         for sess in self.meeting.session_set.all():
-            unscheduledsessions.add(sess.id)
+            assignments[sess.group] = []
+
         for ss in allsessions:
-            ssid = ss.session.id
-            scheduledsessions.add(ssid)
-            if ssid in unscheduledsessions:
-                unscheduledsessions.remove(ssid)
-        return scheduledsessions, unscheduledsessions
-
-    # this is for cmd line debugging.
-    def session_dump2(self, file):
-        import sys
-        ssall, unssall = self.sessions_split
-        f = open(file, "w")
-        for s in unssall:
-            f.write("s1: %u\n" % (s))
-        for ss in ssall:
-            f.write("s2: %u\n" % (ss))
-        f.close()
-
-    # this is for cmd line debugging.
-    def session_dump(self, file):
-        import sys
-        ssall = self.scheduledsession_set.filter(session__isnull=False).all()
-        f = open(file, "w")
-        for s in self.meeting.session_set.all():
-            f.write("s1: %u\n" % (s.id))
-        for ss in ssall:
-            if ss.session:
-                f.write("s2: %u\n" % (ss.session.id))
-        f.close()
-
+            assignments[ss.session.group].append(ss)
+        return assignments
 
 class ScheduledSession(models.Model):
     """
@@ -720,6 +698,21 @@ class Constraint(models.Model):
         else:
             return True
 
+    def __lt__(self, y):
+        #import sys
+        #sys.stdout.write("me: %s y: %s\n" % (self.name.slug, y.name.slug))
+        if self.name.slug == 'conflict' and y.name.slug == 'conflic2':
+            return True
+        if self.name.slug == 'conflict' and y.name.slug == 'conflic3':
+            return True
+        if self.name.slug == 'conflic2' and y.name.slug == 'conflic3':
+            return True
+        return False
+
+    @property
+    def constraint_cost(self):
+        return self.name.cost();
+
     def json_dict(self, sitefqdn):
         ct1 = dict()
         ct1['constraint_id'] = self.id
@@ -816,13 +809,25 @@ class Session(models.Model):
     def official_scheduledsession(self):
         return self.scheduledsession_for_agenda(self.meeting.agenda)
 
+    def unique_constraints(self):
+        constraints = dict()
+        for constraint in self.constraints():
+            constraints[constraint.target] = constraint
+
+        for constraint in self.reverse_constraints():
+            # update the constraint if there is a previous one, and
+            # it is more important than what we had before
+            if not (constraint in constraints) or (constraints[constraint.source] < constraints):
+                constraints[constraint.source] = constraint
+        return constraints
+
     def constraints_dict(self, sitefqdn):
         constraint_list = []
-        for constraint in self.group.constraint_source_set.filter(meeting=self.meeting):
+        for constraint in self.constraints():
             ct1 = constraint.json_dict(sitefqdn)
             constraint_list.append(ct1)
 
-        for constraint in self.group.constraint_target_set.filter(meeting=self.meeting):
+        for constraint in self.reverse_constraints():
             ct1 = constraint.json_dict(sitefqdn)
             constraint_list.append(ct1)
         return constraint_list
@@ -850,4 +855,58 @@ class Session(models.Model):
         sess1['GroupInfo_state']= str(self.group.state)
         return sess1
 
+    def badness_log(self, num, msg):
+        import sys
+        from settings import BADNESS_CALC_LOG
+        #sys.stdout.write("num: %u / BAD: %u\n" % (num, BADNESS_CALC_LOG))
+        # funny logic is to avoid >= against true/false.
+        if BADNESS_CALC_LOG >= num:
+            sys.stdout.write(msg)
+
+    # this evaluates the current session based upon the constraints
+    # given, in the context of the assignments in the array.
+    #
+    # MATH.
+    #    each failed conflic3 is worth 1000   points
+    #    each failed conflic2 is worth 10000  points
+    #    each failed conflic1 is worth 100000 points
+    #    being in a room too small than asked is worth 200,000 * (size/50)
+    #    being in a room too big by more than 100 is worth 200,000 once.
+    #    a conflict where AD must be in two places is worth 500,000.
+    #    not being scheduled is worth  10,000,000 points
+    #
+    def badness(self, assignments):
+        badness = 0
+        conflicts = self.unique_constraints()
+
+        import sys
+        count = 0
+        myss_list = assignments[self.group]
+        # for each constraint of this sessions' group, by group
+        if len(myss_list)==0:
+            self.badness_log(2, "group: %s is unplaced\n" % (self.group.acronym))
+            return 10000000
+
+        for group,constraint in conflicts.items():
+            count += 1
+            self.badness_log(2, "conflict[%u] has group: %s\n" % (count, group.acronym))
+            # get the list of sessions for other group.
+            sess_count = 0
+            if group in assignments:
+                sess_count = len(assignments[group])
+            self.badness_log(2, "  [%u] group: %s present: %u\n" % (count, group.acronym, sess_count))
+            if group in assignments:
+                other_sessions = assignments[group]
+                for ss in other_sessions:
+                    self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot))
+                    # see if they are scheduled at the same time.
+                    for myss in myss_list:
+                        self.badness_log(1, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot, ss.timeslot))
+                        if ss.timeslot.time == myss.timeslot.time:
+                            newcost = constraint.constraint_cost
+                            self.badness_log(1, "        [%u] badness gets cost %u\n" % (count, newcost))
+                            # yes accumulate badness.
+                            badness += newcost
+        # done
+        return badness
 

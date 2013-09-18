@@ -1,5 +1,5 @@
 [
-{"pk": 103, "model": "meeting.schedule", "fields": {"owner": 102254, "visible": false, "meeting": 83, "name": "empty83", "public": false}}, 
+{"pk": 103, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": false, "meeting": 83, "name": "empty83", "public": false}}, 
 {"pk": 4965, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": null, "modified": "2013-04-11 09:08:16", "schedule": 103, "timeslot": 2371}}, 
 {"pk": 4966, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": null, "modified": "2013-04-11 09:08:16", "schedule": 103, "timeslot": 2372}}, 
 {"pk": 4967, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": null, "modified": "2013-04-11 09:08:16", "schedule": 103, "timeslot": 2373}}, 

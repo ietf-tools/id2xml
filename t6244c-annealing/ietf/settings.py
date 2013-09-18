@@ -22,6 +22,7 @@ sys.path.append(os.path.abspath(BASE_DIR + "/../redesign"))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+BADNESS_CALC_LOG = False
 
 # Domain name of the IETF
 IETF_DOMAIN = 'ietf.org'

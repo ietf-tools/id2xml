@@ -871,11 +871,16 @@ class Session(models.Model):
         if self.comments is not None:
             sess1['comments']       = str(self.comments)
         sess1['requested_time'] = str(self.requested.strftime("%Y-%m-%d"))
-        sess1['requested_by']   = str(self.requested_by)
-        sess1['requested_duration']= "%.1f h" % (float(self.requested_duration.seconds) / 3600)
-        sess1['area']           = str(self.group.parent.acronym)
-        sess1['responsible_ad'] = str(self.group.ad)
-        sess1['GroupInfo_state']= str(self.group.state)
+        # the related person object sometimes does not exist in the dataset.
+        try:
+            if self.requested_by is not None:
+                sess1['requested_by']   = str(self.requested_by)
+        except Person.DoesNotExist:
+            pass
+
+        sess1['requested_duration']= "%.1f" % (float(self.requested_duration.seconds) / 3600)
+        sess1['duration']          = sess1['requested_duration']
+        sess1['special_request'] = str(self.special_request_token)
         return sess1
 
     def badness_log(self, num, msg):

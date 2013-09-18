@@ -550,6 +550,7 @@ class ScheduledSession(models.Model):
     extendedfrom = models.ForeignKey('ScheduledSession', null=True, default=None, help_text=u"Timeslot this session is an extension of")
     modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
+    badness  = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
@@ -912,13 +913,16 @@ class Session(models.Model):
                 for ss in other_sessions:
                     self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot))
                     # see if they are scheduled at the same time.
+                    sessionbadness = 0
                     for myss in myss_list:
                         self.badness_log(2, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot, ss.timeslot))
                         if ss.timeslot.time == myss.timeslot.time:
                             newcost = constraint.constraint_cost
                             self.badness_log(1, "        [%u] group: %s conflicts: %s on %s cost %u\n" % (count, group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
                             # yes accumulate badness.
-                            badness += newcost
+                            sessionbadness += newcost
+                    ss.badness = sessionbadness
+                    badness += sessionbadness
         # done
         return badness
 

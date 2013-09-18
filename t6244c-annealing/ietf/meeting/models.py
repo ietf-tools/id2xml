@@ -525,15 +525,35 @@ class Schedule(models.Model):
         return sch
 
     @property
+    def qs_sessions_with_assignments(self):
+        return self.scheduledsession_set.filter(session__isnull=False)
+
+    @property
+    def qs_sessions_without_assignments(self):
+        return self.scheduledsession_set.filter(session__isnull=True)
+
+    @property
     def group_mapping(self):
+        assignments,sessions,total,scheduled = self.group_session_mapping
+        return assignments
+
+    @property
+    def group_session_mapping(self):
         assignments = dict()
-        allsessions = self.scheduledsession_set.filter(session__isnull=False).all()
+        sessions    = dict()
+        total       = 0
+        scheduled   = 0
+        allsessions = self.qs_sessions_with_assignments.all()
         for sess in self.meeting.sessions_that_can_meet.all():
             assignments[sess.group] = []
+            sessions[sess] = None
+            total = total + 1
 
         for ss in allsessions:
             assignments[ss.session.group].append(ss)
-        return assignments
+            sessions[sess] = ss
+            scheduled = scheduled + 1
+        return assignments,sessions,total,scheduled
 
     # calculate badness of entire schedule
     def calc_badness(self):
@@ -934,6 +954,9 @@ class Session(models.Model):
                 badness += BADNESS_MUCHTOOBIG
 
         for group,constraint in conflicts.items():
+            if group is None:
+                # must not be a group constraint.
+                continue
             count += 1
             # get the list of sessions for other group.
             sess_count = 0

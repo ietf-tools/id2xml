@@ -308,7 +308,7 @@ def edit_agenda(request, num=None, schedule_name=None):
                                               "meeting_base_url":meeting_base_url},
                                              RequestContext(request)), status=403, mimetype="text/html")
 
-    sessions = meeting.session_that_can_meet.order_by("id", "group", "requested_by")
+    sessions = meeting.sessions_that_can_meet.order_by("id", "group", "requested_by")
     scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
 
     # get_modified_from needs the query set, not the list

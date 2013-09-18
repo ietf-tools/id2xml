@@ -43,16 +43,16 @@ class ModelTestCase(TestCase):
 
     def test_calculatePlacedSession1(self):
         """
-        calculate the fitness for a session that has been placed.
+        calculate the fitness for a session that has been placed (stock placement)
         """
-        schedule = Schedule.objects.get(pk=103)
+        schedule = Schedule.objects.get(pk=24)
         mtg = schedule.meeting
         assignments = schedule.group_mapping
-        saag = mtg.session_set.get(group__acronym = 'saag')
-        self.assertNotEqual(saag, None)
-        self.assertNotEqual(assignments[saag.group], [])
-        badness = saag.badness(assignments)
-        self.assertEqual(badness, BADNESS_TOOBIG)
+        dtnrg = mtg.session_set.get(group__acronym = 'dtnrg')
+        self.assertNotEqual(dtnrg, None)
+        self.assertNotEqual(assignments[dtnrg.group], [])
+        badness = dtnrg.badness(assignments)
+        self.assertEqual(badness, BADNESS_TOOBIG+BADNESS_CONFLICT_2*2)
 
     def test_calculatePlacedSession2(self):
         """
@@ -85,7 +85,16 @@ class ModelTestCase(TestCase):
 
         # do some setup of these slots
         schedule = Schedule.objects.get(pk=24)
-        self.assertEqual(schedule.calc_badness(), 3481200)
+        self.assertEqual(schedule.calc_badness(), 3081200)
+
+    def test_calculateBadnessMtg83unplaced(self):
+        """
+        calculate the fitness for a session that has been placed.
+        """
+
+        # do some setup of these slots
+        schedule = Schedule.objects.get(pk=103)
+        self.assertEqual(schedule.calc_badness(), 125001000)
 
     def test_calculateUnPlacedSession(self):
         """

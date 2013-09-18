@@ -206,11 +206,39 @@ function load_events(){
                 if(ssid.extendedfrom == undefined) {
 	       	    session.slot_status_key = key;
                 }
+	        /* also, since we are HERE, set the class to indicate if slot is available */
+	        $(slot_id).addClass("agenda_slot_" + ssid.roomtype);
 
-	        $(slot_id).removeClass('free_slot');
+                if(ssid.roomtype == "unavail") {
+                    $(slot_id).removeClass("ui-droppable");
+                    $(slot_id).removeClass("free_slot");
+                    $(slot_id).addClass("agenda_slot_unavailable");
+                } else {
+                    $(slot_id).removeClass("agenda_slot_unavailable");
+                    $(slot_id).addClass("ui-droppable");
+                    session = meeting_objs[ssid.session_id];
+                    if (session != null) {
+                        if(ssid.extendedto != undefined) {
+                            session.double_wide = true;
+                            session.slot2 = ssid.extendedto;
+                        }
+                        if(ssid.extendedfrom == undefined) {
+	       	            session.slot_status_key = key;
+                        }
 
-                if(ssid.extendedfrom == undefined) {
-                    session.populate_event(key);
+	                $(slot_id).removeClass('free_slot');
+
+                        if(ssid.extendedfrom == undefined) {
+                            if(__debug_load_events) {
+                                console.log("  with session", session.title);
+                            }
+
+                            session.populate_event(key);
+                        }
+                        session.placed(ssid, false);
+                    } else {
+	                $(slot_id).addClass('free_slot');
+                    }
                 }
 		//log("setting "+slot_id+" as used");
 

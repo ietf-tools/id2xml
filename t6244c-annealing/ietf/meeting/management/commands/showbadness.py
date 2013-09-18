@@ -56,16 +56,27 @@ class Command(BaseCommand):
             except Schedule.DoesNotExist:
                 self.stdout.write('Schedule id#%u not found' % (schedule_id))
 
+            from settings import BADNESS_UNPLACED
             fitness=0
             pr.enable()
+
+            badnesses = dict()
+            for session in schedule.meeting.session_set.all():
+                badnesses[session] = None
             schedule.calc_badness()
-            pr.disable()
             for ss in schedule.scheduledsession_set.all():
-                if self.verbose>0 and ss.session and (self.verbose>1 or ss.badness > 0):
-                    self.stdout.write('  %-16s at %24s  badness: %u\n' % (ss.session.group.acronym,
-                                                                        ss.timeslot.time,
-                                                                        ss.badness))
-            self.stdout.write('total                                           badness: %u\n' % (schedule.badness))
+                if ss.session:
+                    badnesses[ss.session]=ss
+            pr.disable()
+            for sess,ss in badnesses.items():
+                time = "unplaced"
+                badness= BADNESS_UNPLACED
+                if ss is not None:
+                    time = ss.timeslot.time
+                    badness=ss.badness
+                if self.verbose>0 and (self.verbose>1 or badness > 0):
+                    self.stdout.write('  %-16s at %24s  badness: %9u\n' % (sess.group.acronym,time,badness))
+            self.stdout.write('total                                           badness: %9u\n' % (schedule.badness))
             
         ps = pstats.Stats(pr)
         #ps.print_stats()

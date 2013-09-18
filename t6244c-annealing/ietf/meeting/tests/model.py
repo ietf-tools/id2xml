@@ -5,6 +5,7 @@ from ietf.meeting.models  import TimeSlot, Session, Schedule, ScheduledSession
 from ietf.meeting.models  import Constraint
 from ietf.group.models    import Group
 from ietf.name.models     import ConstraintName
+from settings import BADNESS_CONFLICT_1,BADNESS_CONFLICT_2,BADNESS_CONFLICT_3,BADNESS_UNPLACED,BADNESS_TOOSMALL_50,BADNESS_TOOSMALL_100,BADNESS_TOOBIG,BADNESS_MUCHTOOBIG
 
 class ModelTestCase(TestCase):
     fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
@@ -14,6 +15,14 @@ class ModelTestCase(TestCase):
                  'empty83.json',  # a partially placed schedule
                  'person.json',
                  'users.json' ]
+
+    def test_ScheduleAllSessions(self):
+        """
+        return the list of all sessions that want to meet
+        """
+        mtg83 = Meeting.objects.get(number=83)
+        wanttomeet = mtg83.sessions_that_can_meet
+        self.assertEqual(len(wanttomeet), 144)
 
     def test_ScheduleAllSessions(self):
         """
@@ -29,7 +38,7 @@ class ModelTestCase(TestCase):
             else:
                 unassigned += 1
         self.assertEqual(assigned,   22)
-        self.assertEqual(unassigned, 118)
+        self.assertEqual(unassigned, 113)
         self.assertEqual(len(schedule.meeting.session_set.all()), 150)
 
     def test_calculatePlacedSession1(self):
@@ -43,7 +52,7 @@ class ModelTestCase(TestCase):
         self.assertNotEqual(saag, None)
         self.assertNotEqual(assignments[saag.group], [])
         badness = saag.badness(assignments)
-        self.assertEqual(badness, 0)
+        self.assertEqual(badness, BADNESS_TOOBIG)
 
     def test_calculatePlacedSession2(self):
         """
@@ -67,7 +76,7 @@ class ModelTestCase(TestCase):
         self.assertNotEqual(ipsecme, None)
         self.assertTrue(len(assignments[ipsecme.group]) > 0)
         badness = ipsecme.badness(assignments)
-        self.assertEqual(badness, 1000)
+        self.assertEqual(badness, BADNESS_CONFLICT_3+BADNESS_TOOBIG)
 
     def test_calculateBadnessMtg83(self):
         """
@@ -76,7 +85,7 @@ class ModelTestCase(TestCase):
 
         # do some setup of these slots
         schedule = Schedule.objects.get(pk=24)
-        self.assertEqual(schedule.calc_badness(), 62461000)
+        self.assertEqual(schedule.calc_badness(), 3481200)
 
     def test_calculateUnPlacedSession(self):
         """
@@ -89,7 +98,7 @@ class ModelTestCase(TestCase):
         self.assertNotEqual(pkix, None)
         self.assertTrue(len(assignments[pkix.group]) == 0)
         badness = pkix.badness(assignments)
-        self.assertEqual(badness, 10000000)
+        self.assertEqual(badness, BADNESS_UNPLACED)
 
     def test_orderingOfConstaints(self):
         """

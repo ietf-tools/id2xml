@@ -110,6 +110,14 @@ class Meeting(models.Model):
             return qs[0]
         return None
 
+    @property
+    def sessions_that_wont_meet(self):
+        return self.session_set.filter(status__slug='notmeet')
+
+    @property
+    def sessions_that_can_meet(self):
+        return self.session_set.exclude(status__slug='notmeet').exclude(status__slug='disappr').exclude(status__slug='deleted').exclude(status__slug='apprw')
+
     def url(self, sitefqdn, exten=".json"):
         return "%s/meeting/%s%s" % (sitefqdn, self.number, exten)
 
@@ -519,7 +527,7 @@ class Schedule(models.Model):
     def group_mapping(self):
         assignments = dict()
         allsessions = self.scheduledsession_set.filter(session__isnull=False).all()
-        for sess in self.meeting.session_set.all():
+        for sess in self.meeting.sessions_that_can_meet.all():
             assignments[sess.group] = []
 
         for ss in allsessions:
@@ -531,7 +539,7 @@ class Schedule(models.Model):
         mtg = self.meeting
         # now calculate badness
         assignments = self.group_mapping
-        sessions    = mtg.session_set.all()
+        sessions    = mtg.sessions_that_can_meet.all()
         badness = 0
         for sess in sessions:
             badness += sess.badness(assignments)
@@ -550,7 +558,7 @@ class ScheduledSession(models.Model):
     extendedfrom = models.ForeignKey('ScheduledSession', null=True, default=None, help_text=u"Timeslot this session is an extension of")
     modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
-    badness  = models.IntegerField(default=0)
+    badness  = models.IntegerField(default=0, blank=True, null=True)
 
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
@@ -872,7 +880,6 @@ class Session(models.Model):
         import sys
         from settings import BADNESS_CALC_LOG
         #sys.stdout.write("num: %u / BAD: %u\n" % (num, BADNESS_CALC_LOG))
-        # funny logic is to avoid >= against true/false.
         if BADNESS_CALC_LOG >= num:
             sys.stdout.write(msg)
 
@@ -892,39 +899,60 @@ class Session(models.Model):
         badness = 0
         conflicts = self.unique_constraints()
 
+        self.badness_log(1, "group: %s badness calculation\n" % (self.group.acronym))
         import sys
+        from settings import BADNESS_UNPLACED, BADNESS_TOOSMALL_50, BADNESS_TOOSMALL_100, BADNESS_TOOBIG, BADNESS_MUCHTOOBIG
         count = 0
         myss_list = assignments[self.group]
         # for each constraint of this sessions' group, by group
         if len(myss_list)==0:
-            self.badness_log(1, "group: %s is unplaced\n" % (self.group.acronym))
-            from settings import BADNESS_UNPLACED
+            self.badness_log(1, " group: %s is unplaced\n" % (self.group.acronym))
             return BADNESS_UNPLACED
+
+        for myss in myss_list:
+            if self.attendees is None or myss.timeslot.location.capacity is None:
+                continue
+            mismatch = self.attendees - myss.timeslot.location.capacity
+            if mismatch > 100:
+                # the room is too small by 100
+                badness += BADNESS_TOOSMALL_100
+            elif mismatch > 50:
+                # the room is too small by 50
+                badness += BADNESS_TOOSMALL_50
+            elif mismatch < 50:
+                # the room is too big by 50
+                badness += BADNESS_TOOBIG
+            elif mismatch < 100:
+                # the room is too big by 100 (not intimate enough)
+                badness += BADNESS_MUCHTOOBIG
 
         for group,constraint in conflicts.items():
             count += 1
-            self.badness_log(3, "conflict[%u] has group: %s\n" % (count, group.acronym))
             # get the list of sessions for other group.
             sess_count = 0
             if group in assignments:
                 sess_count = len(assignments[group])
             self.badness_log(3, "  [%u] group: %s present: %u\n" % (count, group.acronym, sess_count))
+
+            # see if the other group which is conflicted, has an assignment,
             if group in assignments:
                 other_sessions = assignments[group]
+                # and if it does, see if any of it's sessions conflict with any of my sessions
+                # (each group could have multiple slots)
                 for ss in other_sessions:
-                    self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot))
+                    self.badness_log(2, "    [%u] group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot.time))
                     # see if they are scheduled at the same time.
-                    sessionbadness = 0
+                    conflictbadness = 0
                     for myss in myss_list:
-                        self.badness_log(2, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot, ss.timeslot))
+                        self.badness_log(2, "      [%u] group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot.time, ss.timeslot.time))
                         if ss.timeslot.time == myss.timeslot.time:
                             newcost = constraint.constraint_cost
                             self.badness_log(1, "        [%u] group: %s conflicts: %s on %s cost %u\n" % (count, group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
                             # yes accumulate badness.
-                            sessionbadness += newcost
-                    ss.badness = sessionbadness
+                            conflictbadness += newcost
+                    ss.badness = conflictbadness
                     ss.save()
-                    badness += sessionbadness
+                    badness += conflictbadness
         # done
         return badness
 

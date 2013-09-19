@@ -37,10 +37,10 @@
        <td style="width:200px">{% if slot.show_location %}{{slot.get_location|escape}}{% endif %}</td>
        <td style="width:50px">{{slot.session.group.parent.acronym|upper}}</td>
        <td style="width:100px">
-           {% if slot.session.group.charter %}<a href="{{slot.session.group.charter.get_absolute_url}}">{{slot.session.group.acronym}}</a>
+           {% if slot.session.group.charter %}<a href="http://datatracker.ietf.org/{{slot.session.group.charter.get_absolute_url}}">{{slot.session.group.acronym}}</a>
            {% else %}{{slot.session.group.acronym}}{% endif %}</td>
        <td>
-           {% if slot.session.agenda %}<a href="/meeting/{{ meeting.number }}/agenda/{{ slot.session.group.acronym }}/">{{slot.session.group.name}}</a>
+           {% if slot.session.agenda %}<a href="http://datatracker.ietf.org/meeting/{{ meeting.number }}/agenda/{{ slot.session.group.acronym }}/">{{slot.session.group.name}}</a>
            {% else %}{{slot.session.group.name}}{% endif %}
            {% if slot.session.group.state.name = "BOF" %} BOF {% endif %}
            {% if slot.session.agenda_note %}

@@ -360,11 +360,14 @@ class CurrentScheduleState:
         if self.slot2.timeslot is not None:
             place2 = str(self.slot2.timeslot.location)
         from models import constraint_cache_uses,constraint_cache_initials
-        print "%u: %s delta=%7d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s %u/%u" % (self.stepnum,
+        print "%u: %s delta=%+9d badness=%+10d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s %u/%u/%u" % (self.stepnum,
             accepted_str,
-            change, dice, prob,
-            self.repicking, acronym1, place1, acronym2, place2, constraint_cache_uses,constraint_cache_initials)
-        # consider changing temperature.
+            change, self.badness, dice, prob,
+            self.repicking, acronym1, place1, acronym2, place2, constraint_cache_uses,constraint_cache_initials,self.temperature)
+
+        if accepted:
+            self.temperature = self.temperature * 0.995
+
         return accepted, change
 
     def calc_probability(self, change):

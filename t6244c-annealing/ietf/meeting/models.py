@@ -943,11 +943,14 @@ class Session(models.Model):
         sess1['special_request'] = str(self.special_request_token)
         return sess1
 
-    def badness_log(self, num, msg):
+    def badness_test(self, num):
         import sys
         from settings import BADNESS_CALC_LOG
         #sys.stdout.write("num: %u / BAD: %u\n" % (num, BADNESS_CALC_LOG))
-        if BADNESS_CALC_LOG >= num:
+        return BADNESS_CALC_LOG >= num
+
+    def badness_log(self, num, msg):
+        if self.badness_test(num):
             sys.stdout.write(msg)
 
     # this evaluates the current session based upon the constraints
@@ -966,14 +969,16 @@ class Session(models.Model):
         badness = 0
         conflicts = self.unique_constraints()
 
-        self.badness_log(1, "badgroup: %s badness calculation has %u constraints\n" % (self.group.acronym, len(conflicts)))
+        if self.badness_test(1):
+            self.badness_log(1, "badgroup: %s badness calculation has %u constraints\n" % (self.group.acronym, len(conflicts)))
         import sys
         from settings import BADNESS_UNPLACED, BADNESS_TOOSMALL_50, BADNESS_TOOSMALL_100, BADNESS_TOOBIG, BADNESS_MUCHTOOBIG
         count = 0
         myss_list = assignments[self.group]
         # for each constraint of this sessions' group, by group
         if len(myss_list)==0:
-            self.badness_log(1, " 0group: %s is unplaced\n" % (self.group.acronym))
+            if self.badness_test(1):
+                self.badness_log(1, " 0group: %s is unplaced\n" % (self.group.acronym))
             return BADNESS_UNPLACED
 
         for myss in myss_list:
@@ -1002,39 +1007,48 @@ class Session(models.Model):
             sess_count = 0
             if group in assignments:
                 sess_count = len(assignments[group])
-            self.badness_log(3, "  [%u] 1group: %s session_count: %u\n" % (count, group.acronym, sess_count))
+            if self.badness_test(3):
+                self.badness_log(3, "  [%u] 1group: %s session_count: %u\n" % (count, group.acronym, sess_count))
 
             # see if the other group which is conflicted, has an assignment,
             if group in assignments:
                 other_sessions = assignments[group]
                 # and if it does, see if any of it's sessions conflict with any of my sessions
                 # (each group could have multiple slots)
-                #self.badness_log(3, "  [%u] 9group: other sessions: %s\n" % (count, other_sessions))
+                #if self.badness_test(3):
+                #    self.badness_log(3, "  [%u] 9group: other sessions: %s\n" % (count, other_sessions))
                 for ss in other_sessions:
-                    self.badness_log(3, "  [%u] 9group: ss: %s\n" % (count, ss))
+                    # this causes additional database dips
+                    #if self.badness_test(3):
+                    #    self.badness_log(3, "  [%u] 9group: ss: %s %s\n" % (count, ss, ss.faked))
                     if ss.session is None:
                         continue
                     if ss.timeslot is None:
                         continue
-                    self.badness_log(2, "    [%u] 2group: %s vs ogroup: %s\n" % (count, self.group.acronym, ss.session.group.acronym))
+                    if self.badness_test(2):
+                        self.badness_log(2, "    [%u] 2group: %s vs ogroup: %s\n" % (count, self.group.acronym, ss.session.group.acronym))
                     if ss.session.group.acronym == self.group.acronym:
                         continue
-                    self.badness_log(2, "    [%u] 3group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot.time))
+                    if self.badness_test(2):
+                        self.badness_log(2, "    [%u] 3group: %s sessions: %s\n" % (count, group.acronym, ss.timeslot.time))
                     # see if they are scheduled at the same time.
                     conflictbadness = 0
                     for myss in myss_list:
                         if myss.timeslot is None:
                             continue
-                        self.badness_log(2, "      [%u] 4group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot.time, ss.timeslot.time))
+                        if self.badness_test(2):
+                            self.badness_log(2, "      [%u] 4group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot.time, ss.timeslot.time))
                         if ss.timeslot.time == myss.timeslot.time:
                             newcost = constraint.constraint_cost
-                            self.badness_log(1, "        [%u] 5group: %s conflicts: %s on %s cost %u\n" % (count, self.group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
+                            if self.badness_test(1):
+                                self.badness_log(1, "        [%u] 5group: %s conflicts: %s on %s cost %u\n" % (count, self.group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
                             # yes accumulate badness.
                             conflictbadness += newcost
                     ss.badness = conflictbadness
                     ss.save()
                     badness += conflictbadness
         # done
-        self.badness_log(1, "badgroup: %s badness = %u\n" % (self.group.acronym, badness))
+        if self.badness_test(1):
+            self.badness_log(1, "badgroup: %s badness = %u\n" % (self.group.acronym, badness))
         return badness
 

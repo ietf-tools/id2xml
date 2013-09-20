@@ -346,17 +346,17 @@ class CurrentScheduleState:
             accepted_str = "rejected"
             accepted = False
             self.tempdict = dict()
-        acronym1 = "none"
+        acronym1 = "empty"
         if self.slot1.session is not None:
             acronym1 = self.slot1.session.group.acronym
-        place1   = "none"
+        place1   = "nowhere"
         if self.slot1.timeslot is not None:
             place1 = str(self.slot1.timeslot.location)
 
-        acronym2= "none"
+        acronym2= "empty"
         if self.slot2.session is not None:
             acronym2 = self.slot2.session.group.acronym
-        place2   = "none"
+        place2   = "nowhere"
         if self.slot2.timeslot is not None:
             place2 = str(self.slot2.timeslot.location)
         from models import constraint_cache_uses,constraint_cache_initials

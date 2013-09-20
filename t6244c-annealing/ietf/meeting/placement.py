@@ -181,6 +181,8 @@ class CurrentScheduleState:
     # this contains an entry for each location, and each un-location in the form of
     # (session,location) with the appropriate part None.
     available_slots = []
+    unplaced_slots  = []
+    unplaced_slots_25precent = 0
     sessions        = {}
     total_slots     = 0
     random_generator = None
@@ -203,6 +205,11 @@ class CurrentScheduleState:
         self.total_slots  = size
         self.available_slots.append(fs)
         fs.available_slot = size
+
+        # make a list of unplaced sessions
+        if fs.timeslot is None:
+            #print "adding item: %u to unplaced slots" % (fs.available_slot)
+            self.unplaced_slots.append(fs.available_slot)
 
     def __init__(self, schedule, seed=None):
         # initialize available_slots with the places that a session can go based upon the
@@ -265,8 +272,19 @@ class CurrentScheduleState:
                 self.add_to_available_slot(fs)
         #print "Finished %u" % (self.total_slots)
 
+    def pick_initial_slot(self):
+        if len(self.unplaced_slots) <= self.unplaced_slots_25percent:
+            self.initial_stage = False
+        if self.initial_stage:
+            item  = self.unplaced_slots.pop(0)
+            slot1 = self.available_slots[item]
+            #print "item: %u points to %s" % (item, slot1)
+        else:
+            slot1 = self.random_generator.choice(self.available_slots)
+        return slot1
+
     def pick_two_slots(self):
-        slot1 = self.random_generator.choice(self.available_slots)
+        slot1 = self.pick_initial_slot()
         slot2 = self.random_generator.choice(self.available_slots)
         tries = 100
         self.repicking = 0
@@ -280,7 +298,8 @@ class CurrentScheduleState:
                ) and tries > 0:
             self.repicking += 1
             #print "%u: .. repicking slots, had: %s and %s" % (self.stepnum, slot1, slot2)
-            slot1 = self.random_generator.choice(self.available_slots)
+            if not self.initial_stage:
+                slot1 = self.random_generator.choice(self.available_slots)
             slot2 = self.random_generator.choice(self.available_slots)
             tries -= 1
         if tries == 0:
@@ -301,7 +320,7 @@ class CurrentScheduleState:
         #print "pairs is: %s" % (pairs)
         if oldfs in pairs:
             which = pairs.index(oldfs)
-            pairs[which:which] = []
+            del pairs[which]
             #print "new pairs is: %s" % (pairs)
 
         self.sessions[session] = fslot
@@ -365,12 +384,15 @@ class CurrentScheduleState:
         if self.slot2.timeslot is not None:
             place2 = str(self.slot2.timeslot.location)
         from models import constraint_cache_uses,constraint_cache_initials
-        print "%u: %s delta=%+9d badness=%+10d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s %u/%u/%u" % (self.stepnum,
+        initial = "    "
+        if self.initial_stage:
+            initial = "init"
+        print "% 5u:%s %s delta=%+9d badness=%10d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s %u/%u/%u" % (self.stepnum, initial,
             accepted_str,
             change, self.badness, dice, prob,
             self.repicking, acronym1, place1, acronym2, place2, constraint_cache_uses,constraint_cache_initials,self.temperature)
 
-        if accepted:
+        if accepted and not self.initial_stage:
             self.temperature = self.temperature * 0.995
 
         return accepted, change

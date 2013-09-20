@@ -216,7 +216,7 @@ class CurrentScheduleState:
         useableslots_qs      = schedule.qs_scheduledsessions_without_assignments.filter(timeslot__type = "session")
 
         count = useableslots_qs.count()
-        print "useable qs: %u\n" % (count)
+        #print "useable qs: %u\n" % (count)
 
         # turn into an array for use in algorithm.
         for x in useableslots_qs.all():
@@ -273,11 +273,11 @@ class CurrentScheduleState:
                (slot1.session is None and slot2.session is None) or
                (slot1.timeslot is None and slot2.timeslot is None)
                ) and tries > 0:
-            self.repicking = self.repicking + 1
+            self.repicking += 1
             #print "%u: .. repicking slots, had: %s and %s" % (self.stepnum, slot1, slot2)
             slot1 = self.random_generator.choice(self.available_slots)
             slot2 = self.random_generator.choice(self.available_slots)
-            tries = tries - 1
+            tries -= 1
         if tries == 0:
             raise PlacementException("How can it pick the same slot ten times in a row")
         return slot1, slot2
@@ -326,7 +326,7 @@ class CurrentScheduleState:
         return newbadness
 
     def do_step(self):
-        self.stepnum = self.stepnum + 1
+        self.stepnum += 1
         newbadness = self.try_swap()
         if self.badness is None:
             self.commit_tempdict

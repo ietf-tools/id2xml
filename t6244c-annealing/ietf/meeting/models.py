@@ -562,12 +562,17 @@ class Schedule(models.Model):
         assignments = self.group_mapping
         return self.calc_badness1(assignments)
 
+    cached_sessions_that_can_meet = None
+    @property
+    def sessions_that_can_meet(self):
+        if self.cached_sessions_that_can_meet is None:
+            self.cached_sessions_that_can_meet = self.meeting.sessions_that_can_meet.all()
+        return self.cached_sessions_that_can_meet
+
     # calculate badness of entire schedule
     def calc_badness1(self, assignments):
-        mtg = self.meeting
-        sessions    = mtg.sessions_that_can_meet.all()
         badness = 0
-        for sess in sessions:
+        for sess in self.sessions_that_can_meet:
             badness += sess.badness(assignments)
         self.badness = badness
         return badness
@@ -775,7 +780,8 @@ class Constraint(models.Model):
         ct1['meeting_href'] = self.meeting.url(sitefqdn)
         return ct1
 
-
+constraint_cache_uses = 0
+constraint_cache_initials = 0
 
 class Session(models.Model):
     """Session records that a group should have a session on the
@@ -798,6 +804,8 @@ class Session(models.Model):
     modified = models.DateTimeField(default=datetime.datetime.now)
 
     materials = models.ManyToManyField(Document, blank=True)
+
+    unique_constraints_dict = None
 
     def agenda(self):
         items = self.materials.filter(type="agenda",states__type="agenda",states__slug="active")
@@ -858,16 +866,22 @@ class Session(models.Model):
         return self.scheduledsession_for_agenda(self.meeting.agenda)
 
     def unique_constraints(self):
-        constraints = dict()
+        global constraint_cache_uses, constraint_cache_initials
+        constraint_cache_uses += 1
+        # this cache keeps the automatic placer from visiting the database continuously
+        if self.unique_constraints_dict is not None:
+            constraint_cache_initials += 1
+            return self.unique_constraints_dict
+        self.unique_constraints_dict = dict()
         for constraint in self.constraints():
-            constraints[constraint.target] = constraint
+            self.unique_constraints_dict[constraint.target] = constraint
 
         for constraint in self.reverse_constraints():
             # update the constraint if there is a previous one, and
             # it is more important than what we had before
-            if not (constraint in constraints) or (constraints[constraint.source] < constraint):
-                constraints[constraint.source] = constraint
-        return constraints
+            if not (constraint in self.unique_constraints_dict) or (self.unique_constraints_dict[constraint.source] < constraint):
+                self.unique_constraints_dict[constraint.source] = constraint
+        return self.unique_constraints_dict
 
     def constraints_dict(self, sitefqdn):
         constraint_list = []

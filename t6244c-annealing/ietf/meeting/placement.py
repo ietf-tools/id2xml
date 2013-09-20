@@ -260,7 +260,7 @@ class CurrentScheduleState:
     def pick_two_slots(self):
         slot1 = self.random_generator.choice(self.available_slots)
         slot2 = self.random_generator.choice(self.available_slots)
-        tries = 10
+        tries = 100
         self.repicking = 0
         # 1) no point in picking two slots which are the same.
         # 2) no point in picking two slots which have no session (already empty)
@@ -356,10 +356,11 @@ class CurrentScheduleState:
         place2   = "none"
         if self.slot2.timeslot is not None:
             place2 = str(self.slot2.timeslot.location)
-        print "%u: %s delta=%7d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s" % (self.stepnum,
+        from models import constraint_cache_uses,constraint_cache_initials
+        print "%u: %s delta=%7d move dice=%.2f <=> prob=%.2f (repicking=%u)  %s => %s, %s => %s %u/%u" % (self.stepnum,
             accepted_str,
             change, dice, prob,
-            self.repicking, acronym1, place1, acronym2, place2)
+            self.repicking, acronym1, place1, acronym2, place2, constraint_cache_uses,constraint_cache_initials)
         # consider changing temperature.
         return accepted, change
 

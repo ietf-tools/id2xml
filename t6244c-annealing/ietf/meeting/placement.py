@@ -41,6 +41,7 @@ class FakeScheduledSession:
 
     available_slot = None
     origss         = None
+    faked          = "fake"
 
     def __init__(self, schedule):
         self.timeslot = None

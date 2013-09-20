@@ -607,6 +607,9 @@ class ScheduledSession(models.Model):
     notes    = models.TextField(blank=True)
     badness  = models.IntegerField(default=0, blank=True, null=True)
 
+    # use to distinguish this from FakeScheduledSession in placement.py
+    faked   = "real"
+
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
 

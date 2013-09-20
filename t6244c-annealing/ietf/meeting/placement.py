@@ -31,13 +31,13 @@ class FakeScheduledSession:
     Session and TimeSlot, but in this case TimeSlot is always None, because the
     Session is not scheduled.
     """
-    timeslot = models.ForeignKey('TimeSlot', null=True, blank=False, help_text=u"")
-    session  = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session")
-    schedule = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
-    extendedfrom = models.ForeignKey('ScheduledSession', null=True, default=None, help_text=u"Timeslot this session is an extension of")
-    modified = models.DateTimeField(default=datetime.datetime.now)
-    notes    = models.TextField(blank=True)
-    badness  = models.IntegerField(default=0, blank=True, null=True)
+    timeslot = None
+    session  = None
+    schedule = None
+    extendedfrom = None
+    modified = None
+    notes    = None
+    badness  = None
 
     available_slot = None
     origss         = None

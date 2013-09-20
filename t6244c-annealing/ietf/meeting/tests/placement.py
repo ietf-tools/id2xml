@@ -110,3 +110,12 @@ class PlacementTestCase(AgendaTransactionalTestCase):
         placer1.tempdict["hello"] = "goodbye"
         self.assertEqual(placer1["hello"], "goodbye")
 
+    def test_probcalculation(self):
+        sched1  = Schedule.objects.get(pk=103)
+        placer1 = CurrentScheduleState(sched1)
+        placer1.temperature = 1000000
+        prob = placer1.calc_probability(1000)
+        self.assertTrue(prob < 0.5, "prob: %.2f" % (prob))
+        prob = placer1.calc_probability(-1000)
+        self.assertTrue(prob > 0.5, "prob: %.2f" % (prob))
+

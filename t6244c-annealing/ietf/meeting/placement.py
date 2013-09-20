@@ -399,7 +399,7 @@ class CurrentScheduleState:
 
     def calc_probability(self, change):
         import math
-        return 1/(1 + math.exp(change/self.temperature))
+        return 1/(1 + math.exp(float(change)/self.temperature))
 
     def do_steps(self):
         accepted, change = self.do_step()

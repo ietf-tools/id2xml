@@ -28,6 +28,21 @@ from django.utils import datetime_safe
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M:%S"
 
+prompt_wait = False
+def set_prompt_wait(value):
+    global prompt_wait
+    prompt_wait = value
+
+def do_prompt(prompt = None):
+    if prompt_wait == False:
+        #print "Not waiting: %s" % (prompt_wait)
+        return
+    if prompt is None:
+        prompt = "waiting:"
+    import sys
+    sys.stdout.write(prompt)
+    sys.stdin.readline()
+
 def fmt_date(o):
     d = datetime_safe.new_date(o)
     return d.strftime(DATE_FORMAT)

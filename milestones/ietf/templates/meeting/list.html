@@ -1,0 +1,68 @@
+{% extends "base.html" %}{% load ietf_filters %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% block title %}IETF {{ meeting_num }} Preliminary &amp; Interim Materials{% endblock %}
+{% block morecss %}
+table.ietf-materials { width: 99%; border-bottom:1px solid #cbcbcb; nopadding: 0; margin: 0; vertical-align: top; border-collapse: collapse;}
+table.ietf-materials tr {vertical-align: top; }
+table.ietf-materials td { padding:0.5em 0; }
+{% endblock morecss %}
+
+{% block content %}
+<h1>IETF {{ meeting_num }} Meeting Materials</h1>
+
+{% if sub_began %}
+<p>Submission cutoff date: {{ cut_off_date|date:"F j, Y" }}<br/>
+Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
+{% endif %}
+
+<p><a href="https://datatracker.ietf.org/cgi-bin/wg/wg_proceedings.cgi">Meeting Materials Manager</a> (for session chairs only; password required)</p>
+
+{# cache for 15 minutes, as long as there's no proceedings activity. takes 4-8 seconds to generate. #}
+{% load cache %}
+{% cache 900 ietf_meeting_materials meeting_num cache_version %}
+
+<!-- Plenaries -->
+{% if plenaries %}
+    <h2 class="ietf-divider">Plenaries</h2>
+    {% for session in plenaries %}
+       {% include "meeting/list_group.html" %}
+    {% endfor %}
+{% endif %}
+
+<!-- Working groups -->
+{% regroup ietf|dictsort:"group.parent.acronym" by group.parent.name as areas %}
+{% for sessions in areas %}
+   <h2 class="ietf-divider">{{ sessions.grouper }}</h2>
+   {% for session in sessions.list|dictsort:"group.acronym" %}
+      {% ifchanged %}
+	 {% include "meeting/list_group.html" %}
+      {% endifchanged %}
+   {% endfor %}
+{% endfor %}
+
+<!-- Training Sessions -->
+{% if training %}
+    <h2 class="ietf-divider">Training</h2>
+    {% for session in training %}
+      {% ifchanged %}
+	 {% include "meeting/list_group.html" %}
+      {% endifchanged %}
+    {% endfor %}
+{% endif %}
+<!-- End of Training Sessions -->
+
+
+<!-- IRTF Sessions -->
+{% if irtf %}
+<h2 class="ietf-divider">IRTF</h2>
+    {% for session in irtf|dictsort:"group.acronym" %}
+      {% ifchanged %}
+	 {% include "meeting/list_group.html" %}
+      {% endifchanged %}
+    {% endfor %}
+{% endif %}
+<!-- End of IRTF Sessions -->
+
+{% endcache %}
+
+{% endblock %}

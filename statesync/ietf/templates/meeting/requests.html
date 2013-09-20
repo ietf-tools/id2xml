@@ -1,0 +1,60 @@
+{% extends "base.html" %}{% load ietf_filters %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+{% block title %}IETF {{ meeting.num }} Meeting Timeslot Requests{% endblock %}
+{% block morecss %}
+@media print {
+  .title { font-size: 1.0cm !important; padding-top: 6cm; text-align: center;}
+  .loc { text-align:center; font-size: 0.75cm} 
+}
+.loc { width: 100% }
+h2 { border-style: none none solid none ; page-break-before: always;}
+h3 { color: #0000a0 }
+th { text-align: right; vertical-align: text-top; }
+.even { background-color: #fff; }
+.odd { background-color: #ddf; }
+.h { text-align: center; border-style: none none solid none; border-width: 1px;}
+.conflict { background-color: #fbb; }
+.conflic2 { background-color: #fd6; }
+.conflic3 { background-color: #ff8; }
+.status { text-align: center; background-color: #004; color: #fff; }
+.no-req {border-style: solid; border-width: 1px; padding: 5px; font-weight:bold ; background-color: #333; color: #fff}
+
+{% endblock morecss %}
+
+{% block content %}
+<h1 class="title">IETF {{ meeting.number }} Meeting Timeslot Requests</h1>
+<div class="loc">{{meeting.city}}, {{meeting.country}} -- {{meeting.venue_name}} </div>
+
+<table>
+{% for session in sessions %}
+{% if session.group.parent %}
+{% ifchanged %} 
+</table>
+<h2><a name="{{session.group.parent.acronym}}">{{session.group.parent.acronym|upper}} - {{session.group.parent.name}}</a></h2>
+<div class="no-req">No schedule request:{% for group in groups_not_meeting %}{%ifequal group.parent.id session.group.parent.id %} {{group.acronym|upper}}{%endifequal%}{% endfor %}</div></br>
+<table>
+<tr>
+  <td class="h"></td>
+  <th class="h">Duration</th>
+  <th class="h">Size</th>
+  <th class="h">Requested By</th>
+  <th class="h">Conflicts</th>
+  <th class="h">Special Requests</th>
+{% endifchanged %}
+{%ifchanged%}
+<tr><td class="status" colspan="6"><!-- {{session.group.parent.id}} -->{{session.status}}</td></tr>
+{%endifchanged%}
+<tr class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+  <th valign="top">{{session.group.acronym|upper}}</th>
+  <td valign="top" align="center">{% if not session.requested_duration %}<i>{{session.status}}</i>{%else%} {{session.requested_duration|stringformat:"s"|slice:"0:4"}} {% endif %}</td>
+  <td valign="top" align="center">{{session.attendees}}</td>
+  <td valign="top">
+    <a href="mailto:{{session.requested_by.email_address}}">{{session.requested_by}}</a>
+  </td>
+  <td width="35%" valign="top">{%if session.requested_duration%}<span>{% for constraint in session.constraints %}{%ifchanged%}</span><span class="{{constraint.name.slug}}">{%endifchanged%} {{constraint.source.acronym}}{%ifnotequal constraint.source.parent.id constraint.target.parent.id%} ({{constraint.source.parent.acronym}}){%endifnotequal%}{%if not forloop.last %},{%endif%} {% endfor %}</span>{%endif%}</td>
+  <td width="35%" valign="top">{% if session.comments %}<i><font color="#800000">{{session.comments|linebreaksbr}}</font></i>{% endif %}</td>
+</tr>
+{% endif %}
+{% endfor %}
+</table>
+{% endblock %} 

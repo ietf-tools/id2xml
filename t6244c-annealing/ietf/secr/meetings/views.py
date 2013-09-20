@@ -13,6 +13,7 @@ from django.utils import simplejson
 
 from ietf.utils.mail import send_mail
 from ietf.meeting.models import Meeting, Session, Room, TimeSlot
+from ietf.meeting.helpers import get_schedule
 from ietf.group.models import Group
 from ietf.name.models import SessionStatusName, TimeSlotTypeName
 from ietf.person.models import Person
@@ -55,14 +56,14 @@ def assign(session,timeslot,meeting):
     session.status_id = 'sched'
     session.save()
 
-def build_timeslots(request,meeting,room=None):
+def build_timeslots(meeting,room=None):
     '''
     This function takes a Meeting object and an optional room argument.  If room isn't passed we
     pre-create the full set of timeslot records using the last meeting as a template.
     If room is passed pre-create timeslots for the new room.  Call this after saving new rooms
     or adding a room.
     '''
-    schedule = get_schedule(request,meeting)
+    schedule = get_schedule(meeting)
     slots = meeting.timeslot_set.filter(type='session')
     if room:
         rooms = [room]
@@ -93,7 +94,7 @@ def build_timeslots(request,meeting,room=None):
                                         time=new_time,
                                         location=room,
                                         duration=t.duration)
-                ScheduledSession.objects.create(schedule=schedule,timeslot=ts)
+                ScheduledSession.objects.create(schedule=schedule,timeslot=t)
         meeting.create_all_timeslots();
 
 def build_nonsession(meeting):
@@ -852,7 +853,9 @@ def times_delete(request, meeting_id, time):
     parts = [ int(x) for x in time.split(':') ]
     dtime = datetime.datetime(*parts)
 
-    if Session.objects.filter(timeslot__time=dtime,timeslot__meeting=meeting):
+    if ScheduledSession.objects.filter(timeslot__time=dtime,
+                                       timeslot__meeting=meeting,
+                                       session__isnull=False):
         messages.error(request, 'ERROR deleting timeslot.  There is one or more sessions scheduled for this timeslot.')
         url = reverse('meetings_times', kwargs={'meeting_id':meeting_id})
         return HttpResponseRedirect(url)

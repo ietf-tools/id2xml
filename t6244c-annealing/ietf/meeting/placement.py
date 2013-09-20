@@ -18,6 +18,9 @@ from django.db           import models
 from settings import BADNESS_UNPLACED, BADNESS_TOOSMALL_50, BADNESS_TOOSMALL_100, BADNESS_TOOBIG, BADNESS_MUCHTOOBIG
 from ietf.meeting.models import Schedule, ScheduledSession,TimeSlot,Room
 
+class PlacementException(Exception):
+    pass
+
 class FakeScheduledSession:
     """
     This model provides a fake (not-backed by database) N:M relationship between
@@ -276,7 +279,7 @@ class CurrentScheduleState:
             slot2 = self.random_generator.choice(self.available_slots)
             tries = tries - 1
         if tries == 0:
-            raise "How can it pick the same slot ten times in a row"
+            raise PlacementException("How can it pick the same slot ten times in a row")
         return slot1, slot2
 
     # this assigns a session to a particular slot.
@@ -285,7 +288,7 @@ class CurrentScheduleState:
         if session is None:
             return
         if not session in self.sessions:
-            raise "Is there a legit case where session is not in sessions here?"
+            raise PlacementException("Is there a legit case where session is not in sessions here?")
 
         oldfs = self.sessions[session]
         # find the group mapping.

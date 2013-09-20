@@ -401,9 +401,12 @@ class CurrentScheduleState:
         import math
         return 1/(1 + math.exp(float(change)/self.temperature))
 
-    def do_steps(self):
-        accepted, change = self.do_step()
-        while  self.temperature > 0:
+    def do_steps(self, limit=None):
+        import sys
+        if self.badness is None:
+            self.badness = 0
+        self.oldbadness = self.badness
+        while (limit is None or self.stepnum < limit) and self.temperature > 0:
             accepted,change = self.do_step()
             set_prompt_wait(True)
             if accepted and self.recordsteps:
@@ -424,7 +427,36 @@ class CurrentScheduleState:
                 ass2.stepnum  = self.stepnum
                 ass2.save()
             #print "%u: accepted: %s change %d temp: %d" % (self.stepnum, accepted, change, self.temperature)
-        print "Finished after %u steps, badness = %u" % (self.stepnum, self.badness)
+        print "Finished after %u steps, badness = %u->%u" % (self.stepnum, self.oldbadness, self.badness)
+
+    def saveToSchedule(self, targetSchedule):
+        if targetSchedule is None:
+            targetSchedule = self.schedule
+        else:
+            # XXX more stuff to do here, setup mapping, copy pinned items
+            pass
+        # first, remove all assignments in the schedule.
+        for ss in targetSchedule.scheduledsession_set.all():
+            if ss.pinned:
+                continue
+            ss.session = None
+            ss.save()
+        for fs in self.available_slots:
+            if fs.origss is None:
+                continue
+            ss = fs.origss
+            ss.session = fs.session
+            ss.save()
+
+    def do_placement(self, limit=None, targetSchedule=None):
+        # permute the unplaced sessions
+        print "Initial stage starting with: %u items to place" % (len(self.unplaced_slots))
+        self.random_generator.shuffle(self.unplaced_slots)
+        self.unplaced_slots_25percent = len(self.unplaced_slots)/4
+
+        self.initial_stage = True
+        self.do_steps(limit)
+        self.saveToSchedule(targetSchedule)
 
 
 class AutomaticScheduleStep(models.Model):

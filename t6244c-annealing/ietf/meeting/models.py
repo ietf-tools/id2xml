@@ -610,6 +610,9 @@ class ScheduledSession(models.Model):
     # use to distinguish this from FakeScheduledSession in placement.py
     faked   = "real"
 
+    # anticipating new feature
+    pinned   = False
+
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)
 

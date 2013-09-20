@@ -647,6 +647,50 @@ function dajaxice_error(a){
     console.log("dajaxice_error");
 }
 
+function set_pin_session_button(scheduledsession) {
+    state = scheduledsession.pinned;
+    console.log("button set to: ",state);
+    $("#pin_slot").unbind('click');
+    if(state) {
+        $("#pin_slot").html("unPin");
+        $("#agenda_pin_slot").addClass("button_down");
+        $("#agenda_pin_slot").removeClass("button_up");
+        $("#pin_slot").click(function(event) {
+            update_pin_session(scheduledsession, false);
+        });
+    } else {
+        $("#pin_slot").html(" Pin ");
+        $("#agenda_pin_slot").addClass("button_up");
+        $("#agenda_pin_slot").removeClass("button_down");
+        $("#pin_slot").click(function(event) {
+            update_pin_session(scheduledsession, true);
+        });
+    }
+}
+
+function update_pin_session(scheduledsession, state) {
+    start_spin();
+    console.log("Calling dajaxice", scheduledsession, state);
+    Dajaxice.ietf.meeting.update_timeslot_pinned(function(message) {
+        console.log("dajaxice callback");
+        stop_spin();
+        if(message.message != "valid") {
+            alert("Update of pinned failed");
+            return;
+        }
+        scheduledsession.pinned = state;
+        session = scheduledsession.session()
+        session.pinned = state;
+        session.repopulate_event(scheduledsession.domid);
+        set_pin_session_button(scheduledsession);
+    },
+						 {
+                                                     'schedule_id': schedule_id,
+						     'scheduledsession_id':  scheduledsession.scheduledsession_id,
+                                                     'pinned': state
+						 });
+}
+
 function fill_in_session_info(session, success, extra) {
     if(session == null || session == "None" || !success){
 	empty_info_table();
@@ -657,7 +701,20 @@ function fill_in_session_info(session, success, extra) {
     $(".agenda_double_slot").addClass("button_enabled");
     $(".agenda_selected_buttons").attr('disabled',false);
 
-    session.retrieve_constraints_by_session(draw_constraints, function(){});
+    if(!read_only) {
+        $("#agenda_pin_slot").removeClass("button_disabled");
+        $("#agenda_pin_slot").addClass("button_enabled");
+        set_pin_session_button(session.slot);
+    } else {
+        $("#pin_slot").unbind('click');
+    }
+
+    // here is where we would set up the session request edit button.
+    // $(".agenda_sreq_button").html(session.session_req_link);
+
+    session.retrieve_constraints_by_session().success(function(newobj,status,jq) {
+        draw_constraints(session);
+    });
 }
 
 function group_name_or_empty(constraint) {

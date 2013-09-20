@@ -97,6 +97,10 @@ div.meeting_box_bucket_list {
     float: left;
 }
 
+div.meeting_box_pinned {
+    /* not sure what to put here yet */
+}
+
 table.meeting_event {
     /* border:1px solid black; */
     /* background:#E0FFFF; */
@@ -348,6 +352,16 @@ td.ss_info_name_short{
     margin-left:3px;
 }
 
+#agenda_pin_slot {
+    border: 1px solid #89D;
+    background-color: #EDF5FF;
+    padding: 5px;
+    max-width:  150px;
+    float:left;
+    margin-top:70px;
+    margin-left:3px;
+}
+
 .button_disabled {
     color: #EDF4FF;
     text-color: #EDF4FF;
@@ -355,6 +369,15 @@ td.ss_info_name_short{
 .button_enabled {
     color: black;
     text-color: black;
+}
+
+.button_up {
+    background: #4479BA;
+    color: #FFF;
+}
+.button_down {
+    color: #4479BA;
+    background: #FFF;
 }
 
 .agenda_save_box {

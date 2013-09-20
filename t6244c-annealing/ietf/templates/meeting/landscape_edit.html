@@ -87,10 +87,11 @@ function setup_slots(){
      "empty": "{{s.empty_str}}",
      "timeslot_id":"{{s.timeslot.id}}",
      "session_id" :"{{s.session.id}}",
+     "pinned" :"{{s.pinned}}",
      {% if s.session %}{% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
      {% endif %}{% endif %}"room"       :"{{s.timeslot.location|slugify}}",
      {% if s.slot_to_the_right %}"following_timeslot_id":"{{s.slot_to_the_right.id}}",
-     {% endif %}"roomtype"   :"{{s.slottype|lower}}",
+     {% endif %}"roomtype"   :"{{s.timeslot.type|lower}}",
      "time"       :"{{s.timeslot.time|date:'Hi' }}",
      "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
      "domid"      :"{{s.timeslot.js_identifier}}"});
@@ -315,6 +316,10 @@ Please save this agenda to your account first.
     <div class="agenda_double_slot button_disabled">
       <button class="agenda_selected_buttons small_button" disabled
       id="double_slot">Extend</button>
+    </div>
+    <div id="agenda_pin_slot" class="button_disabled">
+      <button class="agenda_selected_buttons small_button" disabled
+      id="pin_slot">Pin</button>
     </div>
     <div class="color_legend">
       {% for area in area_list %}

@@ -303,6 +303,13 @@ ScheduledSlot.prototype.initialize = function(json) {
     }
     //console.log("extend "+this.domid+" with "+JSON.stringify(this));
 
+    // translate Python booleans to JS.
+    if(this.pinned == "True") {
+        this.pinned = true;
+    } else {
+        this.pinned = false;
+    }
+
     // the key so two sessions in the same timeslot
     if(slot_status[this.domid] == null) {
        slot_status[this.domid]=[];
@@ -472,6 +479,7 @@ Session.prototype.placed = function(where, forceslot) {
     }
     //console.log("session:",session.title, "column_class", ssid.column_class);
     this.element().parent("div").removeClass("meeting_box_bucket_list");
+    this.pinned = where.pinned;
 };
 
 Session.prototype.populate_event = function(js_room_id) {
@@ -481,6 +489,7 @@ Session.prototype.populate_event = function(js_room_id) {
 Session.prototype.repopulate_event = function(js_room_id) {
     var eTemplate =     this.event_template()
     insert_cell(js_room_id, eTemplate, true);
+    this.display_conflict();
 };
 
 Session.prototype.visible_title = function() {
@@ -585,6 +594,18 @@ Session.prototype.event_template = function() {
     if(this.double_wide) {
         bucket_list_style = bucket_list_style + " meeting_box_double";
     }
+
+    var area_mark = "";
+    if(this.responsible_ad != undefined) {
+        area_mark = this.responsible_ad.area_mark;
+    }
+
+    pinned = "";
+    if(this.pinned) {
+        bucket_list_style = bucket_list_style + " meeting_box_pinned";
+        pinned="<td class=\"pinned-tack\">P</td>";
+    }
+
     // see comment in ietf.ccs, and
     // http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
     return "<div class='meeting_box_container' session_id=\""+this.session_id+"\"><div class=\"meeting_box "+bucket_list_style+"\" ><table class='meeting_event "+
@@ -595,8 +616,8 @@ Session.prototype.event_template = function() {
         "><tr id='meeting_event_title'><th class='"+
         this.area_scheme() +" meeting_obj'>"+
         this.visible_title()+
-        "<span> ("+this.duration+")</span>"+
-        "</th></tr></table></div></div>";
+        "<span> ("+this.duration+")</span>" +
+        "</th>"+pinned+"</tr></table>"+ area_mark +"</div></div>";
 };
 
 function andthen_alert(object, result, arg) {

@@ -730,6 +730,7 @@ class ScheduledSession(models.Model):
         ss["time"]     = date_format(self.timeslot.time, 'Hi')
         ss["date"]     = time_format(self.timeslot.time, 'Y-m-d')
         ss["domid"]    = self.timeslot.js_identifier
+        ss["pinned"]   = self.pinned
         return ss
 
 

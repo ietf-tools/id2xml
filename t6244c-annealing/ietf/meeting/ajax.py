@@ -61,6 +61,30 @@ def readonly(request, meeting_num, schedule_id):
 
 @group_required('Area Director','Secretariat')
 @dajaxice_register
+def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=False):
+    schedule = get_object_or_404(Schedule, pk = int(schedule_id))
+    meeting  = schedule.meeting
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+
+    if not canedit:
+        raise Http403
+        return json.dumps({'error':'no permission'})
+
+    if scheduledsession_id is not None:
+        ss_id = int(scheduledsession_id)
+
+    if ss_id != 0:
+        ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
+
+    ss.pinned = pinned
+    ss.save()
+
+    return json.dumps({'message':'valid'})
+
+
+
+@group_required('Area Director','Secretariat')
+@dajaxice_register
 def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, extended_from_id=None, duplicate=False):
     schedule = get_object_or_404(Schedule, pk = int(schedule_id))
     meeting  = schedule.meeting

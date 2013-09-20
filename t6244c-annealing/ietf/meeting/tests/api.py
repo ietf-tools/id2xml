@@ -988,3 +988,38 @@ class ApiTestCase(AgendaTransactionalTestCase):
         mtg83 = get_meeting(83)
         self.assertEqual(mtg83.agenda, new_sched)
 
+    def test_noAuthenticationUpdatePinned(self):
+        ss_one = ScheduledSession.objects.get(pk=2371)
+
+        # confirm that it has old timeslot value
+        self.assertEqual(ss_one.pinned, False)
+
+        # pin this session to this location
+        self.client.post('/dajaxice/ietf.meeting.update_timeslot_pinned/', {
+            'argv': '{"schedule_id":"%u", "scheduledsession_id":"%u", "pinned":"%u"}' % (ss_one.schedule.id, ss_one.id, 1)
+            })
+
+        # confirm that without login, it does not have new value
+        ss_one = ScheduledSession.objects.get(pk=2371)
+        self.assertEqual(ss_one.pinned, False)
+
+    def test_authenticationUpdatePinned(self):
+        ss_one = ScheduledSession.objects.get(pk=2371)
+
+        # confirm that it has old timeslot value
+        self.assertEqual(ss_one.pinned, False)
+
+        extra_headers = auth_wlo
+        extra_headers['HTTP_ACCEPT']='text/json'
+
+        # pin this session to this location
+        self.client.post('/dajaxice/ietf.meeting.update_timeslot_pinned/', {
+            'argv': '{"schedule_id":"%u", "scheduledsession_id":"%u", "pinned":"%u"}' % (ss_one.schedule.id, ss_one.id, 1)
+            }, **extra_headers)
+
+        # confirm that without login, it does not have new value
+        ss_one = ScheduledSession.objects.get(pk=2371)
+        self.assertEqual(ss_one.pinned, True)
+
+
+

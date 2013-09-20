@@ -606,12 +606,10 @@ class ScheduledSession(models.Model):
     modified = models.DateTimeField(default=datetime.datetime.now)
     notes    = models.TextField(blank=True)
     badness  = models.IntegerField(default=0, blank=True, null=True)
+    pinned   = models.BooleanField(default=False, help_text="Do not move session during automatic placement")
 
     # use to distinguish this from FakeScheduledSession in placement.py
     faked   = "real"
-
-    # anticipating new feature
-    pinned   = False
 
     def __unicode__(self):
         return u"%s [%s<->%s]" % (self.schedule, self.session, self.timeslot)

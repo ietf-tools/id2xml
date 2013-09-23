@@ -71,7 +71,7 @@ class ClientHandler(BaseHandler):
 
         signals.request_started.send(sender=self.__class__)
         try:
-            request = TestRequest(environ)
+            request = WSGIRequest(environ)
             # sneaky little hack so that we can easily get round
             # CsrfViewMiddleware.  This makes life easier, and is probably
             # required for backwards compatibility with external tests against

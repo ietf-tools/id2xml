@@ -277,7 +277,6 @@ def edit_agenda(request, num=None, schedule_name=None):
     user  = request.user
     requestor = "AnonymousUser"
     if not user.is_anonymous():
-        print "user: %s" % (user)
         try:
             requestor = user.get_profile()
         except Person.DoesNotExist:

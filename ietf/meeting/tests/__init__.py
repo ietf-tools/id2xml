@@ -16,5 +16,6 @@ from ietf.meeting.tests.edit          import EditTestCase
 from ietf.meeting.tests.auths         import AuthDataTestCase
 from ietf.meeting.tests.view          import ViewTestCase
 from ietf.meeting.tests.urlgen        import UrlGenTestCase
+from ietf.meeting.tests.rjs           import RjSTestCase
 
 

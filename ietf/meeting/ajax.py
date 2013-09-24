@@ -232,12 +232,14 @@ def timeslot_addslot(request, meeting):
     newslot = addslotform.save(commit=False)
     newslot.meeting = meeting
     newslot.save()
+    newslot_pk = newslot.pk
 
+    # Surprising things happen to newslot.pk here
     newslot.create_concurrent_timeslots()
 
     if "HTTP_ACCEPT" in request.META and "application/json" in request.META['HTTP_ACCEPT']:
         return HttpResponseRedirect(
-            reverse(timeslot_dayurl, args=[meeting.number, newroom.pk]))
+            reverse(timeslot_sloturl, kwargs=dict(num=meeting.number, slotid=newslot_pk)))
     else:
         return HttpResponseRedirect(
             reverse(edit_timeslots, args=[meeting.number]))

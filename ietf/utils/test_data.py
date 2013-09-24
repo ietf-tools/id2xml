@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from ietf.iesg.models import TelechatDate, WGAction
 from ietf.ipr.models import IprDetail, IprDocAlias
-from ietf.meeting.models import Meeting
+from ietf.meeting.models import Meeting,Schedule,Room,TimeSlot,Session,Constraint
 from ietf.doc.models import *
 from ietf.doc.utils import *
 from ietf.name.models import *
@@ -397,16 +397,75 @@ def make_test_data():
         )
     
     # meeting
-    Meeting.objects.create(
-        number="42",
-        type_id="ietf",
-        date=datetime.date.today() + datetime.timedelta(days=180),
-        city="New York",
-        country="US",
-        time_zone="US/Eastern",
-        break_area="Lounge",
-        reg_area="Lobby",
-        )
+    mtg = Meeting.objects.create(
+              number="42",
+              type_id="ietf",
+              date=datetime.date.today() + datetime.timedelta(days=180),
+              city="New York",
+              country="US",
+              time_zone="US/Eastern",
+              break_area="Lounge",
+              reg_area="Lobby",
+              )
+    Session.objects.create(meeting=mtg,
+                           group=Group.objects.get(acronym='mars'),
+                           attendees=80,
+                           requested_by=Person.objects.get(user__username='marschairman'),
+                           requested_duration=datetime.timedelta(minutes=120),
+                           status=SessionStatusName.objects.get(slug="sched"),
+                          )
+    Constraint.objects.create(meeting=mtg,
+                              source=Group.objects.get(acronym='mars'),
+                              target=Group.objects.get(acronym='ames'),
+                              name=ConstraintName.objects.get(slug='conflict'),
+                          )
+    sch = Schedule.objects.create(
+              meeting=mtg,
+              name='official-42',
+              owner=Person.objects.get(user__username='secretary'),
+              visible=True,
+              public=True,
+          )
+    mtg.agenda = sch
+    mtg.save()
+    Schedule.objects.create(
+              meeting=mtg,
+              name='pl_pub_vis',
+              owner=Person.objects.get(user__username='plain'),
+              visible=True,
+              public=True,
+          )
+    Schedule.objects.create(
+              meeting=mtg,
+              name='pl_pri_vis',
+              owner=Person.objects.get(user__username='plain'),
+              visible=True,
+              public=False,
+          )
+    Schedule.objects.create(
+              meeting=mtg,
+              name='ad_pri_vis',
+              owner=Person.objects.get(user__username='ad'),
+              visible=True,
+              public=False,
+          )
+    Schedule.objects.create(
+              meeting=mtg,
+              name='pl_pri_hid',
+              owner=Person.objects.get(user__username='plain'),
+              visible=False,
+              public=False,
+          )
+
+    room_a = Room.objects.create(meeting=mtg,name="Room A",capacity=50)
+    room_b = Room.objects.create(meeting=mtg,name="Room B",capacity=150)
+
+    t_session = TimeSlotTypeName.objects.get(slug='session')
+    for day in [datetime.datetime(2042,3,5),datetime.datetime(2042,3,6)]:
+        for (name,time) in [("Morning",datetime.timedelta(hours=9)),("Afternoon",datetime.timedelta(hours=13))]:
+            for room in [room_a, room_b]:
+                TimeSlot.objects.create(meeting=mtg,name=name,location=room,time=day+time,duration=9000,type=t_session)
+
 
     # an independent submission before review
     doc = Document.objects.create(name='draft-imaginary-independent-submission',type_id='draft')

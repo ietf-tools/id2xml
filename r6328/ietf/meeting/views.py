@@ -40,7 +40,7 @@ from ietf.meeting.models import Meeting, TimeSlot, Session
 from ietf.meeting.models import Schedule, ScheduledSession, Room
 from ietf.group.models import Group
 
-from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss
+from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss, build_url_pair
 from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info
 from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pseudo_areas
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
@@ -239,8 +239,7 @@ def edit_timeslots(request, num=None):
 
     time_slices,date_slices,slots = meeting.build_timeslices()
 
-    meeting_base_url = request.build_absolute_uri(meeting.base_url())
-    site_base_url =request.build_absolute_uri('/')
+    site_base_url, meeting_base_url = build_url_pair(request, meeting)
     rooms = meeting.room_set.order_by("capacity")
     rooms = rooms.all()
 
@@ -288,8 +287,7 @@ def edit_agenda(request, num=None, schedule_name=None):
     schedule = get_schedule(meeting, schedule_name)
     #sys.stdout.write("2 requestor: %u for sched owned by: %u \n" % ( requestor.id, schedule.owner.id ))
 
-    meeting_base_url = request.build_absolute_uri(meeting.base_url())
-    site_base_url =request.build_absolute_uri('/')
+    site_base_url, meeting_base_url = build_url_pair(request, meeting)
     rooms = meeting.room_set.order_by("capacity")
     rooms = rooms.all()
     saveas = SaveAsForm()

@@ -126,6 +126,16 @@ class NamedTimeSlot(object):
     def slot_decor(self):
         return self.timeslot.slot_decor
 
+def build_url_pair(request, meeting):
+    meeting_base_url = request.build_absolute_uri(meeting.base_url())
+    site_base_url    = request.build_absolute_uri('/')
+
+    # remove trailing / from site_base_url.
+    if site_base_url[-1:]=='/':
+        site_base_url = site_base_url[:-1]
+
+    return site_base_url, meeting_base_url
+
 def get_ntimeslots_from_ss(agenda, scheduledsessions):
     ntimeslots = []
     time_seen = set()

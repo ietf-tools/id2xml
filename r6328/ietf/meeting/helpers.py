@@ -137,6 +137,9 @@ def build_url_pair(request, meeting):
     if site_base_url[-1:]=='/':
         site_base_url = site_base_url[:-1]
 
+    if meeting_base_url[-5:]==".json":
+        meeting_base_url = meeting_base_url[:-5]
+
     return site_base_url, meeting_base_url
 
 def get_ntimeslots_from_ss(agenda, scheduledsessions):

@@ -117,7 +117,7 @@ def get_from_choices(user):
     nomcoms = Role.objects.filter(name="chair",
                                   group__acronym__startswith="nomcom",
                                   group__state="active",
-                                  group__type="ietf",
+                                  group__type="nomcom",
                                   person=person)
     if nomcoms:
         year = nomcoms[0].group.acronym[-4:]

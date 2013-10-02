@@ -31,7 +31,7 @@ def check_access(user):
     if Role.objects.filter(name="chair",
                            group__acronym__startswith="nomcom",
                            group__state="active",
-                           group__type="ietf",
+                           group__type="nomcom",
                            person=person):
         return True
     if Role.objects.filter(person=person,

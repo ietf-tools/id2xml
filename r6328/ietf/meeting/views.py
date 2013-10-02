@@ -11,6 +11,7 @@ from tempfile import mkstemp
 
 from django import forms
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils import simplejson as json
 from ietf.idtracker.models import IETFWG, IRTF, Area
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
@@ -46,7 +47,8 @@ from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pse
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule, get_all_scheduledsessions_from_schedule
 from ietf.meeting.helpers import get_modified_from_scheduledsessions
-from ietf.meeting.helpers import get_wg_list, get_meeting, get_schedule, agenda_permissions
+from ietf.meeting.helpers import get_wg_list, find_ads_for_meeting
+from ietf.meeting.helpers import get_meeting, get_schedule, agenda_permissions
 
 
 @decorator_from_middleware(GZipMiddleware)
@@ -217,11 +219,15 @@ def agenda_create(request, num=None, schedule_name=None):
         ss.schedule=newschedule
         ss.save()
         mapping[oldid] = ss.pk
+        #print "Copying %u to %u" % (oldid, ss.pk)
 
     # now fix up any extendedfrom references to new set.
     for ss in newschedule.scheduledsession_set.all():
         if ss.extendedfrom is not None:
-            ss.extendedfrom = newschedule.scheduledsession_set.get(pk = mapping[ss.extendedfrom.id])
+            oldid = ss.extendedfrom.id
+            newid = mapping[oldid]
+            #print "Fixing %u to %u" % (oldid, newid)
+            ss.extendedfrom = newschedule.scheduledsession_set.get(pk = newid)
             ss.save()
 
 
@@ -305,15 +311,27 @@ def edit_agenda(request, num=None, schedule_name=None):
                                               "meeting_base_url":meeting_base_url},
                                              RequestContext(request)), status=403, mimetype="text/html")
 
-    sessions = meeting.session_set.exclude(status__slug='deleted').exclude(status__slug='notmeet').order_by("id", "group", "requested_by")
+    sessions = meeting.sessions_that_can_meet.order_by("id", "group", "requested_by")
     scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
+
+    session_jsons = [ json.dumps(s.json_dict(site_base_url)) for s in sessions ]
+
+    # useful when debugging javascript
+    #session_jsons = session_jsons[1:20]
 
     # get_modified_from needs the query set, not the list
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
-    area_list = get_pseudo_areas()
+    ntimeslots = get_ntimeslots_from_ss(schedule, scheduledsessions)
+
+    area_list = get_areas()
     wg_name_list = get_wg_name_list(scheduledsessions)
     wg_list = get_wg_list(wg_name_list)
+    ads = find_ads_for_meeting(meeting)
+    for ad in ads:
+        # set the default to avoid needing extra arguments in templates
+        # django 1.3+
+        ad.default_hostscheme = site_base_url
 
     time_slices,date_slices = build_all_agenda_slices(scheduledsessions, True)
 
@@ -329,8 +347,9 @@ def edit_agenda(request, num=None, schedule_name=None):
                                           "modified": modified,
                                           "meeting":meeting,
                                           "area_list": area_list,
+                                          "area_directors" : ads,
                                           "wg_list": wg_list ,
-                                          "sessions": sessions,
+                                          "session_jsons": session_jsons,
                                           "scheduledsessions": scheduledsessions,
                                           "show_inline": set(["txt","htm","html"]) },
                                          RequestContext(request)), mimetype="text/html")
@@ -368,6 +387,7 @@ def edit_agendas(request, num=None, order=None):
 
     meeting = get_meeting(num)
     user = request.user
+    site_base_url, meeting_base_url = build_url_pair(request, meeting)
 
     schedules = meeting.schedule_set
     if not has_role(user, 'Secretariat'):
@@ -377,6 +397,7 @@ def edit_agendas(request, num=None, order=None):
 
     return HttpResponse(render_to_string("meeting/agenda_list.html",
                                          {"meeting":   meeting,
+                                          "sitefqdn":  site_base_url,
                                           "schedules": schedules.all()
                                           },
                                          RequestContext(request)),
@@ -426,6 +447,18 @@ def text_agenda(request, num=None, name=None):
          "plenaryw_agenda":plenaryw_agenda,
          "plenaryt_agenda":plenaryt_agenda, },
         RequestContext(request)), mimetype="text/plain")
+
+def read_agenda_file(num, doc):
+    # XXXX FIXME: the path fragment in the code below should be moved to
+    # settings.py.  The *_PATH settings should be generalized to format()
+    # style python format, something like this:
+    #  DOC_PATH_FORMAT = { "agenda": "/foo/bar/agenda-{meeting.number}/agenda-{meeting-number}-{doc.group}*", }
+    path = os.path.join(settings.AGENDA_PATH, "%s/agenda/%s" % (num, doc.external_url))
+    if os.path.exists(path):
+        with open(path) as f:
+            return f.read()
+    else:
+        return None
 
 def session_agenda(request, num, session):
     d = Document.objects.filter(type="agenda", session__meeting__number=num)
@@ -496,18 +529,6 @@ def convert_to_pdf(doc_name):
     pipe("ps2pdf "+psname+" "+outpath)
     os.unlink(psname)
 
-def read_agenda_file(num, doc):
-    # XXXX FIXME: the path fragment in the code below should be moved to
-    # settings.py.  The *_PATH settings should be generalized to format()
-    # style python format, something like this:
-    #  DOC_PATH_FORMAT = { "agenda": "/foo/bar/agenda-{meeting.number}/agenda-{meeting-number}-{doc.group}*", }
-    path = os.path.join(settings.AGENDA_PATH, "%s/agenda/%s" % (num, doc.external_url))
-    if os.path.exists(path):
-        with open(path) as f:
-            return f.read()
-    else:
-        return None
-
 def session_draft_list(num, session):
     try:
         agenda = Document.objects.filter(type="agenda",
@@ -537,7 +558,6 @@ def session_draft_list(num, session):
             pass
 
     return sorted(result)
-
 
 def session_draft_tarfile(request, num, session):
     drafts = session_draft_list(num, session);

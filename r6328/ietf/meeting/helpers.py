@@ -10,8 +10,11 @@ from tempfile import mkstemp
 
 from django import forms
 from django.http import Http404
+from django.http import HttpRequest
 from django.db.models import Max, Q
 from django.conf import settings
+from django.core.cache import cache
+from django.utils.cache import get_cache_key
 
 import debug
 import urllib
@@ -127,7 +130,7 @@ class NamedTimeSlot(object):
         return self.timeslot.slot_decor
 
 def build_url_pair(request, meeting):
-    meeting_base_url = request.build_absolute_uri(meeting.base_url())
+    meeting_base_url = request.build_absolute_uri(meeting.json_url())
     site_base_url    = request.build_absolute_uri('/')
 
     # remove trailing / from site_base_url.
@@ -354,3 +357,15 @@ def agenda_permissions(meeting, schedule, user):
         canedit = True
 
     return cansee,canedit
+
+def session_constraint_expire(session):
+    from django.core.urlresolvers import reverse
+    from ajax import session_constraints
+    path = reverse(session_constraints, args=[session.meeting.number, session.pk])
+    request = HttpRequest()
+    request.path = path
+    key = get_cache_key(request)
+    if key is not None and cache.has_key(key):
+        cache.delete(key)
+
+

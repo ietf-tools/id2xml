@@ -13,7 +13,7 @@ END:VTIMEZONE
 {% endif %}{% for slot in timeslots %}{% ifchanged %}{% if slot.session_name and slot.break_info %}BEGIN:VEVENT
 UID:ietf-{{meeting.num}}-break-{{slot.time_id}}
 SUMMARY:{{slot.break_info.name}}
-{% if venue.break_area_name and slot.break_info.show_break_location %}LOCATION:{{venue.break_area_name}}
+{% if meeting.break_area and slot.break_info.show_break_location %}LOCATION:{{meeting.break_area}}
 {% endif %}STATUS:TENTATIVE
 CLASS:PUBLIC
 DTSTART{% if meeting.time_zone %};TZID="{{meeting.city}}"{%endif%}:{{ slot.meeting_date|date:"Ymd" }}T{{slot.break_info.time_desc|slice:":4"}}00

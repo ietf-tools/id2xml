@@ -33,9 +33,49 @@ class AgendaInfoTestCase(TestCase):
         # the timeslots array itself.
         self.assertEqual(len(timeslots),26)
         self.assertEqual(meeting.number,'83')
-        self.assertEqual(venue.meeting_num, "83")
+        self.assertEqual(venue.number, "83")
         # will change as more ADs are added to fixtures
         self.assertEqual(len(ads), 8)
+
+    # this tests that one can load/render an agenda by name if it is marked "cansee"
+    def test_agenda_can_see_text(self):
+        resp = self.client.get('/meeting/83/schedule/inv_83.txt')
+        self.assertEqual(resp.status_code, 200)
+
+    # this tests that one can load/render an agenda in html if it is marked "cansee"
+    def test_agenda_can_see_html(self):
+        resp = self.client.get('/meeting/83/schedule/inv_83.html')
+        self.assertEqual(resp.status_code, 200)
+
+    # this tests that one can load/render an agenda in csv if it is marked "cansee"
+    def test_agenda_can_see_csv(self):
+        resp = self.client.get('/meeting/83/schedule/inv_83.html')
+        self.assertEqual(resp.status_code, 200)
+
+    # this tests that one can load/render an agenda in ical if it is marked "cansee"
+    def test_agenda_can_see_csv(self):
+        resp = self.client.get('/meeting/83/schedule/inv_83.ics')
+        self.assertEqual(resp.status_code, 200)
+
+    # this tests that one can not load/render an agenda in text by name if it is private.
+    def test_agenda_can_see_text(self):
+        resp = self.client.get('/meeting/83/schedule/priv_83.txt')
+        self.assertEqual(resp.status_code, 404)
+
+    # this tests that one can not load/render an agenda in ical by name if it is private.
+    def test_agenda_can_see_text(self):
+        resp = self.client.get('/meeting/83/schedule/priv_83.ics')
+        self.assertEqual(resp.status_code, 404)
+
+    # this tests that one can not load/render an agenda in html by name if it is private.
+    def test_agenda_can_see_html(self):
+        resp = self.client.get('/meeting/83/schedule/priv_83.html')
+        self.assertEqual(resp.status_code, 404)
+
+    # this tests that one can not load/render an agenda in csv by name if it is private.
+    def test_agenda_can_see_csv(self):
+        resp = self.client.get('/meeting/83/schedule/priv_83.csv')
+        self.assertEqual(resp.status_code, 404)
 
     def test_AgendaInfoReturnsSortedTimeSlots(self):
         from ietf.meeting.views import agenda_info

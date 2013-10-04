@@ -33,7 +33,7 @@ from ietf.utils.pipe import pipe
 from ietf.doc.models import Document, State
 
 # Old model -- needs to be removed
-from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
+from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, IESGHistory, Proceeding, Switches
 
 # New models
 from ietf.person.models  import Person
@@ -116,6 +116,10 @@ def agenda_html_request(request,num=None, schedule_name=None):
 def get_agenda_info(request, num=None, schedule_name=None):
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, schedule_name)
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not cansee:
+        raise Http404("No schedule by the name %s visible" % (schedule_name))
+
     scheduledsessions = get_scheduledsessions_from_schedule(schedule)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
@@ -408,7 +412,7 @@ def edit_agendas(request, num=None, order=None):
 
 ##############################################################################
 def iphone_agenda(request, num, name):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name, request.user)
 
     groups_meeting = set();
     for ss in scheduledsessions:
@@ -434,8 +438,8 @@ def iphone_agenda(request, num, name):
             context_instance=RequestContext(request))
 
 
-def text_agenda(request, num=None, name=None):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+def text_agenda(request, num=None, schedule_name=None):
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, schedule_name, request.user)
     plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
     plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
 
@@ -669,6 +673,11 @@ def ical_agenda(request, num=None, schedule_name=None):
                 include_types |= set([item[1:2].upper()+item[2:]])
 
     schedule = get_schedule(meeting, schedule_name)
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not cansee:
+        return HttpResponse("permission denied",
+                            status=404, mimetype="text/calendar")
+
     scheduledsessions = get_scheduledsessions_from_schedule(schedule)
 
     scheduledsessions = scheduledsessions.filter(
@@ -696,11 +705,15 @@ def ical_agenda(request, num=None, schedule_name=None):
         {"scheduledsessions":scheduledsessions, "meeting":meeting, "vtimezone": vtimezone },
         RequestContext(request)), mimetype="text/calendar")
 
-def csv_agenda(request, num=None, name=None):
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+def csv_agenda(request, num=None, schedule_name=None):
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, schedule_name, request.user)
     # we should really use the Python csv module or something similar
     # rather than a template file which is one big mess
 
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not cansee:
+        return HttpResponse("permission denied",
+                            status=403, mimetype="text/calendar")
     return HttpResponse(render_to_string("meeting/agenda.csv",
         {"timeslots":timeslots, "update":update, "meeting":meeting, "venue":venue, "ads":ads,
          "plenaryw_agenda":plenaryw_agenda, "plenaryt_agenda":plenaryt_agenda, },

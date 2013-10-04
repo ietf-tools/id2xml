@@ -78,6 +78,9 @@ class Meeting(models.Model):
     def get_meeting_date (self,offset):
         return self.date + datetime.timedelta(days=offset)
 
+    def start_date(self):
+        return self.date
+
     def end_date(self):
         return self.get_meeting_date(5)
 

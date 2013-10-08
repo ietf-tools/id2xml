@@ -333,7 +333,7 @@ class TimeSlot(models.Model):
         return d
 
     def session_for_schedule(self, schedule):
-        ss = scheduledsession_set.filter(schedule=schedule).all()[0]
+        ss = self.scheduledsession_set.filter(schedule=schedule).all()[0]
         if ss:
             return ss.session
         else:

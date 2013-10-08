@@ -1,17 +1,42 @@
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% load humanize %}
+
+
 
 
 <html> <head>
 <script type="text/javascript" src='/js/agenda2.js'></script>
 <script type="text/javascript">
 var items = new Array();
-{% autoescape off %}
+
 
 /* the timeslots */
-{% for slot in timeslots %} {% if slot.type.name in render_types %}
-items.push({key:"{{slot.pk}}",day:{{slot.time|date:"w"}}, time:"{{slot.time|date:"Hi"}}-{{slot.end_time|date:"Hi"}}", duration:{{slot.duration.seconds}}, time_id:"{{slot.time|date:"mdHi"}}", type:"{{slot.type}}", {% if slot.session.name %}name:"{{slot.session.name}}",{% if slot.session.group.acronym %} wg:"{{slot.session.group.acronym}}",{%endif%}{% else %}{% if slot.type.name == "Break" %}name:"{{slot.name}}", area:"break", wg:"break",{% else %}name:"{{slot.session.group.name}}{%if slot.session.group.state.name = "BOF"%} BOF{%endif%}",wg:"{{slot.session.group.acronym}}",state:"{{slot.session.group.state}}",area:"{{slot.session.group.parent.acronym}}",{% endif %}{% endif %} {% if slot.show_location %}room:"{{slot.get_location}}",{% endif %} dayname:"{{ slot.time|date:"l"|upper }}, {{ slot.time|date:"F j, Y" }}"{% if slot.session.agenda %}, agenda:"http://www.ietf.org{{slot.session.agenda.get_absolute_url}}"{% endif %} });{% endif %}{% endfor %}
-{% endautoescape %}
+ 
+items.push({key:"2923",day:6, time:"0930-1800", duration:30600, time_id:"03240930", type:"Other", name:"Code Sprint", wg:"tools",  dayname:"SATURDAY, March 24, 2012" }); 
+items.push({key:"2514",day:0, time:"1000-1200", duration:7200, time_id:"03251000", type:"Other", name:"IEPG Meeting", wg:"iepg",  dayname:"SUNDAY, March 25, 2012" }); 
+items.push({key:"2499",day:0, time:"1300-1450", duration:6600, time_id:"03251300", type:"Other", name:"Tools for Creating Internet-Drafts Tutorial", wg:"edu",  dayname:"SUNDAY, March 25, 2012" }); 
+items.push({key:"2501",day:0, time:"1500-1650", duration:6600, time_id:"03251500", type:"Other", name:"Operations, Administration, and Maintenance Tutorial", wg:"edu",  dayname:"SUNDAY, March 25, 2012" }); 
+items.push({key:"2505",day:0, time:"1600-1700", duration:3600, time_id:"03251600", type:"Other", name:"Newcomers' Meet and Greet (open to Newcomers and WG chairs only)", wg:"ietf",  dayname:"SUNDAY, March 25, 2012" }); 
+items.push({key:"2504",day:0, time:"1700-1900", duration:7200, time_id:"03251700", type:"Other", name:"Welcome Reception", wg:"ietf",  dayname:"SUNDAY, March 25, 2012" }); 
+items.push({key:"2374",day:1, time:"0900-1130", duration:9000, time_id:"03260900", type:"Session", name:"Applications Area Working Group",wg:"appsawg",state:"Active",area:"app",  dayname:"MONDAY, March 26, 2012" }); 
+items.push({key:"2373",day:1, time:"1300-1500", duration:7200, time_id:"03261300", type:"Session", name:"Web Security",wg:"websec",state:"Active",area:"app",  dayname:"MONDAY, March 26, 2012" }); 
+items.push({key:"2397",day:1, time:"1510-1610", duration:3600, time_id:"03261510", type:"Session", name:"Forwarding and Control Element Separation",wg:"forces",state:"Active",area:"rtg",  dayname:"MONDAY, March 26, 2012" }); 
+items.push({key:"2498",day:1, time:"1630-1930", duration:10800, time_id:"03261630", type:"Plenary", name:"Technical Plenary", wg:"iab",  dayname:"MONDAY, March 26, 2012" }); 
+items.push({key:"2371",day:2, time:"0900-1130", duration:9000, time_id:"03270900", type:"Session", name:"Public-Key Infrastructure (X.509)",wg:"pkix",state:"Active",area:"sec",  dayname:"TUESDAY, March 27, 2012" }); 
+items.push({key:"2387",day:2, time:"1300-1500", duration:7200, time_id:"03271300", type:"Session", name:"Open Shortest Path First IGP",wg:"ospf",state:"Active",area:"rtg",  dayname:"TUESDAY, March 27, 2012" }); 
+items.push({key:"2379",day:2, time:"1520-1700", duration:6000, time_id:"03271520", type:"Session", name:"Locator/ID Separation Protocol",wg:"lisp",state:"Active",area:"int",  dayname:"TUESDAY, March 27, 2012" }); 
+items.push({key:"2384",day:2, time:"1710-1810", duration:3600, time_id:"03271710", type:"Session", name:"Managed Incident Lightweight Exchange",wg:"mile",state:"Active",area:"sec",  dayname:"TUESDAY, March 27, 2012" }); 
+items.push({key:"2377",day:3, time:"0900-1130", duration:9000, time_id:"03280900", type:"Session", name:"Common Control and Measurement Plane",wg:"ccamp",state:"Active",area:"rtg",  dayname:"WEDNESDAY, March 28, 2012" }); 
+items.push({key:"2926",day:3, time:"1130-1300", duration:5400, time_id:"03281130", type:"Other", name:"Working Group Chairs' Training", wg:"edu",  dayname:"WEDNESDAY, March 28, 2012" }); 
+items.push({key:"2388",day:3, time:"1300-1500", duration:7200, time_id:"03281300", type:"Session", name:"Keying and Authentication for Routing Protocols",wg:"karp",state:"Active",area:"rtg",  dayname:"WEDNESDAY, March 28, 2012" }); 
+items.push({key:"2415",day:3, time:"1510-1610", duration:3600, time_id:"03281510", type:"Session", name:"Softwires",wg:"softwire",state:"Active",area:"int",  dayname:"WEDNESDAY, March 28, 2012" }); 
+items.push({key:"2497",day:3, time:"1630-1930", duration:10800, time_id:"03281630", type:"Plenary", name:"IETF Operations and Administration Plenary", wg:"iesg",  dayname:"WEDNESDAY, March 28, 2012" }); 
+items.push({key:"2386",day:4, time:"0900-1130", duration:9000, time_id:"03290900", type:"Session", name:"Dynamic Host Configuration",wg:"dhc",state:"Active",area:"int",  dayname:"THURSDAY, March 29, 2012" }); 
+items.push({key:"2402",day:4, time:"1300-1500", duration:7200, time_id:"03291300", type:"Session", name:"Mobile Ad-hoc Networks",wg:"manet",state:"Active",area:"rtg",  dayname:"THURSDAY, March 29, 2012" }); 
+items.push({key:"2378",day:4, time:"1520-1720", duration:7200, time_id:"03291520", type:"Session", name:"Routing Area Open Meeting",wg:"rtgarea",state:"Active",area:"rtg",  dayname:"THURSDAY, March 29, 2012" }); 
+items.push({key:"2372",day:4, time:"1740-1940", duration:7200, time_id:"03291740", type:"Session", name:"Routing Area Working Group",wg:"rtgwg",state:"Active",area:"rtg",  dayname:"THURSDAY, March 29, 2012" }); 
+items.push({key:"2405",day:5, time:"0900-1100", duration:7200, time_id:"03300900", type:"Session", name:"Multiprotocol Label Switching",wg:"mpls",state:"Active",area:"rtg",  dayname:"FRIDAY, March 30, 2012" }); 
+items.push({key:"2390",day:5, time:"1120-1220", duration:3600, time_id:"03301120", type:"Session", name:"Transparent Interconnection of Lots of Links",wg:"trill",state:"Active",area:"int",  dayname:"FRIDAY, March 30, 2012" }); 
+items.push({key:"2422",day:5, time:"1230-1330", duration:3600, time_id:"03301230", type:"Session", name:"Call Control UUI Service for SIP",wg:"cuss",state:"Active",area:"rai",  dayname:"FRIDAY, March 30, 2012" });
+
 
 /* Saturday events need to be moved to the day -1 */
 for (var i = 0; i < items.length; i++)
@@ -71,7 +96,7 @@ setInterval("animate()",50);
 function is_visible(item)
 {
    //   "-wgname" will remove a working group from the output.
-   //   "~Type" will add that type to the output. 
+   //   "~Type" will add that type to the output.
    //   "-~Type" will remove that type from the output
    //   "@bof" will include all BOFs
    // Current types are:
@@ -94,7 +119,7 @@ function is_visible(item)
   }
   if (item.type === "Plenary") { return true; }
   if (item.type === "Other") { return true; }
- 
+
   return false;
 }
 
@@ -105,7 +130,7 @@ function draw_calendar()
   var width = document.body.clientWidth;
   var height = document.body.clientHeight;
 
-  if (lastheight == height && 
+  if (lastheight == height &&
       lastwidth == width &&
       lastfrag == window.location.hash)
   {
@@ -134,7 +159,7 @@ function draw_calendar()
   {
     if (is_visible(items[i]))
   /*
-    if (!("wg" in items[i]) || (include[(items[i].wg).toLowerCase()] 
+    if (!("wg" in items[i]) || (include[(items[i].wg).toLowerCase()]
         || include[(items[i].area).toLowerCase()]))
   */
     {
@@ -225,7 +250,7 @@ function draw_calendar()
     e.style.top=header_height;
     e.style.left=i*day_width;
     e.style.width=day_width - 2 * (padding + border);
-    e.style.height=height - 
+    e.style.height=height -
                    2 * (padding + border) - header_height;
 
     e.style.margin=0;
@@ -245,7 +270,7 @@ function draw_calendar()
   {
     if (is_visible(items[i]))
   /*
-    if (!("wg" in items[i]) || (include[(items[i].wg).toLowerCase()] 
+    if (!("wg" in items[i]) || (include[(items[i].wg).toLowerCase()]
         || include[(items[i].area).toLowerCase()]))
   */
     {
@@ -254,7 +279,7 @@ function draw_calendar()
       var end_time = start_time + (items[i].duration / 60)
 
       var sess_width = day_width / sessions[items[i].time_id];
-      var sess_height = ((end_time - start_time) * minute_height) 
+      var sess_height = ((end_time - start_time) * minute_height)
                         - 2 * (padding + border);
       var day_left = ((items[i].day - start_day) * day_width);
       var sess_left = day_left + sess_width * used[items[i].time_id];

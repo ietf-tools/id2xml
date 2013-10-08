@@ -642,10 +642,11 @@ def session_draft_pdf(request, num, session):
     os.unlink(pdfn)
     return HttpResponse(pdf_contents, mimetype="application/pdf")
 
-def week_view(request, num=None):
+def week_view(request, num=None, schedule_name = None):
     meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(meeting__id = meeting.id)
+    schedule = get_schedule(meeting, schedule_name)
 
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     template = "meeting/week-view.html"
     return render_to_response(template,
             {"timeslots":timeslots,"render_types":["Session","Other","Break","Plenary"]}, context_instance=RequestContext(request))

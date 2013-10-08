@@ -29,6 +29,7 @@ function setGroupState()
         ical_link.className = 'hidden';
     }
 
+    /* this part shows/hides selected WG in the printed part of the agenda */
     var selectors = document.getElementsByTagName('div');
     var re = RegExp("^selector-");
     var re2 = RegExp("^selector-(" + fragment.join('|') + ")$");

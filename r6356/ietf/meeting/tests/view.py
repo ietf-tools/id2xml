@@ -35,6 +35,21 @@ class ViewTestCase(TestCase):
             out.close()
         self.assertEqual(resp.content, agenda83txt, "The /meeting/83/agenda.txt page changed.\nThe newly generated agenda has been written to file: %s" % fn)
 
+    def test_agenda83weekview(self):
+        # verify that the generated text has not changed.
+        import io
+        agenda83txtio = open("%s/meeting/tests/agenda-83-weekview-output.html" % BASE_DIR, "r")
+        agenda83txt = agenda83txtio.read();  # read entire file
+        resp = self.client.get('/meeting/83/week-view.html')
+        # to capture new output (and check it for correctness)
+        fn = ""
+        if resp.content != agenda83txt:
+            fn = "%s/meeting/tests/agenda-83-weekview-output-out.html" % BASE_DIR
+            out = open(fn, "w")
+            out.write(resp.content)
+            out.close()
+        self.assertEqual(resp.content, agenda83txt, "The /meeting/83/week-view.html page changed.\nThe newly generated agenda has been written to file: %s" % fn)
+
     def test_agenda83utc(self):
         # verify that the generated html has not changed.
         import io

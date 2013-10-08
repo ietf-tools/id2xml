@@ -46,12 +46,27 @@ class NamedTimeSlot(object):
         self.agenda   = agenda
         self.timeslot = timeslot
 
-    def scheduledsessions(self):
-        self.timeslot.scheduledsessions_set.filter(schedule=self.agenda, session__isnull=False)
+    def pk(self):
+        return self.timeslot.pk
+
+    def type(self):
+        return self.timeslot.type
+
+    def name(self):
+        return self.timeslot.name
 
     @property
     def time(self):
         return self.timeslot.time
+
+    def end_time(self):
+        return self.timeslot.end_time()
+
+    def session(self):
+        return self.timeslot.session_for_schedule(self.agenda)
+
+    def duration(self):
+        return self.timeslot.duration
 
     @property
     def meeting_date(self):

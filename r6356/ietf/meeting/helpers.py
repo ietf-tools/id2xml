@@ -291,16 +291,23 @@ def build_all_agenda_slices(scheduledsessions, all = False):
     return time_slices,date_slices
 
 
+def get_ordered_scheduledsessions_from_schedule(schedule):
+    from django.db.models import Max
+    qs = schedule.scheduledsession_set
+    qs = qs.annotate()
+    qs = qs.order_by('timeslot__time', 'timeslot__name', 'session__group__group')
+    return qs
+
 def get_scheduledsessions_from_schedule(schedule):
-   ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).exclude(session__isnull = True).order_by('timeslot__time','timeslot__name','session__group__group', 'id')
-   return ss
+   ss = get_ordered_scheduledsessions_from_schedule(schedule)
+   return ss.filter(timeslot__location__isnull = False).exclude(session__isnull = True)
 
 def get_all_scheduledsessions_from_schedule(schedule):
-   ss = schedule.scheduledsession_set.order_by('timeslot__time','timeslot__name','session__group__group')
+   ss = get_ordered_scheduledsessions_from_schedule(schedule)
    return ss
 
-def get_modified_from_scheduledsessions(scheduledsessions):
-    return scheduledsessions.aggregate(Max('timeslot__modified'))['timeslot__modified__max']
+def get_modified_from_scheduledsessions(schedule):
+    return schedule.scheduledsession_set.aggregate(Max('timeslot__modified'))['timeslot__modified__max']
 
 def get_wg_name_list(scheduledsessions):
     return scheduledsessions.filter(timeslot__type = 'Session',

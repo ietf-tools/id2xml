@@ -126,7 +126,7 @@ def get_agenda_info(request, num=None, schedule_name=None):
         raise Http404("No schedule by the name %s visible" % (schedule_name))
 
     scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
+    modified = get_modified_from_scheduledsessions(schedule)
 
     area_list = get_areas()
     wg_list = get_wg_list(scheduledsessions)
@@ -333,7 +333,7 @@ def edit_agenda(request, num=None, schedule_name=None):
     #session_jsons = session_jsons[1:20]
 
     # get_modified_from needs the query set, not the list
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
+    modified = get_modified_from_scheduledsessions(schedule)
 
     ntimeslots = get_ntimeslots_from_ss(schedule, scheduledsessions)
 

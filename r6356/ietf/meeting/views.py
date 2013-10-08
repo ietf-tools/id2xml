@@ -42,7 +42,7 @@ from ietf.meeting.models import Schedule, ScheduledSession, Room
 from ietf.group.models import Group
 
 from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss
-from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info
+from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info, agenda_view_info
 from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pseudo_areas
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule, get_all_scheduledsessions_from_schedule
@@ -116,11 +116,16 @@ def agenda_html_request(request,num=None, schedule_name=None):
 def get_agenda_info(request, num=None, schedule_name=None):
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, schedule_name)
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+
+    # some users (such as humans) find it hard to provide a request object here.
+    user = None
+    if request is not None:
+        user = request.user
+    cansee,canedit = agenda_permissions(meeting, schedule, user)
     if not cansee:
         raise Http404("No schedule by the name %s visible" % (schedule_name))
 
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+    scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
     area_list = get_areas()
@@ -412,7 +417,7 @@ def edit_agendas(request, num=None, order=None):
 
 ##############################################################################
 def iphone_agenda(request, num, name):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name, request.user)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, name)
 
     groups_meeting = set();
     for ss in scheduledsessions:
@@ -439,7 +444,7 @@ def iphone_agenda(request, num, name):
 
 
 def text_agenda(request, num=None, schedule_name=None):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, schedule_name, request.user)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
     plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
 
@@ -678,7 +683,7 @@ def ical_agenda(request, num=None, schedule_name=None):
         return HttpResponse("permission denied",
                             status=404, mimetype="text/calendar")
 
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+    scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
 
     scheduledsessions = scheduledsessions.filter(
         Q(timeslot__type__name__in = include_types) |
@@ -706,7 +711,7 @@ def ical_agenda(request, num=None, schedule_name=None):
         RequestContext(request)), mimetype="text/calendar")
 
 def csv_agenda(request, num=None, schedule_name=None):
-    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, schedule_name, request.user)
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     # we should really use the Python csv module or something similar
     # rather than a template file which is one big mess
 

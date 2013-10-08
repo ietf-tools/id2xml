@@ -150,6 +150,14 @@ def get_ntimeslots_from_agenda(agenda):
 
     return ntimeslots, scheduledsessions
 
+def get_all_ntimeslots_from_agenda(agenda):
+    # now go through the timeslots, only keeping those that are
+    # sessions/plenary/training and don't occur at the same time
+    scheduledsessions = agenda.scheduledsession_set.all().order_by("timeslot__time").exclude(timeslot__type = "unavail")
+    ntimeslots = get_ntimeslots_from_ss(agenda, scheduledsessions)
+
+    return ntimeslots, scheduledsessions
+
 def find_ads_for_meeting(meeting):
     ads = []
     meeting_time = datetime.datetime.combine(meeting.date, datetime.time(0, 0, 0))
@@ -174,27 +182,7 @@ def find_ads_for_meeting(meeting):
                     ads.append(IESGHistory().from_role(x, meeting_time))
     return ads
 
-def agenda_info(num=None, schedule_name=None, request_user=None):
-    """
-    XXX this should really be a method on Meeting
-    """
-
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
-    if schedule is None:
-        raise Http404("Meeting %s has no agenda set yet" % (num))
-
-    cansee,canedit = agenda_permissions(meeting, schedule, request_user)
-    if not cansee:
-        raise Http404("No schedule by the name %s visible" % (schedule_name))
-
-    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(schedule)
-
-    update = Switches().from_object(meeting)
-
-    # the meeting object becomes the venue object, as it has break_area, reg_area, venue_name
-    venue = meeting
-
+def find_plenaries(meeting):
     ads = find_ads_for_meeting(meeting)
 
     active_agenda = State.objects.get(type='agenda', slug='active')
@@ -217,7 +205,50 @@ def agenda_info(num=None, schedule_name=None, request_user=None):
             else:
                 plenaryw_agenda = s
 
+    return ads, plenaryw_agenda,plenaryt_agenda
+
+# this routine is used by an edit method to collect all the info it needs.
+def agenda_info(num=None, schedule_name=None, requesting_user=None):
+    """
+    XXX this should really be a method on Meeting
+    """
+
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+    if schedule is None:
+        raise Http404("Meeting %s has no agenda set yet" % (num))
+
+    cansee,canedit = agenda_permissions(meeting, schedule, requesting_user)
+    if not cansee:
+        raise Http404("No schedule by the name %s visible" % (schedule_name))
+
+    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(schedule)
+    update = Switches().from_object(meeting)
+
+    # the meeting object has subsumed the venue object, as it has break_area, reg_area, venue_name
+    venue = meeting
+    ads, plenaryw_agenda, plenaryt_agenda = find_plenaries(meeting)
     return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
+
+# this routine is used by a view to collect all the info it needs.
+def agenda_view_info(requesting_user, meeting_num, schedule_name):
+    meeting = get_meeting(meeting_num)
+    schedule = get_schedule(meeting, schedule_name)
+    if schedule is None:
+        raise Http404("Meeting %s has no agenda set yet" % (num))
+
+    cansee,canedit = agenda_permissions(meeting, schedule, requesting_user)
+    if not cansee:
+        raise Http404("No schedule by the name %s visible" % (schedule_name))
+
+    ntimeslots,scheduledsessions = get_all_ntimeslots_from_agenda(schedule)
+    update = Switches().from_object(meeting)
+
+    # the meeting object has subsumed the venue object, as it has break_area, reg_area, venue_name
+    venue = meeting
+    ads, plenaryw_agenda, plenaryt_agenda = find_plenaries(meeting)
+    return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
+
 
 # get list of all areas, + IRTF + IETF (plenaries).
 def get_pseudo_areas():
@@ -261,13 +292,11 @@ def build_all_agenda_slices(scheduledsessions, all = False):
 
 
 def get_scheduledsessions_from_schedule(schedule):
-   ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).exclude(session__isnull = True).order_by('timeslot__time','timeslot__name','session__group__group')
-
+   ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).exclude(session__isnull = True).order_by('timeslot__time','timeslot__name','session__group__group', 'id')
    return ss
 
 def get_all_scheduledsessions_from_schedule(schedule):
-   ss = schedule.scheduledsession_set.filter(timeslot__location__isnull = False).order_by('timeslot__time','timeslot__name')
-
+   ss = schedule.scheduledsession_set.order_by('timeslot__time','timeslot__name','session__group__group')
    return ss
 
 def get_modified_from_scheduledsessions(scheduledsessions):

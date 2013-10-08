@@ -697,6 +697,9 @@ class ScheduledSession(models.Model):
         else:
             return ""
 
+    def not_unavail(self):
+        return self.slottype != "unavail"
+
     @property
     def empty_str(self):
         # return JS happy value

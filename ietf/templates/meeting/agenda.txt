@@ -1,6 +1,6 @@
 {% load humanize %}{% autoescape off %}
 {% load ietf_filters %}
-{% filter center:72 %}Agenda of the {{ meeting.num|ordinal }} IETF Meeting{% endfilter %}
+{% filter center:72 %}Agenda of the {{ meeting.number|ordinal }} IETF Meeting{% endfilter %}
 {% if meeting.agenda_note %}
 {% filter center:72 %}{{ meeting.agenda_note|striptags|wrap_text:72|safe }}{% endfilter %}
 {% endif %}
@@ -12,8 +12,8 @@
 {% for slot in timeslots %}{% ifchanged  %}
 
 {{ slot.meeting_date|date:"l"|upper }}, {{ slot.meeting_date|date:"F j, Y" }}{% if slot.reg_info %}
-{{ slot.registration.time_desc  }}  {{ slot.registration.name  }}{% if venue.reg_area_name %} - {{ venue.reg_area_name }}{% endif %}{% endif %}
-{% endifchanged %}{% if slot.session_name %}{% if slot.break_info %}{{ slot.break_info.time_desc }}  {{ slot.break_info.name }}{% if venue.break_area_name and slot.break_info.show_location %} - {{ venue.break_area_name }}{% endif %}
+{{ slot.registration.time_desc  }}  {{ slot.registration.name  }}{% if meeting.reg_area %} - {{ meeting.reg_area }}{% endif %}{% endif %}
+{% endifchanged %}{% if slot.session_name %}{% if slot.break_info %}{{ slot.break_info.time_desc }}  {{ slot.break_info.name }}{% if meeting.break_area and slot.break_info.show_location %} - {{ meeting.break_area }}{% endif %}
 {% endif %}{{ slot.time_desc               }}  {{ slot.session_name }}{% if slot.is_plenary %} - {{ slot.room_name }}{% endif %}{% if slot.is_plenaryw %}
 
 {{ plenaryw_agenda }}{% endif %}{% if slot.is_plenaryt %}

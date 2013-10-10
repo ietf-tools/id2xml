@@ -33,7 +33,7 @@ class AgendaInfoTestCase(TestCase):
         # the timeslots array itself.
         self.assertEqual(len(timeslots),26)
         self.assertEqual(meeting.number,'83')
-        self.assertEqual(venue.meeting_num, "83")
+        self.assertEqual(venue.number, "83")
         # will change as more ADs are added to fixtures
         self.assertEqual(len(ads), 8)
 

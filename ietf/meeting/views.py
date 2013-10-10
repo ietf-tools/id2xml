@@ -33,7 +33,7 @@ from ietf.utils.pipe import pipe
 from ietf.doc.models import Document, State
 
 # Old model -- needs to be removed
-from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, MeetingVenue, IESGHistory, Proceeding, Switches
+from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, IESGHistory, Proceeding, Switches
 
 # New models
 from ietf.person.models  import Person
@@ -42,7 +42,7 @@ from ietf.meeting.models import Schedule, ScheduledSession, Room
 from ietf.group.models import Group
 
 from ietf.meeting.helpers import NamedTimeSlot, get_ntimeslots_from_ss
-from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info
+from ietf.meeting.helpers import get_ntimeslots_from_agenda, agenda_info, agenda_view_info
 from ietf.meeting.helpers import get_areas, get_area_list_from_sessions, get_pseudo_areas
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
 from ietf.meeting.helpers import get_scheduledsessions_from_schedule, get_all_scheduledsessions_from_schedule
@@ -116,8 +116,8 @@ def agenda_html_request(request,num=None, schedule_name=None):
 def get_agenda_info(request, num=None, schedule_name=None):
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, schedule_name)
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
+    scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
+    modified = get_modified_from_scheduledsessions(schedule)
 
     area_list = get_areas()
     wg_list = get_wg_list(scheduledsessions)
@@ -324,7 +324,7 @@ def edit_agenda(request, num=None, schedule_name=None):
     #session_jsons = session_jsons[1:20]
 
     # get_modified_from needs the query set, not the list
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
+    modified = get_modified_from_scheduledsessions(schedule)
 
     ntimeslots = get_ntimeslots_from_ss(schedule, scheduledsessions)
 
@@ -408,7 +408,7 @@ def edit_agendas(request, num=None, order=None):
 
 ##############################################################################
 def iphone_agenda(request, num, name):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, name)
 
     groups_meeting = set();
     for ss in scheduledsessions:
@@ -434,8 +434,8 @@ def iphone_agenda(request, num, name):
             context_instance=RequestContext(request))
 
 
-def text_agenda(request, num=None, name=None):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+def text_agenda(request, num=None, schedule_name=None):
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     plenaryw_agenda = "   "+plenaryw_agenda.strip().replace("\n", "\n   ")
     plenaryt_agenda = "   "+plenaryt_agenda.strip().replace("\n", "\n   ")
 
@@ -633,10 +633,11 @@ def session_draft_pdf(request, num, session):
     os.unlink(pdfn)
     return HttpResponse(pdf_contents, mimetype="application/pdf")
 
-def week_view(request, num=None):
+def week_view(request, num=None, schedule_name = None):
     meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(meeting__id = meeting.id)
+    schedule = get_schedule(meeting, schedule_name)
 
+    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     template = "meeting/week-view.html"
     return render_to_response(template,
             {"timeslots":timeslots,"render_types":["Session","Other","Break","Plenary"]}, context_instance=RequestContext(request))
@@ -669,7 +670,8 @@ def ical_agenda(request, num=None, schedule_name=None):
                 include_types |= set([item[1:2].upper()+item[2:]])
 
     schedule = get_schedule(meeting, schedule_name)
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+
+    scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
 
     scheduledsessions = scheduledsessions.filter(
         Q(timeslot__type__name__in = include_types) |
@@ -696,8 +698,8 @@ def ical_agenda(request, num=None, schedule_name=None):
         {"scheduledsessions":scheduledsessions, "meeting":meeting, "vtimezone": vtimezone },
         RequestContext(request)), mimetype="text/calendar")
 
-def csv_agenda(request, num=None, name=None):
-    timeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_info(num, name)
+def csv_agenda(request, num=None, schedule_name=None):
+    timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda = agenda_view_info(request.user, num, schedule_name)
     # we should really use the Python csv module or something similar
     # rather than a template file which is one big mess
 

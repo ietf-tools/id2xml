@@ -79,6 +79,9 @@ class Meeting(models.Model):
     def get_meeting_date (self,offset):
         return self.date + datetime.timedelta(days=offset)
 
+    def start_date(self):
+        return self.date
+
     def end_date(self):
         return self.get_meeting_date(5)
 
@@ -330,7 +333,7 @@ class TimeSlot(models.Model):
         return d
 
     def session_for_schedule(self, schedule):
-        ss = scheduledsession_set.filter(schedule=schedule).all()[0]
+        ss = self.scheduledsession_set.filter(schedule=schedule).all()[0]
         if ss:
             return ss.session
         else:
@@ -692,6 +695,9 @@ class ScheduledSession(models.Model):
             return self.timeslot.type.slug
         else:
             return ""
+
+    def not_unavail(self):
+        return self.slottype != "unavail"
 
     @property
     def empty_str(self):

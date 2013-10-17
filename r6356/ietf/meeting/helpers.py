@@ -25,7 +25,7 @@ from ietf.ietfauth.decorators import has_role
 from ietf.utils.history import find_history_active_at
 from ietf.doc.models import Document, State
 
-from ietf.proceedings.models import IESGHistory, Switches
+from ietf.proceedings.models import Meeting as OldMeeting, MeetingTime, IESGHistory, Switches
 
 # New models
 from ietf.meeting.models import Meeting, TimeSlot, Session
@@ -96,13 +96,11 @@ class NamedTimeSlot(object):
     def is_plenary(self):
         return self.timeslot.is_plenary
 
-    @property
     def is_plenaryw(self):
-        return self.timeslot.is_plenary_type("plenaryw")
+        return self.timeslot.is_plenary_type("opsplenary")
 
-    @property
     def is_plenaryt(self):
-        return self.timeslot.is_plenary_type("plenaryt")
+        return self.timeslot.is_plenary_type("techplenary")
 
     @property
     def tzname(self):
@@ -197,11 +195,40 @@ def find_ads_for_meeting(meeting):
                     ads.append(IESGHistory().from_role(x, meeting_time))
     return ads
 
-def find_plenaries(meeting):
-    ads = find_ads_for_meeting(meeting)
+def agenda_info(num=None):
+    try:
+        if num != None:
+            meeting = OldMeeting.objects.get(number=num)
+        else:
+            meeting = OldMeeting.objects.all().order_by('-date')[:1].get()
+    except OldMeeting.DoesNotExist:
+        raise Http404("No meeting information for meeting %s available" % num)
 
-    active_agenda = State.objects.get(type='agenda', slug='active')
-    plenary_agendas = Document.objects.filter(session__meeting=meeting, session__scheduledsession__timeslot__type="plenary", type="agenda", ).distinct()
+    # now go through the timeslots, only keeping those that are
+    # sessions/plenary/training and don't occur at the same time
+    timeslots = []
+    time_seen = set()
+    for t in MeetingTime.objects.filter(meeting=meeting, type__in=("session", "plenary", "other")).order_by("time").select_related():
+        if not t.time in time_seen:
+            time_seen.add(t.time)
+            timeslots.append(t)
+
+    update = Switches().from_object(meeting)
+    venue = meeting.meeting_venue
+
+    ads = []
+    meeting_time = datetime.datetime.combine(meeting.date, datetime.time(0, 0, 0))
+    for g in Group.objects.filter(type="area").order_by("acronym"):
+        history = find_history_active_at(g, meeting_time)
+        if history and history != g:
+            if history.state_id == "active":
+                ads.extend(IESGHistory().from_role(x, meeting_time) for x in history.rolehistory_set.filter(name="ad").select_related())
+        else:
+            if g.state_id == "active":
+                ads.extend(IESGHistory().from_role(x, meeting_time) for x in g.role_set.filter(name="ad").select_related('group', 'person'))
+    
+    active_agenda = State.objects.get(used=True, type='agenda', slug='active')
+    plenary_agendas = Document.objects.filter(session__meeting=meeting, session__slots__type="plenary", type="agenda", ).distinct()
     plenaryw_agenda = plenaryt_agenda = "The Plenary has not been scheduled"
     for agenda in plenary_agendas:
         if active_agenda in agenda.states.all():
@@ -220,30 +247,7 @@ def find_plenaries(meeting):
             else:
                 plenaryw_agenda = s
 
-    return ads, plenaryw_agenda,plenaryt_agenda
-
-# this routine is used by an edit method to collect all the info it needs.
-def agenda_info(num=None, schedule_name=None, requesting_user=None):
-    """
-    XXX this should really be a method on Meeting
-    """
-
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
-    if schedule is None:
-        raise Http404("Meeting %s has no agenda set yet" % (num))
-
-    cansee,canedit = agenda_permissions(meeting, schedule, requesting_user)
-    if not cansee:
-        raise Http404("No schedule by the name %s visible" % (schedule_name))
-
-    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(schedule)
-    update = Switches().from_object(meeting)
-
-    # the meeting object has subsumed the venue object, as it has break_area, reg_area, venue_name
-    venue = meeting
-    ads, plenaryw_agenda, plenaryt_agenda = find_plenaries(meeting)
-    return ntimeslots, scheduledsessions, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
+    return timeslots, update, meeting, venue, ads, plenaryw_agenda, plenaryt_agenda
 
 # this routine is used by a view to collect all the info it needs.
 def agenda_view_info(requesting_user, meeting_num, schedule_name):

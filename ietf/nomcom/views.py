@@ -182,9 +182,11 @@ def send_reminder_mail(request, year, type):
         raise Http404
 
     nominees = Nominee.objects.get_by_nomcom(nomcom).not_duplicated().filter(nomineeposition__state=interesting_state).distinct()
-    annotated_nominees = list(nominees)
-    for nominee in annotated_nominees:
-        nominee.interesting_positions = [x.position.name for x in nominee.nomineeposition_set.all() if x.state.slug==interesting_state]
+    annotated_nominees = []
+    for nominee in nominees:
+        nominee.interesting_positions = [x.position.name for x in nominee.nomineeposition_set.all() if x.state.slug==interesting_state and not ( interesting_state == 'accepted' and x.questionnaires ) ]
+        if nominee.interesting_positions:
+            annotated_nominees.append(nominee)
     mail_template = DBTemplate.objects.filter(group=nomcom.group, path=mail_path)
     mail_template = mail_template and mail_template[0] or None
     message = None

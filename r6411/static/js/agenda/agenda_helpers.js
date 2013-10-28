@@ -39,64 +39,6 @@ function log(text){
     console.log(text);
 }
 
-
-/* move_slot
-   Moves a meeting(from) to a slot (to).
-   No checks are done to see if the slot it's moving to is free,
-   this can be considered a method of forcing a slot to a place.
-
-   @params:
-   'from' - meeting key (searching in meeting_objs[])
-   'to'   - slot_status key (searching in slot_status[])
-
-*/
-
-
-
-var gfrom = null;
-function move_slot(from,to){
-    console.log("!!!");
-    var meeting = meeting_objs[from];
-    var from_slot = meeting_objs[from].slot_status_key;
-
-    var to_slot = slot_status[to];
-
-    console.log(meeting_objs[from]);
-    console.log(from_slot);
-
-    var result = update_to_slot(from, to, true); // true if the job succeeded
-
-    if(result){
-	if(update_from_slot(from,from_slot)){
-	    console.log("move_slot: success");
-	}else{
-	    console.log("move_slot: fail");
-	    }
-    }
-
-    meeting_objs[from].slot_status_key = to;
-    //*****  do dajaxice call here  ****** //
-
-    var eTemplate = meeting.event_template()
-
-    $("#session_"+from).remove();
-    $("#"+to).append(eTemplate);
-
-    var session_id = from;
-    var scheduledsession_id = slot_status[to].scheduledsession_id;
-    console.log(session_id);
-    console.log(scheduledsession_id);
-    //    start_spin();
-    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
-    					  {
-                                              'schedule_id':schedule_id,
-    					      'session_id':session_id,
-    					      'scheduledsession_id': scheduledsession_id,
-    					  });
-
-
-}
-
 function print_all(){
     console.log("all");
     console.log(meeting_objs.length);

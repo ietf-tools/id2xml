@@ -266,20 +266,24 @@ function insert_timeslotedit_cell(ts) {
                 }
             },
 	    {
+                'meeting_num': meeting_name,
 		'timeslot_id': ts.timeslot_id,
                 'purpose': newpurpose,
 	    });
     });
 }
 
-function create_timeslotedit_cell(object) {
+var __debug_object;
+function create_timeslotedit_cell(slot_id) {
     var roomtype = "unavailable";
 
+    __debug_object = object;
+
+    var object = $(slot_id);
     var room = object.attr('slot_room');
     var time = object.attr('slot_time');
+    var duration=object.attr('slot_duration');
     var domid= object.attr('id');
-
-    var slot_id = ("#" + domid);
 
     //$(slot_id).removeClass("agenda_slot_unavailable")
     $(slot_id).removeClass("agenda_slot_other")
@@ -294,6 +298,28 @@ function create_timeslotedit_cell(object) {
 	start_spin();
         var newpurpose = $("#"+select_id).val()
         console.log("creating setting id: #"+select_id+" to "+newpurpose+" ("+roomtypeclass+")");
+
+        Dajaxice.ietf.meeting.update_timeslot_purpose(
+            function(json) {
+                if(json == "") {
+                    console.log("No reply from server....");
+                } else {
+                    stop_spin();
+                    for(var key in json) {
+	                ts[key]=json[key];
+                    }
+                    console.log("server replied, updating cell contents: "+ts.roomtype);
+                    insert_timeslotedit_cell(ts);
+                }
+            },
+	    {
+		'timeslot_id': "0",            /* 0 indicates to make a new one */
+                'meeting_num': meeting_number,
+                'room_id': room,
+                'time'   : time,
+                'duration':duration,
+                'purpose': newpurpose,
+	    });
 
     });
 }

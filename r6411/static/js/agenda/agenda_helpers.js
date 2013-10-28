@@ -234,18 +234,15 @@ function load_events(){
 
 function check_free(inp){
     var empty = false;
-    slot = slot_status[inp.id];
+    slot = timeslot_bydomid[inp.id];
     if(slot == null){
-//	console.log("\t from check_free, slot is null?", inp,inp.id, slot_status[inp.id]);
+        //console.log("\t from check_free, slot is null?", inp,inp.id, slot_status[inp.id]);
 	return false;
     }
-    for(var i =0;i<slot.length; i++){
-	if (slot[i].empty == false || slot[i].empty == "False"){
-	    return false;
-	}
+    if (slot.empty == false) {
+	return false;
     }
     return true;
-
 }
 
 /* clears any background highlight colors of scheduled sessions */

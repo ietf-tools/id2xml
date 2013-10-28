@@ -315,6 +315,19 @@ TimeSlot.prototype.initialize = function(json) {
 TimeSlot.prototype.slot_title = function() {
     return "id#"+this.timeslot_id+" dom:"+this.domid;
 };
+TimeSlot.prototype.mark_empty = function() {
+    if(__debug_session_move) {
+        console.log("marking slot empty", this.domid);
+        $("#"+this.domid).html("empty");
+    }
+    this.empty = true;
+};
+TimeSlot.prototype.mark_occupied = function() {
+    if(__debug_session_move) {
+        console.log("marking slot occupied", this.domid);
+    }
+    this.empty = false;
+};
 TimeSlot.prototype.can_extend_right = function() {
     if(this.following_timeslot == undefined) {
         if(this.following_timeslot_id != undefined) {
@@ -454,7 +467,7 @@ ScheduledSlot.prototype.initialize = function(json) {
     } else {
         this.timeslot            = timeslot_byid[this.timeslot_id];
         if(this.session_id != undefined) {
-            this.timeslot.empty = false;
+            this.timeslot.mark_occupied();
         }
     }
 
@@ -465,12 +478,16 @@ ScheduledSlot.prototype.initialize = function(json) {
         this.pinned = false;
     }
 
+    // do not include in data structures if session_id is nil
     // the key so two sessions in the same timeslot
     if(slot_status[this.domid()] == null) {
         slot_status[this.domid()]=[];
     }
-    slot_status[this.domid()].push(this);
-    //console.log("filling slot_objs", this.scheduledsession_id);
+    if(this.session_id != undefined) {
+        slot_status[this.domid()].push(this);
+        //console.log("filling slot_objs", this.scheduledsession_id);
+    }
+
     slot_objs[this.scheduledsession_id] = this;
 };
 

@@ -320,7 +320,7 @@ function find_friends(inp){
 
 
 function json_to_id(j){
-    return (j.room+"_"+j.date+"_"+j.time);
+    return (j.room()+"_"+j.date()+"_"+j.time());
 }
 
 function id_to_json(id){
@@ -392,7 +392,7 @@ function calculate_room_select_box() {
             html=html+"<option value='"+k1;
             html=html+"' id='info_location_select_option_";
             html=html+v1.timeslot_id+"'>";
-            html=html+v1.short_string;
+            html=html+v1.short_string();
             html=html+"</option>";
 	}
     }

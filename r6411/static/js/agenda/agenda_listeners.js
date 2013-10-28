@@ -826,70 +826,62 @@ function droppable(){
 } // end droppable()
 
 
-var arr_key_index = null;
 function update_to_slot(session_id, to_slot_id, force){
-    console.log("meeting_id:",session_id);
-    var to_slot = slot_status[to_slot_id];
-
-    var found = false;
-    for(var i=0; i<to_slot.length; i++){
-	if(to_slot[i].empty == "True" || to_slot[i].empty == true){ // we found a empty place to put it.
-	    // setup slot_status info.
-	    to_slot[i].session_id = session_id;
-
-            if(to_slot_id != bucketlist_id) {
-	        to_slot[i].empty = false;
-            }
-
-	    // update meeting_obj
-	    //meeting_objs[session_id].slot_status_key = to_slot[i].domid()
-	    arr_key_index = i;
-	    meeting_objs[session_id].placed(to_slot, true);
-	    found = true;
-	    // update from_slot
-
-	    return found;
-	}
+    console.log("update_to_slot meeting_id:",session_id);
+    if(to_slot_id == "sortable-list") {
+        /* must be bucket list */
+        return true;
     }
 
-    if(!found && force){
-        var unassigned_slot_obj = new ScheduledSlot();
-        unassigned_slot_obj.scheduledsession_id = to_slot[0].scheduledsession_id;
-        unassigned_slot_obj.timeslot_id         = to_slot[0].timeslot_id;
-        unassigned_slot_obj.session_id          = session_id;
-        // unassigned_slot_obj.session_id          = to_slot[0].session_id;
+    var to_timeslot = timeslot_bydomid[to_slot_id];
+    if(to_timeslot != undefined && (to_timeslot.empty == true || force)) {    
+	// add a new scheduledsession for this, save it.
+        var new_ss = make_ss({ "session_id" : session_id,
+                               "timeslot_id": to_timeslot.timeslot_id});
+        // make_ss also adds to slot_status.
+        new_ss.saveit();
 
-	//console.log("session_id:",session_id);
-	//console.log("to_slot (BEFORE):", to_slot, to_slot.length);
+        if(to_slot_id != bucketlist_id) {
+	    to_timeslot.empty = false;
+        }
 
-	to_slot.push(unassigned_slot_obj);
-	//console.log("to_slot (AFTER):", to_slot, to_slot.length);
-	arr_key_index = to_slot.length-1;
-	found = true;
-	return found;
+	// update meeting_obj
+	meeting_objs[session_id].placed(to_timeslot, true);
+
+	return true;
+    } else {
+        return false;
     }
-    return found;
 }
 
+function update_from_slot(session_id, from_slot_id)
+{
+    var from_timeslot      = timeslot_bydomid[from_slot_id];
 
-function update_from_slot(session_id, from_slot_id){
-
-    var from_slot = slot_status[meeting_objs[session_id].slot_status_key]; // remember this is an array...
+    /* this is a list of scheduledsessions */
+    var from_scheduledslots = slot_status[meeting_objs[session_id].slot_status_key]; 
     var found = false;
 
-    if(from_slot_id != null){ // it will be null if it's coming from a bucketlist
-	for(var k = 0; k<from_slot.length; k++){
-	    if(from_slot[k].session_id == session_id){
+    // it will be null if it's coming from a bucketlist
+    if(from_slot_id != null){ 
+        var count = from_scheduledslots.length;
+	for(var k = 0; k<from_scheduledslots.length; k++) {
+            var from_ss = from_scheduledslots[k];
+	    if(from_ss.session_id == session_id){
 		found = true;
-		from_slot[k].empty = true;
-		from_slot[k].session_id = null;
-		return found;
+
+                from_ss.deleteit();
+                from_scheduledslots.splice(k,1);
+                count--;
 	    }
 	}
+        if(count == 0) {
+            from_timeslot.empty = true;
+        }
     }
     else{
-	found = true; // this may be questionable. It deals with the fact that it's coming from a bucketlist.
-	return found;
+        // this may be questionable. It deals with the fact that it's coming from the bucketlist.
+	found = true; 
     }
     return found;
 }
@@ -1010,6 +1002,7 @@ function recalculate_conflicts_for_session(session, old_column_classes, new_colu
 }
 
 var __debug_session_move = false;
+var __debug_parameters;
 var _LAST_MOVED;
 function move_slot(parameters) {
     /* dom_obj: is a jquery selector of where the slot will be appeneded to
@@ -1017,6 +1010,7 @@ function move_slot(parameters) {
        drop_drop where 'this' is the dom dest.
     */
     var update_to_slot_worked = false;
+    __debug_parameters = parameters;
 
     if(__debug_session_move) {
         _LAST_MOVED = parameters.session;
@@ -1056,7 +1050,7 @@ function move_slot(parameters) {
 	console.log("ERROR updating to_slot", parameters.to_slot_id, slot_status[parameters.to_slot_id]);
 	return;
     }
-    parameters.session.slot_status_key = parameters.to_slot[arr_key_index].domid();
+    parameters.session.slot_status_key = parameters.to_slot_id;
 
     var eTemplate = parameters.session.event_template()
 
@@ -1084,61 +1078,6 @@ function move_slot(parameters) {
     }
     $("#"+bucketlist_id).removeClass('free_slot');
     /******************************************************/
-
-    var scheduledsession = null;
-    for(var i =0; i< parameters.to_slot.length; i++){
-	if (parameters.to_slot[i].session_id == parameters.session.session_id){
-            scheduledsession = parameters.to_slot[i];
-	    break;
-	}
-    }
-
-    if(scheduledsession != null){
-        console.log("moved session",parameters.session.title,"to",scheduledsession);
-        parameters.session.placed(scheduledsession, true);
-        start_spin();
-        if(__debug_session_move) {
-	    console.log('schedule_id',schedule_id,
-                        'session_id', parameters.session.session_id,
-                        'scheduledsession_id', scheduledsession.scheduledsession_id);
-        }
-
-        if(parameters.session.slot2) {
-            parameters.session.double_wide = false;
-	    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
-					      {
-                                                  'schedule_id':schedule_id,
-						  'session_id': parameters.session.session_id,
-						  'scheduledsession_id': 0,
-					      });
-            parameters.session.slot2 = undefined;
-        }
-
-	if(parameters.same_timeslot){
-	    	Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
-					      {
-                                                  'schedule_id':schedule_id,
-						  'session_id': parameters.session.session_id,
-						  'scheduledsession_id': scheduledsession.scheduledsession__id,
-                                                  'extended_from_id': 0,
-						  'duplicate':true
-					      });
-	}else {
-	    Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
-						  {
-                                                      'schedule_id':schedule_id,
-						      'session_id': parameters.session.session_id,
-						      'scheduledsession_id': scheduledsession.scheduledsession_id,
-						  });
-	}
-
-        parameters.session.update_column_classes([scheduledsession], parameters.bucket_list);
-    }
-    else{
-        if(__debug_session_move) {
-	    console.log("issue sending ajax call!!!");
-        }
-    }
 
     droppable();
     listeners();

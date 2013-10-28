@@ -400,6 +400,24 @@ ScheduledSlot.prototype.short_string = function() {
     return this.timeslot.short_string;
 };
 
+ScheduledSlot.prototype.saveit = function() {
+    var stuff = JSON.stringify(this, null, '\t');
+    var saveit = $.ajax(scheduledsession_post_href,{
+        "content-type": "text/json",
+        "type": "POST",
+        "data": stuff,
+    });
+    // should do something on success and failure.
+};
+
+ScheduledSlot.prototype.deleteit = function() {
+    var stuff = JSON.stringify(this, null, '\t');
+    var saveit = $.ajax(this.href, {
+        "content-type": "text/json",
+        "type": "DELETE",
+    });
+};
+
 ScheduledSlot.prototype.initialize = function(json) {
     /* do not copy everything over */
     this.pinned              = json.pinned;
@@ -485,6 +503,7 @@ ScheduledSlot.prototype.slot_title = function() {
 function make_ss(json) {
     var ss = new ScheduledSlot();
     ss.initialize(json);
+    return ss;
 }
 
 
@@ -650,10 +669,8 @@ Session.prototype.placed = function(where, forceslot) {
     // forceslot is set on a move, but unset on initial placement,
     // as placed might be called more than once for a double slot session.
     if(forceslot || this.slot==undefined) {
-        if(this.slot != undefined) {
-            this.slot.empty = true;
-        }
 
+        /* we can not mark old slot as empty, because it might have multiple sessions in it */
         this.slot      = where;
 
         if(where != undefined) {

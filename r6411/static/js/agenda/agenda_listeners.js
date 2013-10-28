@@ -1048,18 +1048,12 @@ function move_slot(parameters) {
 	    // do something
 	}
 	else{
-            if(__debug_session_move) {
-	        console.log("issue updateing from_slot");
-	        console.log("parameters.from_slot_id",parameters.from_slot_id, slot_status[parameters.from_slot_id]);
-            }
+	    console.log("ERROR updating from_slot", parameters.from_slot_id, slot_status[parameters.from_slot_id]);
 	    return;
 	}
     }
     else{
-        if(__debug_session_move) {
-	    console.log("issue updateing to_slot");
-	    console.log("to_slot_id",parameters.to_slot_id, slot_status[parameters.to_slot_id]);
-        }
+	console.log("ERROR updating to_slot", parameters.to_slot_id, slot_status[parameters.to_slot_id]);
 	return;
     }
     parameters.session.slot_status_key = parameters.to_slot[arr_key_index].domid();

@@ -25,7 +25,7 @@ from ietf.ietfauth.decorators import has_role
 from ietf.utils.history import find_history_active_at
 from ietf.doc.models import Document, State
 
-from ietf.proceedings.models import Meeting as OldMeeting, IESGHistory, Switches
+from ietf.proceedings.models import IESGHistory, Switches
 
 # New models
 from ietf.meeting.models import Meeting, TimeSlot, Session
@@ -172,34 +172,26 @@ def find_ads_for_meeting(meeting):
                     ads.append(IESGHistory().from_role(x, meeting_time))
     return ads
 
-def agenda_info(num=None, name=None):
+def agenda_info(num=None, schedule_name=None, request_user=None):
     """
     XXX this should really be a method on Meeting
     """
 
-    try:
-        if num != None:
-            meeting = OldMeeting.objects.get(number=num)
-        else:
-            meeting = OldMeeting.objects.all().order_by('-date')[:1].get()
-    except OldMeeting.DoesNotExist:
-        raise Http404("No meeting information for meeting %s available" % num)
-
-    if name is not None:
-        try:
-            agenda = meeting.schedule_set.get(name=name)
-        except Schedule.DoesNotExist:
-            raise Http404("Meeting %s has no agenda named %s" % (num, name))
-    else:
-        agenda = meeting.agenda
-
-    if agenda is None:
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+    if schedule is None:
         raise Http404("Meeting %s has no agenda set yet" % (num))
 
-    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(agenda)
+    cansee,canedit = agenda_permissions(meeting, schedule, request_user)
+    if not cansee:
+        raise Http404("No schedule by the name %s visible" % (schedule_name))
+
+    ntimeslots,scheduledsessions = get_ntimeslots_from_agenda(schedule)
 
     update = Switches().from_object(meeting)
-    venue = meeting.meeting_venue
+
+    # the meeting object becomes the venue object, as it has break_area, reg_area, venue_name
+    venue = meeting
 
     ads = find_ads_for_meeting(meeting)
 
@@ -320,7 +312,8 @@ def agenda_permissions(meeting, schedule, user):
     requestor= None
 
     try:
-        requestor = user.get_profile()
+        if user is not None:
+            requestor = user.get_profile()
     except:
         pass
 

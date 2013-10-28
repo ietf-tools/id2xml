@@ -264,7 +264,7 @@ function load_events(){
 
                             session.populate_event(key);
                         }
-                        session.placed(ssid, false);
+                        session.placed(ssid.timeslot, false, ssid);
                     } else {
 	                $(slot_id).addClass('free_slot');
                     }

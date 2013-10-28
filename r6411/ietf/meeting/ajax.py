@@ -523,6 +523,9 @@ def scheduledsessions_post(request, meeting, schedule):
     ss1 = ScheduledSession(schedule = schedule,
                            session_id  = newvalues["session_id"],
                            timeslot_id = newvalues["timeslot_id"])
+    if("extendedfrom_id" in newvalues):
+        ss1.extendedfrom_id = int(newvalues["extendedfrom_id"])
+
     ss1.save()
     ss1_dict = ss1.json_dict(request.build_absolute_uri('/'))
     response = HttpResponse(json.dumps(ss1_dict),

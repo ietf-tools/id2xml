@@ -167,6 +167,12 @@ class ApiTestCase(TestCase):
         conflicts = json.loads(resp.content)
         self.assertNotEqual(conflicts, None)
 
+    def test_anyoneGetTimeslotInfo(self):
+        resp = self.client.get('/meeting/83/timeslots.json')
+        m83timeslots = json.loads(resp.content)
+        self.assertNotEqual(m83timeslots, None)
+
+
     def test_conflictInfoIncludesPeople(self):
         mtg83 = get_meeting(83)
         clue83 = mtg83.session_set.filter(group__acronym='clue')[0]

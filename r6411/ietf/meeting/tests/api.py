@@ -177,6 +177,11 @@ class ApiTestCase(TestCase):
         m83sessions = json.loads(resp.content)
         self.assertNotEqual(m83sessions, None)
 
+    def test_anyoneGetScheduledSessionInfo(self):
+        resp = self.client.get('/meeting/83/schedule/mtg:83/sessions.json')
+        m83ss = json.loads(resp.content)
+        self.assertNotEqual(m83ss, None)
+
     def test_conflictInfoIncludesPeople(self):
         mtg83 = get_meeting(83)
         clue83 = mtg83.session_set.filter(group__acronym='clue')[0]

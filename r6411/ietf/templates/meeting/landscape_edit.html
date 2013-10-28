@@ -63,23 +63,13 @@ area_directors["{{ad.area}}"] = [];{% endfor %}
 {% for ad in area_directors %}
 area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));{% endfor %}
 
-promiselist.push(load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}"));
-promiselist.push(load_sessions("{% url ietf.meeting.ajax.sessions_json meeting.number %}"));
+var ts_promise = load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}");
+var sess_promise = load_sessions("{% url ietf.meeting.ajax.sessions_json meeting.number %}");
+promiselist.push(ts_promise);
+promiselist.push(sess_promise);
 
-{% for s in scheduledsessions %}
-   make_ss({ "scheduledsession_id": "{{s.id}}",
-     "empty": "{{s.empty_str}}",
-     "timeslot_id":"{{s.timeslot.id}}",
-     "session_id" :"{{s.session.id}}",
-     "pinned" :"{{s.pinned}}",
-     {% if s.session %}{% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
-     {% endif %}{% endif %}"room"       :"{{s.timeslot.location.name|slugify}}",
-     {% if s.slot_to_the_right %}"following_timeslot_id":"{{s.slot_to_the_right.id}}",
-     {% endif %}"roomtype"   :"{{s.slottype}}",
-     "time"       :"{{s.timeslot.time|date:'Hi' }}",
-     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
-     "domid"      :"{{s.timeslot.js_identifier}}"});
-{% endfor %}
+var ss_promise = load_scheduledsessions(ts_promise, sess_promise, "{% url ietf.meeting.ajax.scheduledsessions_json meeting.number schedule.name %}");
+promiselist.push(ss_promise);
 
    make_ss({ "scheduledsession_id": 0,
      "empty": true,

@@ -179,8 +179,8 @@ function fill_timeslots() {
 }
 
 function insert_timeslotedit_cell(ssid) {
-    var domid  = ssid.domid
-    var roomtype=ssid.roomtype
+    var domid  = ssid.domid()
+    var roomtype=ssid.roomtype()
     var slot_id = ("#"+domid)
 
     roomtypesession="";

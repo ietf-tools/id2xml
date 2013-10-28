@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     (r'^(?P<num>\d+)/schedule/(?P<schedule_name>[A-Za-z0-9-:_]+).txt$',       views.text_agenda),
     (r'^(?P<num>\d+)/schedule/(?P<schedule_name>[A-Za-z0-9-:_]+).csv$',       views.csv_agenda),
     (r'^(?P<num>\d+)/schedule/(?P<schedule_name>[A-Za-z0-9-:_]+).ics$',       views.ical_agenda),
+    (r'^(?P<num>\d+)/schedule/(?P<schedule_name>[A-Za-z0-9-:_]+)/sessions.json$',      ajax.scheduledsessions_json),
 
     (r'^(?P<num>\d+)/schedule/(?P<schedule_name>[A-Za-z0-9-:_]+)(?:.html)?/?$', views.agenda_html_request),
     (r'^(?P<num>\d+)/agenda(?:.html)?/?$',     views.agenda_html_request),

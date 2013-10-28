@@ -287,8 +287,11 @@ function extend_slot(event) {
 
     console.log("session", session.title, "slot:", current_timeslot.scheduledsession_id);
 
+    /* bind current_timeslot into this function and continuations */
+    var slot = current_timeslot;
+
     // determine if this slot can be extended.
-    if(slot.can_extend_right()) {
+    if(current_timeslot.can_extend_right()) {
         $("#can-extend-dialog").html("Extend "+session.title+" to slot "+slot.following_timeslot.domid);
         $("#can-extend-dialog").dialog({
 	    resizable: true,
@@ -674,7 +677,7 @@ function update_pin_session(scheduledsession, state) {
         scheduledsession.pinned = state;
         session = scheduledsession.session()
         session.pinned = state;
-        session.repopulate_event(scheduledsession.domid);
+        session.repopulate_event(scheduledsession.domid());
         set_pin_session_button(scheduledsession);
     },
 						 {
@@ -839,7 +842,7 @@ function update_to_slot(session_id, to_slot_id, force){
             }
 
 	    // update meeting_obj
-	    //meeting_objs[session_id].slot_status_key = to_slot[i].domid
+	    //meeting_objs[session_id].slot_status_key = to_slot[i].domid()
 	    arr_key_index = i;
 	    meeting_objs[session_id].placed(to_slot, true);
 	    found = true;
@@ -1018,7 +1021,7 @@ function move_slot(parameters) {
     if(_move_debug) {
         _LAST_MOVED = parameters.session;
         if(parameters.from_slot != undefined) {
-            console.log("from_slot", parameters.from_slot.domid);
+            console.log("from_slot", parameters.from_slot.domid());
         } else {
             console.log("from_slot was unassigned");
         }
@@ -1059,7 +1062,7 @@ function move_slot(parameters) {
         }
 	return;
     }
-    parameters.session.slot_status_key = parameters.to_slot[arr_key_index].domid;
+    parameters.session.slot_status_key = parameters.to_slot[arr_key_index].domid();
 
     var eTemplate = parameters.session.event_template()
 

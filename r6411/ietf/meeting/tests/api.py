@@ -5,7 +5,7 @@ from ietf.utils import TestCase
 
 from ietf.person.models import Person
 from django.contrib.auth.models import User
-from ietf.meeting.models  import TimeSlot, Session, ScheduledSession, Meeting
+from ietf.meeting.models  import TimeSlot, Session, ScheduledSession, Meeting, Room
 from ietf.ietfauth.decorators import has_role
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from django.utils import simplejson as json
@@ -21,6 +21,74 @@ class ApiTestCase(TestCase):
                  'workinggroups.json',
                  'groupgroup.json',
                  'person.json', 'users.json' ]
+
+    def setup_pkix_on_friday(self):
+        m83 = get_meeting(83)
+        o83 = m83.agenda
+        room = m83.room_set.get(name="252A")
+
+        # look for ScheduledSession with Session=/Timeslot
+        ss_list = o83.scheduledsession_set.filter(session__group__acronym = "pkix",
+                                                          timeslot__time = "2012-03-30 12:30:00")
+        self.assertEqual(len(ss_list), 0)
+
+        ts_one = m83.timeslot_set.get(time = "2012-03-30 12:30:00", location=room)
+        pkix   = m83.session_set.get(group__acronym = "pkix")
+        self.assertNotEqual(ts_one, None)
+        self.assertNotEqual(pkix, None)
+        return m83, o83, pkix, ts_one
+
+    def check_pkix_on_friday(self, o83):
+        # look for ScheduledSession with Session=/Timeslot: (should not be one)
+        ss_list = o83.scheduledsession_set.filter(session__group__acronym = "pkix",
+                                                  timeslot__time = "2012-03-30 12:30:00")
+        return ss_list
+
+    def test_noAuthenticationCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+
+        # try to create a new scheduledsession item without any authorization
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json")
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 0)
+
+    def test_noAuthorizationCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+        # create a new scheduledsession item, but without authorization.
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json",
+                         **auth_ferrel)
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 0)
+
+    def test_wloCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+        # create a new scheduledsesesion item, with authorization
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json",
+                         **auth_wlo)
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 1)
+
+    def test_wloDeleteScheduledSession(self):
+        # this is pkix on Monday
+        ss_pkix = ScheduledSession.objects.get(pk=2371)
+        o83 = ss_pkix.schedule
+        m83 = o83.meeting
+
+        # create a new scheduledsesesion item, with authorization
+        self.client.delete("/meeting/%s/schedule/%s/session/%u.json" % (m83.number, o83.name, ss_pkix.pk),
+                           **auth_wlo)
+
+        ss_list = ScheduledSession.objects.filter(pk=2371)
+        self.assertEqual(len(ss_list), 0)
 
     def test_noAuthenticationUpdateAgendaItem(self):
         ts_one = TimeSlot.objects.get(pk=2371)

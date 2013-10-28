@@ -474,7 +474,7 @@ def meeting_json(request, meeting_num):
 
 
 #############################################################################
-## Agenda Editing API functions
+## Session details API functions
 #############################################################################
 
 def session_json(request, num, sessionid):
@@ -492,6 +492,7 @@ def session_json(request, num, sessionid):
     return HttpResponse(json.dumps(sess1, sort_keys=True, indent=2),
                         mimetype="application/json")
 
+# get group of all sessions.
 def sessions_json(request, num):
     meeting = get_meeting(num)
 
@@ -501,16 +502,119 @@ def sessions_json(request, num):
     return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
                         mimetype="application/json")
 
-# this returns the list of scheduled sessions for the given named agenda
-def scheduledsessions_json(request, num, schedule_name):
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+#############################################################################
+## Scheduledsesion
+#############################################################################
 
+def scheduledsessions_post(request, meeting, schedule):
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not canedit:
+        return HttpResponse(json.dumps({'error':'no permission to modify this agenda'}),
+                            status = 403,
+                            mimetype="application/json")
+
+    # get JSON out of raw body. XXX should check Content-Type!
+    newvalues = json.loads(request.raw_post_data)
+    if not ("session_id" in newvalues) or not ("timeslot_id" in newvalues):
+        return HttpResponse(json.dumps({'error':'missing values, timeslot_id and session_id required'}),
+                            status = 406,
+                            mimetype="application/json")
+
+    ss1 = ScheduledSession(schedule = schedule,
+                           session_id  = newvalues["session_id"],
+                           timeslot_id = newvalues["timeslot_id"])
+    ss1.save()
+    ss1_dict = ss1.json_dict(request.build_absolute_uri('/'))
+    response = HttpResponse(json.dumps(ss1_dict),
+                        status = 201,
+                        mimetype="application/json")
+    # 201 code needs a Location: header.
+    response['Location'] = ss1_dict["href"],
+    return response
+
+def scheduledsessions_get(request, num, schedule):
     scheduledsessions = schedule.scheduledsession_set.all()
 
     sess1_dict = [ x.json_dict(request.build_absolute_uri('/')) for x in scheduledsessions ]
     return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
                         mimetype="application/json")
+
+# this returns the list of scheduled sessions for the given named agenda
+def scheduledsessions_json(request, num, schedule_name):
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+
+    if request.method == 'GET':
+        return scheduledsessions_get(request, meeting, schedule)
+    elif request.method == 'POST':
+        return scheduledsessions_post(request, meeting, schedule)
+    else:
+        return HttpResponse(json.dumps({'error':'inappropriate action: %s' % (request.method)}),
+                            status = 406,
+                            mimetype="application/json")
+
+
+def scheduledsession_update(request, meeting, schedule, scheduledsession_id):
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not canedit or True:
+        return HttpResponse(json.dumps({'error':'no permission to update this agenda'}),
+                            status = 403,
+                            mimetype="application/json")
+
+
+def scheduledsession_delete(request, meeting, schedule, scheduledsession_id):
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    if not canedit:
+        return HttpResponse(json.dumps({'error':'no permission to update this agenda'}),
+                            status = 403,
+                            mimetype="application/json")
+
+    scheduledsessions = schedule.scheduledsession_set.filter(pk = scheduledsession_id)
+    if len(scheduledsessions) == 0:
+        return HttpResponse(json.dumps({'error':'no such object'}),
+                            status = 404,
+                            mimetype="application/json")
+
+    count=0
+    for ss in scheduledsessions:
+        ss.delete()
+        count =+ 1
+
+    return HttpResponse(json.dumps({'result':"%u objects deleted"%(count)}),
+                        status = 200,
+                        mimetype="application/json")
+
+def scheduledsession_get(request, meeting, schedule, scheduledsession_id):
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+
+    if not cansee:
+        return HttpResponse(json.dumps({'error':'no permission to see this agenda'}),
+                            status = 403,
+                            mimetype="application/json")
+
+    scheduledsessions = schedule.scheduledsession_set.filter(pk = scheduledsession_id)
+    if len(scheduledsessions) == 0:
+        return HttpResponse(json.dumps({'error':'no such object'}),
+                            status = 404,
+                            mimetype="application/json")
+
+    sess1_dict = scheduledsessions[0].json_dict(request.build_absolute_uri('/'))
+    return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
+                        mimetype="application/json")
+
+# this returns the list of scheduled sessions for the given named agenda
+def scheduledsession_json(request, num, schedule_name, scheduledsession_id):
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+
+    scheduledsession_id = int(scheduledsession_id)
+
+    if request.method == 'GET':
+        return scheduledsession_get(request, meeting, schedule, scheduledsession_id)
+    elif request.method == 'PUT':
+        return scheduledsession_update(request, meeting, schedule, scheduledsession_id)
+    elif request.method == 'DELETE':
+        return scheduledsession_delete(request, meeting, schedule, scheduledsession_id)
 
 # Would like to cache for 1 day, but there are invalidation issues.
 #@cache_page(86400)

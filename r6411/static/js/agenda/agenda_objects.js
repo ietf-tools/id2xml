@@ -320,7 +320,7 @@ TimeSlot.prototype.can_extend_right = function() {
         }
     }
     if(this.following_timeslot == undefined) {
-        console.log("can_extend_right:",this.scheduledsession_id," no slot to check");
+        console.log("can_extend_right:",this.timeslot_id," no slot to check");
         return false;
     } else {
         console.log("can_extend_right:",
@@ -474,25 +474,6 @@ ScheduledSlot.prototype.session = function() {
 };
 ScheduledSlot.prototype.slot_title = function() {
     return "id#"+this.scheduledsession_id+" dom:"+this.domid();
-};
-
-/* XXX needs to get removed */
-ScheduledSlot.prototype.can_extend_right = function() {
-    if(this.following_timeslot == undefined) {
-        if(this.following_timeslot_id != undefined) {
-            this.following_timeslot = slot_objs[this.following_timeslot_id];
-        }
-    }
-    if(this.following_timeslot == undefined) {
-        console.log("can_extend_right:",this.scheduledsession_id," no slot to check");
-        return false;
-    } else {
-        console.log("can_extend_right:",
-                    this.slot_title()," for slot: ",
-                    this.following_timeslot.slot_title(),
-                    "is ",this.following_timeslot.empty);
-        return this.following_timeslot.empty;
-    }
 };
 
 function make_ss(json) {

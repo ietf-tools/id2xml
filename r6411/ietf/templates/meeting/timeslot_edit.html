@@ -48,17 +48,10 @@ var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
 total_days = {{time_slices|length}};
 total_rooms = {{rooms|length}};
-function setup_slots(){
 
-{% for ts in timeslots %}
-   make_ss({
-     "timeslot_id":"{{ts.id}}",
-     "room"       :"{{ts.location|slugify}}",
-     "roomtype"   :"{{ts.type.slug}}",
-     "time"       :"{{ts.time|date:'Hi' }}",
-     "date"       :"{{ts.time|date:'Y-m-d'}}",
-     "domid"      :"{{ts.js_identifier}}"});
-{% endfor %}
+function setup_slots(promiselist){
+var ts_promise = load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}");
+promiselist.push(ts_promise);
 
    console.log("setup_slots run");
 }
@@ -118,10 +111,10 @@ function setup_slots(){
     {% endfor %}
 
   {% for r in rooms %}
-  <tr id="{{r|to_acceptable_id}}" class="agenda_slot">
+  <tr id="{{r.name|to_acceptable_id}}" class="agenda_slot">
     <th class="vert_time">
       <div class="delete delete_room bottom_left"
-	   id="delete_{{r|to_acceptable_id}}"
+	   id="delete_{{r.name|to_acceptable_id}}"
 	   href="{{r.json_url}}"
 	   roomid="{{r.pk}}">X</div>
       <div class="right room_name">{{r}} <span class="capacity">({{r.capacity}})</span></div>
@@ -129,7 +122,7 @@ function setup_slots(){
       <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r}}</span></th> -->
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
-        <td id="{{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'agenda_slot_alt' '' %} agenda_slot_unavailable" ></td>
+        <td slot_time="{{day}} {{slot.0|date:'Hi'}}" slot_room="{{r.pk}}" id="{{r.name|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'agenda_slot_alt' '' %} agenda_slot_unavailable" ></td>
       {% endfor %}
         <td class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer"></td>
     {% endfor %}

@@ -76,9 +76,10 @@ def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=Fal
     if scheduledsession_id is not None:
         ss_id = int(scheduledsession_id)
 
-    if ss_id != 0:
-        ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
+    if ss_id == 0:
+        return json.dumps({'error':'no permission'})
 
+    ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
     ss.pinned = pinned
     ss.save()
 
@@ -524,7 +525,14 @@ def scheduledsessions_post(request, meeting, schedule):
                            session_id  = newvalues["session_id"],
                            timeslot_id = newvalues["timeslot_id"])
     if("extendedfrom_id" in newvalues):
-        ss1.extendedfrom_id = int(newvalues["extendedfrom_id"])
+        val = int(newvalues["extendedfrom_id"])
+        try:
+            ss2 = schedule.scheduledsessions_set.get(pk = val)
+            ss1.extendedfrom = ss2
+        except ScheduledSession.DoesNotExist:
+            return HttpResponse(json.dumps({'error':'invalid extendedfrom value: %u' % val}),
+                                status = 406,
+                                mimetype="application/json")
 
     ss1.save()
     ss1_dict = ss1.json_dict(request.build_absolute_uri('/'))

@@ -372,13 +372,14 @@ class TimeSlot(models.Model):
         else:
             return "reserved";
 
-    def json_dict(self, selfurl):
+    def json_dict(self, host_scheme):
         ts = dict()
         ts['timeslot_id'] = self.id
-        ts['room']        = slugify(self.location)
+        ts['href']        = urljoin(host_scheme, self.json_url())
+        ts['room']        = self.get_location()
         ts['roomtype'] = self.type.slug
         ts["time"]     = date_format(self.time, 'Hi')
-        ts["date"]     = time_format(self.time, 'Y-m-d')
+        ts["date"]     = fmt_date(self.time)
         ts["domid"]    = self.js_identifier
         following = self.slot_to_the_right
         if following is not None:
@@ -699,27 +700,16 @@ class ScheduledSession(models.Model):
         else:
             return ""
 
-    @property
-    def empty_str(self):
-        # return JS happy value
-        if self.session:
-            return "False"
-        else:
-            return "True"
+    #def json_url(self):
+    #    return "/meeting/%s/constraint/%s.json" % (self.meeting.number, self.id)
 
-    def json_dict(self, selfurl):
+    def json_dict(self, host_scheme):
         ss = dict()
         ss['scheduledsession_id'] = self.id
-        #ss['href']          = self.url(host_scheme)
-        ss['empty'] =  self.empty_str
+        #ss['href']          = urljoin(host_scheme, self.json_url())
         ss['timeslot_id'] = self.timeslot.id
         if self.session:
             ss['session_id']  = self.session.id
-        ss['room'] = slugify(self.timeslot.location)
-        ss['roomtype'] = self.timeslot.type.slug
-        ss["time"]     = date_format(self.timeslot.time, 'Hi')
-        ss["date"]     = time_format(self.timeslot.time, 'Y-m-d')
-        ss["domid"]    = self.timeslot.js_identifier
         ss["pinned"]   = self.pinned
         return ss
 

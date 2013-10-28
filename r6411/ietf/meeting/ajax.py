@@ -492,6 +492,15 @@ def session_json(request, num, sessionid):
     return HttpResponse(json.dumps(sess1, sort_keys=True, indent=2),
                         mimetype="application/json")
 
+def sessions_json(request, num):
+    meeting = get_meeting(num)
+
+    sessions = meeting.session_set.all()
+
+    sess1_dict = [ x.json_dict(request.build_absolute_uri('/')) for x in sessions ]
+    return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
+                        mimetype="application/json")
+
 # Would like to cache for 1 day, but there are invalidation issues.
 #@cache_page(86400)
 def constraint_json(request, num, constraintid):

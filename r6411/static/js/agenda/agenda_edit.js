@@ -75,16 +75,21 @@ function initStuff(){
     mark_area_directors(directorpromises);
     log("setup_slots() ran");
     droppable();
+    log("droppable() ran");
 
     $.when.apply($,directorpromises).done(function() {
-        /* can not load events until area director info has been loaded */
-        log("droppable() ran");
+        /* can not load events until area director info,
+           timeslots, sessions, and scheduledsessions
+           have been loaded
+        */
+        log("loading/linking objects");
         load_events();
         log("load_events() ran");
         find_meeting_no_room();
         listeners();
         droppable();
         duplicate_sessions = find_double_timeslots();
+        calculate_room_select_box();
 
         if(load_conflicts) {
             recalculate(null);

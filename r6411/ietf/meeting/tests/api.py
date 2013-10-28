@@ -172,6 +172,10 @@ class ApiTestCase(TestCase):
         m83timeslots = json.loads(resp.content)
         self.assertNotEqual(m83timeslots, None)
 
+    def test_anyoneGetSessionInfo(self):
+        resp = self.client.get('/meeting/83/sessions.json')
+        m83sessions = json.loads(resp.content)
+        self.assertNotEqual(m83sessions, None)
 
     def test_conflictInfoIncludesPeople(self):
         mtg83 = get_meeting(83)

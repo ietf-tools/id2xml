@@ -319,13 +319,7 @@ def edit_agenda(request, num=None, schedule_name=None):
                                               "meeting_base_url":meeting_base_url},
                                              RequestContext(request)), status=403, mimetype="text/html")
 
-    sessions = meeting.sessions_that_can_meet.order_by("id", "group", "requested_by")
     scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
-
-    session_jsons = [ json.dumps(s.json_dict(site_base_url)) for s in sessions ]
-
-    # useful when debugging javascript
-    #session_jsons = session_jsons[1:20]
 
     # get_modified_from needs the query set, not the list
     modified = get_modified_from_scheduledsessions(scheduledsessions)
@@ -357,9 +351,7 @@ def edit_agenda(request, num=None, schedule_name=None):
                                           "area_list": area_list,
                                           "area_directors" : ads,
                                           "wg_list": wg_list ,
-                                          "session_jsons": session_jsons,
-                                          "scheduledsessions": scheduledsessions,
-                                          "show_inline": set(["txt","htm","html"]) },
+                                          "scheduledsessions": scheduledsessions },
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################

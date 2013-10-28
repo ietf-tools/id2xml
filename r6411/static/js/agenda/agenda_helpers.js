@@ -151,6 +151,9 @@ function load_events(){
 
 	for(var q = 0; q<ssid_arr.length; q++){
 	    ssid = ssid_arr[q];
+
+            ssid.connect_to_timeslot_session();
+
             insert_cell(ssid.domid, "", true);
 
             // also see if the slots have any declared relationship, and take it forward as

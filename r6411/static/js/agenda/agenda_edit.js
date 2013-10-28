@@ -19,9 +19,17 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
-var meeting_number = 0;   // is the meeting name.
-var schedule_id    = 0;   // what is the schedule we are editing.
-var schedule_owner_href = '';  // who owns this schedule
+// these need to be defined in landscape_edit
+//var meeting_number = 0;   // is the meeting name.
+//var schedule_id    = 0;   // what is the schedule we are editing.
+//var schedule_name;        // what is the schedule we are editing.
+//var schedule_owner_href = '';  // who owns this schedule
+//var scheduledsession_post_href;
+//var meeting_base_url;
+//var site_base_url;
+//var total_rooms = 0; // the number of rooms
+//var total_days = 0; // the number of days
+
 var is_secretariat = false;
 var meeting_objs = {};    // contains a list of session objects -- by session_id
 var session_objs = {};    // contains a list of session objects -- by session_name
@@ -49,9 +57,7 @@ var last_json_txt   = "";   // last txt from a json call.
 var last_json_reply = [];   // last parsed content
 
 var hidden_rooms = [];
-var total_rooms = 0; // the number of rooms
 var hidden_days = [];
-var total_days = 0; // the number of days
 
 /****************************************************/
 

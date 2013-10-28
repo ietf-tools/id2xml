@@ -495,7 +495,7 @@ def session_json(request, num, sessionid):
 def sessions_json(request, num):
     meeting = get_meeting(num)
 
-    sessions = meeting.session_set.all()
+    sessions = meeting.sessions_that_can_meet.all()
 
     sess1_dict = [ x.json_dict(request.build_absolute_uri('/')) for x in sessions ]
     return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),

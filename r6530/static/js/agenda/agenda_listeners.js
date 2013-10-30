@@ -1009,7 +1009,7 @@ function recalculate_conflicts_for_session(session, old_column_classes, new_colu
     show_all_conflicts();
 }
 
-var _move_debug = false;
+var __debug_session_move = false;
 var _LAST_MOVED;
 function move_slot(parameters) {
     /* dom_obj: is a jquery selector of where the slot will be appeneded to
@@ -1018,7 +1018,7 @@ function move_slot(parameters) {
     */
     var update_to_slot_worked = false;
 
-    if(_move_debug) {
+    if(__debug_session_move) {
         _LAST_MOVED = parameters.session;
         if(parameters.from_slot != undefined) {
             console.log("from_slot", parameters.from_slot.domid());
@@ -1039,7 +1039,7 @@ function move_slot(parameters) {
                                                parameters.to_slot_id, parameters.same_timeslot);
     }
 
-    if(_move_debug) {
+    if(__debug_session_move) {
         console.log("update_slot_worked", update_to_slot_worked);
     }
     if(update_to_slot_worked){
@@ -1048,7 +1048,7 @@ function move_slot(parameters) {
 	    // do something
 	}
 	else{
-            if(_move_debug) {
+            if(__debug_session_move) {
 	        console.log("issue updateing from_slot");
 	        console.log("parameters.from_slot_id",parameters.from_slot_id, slot_status[parameters.from_slot_id]);
             }
@@ -1056,7 +1056,7 @@ function move_slot(parameters) {
 	}
     }
     else{
-        if(_move_debug) {
+        if(__debug_session_move) {
 	    console.log("issue updateing to_slot");
 	    console.log("to_slot_id",parameters.to_slot_id, slot_status[parameters.to_slot_id]);
         }
@@ -1103,7 +1103,7 @@ function move_slot(parameters) {
         console.log("moved session",parameters.session.title,"to",scheduledsession);
         parameters.session.placed(scheduledsession, true);
         start_spin();
-        if(_move_debug) {
+        if(__debug_session_move) {
 	    console.log('schedule_id',schedule_id,
                         'session_id', parameters.session.session_id,
                         'scheduledsession_id', scheduledsession.scheduledsession_id);
@@ -1141,7 +1141,7 @@ function move_slot(parameters) {
         parameters.session.update_column_classes([scheduledsession], parameters.bucket_list);
     }
     else{
-        if(_move_debug) {
+        if(__debug_session_move) {
 	    console.log("issue sending ajax call!!!");
         }
     }

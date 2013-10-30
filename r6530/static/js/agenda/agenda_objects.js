@@ -274,6 +274,7 @@ function ColumnClass(room,date,time) {
 
 // ++++++++++++++++++
 // TimeSlot Object
+//
 //   { "timeslot_id":"{{timeslot.id}}",
 //     "room"       :"{{timeslot.location|slugify}}",
 //     "time"       :"{{timeslot.time|date:'Hi' }}",
@@ -485,8 +486,9 @@ function make_ss(json) {
 // ++++++++++++++++++
 // Session Objects
 //
-// initialized from landscape_edit.html template with:
-//   session_obj({"title" : "{{ s.short_name }}",
+// initialized by loading a json from /meeting/XX/sessions.json, return JSON that looks like:
+//
+//               {"title" : "{{ s.short_name }}",
 //                "description":"{{ s.group.name }}",
 //                "special_request": "{{ s.special_request_token }}",
 //                "session_id":"{{s.id}}",

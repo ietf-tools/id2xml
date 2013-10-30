@@ -160,19 +160,19 @@ def update_timeslot_purpose(request,
     meeting = get_meeting(meeting_num)
     ts_id = int(timeslot_id)
     time_str = time
-    try:
-        time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M')
-    except:
-        print '\n'.join(traceback.format_exception(*sys.exc_info()))
-        return json.dumps({'error':'invalid time' % (time_str)})
-
-    try:
-        room = meeting.room_set.get(pk = int(room_id))
-    except Room.DoesNotExist:
-        print '\n'.join(traceback.format_exception(*sys.exc_info()))
-        return json.dumps({'error':'invalid room id'})
-
     if ts_id == 0:
+        try:
+            time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M')
+        except:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid time' % (time_str)})
+
+        try:
+            room = meeting.room_set.get(pk = int(room_id))
+        except Room.DoesNotExist:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid room id'})
+
         timeslot = TimeSlot(meeting=meeting,
                             location = room,
                             time = time,
@@ -451,11 +451,11 @@ def agenda_infosurl(request, num=None):
     # unacceptable action
     return HttpResponse(status=406)
 
-def agenda_infourl(request, num=None, schedule_name=None):
+def agenda_infourl(request, num=None, name=None):
     meeting = get_meeting(num)
-    #log.debug("agenda: %s / %s" % (meeting, schedule_name))
+    #log.debug("agenda: %s / %s" % (meeting, name))
 
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
     #log.debug("results in agenda: %u / %s" % (schedule.id, request.method))
 
     if request.method == 'GET':
@@ -592,9 +592,9 @@ def scheduledsessions_get(request, num, schedule):
                         mimetype="application/json")
 
 # this returns the list of scheduled sessions for the given named agenda
-def scheduledsessions_json(request, num, schedule_name):
+def scheduledsessions_json(request, num, name):
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     if request.method == 'GET':
         return scheduledsessions_get(request, meeting, schedule)
@@ -655,9 +655,9 @@ def scheduledsession_get(request, meeting, schedule, scheduledsession_id):
                         mimetype="application/json")
 
 # this returns the list of scheduled sessions for the given named agenda
-def scheduledsession_json(request, num, schedule_name, scheduledsession_id):
+def scheduledsession_json(request, num, name, scheduledsession_id):
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     scheduledsession_id = int(scheduledsession_id)
 

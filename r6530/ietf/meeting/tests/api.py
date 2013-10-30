@@ -728,7 +728,6 @@ class ApiTestCase(TestCase):
                 'argv': '{"meeting_num":"83", "timeslot_id": "0", "purpose":"plenary", "room_id":"%u", "time":"2012-03-25 09:00", "duration":"3600" }' % (roomPk)
             }, **extra_headers)
 
-        print "resp.content %s" % (resp.content)
         ts_one_json = json.loads(resp.content)
         self.assertEqual(ts_one_json['roomtype'], "plenary")
 

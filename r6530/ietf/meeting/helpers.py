@@ -145,6 +145,7 @@ def get_ntimeslots_from_agenda(agenda):
     # sessions/plenary/training and don't occur at the same time
     scheduledsessions = agenda.scheduledsession_set.all().order_by("timeslot__time").exclude(timeslot__type = "unavail")
     ntimeslots = get_ntimeslots_from_ss(agenda, scheduledsessions)
+
     return ntimeslots, scheduledsessions
 
 def find_ads_for_meeting(meeting):

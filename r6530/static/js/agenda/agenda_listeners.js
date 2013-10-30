@@ -18,13 +18,18 @@ var bucketlist_id = "sortable-list" // for if/when the id for bucket list change
 function resize_listeners() {
     for(i = 0; i<days.length;i++){
         $("#resize-"+days[i]+"-spacer").resizable({maxHeight:10,
-						   handles: "e, s",
+						   handles: "e",
 						   minWidth:2,
 
 						  });
 
     }
-
+    
+    $("#session-info").resizable({handles: "s",
+				  minWidth:"100%",
+				  containment: "parent"
+				 });
+    
 }
 
 

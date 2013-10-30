@@ -1313,7 +1313,7 @@ Constraint.prototype.build_people_conflict_view = function() {
         area_mark = this.person.area_mark_basic;
     }
     return "<div class='conflict our-"+this.conflict_type+"' id='"+this.dom_id+
-           "'>"+this.person.ascii+area_mark+"</div>";
+           "'>"+area_mark+"</div>";
 };
 
 Constraint.prototype.build_othername = function() {

@@ -93,17 +93,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% endblock %}
 
 <script type="text/javascript" src="/js/lib/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" src="/js/yui/yui-20100305.js"></script> 
+<script type="text/javascript" src="/js/yui/yui-20100305.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 YAHOO.util.Event.onContentReady("wgs", function () {
     var oMenu = new YAHOO.widget.Menu("wgs", { position: "static", hidedelay:  750, lazyload: true });
-    oMenu.render();      
-});      
-{% block scripts %}
-{% endblock %}
+    oMenu.render();
+});
 //]]>
 </script>
+{% block scripts %}
+{% endblock %}
 {% block js %}{% endblock %}
 
 {% block content_end %}

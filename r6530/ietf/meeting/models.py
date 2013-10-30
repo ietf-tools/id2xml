@@ -283,7 +283,7 @@ class TimeSlot(models.Model):
             if brk.time_desc[-4:] == self.time_desc[:4]:
                 return brk
         return None
-	 
+
     def __unicode__(self):
         location = self.get_location()
         if not location:
@@ -723,13 +723,14 @@ class ScheduledSession(models.Model):
         else:
             return ""
 
-    #def json_url(self):
-    #    return "/meeting/%s/constraint/%s.json" % (self.meeting.number, self.id)
+    def json_url(self):
+        return "/meeting/%s/schedule/%s/session/%u.json" % (self.schedule.meeting.number,
+                                                            self.schedule.name, self.id)
 
     def json_dict(self, host_scheme):
         ss = dict()
         ss['scheduledsession_id'] = self.id
-        #ss['href']          = urljoin(host_scheme, self.json_url())
+        ss['href']          = urljoin(host_scheme, self.json_url())
         ss['timeslot_id'] = self.timeslot.id
         if self.extendedfrom:
             ss['extendedfrom_id']  = self.extendedfrom.id

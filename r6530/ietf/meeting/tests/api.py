@@ -10,6 +10,7 @@ from ietf.ietfauth.decorators import has_role
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from django.utils import simplejson as json
 from ietf.meeting.helpers import get_meeting
+from ietf.meeting.ajax import agenda_update
 
 import debug
 
@@ -469,7 +470,7 @@ class ApiTestCase(TestCase):
         extra_headers = auth_wlo
         extra_headers['HTTP_ACCEPT']='application/json'
 
-        # try to create a new agenda
+        # try to edit an existing agenda
         resp = self.client.put('/meeting/83/agendas/%s.json' % (a83.name),
                                data='visible=0',
                                content_type="application/x-www-form-urlencoded",
@@ -477,10 +478,31 @@ class ApiTestCase(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
-        # see that in fact wlo can create a new timeslot
+        # see that in fact the visible attribute changed.
         mtg83 = get_meeting(83)
         a83   = mtg83.agenda
         self.assertFalse(a83.visible)
+
+    def test_adrianCanNotEditSecretariatAgenda(self):
+        mtg83 = get_meeting(83)
+        a83   = mtg83.agenda
+        self.assertTrue(a83.visible)
+
+        extra_headers = auth_ferrel
+        extra_headers['HTTP_ACCEPT']='application/json'
+
+        # try to edit an existing agenda
+        resp = self.client.put('/meeting/83/agendas/%s.json' % (a83.name),
+                               data='visible=0',
+                               content_type="application/x-www-form-urlencoded",
+                               **extra_headers)
+
+        self.assertEqual(resp.status_code, 200)
+
+        # see that in fact the visible attribute did not change.
+        mtg83 = get_meeting(83)
+        a83   = mtg83.agenda
+        self.assertTrue(a83.visible)
 
     def test_deleteAgendaSecretariat(self):
         mtg83 = get_meeting(83)

@@ -394,6 +394,10 @@ def agenda_update(request, meeting, schedule):
     #          (schedule, update_dict, request.raw_post_data))
 
     user = request.user
+
+    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    read_only = not canedit
+    
     if has_role(user, "Secretariat"):
         if "public" in update_dict:
             value1 = True
@@ -403,18 +407,22 @@ def agenda_update(request, meeting, schedule):
             log.debug("setting public for %s to %s" % (schedule, value1))
             schedule.public = value1
 
-    if "visible" in update_dict:
+    if "visible" in update_dict and cansee:
         value1 = True
         value = update_dict["visible"]
         if value == "0" or value == 0 or value=="false":
             value1 = False
         log.debug("setting visible for %s to %s" % (schedule, value1))
         schedule.visible = value1
-
-    if "name" in update_dict:
-        value = update_dict["name"]
-        log.debug("setting name for %s to %s" % (schedule, value))
-        schedule.name = value
+    if has_role(user, "Secretariat") and canedit:
+        if "name" in update_dict:
+            value = update_dict["name"]
+            log.debug("setting name for %s to %s" % (schedule, value))
+            schedule.name = value
+    else:
+        return HttpResponse({'error':'no permission'}, status=401)
+        
+        
 
     schedule.save()
 

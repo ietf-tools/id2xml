@@ -313,8 +313,8 @@ function extend_slot(event) {
 
                     // may have caused some new conflicts!!!!
                     recalculate_conflicts_for_session(session,
-                                                      [slot.column_class],
-                                                      [slot.column_class, slot.extendedto.column_class]);
+                                                      [slot.column_class()],
+                                                      [slot.column_class(), slot.extendedto.column_class]);
                 },
                 Cancel: function() {
 		    $( this ).dialog( "close" );
@@ -544,6 +544,7 @@ function meeting_event_click(event){
 
     empty_info_table();
     fill_in_session_info(session, true, session.slot);
+    __DEBUG__SS_OBJ   = current_scheduledslot;
     __DEBUG__SLOT_OBJ = current_timeslot;
     __DEBUG__SESSION_OBJ = session;
 }

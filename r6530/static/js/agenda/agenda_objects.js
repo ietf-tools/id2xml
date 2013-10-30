@@ -303,7 +303,7 @@ TimeSlot.prototype.initialize = function(json) {
        this.short_string = "Unassigned";
     }
     else{
-       this.short_string = daysofweek[t] + ", "+ this.time + ", " + upperCaseWords(this.room);
+       this.short_string = daysofweek[t] + ", "+ this.time + ", " + this.room;
     }
 
     timeslot_bydomid[this.domid] = this;
@@ -414,6 +414,18 @@ ScheduledSlot.prototype.initialize = function(json) {
     slot_objs[this.scheduledsession_id] = this;
 };
 
+ScheduledSlot.prototype.connect_to_timeslot_session = function() {
+
+    if(this.timeslot == undefined) {
+        if(this.timeslot_id != undefined) {
+            this.timeslot = timeslot_byid[this.timeslot_id];
+        } else {
+            this.timeslot = new TimeSlot();
+        }
+    }
+    /* session could be hooked up, but it is now always session() */
+};
+
 ScheduledSlot.prototype.session = function() {
     if(this.session_id != undefined) {
        return meeting_objs[this.session_id];
@@ -518,6 +530,21 @@ function session_obj(json) {
     return session;
 }
 
+/* feed this an array of sessions */
+function make_sessions(json, status, jqXHR) {
+    $.each(json, function(index) {
+        var thing = json[index];
+        session_obj(thing);
+    });
+}
+
+function load_sessions(href) {
+    var ts = $.ajax(href);
+    ts.success(make_sessions);
+    return ts;
+}
+
+
 // augument to jQuery.getJSON( url, [data], [callback] )
 Session.prototype.load_session_obj = function(andthen, arg) {
     session = this;
@@ -590,9 +617,9 @@ Session.prototype.placed = function(where, forceslot) {
         this.slot      = where;
     }
     if(where != undefined) {
-        this.add_column_class(where.column_class);
+        this.add_column_class(where.column_class());
     }
-    //console.log("session:",session.title, "column_class", ssid.column_class);
+    //console.log("session:",session.title, "column_class", ssid.column_class());
     this.element().parent("div").removeClass("meeting_box_bucket_list");
     this.pinned = where.pinned;
 };
@@ -769,7 +796,7 @@ Session.prototype.update_column_classes = function(scheduledsession_list, bucket
     } else {
         for(ssn in scheduledsession_list) {
             ss = scheduledsession_list[ssn];
-            this.add_column_class(ss.column_class);
+            this.add_column_class(ss.column_class());
         }
         new_column_tag = this.column_class_list[0].column_tag;
     }

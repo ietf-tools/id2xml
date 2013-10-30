@@ -64,12 +64,7 @@ area_directors["{{ad.area}}"] = [];{% endfor %}
 area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));{% endfor %}
 
 promiselist.push(load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}"));
-
-{% autoescape off %}
-{% for s in session_jsons %}
-   session_obj({{s}});
-{% endfor %}
-{% endautoescape %}
+promiselist.push(load_sessions("{% url ietf.meeting.ajax.sessions_json meeting.number %}"));
 
 {% for s in scheduledsessions %}
    make_ss({ "scheduledsession_id": "{{s.id}}",
@@ -88,7 +83,6 @@ promiselist.push(load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meet
 
    make_ss({ "scheduledsession_id": 0,
      "empty": true,
-     "timeslot_id":"Unassigned",
      "session_id" :null,
      "room"       :"unassigned",
      "time"       :null,
@@ -96,8 +90,6 @@ promiselist.push(load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meet
      "domid"      :"sortable-list"});
 
    console.log("setup_slots run");
-
-   calculate_room_select_box();
 
 {% for area in area_list %}
    legend_status["{{area.upcase_acronym}}"] = true;

@@ -1,4 +1,5 @@
 from urlparse import urljoin
+import traceback
 
 from django.utils import simplejson as json
 from dajaxice.core import dajaxice_functions
@@ -148,23 +149,62 @@ def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, 
 
 @group_required('Secretariat')
 @dajaxice_register
-def update_timeslot_purpose(request, timeslot_id=None, purpose=None):
+def update_timeslot_purpose(request,
+                            meeting_num,
+                            timeslot_id=None,
+                            purpose =None,
+                            room_id = None,
+                            duration= None,
+                            time    = None):
+
+    meeting = get_meeting(meeting_num)
     ts_id = int(timeslot_id)
+    time_str = time
     try:
-       timeslot = TimeSlot.objects.get(pk=ts_id)
+        time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M')
     except:
-        return json.dumps({'error':'invalid timeslot'})
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'invalid time' % (time_str)})
+
+    try:
+        room = meeting.room_set.get(pk = int(room_id))
+    except Room.DoesNotExist:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'invalid room id'})
+
+    if ts_id == 0:
+        timeslot = TimeSlot(meeting=meeting,
+                            location = room,
+                            time = time,
+                            duration = duration)
+    else:
+        try:
+           timeslot = TimeSlot.objects.get(pk=ts_id)
+        except:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid timeslot'})
 
     try:
         timeslottypename = TimeSlotTypeName.objects.get(pk = purpose)
     except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
         return json.dumps({'error':'invalid timeslot type',
                            'extra': purpose})
 
     timeslot.type = timeslottypename
-    timeslot.save()
+    try:
+        timeslot.save()
+    except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'failed to save'})
 
-    return json.dumps(timeslot.json_dict(request.build_absolute_uri('/')))
+    try:
+        # really should return 201 created, but dajaxice sucks.
+        json_dict = timeslot.json_dict(request.build_absolute_uri('/'))
+        return json.dumps(json_dict)
+    except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'failed to save'})
 
 #############################################################################
 ## ROOM API
@@ -236,6 +276,7 @@ def timeslot_roomurl(request, num=None, roomid=None):
 
 #############################################################################
 ## DAY/SLOT API
+##  -- this creates groups of timeslots, and associated scheduledsessions.
 #############################################################################
 AddSlotForm = modelform_factory(TimeSlot, exclude=('meeting','name','location','sessions', 'modified'))
 

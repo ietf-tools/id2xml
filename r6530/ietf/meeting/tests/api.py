@@ -698,5 +698,38 @@ class ApiTestCase(TestCase):
         ss_one = ScheduledSession.objects.get(pk=2371)
         self.assertEqual(ss_one.pinned, True)
 
+    def test_wlo_canChangeTimeSlotPurpose(self):
+        extra_headers = auth_wlo
+        extra_headers['HTTP_ACCEPT']='text/json'
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "session")
+
+        # check that wlo can update a timeslot purpose
+        resp = self.client.post('/dajaxice/ietf.meeting.update_timeslot_purpose/', {
+            'argv': '{"meeting_num":"83", "timeslot_id": "%u", "purpose":"plenary"}' % (ts_one.pk)
+            }, **extra_headers)
+
+        ts_one_json = json.loads(resp.content)
+        self.assertEqual(ts_one_json['roomtype'], "plenary")
+
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "plenary")
+
+    def test_wlo_canAddTimeSlot(self):
+        extra_headers = auth_wlo
+        extra_headers['HTTP_ACCEPT']='text/json'
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "session")
+
+        roomPk = ts_one.location.pk
+
+        # check that wlo can update a timeslot purpose
+        resp = self.client.post('/dajaxice/ietf.meeting.update_timeslot_purpose/', {
+                'argv': '{"meeting_num":"83", "timeslot_id": "0", "purpose":"plenary", "room_id":"%u", "time":"2012-03-25 09:00", "duration":"3600" }' % (roomPk)
+            }, **extra_headers)
+
+        print "resp.content %s" % (resp.content)
+        ts_one_json = json.loads(resp.content)
+        self.assertEqual(ts_one_json['roomtype'], "plenary")
 
 

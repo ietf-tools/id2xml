@@ -358,41 +358,45 @@ function load_timeslots(href) {
 // ScheduledSession is DJANGO name for this object, but needs to be renamed.
 // It represents a TimeSlot that can be assigned in this schedule.
 //   { "scheduledsession_id": "{{s.id}}",
-//     "empty": "{{s.empty_str}}",
 //     "timeslot_id":"{{s.timeslot.id}}",
 //     "session_id" :"{{s.session.id}}",
-//     "room"       :"{{s.timeslot.location|slugify}}",
 //     "extendedfrom_id"    :refers to another scheduledsession by ss.id
-//     "time"       :"{{s.timeslot.time|date:'Hi' }}",
-//     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
-//     "domid"      :"{{s.timeslot.js_identifier}}"}
 function ScheduledSlot(){
     this.extendedfrom = undefined;
     this.extendedto   = undefined;
     this.extendedfrom_id = false;
 }
 
+ScheduledSlot.prototype.room = function() {
+    return this.timeslot.room();
+};
+
+ScheduledSlot.prototype.time = function() {
+    return this.timeslot.time();
+};
+
+ScheduledSlot.prototype.date = function() {
+    return this.timeslot.date();
+};
+
+ScheduledSlot.prototype.domid = function() {
+    return this.timeslot.domid();
+};
+
+ScheduledSlot.prototype.column_class = function() {
+    return this.timeslot.column_class;
+};
+
+ScheduledSlot.prototype.short_string = function() {
+    return this.timeslot.short_string;
+};
+
 ScheduledSlot.prototype.initialize = function(json) {
     for(var key in json) {
        this[key]=json[key];
     }
 
-    /* this needs to be an object */
-    this.column_class=new ColumnClass(this.room, this.date, this.time);
-
-    var d = new Date(this.date);
-    var t = d.getUTCDay();
-    if(this.room == "Unassigned"){
-       this.short_string = "Unassigned";
-    }
-    else{
-       this.short_string = daysofweek[t] + ", "+ this.time + ", " + upperCaseWords(this.room);
-    }
-    if(!this.domid) {
-           this.domid = json_to_id(this);
-        //console.log("gen "+timeslot_id+" is domid: "+this.domid);
-    }
-    //console.log("extend "+this.domid+" with "+JSON.stringify(this));
+    this.timeslot = timeslot_byid[this.timeslot_id];
 
     // translate Python booleans to JS.
     if(this.pinned == "True") {
@@ -420,6 +424,8 @@ ScheduledSlot.prototype.session = function() {
 ScheduledSlot.prototype.slot_title = function() {
     return "id#"+this.scheduledsession_id+" dom:"+this.domid;
 };
+
+/* XXX needs to get removed */
 ScheduledSlot.prototype.can_extend_right = function() {
     if(this.following_timeslot == undefined) {
         if(this.following_timeslot_id != undefined) {
@@ -636,11 +642,11 @@ Session.prototype.clear_all_conflicts = function(old_column_classes) {
         $.each(session_obj.constraints.bethere, function(i) {
             var conflict = session_obj.constraints.bethere[i];
             var person = conflict.person;
-            
+
             person.clear_session(session_obj, old_column_classes);
         });
     }
-};    
+};
 
 Session.prototype.show_conflict = function() {
     if(_conflict_debug) {
@@ -702,7 +708,7 @@ Session.prototype.examine_people_conflicts = function() {
 
     // reset people conflicts.
     session_obj.person_conflicted = false;
-    
+
     for(ccn in session_obj.column_class_list) {
         var vertical_location = session_obj.column_class_list[ccn].column_tag;
         var room_tag          = session_obj.column_class_list[ccn].room_tag;

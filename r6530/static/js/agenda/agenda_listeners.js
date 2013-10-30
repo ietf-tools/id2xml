@@ -283,10 +283,9 @@ function find_empty_slot(){
 function extend_slot(event) {
     // event is just the button push, ignore it.
 
-    session = last_session;
-    slot    = session.slot;
+    session  = last_session;
 
-    console.log("session", session.title, "slot:", slot.scheduledsession_id);
+    console.log("session", session.title, "slot:", current_timeslot.scheduledsession_id);
 
     // determine if this slot can be extended.
     if(slot.can_extend_right()) {
@@ -300,7 +299,7 @@ function extend_slot(event) {
 					                  {
                                                               'schedule_id':schedule_id,
 						              'session_id': session.session_id,
-						              'scheduledsession_id': slot.following_timeslot.scheduledsession_id,
+						              'timeslot_id': slot.following_timeslot.scheduledsession_id,
                                                               'extended_from_id': slot.scheduledsession_id
 					                  });
                     slot.extendedto = slot.following_timeslot;
@@ -492,6 +491,7 @@ var __DEBUG__SESSION_OBJ;
 var __DEBUG__SLOT_OBJ;
 var current_item = null;
 var current_timeslot = null;
+var current_scheduledslot = null;
 var current_timeslot_id = null;  // global used by empty_info_table to move picker.
 var meeting_clicked  = false;
 function meeting_event_click(event){
@@ -533,8 +533,9 @@ function meeting_event_click(event){
     session.selectit();
     current_item = session.element();
 
-    current_timeslot    = session.slot;
-    if(current_timeslot != undefined) {
+    current_scheduledslot    = session.slot;
+    if(current_scheduledslot != undefined) {
+        current_timeslot = current_scheduledslot.timeslot;
         current_timeslot_id = current_timeslot.timeslot_id;
     }
     if(__debug_meeting_click) {

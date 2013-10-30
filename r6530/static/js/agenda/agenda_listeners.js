@@ -285,7 +285,7 @@ function extend_slot(event) {
 
     session  = last_session;
 
-    console.log("session", session.title, "sslot:", current_scheduledsession.scheduledsession_id);
+    console.log("session", session.title, "sslot:", current_scheduledslot.scheduledsession_id);
 
     /* bind current_timeslot into this function and continuations */
     var slot = current_timeslot;
@@ -301,7 +301,7 @@ function extend_slot(event) {
                     // need to create new scheduledsession
                     var new_ss = make_ss({ "session_id" : session.session_id,
                                            "timeslot_id": slot.following_timeslot.timeslot_id,
-                                           "extended_from_id" : slot.scheduledsession_id});
+                                           "extended_from_id" : current_scheduledslot.scheduledsession_id});
                     // make_ss also adds to slot_status.
                     new_ss.saveit();
 
@@ -316,8 +316,8 @@ function extend_slot(event) {
 
                     // may have caused some new conflicts!!!!
                     recalculate_conflicts_for_session(session,
-                                                      [slot.column_class()],
-                                                      [slot.column_class(), slot.extendedto.column_class]);
+                                                      [slot.column_class],
+                                                      [slot.column_class, slot.extendedto.column_class]);
                 },
                 Cancel: function() {
 		    $( this ).dialog( "close" );
@@ -492,6 +492,8 @@ var __debug_meeting_click = false;
 var clicked_event;
 var __DEBUG__SESSION_OBJ;
 var __DEBUG__SLOT_OBJ;
+var __debug_click_slot_id;
+var __debug_click_container;
 var current_item = null;
 var current_timeslot = null;
 var current_scheduledslot = null;
@@ -521,9 +523,10 @@ function meeting_event_click(event){
 
     var slot_id = $(event.target).closest('.agenda_slot').attr('id');
     var container  = $(event.target).closest('.meeting_box_container');
+    __debug_click_slot_id   = slot_id;
+    __debug_click_container = container;
 
     if(container == undefined) {
-        fill_in_session_info(session, true, session.slot);
 	return;
     }
 
@@ -531,11 +534,15 @@ function meeting_event_click(event){
     var session = meeting_objs[session_id];
     last_session = session;
 
+    empty_info_table();
+    fill_in_session_info(session, true, session.slot);
     session.selectit();
+
     current_item = session.element();
 
-    current_timeslot    = session.slot;
-    current_timeslot_id = current_timeslot.timeslot_id;
+    current_timeslot      = session.slot;
+    current_timeslot_id   = current_timeslot.timeslot_id;
+    current_scheduledslot = session.scheduledsession;
     if(__debug_meeting_click) {
         console.log("2 meeting_click:", current_timeslot, session);
     }
@@ -825,7 +832,7 @@ function droppable(){
 
 
 function update_to_slot(session_id, to_slot_id, force){
-    console.log("update_to_slot meeting_id:",session_id);
+    //console.log("update_to_slot meeting_id:",session_id, to_slot_id);
     if(to_slot_id == "sortable-list") {
         /* must be bucket list */
         return true;
@@ -840,7 +847,7 @@ function update_to_slot(session_id, to_slot_id, force){
         new_ss.saveit();
 
         if(to_slot_id != bucketlist_id) {
-	    to_timeslot.empty = false;
+	    to_timeslot.mark_occupied();
         }
 
 	// update meeting_obj
@@ -848,6 +855,7 @@ function update_to_slot(session_id, to_slot_id, force){
 
 	return true;
     } else {
+        console.log("update_to_slot failed", to_timeslot, force);
         return false;
     }
 }
@@ -857,11 +865,12 @@ function update_from_slot(session_id, from_slot_id)
     var from_timeslot      = timeslot_bydomid[from_slot_id];
 
     /* this is a list of scheduledsessions */
-    var from_scheduledslots = slot_status[meeting_objs[session_id].slot_status_key];
+    var from_scheduledslots = slot_status[from_slot_id];
     var found = false;
 
     // it will be null if it's coming from a bucketlist
     if(from_slot_id != null){
+        //console.log("1 from_slot_id", from_slot_id, from_scheduledslots);
         var count = from_scheduledslots.length;
 	for(var k = 0; k<from_scheduledslots.length; k++) {
             var from_ss = from_scheduledslots[k];
@@ -869,13 +878,27 @@ function update_from_slot(session_id, from_slot_id)
 		found = true;
 
                 from_ss.deleteit();
-                from_scheduledslots.splice(k,1);
+                delete from_scheduledslots[k];
                 count--;
 	    }
 	}
-        if(count == 0) {
-            from_timeslot.empty = true;
+        if(found && count == 0) {
+            from_timeslot.mark_empty();
+        } else {
+            console.log("setting fromslot empty", from_timeslot, count, found);
         }
+
+        /* remove undefined entries */
+        new_fromslots = [];
+        for(var k =0; k<from_scheduledslots.length; k++) {
+            if(from_scheduledslots[k] != undefined && from_scheduledslots[k].session_id != undefined) {
+                new_fromslots.push(from_scheduledslots[k]);
+            }
+        }
+
+        /* any removed sessions will have been done */
+        slot_status[from_slot_id] = new_fromslots;
+        //console.log("2 from_slot_id", from_slot_id, new_fromslots);
     }
     else{
         // this may be questionable. It deals with the fact that it's coming from the bucketlist.
@@ -893,7 +916,7 @@ function drop_drop(event, ui){
     var session    = meeting_objs[session_id];
 
     var to_slot_id = $(this).attr('id'); // where we are dragging it.
-    var to_slot = slot_status[to_slot_id]
+    var to_slot = timeslot_bydomid[to_slot_id]
 
     var from_slot_id = session.slot_status_key;
     var from_slot = slot_status[session.slot_status_key]; // remember this is an array...
@@ -918,11 +941,8 @@ function drop_drop(event, ui){
 
 
     bucket_list = (to_slot_id == bucketlist_id);
-    if(!check_free({id:to_slot_id}) ){
-	console.log("not free...");
-	if(!bucket_list) {
-	    occupied = true
-	}
+    if(!bucket_list && !check_free({id:to_slot_id}) ){
+	occupied = true
     }
 
     if(too_small || occupied){
@@ -1013,11 +1033,17 @@ function move_slot(parameters) {
     if(__debug_session_move) {
         _LAST_MOVED = parameters.session;
         if(parameters.from_slot != undefined) {
-            console.log("from_slot", parameters.from_slot.domid());
+            console.log("from_slot", parameters.from_slot.length, parameters.from_slot[0].domid());
         } else {
             console.log("from_slot was unassigned");
         }
     }
+
+    /* if to slot was marked empty, then remove anything in it (like word "empty") */
+    if(parameters.to_slot.empty) {
+        $(parameters.dom_obj).html("");
+    }
+
     var update_to_slot_worked = false;
     if(parameters.same_timeslot == null){
 	parameters.same_timeslot = false;
@@ -1034,25 +1060,26 @@ function move_slot(parameters) {
     if(__debug_session_move) {
         console.log("update_slot_worked", update_to_slot_worked);
     }
-    if(update_to_slot_worked){
-	if(update_from_slot(parameters.session.session_id, parameters.from_slot_id)) {
-	    remove_duplicate(parameters.from_slot_id, parameters.session.session_id);
-	    // do something
-	}
-	else{
-	    console.log("ERROR updating from_slot", parameters.from_slot_id, slot_status[parameters.from_slot_id]);
-	    return;
-	}
+    if(!update_to_slot_worked){
+	console.log("ERROR updating to_slot", update_to_slot_worked, parameters.to_slot_id, slot_status[parameters.to_slot_id]);
+	return;
     }
-    else{
-	console.log("ERROR updating to_slot", parameters.to_slot_id, slot_status[parameters.to_slot_id]);
+
+    if(update_from_slot(parameters.session.session_id, parameters.from_slot_id)) {
+	remove_duplicate(parameters.from_slot_id, parameters.session.session_id);
+	// do something else?
+    }
+    else {
+	console.log("ERROR updating from_slot", parameters.from_slot_id, slot_status[parameters.from_slot_id]);
 	return;
     }
     parameters.session.slot_status_key = parameters.to_slot_id;
 
     var eTemplate = parameters.session.event_template()
-
-    console.log("dom_obj:", parameters.dom_obj);
+    if(parameters.to_slot.empty) {
+        // clean out word "empty" if any.
+        $(parameters.dom_obj).html("");
+    }
     $(parameters.dom_obj).append(eTemplate);
 
     parameters.ui.draggable.remove();

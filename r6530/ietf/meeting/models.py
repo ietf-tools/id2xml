@@ -170,8 +170,8 @@ class Meeting(models.Model):
 
             if ymd in time_slices:
                 # only keep unique entries
-                if [ts.time, ts.time + ts.duration] not in time_slices[ymd]:
-                    time_slices[ymd].append([ts.time, ts.time + ts.duration])
+                if [ts.time, ts.time + ts.duration, ts.duration.seconds] not in time_slices[ymd]:
+                    time_slices[ymd].append([ts.time, ts.time + ts.duration, ts.duration.seconds])
                     slots[ymd].append(ts)
 
         days.sort()

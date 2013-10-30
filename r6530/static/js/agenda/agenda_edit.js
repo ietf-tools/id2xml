@@ -27,6 +27,8 @@ var meeting_objs = {};    // contains a list of session objects -- by session_id
 var session_objs = {};    // contains a list of session objects -- by session_name
 var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
 var slot_objs   = {};     // scheduledsession indexed by id.
+var timeslot_bydomid = {};
+var timeslot_byid    = {};
 
 var group_objs = {};      // list of working groups
 var area_directors = {};  // list of promises of area directors, index by href.
@@ -68,8 +70,9 @@ $(document).ready(function() {
 */
 function initStuff(){
     log("initstuff() running...");
-    setup_slots();
-    directorpromises = mark_area_directors();
+    var directorpromises = [];
+    setup_slots(directorpromises);
+    mark_area_directors(directorpromises);
     log("setup_slots() ran");
     droppable();
 

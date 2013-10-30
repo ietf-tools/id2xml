@@ -244,7 +244,7 @@ def timeslot_slotlist(request, mtg):
     json_array=[]
     for slot in slots:
         json_array.append(slot.json_dict(request.build_absolute_uri('/')))
-    return HttpResponse(json.dumps(json_array),
+    return HttpResponse(json.dumps(json_array, sort_keys=True, indent=2),
                         mimetype="application/json")
 
 @group_required('Secretariat')

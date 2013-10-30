@@ -273,6 +273,87 @@ function ColumnClass(room,date,time) {
 
 
 // ++++++++++++++++++
+// TimeSlot Object
+//   { "timeslot_id":"{{timeslot.id}}",
+//     "room"       :"{{timeslot.location|slugify}}",
+//     "time"       :"{{timeslot.time|date:'Hi' }}",
+//     "date"       :"{{timeslot.time|date:'Y-m-d'}}",
+//     "domid"      :"{{timeslot.js_identifier}}"}
+function TimeSlot(){
+    this.timeslot_id  = undefined;
+    this.room         = undefined;
+    this.time         = undefined;
+    this.date         = undefined;
+    this.domid        = undefined;
+    this.scheduledsessions = [];
+    this.following_timeslot_id = undefined;
+}
+
+TimeSlot.prototype.initialize = function(json) {
+    for(var key in json) {
+       this[key]=json[key];
+    }
+    //console.log("timeslot processing: ", this.timeslot_id);
+
+    this.column_class=new ColumnClass(this.room, this.date, this.time);
+
+    var d = new Date(this.date);
+    var t = d.getUTCDay();
+    if(this.room == "Unassigned"){
+       this.short_string = "Unassigned";
+    }
+    else{
+       this.short_string = daysofweek[t] + ", "+ this.time + ", " + upperCaseWords(this.room);
+    }
+
+    timeslot_bydomid[this.domid] = this;
+    timeslot_byid[this.timeslot_id] = this;
+};
+
+TimeSlot.prototype.slot_title = function() {
+    return "id#"+this.timeslot_id+" dom:"+this.domid;
+};
+TimeSlot.prototype.can_extend_right = function() {
+    if(this.following_timeslot == undefined) {
+        if(this.following_timeslot_id != undefined) {
+            this.following_timeslot = timeslot_byid[this.following_timeslot_id];
+        }
+    }
+    if(this.following_timeslot == undefined) {
+        console.log("can_extend_right:",this.scheduledsession_id," no slot to check");
+        return false;
+    } else {
+        console.log("can_extend_right:",
+                    this.slot_title()," for slot: ",
+                    this.following_timeslot.slot_title(),
+                    "is ",this.following_timeslot.empty);
+        return this.following_timeslot.empty;
+    }
+};
+
+function make_timeslot(json) {
+    var ts = new TimeSlot();
+    ts.initialize(json);
+}
+
+/* feed this an array of timeslots */
+function make_timeslots(json, status, jqXHR) {
+    $.each(json, function(index) {
+        var thing = json[index];
+        make_timeslot(thing);
+    });
+}
+
+function load_timeslots(href) {
+    var ts = $.ajax(href);
+    ts.success(make_timeslots);
+
+    return ts;
+}
+
+
+
+// ++++++++++++++++++
 // ScheduledSlot Object
 // ScheduledSession is DJANGO name for this object, but needs to be renamed.
 // It represents a TimeSlot that can be assigned in this schedule.
@@ -722,17 +803,21 @@ Session.prototype.event_template = function() {
     // the extra div is present so that the table can have a border which does not
     // affect the total height of the box.  The border otherwise screws up the height,
     // causing things to the right to avoid this box.
-    var bucket_list_style = "meeting_box_bucket_list"
-    if(this.is_placed) {
-        bucket_list_style = "";
-    }
-    if(this.double_wide) {
-        bucket_list_style = bucket_list_style + " meeting_box_double";
-    }
-
     var area_mark = "";
     if(this.responsible_ad != undefined) {
         area_mark = this.responsible_ad.area_mark;
+        if(area_mark == undefined) {
+            area_mark = "ad:" + this.responsible_ad.href;
+        }
+    }
+
+    var bucket_list_style = "meeting_box_bucket_list"
+    if(this.is_placed) {
+        bucket_list_style = "";
+        area_mark = "";        /* no mark for unplaced items: it goes to the wrong place */
+    }
+    if(this.double_wide) {
+        bucket_list_style = bucket_list_style + " meeting_box_double";
     }
 
     pinned = "";
@@ -1327,8 +1412,7 @@ function find_person_by_href(href) {
 
 var area_result;
 // this function creates a unique per-area director mark
-function mark_area_directors() {
-    var directorpromises = [];
+function mark_area_directors(directorpromises) {
     $.each(area_directors, function(areaname) {
         var adnum = 1;
         $.each(area_directors[areaname], function(key) {

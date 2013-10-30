@@ -386,6 +386,9 @@ class TimeSlot(models.Model):
         ts["time"]     = date_format(self.time, 'Hi')
         ts["date"]     = time_format(self.time, 'Y-m-d')
         ts["domid"]    = self.js_identifier
+        following = self.slot_to_the_right
+        if following is not None:
+            ts["following_timeslot_id"] = following.id
         return ts
 
     def json_url(self):

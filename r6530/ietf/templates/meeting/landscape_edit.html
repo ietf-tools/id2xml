@@ -46,12 +46,15 @@
 <script type='text/javascript'>
 
 
-meeting_number = {{ meeting.number }};
-schedule_id    = {{ schedule.id }};
+var meeting_number = {{ meeting.number }};
+var schedule_id    = {{ schedule.id }};
+var schedule_owner_href = "{{ schedule.owner_email }}";
+var schedule_name  = "{{ schedule.name }}";
 var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
-total_days = {{time_slices|length}};
-total_rooms = {{rooms|length}};
+var scheduledsession_post_href = "{% url ietf.meeting.ajax.scheduledsessions_json meeting.number schedule.name %}";
+var total_days = {{time_slices|length}};
+var total_rooms = {{rooms|length}};
 
 function setup_slots(promiselist){
 {% for day in time_slices %}
@@ -68,7 +71,7 @@ var sess_promise = load_sessions("{% url ietf.meeting.ajax.sessions_json meeting
 promiselist.push(ts_promise);
 promiselist.push(sess_promise);
 
-var ss_promise = load_scheduledsessions(ts_promise, sess_promise, "{% url ietf.meeting.ajax.scheduledsessions_json meeting.number schedule.name %}");
+var ss_promise = load_scheduledsessions(ts_promise, sess_promise, scheduledsession_post_href);
 promiselist.push(ss_promise);
 
    make_ss({ "scheduledsession_id": 0,

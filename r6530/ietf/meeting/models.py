@@ -476,10 +476,17 @@ class Schedule(models.Model):
 
 #     def url_edit(self):
 #         return "/meeting/%s/agenda/%s/edit" % (self.meeting.number, self.name)
-# 
+#
 #     @property
 #     def relurl_edit(self):
 #         return self.url_edit("")
+
+    def owner_email(self):
+        emails = self.owner.email_set.all()
+        if len(emails)>0:
+            return emails[0].address
+        else:
+            return "noemail"
 
     @property
     def visible_token(self):

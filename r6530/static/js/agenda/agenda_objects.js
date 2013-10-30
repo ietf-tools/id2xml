@@ -406,6 +406,7 @@ ScheduledSlot.prototype.initialize = function(json) {
     this.session_id          = json.session_id;
     this.timeslot_id         = json.timeslot_id;
     this.href                = json.href;
+    this.extendedfrom_id     = json.extendedfrom_id;
 
     if(this.timeslot_id == undefined) {
         /* must be the unassigned one?! */

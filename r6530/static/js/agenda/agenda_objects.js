@@ -374,6 +374,7 @@ function ScheduledSlot(){
     this.extendedfrom = undefined;
     this.extendedto   = undefined;
     this.extendedfrom_id = false;
+    this.pinned       = false;
 }
 
 ScheduledSlot.prototype.room = function() {
@@ -401,31 +402,50 @@ ScheduledSlot.prototype.short_string = function() {
 };
 
 ScheduledSlot.prototype.saveit = function() {
-    var stuff = JSON.stringify(this, null, '\t');
+    var myss = this;
+    stuffjson = new Object();
+    stuffjson.session_id  = this.session_id;
+    stuffjson.timeslot_id = this.timeslot_id;
+    if(this.extendedfrom_id != undefined && this.extendedfrom_id != false) {
+        stuffjson.extendedfrom_id = this.extendedfrom_id;
+    }
+
+    var stuff = JSON.stringify(stuffjson, null, '\t');
+
     var saveit = $.ajax(scheduledsession_post_href,{
         "content-type": "text/json",
         "type": "POST",
         "data": stuff,
     });
     // should do something on success and failure.
+    saveit.done(function(result, status, jqXHR) {
+        myss.initialize(result);
+    });
 };
 
 ScheduledSlot.prototype.deleteit = function() {
-    var stuff = JSON.stringify(this, null, '\t');
     var saveit = $.ajax(this.href, {
         "content-type": "text/json",
         "type": "DELETE",
     });
 };
 
+function update_if_not_undefined(old, newval) {
+    if(newval != undefined) {
+        return newval;
+    } else {
+        return old;
+    }
+}
+
 ScheduledSlot.prototype.initialize = function(json) {
     /* do not copy everything over */
-    this.pinned              = json.pinned;
-    this.scheduledsession_id = json.scheduledsession_id;
-    this.session_id          = json.session_id;
-    this.timeslot_id         = json.timeslot_id;
-    this.href                = json.href;
-    this.extendedfrom_id     = json.extendedfrom_id;
+    this.pinned              = update_if_not_undefined(this.pinned, json.pinned);
+    this.scheduledsession_id = update_if_not_undefined(this.scheduledsession_id, json.scheduledsession_id);
+    this.session_id          = update_if_not_undefined(this.session_id, json.session_id);
+    this.timeslot_id         = update_if_not_undefined(this.timeslot_id, json.timeslot_id);
+    this.href                = update_if_not_undefined(this.href, json.href);
+    this.extendedfrom_id     = update_if_not_undefined(this.extendedfrom_id, json.extendedfrom_id);
 
     if(this.timeslot_id == undefined) {
         /* must be the unassigned one?! */
@@ -663,7 +683,7 @@ Session.prototype.on_bucket_list = function() {
     this.column_class_list = [];
     this.element().parent("div").addClass("meeting_box_bucket_list");
 };
-Session.prototype.placed = function(where, forceslot) {
+Session.prototype.placed = function(where, forceslot, scheduledsession) {
     this.is_placed = true;
 
     // forceslot is set on a move, but unset on initial placement,
@@ -672,6 +692,7 @@ Session.prototype.placed = function(where, forceslot) {
 
         /* we can not mark old slot as empty, because it might have multiple sessions in it */
         this.slot      = where;
+        this.scheduledsession = scheduledsession;
 
         if(where != undefined) {
             where.empty = false;

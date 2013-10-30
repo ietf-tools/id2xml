@@ -285,7 +285,7 @@ function extend_slot(event) {
 
     session  = last_session;
 
-    console.log("session", session.title, "slot:", current_timeslot.scheduledsession_id);
+    console.log("session", session.title, "sslot:", current_scheduledsession.scheduledsession_id);
 
     /* bind current_timeslot into this function and continuations */
     var slot = current_timeslot;
@@ -298,18 +298,18 @@ function extend_slot(event) {
 	    modal: true,
 	    buttons: {
                 "Yes": function() {
-	            Dajaxice.ietf.meeting.update_timeslot(dajaxice_callback,
-					                  {
-                                                              'schedule_id':schedule_id,
-						              'session_id': session.session_id,
-						              'timeslot_id': slot.following_timeslot.scheduledsession_id,
-                                                              'extended_from_id': slot.scheduledsession_id
-					                  });
+                    // need to create new scheduledsession
+                    var new_ss = make_ss({ "session_id" : session.session_id,
+                                           "timeslot_id": slot.following_timeslot.timeslot_id,
+                                           "extended_from_id" : slot.scheduledsession_id});
+                    // make_ss also adds to slot_status.
+                    new_ss.saveit();
+
                     slot.extendedto = slot.following_timeslot;
                     slot.extendedto.extendedfrom = slot;
                     session.double_wide = true;
                     session.repopulate_event(slot.domid);
-                    session.placed(slot.extendedto, false);
+
                     droppable();
                     listeners();
 		    $( this ).dialog( "close" );
@@ -534,11 +534,8 @@ function meeting_event_click(event){
     session.selectit();
     current_item = session.element();
 
-    current_scheduledslot    = session.slot;
-    if(current_scheduledslot != undefined) {
-        current_timeslot = current_scheduledslot.timeslot;
-        current_timeslot_id = current_timeslot.timeslot_id;
-    }
+    current_timeslot    = session.slot;
+    current_timeslot_id = current_timeslot.timeslot_id;
     if(__debug_meeting_click) {
         console.log("2 meeting_click:", current_timeslot, session);
     }
@@ -643,6 +640,7 @@ function dajaxice_error(a){
 function set_pin_session_button(scheduledsession) {
     $("#pin_slot").unbind('click');
     if(scheduledsession == undefined) {
+        console.log("pin not set, scheduledsession undefined");
         return;
     }
     state = scheduledsession.pinned;
@@ -700,7 +698,7 @@ function fill_in_session_info(session, success, extra) {
     if(!read_only) {
         $("#agenda_pin_slot").removeClass("button_disabled");
         $("#agenda_pin_slot").addClass("button_enabled");
-        set_pin_session_button(session.slot);
+        set_pin_session_button(session.scheduledsession);
     } else {
         $("#pin_slot").unbind('click');
     }
@@ -834,7 +832,7 @@ function update_to_slot(session_id, to_slot_id, force){
     }
 
     var to_timeslot = timeslot_bydomid[to_slot_id];
-    if(to_timeslot != undefined && (to_timeslot.empty == true || force)) {    
+    if(to_timeslot != undefined && (to_timeslot.empty == true || force)) {
 	// add a new scheduledsession for this, save it.
         var new_ss = make_ss({ "session_id" : session_id,
                                "timeslot_id": to_timeslot.timeslot_id});
@@ -846,7 +844,7 @@ function update_to_slot(session_id, to_slot_id, force){
         }
 
 	// update meeting_obj
-	meeting_objs[session_id].placed(to_timeslot, true);
+	meeting_objs[session_id].placed(to_timeslot, true, new_ss);
 
 	return true;
     } else {
@@ -859,11 +857,11 @@ function update_from_slot(session_id, from_slot_id)
     var from_timeslot      = timeslot_bydomid[from_slot_id];
 
     /* this is a list of scheduledsessions */
-    var from_scheduledslots = slot_status[meeting_objs[session_id].slot_status_key]; 
+    var from_scheduledslots = slot_status[meeting_objs[session_id].slot_status_key];
     var found = false;
 
     // it will be null if it's coming from a bucketlist
-    if(from_slot_id != null){ 
+    if(from_slot_id != null){
         var count = from_scheduledslots.length;
 	for(var k = 0; k<from_scheduledslots.length; k++) {
             var from_ss = from_scheduledslots[k];
@@ -881,7 +879,7 @@ function update_from_slot(session_id, from_slot_id)
     }
     else{
         // this may be questionable. It deals with the fact that it's coming from the bucketlist.
-	found = true; 
+	found = true;
     }
     return found;
 }
@@ -1037,7 +1035,7 @@ function move_slot(parameters) {
         console.log("update_slot_worked", update_to_slot_worked);
     }
     if(update_to_slot_worked){
-	if(update_from_slot(parameters.session.session_id, parameters.from_slot_id)){
+	if(update_from_slot(parameters.session.session_id, parameters.from_slot_id)) {
 	    remove_duplicate(parameters.from_slot_id, parameters.session.session_id);
 	    // do something
 	}

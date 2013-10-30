@@ -521,8 +521,6 @@ function meeting_event_click(event){
 
     if(container == undefined) {
         fill_in_session_info(session, true, session.slot);
-        // no async necessary, session is completely loaded
-	//session.load_session_obj(fill_in_session_info, session.slot);
 	return;
     }
 

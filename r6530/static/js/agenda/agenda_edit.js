@@ -86,10 +86,12 @@ function initStuff(){
         load_events();
         log("load_events() ran");
         find_meeting_no_room();
+        calculate_name_select_box();
+        calculate_room_select_box();
         listeners();
         droppable();
         duplicate_sessions = find_double_timeslots();
-        calculate_room_select_box();
+        empty_info_table();
 
         if(load_conflicts) {
             recalculate(null);
@@ -98,7 +100,6 @@ function initStuff(){
 
     static_listeners();
     log("listeners() ran");
-    calculate_name_select_box();
 
     start_spin();
 
@@ -142,7 +143,6 @@ function read_only_result(msg) {
     // XX go fetch the owner and display it.
     console.log("owner href:", schedule_owner_href);
 
-    empty_info_table();
     listeners();
     droppable();
 }

@@ -403,16 +403,18 @@ function calculate_room_select_box() {
     room_select_html = html;
 
 }
-var name_select_html = "";
+
+var name_select_html = undefined;
 var temp_sorted = null;
 function calculate_name_select_box(){
     var html = "<select id='info_name_select'>";
-    var keys = Object.keys(meeting_objs)
-    var mobj_array = []
+    var mobj_array = [];
+    var mobj_array2;
     $.each(meeting_objs, function(key, value){ mobj_array.push(value) });
     mobj_array2 = mobj_array.sort(function(a,b) { return a.title.localeCompare(b.title); });
-    temp_sorted =mobj_array;
-    for(var i = 0; i < mobj_array.length; i++){
+    var mlen = mobj_array.length;
+    console.log("calculate name_select box with",mlen,"objects");
+    for(var i = 0; i < mlen; i++){
 	//console.log("select box mobj["+i+"]="+mobj_array[i]);
 	// html=html+"<option value='"+mobj_array[i].slot_status_key;
 	html=html+"<option value='"+mobj_array[i].session_id;
@@ -438,13 +440,14 @@ function calculate_name_select_box(){
 
     html = html+"</select>";
     name_select_html = html;
-
-
 }
 
 
 
 function generate_select_box(){
+    if(!room_select_html) {
+        calculate_name_select_box();
+    }
     return room_select_html;
 }
 

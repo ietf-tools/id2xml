@@ -344,13 +344,19 @@ function make_timeslots(json, status, jqXHR) {
     });
 }
 
+var timeslot_promise;
 function load_timeslots(href) {
-    var ts = $.ajax(href);
-    ts.success(make_timeslots);
+    if(timeslot_promise == undefined) {
+        timeslot_promise = $.Deferred();
 
-    return ts;
+        var ts = $.ajax(href);
+        ts.success(function(newobj, status, jqXHR) {
+            make_timeslots(newobj);
+            timeslot_promise.resolve(newobj);
+        });
+    }
+    return timeslot_promise;
 }
-
 
 
 // ++++++++++++++++++
@@ -538,10 +544,18 @@ function make_sessions(json, status, jqXHR) {
     });
 }
 
+var session_promise;
 function load_sessions(href) {
-    var ts = $.ajax(href);
-    ts.success(make_sessions);
-    return ts;
+    if(session_promise == undefined) {
+        session_promise = $.Deferred();
+
+        var ss = $.ajax(href);
+        ss.success(function(newobj, status, jqXHR) {
+            make_sessions(newobj);
+            session_promise.resolve(newobj);
+        });
+    }
+    return session_promise;
 }
 
 
@@ -960,6 +974,7 @@ Session.prototype.retrieve_constraints_by_session = function() {
     return this.constraints_promise;
 };
 
+var __verbose_person_conflicts = false;
 Session.prototype.calculate_bethere = function() {
     var session_obj = this;
 
@@ -967,7 +982,9 @@ Session.prototype.calculate_bethere = function() {
         $.each(this.constraints["bethere"], function(index) {
             var bethere = session_obj.constraints["bethere"][index];
             find_person_by_href(bethere.person_href).done(function(person) {
-                console.log("person",person.ascii,"attends session",session_obj.group.acronym);
+                if(__verbose_person_conflicts) {
+                    console.log("person",person.ascii,"attends session",session_obj.group.acronym);
+                }
                 person.attend_session(session_obj);
             });
         });
@@ -1006,7 +1023,7 @@ Session.prototype.fill_in_constraints = function(constraint_list) {
 // ++++++++++++++++++
 // Group Objects
 function Group() {
-    this.andthen_list = [];
+    this.andthen_list = [];      /* should be removed, or replaced with promise */
     this.all_sessions = [];
 }
 

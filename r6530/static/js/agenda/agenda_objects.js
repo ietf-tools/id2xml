@@ -286,6 +286,7 @@ function TimeSlot(){
     this.time         = undefined;
     this.date         = undefined;
     this.domid        = undefined;
+    this.empty        = true;
     this.scheduledsessions = [];
     this.following_timeslot_id = undefined;
 }
@@ -414,6 +415,9 @@ ScheduledSlot.prototype.initialize = function(json) {
         this.timeslot.domid = "sortable-list";
     } else {
         this.timeslot            = timeslot_byid[this.timeslot_id];
+        if(this.session_id != undefined) {
+            this.timeslot.empty = false;
+        }
     }
 
     // translate Python booleans to JS.
@@ -646,10 +650,18 @@ Session.prototype.placed = function(where, forceslot) {
     // forceslot is set on a move, but unset on initial placement,
     // as placed might be called more than once for a double slot session.
     if(forceslot || this.slot==undefined) {
+        if(this.slot != undefined) {
+            this.slot.empty = true;
+        }
+
         this.slot      = where;
+
+        if(where != undefined) {
+            where.empty = false;
+        }
     }
     if(where != undefined) {
-        this.add_column_class(where.column_class());
+        this.add_column_class(where.column_class);
     }
     //console.log("session:",session.title, "column_class", ssid.column_class());
     this.element().parent("div").removeClass("meeting_box_bucket_list");

@@ -65,6 +65,10 @@ function setup_slots(promiselist){
 var ts_promise = load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}");
 promiselist.push(ts_promise);
 
+{% for day in time_slices %}
+    days.push("{{day}}");
+{% endfor %}
+
    console.log("setup_slots run");
 }
 

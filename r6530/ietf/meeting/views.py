@@ -52,7 +52,7 @@ from ietf.meeting.helpers import get_meeting, get_schedule, agenda_permissions
 
 
 @decorator_from_middleware(GZipMiddleware)
-def materials(request, meeting_num=None, schedule_name=None):
+def materials(request, meeting_num=None, name=None):
     proceeding = get_object_or_404(Proceeding, meeting_num=meeting_num)
     begin_date = proceeding.sub_begin_date
     cut_off_date = proceeding.sub_cut_off_date
@@ -67,7 +67,7 @@ def materials(request, meeting_num=None, schedule_name=None):
         sub_began = 1
 
     meeting = get_meeting(meeting_num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     scheduledsessions = get_scheduledsessions_from_schedule(schedule)
 
@@ -106,12 +106,12 @@ def get_plenary_agenda(meeting_num, id):
 
 ##########################################################################################################################
 ## dispatch based upon request type.
-def agenda_html_request(request,num=None, schedule_name=None):
+def agenda_html_request(request,num=None, name=None):
     if request.method == 'POST':
-        return agenda_create(request, num, schedule_name)
+        return agenda_create(request, num, name)
     else:
         # GET and HEAD.
-        return html_agenda(request, num, schedule_name)
+        return html_agenda(request, num, name)
 
 def legacy_get_agenda_info(request, num=None, schedule=None):
     meeting = get_meeting(num)
@@ -128,9 +128,9 @@ def legacy_get_agenda_info(request, num=None, schedule=None):
 
     return timeslots, modified, meeting, area_list, wg_list
 
-def get_agenda_info(request, num=None, schedule_name=None):
+def get_agenda_info(request, num=None, name=None):
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
     scheduledsessions = get_scheduledsessions_from_schedule(schedule)
     modified = get_modified_from_scheduledsessions(scheduledsessions)
 
@@ -153,13 +153,13 @@ def mobile_user_agent_detect(request):
     return user_agent
 
 @decorator_from_middleware(GZipMiddleware)
-def html_agenda_1(request, num, schedule_name, template_version="meeting/agenda.html"):
+def html_agenda_1(request, num, name, template_version="meeting/agenda.html"):
     user_agent = mobile_user_agent_detect(request)
     if "iPhone" in user_agent:
-        return iphone_agenda(request, num, schedule_name)
+        return iphone_agenda(request, num, name)
 
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     timeslots, modified, meeting, area_list, wg_list = legacy_get_agenda_info(request, num, schedule)
     return HttpResponse(render_to_string(template_version,
@@ -168,23 +168,23 @@ def html_agenda_1(request, num, schedule_name, template_version="meeting/agenda.
          "show_inline": set(["txt","htm","html"]) },
         RequestContext(request)), mimetype="text/html")
 
-def html_agenda(request, num=None, schedule_name=None):
-    return html_agenda_1(request, num, schedule_name, "meeting/agenda.html")
+def html_agenda(request, num=None, name=None):
+    return html_agenda_1(request, num, name, "meeting/agenda.html")
 
-def html_agenda_utc(request, num=None, schedule_name=None):
-    return html_agenda_1(request, num, schedule_name, "meeting/agenda_utc.html")
+def html_agenda_utc(request, num=None, name=None):
+    return html_agenda_1(request, num, name, "meeting/agenda_utc.html")
 
 class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)
 
 @group_required('Area Director','Secretariat')
-def agenda_create(request, num=None, schedule_name=None):
+def agenda_create(request, num=None, name=None):
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     if schedule is None:
         # here we have to return some ajax to display an error.
-        raise Http404("No meeting information for meeting %s schedule %s available" % (num,schedule_name))
+        raise Http404("No meeting information for meeting %s schedule %s available" % (num,name))
 
     # authorization was enforced by the @group_require decorator above.
 
@@ -283,10 +283,10 @@ def edit_timeslots(request, num=None):
 #@group_required('Area Director','Secretariat')
 # disable the above security for now, check it below.
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda(request, num=None, schedule_name=None):
+def edit_agenda(request, num=None, name=None):
 
     if request.method == 'POST':
-        return agenda_create(request, num, schedule_name)
+        return agenda_create(request, num, name)
 
     user  = request.user
     requestor = "AnonymousUser"
@@ -299,8 +299,8 @@ def edit_agenda(request, num=None, schedule_name=None):
             pass
 
     meeting = get_meeting(num)
-    #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, schedule_name ))
-    schedule = get_schedule(meeting, schedule_name)
+    #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, name ))
+    schedule = get_schedule(meeting, name)
     #sys.stdout.write("2 requestor: %u for sched owned by: %u \n" % ( requestor.id, schedule.owner.id ))
 
     meeting_base_url = request.build_absolute_uri(meeting.base_url())
@@ -366,10 +366,10 @@ AgendaPropertiesForm = modelform_factory(Schedule, fields=('name','visible', 'pu
 
 @group_required('Area Director','Secretariat')
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda_properties(request, num=None, schedule_name=None):
+def edit_agenda_properties(request, num=None, name=None):
 
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
     form     = AgendaPropertiesForm(instance=schedule)
 
     return HttpResponse(render_to_string("meeting/properties_edit.html",
@@ -387,7 +387,7 @@ def edit_agenda_properties(request, num=None, schedule_name=None):
 def edit_agendas(request, num=None, order=None):
 
     #if request.method == 'POST':
-    #    return agenda_create(request, num, schedule_name)
+    #    return agenda_create(request, num, name)
 
     meeting = get_meeting(num)
     user = request.user

@@ -501,6 +501,17 @@ def sessions_json(request, num):
     return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
                         mimetype="application/json")
 
+# this returns the list of scheduled sessions for the given named agenda
+def scheduledsessions_json(request, num, schedule_name):
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, schedule_name)
+
+    scheduledsessions = schedule.scheduledsession_set.all()
+
+    sess1_dict = [ x.json_dict(request.build_absolute_uri('/')) for x in scheduledsessions ]
+    return HttpResponse(json.dumps(sess1_dict, sort_keys=True, indent=2),
+                        mimetype="application/json")
+
 # Would like to cache for 1 day, but there are invalidation issues.
 #@cache_page(86400)
 def constraint_json(request, num, constraintid):

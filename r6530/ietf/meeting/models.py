@@ -731,6 +731,8 @@ class ScheduledSession(models.Model):
         ss['scheduledsession_id'] = self.id
         #ss['href']          = urljoin(host_scheme, self.json_url())
         ss['timeslot_id'] = self.timeslot.id
+        if self.extendedfrom:
+            ss['extendedfrom_id']  = self.extendedfrom.id
         if self.session:
             ss['session_id']  = self.session.id
         ss["pinned"]   = self.pinned

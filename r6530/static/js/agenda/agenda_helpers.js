@@ -138,6 +138,8 @@ function style_empty_slots(){
 var __debug_load_events = false;
 /* this pushes every event into the agendas */
 function load_events(){
+    var slot_id;
+
     console.log("load events...");
 
     /* first delete all html items that might have gotten saved if
@@ -146,6 +148,26 @@ function load_events(){
     if(__debug_load_events) {
         console.log("processing double slot status relations");
     }
+
+    /* clear out all the timeslots */
+    $.each(timeslot_bydomid, function(key) {
+        insert_cell(key, "", true);
+
+        var timeslot = timeslot_bydomid[key];
+        slot_id = ("#"+key);
+
+	$(slot_id).addClass("agenda_slot_" + timeslot.roomtype);
+
+        if(timeslot.roomtype == "unavail") {
+            $(slot_id).removeClass("ui-droppable");
+            $(slot_id).removeClass("free_slot");
+            $(slot_id).addClass("agenda_slot_unavailable");
+        } else {
+            $(slot_id).removeClass("agenda_slot_unavailable");
+            $(slot_id).addClass("ui-droppable");
+        }
+    });
+
     $.each(slot_status, function(key) {
         ssid_arr = slot_status[key];
 
@@ -153,8 +175,6 @@ function load_events(){
 	    ssid = ssid_arr[q];
 
             ssid.connect_to_timeslot_session();
-
-            insert_cell(ssid.domid, "", true);
 
             // also see if the slots have any declared relationship, and take it forward as
             // well as backwards.
@@ -216,24 +236,15 @@ function load_events(){
 	if(key == "sortable-list"){
 	    console.log("sortable list");
 	}else {
-
 	    for(var q = 0; q<ssid_arr.length; q++){
 	        ssid = ssid_arr[q];
-                slot_id = ("#"+ssid.domid);
+                slot_id = ("#"+ssid.domid());
 
                 if(__debug_load_events) {
                     console.log("populating slot: ",slot_id,key);
                 }
-	        /* also, since we are HERE, set the class to indicate if slot is available */
-	        $(slot_id).addClass("agenda_slot_" + ssid.roomtype);
 
-                if(ssid.roomtype == "unavail") {
-                    $(slot_id).removeClass("ui-droppable");
-                    $(slot_id).removeClass("free_slot");
-                    $(slot_id).addClass("agenda_slot_unavailable");
-                } else {
-                    $(slot_id).removeClass("agenda_slot_unavailable");
-                    $(slot_id).addClass("ui-droppable");
+                if(ssid.timeslot.roomtype != "unavail") {
                     session = meeting_objs[ssid.session_id];
                     if (session != null) {
                         if(ssid.extendedto != undefined) {

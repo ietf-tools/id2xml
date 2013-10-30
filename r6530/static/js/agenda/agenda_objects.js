@@ -351,6 +351,7 @@ function load_timeslots(href) {
 
         var ts = $.ajax(href);
         ts.success(function(newobj, status, jqXHR) {
+            console.log("finished timeslot promise");
             make_timeslots(newobj);
             timeslot_promise.resolve(newobj);
         });
@@ -374,19 +375,19 @@ function ScheduledSlot(){
 }
 
 ScheduledSlot.prototype.room = function() {
-    return this.timeslot.room();
+    return this.timeslot.room;
 };
 
 ScheduledSlot.prototype.time = function() {
-    return this.timeslot.time();
+    return this.timeslot.time;
 };
 
 ScheduledSlot.prototype.date = function() {
-    return this.timeslot.date();
+    return this.timeslot.date;
 };
 
 ScheduledSlot.prototype.domid = function() {
-    return this.timeslot.domid();
+    return this.timeslot.domid;
 };
 
 ScheduledSlot.prototype.column_class = function() {
@@ -398,11 +399,20 @@ ScheduledSlot.prototype.short_string = function() {
 };
 
 ScheduledSlot.prototype.initialize = function(json) {
-    for(var key in json) {
-       this[key]=json[key];
-    }
+    /* do not copy everything over */
+    this.pinned              = json.pinned;
+    this.scheduledsession_id = json.scheduledsession_id;
+    this.session_id          = json.session_id;
+    this.timeslot_id         = json.timeslot_id;
+    this.href                = json.href;
 
-    this.timeslot = timeslot_byid[this.timeslot_id];
+    if(this.timeslot_id == undefined) {
+        /* must be the unassigned one?! */
+        this.timeslot = new TimeSlot();
+        this.timeslot.domid = "sortable-list";
+    } else {
+        this.timeslot            = timeslot_byid[this.timeslot_id];
+    }
 
     // translate Python booleans to JS.
     if(this.pinned == "True") {
@@ -412,21 +422,44 @@ ScheduledSlot.prototype.initialize = function(json) {
     }
 
     // the key so two sessions in the same timeslot
-    if(slot_status[this.domid] == null) {
-       slot_status[this.domid]=[];
+    if(slot_status[this.domid()] == null) {
+        slot_status[this.domid()]=[];
     }
-    slot_status[this.domid].push(this);
+    slot_status[this.domid()].push(this);
     //console.log("filling slot_objs", this.scheduledsession_id);
     slot_objs[this.scheduledsession_id] = this;
 };
 
-ScheduledSlot.prototype.connect_to_timeslot_session = function() {
+var scheduledsession_promise;
+function load_scheduledsessions(ts_promise, session_promise, href) {
+    if(scheduledsession_promise == undefined) {
+        scheduledsession_promise = $.Deferred();
 
+        var ss = $.ajax(href);
+        var ss_loaded = $.when(ss,ts_promise,session_promise);
+
+        ss_loaded.done(function(result, status, jqXHR) {
+            console.log("finished ss promise");
+            newobj = result[0]
+            $.each(newobj, function(index) {
+                one = newobj[index];
+                //console.log("ss has:", one);
+                make_ss(one);
+            });
+            scheduledsession_promise.resolve(newobj);
+        });
+    }
+    return scheduledsession_promise;
+}
+
+ScheduledSlot.prototype.connect_to_timeslot_session = function() {
     if(this.timeslot == undefined) {
         if(this.timeslot_id != undefined) {
             this.timeslot = timeslot_byid[this.timeslot_id];
         } else {
+            /* must be the unassigned one?! */
             this.timeslot = new TimeSlot();
+            this.timeslot.domid = "sortable-list";
         }
     }
     /* session could be hooked up, but it is now always session() */
@@ -440,7 +473,7 @@ ScheduledSlot.prototype.session = function() {
     }
 };
 ScheduledSlot.prototype.slot_title = function() {
-    return "id#"+this.scheduledsession_id+" dom:"+this.domid;
+    return "id#"+this.scheduledsession_id+" dom:"+this.domid();
 };
 
 /* XXX needs to get removed */
@@ -551,6 +584,7 @@ function load_sessions(href) {
 
         var ss = $.ajax(href);
         ss.success(function(newobj, status, jqXHR) {
+            console.log("finished session promise");
             make_sessions(newobj);
             session_promise.resolve(newobj);
         });

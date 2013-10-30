@@ -86,6 +86,60 @@ function init_timeslot_edit(){
         $("#add_day").click(add_day);
         console.log("timeslot editor ready");
     });
+
+    /* datepicker stuff */
+    create_datetimepicker();
+
+    /* hide the django form stuff we don't need */
+    $("#id_duration").hide();
+    $("label[for*='id_duration']").hide();
+    $("#duration_time").val("01:00");
+    format_datetime();
+}
+
+function create_datetimepicker(){
+    $("#start_date").datepicker({
+	dateFormat: "yy-mm-dd",
+    });
+    $("#duration_time").timepicker({
+	timeFormat: 'HH:mm',
+	hourMin: 0,
+    	hourMax: 8,
+    	stepMinute:5,
+	defaultValue: "01:00",
+	onSelect: function(selected){
+	    $("input[name*='duration_hours']").val($(this).val().split(':')[0]);
+	    $("input[name*='duration_minutes']").val($(this).val().split(':')[1]);
+	    format_datetime();
+    	}
+    })
+
+    $("#id_time").datetimepicker({
+    	timeFormat: 'HH:mm',
+    	dateFormat: "yy-mm-dd",
+    	defaultValue: first_day,
+    	hourMin: 9,
+    	hourMax: 22,
+    	stepMinute:5,
+    	onSelect: function(selected){
+    	    duration_set($(this).datetimepicker('getDate'));
+	    format_datetime()
+    	}
+    });
+    $("#id_time").datepicker('setDate', first_day);
+}
+
+function format_datetime(){
+    var startDate = $("#id_time").datetimepicker('getDate');
+    var endTime = $("#id_time").datetimepicker('getDate');
+    endTime.setHours(endTime.getHours()+parseInt($("#duration_time").val().split(':')[0]))
+    endTime.setMinutes(endTime.getMinutes()+parseInt($("#duration_time").val().split(':')[1]))
+    $("#timespan").html(moment($("#id_time").datetimepicker('getDate')).format('HH:mm') + " <-> " + moment(endTime).format('HH:mm'));
+}
+
+function duration_set(d){
+    $("input[name*='duration_hours']").val(d.getHours());
+    $("input[name*='duration_minutes']").val(d.getMinutes());
 }
 
 function add_room(event) {

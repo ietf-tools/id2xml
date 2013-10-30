@@ -21,6 +21,15 @@
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.sortable.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.accordion.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.draggable.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/jquery.ui.datetime.js'></script>
+
+<!-- source (MIT License) http://momentjs.com/ https://github.com/moment/moment/ -->
+<script type='text/javascript' src='/js/moment.min.js'></script>
+
+<!-- source (MIT License) : https://github.com/trentrichardson/jQuery-Timepicker-Addon -->
+<script type='text/javascript' src='/js/jquery-ui-timepicker/jquery-ui-timepicker-addon.js'></script>
+<script type='text/javascript' src='/js/jquery-ui-timepicker/jquery-ui-sliderAccess.js.js'></script>
+<link rel='stylesheet' type='text/css' href='/css/jquery-ui-timepicker-addon.css' />
 
 {% if server_mode %}
 	{% ifnotequal server_mode "production" %}
@@ -49,6 +58,8 @@ var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
 total_days = {{time_slices|length}};
 total_rooms = {{rooms|length}};
+
+first_day = new Date("{% with timeslots|first as day %} {{ day.time }} {% endwith %}"); /* needed for the datepicker */
 
 function setup_slots(promiselist){
 var ts_promise = load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}");
@@ -145,7 +156,9 @@ promiselist.push(ts_promise);
 <div class="dialog" id="add_day_dialog">
    <table>
       <form action="{{adddayurl}}" method="post">{% csrf_token %}
-        {{ addday.as_table }}
+	{{ addday }}
+	<tr><th><label>Duration</label></th><td><input type="text" id="duration_time"></td></tr>
+	<tr><th></th><td><div id="timespan"></div></td></tr>
         <tr><td><input type="submit" name="addday" value="addday"></td></tr>
       </form>
    </table>

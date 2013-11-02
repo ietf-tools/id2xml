@@ -7,6 +7,7 @@ import re
 import tarfile
 
 from tempfile import mkstemp
+from stat import *
 
 from django import forms
 from django.shortcuts import render_to_response, get_object_or_404
@@ -337,15 +338,42 @@ def agenda(request, num=None, name=None, base=None, ext=None):
     ext = ext if ext else '.html'
     if 'iPhone' in get_user_agent(request) and ext == ".html":
         base = 'm_agenda'
-    mimetype = {".html":"text/html", ".txt": "text/plain", ".ics":"text/calendar", ".csv":"text/csv"}
+    mimetype = {".html":"text/html", ".txt": "text/plain", ".ics":"text/calendar", ".csv":"text/csv", ".pdf":"application/pdf"}
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, name)
     updated = Switches().from_object(meeting).updated()
-    body = render_to_string("meeting/"+base+ext,
+    file_ext = ".txt" if ext == ".pdf" else ext
+    body = render_to_string("meeting/"+base+file_ext,
                             {"schedule":schedule, "updated": updated},
                             RequestContext(request))
     if ext in ['.ics','.csv']:
         body = re.sub(r'[\r\n]+',"\n",body)
+
+    if ext == ".pdf":
+        pdfname = os.path.join(settings.AGENDA_PATH,
+                               meeting.number, "agenda.pdf")
+        filetime = datetime.datetime.fromtimestamp(
+                        os.stat(pdfname).st_mtime if os.path.exists(pdfname) 
+                        else 0, updated.tzinfo)
+        if filetime < updated:
+            print filetime - updated
+            body = re.sub(r'[ \t]+\n',"\n",body)
+            body = re.sub(r'\n{2,}',"\n\n",body)
+            body = re.sub(r'((SATURDAY|SUNDAY|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY).*)\n',"\0bgcolor{0 1 0}\g<1>\0bgcolor{1 1 1}\n",body)
+            line_count = len(body.splitlines())
+            font_size = 1242.0 / line_count
+            t,textfile = mkstemp()
+            tempfile = open(textfile, "w")
+            tempfile.write(body)
+            tempfile.close()
+            t,psname = mkstemp()
+            pipe("enscript -c -e -f Courier"+str(font_size)+" -B -q -p " + psname + " " + textfile)
+            os.unlink(textfile)
+            pipe("ps2pdf " + psname + " " + pdfname)
+            os.unlink(psname)
+        pdffile = open(pdfname, "r")
+        body = pdffile.read()
+
     return HttpResponse(body, mimetype=mimetype[ext])
 
 def read_agenda_file(num, doc):

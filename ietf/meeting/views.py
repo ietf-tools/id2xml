@@ -341,8 +341,12 @@ def agenda(request, num=None, name=None, base=None, ext=None):
     meeting = get_meeting(num)
     schedule = get_schedule(meeting, name)
     updated = Switches().from_object(meeting).updated()
-    return HttpResponse(render_to_string("meeting/"+base+ext,
-        {"schedule":schedule, "updated": updated}, RequestContext(request)), mimetype=mimetype[ext])
+    body = render_to_string("meeting/"+base+ext,
+                            {"schedule":schedule, "updated": updated},
+                            RequestContext(request))
+    if ext in ['.ics','.csv']:
+        body = re.sub(r'[\r\n]+',"\n",body)
+    return HttpResponse(body, mimetype=mimetype[ext])
 
 def read_agenda_file(num, doc):
     # XXXX FIXME: the path fragment in the code below should be moved to

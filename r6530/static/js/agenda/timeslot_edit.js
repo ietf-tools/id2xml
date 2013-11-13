@@ -374,7 +374,6 @@ function create_timeslotedit_cell(slot_id) {
                 'duration':duration,
                 'purpose': newpurpose,
 	    });
-
     });
 }
 

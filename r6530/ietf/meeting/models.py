@@ -612,6 +612,7 @@ class Schedule(models.Model):
     def groups(self):
         return Group.objects.filter(type__slug__in=['wg', 'rg', 'ag'], session__scheduledsession__schedule=self).distinct().order_by('parent__acronym', 'acronym')
 
+# to be renamed ScheduleTimeslotSessionAssignments (stsa)
 class ScheduledSession(models.Model):
     """
     This model provides an N:M relationship between Session and TimeSlot.

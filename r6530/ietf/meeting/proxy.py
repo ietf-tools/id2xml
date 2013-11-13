@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 
 from ietf.utils.proxy import TranslatingManager
-from models import *
+from ietf.meeting.models import *
 
 import debug
 

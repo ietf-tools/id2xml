@@ -25,15 +25,13 @@
 <link rel='stylesheet' type='text/css' href='/css/agenda.css' />
 {% endblock pagehead %}
 
-{% block scripts %}
-<script type='text/javascript' src='/js/lib/jquery-1.8.2.min.js'></script>
+{% block js %}
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery-ui.custom.min.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.widget.min.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.droppable.min.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.sortable.min.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.accordion.min.js'></script>
 <script type='text/javascript' src='/js/jquery-ui-1.9.0.custom/minified/jquery.ui.draggable.min.js'></script>
-<!-- <script type='text/javascript' src='/js/jquery-ui-1.8.11.custom.min.js'></script> -->
 
 {% dajaxice_js_import %}
 
@@ -47,49 +45,36 @@
 <script type='text/javascript'>
 
 
-meeting_number = {{ meeting.number }};
-schedule_id    = {{ schedule.id }};
+var meeting_number = "{{ meeting.number }}";
+var schedule_id    = {{ schedule.id }};
+var schedule_owner_href = "{{ schedule.owner_email }}";
+var schedule_name  = "{{ schedule.name }}";
 var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
-total_days = {{time_slices|length}};
-total_rooms = {{rooms|length}};
+var scheduledsession_post_href = "{% url ietf.meeting.ajax.scheduledsessions_json meeting.number schedule.name %}";
+var total_days = {{time_slices|length}};
+var total_rooms = {{rooms|length}};
 
-function setup_slots(){
+function setup_slots(promiselist){
 {% for day in time_slices %}
     days.push("{{day}}");
 {% endfor %}
 
 {% for ad in area_directors %}
-area_directors["{{ad.area}}"] = [];
-{% endfor %}
+area_directors["{{ad.area}}"] = [];{% endfor %}
 {% for ad in area_directors %}
-area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));
-{% endfor %}
+area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));{% endfor %}
 
-{% autoescape off %}
-{% for s in session_jsons %}
-   session_obj({{s}});
-{% endfor %}
-{% endautoescape %}
+var ts_promise = load_timeslots("{% url ietf.meeting.ajax.timeslot_slotsurl meeting.number %}");
+var sess_promise = load_sessions("{% url ietf.meeting.ajax.sessions_json meeting.number %}");
+promiselist.push(ts_promise);
+promiselist.push(sess_promise);
 
-{% for s in scheduledsessions %}
-   make_ss({ "scheduledsession_id": "{{s.id}}",
-     "empty": "{{s.empty_str}}",
-     "timeslot_id":"{{s.timeslot.id}}",
-     "session_id" :"{{s.session.id}}",
-     "pinned" :"{{s.pinned}}",
-     {% if s.session %}{% if s.extendedfrom %}"extendedfrom_id":"{{s.extendedfrom.id}}",
-     {% endif %}{% endif %}"room"       :"{{s.timeslot.location.name|slugify}}",
-     {% if s.slot_to_the_right %}"following_timeslot_id":"{{s.slot_to_the_right.id}}",
-     {% endif %}"roomtype"   :"{{s.slottype}}",
-     "time"       :"{{s.timeslot.time|date:'Hi' }}",
-     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
-     "domid"      :"{{s.timeslot.js_identifier}}"});
-{% endfor %}
+var ss_promise = load_scheduledsessions(ts_promise, sess_promise, scheduledsession_post_href);
+promiselist.push(ss_promise);
 
    make_ss({ "scheduledsession_id": 0,
      "empty": true,
-     "timeslot_id":"Unassigned",
      "session_id" :null,
      "room"       :"unassigned",
      "time"       :null,
@@ -97,8 +82,6 @@ area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));
      "domid"      :"sortable-list"});
 
    console.log("setup_slots run");
-
-   calculate_room_select_box();
 
 {% for area in area_list %}
    legend_status["{{area.upcase_acronym}}"] = true;
@@ -114,7 +97,7 @@ area_directors["{{ad.area}}"].push(find_person_by_href("{{ad.defurl}}"));
 <style type='text/css'>
 
 </style>
-{% endblock scripts %}
+{% endblock js %}
 
 
 {% block start_content_table %}{% endblock %}
@@ -259,7 +242,7 @@ Please save this agenda to your account first.
       <table>
 	<tr><td class="ss_info_name_short">Group:</td><td><span id="info_grp"></span>
             <!-- <button id="agenda_sreq_button" class="right">Edit Request</button> --></tr>
-	<tr><td class="ss_info_name_short">Name:</td> <td d="info_name"></td></tr>
+	<tr><td class="ss_info_name_short">Name:</td> <td id="info_name"></td></tr>
 	<tr><td class="ss_info_name_short">Area:</td> <td><span id="info_area"></span><button id="show_all_area" class="right">Show All</button></td></tr>
       </table>
     </div>
@@ -325,8 +308,9 @@ Please save this agenda to your account first.
     </div>
   </div>
 
-</div>
 
+</div>
+  <!-- <div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-ew">*</div> -->
 </div>
 
 <!-- some boxes for dialogues -->

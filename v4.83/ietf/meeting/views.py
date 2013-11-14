@@ -86,7 +86,57 @@ def current_materials(request):
     meeting = OldMeeting.objects.exclude(number__startswith='interim-').order_by('-meeting_num')[0]
     return HttpResponseRedirect( reverse(materials, args=[meeting.meeting_num]) )
 
-def get_user_agent(request):
+def get_plenary_agenda(meeting_num, id):
+    try:
+        plenary_agenda_file = settings.AGENDA_PATH + WgMeetingSession.objects.get(meeting=meeting_num,group_acronym_id=id).agenda_file()
+        try:
+            f = open(plenary_agenda_file)
+            plenary_agenda = f.read()
+            f.close()
+            return plenary_agenda
+        except IOError:
+             return "THE AGENDA HAS NOT BEEN UPLOADED YET"
+    except WgMeetingSession.DoesNotExist:
+        return "The Plenary has not been scheduled"
+
+##########################################################################################################################
+## dispatch based upon request type.
+def agenda_html_request(request,num=None, name=None):
+    if request.method == 'POST':
+        return agenda_create(request, num, name)
+    else:
+        # GET and HEAD.
+        return html_agenda(request, num, name)
+
+def legacy_get_agenda_info(request, num=None, schedule=None):
+    meeting = get_meeting(num)
+    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).exclude(type__slug='unavail').order_by('time','name')
+    modified = timeslots.aggregate(Max('modified'))['modified__max']
+
+    area_list = list(set([ session.group.parent.acronym for session in [ timeslot.session for timeslot in timeslots.filter(type = 'Session', sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__parent__acronym').distinct() if timeslot.session ] ]))
+    area_list.sort()
+
+#    wg_name_list = timeslots.filter(type = 'Session', sessions__group__isnull = False, sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__acronym').distinct('sessions__group')#.values_list('sessions__group__acronym',flat=True)
+    wg_name_list = list(set([ session.group.acronym for session in [ timeslot.session for timeslot in timeslots.filter(type = 'Session', sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__acronym').distinct() if timeslot.session ] ]))
+
+    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
+
+    return timeslots, modified, meeting, area_list, wg_list
+
+def get_agenda_info(request, num=None, name=None):
+    meeting = get_meeting(num)
+    schedule = get_schedule(meeting, name)
+    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
+    modified = get_modified_from_scheduledsessions(scheduledsessions)
+
+    area_list = get_areas()
+    wg_list = get_wg_list(scheduledsessions)
+    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, False)
+    rooms = meeting.room_set
+
+    return scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms
+
+def mobile_user_agent_detect(request):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -101,13 +151,13 @@ class SaveAsForm(forms.Form):
     savename = forms.CharField(max_length=100)
 
 @group_required('Area Director','Secretariat')
-def agenda_create(request, num=None, schedule_name=None):
+def agenda_create(request, num=None, name=None):
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
 
     if schedule is None:
         # here we have to return some ajax to display an error.
-        raise Http404("No meeting information for meeting %s schedule %s available" % (num,schedule_name))
+        raise Http404("No meeting information for meeting %s schedule %s available" % (num,name))
 
     # authorization was enforced by the @group_require decorator above.
 
@@ -206,10 +256,10 @@ def edit_timeslots(request, num=None):
 #@group_required('Area Director','Secretariat')
 # disable the above security for now, check it below.
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda(request, num=None, schedule_name=None):
+def edit_agenda(request, num=None, name=None):
 
     if request.method == 'POST':
-        return agenda_create(request, num, schedule_name)
+        return agenda_create(request, num, name)
 
     user  = request.user
     requestor = "AnonymousUser"
@@ -222,8 +272,8 @@ def edit_agenda(request, num=None, schedule_name=None):
             pass
 
     meeting = get_meeting(num)
-    #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, schedule_name ))
-    schedule = get_schedule(meeting, schedule_name)
+    #sys.stdout.write("requestor: %s for sched_name: %s \n" % ( requestor, name ))
+    schedule = get_schedule(meeting, name)
     #sys.stdout.write("2 requestor: %u for sched owned by: %u \n" % ( requestor.id, schedule.owner.id ))
 
     meeting_base_url = request.build_absolute_uri(meeting.base_url())
@@ -246,13 +296,7 @@ def edit_agenda(request, num=None, schedule_name=None):
                                               "meeting_base_url":meeting_base_url},
                                              RequestContext(request)), status=403, mimetype="text/html")
 
-    sessions = meeting.sessions_that_can_meet.order_by("id", "group", "requested_by")
     scheduledsessions = get_all_scheduledsessions_from_schedule(schedule)
-
-    session_jsons = [ json.dumps(s.json_dict(site_base_url)) for s in sessions ]
-
-    # useful when debugging javascript
-    #session_jsons = session_jsons[1:20]
 
     # get_modified_from needs the query set, not the list
     modified = get_modified_from_scheduledsessions(scheduledsessions)
@@ -282,9 +326,7 @@ def edit_agenda(request, num=None, schedule_name=None):
                                           "area_list": area_list,
                                           "area_directors" : ads,
                                           "wg_list": wg_list ,
-                                          "session_jsons": session_jsons,
-                                          "scheduledsessions": scheduledsessions,
-                                          "show_inline": set(["txt","htm","html"]) },
+                                          "scheduledsessions": scheduledsessions },
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################
@@ -295,10 +337,10 @@ AgendaPropertiesForm = modelform_factory(Schedule, fields=('name','visible', 'pu
 
 @group_required('Area Director','Secretariat')
 @decorator_from_middleware(GZipMiddleware)
-def edit_agenda_properties(request, num=None, schedule_name=None):
+def edit_agenda_properties(request, num=None, name=None):
 
     meeting = get_meeting(num)
-    schedule = get_schedule(meeting, schedule_name)
+    schedule = get_schedule(meeting, name)
     form     = AgendaPropertiesForm(instance=schedule)
 
     return HttpResponse(render_to_string("meeting/properties_edit.html",
@@ -316,7 +358,7 @@ def edit_agenda_properties(request, num=None, schedule_name=None):
 def edit_agendas(request, num=None, order=None):
 
     #if request.method == 'POST':
-    #    return agenda_create(request, num, schedule_name)
+    #    return agenda_create(request, num, name)
 
     meeting = get_meeting(num)
     user = request.user

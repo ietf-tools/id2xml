@@ -273,30 +273,30 @@ function ColumnClass(room,date,time) {
 
 
 // ++++++++++++++++++
-// ScheduledSlot Object
-// ScheduledSession is DJANGO name for this object, but needs to be renamed.
-// It represents a TimeSlot that can be assigned in this schedule.
-//   { "scheduledsession_id": "{{s.id}}",
-//     "empty": "{{s.empty_str}}",
-//     "timeslot_id":"{{s.timeslot.id}}",
-//     "session_id" :"{{s.session.id}}",
-//     "room"       :"{{s.timeslot.location|slugify}}",
-//     "extendedfrom_id"    :refers to another scheduledsession by ss.id
-//     "time"       :"{{s.timeslot.time|date:'Hi' }}",
-//     "date"       :"{{s.timeslot.time|date:'Y-m-d'}}",
-//     "domid"      :"{{s.timeslot.js_identifier}}"}
-function ScheduledSlot(){
-    this.extendedfrom = undefined;
-    this.extendedto   = undefined;
-    this.extendedfrom_id = false;
+// TimeSlot Object
+//
+//   { "timeslot_id":"{{timeslot.id}}",
+//     "room"       :"{{timeslot.location|slugify}}",
+//     "time"       :"{{timeslot.time|date:'Hi' }}",
+//     "date"       :"{{timeslot.time|date:'Y-m-d'}}",
+//     "domid"      :"{{timeslot.js_identifier}}"}
+function TimeSlot(){
+    this.timeslot_id  = undefined;
+    this.room         = undefined;
+    this.time         = undefined;
+    this.date         = undefined;
+    this.domid        = undefined;
+    this.empty        = true;
+    this.scheduledsessions = [];
+    this.following_timeslot_id = undefined;
 }
 
-ScheduledSlot.prototype.initialize = function(json) {
+TimeSlot.prototype.initialize = function(json) {
     for(var key in json) {
        this[key]=json[key];
     }
+    //console.log("timeslot processing: ", this.timeslot_id);
 
-    /* this needs to be an object */
     this.column_class=new ColumnClass(this.room, this.date, this.time);
 
     var d = new Date(this.date);
@@ -305,48 +305,37 @@ ScheduledSlot.prototype.initialize = function(json) {
        this.short_string = "Unassigned";
     }
     else{
-       this.short_string = daysofweek[t] + ", "+ this.time + ", " + upperCaseWords(this.room);
-    }
-    if(!this.domid) {
-           this.domid = json_to_id(this);
-        //console.log("gen "+timeslot_id+" is domid: "+this.domid);
-    }
-    //console.log("extend "+this.domid+" with "+JSON.stringify(this));
-
-    // translate Python booleans to JS.
-    if(this.pinned == "True") {
-        this.pinned = true;
-    } else {
-        this.pinned = false;
+       this.short_string = daysofweek[t] + ", "+ this.time + ", " + this.room;
     }
 
-    // the key so two sessions in the same timeslot
-    if(slot_status[this.domid] == null) {
-       slot_status[this.domid]=[];
-    }
-    slot_status[this.domid].push(this);
-    //console.log("filling slot_objs", this.scheduledsession_id);
-    slot_objs[this.scheduledsession_id] = this;
+    timeslot_bydomid[this.domid] = this;
+    timeslot_byid[this.timeslot_id] = this;
 };
 
-ScheduledSlot.prototype.session = function() {
-    if(this.session_id != undefined) {
-       return meeting_objs[this.session_id];
-    } else {
-       return undefined;
+TimeSlot.prototype.slot_title = function() {
+    return "id#"+this.timeslot_id+" dom:"+this.domid;
+};
+TimeSlot.prototype.mark_empty = function() {
+    if(__debug_session_move) {
+        console.log("marking slot empty", this.domid);
+        $("#"+this.domid).html("empty");
     }
+    this.empty = true;
 };
-ScheduledSlot.prototype.slot_title = function() {
-    return "id#"+this.scheduledsession_id+" dom:"+this.domid;
+TimeSlot.prototype.mark_occupied = function() {
+    if(__debug_session_move) {
+        console.log("marking slot occupied", this.domid);
+    }
+    this.empty = false;
 };
-ScheduledSlot.prototype.can_extend_right = function() {
+TimeSlot.prototype.can_extend_right = function() {
     if(this.following_timeslot == undefined) {
         if(this.following_timeslot_id != undefined) {
-            this.following_timeslot = slot_objs[this.following_timeslot_id];
+            this.following_timeslot = timeslot_byid[this.following_timeslot_id];
         }
     }
     if(this.following_timeslot == undefined) {
-        console.log("can_extend_right:",this.scheduledsession_id," no slot to check");
+        console.log("can_extend_right:",this.timeslot_id," no slot to check");
         return false;
     } else {
         console.log("can_extend_right:",
@@ -357,17 +346,210 @@ ScheduledSlot.prototype.can_extend_right = function() {
     }
 };
 
+function make_timeslot(json) {
+    var ts = new TimeSlot();
+    ts.initialize(json);
+}
+
+/* feed this an array of timeslots */
+function make_timeslots(json, status, jqXHR) {
+    $.each(json, function(index) {
+        var thing = json[index];
+        make_timeslot(thing);
+    });
+}
+
+var timeslot_promise;
+function load_timeslots(href) {
+    if(timeslot_promise == undefined) {
+        timeslot_promise = $.Deferred();
+
+        var ts = $.ajax(href);
+        ts.success(function(newobj, status, jqXHR) {
+            console.log("finished timeslot promise");
+            make_timeslots(newobj);
+            timeslot_promise.resolve(newobj);
+        });
+    }
+    return timeslot_promise;
+}
+
+
+// ++++++++++++++++++
+// ScheduledSlot Object
+// ScheduledSession is DJANGO name for this object, but needs to be renamed.
+// It represents a TimeSlot that can be assigned in this schedule.
+//   { "scheduledsession_id": "{{s.id}}",
+//     "timeslot_id":"{{s.timeslot.id}}",
+//     "session_id" :"{{s.session.id}}",
+//     "extendedfrom_id"    :refers to another scheduledsession by ss.id
+function ScheduledSlot(){
+    this.extendedfrom = undefined;
+    this.extendedto   = undefined;
+    this.extendedfrom_id = false;
+    this.pinned       = false;
+}
+
+ScheduledSlot.prototype.room = function() {
+    return this.timeslot.room;
+};
+
+ScheduledSlot.prototype.time = function() {
+    return this.timeslot.time;
+};
+
+ScheduledSlot.prototype.date = function() {
+    return this.timeslot.date;
+};
+
+ScheduledSlot.prototype.domid = function() {
+    return this.timeslot.domid;
+};
+
+ScheduledSlot.prototype.column_class = function() {
+    return this.timeslot.column_class;
+};
+
+ScheduledSlot.prototype.short_string = function() {
+    return this.timeslot.short_string;
+};
+
+ScheduledSlot.prototype.saveit = function() {
+    var myss = this;
+    stuffjson = new Object();
+    stuffjson.session_id  = this.session_id;
+    stuffjson.timeslot_id = this.timeslot_id;
+    if(this.extendedfrom_id != undefined && this.extendedfrom_id != false) {
+        stuffjson.extendedfrom_id = this.extendedfrom_id;
+    }
+
+    var stuff = JSON.stringify(stuffjson, null, '\t');
+
+    var saveit = $.ajax(scheduledsession_post_href,{
+        "content-type": "text/json",
+        "type": "POST",
+        "data": stuff,
+    });
+    // should do something on success and failure.
+    saveit.done(function(result, status, jqXHR) {
+        myss.initialize(result);
+    });
+};
+
+ScheduledSlot.prototype.deleteit = function() {
+    var saveit = $.ajax(this.href, {
+        "content-type": "text/json",
+        "type": "DELETE",
+    });
+};
+
+function update_if_not_undefined(old, newval) {
+    if(newval != undefined) {
+        return newval;
+    } else {
+        return old;
+    }
+}
+
+ScheduledSlot.prototype.initialize = function(json) {
+    /* do not copy everything over */
+    this.pinned              = update_if_not_undefined(this.pinned, json.pinned);
+    this.scheduledsession_id = update_if_not_undefined(this.scheduledsession_id, json.scheduledsession_id);
+    this.session_id          = update_if_not_undefined(this.session_id, json.session_id);
+    this.timeslot_id         = update_if_not_undefined(this.timeslot_id, json.timeslot_id);
+    this.href                = update_if_not_undefined(this.href, json.href);
+    this.extendedfrom_id     = update_if_not_undefined(this.extendedfrom_id, json.extendedfrom_id);
+
+    if(this.timeslot_id == undefined) {
+        /* must be the unassigned one?! */
+        this.timeslot = new TimeSlot();
+        this.timeslot.domid = "sortable-list";
+    } else {
+        this.timeslot            = timeslot_byid[this.timeslot_id];
+        if(this.session_id != undefined) {
+            this.timeslot.mark_occupied();
+        }
+    }
+
+    // translate Python booleans to JS.
+    if(this.pinned == "True") {
+        this.pinned = true;
+    } else {
+        this.pinned = false;
+    }
+
+    // do not include in data structures if session_id is nil
+    // the key so two sessions in the same timeslot
+    if(slot_status[this.domid()] == null) {
+        slot_status[this.domid()]=[];
+    }
+    if(this.session_id != undefined) {
+        slot_status[this.domid()].push(this);
+        //console.log("filling slot_objs", this.scheduledsession_id);
+    }
+
+    slot_objs[this.scheduledsession_id] = this;
+};
+
+var scheduledsession_promise;
+function load_scheduledsessions(ts_promise, session_promise, href) {
+    if(scheduledsession_promise == undefined) {
+        scheduledsession_promise = $.Deferred();
+
+        var ss = $.ajax(href);
+        var ss_loaded = $.when(ss,ts_promise,session_promise);
+
+        ss_loaded.done(function(result, status, jqXHR) {
+            console.log("finished ss promise");
+            newobj = result[0]
+            $.each(newobj, function(index) {
+                one = newobj[index];
+                //console.log("ss has:", one);
+                make_ss(one);
+            });
+            scheduledsession_promise.resolve(newobj);
+        });
+    }
+    return scheduledsession_promise;
+}
+
+ScheduledSlot.prototype.connect_to_timeslot_session = function() {
+    if(this.timeslot == undefined) {
+        if(this.timeslot_id != undefined) {
+            this.timeslot = timeslot_byid[this.timeslot_id];
+        } else {
+            /* must be the unassigned one?! */
+            this.timeslot = new TimeSlot();
+            this.timeslot.domid = "sortable-list";
+        }
+    }
+    /* session could be hooked up, but it is now always session() */
+};
+
+ScheduledSlot.prototype.session = function() {
+    if(this.session_id != undefined) {
+       return meeting_objs[this.session_id];
+    } else {
+       return undefined;
+    }
+};
+ScheduledSlot.prototype.slot_title = function() {
+    return "id#"+this.scheduledsession_id+" dom:"+this.domid();
+};
+
 function make_ss(json) {
     var ss = new ScheduledSlot();
     ss.initialize(json);
+    return ss;
 }
 
 
 // ++++++++++++++++++
 // Session Objects
 //
-// initialized from landscape_edit.html template with:
-//   session_obj({"title" : "{{ s.short_name }}",
+// initialized by loading a json from /meeting/XX/sessions.json, return JSON that looks like:
+//
+//               {"title" : "{{ s.short_name }}",
 //                "description":"{{ s.group.name }}",
 //                "special_request": "{{ s.special_request_token }}",
 //                "session_id":"{{s.id}}",
@@ -430,6 +612,30 @@ function session_obj(json) {
 
     return session;
 }
+
+/* feed this an array of sessions */
+function make_sessions(json, status, jqXHR) {
+    $.each(json, function(index) {
+        var thing = json[index];
+        session_obj(thing);
+    });
+}
+
+var session_promise;
+function load_sessions(href) {
+    if(session_promise == undefined) {
+        session_promise = $.Deferred();
+
+        var ss = $.ajax(href);
+        ss.success(function(newobj, status, jqXHR) {
+            console.log("finished session promise");
+            make_sessions(newobj);
+            session_promise.resolve(newobj);
+        });
+    }
+    return session_promise;
+}
+
 
 // augument to jQuery.getJSON( url, [data], [callback] )
 Session.prototype.load_session_obj = function(andthen, arg) {
@@ -494,18 +700,25 @@ Session.prototype.on_bucket_list = function() {
     this.column_class_list = [];
     this.element().parent("div").addClass("meeting_box_bucket_list");
 };
-Session.prototype.placed = function(where, forceslot) {
+Session.prototype.placed = function(where, forceslot, scheduledsession) {
     this.is_placed = true;
 
     // forceslot is set on a move, but unset on initial placement,
     // as placed might be called more than once for a double slot session.
     if(forceslot || this.slot==undefined) {
+
+        /* we can not mark old slot as empty, because it might have multiple sessions in it */
         this.slot      = where;
+        this.scheduledsession = scheduledsession;
+
+        if(where != undefined) {
+            where.empty = false;
+        }
     }
     if(where != undefined) {
         this.add_column_class(where.column_class);
     }
-    //console.log("session:",session.title, "column_class", ssid.column_class);
+    //console.log("session:",session.title, "column_class", ssid.column_class());
     this.element().parent("div").removeClass("meeting_box_bucket_list");
     this.pinned = where.pinned;
 };
@@ -555,11 +768,11 @@ Session.prototype.clear_all_conflicts = function(old_column_classes) {
         $.each(session_obj.constraints.bethere, function(i) {
             var conflict = session_obj.constraints.bethere[i];
             var person = conflict.person;
-            
+
             person.clear_session(session_obj, old_column_classes);
         });
     }
-};    
+};
 
 Session.prototype.show_conflict = function() {
     if(_conflict_debug) {
@@ -621,7 +834,7 @@ Session.prototype.examine_people_conflicts = function() {
 
     // reset people conflicts.
     session_obj.person_conflicted = false;
-    
+
     for(ccn in session_obj.column_class_list) {
         var vertical_location = session_obj.column_class_list[ccn].column_tag;
         var room_tag          = session_obj.column_class_list[ccn].room_tag;
@@ -682,7 +895,7 @@ Session.prototype.update_column_classes = function(scheduledsession_list, bucket
     } else {
         for(ssn in scheduledsession_list) {
             ss = scheduledsession_list[ssn];
-            this.add_column_class(ss.column_class);
+            this.add_column_class(ss.column_class());
         }
         new_column_tag = this.column_class_list[0].column_tag;
     }
@@ -722,17 +935,21 @@ Session.prototype.event_template = function() {
     // the extra div is present so that the table can have a border which does not
     // affect the total height of the box.  The border otherwise screws up the height,
     // causing things to the right to avoid this box.
-    var bucket_list_style = "meeting_box_bucket_list"
-    if(this.is_placed) {
-        bucket_list_style = "";
-    }
-    if(this.double_wide) {
-        bucket_list_style = bucket_list_style + " meeting_box_double";
-    }
-
     var area_mark = "";
     if(this.responsible_ad != undefined) {
         area_mark = this.responsible_ad.area_mark;
+        if(area_mark == undefined) {
+            area_mark = "ad:" + this.responsible_ad.href;
+        }
+    }
+
+    var bucket_list_style = "meeting_box_bucket_list"
+    if(this.is_placed) {
+        bucket_list_style = "";
+        area_mark = "";        /* no mark for unplaced items: it goes to the wrong place */
+    }
+    if(this.double_wide) {
+        bucket_list_style = bucket_list_style + " meeting_box_double";
     }
 
     pinned = "";
@@ -842,6 +1059,7 @@ Session.prototype.retrieve_constraints_by_session = function() {
     return this.constraints_promise;
 };
 
+var __verbose_person_conflicts = false;
 Session.prototype.calculate_bethere = function() {
     var session_obj = this;
 
@@ -849,7 +1067,9 @@ Session.prototype.calculate_bethere = function() {
         $.each(this.constraints["bethere"], function(index) {
             var bethere = session_obj.constraints["bethere"][index];
             find_person_by_href(bethere.person_href).done(function(person) {
-                console.log("person",person.ascii,"attends session",session_obj.group.acronym);
+                if(__verbose_person_conflicts) {
+                    console.log("person",person.ascii,"attends session",session_obj.group.acronym);
+                }
                 person.attend_session(session_obj);
             });
         });
@@ -888,7 +1108,7 @@ Session.prototype.fill_in_constraints = function(constraint_list) {
 // ++++++++++++++++++
 // Group Objects
 function Group() {
-    this.andthen_list = [];
+    this.andthen_list = [];      /* should be removed, or replaced with promise */
     this.all_sessions = [];
 }
 
@@ -1178,7 +1398,7 @@ Constraint.prototype.build_people_conflict_view = function() {
         area_mark = this.person.area_mark_basic;
     }
     return "<div class='conflict our-"+this.conflict_type+"' id='"+this.dom_id+
-           "'>"+this.person.ascii+area_mark+"</div>";
+           "'>"+area_mark+"</div>";
 };
 
 Constraint.prototype.build_othername = function() {
@@ -1327,8 +1547,7 @@ function find_person_by_href(href) {
 
 var area_result;
 // this function creates a unique per-area director mark
-function mark_area_directors() {
-    var directorpromises = [];
+function mark_area_directors(directorpromises) {
     $.each(area_directors, function(areaname) {
         var adnum = 1;
         $.each(area_directors[areaname], function(key) {

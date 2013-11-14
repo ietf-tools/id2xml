@@ -5,11 +5,12 @@ from ietf.utils import TestCase
 
 from ietf.person.models import Person
 from django.contrib.auth.models import User
-from ietf.meeting.models  import TimeSlot, Session, ScheduledSession, Meeting
+from ietf.meeting.models  import TimeSlot, Session, ScheduledSession, Meeting, Room
 from ietf.ietfauth.decorators import has_role
 from auths import auth_joeblow, auth_wlo, auth_ietfchair, auth_ferrel
 from django.utils import simplejson as json
 from ietf.meeting.helpers import get_meeting
+from ietf.meeting.ajax import agenda_update
 
 import debug
 
@@ -21,6 +22,74 @@ class ApiTestCase(TestCase):
                  'workinggroups.json',
                  'groupgroup.json',
                  'person.json', 'users.json' ]
+
+    def setup_pkix_on_friday(self):
+        m83 = get_meeting(83)
+        o83 = m83.agenda
+        room = m83.room_set.get(name="252A")
+
+        # look for ScheduledSession with Session=/Timeslot
+        ss_list = o83.scheduledsession_set.filter(session__group__acronym = "pkix",
+                                                          timeslot__time = "2012-03-30 12:30:00")
+        self.assertEqual(len(ss_list), 0)
+
+        ts_one = m83.timeslot_set.get(time = "2012-03-30 12:30:00", location=room)
+        pkix   = m83.session_set.get(group__acronym = "pkix")
+        self.assertNotEqual(ts_one, None)
+        self.assertNotEqual(pkix, None)
+        return m83, o83, pkix, ts_one
+
+    def check_pkix_on_friday(self, o83):
+        # look for ScheduledSession with Session=/Timeslot: (should not be one)
+        ss_list = o83.scheduledsession_set.filter(session__group__acronym = "pkix",
+                                                  timeslot__time = "2012-03-30 12:30:00")
+        return ss_list
+
+    def test_noAuthenticationCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+
+        # try to create a new scheduledsession item without any authorization
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json")
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 0)
+
+    def test_noAuthorizationCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+        # create a new scheduledsession item, but without authorization.
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json",
+                         **auth_ferrel)
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 0)
+
+    def test_wloCreateScheduledSession(self):
+        m83, o83, pkix, ts_one = self.setup_pkix_on_friday()
+        # create a new scheduledsesesion item, with authorization
+        self.client.post("/meeting/%s/schedule/%s/sessions.json" % (m83.number, o83.name),
+                         '{"session_id":"%u", "timeslot_id": "%u"}' % (pkix.id, ts_one.id),
+                         content_type="text/json",
+                         **auth_wlo)
+
+        ss_list = self.check_pkix_on_friday(o83)
+        self.assertEqual(len(ss_list), 1)
+
+    def test_wloDeleteScheduledSession(self):
+        # this is pkix on Monday
+        ss_pkix = ScheduledSession.objects.get(pk=2371)
+        o83 = ss_pkix.schedule
+        m83 = o83.meeting
+
+        # create a new scheduledsesesion item, with authorization
+        self.client.delete("/meeting/%s/schedule/%s/session/%u.json" % (m83.number, o83.name, ss_pkix.pk),
+                           **auth_wlo)
+
+        ss_list = ScheduledSession.objects.filter(pk=2371)
+        self.assertEqual(len(ss_list), 0)
 
     def test_noAuthenticationUpdateAgendaItem(self):
         ts_one = TimeSlot.objects.get(pk=2371)
@@ -166,6 +235,21 @@ class ApiTestCase(TestCase):
         resp = self.client.get('/meeting/83/session/2157/constraints.json')
         conflicts = json.loads(resp.content)
         self.assertNotEqual(conflicts, None)
+
+    def test_anyoneGetTimeslotInfo(self):
+        resp = self.client.get('/meeting/83/timeslots.json')
+        m83timeslots = json.loads(resp.content)
+        self.assertNotEqual(m83timeslots, None)
+
+    def test_anyoneGetSessionInfo(self):
+        resp = self.client.get('/meeting/83/sessions.json')
+        m83sessions = json.loads(resp.content)
+        self.assertNotEqual(m83sessions, None)
+
+    def test_anyoneGetScheduledSessionInfo(self):
+        resp = self.client.get('/meeting/83/schedule/mtg:83/sessions.json')
+        m83ss = json.loads(resp.content)
+        self.assertNotEqual(m83ss, None)
 
     def test_conflictInfoIncludesPeople(self):
         mtg83 = get_meeting(83)
@@ -386,7 +470,7 @@ class ApiTestCase(TestCase):
         extra_headers = auth_wlo
         extra_headers['HTTP_ACCEPT']='application/json'
 
-        # try to create a new agenda
+        # try to edit an existing agenda
         resp = self.client.put('/meeting/83/agendas/%s.json' % (a83.name),
                                data='visible=0',
                                content_type="application/x-www-form-urlencoded",
@@ -394,10 +478,31 @@ class ApiTestCase(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
-        # see that in fact wlo can create a new timeslot
+        # see that in fact the visible attribute changed.
         mtg83 = get_meeting(83)
         a83   = mtg83.agenda
         self.assertFalse(a83.visible)
+
+    def test_adrianCanNotEditSecretariatAgenda(self):
+        mtg83 = get_meeting(83)
+        a83   = mtg83.agenda
+        self.assertTrue(a83.visible)
+
+        extra_headers = auth_ferrel
+        extra_headers['HTTP_ACCEPT']='application/json'
+
+        # try to edit an existing agenda
+        resp = self.client.put('/meeting/83/agendas/%s.json' % (a83.name),
+                               data='visible=0',
+                               content_type="application/x-www-form-urlencoded",
+                               **extra_headers)
+
+        self.assertEqual(resp.status_code, 200)
+
+        # see that in fact the visible attribute did not change.
+        mtg83 = get_meeting(83)
+        a83   = mtg83.agenda
+        self.assertTrue(a83.visible)
 
     def test_deleteAgendaSecretariat(self):
         mtg83 = get_meeting(83)
@@ -615,5 +720,37 @@ class ApiTestCase(TestCase):
         ss_one = ScheduledSession.objects.get(pk=2371)
         self.assertEqual(ss_one.pinned, True)
 
+    def test_wlo_canChangeTimeSlotPurpose(self):
+        extra_headers = auth_wlo
+        extra_headers['HTTP_ACCEPT']='text/json'
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "session")
+
+        # check that wlo can update a timeslot purpose
+        resp = self.client.post('/dajaxice/ietf.meeting.update_timeslot_purpose/', {
+            'argv': '{"meeting_num":"83", "timeslot_id": "%u", "purpose":"plenary"}' % (ts_one.pk)
+            }, **extra_headers)
+
+        ts_one_json = json.loads(resp.content)
+        self.assertEqual(ts_one_json['roomtype'], "plenary")
+
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "plenary")
+
+    def test_wlo_canAddTimeSlot(self):
+        extra_headers = auth_wlo
+        extra_headers['HTTP_ACCEPT']='text/json'
+        ts_one = TimeSlot.objects.get(pk=2371)
+        self.assertEqual(ts_one.type_id, "session")
+
+        roomPk = ts_one.location.pk
+
+        # check that wlo can update a timeslot purpose
+        resp = self.client.post('/dajaxice/ietf.meeting.update_timeslot_purpose/', {
+                'argv': '{"meeting_num":"83", "timeslot_id": "0", "purpose":"plenary", "room_id":"%u", "time":"2012-03-25 09:00", "duration":"3600" }' % (roomPk)
+            }, **extra_headers)
+
+        ts_one_json = json.loads(resp.content)
+        self.assertEqual(ts_one_json['roomtype'], "plenary")
 
 

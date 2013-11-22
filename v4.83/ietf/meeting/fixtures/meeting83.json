@@ -22,6 +22,7 @@
 {"pk": 28, "model": "meeting.schedule", "fields": {"owner": 5376, "visible": true,   "name": "russ_83_visible",   "public": false, "meeting": 83}},
 {"pk": 29, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": false, "name": "sf_83_invisible",   "public": false, "meeting": 83}},
 {"pk": 30, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": true,  "name": "sf_83_visible",     "public": false, "meeting": 83}},
+{"pk": 103, "model": "meeting.schedule", "fields": {"owner": 108757, "visible": false, "name": "auto1",     "public": false, "meeting": 83}},
 {"pk": 2371, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2157, "timeslot": 2371}},
 {"pk": 2372, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2158, "timeslot": 2372}},
 {"pk": 2373, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2159, "timeslot": 2373}},

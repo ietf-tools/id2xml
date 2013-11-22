@@ -110,16 +110,12 @@ class PlacementTestCase(TestCase):
         # calculate placement new way.
         b1 = placer1.calc_badness(None, None)
 
-        #from settings import BADNESS_CALC_LOG
-        #BADNESS_CALC_LOG = 1
         # badness calculation by the old way fails to count four groups that have
         # two sessions properly,     200 * 4 = 800.
         b2 = schedule.calc_badness1(placer1) + 800
-        b3 = schedule.calc_badness()         + 800
-        #print "rc,b1: %u b2: %u b3: %u" % (b1, b2, b3)
-        self.assertEqual(b1, 3082000)
+
+        self.assertEqual(b1, 2435800)
         self.assertEqual(b2, 3082000)
-        self.assertEqual(b3, 15082000)   # this does not exclude non-session items!
 
     def test_calculateBadnessMtg83unplaced(self):
         """

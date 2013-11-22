@@ -1,21 +1,22 @@
 import sys
-from django.test import TestCase
+from ietf.utils import TestCase
 from django.test.client import Client
 from ietf.meeting.models  import TimeSlot, Session, Schedule, ScheduledSession
 from ietf.meeting.models  import Constraint
 from ietf.group.models    import Group
 from ietf.name.models     import ConstraintName
 from settings import BADNESS_CONFLICT_1,BADNESS_CONFLICT_2,BADNESS_CONFLICT_3,BADNESS_UNPLACED,BADNESS_TOOSMALL_50,BADNESS_TOOSMALL_100,BADNESS_TOOBIG,BADNESS_MUCHTOOBIG
+from settings import BADNESS_CALC_LOG
 from ietf.meeting.placement import CurrentScheduleState
 
 class PlacementTestCase(TestCase):
+    # See ietf.utils.test_utils.TestCase for the use of perma_fixtures vs. fixtures
     perma_fixtures = [ 'names.xml',  # ietf/names/fixtures/names.xml for MeetingTypeName, and TimeSlotTypeName
                  'meeting83.json',
                  'constraint83.json',
                  'workinggroups.json',
-                 'empty83.json',  # a partially placed schedule
-                 'person.json',
-                 'users.json' ]
+                 'groupgroup.json',
+                 'person.json', 'users.json' ]
 
     def test_calculatePlacedSession1(self):
         """

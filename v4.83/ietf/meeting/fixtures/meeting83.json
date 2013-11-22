@@ -22,7 +22,6 @@
 {"pk": 28, "model": "meeting.schedule", "fields": {"owner": 5376, "visible": true,   "name": "russ_83_visible",   "public": false, "meeting": 83}},
 {"pk": 29, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": false, "name": "sf_83_invisible",   "public": false, "meeting": 83}},
 {"pk": 30, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": true,  "name": "sf_83_visible",     "public": false, "meeting": 83}},
-{"pk": 103, "model": "meeting.schedule", "fields": {"owner": 108757, "visible": false, "name": "auto1",     "public": false, "meeting": 83}},
 {"pk": 2371, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2157, "timeslot": 2371}},
 {"pk": 2372, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2158, "timeslot": 2372}},
 {"pk": 2373, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2159, "timeslot": 2373}},
@@ -521,5 +520,31 @@
 {"pk": 22084, "model": "meeting.session", "fields": {"status": "sched", "requested": "2012-03-05 13:54:42", "short": "", "attendees": 100, "name": "", "agenda_note": "", "modified": "2012-03-05 13:56:51", "comments": "", "requested_by": 108757,  "scheduled": null, "group": 1847, "meeting": 83, "requested_duration": 9000}},
 {"pk": 22085, "model": "meeting.session", "fields": {"status": "sched", "requested": "2012-03-07 09:01:03", "short": "", "attendees": 100, "name": "", "agenda_note": "Combined with OPSAREA", "modified": "2012-03-12 13:25:11", "comments": "", "requested_by": 108757,  "scheduled": null, "group": 1714, "meeting": 83, "requested_duration": 9000}},
 {"pk": 22087, "model": "meeting.session", "fields": {"status": "sched", "requested": "2012-03-24 02:51:38", "short": "", "attendees": 120, "name": "", "agenda_note": "", "modified": "2012-03-24 03:16:22", "comments": "", "requested_by": 108757,  "scheduled": null, "group": 1680, "meeting": 83, "requested_duration": 7200}},
-{"pk": 22089, "model": "meeting.session", "fields": {"status": "sched", "requested": "2012-03-28 09:52:00", "short": "", "attendees": null, "name": "Working Group Chairs' Training", "agenda_note": "", "modified": "2012-03-28 09:52:00", "comments": "", "requested_by": 0,  "scheduled": null, "group": 1591, "meeting": 83, "requested_duration": 0}}
+{"pk": 22089, "model": "meeting.session", "fields": {"status": "sched", "requested": "2012-03-28 09:52:00", "short": "", "attendees": null, "name": "Working Group Chairs' Training", "agenda_note": "", "modified": "2012-03-28 09:52:00", "comments": "", "requested_by": 0,  "scheduled": null, "group": 1591, "meeting": 83, "requested_duration": 0}},
+
+{"pk": 103, "model": "meeting.schedule", "fields": {"owner": 19177, "visible": false, "meeting": 83, "name": "empty83", "public": false}},
+{"pk": 4972, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2163, "modified": "2013-04-11 09:08:16", "schedule": 103, "timeslot": 2378}},
+{"pk": 4994, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2184, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2400}},
+{"pk": 5036, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2219, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2442}},
+{"pk": 5039, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2222, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2445}},
+{"pk": 5040, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2223, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2446}},
+{"pk": 5041, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2223, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2447}},
+{"pk": 5048, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2231, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2454}},
+{"pk": 5070, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2251, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2476}},
+{"pk": 5088, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2270, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2494}},
+{"pk": 5089, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2270, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2495}},
+{"pk": 5093, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2274, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2499}},
+{"pk": 5097, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2278, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2503}},
+{"pk": 5099, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2280, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2505}},
+{"pk": 5113, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 22089,"modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2926}},
+
+{"pk": 5098, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2279, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2504}},
+{"pk": 5108, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2288, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2514}},
+{"pk": 5110, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 22083,"modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2923}},
+{"pk": 5094, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2274, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2500}},
+{"pk": 5095, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2278, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2501}},
+{"pk": 5096, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2276, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2502}},
+{"pk": 5091, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2272, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2497}},
+{"pk": 5092, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2273, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2498}}
+
 ]

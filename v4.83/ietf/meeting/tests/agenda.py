@@ -93,7 +93,7 @@ class AgendaInfoTestCase(TestCase):
         num = '83'
         from ietf.meeting.views import get_meeting, get_schedule
         meeting = get_meeting(num)
-        na = get_schedule(meeting, "mtg:83")
+        na = get_schedule(meeting, "mtg_83")
         self.assertIsNotNone(na)
 
     def test_sessionstr(self):
@@ -117,7 +117,7 @@ class AgendaInfoTestCase(TestCase):
 
     def test_avtcore_has_two_slots(self):
         mtg83 = get_meeting(83)
-        sch83 = get_schedule(mtg83, "mtg:83")
+        sch83 = get_schedule(mtg83, "mtg_83")
         avtcore = mtg83.session_set.get(group__acronym='avtcore')
         self.assertEqual(avtcore.pk, 2216)  # sanity check
         self.assertEqual(len(avtcore.scheduledsession_set.filter(schedule = sch83)), 2)

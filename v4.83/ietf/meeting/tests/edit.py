@@ -37,6 +37,6 @@ class EditTestCase(TestCase):
 
         # determine that there isn't a schedule called "fred"
         mtg = get_meeting(83)
-        sched83 = mtg.get_schedule_by_name("mtg:83")
+        sched83 = mtg.get_schedule_by_name("mtg_83")
         self.assertIsNotNone(sched83, "sched83 not found")
 

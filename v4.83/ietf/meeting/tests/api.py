@@ -247,7 +247,7 @@ class ApiTestCase(TestCase):
         self.assertNotEqual(m83sessions, None)
 
     def test_anyoneGetScheduledSessionInfo(self):
-        resp = self.client.get('/meeting/83/schedule/mtg:83/sessions.json')
+        resp = self.client.get('/meeting/83/schedule/mtg_83/sessions.json')
         m83ss = json.loads(resp.content)
         self.assertNotEqual(m83ss, None)
 

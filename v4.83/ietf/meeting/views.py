@@ -86,57 +86,7 @@ def current_materials(request):
     meeting = OldMeeting.objects.exclude(number__startswith='interim-').order_by('-meeting_num')[0]
     return HttpResponseRedirect( reverse(materials, args=[meeting.meeting_num]) )
 
-def get_plenary_agenda(meeting_num, id):
-    try:
-        plenary_agenda_file = settings.AGENDA_PATH + WgMeetingSession.objects.get(meeting=meeting_num,group_acronym_id=id).agenda_file()
-        try:
-            f = open(plenary_agenda_file)
-            plenary_agenda = f.read()
-            f.close()
-            return plenary_agenda
-        except IOError:
-             return "THE AGENDA HAS NOT BEEN UPLOADED YET"
-    except WgMeetingSession.DoesNotExist:
-        return "The Plenary has not been scheduled"
-
-##########################################################################################################################
-## dispatch based upon request type.
-def agenda_html_request(request,num=None, name=None):
-    if request.method == 'POST':
-        return agenda_create(request, num, name)
-    else:
-        # GET and HEAD.
-        return html_agenda(request, num, name)
-
-def legacy_get_agenda_info(request, num=None, schedule=None):
-    meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(Q(meeting__id = meeting.id)).exclude(type__slug='unavail').order_by('time','name')
-    modified = timeslots.aggregate(Max('modified'))['modified__max']
-
-    area_list = list(set([ session.group.parent.acronym for session in [ timeslot.session for timeslot in timeslots.filter(type = 'Session', sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__parent__acronym').distinct() if timeslot.session ] ]))
-    area_list.sort()
-
-#    wg_name_list = timeslots.filter(type = 'Session', sessions__group__isnull = False, sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__acronym').distinct('sessions__group')#.values_list('sessions__group__acronym',flat=True)
-    wg_name_list = list(set([ session.group.acronym for session in [ timeslot.session for timeslot in timeslots.filter(type = 'Session', sessions__group__parent__isnull = False, scheduledsession__schedule=schedule).order_by('sessions__group__acronym').distinct() if timeslot.session ] ]))
-
-    wg_list = Group.objects.filter(acronym__in = set(wg_name_list)).order_by('parent__acronym','acronym')
-
-    return timeslots, modified, meeting, area_list, wg_list
-
-def get_agenda_info(request, num=None, name=None):
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, name)
-    scheduledsessions = get_scheduledsessions_from_schedule(schedule)
-    modified = get_modified_from_scheduledsessions(scheduledsessions)
-
-    area_list = get_areas()
-    wg_list = get_wg_list(scheduledsessions)
-    time_slices,date_slices = build_all_agenda_slices(scheduledsessions, False)
-    rooms = meeting.room_set
-
-    return scheduledsessions, schedule, modified, meeting, area_list, wg_list, time_slices, date_slices, rooms
-
-def mobile_user_agent_detect(request):
+def get_user_agent(request):
     if  settings.SERVER_MODE != 'production' and '_testiphone' in request.REQUEST:
         user_agent = "iPhone"
     elif 'user_agent' in request.REQUEST:
@@ -326,7 +276,8 @@ def edit_agenda(request, num=None, name=None):
                                           "area_list": area_list,
                                           "area_directors" : ads,
                                           "wg_list": wg_list ,
-                                          "scheduledsessions": scheduledsessions },
+                                          "scheduledsessions": scheduledsessions,
+                                          "show_inline": set(["txt","htm","html"]) },
                                          RequestContext(request)), mimetype="text/html")
 
 ##############################################################################
@@ -592,7 +543,7 @@ def ical_agenda(request, num=None, name=None, ext=None):
 
     # Process the special flags.
     #   "-wgname" will remove a working group from the output.
-    #   "~Type" will add that type to the output. 
+    #   "~Type" will add that type to the output.
     #   "-~Type" will remove that type from the output
     # Current types are:
     #   Session, Other (default on), Break, Plenary (default on)
@@ -614,7 +565,7 @@ def ical_agenda(request, num=None, name=None, ext=None):
         Q(session__group__parent__acronym__in = include)
         ).exclude(session__group__acronym__in = exclude).distinct()
         #.exclude(Q(session__group__isnull = False),
-        #Q(session__group__acronym__in = exclude) | 
+        #Q(session__group__acronym__in = exclude) |
         #Q(session__group__parent__acronym__in = exclude))
 
     return HttpResponse(render_to_string("meeting/agenda.ics",

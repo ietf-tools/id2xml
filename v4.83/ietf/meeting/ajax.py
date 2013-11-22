@@ -10,6 +10,7 @@ from ietf.name.models import TimeSlotTypeName
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 
 from ietf.meeting.helpers import get_meeting, get_schedule, get_schedule_by_id, agenda_permissions
+from ietf.meeting.models  import ScheduledSession
 from ietf.meeting.views   import edit_timeslots, edit_agenda
 
 
@@ -389,7 +390,7 @@ def agenda_update(request, meeting, schedule):
 
     cansee,canedit = agenda_permissions(meeting, schedule, request.user)
     read_only = not canedit
-    
+
     if has_role(user, "Secretariat"):
         if "public" in update_dict:
             value1 = True
@@ -413,7 +414,7 @@ def agenda_update(request, meeting, schedule):
             schedule.name = value
     else:
         return HttpResponse({'error':'no permission'}, status=401)
-        
+
     if "name" in update_dict:
         value = update_dict["name"]
         #debug.log("setting name for %s to %s" % (schedule, value))

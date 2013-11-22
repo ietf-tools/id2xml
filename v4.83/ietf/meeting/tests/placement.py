@@ -140,21 +140,33 @@ class PlacementTestCase(TestCase):
         self.assertEqual(badness, BADNESS_UNPLACED)
 
     def test_startPlacementSession(self):
+        sched1  = Schedule.objects.get(pk=103)
+
         """
         kicks starts the placement process.
-        There are 149 timeslots total.
-        Says useable (empty) QS: 127.
-        There are 149-127 = 22 timeslots with placements, but it's 8 unique session
-                               requests, because in this dataset, two session were
-                               scheduled into two timeslots.
-        There are 145 session requests total.
-        So there are 145-8           = 133 unplaced sessions.
-        So there should be 149 + 133 = 282 slots total - 8 = 273
-        And then 12 non-sessions agenda items were excluded to take 273=>261.
+        There are 149 timeslots total, 139 session slots
         """
-        sched1  = Schedule.objects.get(pk=103)
+        self.assertEqual(sched1.meeting.timeslot_set.filter(type = "session").count(), 139)
+
+        """
+        There are 145 session requests total.
+         but only 133 can be automatically placed.
+        """
+        can_be_placed_count = sched1.meeting.sessions_that_can_be_placed().count()
+        self.assertEqual(can_be_placed_count, 133)
+
+        """
+        Of those, 14 are already tentatively placed,
+             and,  8 are placed and pinned.
+
+        Since  8 are pinned, there are only  139-8 = 131 timeslots which can be used.
+        Since  8 are pinned, there are       133-8 = 125 unplaced sessions to consider.
+        The total slots should therefore be 139+125= 264
+        Note that total_slots points at the highest number, starts at 0, so 263
+        """
         placer1 = CurrentScheduleState(sched1)
-        self.assertEqual(placer1.total_slots, 261) #, "total slots calculation")
+        #, "total slots calculation"
+        self.assertEqual(placer1.total_slots, 263)
 
     def test_currentScheduleStateIndex(self):
         sched1  = Schedule.objects.get(pk=103)

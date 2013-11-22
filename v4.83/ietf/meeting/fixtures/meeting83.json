@@ -527,8 +527,10 @@
 {"pk": 4994, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2184, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2400}},
 {"pk": 5036, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2219, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2442}},
 {"pk": 5039, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2222, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2445}},
+
 {"pk": 5040, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2223, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2446}},
 {"pk": 5041, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2223, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2447}},
+
 {"pk": 5048, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2231, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2454}},
 {"pk": 5070, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2251, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2476}},
 {"pk": 5088, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2270, "modified": "2013-04-11 09:08:17", "schedule": 103, "timeslot": 2494}},

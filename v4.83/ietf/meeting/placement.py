@@ -277,25 +277,35 @@ class CurrentScheduleState:
 
     def add_to_available_slot(self, fs):
         size = len(self.available_slots)
-        self.total_slots  = size
-        self.available_slots.append(fs)
-        fs.available_slot = size
-
         if fs.session is not None:
             fs.session.setup_conflicts()
 
+        #print "adding fs for slot: %s" % (fs.timeslot)
         if fs.timeslot is not None:
-            # add the slot to the list of vertical slices.
-            time_column = self.timeslots[fs.timeslot.time]
-            time_column.add_scheduledsession(fs)
-            fs.scheduleslot = time_column
-            if fs.session is None:
-                self.placed_scheduleslots.append(fs)
+            if fs.timeslot in self.fs_by_timeslot:
+                #print "duplicate timeslot, updating old one: %s" % (fs.timeslot)
+                ofs = self.fs_by_timeslot[fs.timeslot]
+                if ofs.session is None:
+                    # keep the one with the assignment.
+                    self.fs_by_timeslot[fs.timeslot] = fs
+                    # get rid of old item
+                    self.available_slots[ofs.available_slot] = fs
+                return
+            else:
+                self.fs_by_timeslot[fs.timeslot] = fs
+                # add the slot to the list of vertical slices.
+                time_column = self.timeslots[fs.timeslot.time]
+                time_column.add_scheduledsession(fs)
+                fs.scheduleslot = time_column
+                if fs.session is None:
+                    self.placed_scheduleslots.append(fs)
         else:
             self.unplaced_scheduledslots.add_scheduledsession(fs)
             fs.scheduleslot = self.unplaced_scheduledslots
 
-        # make a list of unplaced sessions
+        self.total_slots  = size
+        self.available_slots.append(fs)
+        fs.available_slot = size
         #print "adding item: %u to unplaced slots (pinned: %s)" % (fs.available_slot, fs.pinned)
 
     def __init__(self, schedule, seed=None):
@@ -316,6 +326,7 @@ class CurrentScheduleState:
 
         # this contains an entry for each location, and each un-location in the form of
         # (session,location) with the appropriate part None.
+        self.fs_by_timeslot  = {}
         self.available_slots = []
         self.unplaced_scheduledslots  = UnplacedScheduleSlot()
         self.placed_scheduleslots     = []
@@ -335,22 +346,16 @@ class CurrentScheduleState:
         self.slot2           = None
 
         # setup up array of timeslots objects
-        for timeslot in schedule.meeting.timeslot_set.all():
+        for timeslot in schedule.meeting.timeslot_set.filter(type = "session").all():
             if not timeslot.time in self.timeslots:
                 self.timeslots[timeslot.time] = ScheduleSlot(timeslot.time)
+            fs = FakeScheduledSession(self.schedule)
+            fs.timeslot = timeslot
+            self.add_to_available_slot(fs)
         self.timeslots[None] = self.unplaced_scheduledslots
 
-        from django.db.models import Q
-
-        donotplace_groups = Q(group__acronym="edu")
-        donotplace_groups |= Q(group__acronym="tools")
-        donotplace_groups |= Q(group__acronym="iesg")
-        donotplace_groups |= Q(group__acronym="ietf")
-        donotplace_groups |= Q(group__acronym="iepg")
-        donotplace_groups |= Q(group__acronym="ietf")
-        donotplace_groups |= Q(group__acronym="iab")
-
-        for sess in self.meeting.sessions_that_can_meet.exclude(donotplace_groups).all():
+        # make list of things that need placement.
+        for sess in self.meeting.sessions_that_can_be_placed().all():
             fs = FakeScheduledSession(self.schedule)
             fs.session     = sess
             self.sessions[sess] = fs
@@ -361,13 +366,13 @@ class CurrentScheduleState:
         # loop here and the one for useableslots could be merged into one loop
         allschedsessions = self.schedule.qs_scheduledsessions_with_assignments.filter(timeslot__type = "session").all()
         for ss in allschedsessions:
-            # do not need to check for ss.session, because filter above only returns those ones.
+            # do not need to check for ss.session is not none, because filter above only returns those ones.
             sess = ss.session
             if not (sess in self.sessions):
-                print "Had to create sess for %s" % (sess)
+                #print "Had to create sess for %s" % (sess)
                 self.sessions[sess] = FakeScheduledSession(self.schedule)
             fs = self.sessions[sess]
-            #print "Updating %s from %s" % (fs, ss)
+            #print "Updating %s from %s(%s)" % (fs.session.group.acronym, ss.timeslot.location.name, ss.timeslot.time)
             fs.fromScheduledSession(ss)
 
             # if pinned, then do not consider it when selecting, but it needs to be in
@@ -378,10 +383,10 @@ class CurrentScheduleState:
                 del self.sessions[sess]
             self.current_assignments[ss.session.group].append(fs)
 
-            # XXX can not deal with a session in two slots yet?
+            # XXX can not deal with a session in two slots yet?!
 
-        # need to remove any sessions that might have gotten through above, but are in non-session places.
-        # these could otherwise appear to be unplaced.
+        # need to remove any sessions that might have gotten through above, but are in non-session
+        # places, otherwise these could otherwise appear to be unplaced.
         allspecialsessions = self.schedule.qs_scheduledsessions_with_assignments.exclude(timeslot__type = "session").all()
         for ss in allspecialsessions:
             sess = ss.session
@@ -392,8 +397,8 @@ class CurrentScheduleState:
 
         # now need to add entries for those sessions which are currently unscheduled (and yet not pinned)
         for sess,fs in self.sessions.iteritems():
-            #print "Considering sess: %s, and loc: %s" % (sess, str(fs.timeslot))
             if fs.timeslot is None:
+                #print "Considering sess: %s, and loc: %s" % (sess, str(fs.timeslot))
                 self.add_to_available_slot(fs)
         #import pdb; pdb.set_trace()
         #print "Finished %u" % (self.total_slots)

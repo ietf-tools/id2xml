@@ -1,6 +1,5 @@
 import sys
 from django.test              import Client
-from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 from ietf.utils import TestCase
 from ietf.name.models     import SessionStatusName
 from ietf.person.models   import Person

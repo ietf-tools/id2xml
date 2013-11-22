@@ -1,6 +1,5 @@
 import sys
 from django.test import TestCase
-from ietf.meeting.tests.ttest import AgendaTransactionalTestCase
 from django.test.client import Client
 from ietf.meeting.models  import TimeSlot, Session, Schedule, ScheduledSession
 from ietf.meeting.models  import Constraint

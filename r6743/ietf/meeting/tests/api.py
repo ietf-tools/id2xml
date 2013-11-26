@@ -487,22 +487,24 @@ class ApiTestCase(TestCase):
         mtg83 = get_meeting(83)
         a83   = mtg83.agenda
         self.assertTrue(a83.visible)
+        oldname = a83.name
 
         extra_headers = auth_ferrel
         extra_headers['HTTP_ACCEPT']='application/json'
 
         # try to edit an existing agenda
         resp = self.client.put('/meeting/83/agendas/%s.json' % (a83.name),
-                               data='visible=0',
+                               data='visible=0&name=fred',
                                content_type="application/x-www-form-urlencoded",
                                **extra_headers)
 
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 401)
 
         # see that in fact the visible attribute did not change.
         mtg83 = get_meeting(83)
         a83   = mtg83.agenda
         self.assertTrue(a83.visible)
+        self.assertEqual(a83.name, oldname)
 
     def test_deleteAgendaSecretariat(self):
         mtg83 = get_meeting(83)

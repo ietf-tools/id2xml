@@ -19,14 +19,24 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
-var meeting_number = 0;   // is the meeting name.
-var schedule_id    = 0;   // what is the schedule we are editing.
-var schedule_owner_href = '';  // who owns this schedule
+// these need to be defined in landscape_edit
+//var meeting_number = 0;   // is the meeting name.
+//var schedule_id    = 0;   // what is the schedule we are editing.
+//var schedule_name;        // what is the schedule we are editing.
+//var schedule_owner_href = '';  // who owns this schedule
+//var scheduledsession_post_href;
+//var meeting_base_url;
+//var site_base_url;
+//var total_rooms = 0; // the number of rooms
+//var total_days = 0; // the number of days
+
 var is_secretariat = false;
 var meeting_objs = {};    // contains a list of session objects -- by session_id
 var session_objs = {};    // contains a list of session objects -- by session_name
 var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
 var slot_objs   = {};     // scheduledsession indexed by id.
+var timeslot_bydomid = {};
+var timeslot_byid    = {};
 
 var group_objs = {};      // list of working groups
 var area_directors = {};  // list of promises of area directors, index by href.
@@ -47,9 +57,7 @@ var last_json_txt   = "";   // last txt from a json call.
 var last_json_reply = [];   // last parsed content
 
 var hidden_rooms = [];
-var total_rooms = 0; // the number of rooms
 var hidden_days = [];
-var total_days = 0; // the number of days
 
 /****************************************************/
 
@@ -68,20 +76,28 @@ $(document).ready(function() {
 */
 function initStuff(){
     log("initstuff() running...");
-    setup_slots();
-    directorpromises = mark_area_directors();
+    var directorpromises = [];
+    setup_slots(directorpromises);
+    mark_area_directors(directorpromises);
     log("setup_slots() ran");
     droppable();
+    log("droppable() ran");
 
     $.when.apply($,directorpromises).done(function() {
-        /* can not load events until area director info has been loaded */
-        log("droppable() ran");
+        /* can not load events until area director info,
+           timeslots, sessions, and scheduledsessions
+           have been loaded
+        */
+        log("loading/linking objects");
         load_events();
         log("load_events() ran");
         find_meeting_no_room();
+        calculate_name_select_box();
+        calculate_room_select_box();
         listeners();
         droppable();
         duplicate_sessions = find_double_timeslots();
+        empty_info_table();
 
         if(load_conflicts) {
             recalculate(null);
@@ -90,7 +106,6 @@ function initStuff(){
 
     static_listeners();
     log("listeners() ran");
-    calculate_name_select_box();
 
     start_spin();
 
@@ -134,7 +149,6 @@ function read_only_result(msg) {
     // XX go fetch the owner and display it.
     console.log("owner href:", schedule_owner_href);
 
-    empty_info_table();
     listeners();
     droppable();
 }

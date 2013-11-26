@@ -160,8 +160,8 @@ class Meeting(models.Model):
 
             if ymd in time_slices:
                 # only keep unique entries
-                if [ts.time, ts.time + ts.duration] not in time_slices[ymd]:
-                    time_slices[ymd].append([ts.time, ts.time + ts.duration])
+                if [ts.time, ts.time + ts.duration, ts.duration.seconds] not in time_slices[ymd]:
+                    time_slices[ymd].append([ts.time, ts.time + ts.duration, ts.duration.seconds])
                     slots[ymd].append(ts)
 
         days.sort()
@@ -331,14 +331,18 @@ class TimeSlot(models.Model):
         #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
         return "%s_%s_%s" % (slugify(self.get_location()), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
 
-    def json_dict(self, selfurl):
+    def json_dict(self, host_scheme):
         ts = dict()
         ts['timeslot_id'] = self.id
-        ts['room']        = slugify(self.location)
+        ts['href']        = urljoin(host_scheme, self.json_url())
+        ts['room']        = self.get_location()
         ts['roomtype'] = self.type.slug
         ts["time"]     = date_format(self.time, 'Hi')
-        ts["date"]     = time_format(self.time, 'Y-m-d')
+        ts["date"]     = fmt_date(self.time)
         ts["domid"]    = self.js_identifier
+        following = self.slot_to_the_right
+        if following is not None:
+            ts["following_timeslot_id"] = following.id
         return ts
 
     def json_url(self):
@@ -425,10 +429,17 @@ class Schedule(models.Model):
 
 #     def url_edit(self):
 #         return "/meeting/%s/agenda/%s/edit" % (self.meeting.number, self.name)
-# 
+#
 #     @property
 #     def relurl_edit(self):
 #         return self.url_edit("")
+
+    def owner_email(self):
+        emails = self.owner.email_set.all()
+        if len(emails)>0:
+            return emails[0].address
+        else:
+            return "noemail"
 
     @property
     def visible_token(self):
@@ -536,6 +547,7 @@ class Schedule(models.Model):
     def groups(self):
         return Group.objects.filter(type__slug__in=['wg', 'rg', 'ag'], session__scheduledsession__schedule=self).distinct().order_by('parent__acronym', 'acronym')
 
+# to be renamed ScheduleTimeslotSessionAssignments (stsa)
 class ScheduledSession(models.Model):
     """
     This model provides an N:M relationship between Session and TimeSlot.
@@ -608,27 +620,19 @@ class ScheduledSession(models.Model):
         else:
             return ""
 
-    @property
-    def empty_str(self):
-        # return JS happy value
-        if self.session:
-            return "False"
-        else:
-            return "True"
+    def json_url(self):
+        return "/meeting/%s/schedule/%s/session/%u.json" % (self.schedule.meeting.number,
+                                                            self.schedule.name, self.id)
 
-    def json_dict(self, selfurl):
+    def json_dict(self, host_scheme):
         ss = dict()
         ss['scheduledsession_id'] = self.id
-        #ss['href']          = self.url(host_scheme)
-        ss['empty'] =  self.empty_str
+        ss['href']          = urljoin(host_scheme, self.json_url())
         ss['timeslot_id'] = self.timeslot.id
+        if self.extendedfrom_id != 0 and self.extendedfrom is not None:
+            ss['extendedfrom_id']  = self.extendedfrom.id
         if self.session:
             ss['session_id']  = self.session.id
-        ss['room'] = slugify(self.timeslot.location)
-        ss['roomtype'] = self.timeslot.type.slug
-        ss["time"]     = date_format(self.timeslot.time, 'Hi')
-        ss["date"]     = time_format(self.timeslot.time, 'Y-m-d')
-        ss["domid"]    = self.timeslot.js_identifier
         ss["pinned"]   = self.pinned
         return ss
 

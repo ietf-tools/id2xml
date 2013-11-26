@@ -251,8 +251,9 @@ div.agenda_slot{
 
 
 #session-info{
-  min-height: 150px;
+  min-height: 160px;
   position: relative;
+  width:100%;
 }
 
 .ss_info {
@@ -1044,4 +1045,23 @@ div.line{
     padding-right: 2px;
     padding-top: 0px;
     padding-bottom: 0px;
+}
+
+
+.ui-resizable-s {
+height:6px;
+/* background-color:aqua; */
+/* background: #99beff; /\* Old browsers *\/ */
+/* background: -moz-linear-gradient(top, #99beff 0%, #1e5799 100%); /\* FF3.6+ *\/ */
+
+/* expect error on firefox */
+background: -webkit-gradient(linear, top, bottom, color-stop(0%,#99beff), color-stop(100%,#1e5799)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #99beff 0%,#1e5799 100%); /* Chrome10+,Safari5.1+ */
+/* background: -o-linear-gradient(left, #99beff 0%,#1e5799 100%); /\* Opera 11.10+ *\/ */
+/* background: -ms-linear-gradient(left, #99beff 0%,#1e5799 100%); /\* IE10+ *\/ */
+/* background: linear-gradient(to right, #99beff 0%,#1e5799 100%); /\* W3C *\/ */
+
+/* expect error on firefox */
+/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', endColorstr='#1e5799',GradientType=1 ); /\* IE6-9 *\/ */
+
 }

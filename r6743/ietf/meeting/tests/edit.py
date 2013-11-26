@@ -24,7 +24,7 @@ class EditTestCase(TestCase):
         # confirm that we can get edit data from the edit interface
         resp = self.client.get('/meeting/83/schedule/edit',{},
                                **auth_wlo)
-        m = re.search(".*session_obj.*", resp.content)
+        m = re.search(".*load_sessions.*", resp.content)
         # to capture new output (and check it for correctness)
         if capture_output:
             out = open("%s/meeting/tests/edit_out.html" % BASE_DIR, "w")

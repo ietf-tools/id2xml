@@ -1,4 +1,6 @@
 import traceback
+import sys
+import datetime
 
 from django.utils import simplejson as json
 from dajaxice.decorators import dajaxice_register
@@ -150,10 +152,10 @@ def update_timeslot_purpose(request,
     time_str = time
     if ts_id == 0:
         try:
-            time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M')
+            time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
         except:
             print '\n'.join(traceback.format_exception(*sys.exc_info()))
-            return json.dumps({'error':'invalid time' % (time_str)})
+            return json.dumps({'error':'invalid time: %s' % (time_str)})
 
         try:
             room = meeting.room_set.get(pk = int(room_id))

@@ -331,29 +331,14 @@ class CurrentScheduleState:
         self.temperature     = 10000000
         self.stepnum         = 1
         self.timeslots       = {}
+        self.slot1           = None
+        self.slot2           = None
 
         # setup up array of timeslots objects
         for timeslot in schedule.meeting.timeslot_set.all():
             if not timeslot.time in self.timeslots:
                 self.timeslots[timeslot.time] = ScheduleSlot(timeslot.time)
         self.timeslots[None] = self.unplaced_scheduledslots
-
-        useableslots_qs      = schedule.qs_scheduledsessions_without_assignments.filter(timeslot__type = "session")
-
-        count = useableslots_qs.count()
-        #print "useable qs: %u\n" % (count)
-
-        # turn into an array for use in algorithm.
-        for x in useableslots_qs.all():
-            #print "real slot: %s" % (x)
-            fs = FakeScheduledSession(self.schedule)
-            fs.fromScheduledSession(x)
-            fs.pinned = False             # can not true if it has no session assigned!
-            if fs.session is not None:
-                raise PlacementException("How can session without assignment have session")
-            self.add_to_available_slot(fs)
-
-        #print "Starting with %u" % (self.total_slots)
 
         from django.db.models import Q
 

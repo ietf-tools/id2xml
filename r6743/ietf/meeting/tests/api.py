@@ -745,11 +745,10 @@ class ApiTestCase(TestCase):
 
         roomPk = ts_one.location.pk
 
-        # check that wlo can update a timeslot purpose
+        # check that wlo can create a timeslot where none existed before.
         resp = self.client.post('/dajaxice/ietf.meeting.update_timeslot_purpose/', {
-                'argv': '{"meeting_num":"83", "timeslot_id": "0", "purpose":"plenary", "room_id":"%u", "time":"2012-03-25 09:00", "duration":"3600" }' % (roomPk)
+                'argv': '{"meeting_num":"83", "timeslot_id": "0", "purpose":"plenary", "room_id":"%u", "time":"2012-03-25 09:00:00", "duration":"3600" }' % (roomPk)
             }, **extra_headers)
-
         ts_one_json = json.loads(resp.content)
         self.assertEqual(ts_one_json['roomtype'], "plenary")
 

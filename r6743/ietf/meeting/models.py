@@ -530,12 +530,11 @@ class Schedule(models.Model):
             scheduled =+ 1
         return assignments,sessions,total,scheduled
 
-    cached_sessions_that_can_meet = None
     @property
     def sessions_that_can_meet(self):
-        if self.cached_sessions_that_can_meet is None:
-            self.cached_sessions_that_can_meet = self.meeting.sessions_that_can_meet.all()
-        return self.cached_sessions_that_can_meet
+        if not hasattr(self, "_cached_sessions_that_can_meet"):
+            self._cached_sessions_that_can_meet = self.meeting.sessions_that_can_meet.all()
+        return self._cached_sessions_that_can_meet
 
     def area_list(self):
         return ( self.assignments.filter(session__group__type__slug__in=['wg', 'rg', 'ag'],
@@ -546,6 +545,24 @@ class Schedule(models.Model):
 
     def groups(self):
         return Group.objects.filter(type__slug__in=['wg', 'rg', 'ag'], session__scheduledsession__schedule=self).distinct().order_by('parent__acronym', 'acronym')
+
+    @property
+    def qs_scheduledsessions_with_assignments(self):
+        return self.scheduledsession_set.filter(session__isnull=False)
+
+    # calculate badness of entire schedule
+    def calc_badness(self):
+        # now calculate badness
+        assignments = self.group_mapping
+        return self.calc_badness1(assignments)
+
+    # calculate badness of entire schedule
+    def calc_badness1(self, assignments):
+        badness = 0
+        for sess in self.sessions_that_can_meet:
+            badness += sess.badness(assignments)
+        self.badness = badness
+        return badness
 
 # to be renamed ScheduleTimeslotSessionAssignments (stsa)
 class ScheduledSession(models.Model):
@@ -683,7 +700,7 @@ class Constraint(models.Model):
 
     @property
     def constraint_cost(self):
-        return self.name.cost();
+        return self.name.penalty;
 
     def json_url(self):
         return "/meeting/%s/constraint/%s.json" % (self.meeting.number, self.id)
@@ -858,13 +875,55 @@ class Session(models.Model):
         sess1['special_request'] = str(self.special_request_token)
         return sess1
 
+    def agenda_text(self):
+        doc = self.agenda()
+        if doc:
+            path = os.path.join(settings.AGENDA_PATH, self.meeting.number, "agenda", doc.external_url)
+            if os.path.exists(path):
+                with open(path) as f:
+                    return f.read()
+            else:
+                "No agenda file found"
+        else:
+            return "The agenda has not been uploaded yet."
+
+    def type(self):
+        if self.group.type.slug in [ "wg" ]:
+            return "BOF" if self.group.state.slug in ["bof", "bof-conc"] else "WG"
+        else:
+            return ""
+
+    def ical_status(self):
+        if self.status.slug == 'canceled': # sic
+            return "CANCELLED"
+        elif (datetime.date.today() - self.meeting.date) > datetime.timedelta(days=5):
+            # this is a bit simpleminded, better would be to look at the
+            # time(s) of the timeslot(s) of the official meeting schedule.
+            return "CONFIRMED"
+        else:
+            return "TENTATIVE"
+
+    def agenda_file(self):
+        if not hasattr(self, '_agenda_file'):
+            self._agenda_file = ""
+
+            docs = self.materials.filter(type="agenda", states__type="agenda", states__slug="active")
+            if not docs:
+                return ""
+
+            # we use external_url at the moment, should probably regularize
+            # the filenames to match the document name instead
+            filename = docs[0].external_url
+            self._agenda_file = "%s/agenda/%s" % (self.meeting.number, filename)
+
+        return self._agenda_file
+
     def badness_test(self, num):
         from settings import BADNESS_CALC_LOG
         #sys.stdout.write("num: %u / BAD: %u\n" % (num, BADNESS_CALC_LOG))
         return BADNESS_CALC_LOG >= num
 
     def badness_log(self, num, msg):
-        import sys
         if self.badness_test(num):
             sys.stdout.write(msg)
 
@@ -1052,45 +1111,3 @@ class Session(models.Model):
             self.badness_log(1, "badgroup: %s badness = %u\n" % (self.group.acronym, badness))
         return badness
 
-    def agenda_text(self):
-        doc = self.agenda()
-        if doc:
-            path = os.path.join(settings.AGENDA_PATH, self.meeting.number, "agenda", doc.external_url)
-            if os.path.exists(path):
-                with open(path) as f:
-                    return f.read()
-            else:
-                "No agenda file found"
-        else:
-            return "The agenda has not been uploaded yet."
-
-    def type(self):
-        if self.group.type.slug in [ "wg" ]:
-            return "BOF" if self.group.state.slug in ["bof", "bof-conc"] else "WG"
-        else:
-            return ""
-
-    def ical_status(self):
-        if self.status.slug == 'canceled': # sic
-            return "CANCELLED"
-        elif (datetime.date.today() - self.meeting.date) > datetime.timedelta(days=5):
-            # this is a bit simpleminded, better would be to look at the
-            # time(s) of the timeslot(s) of the official meeting schedule.
-            return "CONFIRMED"
-        else:
-            return "TENTATIVE"
-
-    def agenda_file(self):
-        if not hasattr(self, '_agenda_file'):
-            self._agenda_file = ""
-
-            docs = self.materials.filter(type="agenda", states__type="agenda", states__slug="active")
-            if not docs:
-                return ""
-
-            # we use external_url at the moment, should probably regularize
-            # the filenames to match the document name instead
-            filename = docs[0].external_url
-            self._agenda_file = "%s/agenda/%s" % (self.meeting.number, filename)
-            
-        return self._agenda_file

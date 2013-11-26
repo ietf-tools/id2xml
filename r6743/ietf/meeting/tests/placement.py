@@ -36,17 +36,25 @@ class PlacementTestCase(TestCase):
         calculate the fitness for a session that has been placed.
         """
 
+        # 2012-03-26 13:00 location_id=212 (242AB)
+        ts1 = TimeSlot.objects.get(pk = 2373)
+
         # do some setup of these slots
         schedule = Schedule.objects.get(pk=103)
         mtg = schedule.meeting
         ipsecme = mtg.session_set.get(group__acronym = 'ipsecme')
         websec  = mtg.session_set.get(group__acronym = 'websec')
-        slot1   = schedule.scheduledsession_set.get(timeslot__id = 2373) # 2012-03-26 13:00 location_id=212 (242AB)
-        slot2   = schedule.scheduledsession_set.get(timeslot__id = 2376) # 2012-03-26 13:00 location_id=213 (Maillot)
-        slot1.session = ipsecme
-        slot1.save()
-        slot2.session = websec
-        slot2.save()
+        ss1 = ScheduledSession(timeslot = ts1,
+                               schedule = schedule,
+                               session  = ipsecme)
+        ss1.save()
+
+        # 2012-03-26 13:00 location_id=213 (Maillot)
+        ts2 = TimeSlot.objects.get(pk = 2376)
+        ss2 = ScheduledSession(timeslot = ts1,
+                               schedule = schedule,
+                               session  = websec)
+        ss2.save()
 
         # now calculate badness
         assignments = schedule.group_mapping

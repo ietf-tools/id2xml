@@ -84,20 +84,20 @@ class ViewTestCase(TestCase):
     def test_agenda_edit_public_farrel(self):
         # farrel is an AD
         url = reverse(edit_agenda,
-                      args=['83', 'mtg:83'])
+                      args=['83', 'mtg_83'])
         resp = self.client.get(url, **auth_ferrel)
         self.assertEqual(resp.status_code, 200) # a public agenda can be seen by any logged in AD/Secretariat
 
     def test_agenda_edit_public_joeblow(self):
         url = reverse(edit_agenda,
-                      args=['83', 'mtg:83'])
+                      args=['83', 'mtg_83'])
         resp = self.client.get(url, **auth_joeblow)
         self.assertEqual(resp.status_code, 200) # a public agenda can be seen by unlogged in people (read-only) XXX
         #self.assertEqual(resp.status_code, 403) # a public agenda can not be seen by unlogged in people
 
     def test_agenda_edit_public_authwlo(self):
         url = reverse(edit_agenda,
-                      args=['83', 'mtg:83'])
+                      args=['83', 'mtg_83'])
         resp = self.client.get(url, **auth_wlo)
         self.assertEqual(resp.status_code, 200) # a public agenda can be seen by the secretariat
 

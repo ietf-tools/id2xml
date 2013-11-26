@@ -114,9 +114,11 @@ class UnplacedScheduleSlot(ScheduleSlot):
 
     def add_scheduledsession(self,fs):
         super(UnplacedScheduleSlot, self).add_scheduledsession(fs)
+        #print "unplaced add: %s" % (fs.available_slot)
         self.unplaced_slot_numbers.append(fs.available_slot)
 
     def get_unplaced_slot_number(self):
+        #print "unplaced slots: %s" % (self.unplaced_slot_numbers)
         return self.unplaced_slot_numbers[0]
 
     def delete_first(self):
@@ -282,16 +284,18 @@ class CurrentScheduleState:
         if fs.session is not None:
             fs.session.setup_conflicts()
 
+        time_column = None
         needs_to_be_added = True
         #print "adding fs for slot: %s" % (fs.timeslot)
         if fs.timeslot is not None:
             if fs.timeslot in self.fs_by_timeslot:
-                #print "  duplicate timeslot, updating old one: %s" % (fs.timeslot)
                 ofs = self.fs_by_timeslot[fs.timeslot]
+                #print "  duplicate timeslot[%s], updating old one: %s" % (ofs.available_slot, fs.timeslot)
                 if ofs.session is None:
                     # keep the one with the assignment.
                     self.fs_by_timeslot[fs.timeslot] = fs
                     # get rid of old item
+                    fs.available_slot = ofs.available_slot
                     self.available_slots[ofs.available_slot] = fs
                 needs_to_be_added = False
             else:
@@ -305,18 +309,21 @@ class CurrentScheduleState:
             #print "  inserting fs %s / %s to slot: %s" % (fs.timeslot.location.name,
             #                                            group_name,
             #                                            time_column.daytime)
-            time_column.add_scheduledsession(fs)
             fs.scheduleslot = time_column
             if fs.session is None:
                 self.placed_scheduleslots.append(fs)
         else:
-            self.unplaced_scheduledslots.add_scheduledsession(fs)
+            time_column = self.unplaced_scheduledslots
             fs.scheduleslot = self.unplaced_scheduledslots
 
         if needs_to_be_added:
             self.total_slots  = size
             self.available_slots.append(fs)
             fs.available_slot = size
+
+        if time_column is not None:
+            # needs available_slot to be filled in
+            time_column.add_scheduledsession(fs)
         #print "adding item: %u to unplaced slots (pinned: %s)" % (fs.available_slot, fs.pinned)
 
     def __init__(self, schedule, seed=None):
@@ -627,7 +634,7 @@ class CurrentScheduleState:
         self.available_slots[number] = None
 
     def do_steps(self, limit=None, monitorSchedule=None):
-        import sys
+        print "do_steps(%s,%s)" % (limit, monitorSchedule)
         if self.badness is None or self.badness == 0:
             self.badness = self.schedule.calc_badness1(self)
         self.oldbadness = self.badness
@@ -695,13 +702,17 @@ class CurrentScheduleState:
             if fs is None:
                 continue
             ss = ScheduledSession(timeslot = fs.timeslot,
-                                  schedule = fs.schedule,
+                                  schedule = targetSchedule,
                                   session = fs.session)
             ss.save()
 
     def do_placement(self, limit=None, targetSchedule=None):
         self.badness  = self.schedule.calc_badness1(self)
-        print "Initial stage starting with: %u items to place" % (self.unplaced_scheduledslots.count)
+        if limit is None:
+            limitstr = "unlimited "
+        else:
+            limitstr = "%u" % (limit)
+        print "Initial stage (limit=%s) starting with: %u items to place" % (limitstr, self.unplaced_scheduledslots.count)
 
         # permute the unplaced sessions
         self.unplaced_scheduledslots.shuffle(self.random_generator)

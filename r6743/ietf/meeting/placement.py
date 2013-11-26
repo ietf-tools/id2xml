@@ -683,19 +683,20 @@ class CurrentScheduleState:
         print "%u: saved to schedule: %s %s elapsed=%s rate=%.2f" % (self.stepnum, targetSchedule.name, when, since, rate)
         self.lastSaveTime = datetime.now()
         self.lastSaveStep = self.stepnum
+
         # first, remove all assignments in the schedule.
         for ss in targetSchedule.scheduledsession_set.all():
             if ss.pinned:
                 continue
-            ss.session = None
-            ss.save()
+            ss.delete()
+
+        # then, add new items for new placements.
         for fs in self.available_slots:
             if fs is None:
                 continue
-            if fs.origss is None:
-                continue
-            ss = fs.origss
-            ss.session = fs.session
+            ss = ScheduledSession(timeslot = fs.timeslot,
+                                  schedule = fs.schedule,
+                                  session = fs.session)
             ss.save()
 
     def do_placement(self, limit=None, targetSchedule=None):

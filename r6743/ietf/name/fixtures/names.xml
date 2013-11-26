@@ -680,7 +680,7 @@
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
-    </object>    
+    </object>
     <object pk="ietf" model="name.meetingtypename">
         <field type="CharField" name="name">IETF</field>
         <field type="TextField" name="desc"></field>
@@ -923,6 +923,12 @@
     </object>
     <object pk="plenary" model="name.timeslottypename">
         <field type="CharField" name="name">Plenary</field>
+        <field type="TextField" name="desc"></field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
+    <object pk="reserved" model="name.timeslottypename">
+        <field type="CharField" name="name">Reserved</field>
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>

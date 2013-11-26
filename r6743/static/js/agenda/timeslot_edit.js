@@ -18,12 +18,7 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
-var meeting_objs = {};    // contains a list of session objects
-var group_objs = {};      // list of working groups
-var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
-var slot_objs   = {};     // scheduledsession indexed by id.
-var timeslot_bydomid = {};
-var timeslot_byid    = {};
+var agenda_globals = AgendaGlobals();
 
 var days = [];
 var legend_status = {};   // agenda area colors.

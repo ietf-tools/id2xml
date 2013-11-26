@@ -19,7 +19,7 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
-// these need to be defined in landscape_edit
+// these need to be setup in landscape_edit's setup_slots() inline function:
 //var meeting_number = 0;   // is the meeting name.
 //var schedule_id    = 0;   // what is the schedule we are editing.
 //var schedule_name;        // what is the schedule we are editing.
@@ -31,14 +31,10 @@
 //var total_days = 0; // the number of days
 
 var is_secretariat = false;
-var meeting_objs = {};    // contains a list of session objects -- by session_id
-var session_objs = {};    // contains a list of session objects -- by session_name
-var slot_status = {};     // indexed by domid, contains an array of ScheduledSessions objects
-var slot_objs   = {};     // scheduledsession indexed by id.
-var timeslot_bydomid = {};
-var timeslot_byid    = {};
 
-var group_objs = {};      // list of working groups
+var agenda_globals = new AgendaGlobals();
+
+
 var area_directors = {};  // list of promises of area directors, index by href.
 
 var read_only = true;     // it is true until we learn otherwise.
@@ -114,7 +110,7 @@ function initStuff(){
     read_only_check();
     stop_spin();
 
-    meeting_objs_length = Object.keys(meeting_objs).length;
+    meeting_objs_length = Object.keys(agenda_globals.meeting_objs).length;
 
     /* Comment this out for fast loading */
     //load_conflicts = false;

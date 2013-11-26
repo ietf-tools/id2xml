@@ -41,23 +41,23 @@ function log(text){
 
 function print_all(){
     console.log("all");
-    console.log(meeting_objs.length);
-    for(var i=0; i<meeting_objs.length; i++){
-		meeting_objs[i].print_out();
+    console.log(agenda_globals.meeting_objs.length);
+    for(var i=0; i<agenda_globals.meeting_objs.length; i++){
+		agenda_globals.meeting_objs[i].print_out();
     }
 }
 
 function find_title(title){
-    $.each(meeting_objs, function(key){
-	if (meeting_objs[key].title == title) {
-	    console.log(meeting_objs[key]);
+    $.each(agenda_globals.meeting_objs, function(key){
+	if (agenda_globals.meeting_objs[key].title == title) {
+	    console.log(agenda_globals.meeting_objs[key]);
 	}
     });
 }
 function find_session_id(session_id){
-    $.each(meeting_objs, function(key){
-	if (meeting_objs[key].session_id == session_id) {
-	    console.log(meeting_objs[key]);
+    $.each(agenda_globals.meeting_objs, function(key){
+	if (agenda_globals.meeting_objs[key].session_id == session_id) {
+	    console.log(agenda_globals.meeting_objs[key]);
 	}
     });
 }
@@ -65,7 +65,7 @@ function find_session_id(session_id){
 function find_same_area(area){
     var areas = []
     area = area.toUpperCase();
-    $.each(meeting_objs, function(index,obj){
+    $.each(agenda_globals.meeting_objs, function(index,obj){
 	if(obj.area == area){
 	    areas.push({id:index,slot_status_key:obj.slot_status_key})
 	    }
@@ -92,10 +92,10 @@ function load_events(){
     }
 
     /* clear out all the timeslots */
-    $.each(timeslot_bydomid, function(key) {
+    $.each(agenda_globals.timeslot_bydomid, function(key) {
         insert_cell(key, "", true);
 
-        var timeslot = timeslot_bydomid[key];
+        var timeslot = agenda_globals.timeslot_bydomid[key];
         slot_id = ("#"+key);
 
 	$(slot_id).addClass("agenda_slot_" + timeslot.roomtype);
@@ -110,8 +110,8 @@ function load_events(){
         }
     });
 
-    $.each(slot_status, function(key) {
-        ssid_arr = slot_status[key];
+    $.each(agenda_globals.slot_status, function(key) {
+        ssid_arr = agenda_globals.slot_status[key];
 
 	for(var q = 0; q<ssid_arr.length; q++){
 	    ssid = ssid_arr[q];
@@ -121,7 +121,7 @@ function load_events(){
             // also see if the slots have any declared relationship, and take it forward as
             // well as backwards.
             if(ssid.extendedfrom_id != false) {
-                other = slot_objs[ssid.extendedfrom_id];
+                other = agenda_globals.slot_objs[ssid.extendedfrom_id];
                 if(__debug_load_events) {
                     console.log("slot:",ssid.scheduledsession_id, "extended from: ",key,ssid.extendedfrom_id); // ," is: ", other);
                 }
@@ -142,8 +142,8 @@ function load_events(){
     if(__debug_load_events) {
         console.log("marking extended slots for slots with multiple sessions");
     }
-    $.each(slot_status, function(key) {
-        ssid_arr = slot_status[key];
+    $.each(agenda_globals.slot_status, function(key) {
+        ssid_arr = agenda_globals.slot_status[key];
 
         var extendedto = undefined;
 	for(var q = 0; q<ssid_arr.length; q++){
@@ -168,13 +168,13 @@ function load_events(){
     if(__debug_load_events) {
         console.log("finding responsible ad");
     }
-    $.each(meeting_objs, function(key) {
-        session = meeting_objs[key];
+    $.each(agenda_globals.meeting_objs, function(key) {
+        session = agenda_globals.meeting_objs[key];
         session.find_responsible_ad();
     });
 
-    $.each(slot_status, function(key) {
-        ssid_arr = slot_status[key]
+    $.each(agenda_globals.slot_status, function(key) {
+        ssid_arr = agenda_globals.slot_status[key]
 	if(key == "sortable-list"){
 	    console.log("sortable list");
 	}else {
@@ -187,7 +187,7 @@ function load_events(){
                 }
 
                 if(ssid.timeslot.roomtype != "unavail") {
-                    session = meeting_objs[ssid.session_id];
+                    session = agenda_globals.meeting_objs[ssid.session_id];
                     if (session != null) {
                         if(ssid.extendedto != undefined) {
                             session.double_wide = true;
@@ -215,8 +215,8 @@ function load_events(){
 	}
     });
 
-    $.each(meeting_objs, function(key) {
-        session = meeting_objs[key];
+    $.each(agenda_globals.meeting_objs, function(key) {
+        session = agenda_globals.meeting_objs[key];
 
 	// note in the group, what the set of column classes is.
 	// this is an array, as the group might have multiple
@@ -234,9 +234,9 @@ function load_events(){
 
 function check_free(inp){
     var empty = false;
-    slot = timeslot_bydomid[inp.id];
+    slot = agenda_globals.timeslot_bydomid[inp.id];
     if(slot == null){
-        //console.log("\t from check_free, slot is null?", inp,inp.id, slot_status[inp.id]);
+        //console.log("\t from check_free, slot is null?", inp,inp.id, agenda_globals.slot_status[inp.id]);
 	return false;
     }
     if (slot.empty == false) {
@@ -261,7 +261,7 @@ function clear_highlight(inp_arr){ // @args: array from slot_status{}
 /* based on any meeting object, it finds any other objects inside the same timeslot. */
 function find_friends(inp){
     var ts = $(inp).parent().attr('id');
-    var ss_arr = slot_status[ts];
+    var ss_arr = agenda_globals.slot_status[ts];
     if (ss_arr != null){
 	return ss_arr;
     }
@@ -324,10 +324,10 @@ var room_select_html = "";
 function calculate_room_select_box() {
     var html = "<select id='info_location_select'>";
 
-    var keys = Object.keys(slot_status)
+    var keys = Object.keys(agenda_globals.slot_status)
     var sorted = keys.sort(function(a,b) {
-			     a1=slot_status[a];
-			     b1=slot_status[b];
+			     a1=agenda_globals.slot_status[a];
+			     b1=agenda_globals.slot_status[b];
 			     if (a1.date != b1.date) {
 			       return a1.date-b1.date;
 			     }
@@ -336,9 +336,9 @@ function calculate_room_select_box() {
 
     for (n in sorted) {
         var k1 = sorted[n];
-        var val_arr = slot_status[k1];
+        var val_arr = agenda_globals.slot_status[k1];
 
-        /* k1 is the slot_status key */
+        /* k1 is the agenda_globals.slot_status key */
         /* v1 is the slot_obj */
 	for(var i = 0; i<val_arr.length; i++){
 	    var v1 = val_arr[i];
@@ -360,7 +360,7 @@ function calculate_name_select_box(){
     var html = "<select id='info_name_select'>";
     var mobj_array = [];
     var mobj_array2;
-    $.each(meeting_objs, function(key, value){ mobj_array.push(value) });
+    $.each(agenda_globals.meeting_objs, function(key, value){ mobj_array.push(value) });
     mobj_array2 = mobj_array.sort(function(a,b) { return a.title.localeCompare(b.title); });
     var mlen = mobj_array.length;
     console.log("calculate name_select box with",mlen,"objects");
@@ -429,8 +429,8 @@ function insert_cell(js_room_id, text, replace){
 
 
 function find_empty_test(){
-    $.each(slot_status, function(key){
-	ss_arr = slot_status[key];
+    $.each(agenda_globals.slot_status, function(key){
+	ss_arr = agenda_globals.slot_status[key];
 	for(var i = 0; i < ss_arr.length; i++){
 	    if(ss_arr[i].scheduledsession_id == null || ss_arr[i].session_id == null){
 		console.log(ss_arr[i]);
@@ -442,83 +442,14 @@ function find_empty_test(){
 
 
 function find_meeting_no_room(){
-    $.each(meeting_objs, function(key){
-	if(meeting_objs[key].slot_status_key == null) {
-	    session = meeting_objs[key]
+    $.each(agenda_globals.meeting_objs, function(key){
+	if(agenda_globals.meeting_objs[key].slot_status_key == null) {
+	    session = agenda_globals.meeting_objs[key]
 	    session.slot_status_key = null;
 	    session.populate_event(bucketlist_id);
 	}
     })
 }
-
-
-/* in some cases we have sessions that span over two timeslots.
-   so we end up with two slot_status pointing to the same meeting_obj.
-   this this occures when someone requests a session that is extra long
-   which will then fill up the next timeslot.
-
-   this functions finds those cases.
-
-   returns a json{ 'ts': arr[time_slot_ids] }
-
-*/
-function find_double_timeslots(){
-    var duplicate = {};
-
-    $.each(slot_status, function(key){
-	for(var i =0; i<slot_status[key].length; i++){
-	    // goes threw all the slots
-	    var ss_id = slot_status[key][i].session_id;
-	    if(duplicate[ss_id]){
-		duplicate[ss_id]['count']++;
-		duplicate[ss_id]['ts'].push(key);
-	    }
-	    else{
-		duplicate[ss_id] = {'count': 1, 'ts':[key]};
-
-	    }
-	}
-    });
-
-    var dup = {};
-    // console.log(duplicate);
-    $.each(duplicate, function(key){
-	if(duplicate[key]['count'] > 1){
-	    dup[key] = duplicate[key]['ts'];
-
-	}
-    });
-    return dup;
-
-}
-
-
-var child = null;
-/* removes a duplicate timeslot. completely. it's gone. */
-function remove_duplicate(timeslot_id, ss_id){
-    children = $("#"+timeslot_id).children();
-    child = children;
-    for(var i = 0; i< children.length; i++){ // loop to
-	if($(children[i]).attr('session_id') == ss_id) { // make sure we only remove duplicate.
-	    try{
-		$(children[i]).remove();
-	    }catch(exception){
-		console.log("exception from remove_duplicate",exception);
-	    }
-	}
-    }
-
-}
-
-
-
-function auto_remove(){
-    dup = find_double_timeslots();
-    $.each(dup, function(key){
-	remove_duplicate(dup[key][1], key);
-    })
-}
-
 
 /* for the spinnner */
 

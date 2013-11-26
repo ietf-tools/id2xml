@@ -20,6 +20,18 @@
 *
 */
 
+function AgendaGlobals() {
+    this.group_objs = {};
+    this.slot_status = {};
+    this.slot_objs   = {};
+    this.meeting_objs = {};
+    this.sessions_objs = {};
+    this.timeslot_bydomid = {};
+    this.timeslot_byid    = {};
+    this.scheduledsession_promise = undefined;
+    this.timeslot_promise = undefined;
+    this.__debug_session_move = false;
+}
 
 function createLine(x1,y1, x2,y2){
     var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
@@ -45,7 +57,7 @@ function empty_callback(inp){
 }
 
 function get_all_constraints(){
-    for(s in meeting_objs){
+    for(s in agenda_globals.meeting_objs){
        show_non_conflicting_spots(s)
     }
 
@@ -53,8 +65,8 @@ function get_all_constraints(){
 
 function show_all_conflicts(){
     console.log("showing all conflicts");
-    for(sk in meeting_objs) {
-        var s = meeting_objs[sk];
+    for(sk in agenda_globals.meeting_objs) {
+        var s = agenda_globals.meeting_objs[sk];
         s.display_conflict();
         s.display_personconflict();
     }
@@ -62,8 +74,8 @@ function show_all_conflicts(){
 
 // not really used anymore -- just for debugging
 function hide_all_conflicts(){
-    for(sk in meeting_objs) {
-        var s = meeting_objs[sk];
+    for(sk in agenda_globals.meeting_objs) {
+        var s = agenda_globals.meeting_objs[sk];
         s.hide_conflict();
     }
 }
@@ -73,8 +85,8 @@ function get_all_conflicts(){
     var one_constraint;
     var sess1;
     //console.log("get_all_conflicts()");
-    for(var s in meeting_objs){
-        sess1 = meeting_objs[s];
+    for(var s in agenda_globals.meeting_objs){
+        sess1 = agenda_globals.meeting_objs[s];
         sess1.clear_conflict();
         sess1.display_conflict();
 
@@ -86,8 +98,8 @@ function get_all_conflicts(){
     var all_constraints = $.when.apply($,all_constraint_promises);
 
     all_constraints.done(function() {
-        for(var s in meeting_objs) {
-            var sess2 = meeting_objs[s];
+        for(var s in agenda_globals.meeting_objs) {
+            var sess2 = agenda_globals.meeting_objs[s];
             sess2.examine_people_conflicts();
         }
     });
@@ -308,22 +320,22 @@ TimeSlot.prototype.initialize = function(json) {
        this.short_string = daysofweek[t] + ", "+ this.time + ", " + this.room;
     }
 
-    timeslot_bydomid[this.domid] = this;
-    timeslot_byid[this.timeslot_id] = this;
+    agenda_globals.timeslot_bydomid[this.domid] = this;
+    agenda_globals.timeslot_byid[this.timeslot_id] = this;
 };
 
 TimeSlot.prototype.slot_title = function() {
     return "id#"+this.timeslot_id+" dom:"+this.domid;
 };
 TimeSlot.prototype.mark_empty = function() {
-    if(__debug_session_move) {
+    if(agenda_globals.__debug_session_move) {
         console.log("marking slot empty", this.domid);
         $("#"+this.domid).html("empty");
     }
     this.empty = true;
 };
 TimeSlot.prototype.mark_occupied = function() {
-    if(__debug_session_move) {
+    if(agenda_globals.__debug_session_move) {
         console.log("marking slot occupied", this.domid);
     }
     this.empty = false;
@@ -331,7 +343,7 @@ TimeSlot.prototype.mark_occupied = function() {
 TimeSlot.prototype.can_extend_right = function() {
     if(this.following_timeslot == undefined) {
         if(this.following_timeslot_id != undefined) {
-            this.following_timeslot = timeslot_byid[this.following_timeslot_id];
+            this.following_timeslot = agenda_globals.timeslot_byid[this.following_timeslot_id];
         }
     }
     if(this.following_timeslot == undefined) {
@@ -360,19 +372,18 @@ function make_timeslots(json, status, jqXHR) {
     });
 }
 
-var timeslot_promise;
 function load_timeslots(href) {
-    if(timeslot_promise == undefined) {
-        timeslot_promise = $.Deferred();
+    if(agenda_globals.timeslot_promise == undefined) {
+        agenda_globals.timeslot_promise = $.Deferred();
 
         var ts = $.ajax(href);
         ts.success(function(newobj, status, jqXHR) {
-            console.log("finished timeslot promise");
             make_timeslots(newobj);
-            timeslot_promise.resolve(newobj);
+            agenda_globals.timeslot_promise.resolve(newobj);
+            console.log("finished timeslot promise");
         });
     }
-    return timeslot_promise;
+    return agenda_globals.timeslot_promise;
 }
 
 
@@ -466,7 +477,8 @@ ScheduledSlot.prototype.initialize = function(json) {
         this.timeslot = new TimeSlot();
         this.timeslot.domid = "sortable-list";
     } else {
-        this.timeslot            = timeslot_byid[this.timeslot_id];
+        //console.log("timeslot_id", this.timeslot_id);
+        this.timeslot            = agenda_globals.timeslot_byid[this.timeslot_id];
         if(this.session_id != undefined) {
             this.timeslot.mark_occupied();
         }
@@ -481,21 +493,20 @@ ScheduledSlot.prototype.initialize = function(json) {
 
     // do not include in data structures if session_id is nil
     // the key so two sessions in the same timeslot
-    if(slot_status[this.domid()] == null) {
-        slot_status[this.domid()]=[];
+    if(agenda_globals.slot_status[this.domid()] == null) {
+        agenda_globals.slot_status[this.domid()]=[];
     }
     if(this.session_id != undefined) {
-        slot_status[this.domid()].push(this);
+        agenda_globals.slot_status[this.domid()].push(this);
         //console.log("filling slot_objs", this.scheduledsession_id);
     }
 
-    slot_objs[this.scheduledsession_id] = this;
+    agenda_globals.slot_objs[this.scheduledsession_id] = this;
 };
 
-var scheduledsession_promise;
 function load_scheduledsessions(ts_promise, session_promise, href) {
-    if(scheduledsession_promise == undefined) {
-        scheduledsession_promise = $.Deferred();
+    if(agenda_globals.scheduledsession_promise == undefined) {
+        agenda_globals.scheduledsession_promise = $.Deferred();
 
         var ss = $.ajax(href);
         var ss_loaded = $.when(ss,ts_promise,session_promise);
@@ -508,16 +519,16 @@ function load_scheduledsessions(ts_promise, session_promise, href) {
                 //console.log("ss has:", one);
                 make_ss(one);
             });
-            scheduledsession_promise.resolve(newobj);
+            agenda_globals.scheduledsession_promise.resolve(newobj);
         });
     }
-    return scheduledsession_promise;
+    return agenda_globals.scheduledsession_promise;
 }
 
 ScheduledSlot.prototype.connect_to_timeslot_session = function() {
     if(this.timeslot == undefined) {
         if(this.timeslot_id != undefined) {
-            this.timeslot = timeslot_byid[this.timeslot_id];
+            this.timeslot = agenda_globals.timeslot_byid[this.timeslot_id];
         } else {
             /* must be the unassigned one?! */
             this.timeslot = new TimeSlot();
@@ -529,7 +540,7 @@ ScheduledSlot.prototype.connect_to_timeslot_session = function() {
 
 ScheduledSlot.prototype.session = function() {
     if(this.session_id != undefined) {
-       return meeting_objs[this.session_id];
+       return agenda_globals.meeting_objs[this.session_id];
     } else {
        return undefined;
     }
@@ -604,12 +615,12 @@ function session_obj(json) {
 
     // keep a list of sessions by name
     // this is mostly used for debug purposes only.
-    if(session_objs[session.title] == undefined) {
-        session_objs[session.title] = [];
+    if(agenda_globals.sessions_objs[session.title] == undefined) {
+        agenda_globals.sessions_objs[session.title] = [];
     }
-    session_objs[session.title].push(session);   // an array since there can be more than one session/wg
+    agenda_globals.sessions_objs[session.title].push(session);   // an array since there can be more than one session/wg
 
-    meeting_objs[session.session_id] = session;
+    agenda_globals.meeting_objs[session.session_id] = session;
 
     return session;
 }
@@ -622,19 +633,18 @@ function make_sessions(json, status, jqXHR) {
     });
 }
 
-var session_promise;
 function load_sessions(href) {
-    if(session_promise == undefined) {
-        session_promise = $.Deferred();
+    if(agenda_globals.session_promise == undefined) {
+        agenda_globals.session_promise = $.Deferred();
 
         var ss = $.ajax(href);
         ss.success(function(newobj, status, jqXHR) {
             console.log("finished session promise");
             make_sessions(newobj);
-            session_promise.resolve(newobj);
+            agenda_globals.session_promise.resolve(newobj);
         });
     }
-    return session_promise;
+    return agenda_globals.session_promise;
 }
 
 
@@ -923,8 +933,8 @@ Session.prototype.update_column_classes = function(scheduledsession_list, bucket
 
 // utility/debug function, draws all events.
 function update_all_templates() {
-    for(key in meeting_objs) {
-        session = meeting_objs[key];
+    for(key in agenda_globals.meeting_objs) {
+        session = agenda_globals.meeting_objs[key];
         var slot = session.slot_status_key;
 	if(slot != null) {
             session.repopulate_event(slot);
@@ -1013,7 +1023,7 @@ Session.prototype.generate_info_table = function() {
     if(this.slot != undefined) {
         ss = this.slot;
         if(ss.timeslot_id == null){
-            $("#info_location_select").val(meeting_objs[ss.scheduledsession_id]);
+            $("#info_location_select").val(agenda_globals.meeting_objs[ss.scheduledsession_id]);
         }else{
             $("#info_location_select").val(ss.timeslot_id); // ***
         }
@@ -1030,8 +1040,8 @@ Session.prototype.generate_info_table = function() {
 };
 
 function load_all_groups() {
-    for(key in meeting_objs) {
-        session = meeting_objs[key];
+    for(key in agenda_globals.meeting_objs) {
+        session = agenda_globals.meeting_objs[key];
         session.group = find_group_by_href(session.group_href, "load all");
     }
 }
@@ -1199,9 +1209,9 @@ Group.prototype.del_column_classes = function(column_class_list) {
 
 var __debug_group_load = false;
 function create_group_by_href(href) {
-    if(group_objs[href] == undefined) {
-       group_objs[href]=new Group();
-        g = group_objs[href];
+    if(agenda_globals.group_objs[href] == undefined) {
+       agenda_globals.group_objs[href]=new Group();
+        g = agenda_globals.group_objs[href];
         g.loaded = false;
         g.loading= false;
     }
@@ -1209,7 +1219,7 @@ function create_group_by_href(href) {
 }
 
 function load_group_by_href(href) {
-    var g = group_objs[href];
+    var g = agenda_globals.group_objs[href];
     if(!g.loaded) {
         g.href = href;
         if(__debug_group_load) {
@@ -1240,7 +1250,7 @@ var group_references   = 0;
 var group_demand_loads = 0;
 function find_group_by_href(href, msg) {
     group_references++;
-    g=group_objs[href];
+    g=agenda_globals.group_objs[href];
     if(g == undefined) {
         group_demand_loads++;
         if(__debug_group_load) {

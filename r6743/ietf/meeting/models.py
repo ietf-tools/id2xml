@@ -115,6 +115,16 @@ class Meeting(models.Model):
     def sessions_that_can_meet(self):
         return self.session_set.exclude(status__slug='notmeet').exclude(status__slug='disappr').exclude(status__slug='deleted').exclude(status__slug='apprw')
 
+    def sessions_that_can_be_placed(self):
+        from django.db.models import Q
+        donotplace_groups = Q(group__acronym="edu")
+        donotplace_groups |= Q(group__acronym="tools")
+        donotplace_groups |= Q(group__acronym="iesg")
+        donotplace_groups |= Q(group__acronym="ietf")
+        donotplace_groups |= Q(group__acronym="iepg")
+        donotplace_groups |= Q(group__acronym="ietf")
+        donotplace_groups |= Q(group__acronym="iab")
+        return self.sessions_that_can_meet.exclude(donotplace_groups)
 
     def json_url(self):
         return "/meeting/%s.json" % (self.number, )

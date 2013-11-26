@@ -54,24 +54,28 @@
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
+        <field type="IntegerField" name="penalty">100000</field>
     </object>
     <object pk="conflic2" model="name.constraintname">
         <field type="CharField" name="name">Conflicts with (secondary)</field>
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
+        <field type="IntegerField" name="penalty">10000</field>
     </object>
     <object pk="conflic3" model="name.constraintname">
         <field type="CharField" name="name">Conflicts with (tertiary)</field>
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
+        <field type="IntegerField" name="penalty">1000</field>
     </object>
     <object pk="bethere" model="name.constraintname">
         <field type="CharField" name="name">Person must be present</field>
         <field type="TextField" name="desc"></field>
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
+        <field type="IntegerField" name="penalty">200000</field>
     </object>
     <object pk="obs" model="name.docrelationshipname">
         <field type="CharField" name="name">Obsoletes</field>

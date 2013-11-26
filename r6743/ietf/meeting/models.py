@@ -4,6 +4,7 @@ import pytz, datetime
 from urlparse import urljoin
 import copy
 import os
+import sys
 import re
 
 import debug
@@ -698,7 +699,6 @@ class Constraint(models.Model):
             return True
         return False
 
-    @property
     def constraint_cost(self):
         return self.name.penalty;
 
@@ -948,7 +948,7 @@ class Session(models.Model):
         conflicts = self.unique_constraints()
 
         if self.badness_test(2):
-            self.badness_log(2, "badgroup: %s badness calculation has %u constraints\n" % (self.group.acronym, len(conflicts)))
+            self.badness_log(2, "badness for group: %s has %u constraints\n" % (self.group.acronym, len(conflicts)))
         from settings import BADNESS_UNPLACED, BADNESS_TOOSMALL_50, BADNESS_TOOSMALL_100, BADNESS_TOOBIG, BADNESS_MUCHTOOBIG
         count = 0
         myss_list = assignments[self.group]
@@ -1016,9 +1016,9 @@ class Session(models.Model):
                         if self.badness_test(3):
                             self.badness_log(3, "      [%u] 4group: %s my_sessions: %s vs %s\n" % (count, group.acronym, myss.timeslot.time, ss.timeslot.time))
                         if ss.timeslot.time == myss.timeslot.time:
-                            newcost = constraint.constraint_cost
+                            newcost = constraint.constraint_cost()
                             if self.badness_test(2):
-                                self.badness_log(2, "        [%u] 5group: %s conflicts: %s on %s cost %u\n" % (count, self.group.acronym, ss.session.group.acronym, ss.timeslot.time, newcost))
+                                self.badness_log(2, "        [%u] 5group: %s conflict(%s): %s on %s cost %u\n" % (count, self.group.acronym, constraint.name_id, ss.session.group.acronym, ss.timeslot.time, newcost))
                             # yes accumulate badness.
                             conflictbadness += newcost
                     ss.badness = conflictbadness
@@ -1105,7 +1105,7 @@ class Session(models.Model):
                     if ss.timeslot is not None and ss.timeslot.location == timeslot.location:
                         continue          # ignore conflicts when two sessions in the same room
                     constraint = conflict[1]
-                    badness += constraint.constraint_cost
+                    badness += constraint.constraint_cost()
 
         if self.badness_test(1):
             self.badness_log(1, "badgroup: %s badness = %u\n" % (self.group.acronym, badness))

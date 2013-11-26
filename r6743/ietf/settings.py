@@ -405,7 +405,7 @@ BADNESS_UNPLACED   = 1000000
 
 # following four are used only during migrations to setup up ConstraintName
 # and penalties are taken from the database afterwards.
-BADNESS_BETHERE    = 100000
+BADNESS_BETHERE    = 200000
 BADNESS_CONFLICT_1 = 100000
 BADNESS_CONFLICT_2 = 10000
 BADNESS_CONFLICT_3 = 1000

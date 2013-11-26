@@ -16,7 +16,7 @@ import gzip
 import time
 import csv
 import codecs
-from ietf.meeting.models import Schedule
+from ietf.meeting.models import Schedule, Meeting
 
 class Command(BaseCommand):
     args = '<meeting> <schedulename>'
@@ -64,6 +64,9 @@ class Command(BaseCommand):
 
         meetingname = labels[0]
         schedname   = labels[1]
+        targetname  = None
+        if labels[2] is not None:
+            targetname = labels[2]
 
         seed    = options.get('seed', None)
         maxstep = options.get('maxstep', 20000)
@@ -72,8 +75,31 @@ class Command(BaseCommand):
         recordsteps = options.get('recordsteps', False)
 
         from ietf.meeting.helpers import get_meeting,get_schedule
-        meeting = get_meeting(meetingname)
-        schedule = get_schedule(meeting, schedname)
+        try:
+            meeting = get_meeting(meetingname)
+        except Meeting.DoesNotExist:
+            print "No such meeting: %s" % (meetingname)
+            return
+
+        try:
+            schedule = meeting.schedule_set.get(name = schedname)
+        except Schedule.DoesNotExist:
+            print "No such schedule: %s in meeting: %s" % (schedname, meeting)
+            return
+
+        if targetname is not None:
+            try:
+                targetsched = meeting.schedule_set.get(name=targetname)
+            except Schedule.DoesNotExist:
+                print "Creating new schedule %s" % (targetname)
+                targetsched = Schedule(meeting = meeting,
+                                       owner   = schedule.owner,
+                                       name = targetname)
+                targetsched.save()
+        else:
+            targetsched = schedule
+
+        print "Saving results to %s" % (targetsched.name)
 
         from ietf.meeting.placement import CurrentScheduleState
         css = CurrentScheduleState(schedule, seed)
@@ -83,7 +109,7 @@ class Command(BaseCommand):
         if profile:
             import cProfile
             import re
-            cProfile.runctx('css.do_placement(maxstep)',
+            cProfile.runctx('css.do_placement(maxstep, targetsched)',
                             vars(),
                             vars(),
                             'placestats.pyprof')
@@ -92,7 +118,7 @@ class Command(BaseCommand):
             p = pstats.Stats('placestats.pyprof')
             p.strip_dirs().sort_stats(-1).print_stats()
         else:
-            css.do_placement(maxstep)
+            css.do_placement(maxstep, targetsched)
 
 
 

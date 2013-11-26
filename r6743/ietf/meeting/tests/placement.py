@@ -91,7 +91,7 @@ class PlacementTestCase(TestCase):
             elif fs.scheduleslot is None:
                 print "rc,,,,%s,%s,none" % (sess.short_name, fs)
             else:
-                print "rc,,,,%s,,%u" % (fs.scheduleslot.daytime,fs.session.calc_badness(placer1))
+                print "rc,,,,%s,,%u" % (fs.scheduleslot.daytime,fs.session.badness(placer1))
 
     def test_calculateBadnessViaScheduledStateMtg83(self):
         """
@@ -104,15 +104,13 @@ class PlacementTestCase(TestCase):
         schedule = Schedule.objects.get(pk=24)
         placer1 = CurrentScheduleState(schedule)
 
-        #self.dump_placer_slots(placer1)
-        #import pdb; pdb.set_trace()
-
         # calculate placement new way.
+        #placer1.debug_badness = True
         b1 = placer1.calc_badness(None, None)
 
-        # why did this change again?
-        self.assertEqual(b1, 1000000)
-        #self.assertEqual(b1, 2435800)
+        #self.dump_placer_slots(placer1)
+        #import pdb; pdb.set_trace()
+        self.assertEqual(b1, 2435800)
 
     def test_calculateBadnessMtg83unplaced(self):
         """

@@ -64,17 +64,19 @@ class ScheduleSlot(object):
         for fs,fs2 in self.slotgroups.iteritems():
             if fs.session is not None:
                 num = fs.session.badness2(self)
-                #print "rc,,,,%s,%s,%u,recalc" % (self.daytime, fs.session.short_name, num)
+                #print "rc,,,,%s,%s,%u,recalc1" % (self.daytime, fs.session.short_name, num)
                 badness += num
         self.badness = badness
 
     def recalc_badness(self, assignments):
         badness = 0
         session_pk_list = self.scheduled_session_pk(assignments)
+        #print "rc,,,%u,slot_recalc" % (len(session_pk_list))
         for pk,fs in session_pk_list:
+            #print "rc,,,,%u,%s,list" % (pk,fs.session)
             if fs.session is not None:
                 num = fs.session.badness_fast(fs.timeslot, self, session_pk_list)
-                #print "rc,,,,%s,%s,%u,recalc" % (self.daytime, fs.session.short_name, num)
+                #print "rc,,,,%s,%s,%u,recalc0" % (self.daytime, fs.session.short_name, num)
                 badness += num
         self.badness = badness
 
@@ -280,32 +282,41 @@ class CurrentScheduleState:
         if fs.session is not None:
             fs.session.setup_conflicts()
 
+        needs_to_be_added = True
         #print "adding fs for slot: %s" % (fs.timeslot)
         if fs.timeslot is not None:
             if fs.timeslot in self.fs_by_timeslot:
-                #print "duplicate timeslot, updating old one: %s" % (fs.timeslot)
+                #print "  duplicate timeslot, updating old one: %s" % (fs.timeslot)
                 ofs = self.fs_by_timeslot[fs.timeslot]
                 if ofs.session is None:
                     # keep the one with the assignment.
                     self.fs_by_timeslot[fs.timeslot] = fs
                     # get rid of old item
                     self.available_slots[ofs.available_slot] = fs
-                return
+                needs_to_be_added = False
             else:
                 self.fs_by_timeslot[fs.timeslot] = fs
-                # add the slot to the list of vertical slices.
-                time_column = self.timeslots[fs.timeslot.time]
-                time_column.add_scheduledsession(fs)
-                fs.scheduleslot = time_column
-                if fs.session is None:
-                    self.placed_scheduleslots.append(fs)
+
+            # add the slot to the list of vertical slices.
+            time_column = self.timeslots[fs.timeslot.time]
+            group_name = "empty"
+            if fs.session is not None:
+                group_name = fs.session.group.acronym
+            #print "  inserting fs %s / %s to slot: %s" % (fs.timeslot.location.name,
+            #                                            group_name,
+            #                                            time_column.daytime)
+            time_column.add_scheduledsession(fs)
+            fs.scheduleslot = time_column
+            if fs.session is None:
+                self.placed_scheduleslots.append(fs)
         else:
             self.unplaced_scheduledslots.add_scheduledsession(fs)
             fs.scheduleslot = self.unplaced_scheduledslots
 
-        self.total_slots  = size
-        self.available_slots.append(fs)
-        fs.available_slot = size
+        if needs_to_be_added:
+            self.total_slots  = size
+            self.available_slots.append(fs)
+            fs.available_slot = size
         #print "adding item: %u to unplaced slots (pinned: %s)" % (fs.available_slot, fs.pinned)
 
     def __init__(self, schedule, seed=None):
@@ -400,8 +411,11 @@ class CurrentScheduleState:
             if fs.timeslot is None:
                 #print "Considering sess: %s, and loc: %s" % (sess, str(fs.timeslot))
                 self.add_to_available_slot(fs)
+
         #import pdb; pdb.set_trace()
-        #print "Finished %u" % (self.total_slots)
+        # do initial badness calculation for placement that has been done
+        for daytime,scheduleslot in self.timeslots.iteritems():
+            scheduleslot.recalc_badness(self)
 
     def dump_available_slot_state(self):
         for fs in self.available_slots:

@@ -349,6 +349,7 @@ TimeSlot.prototype.can_extend_right = function() {
 function make_timeslot(json) {
     var ts = new TimeSlot();
     ts.initialize(json);
+    return ts;
 }
 
 /* feed this an array of timeslots */

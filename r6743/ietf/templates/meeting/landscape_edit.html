@@ -213,7 +213,7 @@ Please save this agenda to your account first.
     </th>
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
-        <td id="{{r.name|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot agenda_slot_unavailable" capacity="{{r.capacity}}" ></td>
+        <td id="{{r.domid}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot agenda_slot_unavailable" capacity="{{r.capacity}}" ></td>
       {% endfor %}
         <td class="day_{{day}} spacer {{day|date:'Y-m-d'}}-spacer"></td>
     {% endfor %}

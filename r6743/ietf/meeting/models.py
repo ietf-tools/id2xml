@@ -237,6 +237,9 @@ class Room(models.Model):
                                     duration=ts.duration)
         self.meeting.create_all_timeslots()
 
+    def domid(self):
+        return "room%u" % (self.pk)
+
     def json_url(self):
         return "/meeting/%s/room/%s.json" % (self.meeting.number, self.id)
 
@@ -340,7 +343,10 @@ class TimeSlot(models.Model):
         #  {{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}"
         # also must match:
         #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
-        return "%s_%s_%s" % (slugify(self.get_location()), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
+        domid="ts%u" % (self.pk)
+        if self.location is not None:
+            domid = self.location.domid()
+        return "%s_%s_%s" % (domid, self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
 
     def json_dict(self, host_scheme):
         ts = dict()

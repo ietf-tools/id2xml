@@ -74,6 +74,11 @@ function initStuff(){
 
     log("initstuff() running...");
     var directorpromises = [];
+
+    /* define a slot for unscheduled items */
+    var unassigned = new ScheduledSlot();
+    unassigned.make_unassigned();
+
     setup_slots(directorpromises);
     mark_area_directors(directorpromises);
     log("setup_slots() ran");
@@ -95,6 +100,7 @@ function initStuff(){
         droppable();
         duplicate_sessions = find_double_timeslots();
         empty_info_table();
+
 
         if(load_conflicts) {
             recalculate(null);

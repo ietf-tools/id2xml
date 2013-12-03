@@ -337,6 +337,11 @@ TimeSlot.prototype.mark_empty = function() {
 TimeSlot.prototype.mark_occupied = function() {
     if(agenda_globals.__debug_session_move) {
         console.log("marking slot occupied", this.domid);
+
+        // if it was empty before, then clear it (might have word "empty" in it)
+        if(this.empty == true) {
+            $("#"+this.domid).html("");
+        }
     }
     this.empty = false;
 };
@@ -463,6 +468,21 @@ function update_if_not_undefined(old, newval) {
     }
 }
 
+ScheduledSlot.prototype.make_unassigned = function() {
+    this.scheduledsession_id = 0;
+    this.empty               = true;
+    this.session_id          = null;
+    this.room                = "unassigned";
+    this.time                = null;
+    this.date                = null;
+    this.timeslot            = new TimeSlot();
+    this.timeslot.initialize({"domid":"sortable-list"});
+
+    agenda_globals.slot_status[this.domid()]=[];
+    agenda_globals.slot_status[this.domid()].push(this);
+    agenda_globals.slot_objs[this.scheduledsession_id] = this;
+};
+
 ScheduledSlot.prototype.initialize = function(json) {
     /* do not copy everything over */
     this.pinned              = update_if_not_undefined(this.pinned, json.pinned);
@@ -472,16 +492,10 @@ ScheduledSlot.prototype.initialize = function(json) {
     this.href                = update_if_not_undefined(this.href, json.href);
     this.extendedfrom_id     = update_if_not_undefined(this.extendedfrom_id, json.extendedfrom_id);
 
-    if(this.timeslot_id == undefined) {
-        /* must be the unassigned one?! */
-        this.timeslot = new TimeSlot();
-        this.timeslot.domid = "sortable-list";
-    } else {
-        //console.log("timeslot_id", this.timeslot_id);
-        this.timeslot            = agenda_globals.timeslot_byid[this.timeslot_id];
-        if(this.session_id != undefined) {
-            this.timeslot.mark_occupied();
-        }
+    //console.log("timeslot_id", this.timeslot_id);
+    this.timeslot            = agenda_globals.timeslot_byid[this.timeslot_id];
+    if(this.session_id != undefined) {
+        this.timeslot.mark_occupied();
     }
 
     // translate Python booleans to JS.

@@ -1080,10 +1080,6 @@ function move_slot(parameters) {
     parameters.session.slot_status_key = parameters.to_slot_id;
 
     var eTemplate = parameters.session.event_template()
-    if(parameters.to_slot.empty) {
-        // clean out word "empty" if any.
-        $(parameters.dom_obj).html("");
-    }
     $(parameters.dom_obj).append(eTemplate);
 
     parameters.ui.draggable.remove();

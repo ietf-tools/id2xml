@@ -73,14 +73,6 @@ promiselist.push(sess_promise);
 var ss_promise = load_scheduledsessions(ts_promise, sess_promise, scheduledsession_post_href);
 promiselist.push(ss_promise);
 
-   make_ss({ "scheduledsession_id": 0,
-     "empty": true,
-     "session_id" :null,
-     "room"       :"unassigned",
-     "time"       :null,
-     "date"       :null,
-     "domid"      :"sortable-list"});
-
    console.log("setup_slots run");
 
 {% for area in area_list %}

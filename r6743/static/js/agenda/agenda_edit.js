@@ -32,8 +32,7 @@
 
 var is_secretariat = false;
 
-var agenda_globals = new AgendaGlobals();
-
+var agenda_globals;
 
 var area_directors = {};  // list of promises of area directors, index by href.
 
@@ -71,6 +70,8 @@ $(document).ready(function() {
    This is ran at page load and sets up the entire page.
 */
 function initStuff(){
+    agenda_globals = new AgendaGlobals();
+
     log("initstuff() running...");
     var directorpromises = [];
     setup_slots(directorpromises);

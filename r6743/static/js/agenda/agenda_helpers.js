@@ -451,6 +451,75 @@ function find_meeting_no_room(){
     })
 }
 
+
+/* in some cases we have sessions that span over two timeslots.
+   so we end up with two slot_status pointing to the same meeting_obj.
+   this this occures when someone requests a session that is extra long
+   which will then fill up the next timeslot.
+
+   this functions finds those cases.
+
+   returns a json{ 'ts': arr[time_slot_ids] }
+
+*/
+function find_double_timeslots(){
+    var duplicate = {};
+
+    $.each(agenda_globals.slot_status, function(key){
+	for(var i =0; i<agenda_globals.slot_status[key].length; i++){
+	    // goes threw all the slots
+	    var ss_id = agenda_globals.slot_status[key][i].session_id;
+	    if(duplicate[ss_id]){
+		duplicate[ss_id]['count']++;
+		duplicate[ss_id]['ts'].push(key);
+	    }
+	    else{
+		duplicate[ss_id] = {'count': 1, 'ts':[key]};
+
+	    }
+	}
+    });
+
+    var dup = {};
+    // console.log(duplicate);
+    $.each(duplicate, function(key){
+	if(duplicate[key]['count'] > 1){
+	    dup[key] = duplicate[key]['ts'];
+
+	}
+    });
+    return dup;
+}
+
+
+var child = null;
+/* removes a duplicate timeslot. completely. it's gone. */
+function remove_duplicate(timeslot_id, ss_id){
+    children = $("#"+timeslot_id).children();
+    child = children;
+    for(var i = 0; i< children.length; i++){ // loop to
+	if($(children[i]).attr('session_id') == ss_id) { // make sure we only remove duplicate.
+	    try{
+		$(children[i]).remove();
+	    }catch(exception){
+		console.log("exception from remove_duplicate",exception);
+	    }
+	}
+    }
+
+}
+
+
+
+function auto_remove(){
+    dup = find_double_timeslots();
+    $.each(dup, function(key){
+	remove_duplicate(dup[key][1], key);
+    })
+}
+
+
+
 /* for the spinnner */
 
 /* spinner code from:

@@ -580,7 +580,6 @@ function make_ss(json) {
 //                "special_request": "{{ s.special_request_token }}",
 //                "session_id":"{{s.id}}",
 //                "owner": "{{s.owner.owner}}",
-//                "group_id":"{{s.group.id}}",
 //                "area":"{{s.group.parent.acronym|upper}}",
 //                "duration":"{{s.requested_duration.seconds|durationFormat}}"});
 //

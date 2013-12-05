@@ -1,0 +1,47 @@
+DATABASES = {
+    'default' : {
+        'ENGINE'   : 'django.db.backends.mysql',
+        'NAME'     : '@APPNAME@',
+        'USER'     : '@APPNAME@',
+        'PASSWORD' : '@DBPASSWORD@',
+        'HOST'     : '@DBPATH@',
+        'PORT'     : '',
+
+        'TEST_ENGINE'   : 'django.db.backends.mysql',
+        'TEST_NAME'     : 'test_@APPNAME@',
+        'TEST_USER'     : 'test_@APPNAME@',
+        'TEST_PASSWORD' : '@DBPASSWORD@',
+        'TEST_HOST'     : '@DBPATH@',
+        'TEST_PORT'     : '',
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = '@SECRETSECRET@'
+
+import logging
+logging.basicConfig(filename='@TOPDIR@/ajax.log',
+                    level=logging.DEBUG)
+
+IDSUBMIT_IDNITS_BINARY = '@TOPDIR@/etc/nonits'
+IDSUBMIT_STAGING_PATH  = '@TOPDIR@/tmp/staging'
+USE_NEW_PYTHON_MAGIC = True
+
+INTERNET_DRAFT_PATH = '@TOPDIR@/../www/ietf-ftp/internet-drafts/'
+INTERNET_DRAFT_PDF_PATH = '@TOPDIR@/../www/ietf-datatracker/pdf/'
+RFC_PATH = '@TOPDIR@/../www/ietf-ftp/rfc/'
+CHARTER_PATH = '@TOPDIR@/../www/ietf-ftp/charter/'
+CONFLICT_REVIEW_PATH = '@TOPDIR@/../www/ietf-ftp/conflict-reviews'
+STATUS_CHANGE_PATH = '@TOPDIR@/../www/ietf-ftp/status-changes'
+AGENDA_PATH = '@TOPDIR@/../www/www6s/proceedings/'
+AGENDA_PATH_PATTERN = '@TOPDIR@/../www/www6s/proceedings/%(meeting)s/agenda/%(wg)s.%(ext)s'
+MINUTES_PATH_PATTERN = '@TOPDIR@/../www/www6s/proceedings/%(meeting)s/minutes/%(wg)s.%(ext)s'
+SLIDES_PATH_PATTERN = '@TOPDIR@/../www/www6s/proceedings/%(meeting)s/slides/%(wg)s-*'
+IPR_DOCUMENT_PATH = '@TOPDIR@/../www/ietf-ftp/ietf/IPR/'
+IETFWG_DESCRIPTIONS_PATH = '@TOPDIR@/../www/www6s/wg-descriptions/'
+IESG_TASK_FILE = '@TOPDIR@/../www/www6/iesg/internal/task.txt'
+IESG_ROLL_CALL_FILE = '@TOPDIR@/../www/www6/iesg/internal/rollcall.txt'
+IESG_MINUTES_FILE = '@TOPDIR@/../www/www6/iesg/internal/minutes.txt'
+IESG_WG_EVALUATION_DIR = "@TOPDIR@/../www/www6/iesg/evaluation"
+INTERNET_DRAFT_ARCHIVE_DIR = '@TOPDIR@/../www/www6s/draft-archive'
+CACHE_BACKEND= 'file://@TOPDIR@/www/ietf-datatracker/cache/'

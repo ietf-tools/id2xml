@@ -307,7 +307,8 @@ TimeSlot.prototype.initialize = function(json) {
     for(var key in json) {
        this[key]=json[key];
     }
-    //console.log("timeslot processing: ", this.timeslot_id);
+    //console.log("timeslot processing: ", this.timeslot_id,
+    //            this.room, this.date, this.time);
 
     this.column_class=new ColumnClass(this.room, this.date, this.time);
 
@@ -605,7 +606,8 @@ function session_obj(json) {
     session = new Session();
 
     for(var key in json) {
-        if(json[key].length > 0) {
+        //console.log("copying", key, "value: ", json[key]);
+        if(json[key] != undefined && json[key] != "") {
             session[key]=json[key];
         }
     }
@@ -619,7 +621,8 @@ function session_obj(json) {
         session.group = load_group_from_json(session.group);
         session.group_href = session.group.href;
     } else if(session.group_href != undefined) {
-        console.log("session has no embedded group, load by href", session.group_href);
+        console.log("session ",session.session_id,
+                    "has no embedded group, load by href", session.group_href);
         session.group = find_group_by_href(session.group_href, "session_load");
     } else {
         // bogus

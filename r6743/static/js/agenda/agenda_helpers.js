@@ -151,7 +151,7 @@ function load_events(){
             if(extendedto == undefined &&
                ssid.extendedto != undefined) {
                 if(__debug_load_events) {
-                    console.log("ssid",ssid.session_id,"extended");
+                    console.log("ssid",ssid.session_id,"extended 1");
                 }
                 extendedto = ssid.extendedto;
             }
@@ -160,7 +160,7 @@ function load_events(){
 	    ssid = ssid_arr[q];
             ssid.extendedto = extendedto;
             if(__debug_load_events) {
-                console.log("ssid",ssid.session_id,"extended");
+                console.log("ssid",ssid.session_id,"extended 2");
             }
         }
     });

@@ -40,24 +40,116 @@ function make_6_sessions() {
         monarch = monarchs[index];
         console.log("monarch", monarch);
         var group = create_group_by_href("http://localhost:8000/group/"+monarch+".json");
-        group.name = monarch;
+        group.acronym = monarch;
+        group.name    = "Royalty fun" + monarch;
+        group.type  = "wg";
         group.group_id = 1
     });
 
     var sessions = {};
     var sessionid = 1;
-    $.each(monarchs, function(index) {
-        monarch = monarchs[index];
-        //console.log("session id", sessionid);
-        sessions[monarch] =
-            session_obj({"title":      monarch,
-                         "session_id": sessionid,
-                         "duration":   "1.0",
-                         "area" :      "TSV",
-                         "group_href": "http://localhost:8000/group/"+monarch+".json"
-                        });
-        sessionid += 1;
-    });
+    monarch = "henry";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "description": "Henry Beauclerc",
+                     "session_id": sessionid,
+                     "attendees":  50,
+                     "short_name": monarch,
+                     "comments":   "Long Live the King!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Pope Francis",
+                     "requested_duration": "1.0",
+                     "area" :      "TSV",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
+    monarch = "george";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "description": "Georg Ludwig",
+                     "session_id": sessionid,
+                     "attendees":  60,
+                     "short_name": monarch,
+                     "comments":   "Long Live the King!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Pope Bacon",
+                     "requested_duration": "1.5",
+                     "area" :      "SEC",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
+    monarch = "richard";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "description": "Richard the Lionheart",
+                     "session_id": sessionid,
+                     "attendees":  70,
+                     "short_name": monarch,
+                     "comments":   "Lion Hart!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Robin Hood",
+                     "requested_duration": "2.0",
+                     "area" :      "RTG",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
+    monarch = "victoria";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "description": "the grandmother of Europe",
+                     "session_id": sessionid,
+                     "attendees":  80,
+                     "short_name": monarch,
+                     "comments":   "Long Live the Queen!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Docter Who",
+                     "requested_duration": "1.0",
+                     "area" :      "INT",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
+    monarch = "william";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "description": "William the Conqueror",
+                     "session_id": sessionid,
+                     "attendees":  90,
+                     "short_name": monarch,
+                     "comments":   "Just Married!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Pope Francis",
+                     "requested_duration": "2.5",
+                     "area" :      "RAI",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
+    monarch = "elizabeth";
+    sessions[monarch] =
+        session_obj({"title":      monarch,
+                     "session_id": sessionid,
+                     "description": "Head of the Commonwealth",
+                     "attendees":  100,
+                     "short_name": monarch,
+                     "comments":   "Long Live the Queen!",
+                     "special_request": "",
+                     "requested_time": "2013-11-27",
+                     "requested_by":   "Margaret Thatcher",
+                     "requested_duration": "1.0",
+                     "area" :      "GEN",
+                     "group_href": "http://localhost:8000/group/"+monarch+".json"
+                    });
+    sessionid += 1;
+
     return sessions;
 }
 
@@ -93,22 +185,33 @@ function conflict_4_sessions(sessions) {
 
         var deferred = $.Deferred();
         session.constraints_promise = deferred;
+
+        // $.ajax has a success option.
+        deferred.success = function(func) {
+            deferred.done(function(obj) {
+                func(obj, "success", {});
+            });
+        };
+
         deferred.resolve({});
+
+        session.fill_in_constraints([]);
+        find_and_populate_conflicts(session);
     });
 
     sessions["henry"].fill_in_constraints([
-        {    "constraint_id": 21046, 
-             "href": "http://localhost:8000/meeting/83/constraint/21046.json", 
-             "meeting_href": "http://localhost:8000/meeting/83.json", 
-             "name": "conflict", 
-             "source_href": "http://localhost:8000/group/henry.json", 
+        {    "constraint_id": 21046,
+             "href": "http://localhost:8000/meeting/83/constraint/21046.json",
+             "meeting_href": "http://localhost:8000/meeting/83.json",
+             "name": "conflict",
+             "source_href": "http://localhost:8000/group/henry.json",
              "target_href": "http://localhost:8000/group/george.json"
         },
-        {    "constraint_id": 21047, 
-             "href": "http://localhost:8000/meeting/83/constraint/21047.json", 
-             "meeting_href": "http://localhost:8000/meeting/83.json", 
-             "name": "conflic2", 
-             "source_href": "http://localhost:8000/group/henry.json", 
+        {    "constraint_id": 21047,
+             "href": "http://localhost:8000/meeting/83/constraint/21047.json",
+             "meeting_href": "http://localhost:8000/meeting/83.json",
+             "name": "conflic2",
+             "source_href": "http://localhost:8000/group/henry.json",
              "target_href": "http://localhost:8000/group/richard.json"
         }]);
     find_and_populate_conflicts(sessions["henry"]);

@@ -378,10 +378,10 @@ function sort_by_area(a,b) {
 function sort_by_duration(a,b) {
     am = agenda_globals.meeting_objs[$(a).attr('session_id')]
     bm = agenda_globals.meeting_objs[$(b).attr('session_id')]
-    if(am.duration < bm.duration) {
+    if(am.requested_duration < bm.requested_duration) {
         // sort duration biggest to smallest.
         return 1;
-    } else if(am.duration == bm.duration &&
+    } else if(am.requested_duration == bm.requested_duration &&
               am.title    < bm.title) {
         return 1;
     } else {

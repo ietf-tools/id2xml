@@ -614,6 +614,10 @@ function session_obj(json) {
     // dict will not pass .length > 0 above.
     session.group = json.group;
 
+    if(session.requested_duration == undefined) {
+        session.requested_duration = session.duration;
+    }
+
     session.ogroup = session.group;
     if(session.group != undefined) {
         /* it has an inline group object, intern it, and redirect to interned object */
@@ -1000,7 +1004,7 @@ Session.prototype.event_template = function() {
         "><tr id='meeting_event_title'><th class='"+
         this.area_scheme() +" meeting_obj'>"+
         this.visible_title()+
-        "<span> ("+this.duration+")</span>" +
+        "<span> ("+this.requested_duration+")</span>" +
         "</th>"+pinned+"</tr></table>"+ area_mark +"</div></div>";
 };
 

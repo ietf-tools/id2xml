@@ -887,7 +887,6 @@ class Session(models.Model):
             pass
 
         sess1['requested_duration']= "%.1f" % (float(self.requested_duration.seconds) / 3600)
-        sess1['duration']          = sess1['requested_duration']
         sess1['special_request'] = str(self.special_request_token)
         return sess1
 

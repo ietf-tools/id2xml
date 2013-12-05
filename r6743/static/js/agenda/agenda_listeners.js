@@ -540,9 +540,6 @@ function meeting_event_click(event){
     last_session = session;
 
     empty_info_table();
-    fill_in_session_info(session, true, session.slot);
-    session.selectit();
-
     current_item = session.element();
 
     current_timeslot      = session.slot;
@@ -552,7 +549,6 @@ function meeting_event_click(event){
         console.log("2 meeting_click:", current_timeslot, session);
     }
 
-    empty_info_table();
     fill_in_session_info(session, true, session.slot);
     __DEBUG__SS_OBJ   = current_scheduledslot;
     __DEBUG__SLOT_OBJ = current_timeslot;
@@ -701,7 +697,7 @@ function fill_in_session_info(session, success, extra) {
     if(session == null || session == "None" || !success){
 	empty_info_table();
     }
-    $('#ss_info').html(session.generate_info_table());
+    session.generate_info_table();
     $('#double_slot').click(extend_slot);
     $(".agenda_double_slot").removeClass("button_disabled");
     $(".agenda_double_slot").addClass("button_enabled");

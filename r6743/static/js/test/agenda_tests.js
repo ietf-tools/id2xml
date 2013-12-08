@@ -45,10 +45,37 @@ asyncTest("Load ScheduledSlot", function() {
 });
 
 test( "3x8 grid create", function() {
+    expect(0);        // just make sure things run without error
     reset_globals();
 
     t_slots = three_by_eight_grid();
     t_sessions = make_6_sessions();
     place_6_sessions(t_slots, t_sessions);
+});
+
+test( "calculate conflict columns for henry", function() {
+    expect(5);
+    reset_globals();
+
+    /* define a slot for unscheduled items */
+    var unassigned = new ScheduledSlot();
+    unassigned.make_unassigned();
+
+    t_slots = three_by_eight_grid();
+    t_sessions = make_6_sessions();
+    place_6_sessions(t_slots, t_sessions);
+    conflict_4_sessions(t_sessions);
+
+    load_events();
+
+    var henry0 = agenda_globals.sessions_objs["henry"];
+    var henry = henry0[0];
+    equal(henry.session_id, 1);
+    
+    equal(henry.column_class_list.length, 1);
+    equal(henry.column_class_list[0].room, "apple");
+    equal(henry.column_class_list[0].time, "0900");
+    equal(henry.column_class_list[0].date, "2013-12-03");
+
 });
 

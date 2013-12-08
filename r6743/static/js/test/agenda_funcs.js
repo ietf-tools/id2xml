@@ -164,7 +164,7 @@ function place_6_sessions(slots, sessions) {
              "session_id":          sessions["george"].session_id});
     ss_id += 1;
     make_ss({"scheduledsession_id": ss_id,
-             "timeslot_id":         slots[4].timeslot_id,
+             "timeslot_id":         slots[5].timeslot_id,
              "session_id":          sessions["richard"].session_id});
     ss_id += 1;
     make_ss({"scheduledsession_id": ss_id,
@@ -172,7 +172,7 @@ function place_6_sessions(slots, sessions) {
              "session_id":          sessions["victoria"].session_id});
     ss_id += 1;
     make_ss({"scheduledsession_id": ss_id,
-             "timeslot_id":         slots[14].timeslot_id,
+             "timeslot_id":         slots[13].timeslot_id,
              "session_id":          sessions["william"].session_id});
     // last session is unscheduled.
 }

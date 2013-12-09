@@ -1,5 +1,9 @@
 // globals needed for tests cases.
 var agenda_globals;
+var scheduledsession_post_href = "/test/agenda_ui.html";
+var read_only = false;
+var days = [];
+
 function reset_globals() {
     // hack to reach in and manipulate global specifically.
     window.agenda_globals = new AgendaGlobals();
@@ -15,6 +19,10 @@ function three_by_eight_grid() {
     ];
     var slots = [{}];
     var slotid= 1;
+
+    days.push("2013-12-02");
+    days.push("2013-12-03");
+
     for(var roomkey in rooms) {
         var room = rooms[roomkey];
         for(var timekey in times) {
@@ -244,4 +252,54 @@ function henry_setup(sessions) {
     var henry = henry0[0];
 
     return henry;
+}
+
+var ss_id_next = 999;
+function mock_scheduledslot_id(json) {
+    if(json.scheduledsession_id == undefined) {
+        console.log("adding scheduledsession_id to answer", ss_id_next);
+        ss_id_next += 1;
+        json.scheduledsession_id = ss_id_next;
+    }
+};
+
+ScheduledSlot.prototype.initialize = function(json) {
+    mock_scheduledslot_id(json);
+    this.real_initialize(json);
+}
+
+
+function richard_move() {
+    var richard0 = agenda_globals.sessions_objs["richard"];
+    var richard = richard0[0];
+
+    // mock up the ui object.
+    var ui = new Object();
+    ui.draggable = new Object();
+    ui.draggable.remove = function() { return true; };
+
+    // mock up the dom object
+    var dom_obj = "#" + t_slots[4].domid;
+
+    // in the unit tests, the object won't exist, so make it.
+    // when testing this test code, it might already be there
+    if($(dom_obj).length == 0) {
+        var div = document.createElement("div");
+        div.innerHTML = "welcome";
+        div.id = dom_obj;
+    }
+
+    /* current situation was tested in above test, so go ahead */
+    /* and move "richard" to another slot  */
+    move_slot({"session": richard,
+               "to_slot_id":  t_slots[4].domid,
+               "to_slot":     [t_slots[4]],
+               "from_slot_id":t_slots[5].domid,
+               "from_slot":   [t_slots[5]],
+               "bucket_list": false,
+               "ui":          ui,
+               "dom_obj":     dom_obj,
+               "force":       true});
+
+    return richard;
 }

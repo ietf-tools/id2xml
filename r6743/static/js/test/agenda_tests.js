@@ -85,12 +85,24 @@ test( "re-calculate conflict columns for henry", function() {
     expect(5);
     reset_globals();
 
+    agenda_globals.__debug_session_move = true;
+
     var henry = henry_setup();
     equal(henry.session_id, 1);
 
-    /* current situation was tested in above test, so go ahead */
-    /* and move "richard" to another slot  */
+    var richard = richard_move();
+    var conflict0 = henry.conflicts[0];
+    equal(conflict0.conflict_groupP(), true);
 
+    var classes = conflict0.column_class_list();
+    var cc00 = classes[0];
+    equal(cc00.th_tag, ".day_2013-12-02-1300");
 
+    var conflict1 = henry.conflicts[1];
+    equal(conflict1.conflict_groupP(), true);
+
+    var classes = conflict1.column_class_list();
+    var cc10 = classes[0];
+    equal(cc10.th_tag, ".day_2013-12-02-0900");
 });
 

@@ -226,3 +226,22 @@ function full_83_setup() {
     return ss_promise;
 }
 
+function henry_setup(sessions) {
+    reset_globals();
+
+    /* define a slot for unscheduled items */
+    var unassigned = new ScheduledSlot();
+    unassigned.make_unassigned();
+
+    t_slots = three_by_eight_grid();
+    t_sessions = make_6_sessions();
+    place_6_sessions(t_slots, t_sessions);
+    conflict_4_sessions(t_sessions);
+
+    load_events();
+
+    var henry0 = agenda_globals.sessions_objs["henry"];
+    var henry = henry0[0];
+
+    return henry;
+}

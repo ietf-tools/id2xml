@@ -54,28 +54,43 @@ test( "3x8 grid create", function() {
 });
 
 test( "calculate conflict columns for henry", function() {
-    expect(5);
-    reset_globals();
+    expect(10);
 
-    /* define a slot for unscheduled items */
-    var unassigned = new ScheduledSlot();
-    unassigned.make_unassigned();
-
-    t_slots = three_by_eight_grid();
-    t_sessions = make_6_sessions();
-    place_6_sessions(t_slots, t_sessions);
-    conflict_4_sessions(t_sessions);
-
-    load_events();
-
-    var henry0 = agenda_globals.sessions_objs["henry"];
-    var henry = henry0[0];
+    var henry = henry_setup();
     equal(henry.session_id, 1);
     
     equal(henry.column_class_list.length, 1);
     equal(henry.column_class_list[0].room, "apple");
     equal(henry.column_class_list[0].time, "0900");
     equal(henry.column_class_list[0].date, "2013-12-03");
+
+    equal(henry.conflicts.length, 2);
+
+    var conflict0 = henry.conflicts[0];
+    equal(conflict0.conflict_groupP(), true);
+
+    var classes = conflict0.column_class_list();
+    var cc00 = classes[0];
+    equal(cc00.th_tag, ".day_2013-12-02-1300");
+
+    var conflict1 = henry.conflicts[1];
+    equal(conflict1.conflict_groupP(), true);
+
+    var classes = conflict1.column_class_list();
+    var cc10 = classes[0];
+    equal(cc10.th_tag, ".day_2013-12-02-1300");
+});
+
+test( "re-calculate conflict columns for henry", function() {
+    expect(5);
+    reset_globals();
+
+    var henry = henry_setup();
+    equal(henry.session_id, 1);
+
+    /* current situation was tested in above test, so go ahead */
+    /* and move "richard" to another slot  */
+
 
 });
 

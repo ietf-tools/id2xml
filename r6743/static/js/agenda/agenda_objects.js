@@ -1211,7 +1211,7 @@ Group.prototype.del_column_class = function(column_class) {
     }
     for(n in this.column_class_list) {
         if(this.column_class_list[n] == column_class) {
-            delete this.column_class_list[n];
+            this.column_class_list.splice(n,1);
         }
     }
 };

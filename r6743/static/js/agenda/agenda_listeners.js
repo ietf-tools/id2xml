@@ -652,7 +652,7 @@ function set_pin_session_button(scheduledsession) {
         return;
     }
     state = scheduledsession.pinned;
-    console.log("button set to: ",state);
+    //console.log("button set to: ",state);
     if(state) {
         $("#pin_slot").html("unPin");
         $("#agenda_pin_slot").addClass("button_down");

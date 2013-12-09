@@ -1064,7 +1064,9 @@ function move_slot(parameters) {
 
     parameters.ui.draggable.remove();
 
-
+    /* recalculate all the conflict classes given new slot */
+    parameters.session.update_column_classes(parameters.to_slot,
+                                             parameters.bucket_list);
 
     /* set colours */
     $(parameters.dom_obj).removeClass('highlight_free_slot');

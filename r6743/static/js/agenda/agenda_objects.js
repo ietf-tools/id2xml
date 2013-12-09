@@ -905,9 +905,9 @@ Session.prototype.add_column_class = function(column_class) {
 
 var _LAST_MOVED_OLD;
 var _LAST_MOVED_NEW;
-// scheduledsession_list is a list of slots where the session has been located.
+// timeslot_list is a list of slots where the session has been located.
 // bucket_list is a boolean.
-Session.prototype.update_column_classes = function(scheduledsession_list, bucket_list) {
+Session.prototype.update_column_classes = function(timeslot_list, bucket_list) {
 
     // COLUMN CLASSES MUST BE A LIST because of multiple slot use
     console.log("updating column_classes for ", this.title);
@@ -925,9 +925,10 @@ Session.prototype.update_column_classes = function(scheduledsession_list, bucket
         this.on_bucket_list();
 
     } else {
-        for(ssn in scheduledsession_list) {
-            ss = scheduledsession_list[ssn];
-            this.add_column_class(ss.column_class());
+        for(tsn in timeslot_list) {
+            var ts = timeslot_list[tsn];
+            console.log("timeslot_list", tsn, ts);
+            this.add_column_class(ts.column_class);
         }
         new_column_tag = this.column_class_list[0].column_tag;
     }

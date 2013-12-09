@@ -63,10 +63,6 @@ function listeners(){
 
     $('#double_slot').unbind('click');
 
-    /* listener for when one clicks the 'show all' checkbox */
-    $('.cb_all_conflict').unbind('click');
-    $('.cb_all_conflict').click(cb_all_conflict);
-
     /* hiding rooms */
     $(".close_room").unbind('click');
     $(".close_room").click(close_room)
@@ -173,18 +169,6 @@ function all_click(event){
 }
 
 /************ click functions *********************************************************************/
-function cb_all_conflict(event){
-    var conflict_clicked = $(event.target).attr('id');
-    try{
-	var conflict_clicked = conflict_clicked.substr(3);
-    }catch(err){
-
-    }
-    $("."+conflict_clicked+" input").click();
-
-
-}
-
 function close_room(event){
     var close_room = $(event.target).attr('id');
     close_room =  close_room.substr(6);

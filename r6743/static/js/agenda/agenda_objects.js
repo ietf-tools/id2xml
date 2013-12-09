@@ -484,7 +484,7 @@ ScheduledSlot.prototype.make_unassigned = function() {
     agenda_globals.slot_objs[this.scheduledsession_id] = this;
 };
 
-ScheduledSlot.prototype.initialize = function(json) {
+ScheduledSlot.prototype.real_initialize = function(json) {
     /* do not copy everything over */
     this.pinned              = update_if_not_undefined(this.pinned, json.pinned);
     this.scheduledsession_id = update_if_not_undefined(this.scheduledsession_id, json.scheduledsession_id);
@@ -518,6 +518,7 @@ ScheduledSlot.prototype.initialize = function(json) {
 
     agenda_globals.slot_objs[this.scheduledsession_id] = this;
 };
+ScheduledSlot.prototype.initialize = ScheduledSlot.prototype.real_initialize;
 
 function load_scheduledsessions(ts_promise, session_promise, href) {
     if(agenda_globals.scheduledsession_promise == undefined) {

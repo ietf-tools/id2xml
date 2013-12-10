@@ -854,7 +854,7 @@ function update_from_slot(session_id, from_slot_id)
     var delete_promises = [];
 
     // it will be null if it's coming from a bucketlist
-    if(from_slot_id != null){
+    if(from_slot_id != null && from_scheduledslots != undefined){
         //console.log("1 from_slot_id", from_slot_id, from_scheduledslots);
         var count = from_scheduledslots.length;
         var found = false;
@@ -888,7 +888,8 @@ function update_from_slot(session_id, from_slot_id)
         //console.log("2 from_slot_id", from_slot_id, new_fromslots);
     }
     else{
-        // this may be questionable. It deals with the fact that it's coming from the bucketlist.
+        // this may be questionable.
+        // It deals with the fact that it's coming from the bucketlist.
         delete_promises = [undefined];
     }
     return delete_promises;
@@ -1072,7 +1073,7 @@ function move_slot(parameters) {
     parameters.ui.draggable.remove();
 
     /* recalculate all the conflict classes given new slot */
-    parameters.session.update_column_classes(parameters.to_slot,
+    parameters.session.update_column_classes([parameters.to_slot],
                                              parameters.bucket_list);
 
     /* set colours */

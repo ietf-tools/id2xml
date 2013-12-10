@@ -456,7 +456,9 @@ ScheduledSlot.prototype.saveit = function() {
     saveit.done(function(result, status, jqXHR) {
         myss.initialize(result);
         var session = myss.session;
-        session.placed(myss.timeslot);
+        if(session != undefined) {
+            session.placed(myss.timeslot);
+        }
     });
 
     // return the promise, in case someone (tests!) needs to know when we are done.
@@ -505,7 +507,7 @@ ScheduledSlot.prototype.real_initialize = function(json) {
 
     //console.log("timeslot_id", this.timeslot_id);
     this.timeslot            = agenda_globals.timeslot_byid[this.timeslot_id];
-    if(this.timeslot != undefined) {
+    if(this.timeslot != undefined && this.session_id != undefined) {
         this.timeslot.mark_occupied();
     }
     if(this.session_id != undefined) {
@@ -519,14 +521,18 @@ ScheduledSlot.prototype.real_initialize = function(json) {
         this.pinned = false;
     }
 
-    // do not include in data structures if session_id is nil
-    // the key so two sessions in the same timeslot
-    if(agenda_globals.slot_status[this.domid()] == null) {
-        agenda_globals.slot_status[this.domid()]=[];
-    }
-    if(this.session_id != undefined) {
-        agenda_globals.slot_status[this.domid()].push(this);
-        //console.log("filling slot_objs", this.scheduledsession_id);
+    // timeslot should never be null, but if there is old/flaky
+    // data it could happen, so guard against it.
+    if(this.timeslot != undefined) {
+        // do not include in data structures if session_id is nil
+        // the key so two sessions in the same timeslot
+        if(agenda_globals.slot_status[this.domid()] == null) {
+            agenda_globals.slot_status[this.domid()]=[];
+        }
+        if(this.session_id != undefined) {
+            agenda_globals.slot_status[this.domid()].push(this);
+            //console.log("filling slot_objs", this.scheduledsession_id);
+        }
     }
 
     agenda_globals.slot_objs[this.scheduledsession_id] = this;
@@ -542,6 +548,7 @@ function load_scheduledsessions(ts_promise, session_promise, href) {
 
         ss_loaded.done(function(result, status, jqXHR) {
             console.log("finished ss promise");
+
             newobj = result[0]
             $.each(newobj, function(index) {
                 one = newobj[index];
@@ -752,10 +759,13 @@ Session.prototype.placed = function(where, forceslot, scheduledsession) {
     // forceslot is set on a move, but unset on initial placement,
     // as placed might be called more than once for a double slot session.
     if(forceslot || this.slot==undefined) {
-
-        /* we can not mark old slot as empty, because it might have multiple sessions in it */
         this.slot      = where;
         this.scheduledsession = scheduledsession;
+
+        /* we can not mark old slot as empty, because it
+           might have multiple sessions in it.
+           we can do the opposite: mark it was not empty when we fill it.
+        */
 
         if(where != undefined) {
             where.empty = false;

@@ -325,6 +325,9 @@ TimeSlot.prototype.initialize = function(json) {
     agenda_globals.timeslot_byid[this.timeslot_id] = this;
 };
 
+TimeSlot.prototype.title = function() {
+    return this.room + " "+this.date+" "+this.time;
+};
 TimeSlot.prototype.slot_title = function() {
     return "id#"+this.timeslot_id+" dom:"+this.domid;
 };
@@ -568,7 +571,8 @@ ScheduledSlot.prototype.session = function() {
     if(this.session_id != undefined) {
        return agenda_globals.meeting_objs[this.session_id];
     } else {
-       return undefined;
+        console.log("ss id:", this.scheduledsession_id, "timeslot:", this.timeslot_id, this.timeslot.title(), "has null session");
+        return undefined;
     }
 };
 ScheduledSlot.prototype.slot_title = function() {

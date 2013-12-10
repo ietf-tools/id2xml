@@ -71,6 +71,7 @@ $(document).ready(function() {
 */
 function initStuff(){
     agenda_globals = new AgendaGlobals();
+    //agenda_globals.__debug_session_move = true;
 
     log("initstuff() running...");
     var directorpromises = [];

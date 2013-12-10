@@ -840,7 +840,7 @@ function update_to_slot(session_id, to_slot_id, force){
 
 	return save_promise;
     } else {
-        console.log("update_to_slot failed", to_timeslot, force);
+        console.log("update_to_slot failed", to_timeslot, force, "empty", to_timeslot.empty);
         return false;
     }
 }
@@ -1045,12 +1045,14 @@ function move_slot(parameters) {
     }
 
     if(agenda_globals.__debug_session_move) {
-        console.log("update_slot_worked", update_to_slot_worked);
+        console.log("update_to_slot returned promise", save_promise);
     }
 
     if(save_promise == false){
-	console.log("ERROR updating to_slot", update_to_slot_worked, parameters.to_slot_id, agenda_globals.slot_status[parameters.to_slot_id]);
-	return;
+	console.log("ERROR updating to_slot", save_promise,
+                    parameters.to_slot_id,
+                    agenda_globals.slot_status[parameters.to_slot_id]);
+	return undefined;
     }
 
     var delete_promises = update_from_slot(parameters.session.session_id, parameters.from_slot_id);

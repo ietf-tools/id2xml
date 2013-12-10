@@ -35,7 +35,7 @@ class ViewTestCase(TestCase):
     def test_js_identifier_clue(self):
         iepg_ss = ScheduledSession.objects.get(pk=2413)
         slot = iepg_ss.timeslot
-        self.assertEqual(slot.js_identifier, "252b_2012-03-27_0900")
+        self.assertEqual(slot.js_identifier, "room211_2012-03-27_0900")
 
     def test_agenda_save(self):
         #

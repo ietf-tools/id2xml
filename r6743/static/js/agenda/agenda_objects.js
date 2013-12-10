@@ -381,11 +381,12 @@ function make_timeslots(json, status, jqXHR) {
 function load_timeslots(href) {
     if(agenda_globals.timeslot_promise == undefined) {
         agenda_globals.timeslot_promise = $.Deferred();
+        var ts_promise = agenda_globals.timeslot_promise;
 
         var ts = $.ajax(href);
         ts.success(function(newobj, status, jqXHR) {
             make_timeslots(newobj);
-            agenda_globals.timeslot_promise.resolve(newobj);
+            ts_promise.resolve(newobj);
             console.log("finished timeslot promise");
         });
     }
@@ -451,14 +452,20 @@ ScheduledSlot.prototype.saveit = function() {
     // should do something on success and failure.
     saveit.done(function(result, status, jqXHR) {
         myss.initialize(result);
+        var session = myss.session;
+        session.placed(myss.timeslot);
     });
+
+    // return the promise, in case someone (tests!) needs to know when we are done.
+    return saveit;
 };
 
 ScheduledSlot.prototype.deleteit = function() {
-    var saveit = $.ajax(this.href, {
+    var deleteit = $.ajax(this.href, {
         "content-type": "text/json",
         "type": "DELETE",
     });
+    return deleteit;
 };
 
 function update_if_not_undefined(old, newval) {
@@ -495,8 +502,11 @@ ScheduledSlot.prototype.real_initialize = function(json) {
 
     //console.log("timeslot_id", this.timeslot_id);
     this.timeslot            = agenda_globals.timeslot_byid[this.timeslot_id];
-    if(this.session_id != undefined) {
+    if(this.timeslot != undefined) {
         this.timeslot.mark_occupied();
+    }
+    if(this.session_id != undefined) {
+        this.session = agenda_globals.meeting_objs[this.session_id];
     }
 
     // translate Python booleans to JS.

@@ -829,7 +829,7 @@ function update_to_slot(session_id, to_slot_id, force){
         var new_ss = make_ss({ "session_id" : session_id,
                                "timeslot_id": to_timeslot.timeslot_id});
         // make_ss also adds to slot_status.
-        new_ss.saveit();
+        var save_promise = new_ss.saveit();
 
         if(to_slot_id != bucketlist_id) {
 	    to_timeslot.mark_occupied();
@@ -838,7 +838,7 @@ function update_to_slot(session_id, to_slot_id, force){
 	// update meeting_obj
 	agenda_globals.meeting_objs[session_id].placed(to_timeslot, true, new_ss);
 
-	return true;
+	return save_promise;
     } else {
         console.log("update_to_slot failed", to_timeslot, force);
         return false;
@@ -851,19 +851,21 @@ function update_from_slot(session_id, from_slot_id)
 
     /* this is a list of scheduledsessions */
     var from_scheduledslots = agenda_globals.slot_status[from_slot_id];
-    var found = false;
+    var delete_promises = [];
 
     // it will be null if it's coming from a bucketlist
     if(from_slot_id != null){
         //console.log("1 from_slot_id", from_slot_id, from_scheduledslots);
         var count = from_scheduledslots.length;
+        var found = false;
 	for(var k = 0; k<from_scheduledslots.length; k++) {
             var from_ss = from_scheduledslots[k];
 	    if(from_ss.session_id == session_id){
-		found = true;
+                found = true;
 
-                from_ss.deleteit();
-                delete from_scheduledslots[k];
+                var promise = from_ss.deleteit();
+                delete_promises.push(promise);
+                from_scheduledslots.splice(k,1);
                 count--;
 	    }
 	}
@@ -887,9 +889,9 @@ function update_from_slot(session_id, from_slot_id)
     }
     else{
         // this may be questionable. It deals with the fact that it's coming from the bucketlist.
-	found = true;
+        delete_promises = [undefined];
     }
-    return found;
+    return delete_promises;
 }
 
 
@@ -1032,24 +1034,27 @@ function move_slot(parameters) {
     if(parameters.same_timeslot == null){
 	parameters.same_timeslot = false;
     }
+    var save_promise = undefined;
     if(parameters.bucket_list) {
-	update_to_slot_worked = update_to_slot(parameters.session.session_id,
-                                               parameters.to_slot_id, true);
+	save_promise = update_to_slot(parameters.session.session_id,
+                                      parameters.to_slot_id, true);
     }
     else{
-	update_to_slot_worked = update_to_slot(parameters.session.session_id,
-                                               parameters.to_slot_id, parameters.same_timeslot);
+	save_promise = update_to_slot(parameters.session.session_id,
+                                      parameters.to_slot_id, parameters.same_timeslot);
     }
 
     if(agenda_globals.__debug_session_move) {
         console.log("update_slot_worked", update_to_slot_worked);
     }
-    if(!update_to_slot_worked){
+
+    if(save_promise == false){
 	console.log("ERROR updating to_slot", update_to_slot_worked, parameters.to_slot_id, agenda_globals.slot_status[parameters.to_slot_id]);
 	return;
     }
 
-    if(update_from_slot(parameters.session.session_id, parameters.from_slot_id)) {
+    var delete_promises = update_from_slot(parameters.session.session_id, parameters.from_slot_id);
+    if(delete_promises.length > 0) {
 	remove_duplicate(parameters.from_slot_id, parameters.session.session_id);
 	// do something else?
     }
@@ -1089,6 +1094,9 @@ function move_slot(parameters) {
     droppable();
     listeners();
     sort_unassigned();
+
+    delete_promises.push(save_promise);
+    return $.when.apply($,delete_promises);
 }
 
 /* first thing that happens when we grab a meeting_event */

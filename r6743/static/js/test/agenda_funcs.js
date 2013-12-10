@@ -268,16 +268,16 @@ ScheduledSlot.prototype.initialize = function(json) {
     this.real_initialize(json);
 }
 
-
-function richard_move() {
-    var richard0 = agenda_globals.sessions_objs["richard"];
-    var richard = richard0[0];
-
+function mock_ui_draggable() {
     // mock up the ui object.
     var ui = new Object();
     ui.draggable = new Object();
     ui.draggable.remove = function() { return true; };
 
+    return ui;
+}
+
+function mock_dom_obj() {
     // mock up the dom object
     var dom_obj = "#" + t_slots[4].domid;
 
@@ -288,6 +288,16 @@ function richard_move() {
         div.innerHTML = "welcome";
         div.id = dom_obj;
     }
+    return dom_obj;
+}
+
+function richard_move() {
+    var richard0 = agenda_globals.sessions_objs["richard"];
+    var richard = richard0[0];
+
+    var ui = mock_ui_draggable();
+
+    var dom_obj = mock_dom_obj();
 
     /* current situation was tested in above test, so go ahead */
     /* and move "richard" to another slot  */

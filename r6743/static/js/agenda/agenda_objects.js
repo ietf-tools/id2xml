@@ -920,6 +920,17 @@ Session.prototype.area_scheme = function() {
     return this.area.toUpperCase() + "-scheme";
 };
 
+Session.prototype.is_bof = function() {
+    return this.bof == "True";
+}
+Session.prototype.wg_scheme = function() {
+    if(this.is_bof()) {
+        return "bof_style";
+    } else {
+        return "wg_style";
+    }
+};
+
 Session.prototype.add_column_class = function(column_class) {
     if(__column_class_debug) {
         console.log("adding:",column_class, "to ", this.title);
@@ -1028,6 +1039,7 @@ Session.prototype.event_template = function() {
         this.session_id+
         "' session_id=\""+this.session_id+"\"" +
         "><tr id='meeting_event_title'><th class='"+
+        this.wg_scheme()+" "+
         this.area_scheme() +" meeting_obj'>"+
         this.visible_title()+
         "<span> ("+this.requested_duration+")</span>" +
@@ -1040,6 +1052,12 @@ function andthen_alert(object, result, arg) {
 
 Session.prototype.generate_info_table = function() {
     $("#info_grp").html(name_select_html);
+    if(this.is_bof()) {
+        $("#grp_type").html("BOF");
+    } else {
+        $("#grp_type").html("WG");
+    }
+
     $("#info_name_select").val($("#info_name_select_option_"+this.session_id).val());
     if(this.description.length > 33) {
         $("#info_name").html("<span title=\""+this.description+"\">"+this.description.substring(0,35)+"...</span>");

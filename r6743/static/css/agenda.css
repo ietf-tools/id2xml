@@ -316,6 +316,18 @@ div.agenda_slot{
 
 }
 
+.wg_style {
+    font-style:normal;
+}
+
+.bof_style {
+    font-style:italic;
+}
+#grp_type {
+    display: inline;
+    float: right;
+}
+
 .ss_info tr{
     /* border-right: 1px solid #89D; */
     /* border-top: 1px solid #89D; */

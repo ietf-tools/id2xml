@@ -790,6 +790,9 @@ class Session(models.Model):
             ss0name = ss[0].timeslot.time.strftime("%H%M")
         return u"%s: %s %s[%u]" % (self.meeting, self.group.acronym, ss0name, self.pk)
 
+    def is_bof(self):
+        return self.group.is_bof();
+
     @property
     def short_name(self):
         if self.name:
@@ -860,18 +863,16 @@ class Session(models.Model):
         sess1['href']           = urljoin(host_scheme, self.json_url())
         if self.group is not None:
             sess1['group']          = self.group.json_dict(host_scheme)
-            # nuke rest of these as soon as JS cleaned up.
             sess1['group_href']     = urljoin(host_scheme, self.group.json_url())
-            sess1['group_acronym']  = str(self.group.acronym)
             if self.group.parent is not None:
                 sess1['area']           = str(self.group.parent.acronym).upper()
-            sess1['GroupInfo_state']= str(self.group.state)
             sess1['description']    = str(self.group.name)
             sess1['group_id']       = str(self.group.pk)
         sess1['session_id']     = str(self.pk)
         sess1['name']           = str(self.name)
         sess1['title']          = str(self.short_name)
         sess1['short_name']     = str(self.short_name)
+        sess1['bof']            = str(self.is_bof())
         sess1['agenda_note']    = str(self.agenda_note)
         sess1['attendees']      = str(self.attendees)
         sess1['status']         = str(self.status)
@@ -903,7 +904,7 @@ class Session(models.Model):
 
     def type(self):
         if self.group.type.slug in [ "wg" ]:
-            return "BOF" if self.group.state.slug in ["bof", "bof-conc"] else "WG"
+            return "BOF" if self.group.is_bof() else "WG"
         else:
             return ""
 

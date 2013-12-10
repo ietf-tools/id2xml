@@ -175,3 +175,100 @@ test( "re-calculate conflict columns for henry (ticket 1213)", function() {
     equal(cc10.th_tag, ".day_2013-12-02-0900");
 });
 
+test( "build WG template for regular group (ticket #1135)", function() {
+    reset_globals();
+    var nts = make_timeslot({"timeslot_id":"123",
+                             "room"       :"Regency A",
+                             "time"       :"0900",
+                             "date"       :"2013-11-04",
+                             "domid"      :"regencya_2013-11-04_0900"});
+
+    // this is from http://localhost:8000/meeting/83/session/2157.json
+    var group1 = session_obj(
+        {
+            "agenda_note": "",
+            "area": "SEC",
+            "attendees": "45",
+            "bof": "False",
+            "comments": "please, no evening sessions.",
+            "description": "Public-Key Infrastructure (X.509)",
+            "group": {
+                "acronym": "pkix",
+                "ad_href": "http://localhost:8000/person/19483.json",
+                "comments": "1st met, 34th IETF Dallas, TX (December 4-8, 1995)",
+                "href": "http://localhost:8000/group/pkix.json",
+                "list_archive": "http://www.ietf.org/mail-archive/web/pkix/",
+                "list_email": "pkix@ietf.org",
+                "list_subscribe": "pkix-request@ietf.org",
+                "name": "Public-Key Infrastructure (X.509)",
+                "parent_href": "http://localhost:8000/group/sec.json",
+                "state": "active",
+                "type": "wg"
+            },
+            "group_acronym": "pkix",
+            "group_href": "http://localhost:8000/group/pkix.json",
+            "group_id": "1223",
+            "href": "http://localhost:8000/meeting/83/session/2157.json",
+            "name": "",
+            "requested_by": "Stephen Kent",
+            "requested_duration": "2.0",
+            "requested_time": "2011-12-19",
+            "session_id": "2157",
+            "short_name": "pkix",
+            "special_request": "*",
+            "status": "Scheduled",
+            "title": "pkix"
+        });
+
+    // validate that the session id is there as a basic check.
+    ok(group1.event_template().search(/meeting_box_container/));
+    ok(group1.event_template().search(/session_2157/));
+    ok(group1.event_template().search(/wg_style /));
+});
+
+test( "build WG template for BOF group (ticket #1135)", function() {
+    reset_globals();
+
+    // this is from http://localhost:8000/meeting/83/session/2157.json
+    var group1 = session_obj(
+        {
+            "agenda_note": "",
+            "area": "GEN",
+            "attendees": "50",
+            "bof": "True",
+            "comments": "",
+            "description": "RFC Format",
+            "group": {
+                "acronym": "rfcform",
+                "ad_href": "http://localhost:8000/person/5376.json",
+                "comments": "",
+                "href": "http://localhost:8000/group/rfcform.json",
+                "list_archive": "",
+                "list_email": "",
+                "list_subscribe": "",
+                "name": "RFC Format",
+                "parent_href": "http://localhost:8000/group/gen.json",
+                "state": "bof",
+                "type": "wg"
+            },
+            "group_acronym": "rfcform",
+            "group_href": "http://localhost:8000/group/rfcform.json",
+            "group_id": "1845",
+            "href": "http://localhost:8000/meeting/83/session/22081.json",
+            "name": "",
+            "requested_by": "Wanda Lo",
+            "requested_duration": "1.0",
+            "requested_time": "2012-02-27",
+            "session_id": "22081",
+            "short_name": "rfcform",
+            "special_request": "",
+            "status": "Scheduled",
+            "title": "rfcform"
+        }
+    );
+
+    // validate that the session id is there as a basic check.
+    ok(group1.event_template().search(/meeting_box_container/));
+    ok(group1.event_template().search(/session_2157/));
+    ok(group1.event_template().search(/bof_style /));
+});

@@ -8,6 +8,7 @@ from ietf.meeting.models  import TimeSlot, Session, Meeting, ScheduledSession
 from ietf.meeting.helpers import get_meeting, get_schedule
 
 import debug
+host_scheme  = "http://datatracker.ietf.org"
 
 class AgendaInfoTestCase(TestCase):
     # See ietf.utils.test_utils.TestCase for the use of perma_fixtures vs. fixtures
@@ -111,7 +112,6 @@ class AgendaInfoTestCase(TestCase):
 
     def test_serialize_constraint(self):
         session1  = Session.objects.get(pk=2157)
-        host_scheme  = "http://datatracker.ietf.org"
         json_dict = session1.constraints_dict(host_scheme)
         self.assertEqual(len(json_dict), 25)
 
@@ -128,5 +128,12 @@ class AgendaInfoTestCase(TestCase):
         is_present = clue83.people_constraints
         self.assertIsNotNone(is_present, "why is constraint list none")
         self.assertEqual(len(is_present), 3)
+
+    def test_bofIsTrueForRfcForm(self):
+        mtg83 = get_meeting(83)
+        rfcform83 = mtg83.session_set.filter(group__acronym='rfcform')[0]
+        self.assertEqual(rfcform83.is_bof(), True)
+        json_dict = rfcform83.json_dict(host_scheme)
+        self.assertEqual(json_dict["bof"], "True")
 
 

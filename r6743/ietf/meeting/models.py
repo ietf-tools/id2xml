@@ -122,7 +122,6 @@ class Meeting(models.Model):
         donotplace_groups |= Q(group__acronym="iesg")
         donotplace_groups |= Q(group__acronym="ietf")
         donotplace_groups |= Q(group__acronym="iepg")
-        donotplace_groups |= Q(group__acronym="ietf")
         donotplace_groups |= Q(group__acronym="iab")
         return self.sessions_that_can_meet.exclude(donotplace_groups)
 

@@ -34,7 +34,7 @@ asyncTest("Load Sessions", function() {
     });
 });
 
-asyncTest("Load ScheduledSlot", function() {
+asyncTest("Load ScheduledSlot (ticket 1210)", function() {
     expect( 1 );     // expect one assertion.
 
     var ss_promise = full_83_setup();
@@ -44,7 +44,73 @@ asyncTest("Load ScheduledSlot", function() {
     });
 });
 
-test( "3x8 grid create", function() {
+asyncTest( "move a session using the API (ticket 1211)", function() {
+    expect(4);
+
+    var ss_promise = full_83_setup();
+    ss_promise.done(function() {
+        equal(Object.keys(agenda_globals.slot_objs).length, 150, "150 scheduled sessions loaded");
+
+        // now move a session.. like selenium test, move forced from Monday to Friday:
+        // monday_room_253  = is #room208_2012-03-26_1510
+        // friday_room_252A = is #room209_2012-03-30_1230
+
+        var forces_list  = agenda_globals.sessions_objs["forces"];
+        var forces       = forces_list[0];
+        var from_slot_id = "room208_2012-03-26_1510";
+        var from_slot    = agenda_globals.timeslot_bydomid[from_slot_id];
+        var to_slot_id   = "room209_2012-03-30_1230";
+        var to_slot      = agenda_globals.timeslot_bydomid[to_slot_id];
+        var ui           = mock_ui_draggable();
+        var dom_obj      = "#" + to_slot_id;
+
+        /* current situation was tested in above test, so go ahead */
+        /* and move "richard" to another slot  */
+
+        var move_promise = move_slot({"session": forces,
+                                      "to_slot_id":  to_slot_id,
+                                      "to_slot":     to_slot,
+                                      "from_slot_id":from_slot_id,
+                                      "from_slot":   [from_slot],
+                                      "bucket_list": false,
+                                      "ui":          ui,
+                                      "dom_obj":     dom_obj,
+                                      "force":       true});
+        notEqual(move_promise, undefined);
+
+        if(move_promise != undefined) {
+            // now we need to check that it is all been done.
+            move_promise.done(function() {
+                // see that the placed is right.
+                equal(forces.slot.domid, to_slot_id);
+
+                // now move the item back again.
+
+                var return_promise = move_slot({"session": forces,
+                                                "to_slot_id":  from_slot_id,
+                                                "to_slot":     from_slot,
+                                                "from_slot_id":to_slot_id,
+                                                "from_slot":   [to_slot],
+                                                "bucket_list": false,
+                                                "ui":          ui,
+                                                "dom_obj":     dom_obj,
+                                                "force":       true});
+
+                return_promise.done(function() {
+                    // see that the placed is right.
+                    equal(forces.slot.domid, from_slot_id);
+                    start();
+                });
+            });
+        } else {
+            // it is not legitimate to wind up here, but it does
+            // keep the test cases from hanging.
+            start();
+        }
+    });
+});
+
+test( "3x8 grid create (ticket 1212 - part 1)", function() {
     expect(0);        // just make sure things run without error
     reset_globals();
 
@@ -53,12 +119,14 @@ test( "3x8 grid create", function() {
     place_6_sessions(t_slots, t_sessions);
 });
 
-test( "calculate conflict columns for henry", function() {
+test( "calculate conflict columns for henry (ticket 1212 - part 2)", function() {
     expect(10);
+
+    scheduledsession_post_href = "/test/agenda_ui.html";
 
     var henry = henry_setup();
     equal(henry.session_id, 1);
-    
+
     equal(henry.column_class_list.length, 1);
     equal(henry.column_class_list[0].room, "apple");
     equal(henry.column_class_list[0].time, "0900");
@@ -81,10 +149,11 @@ test( "calculate conflict columns for henry", function() {
     equal(cc10.th_tag, ".day_2013-12-02-1300");
 });
 
-test( "re-calculate conflict columns for henry", function() {
+test( "re-calculate conflict columns for henry (ticket 1213)", function() {
     expect(5);
     reset_globals();
 
+    scheduledsession_post_href = "/test/agenda_ui.html";
     agenda_globals.__debug_session_move = true;
 
     var henry = henry_setup();

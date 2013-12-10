@@ -228,9 +228,11 @@ function conflict_4_sessions(sessions) {
 
 function full_83_setup() {
     reset_globals();
+    scheduledsession_post_href = "/meeting/83/schedule/mtg_83/sessions.json";
     var ts_promise      = load_timeslots("/meeting/83/timeslots.json");
     var session_promise = load_sessions("/meeting/83/sessions.json");
-    var ss_promise      = load_scheduledsessions(ts_promise, session_promise, "/meeting/83/schedule/mtg_83/sessions.json")
+    var ss_promise      = load_scheduledsessions(ts_promise, session_promise,
+                                                 scheduledsession_post_href)
     return ss_promise;
 }
 
@@ -277,9 +279,9 @@ function mock_ui_draggable() {
     return ui;
 }
 
-function mock_dom_obj() {
+function mock_dom_obj(domid) {
     // mock up the dom object
-    var dom_obj = "#" + t_slots[4].domid;
+    var dom_obj = "#" + domid;
 
     // in the unit tests, the object won't exist, so make it.
     // when testing this test code, it might already be there
@@ -296,14 +298,13 @@ function richard_move() {
     var richard = richard0[0];
 
     var ui = mock_ui_draggable();
-
-    var dom_obj = mock_dom_obj();
+    var dom_obj = mock_dom_obj(t_slots[4].domid);
 
     /* current situation was tested in above test, so go ahead */
     /* and move "richard" to another slot  */
     move_slot({"session": richard,
                "to_slot_id":  t_slots[4].domid,
-               "to_slot":     [t_slots[4]],
+               "to_slot":     t_slots[4],
                "from_slot_id":t_slots[5].domid,
                "from_slot":   [t_slots[5]],
                "bucket_list": false,

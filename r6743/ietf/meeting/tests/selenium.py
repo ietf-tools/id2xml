@@ -69,23 +69,23 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
 
         monday_room_253_ts = m83.timeslot_set.get(location__name = "253",
                                                   time = datetime.datetime(2012,3,26,15,10))
-        friday_room_252A_ts = m83.timeslot_set.get(location__name = "252A",
-                                                  time = datetime.datetime(2012,3,30,12,30))
+        monday_room_maillot_ts = m83.timeslot_set.get(location__name = "Maillot",
+                                                  time = datetime.datetime(2012,3,26,15,10))
 
         monday_room_253  = driver.find_element_by_css_selector("#" + forces_ts.js_identifier)
-        friday_room_252A = driver.find_element_by_css_selector("#" + friday_room_252A_ts.js_identifier)
-        print "moving to Friday slot: %s" % (friday_room_252A_ts.js_identifier)
-        time.sleep(6)
-        action_chain1.drag_and_drop(forces, friday_room_252A).perform()
+        monday_room_maillot = driver.find_element_by_css_selector("#" + monday_room_maillot_ts.js_identifier)
+        print "moving to Maillot slot: %s" % (monday_room_maillot_ts.js_identifier)
+        time.sleep(3)
+        action_chain1.drag_and_drop(forces, monday_room_maillot).perform()
 
         # not sure how else to know it is done yet.
         print "waiting for database operation to complete"
-        time.sleep(15)
+        time.sleep(5)
 
         forces_ss = a83.scheduledsession_set.get(session = forces_request)
         forces_ts = forces_ss.timeslot
-        self.assertEqual(forces_ts.location.name, "252A")
-        self.assertEqual(forces_ts.time, datetime.datetime(2012,3,30,12,30))
+        self.assertEqual(forces_ts.location.name, "Maillot")
+        self.assertEqual(forces_ts.time, datetime.datetime(2012,3,26,15,10))
 
         print "moving it back to Monday"
         # Have to find it again since we moved it

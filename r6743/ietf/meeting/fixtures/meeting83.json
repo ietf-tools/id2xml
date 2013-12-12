@@ -68,7 +68,6 @@
 {"pk": 2414, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 12194, "timeslot": 2414}},
 {"pk": 2415, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2195, "timeslot": 2415}},
 {"pk": 2416, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 12195, "timeslot": 2416}},
-{"pk": 2417, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2196, "timeslot": 2417}},
 {"pk": 2418, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 12196, "timeslot": 2418}},
 {"pk": 2419, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2197, "timeslot": 2419}},
 {"pk": 2420, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2198, "timeslot": 2420}},

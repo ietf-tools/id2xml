@@ -171,7 +171,6 @@
 {"pk": 2517, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 22085, "timeslot": 2924}},
 {"pk": 2518, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2263, "timeslot": 2925}},
 {"pk": 2519, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 22089, "timeslot": 2926}},
-{"pk": 92520, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "manually created", "timeslot": 2933}},
 
 {"pk": 206, "model": "meeting.room", "fields": {"meeting": 83, "name": "212/213", "capacity": 60}},
 {"pk": 207, "model": "meeting.room", "fields": {"meeting": 83, "name": "243", "capacity": 100}},

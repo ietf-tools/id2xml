@@ -1,5 +1,5 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% extends "base.html" %}
+{% extends "ietf.html" %}
 
 {% block morecss %}
 table.userProfile {
@@ -51,7 +51,7 @@ th {
     }
     else
     {
-      span.className = 'inactive';
+      span.className = 'disabled';
     }
   }
 
@@ -78,69 +78,67 @@ th {
 {% block title %}Profile for {{ user }}{% endblock %}
 
 {% block content %}
-<h1>User information for {{ user.username }}</h1>
+<h1>{{ user.username }}<br><small>User information</small></h1>
 
-<form method="post"> {% csrf_token %}
-<table class="userProfile">
+<form method="post">
+<table class="table userProfile">
+<tbody>
   <tr>
     <th>User name:</th>
-    <td></td>
     <td>{{ user.username }}</td>
   </tr>
-  {% for role in roles %}
   <tr>
-    <th>{% if forloop.first %}Roles:{% endif %}</th>
-    <td></td>
-    <td class='{% cycle 'even' 'odd'%}'>{{ role.name }} in {{ role.group.acronym|upper }} ({{ role.group.type }})</td>
-    <td class='{% cycle 'even' 'odd'%}'>
-      <select name="role_email_{{role.id}}">
-        {% for email in emails %}<option value="{{email.address}}"{% ifequal email.address role.email.address %} selected="selected"{% endifequal %} class='{% if email.active %}active{% else %}inactive{% endif %}'>{{email}}</option>
-     {% endfor %}</select></td>
-  </tr>
-  {% endfor %}
-  {% for email in emails %}
+    <th>Role{{ roles|pluralize }}:</th>
+    <td>
+	{% for role in roles %}
+		<p>{{ role.name }} in {{ role.group.acronym|upper }} ({{ role.group.type }}): 
+		<select name="role_email_{{role.id}}">
+	        {% for email in emails %}
+	        	<option value="{{email.address}}"{% ifequal email.address role.email.address %} selected="selected"{% endifequal %} class='{% if email.active %}active{% else %}disabled{% endif %}'>{{email}}</option>
+	        {% endfor %}
+	        </select></p>
+  	{% endfor %}
+  </td></tr>
+  
   <tr>
-    <th>{% if forloop.first %}Email:{% endif %}</th>
-    <td></td>
-    <td colspan="2">
-    <input type="checkbox" id="controller_{{email.address}}" name="{{email.address}}" {% if email.active %}checked="checked"{% else %}{% endif %} onchange="style_email(this)"/>
-    <span id="span_{{email.address}}">{{email}}</span></td>
-  </tr>
+    <th>Email address{{ emails|pluralize:"es" }}:</th>
+    <td>
+	  {% for email in emails %}
+    <label class="checkbox" id="span_{{email.address}}">
+	    <input type="checkbox" id="controller_{{email.address}}" name="{{email.address}}" {% if email.active %}checked="checked"{% else %}{% endif %} onchange="style_email(this)">
+	    {{email}}
+	   </label>
   {% endfor %}
-  <tr id="add_email_row">
-    <th></th>
-    <td></td>
-    <td colspan='2'><input type="button" value="Add Email Address" onclick="add_email()"/></td>
-  </tr>
-  <tr><td colspan="2"></td><td colspan="2"><i>Note: Email addresses cannot be deleted, only deactivated.</i></td></tr>
+    <input class="btn" type="button" value="Add Email Address" onclick="add_email()">
+    <i>Note: Email addresses cannot be deleted, only deactivated.</i></td></tr>
+
   <tr>
     <th>{{person_form.name.label}}:</th>
-    <td></td>
-    <td colspan='2'>{{person_form.name}} - The preferred form of your name</td>
+    <td>{{person_form.name}} The preferred form of your name</td>
   </tr>
   <tr>
     <th>{{person_form.ascii.label}}:</th>
-    <td></td>
-    <td colspan='2'>{{person_form.ascii}} - Your name as rendered in ASCII (Latin, unaccented) characters</td>
+    <td>{{person_form.ascii}} Your name as rendered in ASCII (Latin, unaccented) characters</td>
   </tr>
   <tr>
     <th>{{person_form.ascii_short.label}}:</th>
-    <td></td>
-    <td colspan='2'>{{person_form.ascii_short}} - Short form, if any, of your name as rendered in ASCII (blank is okay)</td>
+    <td>{{person_form.ascii_short}} Short form, if any, of your name as rendered in ASCII (blank is okay)</td>
   </tr>
   <tr>
     <th>{{person_form.affiliation.label}}:</th>
-    <td></td>
-    <td colspan='2'>{{person_form.affiliation}} - Employer, university, sponsor, etc.</td>
+    <td>{{person_form.affiliation}} Employer, university, sponsor, etc.</td>
   </tr>
   <tr>
-    <th>Mailing Address:</th>
-    <td></td>
-    <td colspan='2'>{{person_form.address}}</td>
+    <th>Postal address:</th>
+    <td>{{person_form.address}}</td>
   </tr>
 
-<td colspan="4"><div width='100%' align='right'><input type="submit" value="Commit Changes" /></div></td></tr>
-</table>
+<td></td>
+<td><input class="btn btn-primary" type="submit" value="Save changes"></td>
+</tr>
+
+</tbody></table>
+
 
 
 </form>

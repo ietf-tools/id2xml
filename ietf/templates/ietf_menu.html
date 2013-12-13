@@ -1,4 +1,4 @@
-{% load wg_menu %} 
+{% load wg_menu %}
 {% load ietf_filters ietf_streams community_tags %}
 {% load ietf_filters community_tags %}
 
@@ -87,9 +87,9 @@
 	{% if flavor == "top" %}<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% endif %}Documents{% if flavor == "top" %}</a>{% endif %}
 	{% if flavor == "top" %}<ul class="dropdown-menu">{% endif %}
 
-	<li><a href="{% url submit_index %}">Submit an I-D</a></li> 
+	<li><a href="{% url submit_index %}">Submit an I-D</a></li>
 	{% if user|in_group:"WG Chair" %}
-		<li><a href="{% url submit_approvals %}">Approve an I-D</a></li> 
+		<li><a href="{% url submit_approvals %}">Approve an I-D</a></li>
 	{% endif %}
 	{% get_user_managed_lists user as community_lists %}
 	{% if community_lists %}

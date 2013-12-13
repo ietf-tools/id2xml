@@ -23,7 +23,7 @@
 		</style>
 		<link rel="stylesheet" href="/css/ietf.css">
 
-		<script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+		<script src="/js/vendor/modernizr-2.7.1.min.js"></script>
 
 		{% block pagehead %}{% endblock %}
 
@@ -53,11 +53,11 @@
 					{% endif %}
 				</a>
 			</div>
-			
+
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					{% with "top" as flavor %}
-						{% include "ietf_menu.html" %}      
+						{% include "ietf_menu.html" %}
 					{% endwith %}
 				</ul>
 
@@ -82,7 +82,7 @@
 				</div>
 				<div class="col-md-9">
 					{% block content %}{% endblock %}
-					{% block content_end %}{% endblock %} 
+					{% block content_end %}{% endblock %}
 				</div>
 			</div>
 
@@ -113,7 +113,7 @@
 							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
 						{% endif %}
 							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
-						
+
 						{% if messages %}
 							<ul class="messages">
 							{% for message in messages %}
@@ -121,12 +121,12 @@
 							{% endfor %}
 							</ul>
 						{% endif %}
-						
+
 						{% include "debug.html" %}
 					</small>
-				</div>				
+				</div>
 			</footer>
-		</div>  
+		</div>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.10.2.min.js"><\/script>')</script>

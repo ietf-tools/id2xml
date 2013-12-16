@@ -415,6 +415,9 @@ BADNESS_TOOSMALL_100 = 50000
 BADNESS_TOOBIG     = 100
 BADNESS_MUCHTOOBIG = 500
 
+# do not run SELENIUM tests by default
+SELENIUM_TESTS = False
+SELENIUM_TESTS_ONLY = False
 
 # Put SECRET_KEY in here, or any other sensitive or site-specific
 # changes.  DO NOT commit settings_local.py to svn.

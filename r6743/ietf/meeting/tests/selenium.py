@@ -25,7 +25,7 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.verificationErrors = []
         self.accept_next_alert = True
 
-    def test_seltest1_python(self):
+    def test_case1218_drag_drop(self):
         driver = self.driver
         driver.maximize_window()
 
@@ -91,7 +91,12 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         # Have to find it again since we moved it
         forces = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (forces_request.pk))
         action_chain2.drag_and_drop(forces, monday_room_253).perform()
-        time.sleep(15)
+        time.sleep(5)
+
+        forces_ss = a83.scheduledsession_set.get(session = forces_request)
+        forces_ts = forces_ss.timeslot
+        self.assertEqual(forces_ts.location.name, "253")
+        self.assertEqual(forces_ts.time, datetime.datetime(2012,3,26,15,10))
 
     def is_element_present(self, how, what):
         try:

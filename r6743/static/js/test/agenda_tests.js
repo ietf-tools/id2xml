@@ -221,9 +221,9 @@ test( "build WG template for regular group (ticket #1135)", function() {
         });
 
     // validate that the session id is there as a basic check.
-    ok(group1.event_template().search(/meeting_box_container/));
-    ok(group1.event_template().search(/session_2157/));
-    ok(group1.event_template().search(/wg_style /));
+    ok(group1.event_template().search(/meeting_box_container/) > 0);
+    ok(group1.event_template().search(/session_2157/) > 0);
+    ok(group1.event_template().search(/wg_style /) > 0);
 });
 
 test( "build WG template for BOF group (ticket #1135)", function() {
@@ -269,7 +269,7 @@ test( "build WG template for BOF group (ticket #1135)", function() {
 
     // validate that the session id is there as a basic check.
     ok(group1.event_template().search(/meeting_box_container/) > 0);
-    ok(group1.event_template().search(/session_2157/) > 0);
+    ok(group1.event_template().search(/session_22081/) > 0);
     ok(group1.event_template().search(/bof_style /) > 0);
 });
 

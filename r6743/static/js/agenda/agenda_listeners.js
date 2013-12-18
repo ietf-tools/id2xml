@@ -1042,7 +1042,7 @@ function move_slot(parameters) {
     }
 
     /* if to slot was marked empty, then remove anything in it (like word "empty") */
-    if(parameters.to_slot.empty) {
+    if(parameters.to_slot.empty && !parameters.to_slot.unscheduled_box) {
         $(parameters.dom_obj).html("");
     }
 

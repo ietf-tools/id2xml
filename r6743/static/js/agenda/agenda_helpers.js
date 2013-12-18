@@ -359,14 +359,26 @@ function calculate_room_select_box() {
     });
 
     var sorted = mobj_array.sort(compare_timeslot);
+    var lastone_id = undefined;
 
     $.each(sorted, function(index, value) {
+        // this check removes duplicates from the list, if there are any.
+        if(value.roomtype == "break" || value.roomtype=="reg") {
+            return;
+        }
+        if(value.timeslot_id == lastone_id) {
+            return; // from subfunction.
+        }
         //console.log("room_select_html", index, value, value.short_string);
         html=html+"<option value='"+value.timeslot_id;
         html=html+"' id='info_location_select_option_";
         html=html+value.timeslot_id+"'>";
         html=html+value.short_string;
+        if(value.roomtype != "session") {
+            html = html+ "(" + value.roomtype + ")";
+        }
         html=html+"</option>";
+        lastone_id = value.timeslot_id;
     });
     html = html+"</select>";
     room_select_html = html;

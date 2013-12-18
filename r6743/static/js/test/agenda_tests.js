@@ -312,7 +312,7 @@ test( "compare timeslots sanely (ticket #1135)", function() {
 });
 
 asyncTest( "calculate info_name_select box (ticket 1220)", function() {
-    expect(2);
+    expect(3);
 
     var ss_promise = full_83_setup();
 
@@ -323,6 +323,9 @@ asyncTest( "calculate info_name_select box (ticket 1220)", function() {
         // validate that calculate_name_select_box() provides all the timeslots
         ok(box.search(/Mon, 1510, Maillot/) > 0);
         ok(box.search(/undefined/) == -1);
+
+        // this one crept in: it is breakfast!
+        ok(box.search(/Mon, 0800, Halle Maillot A/) == -1);
         start();
     });
 });

@@ -567,9 +567,7 @@ function info_name_select_change(){
     if(last_item != null) {
         $(last_item).removeClass("selected_slot");
     }
-    if(current_item != null){
-	$(current_item).addClass("selected_slot");
-    }
+
     var slot_id    = $('#info_name_select').val();
     last_name_item = '#'+slot_id;
     console.log("selecting group", slot_id);
@@ -578,12 +576,17 @@ function info_name_select_change(){
     // ssk is null when item is in bucket list.
 
     current_item = "#session_"+slot_id; //slot_status_obj[0].session_id;
+    if(current_item != null){
+	$(current_item).addClass("selected_slot");
+        $(current_item).get(0).scrollIntoView(true);
+    }
 
     if(ssk != null){
 	var slot_status_obj = agenda_globals.slot_status[ssk];
-	current_timeslot = slot_status_obj[0].timeslot_id;
+	current_timeslot    = slot_status_obj[0].timeslot;
+	current_timeslot_id = slot_status_obj[0].timeslot_id;
 	ss = slot_status_obj[0];
-	session = ss.session();
+	session = ss.session;
         last_session = session;
         last_session.selectit();
 	// now set up the call back that might have to retrieve info.
@@ -872,7 +875,7 @@ function update_from_slot(session_id, from_slot_id)
         if(found && count == 0) {
             from_timeslot.mark_empty();
         } else {
-            console.log("setting fromslot empty", from_timeslot, count, found);
+            console.log("not setting fromslot empty", from_timeslot, count, found, session_id, "from_slot_id", from_slot_id);
         }
 
         /* remove undefined entries */

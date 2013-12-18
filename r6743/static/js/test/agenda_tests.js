@@ -268,10 +268,11 @@ test( "build WG template for BOF group (ticket #1135)", function() {
     );
 
     // validate that the session id is there as a basic check.
-    ok(group1.event_template().search(/meeting_box_container/));
-    ok(group1.event_template().search(/session_2157/));
-    ok(group1.event_template().search(/bof_style /));
+    ok(group1.event_template().search(/meeting_box_container/) > 0);
+    ok(group1.event_template().search(/session_2157/) > 0);
+    ok(group1.event_template().search(/bof_style /) > 0);
 });
+
 test( "compare timeslots sanely (ticket #1135)", function() {
     var timeSlotA = {"timeslot_id":2383,
                  "room":"243",

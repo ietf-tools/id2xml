@@ -661,6 +661,7 @@ function Session() {
     this.special_request = "";
     this.conflicted = false;
     this.double_wide = false;
+    this.attendees   = undefined;
 }
 
 function session_obj(json) {
@@ -678,6 +679,9 @@ function session_obj(json) {
     if(session.requested_duration == undefined) {
         session.requested_duration = session.duration;
     }
+
+    // make it a number.
+    session.attendees = parseInt(session.attendees);
 
     session.ogroup = session.group;
     if(session.group != undefined) {

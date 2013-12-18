@@ -353,6 +353,8 @@ class TimeSlot(models.Model):
         ts['href']        = urljoin(host_scheme, self.json_url())
         ts['room']        = self.get_location()
         ts['roomtype'] = self.type.slug
+        if self.location is not None:
+            ts['capacity'] = self.location.capacity
         ts["time"]     = date_format(self.time, 'Hi')
         ts["date"]     = fmt_date(self.time)
         ts["domid"]    = self.js_identifier

@@ -320,38 +320,49 @@ var temp_1;
    takes in a json.
 */
 
+function compare_timeslot(a,b) {
+    console.log("day: a,b", a.day, b.day);
+    if(a.day == b.day) {
+        console.log("time: a,b", a.starttime, b.starttime);
+        if(a.starttime == b.starttime) {
+            console.log("room: a,b", a.room, b.room, a.room < b.room);
+            if(a.room > b.room) {
+                return 1;
+            } else {
+                return -1;
+            }
+        };
+        return a.starttime - b.starttime;
+    }
+    if(a.day > b.day) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
 var room_select_html = "";
 function calculate_room_select_box() {
     var html = "<select id='info_location_select'>";
+    var mobj_array = [];
 
-    var keys = Object.keys(agenda_globals.slot_status)
-    var sorted = keys.sort(function(a,b) {
-			     a1=agenda_globals.slot_status[a];
-			     b1=agenda_globals.slot_status[b];
-			     if (a1.date != b1.date) {
-			       return a1.date-b1.date;
-			     }
-			     return a1.time - b1.time;
-			   });
+    $.each(agenda_globals.timeslot_byid, function(key, value){
+        mobj_array.push(value)
+    });
 
-    for (n in sorted) {
-        var k1 = sorted[n];
-        var val_arr = agenda_globals.slot_status[k1];
+    var sorted = mobj_array.sort(compare_timeslot);
 
-        /* k1 is the agenda_globals.slot_status key */
-        /* v1 is the slot_obj */
-	for(var i = 0; i<val_arr.length; i++){
-	    var v1 = val_arr[i];
-            html=html+"<option value='"+k1;
-            html=html+"' id='info_location_select_option_";
-            html=html+v1.timeslot_id+"'>";
-            html=html+v1.short_string();
-            html=html+"</option>";
-	}
-    }
+    $.each(sorted, function(index, value) {
+        console.log("room_select_html", index, value, value.short_string);
+        html=html+"<option value='"+value.timeslot_id;
+        html=html+"' id='info_location_select_option_";
+        html=html+value.timeslot_id+"'>";
+        html=html+value.short_string;
+        html=html+"</option>";
+    });
     html = html+"</select>";
     room_select_html = html;
-
+    return room_select_html;
 }
 
 var name_select_html = undefined;

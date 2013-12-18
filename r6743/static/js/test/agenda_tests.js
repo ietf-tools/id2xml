@@ -272,3 +272,41 @@ test( "build WG template for BOF group (ticket #1135)", function() {
     ok(group1.event_template().search(/session_2157/));
     ok(group1.event_template().search(/bof_style /));
 });
+test( "compare timeslots sanely (ticket #1135)", function() {
+    var timeSlotA = {"timeslot_id":2383,
+                 "room":"243",
+                 "day":"2012-03-26T00:00:00.000Z",
+                 "starttime":1300};
+
+    var timeSlotB = {"timeslot_id":2389,
+                 "room":"241",
+                 "day":"2012-03-26T00:00:00.000Z",
+                 "starttime":900};
+
+    var timeSlotC = {"timeslot_id":2381,
+                 "room":"245A",
+                 "day":"2012-03-26T00:00:00.000Z",
+                 "starttime":1300};
+
+    var timeSlotD = {"timeslot_id":2382,
+                 "room":"245A",
+                 "day":"2012-03-27T00:00:00.000Z",
+                 "starttime":1510};
+
+    // three have the same day
+    ok(timeSlotA.day == timeSlotB.day);
+    ok(timeSlotA.day == timeSlotC.day);
+    ok(timeSlotA.day <  timeSlotD.day);
+
+    // two have the same starttime
+    ok(timeSlotA.starttime == timeSlotC.starttime);
+
+    // canonical order is B, A, C, D.
+
+    ok(compare_timeslot(timeSlotB, timeSlotA) < 0);
+    ok(compare_timeslot(timeSlotA, timeSlotC) < 0);
+    ok(compare_timeslot(timeSlotC, timeSlotD) < 0);
+    ok(compare_timeslot(timeSlotB, timeSlotD) < 0);
+    ok(compare_timeslot(timeSlotA, timeSlotD) < 0);
+
+});

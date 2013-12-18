@@ -301,6 +301,7 @@ function TimeSlot(){
     this.empty        = true;
     this.scheduledsessions = [];
     this.following_timeslot_id = undefined;
+    this.unscheduled_box = false;
 }
 
 TimeSlot.prototype.initialize = function(json) {
@@ -312,8 +313,9 @@ TimeSlot.prototype.initialize = function(json) {
 
     this.column_class=new ColumnClass(this.room, this.date, this.time);
 
-    var d = new Date(this.date);
-    var t = d.getUTCDay();
+    this.day   = new Date(this.date);
+    this.starttime = parseInt(this.time,10);
+    var t = this.day.getUTCDay();
     if(this.room == "Unassigned"){
        this.short_string = "Unassigned";
     }
@@ -490,6 +492,9 @@ ScheduledSlot.prototype.make_unassigned = function() {
     this.date                = null;
     this.timeslot            = new TimeSlot();
     this.timeslot.initialize({"domid":"sortable-list"});
+    this.timeslot.unscheduled_box = true;
+    this.timeslot.short_string = "Unscheduled";
+
 
     agenda_globals.slot_status[this.domid()]=[];
     agenda_globals.slot_status[this.domid()].push(this);

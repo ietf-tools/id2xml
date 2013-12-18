@@ -50,6 +50,9 @@ function listeners(){
     $('#info_location_select').unbind('change');
     $('#info_location_select').change(info_location_select_change);
 
+    $('#info_location_set').unbind('click');
+    $('#info_location_set').click(info_location_select_set);
+
     $('#info_name_select').unbind('change');
     $('#info_name_select').change(info_name_select_change);
 
@@ -550,6 +553,61 @@ function info_location_select_change(){
     $(last_item).addClass("selected_slot");
 }
 
+// called when the "Set" button is called, needs to perform a move, as if
+// it was dragged and dropped.
+function info_location_select_set() {
+    // figure out where the item was, and where it is going to.
+    var session = last_session;
+    var from_slot = session.slot;
+
+    var id = $('#info_location_select').val();
+    var to_slot = agenda_globals.timeslot_byid[id];
+
+    console.log("moved by select box from", from_slot, "to", to_slot);
+
+    move_thing({ "session": session,
+                 "to_slot_id": to_slot.domid,
+                 "to_slot":    to_slot,
+                 "dom_obj":      "#" + to_slot.domid,
+                 "from_slot_id": from_slot.domid,
+                 "from_slot":    from_slot});
+}
+
+function move_thing(parameters) {
+    // hasn't moved don't do anything
+    if(parameters.from_slot_id == parameters.to_slot_id){
+	return;
+    }
+
+    parameters.too_small = false;
+    parameters.slot_occupied = false;
+
+    var room_capacity = parameters.to_slot.capacity;
+
+    if(parameters.session.session_attendees > room_capacity){
+	parameters.too_small = true;
+    }
+
+    bucket_list = (parameters.to_slot_id == bucketlist_id);
+    if(!bucket_list && !parameters.to_slot.empty){
+	parameters.slot_occupied = true
+    }
+
+    if(parameters.too_small || parameters.slot_occupied){
+	toggle_dialog(parameters);
+	return
+    }
+
+    clear_conflict_classes();
+    // clear double wide setting for now.
+    // (could return if necessary)
+    parameters.session.double_wide = false;
+
+    move_slot(parameters);
+}
+
+
+
 var last_session = null;
 var last_name_item = null;
 function info_name_select_change(){
@@ -912,60 +970,14 @@ function drop_drop(event, ui){
     var from_slot_id = session.slot_status_key;
     var from_slot = agenda_globals.slot_status[session.slot_status_key]; // remember this is an array...
 
-    var room_capacity = parseInt($(this).attr('capacity'));
-    var session_attendees = parseInt(session.attendees);
-
-    var too_small = false;
-    var occupied = false;
-
-
-    if(from_slot_id == to_slot_id){ // hasn't moved don't do anything
-	return
-    }
-
-
-    if(session_attendees > room_capacity){
-	too_small = true;
-    }
-
-    // console.log("from -> to", from_slot_id, to_slot_id);
-
-
-    bucket_list = (to_slot_id == bucketlist_id);
-    if(!bucket_list && !check_free({id:to_slot_id}) ){
-	occupied = true
-    }
-
-    if(too_small || occupied){
-	toggle_dialog({ "session": session,
-                        "to_slot_id": to_slot_id,
-                        "to_slot":    to_slot,
-                        "from_slot_id": from_slot_id,
-                        "from_slot":    from_slot,
-                        "bucket_list":  bucket_list,
-                        "event":        event,
-                        "ui":           ui,
-                        "dom_obj":      this,
-                        "slot_occupied":     occupied,
-                        "too_small":    too_small});
-	return
-    }
-
-    clear_conflict_classes();
-    // clear double wide setting for now.
-    // (could return if necessary)
-    session.double_wide = false;
-
-    move_slot({"session": session,
-               "to_slot_id": to_slot_id,
-               "to_slot":    to_slot,
-               "from_slot_id":from_slot_id,
-               "from_slot":   from_slot,
-               "bucket_list": bucket_list,
-               "event":       event,
-               "ui":          ui,
-               "dom_obj":     this,
-               "force":       false});
+    move_thing({ "session": session,
+                 "to_slot_id": to_slot_id,
+                 "to_slot":    to_slot,
+                 "from_slot_id": from_slot_id,
+                 "from_slot":    from_slot,
+                 "event":        event,
+                 "ui":           ui,
+                 "dom_obj":      this});
 }
 
 function recalculate_conflicts_for_session(session, old_column_classes, new_column_classes)
@@ -1023,7 +1035,7 @@ function move_slot(parameters) {
     if(agenda_globals.__debug_session_move) {
         _LAST_MOVED = parameters.session;
         if(parameters.from_slot != undefined) {
-            console.log("from_slot", parameters.from_slot.length, parameters.from_slot[0].domid());
+            console.log("from_slot", parameters.from_slot.domid);
         } else {
             console.log("from_slot was unassigned");
         }
@@ -1073,7 +1085,9 @@ function move_slot(parameters) {
     var eTemplate = parameters.session.event_template()
     $(parameters.dom_obj).append(eTemplate);
 
-    parameters.ui.draggable.remove();
+    if(parameters.ui) {
+        parameters.ui.draggable.remove();
+    }
 
     /* recalculate all the conflict classes given new slot */
     parameters.session.update_column_classes([parameters.to_slot],
@@ -1081,18 +1095,18 @@ function move_slot(parameters) {
 
     /* set colours */
     $(parameters.dom_obj).removeClass('highlight_free_slot');
-    if(check_free({id:parameters.to_slot_id}) ){
-	$(parameters.dom_obj).addClass('free_slot')
-    }
-    else{
+    if(parameters.to_slot.empty) {
 	$(parameters.dom_obj).removeClass('free_slot')
     }
+    else{
+	$(parameters.dom_obj).addClass('free_slot')
+    }
 
-    if(check_free({id:parameters.from_slot_id}) ){
-	$("#"+parameters.from_slot_id).addClass('free_slot');
+    if(parameters.from_slot.empty){
+	$("#"+parameters.from_slot_id).removeClass('free_slot');
     }
     else{
-	$("#"+parameters.from_slot_id).removeClass('free_slot');
+	$("#"+parameters.from_slot_id).addClass('free_slot');
     }
     $("#"+bucketlist_id).removeClass('free_slot');
     /******************************************************/

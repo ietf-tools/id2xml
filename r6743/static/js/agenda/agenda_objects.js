@@ -456,7 +456,7 @@ ScheduledSlot.prototype.saveit = function() {
     });
     // should do something on success and failure.
     saveit.done(function(result, status, jqXHR) {
-        myss.initialize(result);
+        myss.initialize(result, "saveit");
         var session = myss.session;
         if(session != undefined) {
             session.placed(myss.timeslot);
@@ -467,11 +467,39 @@ ScheduledSlot.prototype.saveit = function() {
     return saveit;
 };
 
+function remove_from_slot_status(domid, ss_id) {
+    var found_at;
+    if(agenda_globals.__debug_session_move) {
+        console.log("remove", domid, agenda_globals.slot_status[domid]);
+    }
+    if(agenda_globals.slot_status[domid] != undefined) {
+        $.each(agenda_globals.slot_status[domid], function(index, value) {
+            if(agenda_globals.__debug_session_move) {
+                console.log("  checking", index, value, ss_id);
+            }
+            if(value.scheduledsession_id == ss_id) {
+                found_at = index;
+                return;
+            }
+        });
+        if(found_at != undefined) {
+            agenda_globals.slot_status[domid].splice(found_at, 1);
+            console.log("removed", found_at, agenda_globals.slot_status[domid]);
+        }
+    } else {
+        //console.log("  already empty");
+    }
+};
+
 ScheduledSlot.prototype.deleteit = function() {
     var deleteit = $.ajax(this.href, {
         "content-type": "text/json",
         "type": "DELETE",
     });
+    // now nuke self!
+    var me = this;
+    delete agenda_globals.slot_objs[this.scheduledsession_id];
+    remove_from_slot_status(this.domid(), this.scheduledsession_id);
     return deleteit;
 };
 
@@ -501,7 +529,7 @@ ScheduledSlot.prototype.make_unassigned = function() {
     agenda_globals.slot_objs[this.scheduledsession_id] = this;
 };
 
-ScheduledSlot.prototype.real_initialize = function(json) {
+ScheduledSlot.prototype.real_initialize = function(json, extra) {
     /* do not copy everything over */
     this.pinned              = update_if_not_undefined(this.pinned, json.pinned);
     this.scheduledsession_id = update_if_not_undefined(this.scheduledsession_id, json.scheduledsession_id);
@@ -535,6 +563,12 @@ ScheduledSlot.prototype.real_initialize = function(json) {
             agenda_globals.slot_status[this.domid()]=[];
         }
         if(this.session_id != undefined) {
+            // remove any old duplicate that might exist.
+            remove_from_slot_status(this.domid(), this.scheduledsession_id);
+            if(agenda_globals.__debug_session_move) {
+                console.log(extra, "adding to slot_status", this.domid());
+            }
+
             agenda_globals.slot_status[this.domid()].push(this);
             //console.log("filling slot_objs", this.scheduledsession_id);
         }
@@ -593,7 +627,7 @@ ScheduledSlot.prototype.slot_title = function() {
 
 function make_ss(json) {
     var ss = new ScheduledSlot();
-    ss.initialize(json);
+    ss.initialize(json, "make_ss");
     return ss;
 }
 

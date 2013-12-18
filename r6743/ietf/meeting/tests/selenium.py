@@ -172,40 +172,46 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
 
         action_chain1 = ActionChains(driver)
         forces_request, forces_ss,forces_ts = self.find_forces(m83)
-        monday_room_253,monday_room_maillot,target_ts=self.find_forces_rooms(m83, forces_ts)
+        orig_forces_ts = forces_ts
+        monday_room_253,monday_room_maillot,maillot_ts=self.find_forces_rooms(m83, forces_ts)
 
         print "clicking forces"
         forces = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (forces_request.pk))
         forces.click()
 
-        print "picking a new location in location bar"
-
+        print "picking a new location in location bar: %u" % (maillot_ts.pk)
         self.scroll_into_view("info_name_select")
-        unscheduled = driver.find_element_by_css_selector("#sortable-list")
         location    = Select(driver.find_element_by_id("info_location_select"))
         #import pdb; pdb.set_trace()
-        location.select_by_value("%u" % (target_ts.pk))
+        location.select_by_value("%u" % (maillot_ts.pk))
         # more reliable to select by value.
         # location.select_by_visible_text("Mon, 1510, Maillot")
         setbutton   = driver.find_element_by_id("info_location_set")
         setbutton.click()
 
-
         # not sure how else to know it is done yet.
         print "waiting for database operation to complete"
         time.sleep(5)
 
-        # assert that it is no longer scheduled
-        self.assertEqual(len(a83.scheduledsession_set.filter(session = forces_request)),0)
+        # check that it is moved room
+        forces_ss = a83.scheduledsession_set.get(session = forces_request)
+        new_forces_ts = forces_ss.timeslot
+        self.assertEqual(new_forces_ts.location.name, "Maillot")
+        self.assertEqual(new_forces_ts.time, datetime.datetime(2012,3,26,15,10))
 
-        print "moving it back to Monday"
-        action_chain2 = ActionChains(driver)
 
-        monday_room_253,monday_room_maillot=self.find_forces_rooms(m83, forces_ts)
+        print "moving it back to 253: %u" % (orig_forces_ts.pk)
+        self.scroll_into_view("info_name_select")
+        time.sleep(1)
+        location    = Select(driver.find_element_by_id("info_location_select"))
+        location.select_by_value("%u" % (orig_forces_ts.pk))
+        time.sleep(30)
+        # more reliable to select by value.
+        # location.select_by_visible_text("Mon, 1510, Maillot")
+        setbutton   = driver.find_element_by_id("info_location_set")
+        setbutton.click()
 
-        # Have to find it again since we moved it, and put it back.
-        forces = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (forces_request.pk))
-        action_chain2.drag_and_drop(forces, monday_room_253).perform()
+        print "waiting for database operation to complete"
         time.sleep(5)
 
         forces_ss = a83.scheduledsession_set.get(session = forces_request)

@@ -303,12 +303,11 @@ test( "compare timeslots sanely (ticket #1135)", function() {
     ok(timeSlotA.starttime == timeSlotC.starttime);
 
     // canonical order is B, A, C, D.
-
-    ok(compare_timeslot(timeSlotB, timeSlotA) < 0);
-    ok(compare_timeslot(timeSlotA, timeSlotC) < 0);
-    ok(compare_timeslot(timeSlotC, timeSlotD) < 0);
-    ok(compare_timeslot(timeSlotB, timeSlotD) < 0);
-    ok(compare_timeslot(timeSlotA, timeSlotD) < 0);
+    equal(compare_timeslot(timeSlotB, timeSlotA), -1, "B < A");
+    equal(compare_timeslot(timeSlotA, timeSlotC), -1, "A < C");
+    equal(compare_timeslot(timeSlotC, timeSlotD), -1, "C < D");
+    equal(compare_timeslot(timeSlotB, timeSlotD), -1, "B < D");
+    equal(compare_timeslot(timeSlotA, timeSlotD), -1, "A < D");
 
 });
 

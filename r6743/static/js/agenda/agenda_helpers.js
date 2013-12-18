@@ -322,7 +322,11 @@ var temp_1;
 
 function compare_timeslot(a,b) {
     //console.log("day: a,b", a.day, b.day);
-    if(a.day == b.day) {
+
+    // sometimes (a.day==b.say)==false and (a.day===b.day)==false,
+    // for days that appear identical, but built from different strings,
+    // yet (a.day-b.day)==0.
+    if((a.day - b.day) == 0) {
         //console.log("time: a,b", a.starttime, b.starttime);
         if(a.starttime == b.starttime) {
             //console.log("room: a,b", a.room, b.room, a.room < b.room);
@@ -332,7 +336,11 @@ function compare_timeslot(a,b) {
                 return -1;
             }
         };
-        return a.starttime - b.starttime;
+        if(a.starttime > b.starttime) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
     if(a.day > b.day) {
         return 1;
@@ -373,6 +381,7 @@ function calculate_name_select_box(){
     var mobj_array2;
     $.each(agenda_globals.meeting_objs, function(key, value){ mobj_array.push(value) });
     mobj_array2 = mobj_array.sort(function(a,b) { return a.title.localeCompare(b.title); });
+
     var mlen = mobj_array.length;
     console.log("calculate name_select box with",mlen,"objects");
     for(var i = 0; i < mlen; i++){

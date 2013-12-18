@@ -321,11 +321,11 @@ var temp_1;
 */
 
 function compare_timeslot(a,b) {
-    console.log("day: a,b", a.day, b.day);
+    //console.log("day: a,b", a.day, b.day);
     if(a.day == b.day) {
-        console.log("time: a,b", a.starttime, b.starttime);
+        //console.log("time: a,b", a.starttime, b.starttime);
         if(a.starttime == b.starttime) {
-            console.log("room: a,b", a.room, b.room, a.room < b.room);
+            //console.log("room: a,b", a.room, b.room, a.room < b.room);
             if(a.room > b.room) {
                 return 1;
             } else {
@@ -353,7 +353,7 @@ function calculate_room_select_box() {
     var sorted = mobj_array.sort(compare_timeslot);
 
     $.each(sorted, function(index, value) {
-        console.log("room_select_html", index, value, value.short_string);
+        //console.log("room_select_html", index, value, value.short_string);
         html=html+"<option value='"+value.timeslot_id;
         html=html+"' id='info_location_select_option_";
         html=html+value.timeslot_id+"'>";

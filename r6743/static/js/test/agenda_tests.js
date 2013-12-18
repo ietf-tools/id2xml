@@ -310,3 +310,19 @@ test( "compare timeslots sanely (ticket #1135)", function() {
     ok(compare_timeslot(timeSlotA, timeSlotD) < 0);
 
 });
+
+asyncTest( "calculate info_name_select box (ticket 1220)", function() {
+    expect(2);
+
+    var ss_promise = full_83_setup();
+
+    ss_promise.done(function() {
+        var box = calculate_room_select_box();
+
+        // this is a box which has no session, and therefore no ss.
+        // validate that calculate_name_select_box() provides all the timeslots
+        ok(box.search(/Mon, 1510, Maillot/) > 0);
+        ok(box.search(/undefined/) == -1);
+        start();
+    });
+});

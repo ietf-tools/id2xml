@@ -300,7 +300,7 @@ Please save this agenda to your account first.
     <div id="agenda_saveas">
       <form action="{{saveasurl}}" method="post">{% csrf_token %}
         {{ saveas.as_p }}
-        <input type="submit" name="saveas" value="saveas">
+        <input id="saveasbutton" type="submit" name="saveas" value="saveas">
       </form>
     </div>
   </div>

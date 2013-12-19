@@ -13,6 +13,7 @@ from ietf.utils.test_utils import RealDatabaseTest
 from ietf.meeting.helpers import get_meeting, get_schedule
 import datetime
 
+# note: RealDatabaseTest runs things under a transaction
 class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
     def setUp(self):
         self.setUpRealDatabase()
@@ -30,6 +31,9 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
 
         print "The test web server has to run with user wnl who owns mtg83"
         print "Starting test"
+        self.wait_for_load()
+
+    def wait_for_load(self):
         itercount=0
         while itercount < 1000 and not self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
             time.sleep(2)
@@ -218,6 +222,51 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         forces_ts = forces_ss.timeslot
         self.assertEqual(forces_ts.location.name, "253")
         self.assertEqual(forces_ts.time, datetime.datetime(2012,3,26,15,10))
+
+    def test_case1223_use_saveas_box(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        newname="case1223"
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        items = m83.schedule_set.filter(name= newname)
+        # delete them "all" (should be zero or 1)
+        for sched in items:
+            sched.delete_schedule()
+
+        self.load_and_wait(a83)
+
+        self.scroll_into_view("saveasbutton")
+        time.sleep(4)
+
+        savename     = driver.find_element_by_id("id_savename")
+        savename.clear()
+        savename.send_keys(newname)
+
+        savebutton   = driver.find_element_by_id("saveasbutton")
+        savebutton.click()
+
+        print "saved new schedule: %s" % (newname)
+
+        # will hang here if the save failed, probably does not load.
+        self.wait_for_load()
+        self.assertEqual(driver.current_url, "http://localhost:8000/meeting/83/schedule/%s/edit" % newname)
+
+        # MySQL transaction code manages to keep us from seeing the new entry
+        # in some cases.  DJANGO 1.4 might help.
+        m83 = get_meeting(83)
+        nitems = m83.schedule_set.filter(name= newname)
+        item_count = len(nitems)
+        print "looked at database for: %s, found: %u" % (newname, item_count)
+        # clean up just in case.
+        for sched in nitems:
+            sched.delete_schedule()
+
+        # can not assert here.
+        # self.assertEqual(item_count, 1, items)
+
 
     def is_element_present(self, how, what):
         try:

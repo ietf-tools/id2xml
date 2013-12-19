@@ -311,7 +311,7 @@ test( "compare timeslots sanely (ticket #1135)", function() {
 
 });
 
-asyncTest( "calculate info_name_select box (ticket 1220)", function() {
+asyncTest( "calculate info_room_select box (ticket 1220/1214)", function() {
     expect(3);
 
     var ss_promise = full_83_setup();
@@ -326,6 +326,32 @@ asyncTest( "calculate info_name_select box (ticket 1220)", function() {
 
         // this one crept in: it is breakfast!
         ok(box.search(/Mon, 0800, Halle Maillot A/) == -1);
+        start();
+    });
+});
+
+asyncTest( "calculate info_group_select box (ticket 1214)", function() {
+    expect(1);
+
+    var ss_promise = full_83_setup();
+
+    ss_promise.done(function() {
+        var box = calculate_name_select_box();
+
+        // the list of all of the groups.
+        // count the number of occurances of value=
+        var count = 0;
+        var valueloc = box.search(/value=/);
+        while(valueloc != -1) {
+            //console.log(count, "valueat",valueloc, "box contains", box);
+            count += 1;
+            // eat everything upto value=, and then a bit.
+            box = box.substring(valueloc+1);
+            valueloc = box.search(/value=/);
+        }
+
+        // 145 WG and other requests that "can meet"
+        equal(count, 145);
         start();
     });
 });

@@ -425,6 +425,7 @@ function calculate_name_select_box(){
 
     html = html+"</select>";
     name_select_html = html;
+    return html;
 }
 
 

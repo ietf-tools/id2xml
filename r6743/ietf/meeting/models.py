@@ -624,7 +624,7 @@ class ScheduledSession(models.Model):
     @property
     def slot_to_the_right(self):
         ss1 = self.schedule.scheduledsession_set.filter(timeslot = self.timeslot.slot_to_the_right)
-        if ss1:
+        if len(ss1)>0:
             return ss1[0]
         else:
             return None

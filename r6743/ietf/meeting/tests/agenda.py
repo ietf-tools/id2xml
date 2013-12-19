@@ -51,11 +51,11 @@ class AgendaInfoTestCase(TestCase):
             #                                         timeslots[slotnum+1].time))
             self.assertTrue(timeslots[slotnum].time < timeslots[slotnum+1].time)
 
-    # this tests that a slot at 11:20 AM on Friday, has slot 10 minutes later
-    # after it
+    # this tests that a slot in room 252A at 11:20 AM on Friday,
+    # has slot 10 minutes later after it
     def test_TimeSlot2408_has_SlotToTheRight(self):
         ss2408 = ScheduledSession.objects.get(pk = 2408)
-        self.assertTrue(ss2408.slot_to_the_right)
+        self.assertTrue(ss2408.slot_to_the_right is not None)
 
     # this tests that a slot 9-11:30am on Wednesday, has no following slot,
     # as the slot purpose to the right is non-session.

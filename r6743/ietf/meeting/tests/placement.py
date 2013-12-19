@@ -70,7 +70,7 @@ class PlacementTestCase(TestCase):
 
         # do some setup of these slots
         schedule = Schedule.objects.get(pk=24)
-        self.assertEqual(schedule.calc_badness(), 15081200)
+        self.assertEqual(schedule.calc_badness(), 15081000)
 
     def dump_placer_slots(self, placer1):
         """
@@ -110,7 +110,7 @@ class PlacementTestCase(TestCase):
 
         #self.dump_placer_slots(placer1)
         #import pdb; pdb.set_trace()
-        self.assertEqual(b1, 2435800)
+        self.assertEqual(b1, 3435700)
 
     def test_calculateBadnessMtg83unplaced(self):
         """

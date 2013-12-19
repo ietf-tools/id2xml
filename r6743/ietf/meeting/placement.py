@@ -651,7 +651,7 @@ class CurrentScheduleState:
                 # remove initial slot from list.
                 self.unplaced_scheduledslots.delete_first()
 
-            if accepted and self.recordsteps:
+            if False and accepted and self.recordsteps:
                 ass1 = AutomaticScheduleStep()
                 ass1.schedule = self.schedule
                 if self.slot1.session is not None:
@@ -724,10 +724,15 @@ class CurrentScheduleState:
         self.do_steps(limit, monitorSchedule)
         self.saveToSchedule(targetSchedule)
 
-class AutomaticScheduleStep(models.Model):
-    schedule   = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
-    session    = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session involved")
-    moved_from = models.ForeignKey('ScheduledSession', related_name="+", null=True, default=None, help_text=u"Where session was")
-    moved_to   = models.ForeignKey('ScheduledSession', related_name="+", null=True, default=None, help_text=u"Where session went")
-    stepnum    = models.IntegerField(default=0, blank=True, null=True)
+#
+# this does not clearly have value at this point.
+# Not worth a migration/table yet.
+#
+if False:
+    class AutomaticScheduleStep(models.Model):
+        schedule   = models.ForeignKey('Schedule', null=False, blank=False, help_text=u"Who made this agenda")
+        session    = models.ForeignKey('Session', null=True, default=None, help_text=u"Scheduled session involved")
+        moved_from = models.ForeignKey('ScheduledSession', related_name="+", null=True, default=None, help_text=u"Where session was")
+        moved_to   = models.ForeignKey('ScheduledSession', related_name="+", null=True, default=None, help_text=u"Where session went")
+        stepnum    = models.IntegerField(default=0, blank=True, null=True)
 

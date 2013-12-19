@@ -582,6 +582,11 @@ class Schedule(models.Model):
         self.badness = badness
         return badness
 
+    def delete_schedule(self):
+        self.scheduledsession_set.all().delete()
+        self.delete()
+
+
 # to be renamed ScheduleTimeslotSessionAssignments (stsa)
 class ScheduledSession(models.Model):
     """

@@ -16,8 +16,7 @@ class Command(BaseCommand):
 
         m83 = get_meeting(83)
         for schedule in m83.schedule_set.all():
-            schedule.scheduledsession_set.all().delete()
-            schedule.delete()
+            schedule.delete_schedule()
 
         # clear a bit more out.
         m83.session_set.all().delete()

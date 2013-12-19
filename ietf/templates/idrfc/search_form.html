@@ -1,79 +1,97 @@
-{% comment %}
-Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
-All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com> 
+{% load widget_tweaks %}
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions 
-are met:
+<form role="form" id="search_form" class="form-horizontal" action="{% url doc_search %}">
 
- * Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above
-   copyright notice, this list of conditions and the following
-   disclaimer in the documentation and/or other materials provided
-   with the distribution.
-
- * Neither the name of the Nokia Corporation and/or its
-   subsidiary(-ies) nor the names of its contributors may be used
-   to endorse or promote products derived from this software
-   without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-{% endcomment %}
-
-<form id="search_form" class="search_form" action="{% url doc_search %}" method="get">
-
-<div class="search_field">
-<label>Name/number/title:</label> {{ form.name }}
+<div class="input-group search_field">
+	{{ form.name|add_class:"form-control input-lg"|attr:"placeholder:Document name, number, title, etc." }}
+	<span class="input-group-btn">
+		<button class="btn btn-primary input-lg btn-lg" type="submit">Search</button>
+	</span>
 </div>
 
-<div class="search_field">
-  <label>Types:</label>
-  <table id="search_types">
-    <tr><td><label>{{ form.rfcs }} RFCs</label></td></tr>
-    <tr><td><label>{{ form.activedrafts }} Internet-Drafts (active)</label></td></tr>
-    <tr><td><label>{{ form.olddrafts }} Internet-Drafts (expired/replaced/withdrawn)</label></td></tr>
-  </table>
-</div>
-
+<p/>
 {{ form.sort }} {# hidden field #}
 
-<b class="toggle_advanced"><img src="/images/{% if meta.advanced %}minus{% else %}plus{% endif %}.png" alt="" /> Advanced</b>
+<div class="panel-group" id="accordion1">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<p class="panel-title">
+				<a data-toggle="collapse" data-parent="#accordion1" href="#collapse1">
+					Search document types...
+				</a>
+			</p>
+		</div>
+		<div id="collapse1" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="col-sm-offset-4 col-sm-8 search_field">
+					<div class="checkbox">
+						<label class="control-label"for="id_rfcs">{{ form.rfcs }} RFCs</label>
+					</div>
+					<div class="checkbox">
+						<label class="control-label"for="id_activedrafts">{{ form.activedrafts }} Internet-Drafts (active)</label>
+					</div>
+					<div class="checkbox">
+						<label class="control-label"for="id_olddrafts">{{ form.olddrafts }} Internet-Drafts (expired/replaced/withdrawn)</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
-<div id="search_advanced" style="{% if not meta.advanced %}display:none;{%endif%}">
-Additional search criteria:
 
-<div class="search_field">
-  <label><input type="radio" class="radio" name="by" value="author" {% if meta.by == "author" %}checked="checked"{% endif %}/> Author:</label> {{ form.author }}
-</div>
-<div class="search_field">
-  <label><input type="radio" class="radio" name="by" value="group" {% if meta.by == "group" %}checked="checked"{% endif %}/> WG:</label> {{ form.group }}
-</div>
-<div class="search_field">
-  <label><input type="radio" class="radio" name="by" value="area" {% if meta.by == "area" %}checked="checked"{% endif %}/> Area:</label> {{ form.area }}
-</div>
-<div class="search_field">
-  <label><input type="radio" class="radio" name="by" value="ad" {% if meta.by == "ad" %}checked="checked"{% endif %}/> Responsible AD:</label> {{ form.ad }}
-</div>
-<div class="search_field">
-  <label><input type="radio" class="radio" name="by" value="state" {% if meta.by == "state" %}checked="checked"{% endif %}/> IESG State:</label> {{ form.state }} :: {{ form.substate }}
-</div>
+<div class="panel-group" id="accordion2">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<p class="panel-title">
+				<a data-toggle="collapse" data-parent="#accordion2" href="#collapse2">
+					Additional search criteria...
+				</a>
+			</p>
+		</div>
+		<div id="collapse2" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="form-group search_field">
+					<label for="id_author" class="col-sm-4"><input type="radio" name="by" value="author" {% if meta.by == "author" %}checked{% endif %}/> Author:</label>
+					<div class="col-sm-8">
+						 {{ form.author|add_class:"form-control" }}
+					</div>
+				</div>
 
-</div><!-- end of advanced -->
+				<div class="form-group search_field">
+					<label for="id_group" class="col-sm-4"><input type="radio" name="by" value="group" {% if meta.by == "group" %}checked{% endif %}/> WG:</label>
+					<div class="col-sm-8">
+						{{ form.group|add_class:"form-control" }}
+					</div>
+				</div>
 
-<div class="submit">
-  <input type="submit" class="button" value="Search"/>
+
+				<div class="form-group search_field">
+					<label for="id_area" class="col-sm-4"><input type="radio" name="by" value="area" {% if meta.by == "area" %}checked{% endif %}/> Area:</label>
+					<div class="col-sm-8">
+						{{ form.area|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="id_ad" class="col-sm-4"><input type="radio" name="by" value="ad" {% if meta.by == "ad" %}checked{% endif %}/> Responsible AD:</label>
+					<div class="col-sm-8">
+						{{ form.ad|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="id_state" class="col-sm-4"><input type="radio" name="by" value="state" {% if meta.by == "state" %}checked{% endif %}/> IESG State:</label>
+					<div class="col-sm-4">
+						{{ form.state|add_class:"form-control" }}
+					</div>
+					<div class="col-sm-4">
+						{{ form.substate|add_class:"form-control" }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 </form>

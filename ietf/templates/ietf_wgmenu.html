@@ -1,6 +1,6 @@
 {% for area in areas %}
 	{% if area.area.active_wgs %}
-	<li class="dropdown-submenu">
+	<li class="potentially-hidden dropdown-submenu">
 		<a href="#">{{area.short_name }}</a>
 		<ul class="dropdown-menu">
 		{% for wg in area.area.active_wgs %}

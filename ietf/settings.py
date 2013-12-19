@@ -138,7 +138,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'ietf.context_processors.revision_info',
     'ietf.secr.context_processors.secr_revision_info',
     'ietf.secr.context_processors.static',
-    'ietf.context_processors.rfcdiff_prefix', 
+    'ietf.context_processors.rfcdiff_prefix',
 )
 
 INSTALLED_APPS = (
@@ -192,6 +192,7 @@ INSTALLED_APPS = (
     'ietf.secr.rolodex',
     'ietf.secr.telechat',
     'ietf.secr.sreq',
+    'widget_tweaks',
 )
 
 INTERNAL_IPS = (
@@ -335,7 +336,7 @@ HTPASSWD_FILE = "/www/htpasswd"
 # DB redesign
 USE_DB_REDESIGN_PROXY_CLASSES = True
 
-SOUTH_TESTS_MIGRATE = False 
+SOUTH_TESTS_MIGRATE = False
 
 # Generation of bibxml files for xml2rfc
 BIBXML_BASE_PATH = '/a/www/ietf-ftp/xml2rfc'

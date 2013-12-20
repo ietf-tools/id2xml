@@ -39,7 +39,7 @@ asyncTest("Load ScheduledSlot (ticket 1210)", function() {
 
     var ss_promise = full_83_setup();
     ss_promise.done(function() {
-        equal(Object.keys(agenda_globals.slot_objs).length, 150, "150 scheduled sessions loaded");
+        equal(Object.keys(agenda_globals.slot_objs).length, 148, "148 scheduled sessions loaded");
         start();
     });
 });
@@ -49,7 +49,7 @@ asyncTest( "move a session using the API (ticket 1211)", function() {
 
     var ss_promise = full_83_setup();
     ss_promise.done(function() {
-        equal(Object.keys(agenda_globals.slot_objs).length, 150, "150 scheduled sessions loaded");
+        equal(Object.keys(agenda_globals.slot_objs).length, 148, "148 scheduled sessions loaded");
 
         // now move a session.. like selenium test, move forced from Monday to Friday:
         // monday_room_253  = is #room208_2012-03-26_1510

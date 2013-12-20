@@ -67,6 +67,20 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         monday_room_maillot = self.driver.find_element_by_css_selector("#" + monday_room_maillot_ts.js_identifier)
         return monday_room_253, monday_room_maillot, monday_room_maillot_ts
 
+    def test_QUnit_tests(self):
+        driver = self.driver
+        driver.maximize_window()
+        self.driver.get(self.base_url + "/test/agenda_tests.html")
+
+        itercount=0
+        while itercount < 1000 and not self.is_element_visible(how=By.CSS_SELECTOR,what="span.failed"):
+            time.sleep(2)
+            itercount = itercount+1
+
+        results = driver.find_element_by_css_selector("#qunit-testresult .failed")
+        self.assertEqual(results.text, "0")
+
+
     def test_case1218_drag_drop(self):
         driver = self.driver
         driver.maximize_window()

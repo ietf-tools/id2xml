@@ -242,19 +242,25 @@ function slot_item_hidden(selector){
 
 
 
-var free_slots = [];
 
-function find_empty_slot(){
+function find_empty_slot(session) {
+    var free_slots = [];
 
-    $.each($(".free_slot"), function(index,item){
-	if(!$(item).hasClass("show_conflict_view_highlight")){
-	       free_slots.push(item);
+    $.each(agenda_globals.timeslot_byid, function(id, slot) {
+        if(slot.empty && !slot.unscheduled_box) {
+	    free_slots.push(slot);
 	}
     });
-    var perfect_slots = []; // array of slots that have a capacity higher than the session.
+
+    //console.log("free_slot list", free_slots);
+    var target_capacity = session.attendees;
+
+    // array of slots that have a capacity higher than the session.
+    var perfect_slots = [];
+
     if(free_slots.length > 0){
 	for(var i = 0; i< free_slots.length; i++){
-	    if(parseInt($(free_slots[i]).attr("capacity")) >= parseInt(agenda_globals.meeting_objs[current_item.attr('session_id')].attendees) ){
+	    if(free_slots[i].capacity  >= target_capacity) {
 		perfect_slots.push(free_slots[i]);
 	    }
 	}
@@ -264,12 +270,10 @@ function find_empty_slot(){
 	else{
 	    return free_slots[0]; // just return the first one.
 	}
-
     }
     else{
 	return null;
     }
-
 }
 
 function extend_slot(event) {
@@ -323,14 +327,17 @@ function extend_slot(event) {
 }
 
 function find_free(){
-    var empty_slot = find_empty_slot();
-    if(empty_slot != null){
-	$(empty_slot).effect("highlight", {},3000);
-	if(current_item != null){
-	    $(current_item).addClass('ui-effects-transfer');
-	    $(current_item).effect("transfer", {to: $(empty_slot) }, 1000);
-	}
-	$(current_item).removeClass('ui-effects-transfer');
+    if(last_session) {
+        var empty_slot = find_empty_slot(last_session);
+        if(empty_slot != null){
+            var domthing = $("#"+empty_slot.domid);
+	    domthing.effect("highlight", {},3000);
+	    if(current_item != null){
+	        $(current_item).addClass('ui-effects-transfer');
+	        $(current_item).effect("transfer", {to: domthing }, 1000);
+	    }
+	    $(current_item).removeClass('ui-effects-transfer');
+        }
     }
 }
 
@@ -530,7 +537,9 @@ function meeting_event_click(event){
     current_item = session.element();
 
     current_timeslot      = session.slot;
-    current_timeslot_id   = current_timeslot.timeslot_id;
+    if(current_timeslot) {
+        current_timeslot_id   = current_timeslot.timeslot_id;
+    }
     current_scheduledslot = session.scheduledsession;
     if(__debug_meeting_click) {
         console.log("2 meeting_click:", current_timeslot, session);

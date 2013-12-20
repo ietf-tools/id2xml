@@ -355,3 +355,16 @@ asyncTest( "calculate info_group_select box (ticket 1214)", function() {
         start();
     });
 });
+
+asyncTest( "look for an empty slot(ticket 1215)", function() {
+    expect(1);
+
+    var ss_promise = full_83_setup();
+
+    ss_promise.done(function() {
+        target_session = agenda_globals.sessions_objs["pcp"][0];
+        ok(find_empty_slot(target_session) != null);
+        start();
+    });
+
+});

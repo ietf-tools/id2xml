@@ -464,19 +464,6 @@ function insert_cell(js_room_id, text, replace){
 }
 
 
-function find_empty_test(){
-    $.each(agenda_globals.slot_status, function(key){
-	ss_arr = agenda_globals.slot_status[key];
-	for(var i = 0; i < ss_arr.length; i++){
-	    if(ss_arr[i].scheduledsession_id == null || ss_arr[i].session_id == null){
-		console.log(ss_arr[i]);
-	    }
-	}
-    })
-
-}
-
-
 function find_meeting_no_room(){
     $.each(agenda_globals.meeting_objs, function(key){
 	if(agenda_globals.meeting_objs[key].slot_status_key == null) {

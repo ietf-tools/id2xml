@@ -292,33 +292,40 @@ function extend_slot(event) {
         $("#can-extend-dialog").dialog({
 	    resizable: true,
 	    modal: true,
+            dialogClass: "extend-dialog",
 	    buttons: {
-                "Yes": function() {
-                    // need to create new scheduledsession
-                    var new_ss = make_ss({ "session_id" : session.session_id,
-                                           "timeslot_id": slot.following_timeslot.timeslot_id,
-                                           "extended_from_id" : current_scheduledslot.scheduledsession_id});
-                    // make_ss also adds to slot_status.
-                    new_ss.saveit();
+                "Yes": {
+                    click: function() {
+                        // need to create new scheduledsession
+                        var new_ss = make_ss({ "session_id" : session.session_id,
+                                               "timeslot_id": slot.following_timeslot.timeslot_id,
+                                               "extended_from_id" : current_scheduledslot.scheduledsession_id});
+                        // make_ss also adds to slot_status.
+                        new_ss.saveit();
 
-                    slot.extendedto = slot.following_timeslot;
-                    slot.extendedto.extendedfrom = slot;
-                    session.double_wide = true;
-                    session.repopulate_event(slot.domid);
+                        slot.extendedto = slot.following_timeslot;
+                        slot.extendedto.extendedfrom = slot;
+                        session.double_wide = true;
+                        session.repopulate_event(slot.domid);
 
-                    droppable();
-                    listeners();
-		    $( this ).dialog( "close" );
+                        droppable();
+                        listeners();
+		        $( this ).dialog( "close" );
 
-                    // may have caused some new conflicts!!!!
-                    recalculate_conflicts_for_session(session,
-                                                      [slot.column_class],
-                                                      [slot.column_class, slot.extendedto.column_class]);
-                },
-                Cancel: function() {
-		    $( this ).dialog( "close" );
-		    result = "cancel"
-                }
+                        // may have caused some new conflicts!!!!
+                        recalculate_conflicts_for_session(session,
+                                                          [slot.column_class],
+                                                          [slot.column_class, slot.extendedto.column_class]);
+                    },
+                    text: "Yes",
+                    id: "extend-yes"},
+                "Cancel": {
+                    click: function() {
+		        $( this ).dialog( "close" );
+		        result = "cancel"
+                    },
+                    text: "Cancel",
+                    id: "extend-cancel"},
 	    }
         });
     } else {

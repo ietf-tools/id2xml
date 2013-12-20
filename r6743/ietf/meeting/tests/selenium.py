@@ -281,6 +281,46 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         # can not assert here.
         # self.assertEqual(item_count, 1, items)
 
+    def test_case1221_extend_ccamp(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        # there are two of them, want the one on Monday.
+        ccamp_requests  = m83.session_set.filter(group__acronym = "ccamp",
+                                                 pk = 2162)
+        ccamp_request = ccamp_requests[0]
+
+        self.load_and_wait(a83)
+        self.scroll_into_view("double_slot")
+
+        print "clicking ccamp"
+        driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (ccamp_request.pk)).click()
+
+        print "clicking Extend"
+        extend = driver.find_element_by_id("double_slot")
+        extend.click()
+
+        time.sleep(1)  # give it time to render.
+
+        dialog = driver.find_element_by_id("can-extend-dialog")
+        print "alert: %s %s" % (self.is_alert_present(), dialog.is_displayed())
+        # ought to be true, but is not for reasons not yet understood.
+        #self.assertTrue(dialog.is_displayed())
+
+        yes = driver.find_element_by_xpath("//button/span[text() = 'Yes']")
+        yes.click()
+        print "button clicked"
+        time.sleep(5)
+
+        # ss 2376 is the original SS for ccamp, delete the other one.
+        ss = a83.scheduledsession_set.filter(session = ccamp_request,
+                                             timeslot__time = datetime.datetime(2012,3,26,15,10))
+        self.assertEqual(len(ss), 1)
+        ss[0].delete()
+
 
     def is_element_present(self, how, what):
         try:

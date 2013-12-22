@@ -147,7 +147,6 @@ Please save this agenda to your account first.
 
 <div class="agenda_div">
 
-
 <div id="dialog-confirm" title="" style="display:none">
   <p>
     <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
@@ -172,6 +171,36 @@ Please save this agenda to your account first.
     Are you sure you want to put two sessions into the same slot?
   </p>
 </div>
+
+<!-- some boxes for dialogues -->
+<div id="dialog-confirm-two" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    <span class="dialog-confirm-text">Are you sure you want to put two sessions into the same slot?</span>
+  </p>
+</div>
+
+<div id="dialog-confirm-toosmall" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    <span class="dialog-confirm-text">The room you are moving to has a lower
+      room capacity then the requested capacity,<br>
+      Are you sure you want to continue?
+    </span>
+  </p>
+</div>
+
+<div id="dialog-confirm-twotoosmall" title="" style="display:none">
+  <p>
+    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
+    <span class="dialog-confirm-text">
+      The slot you are moving to already has a session in it, <br>
+      the room is also smaller than the requested amount.<br>
+      Are you sure you want to continue?
+    </span>
+  </p>
+</div>
+
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
 <tr>
@@ -308,45 +337,6 @@ Please save this agenda to your account first.
 
 </div>
   <!-- <div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-ew">*</div> -->
-</div>
-
-<!-- some boxes for dialogues -->
-<div id="dialog-confirm-two" title="" style="display:none">
-  <p>
-    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
-    <span class="dialog-confirm-text">Are you sure you want to put two sessions into the same slot?</span>
-  </p>
-</div>
-
-<div id="dialog-confirm-toosmall" title="" style="display:none">
-  <p>
-    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
-    <span class="dialog-confirm-text">The room you are moving to has a lower
-      room capacity then the requested capacity,<br>
-      Are you sure you want to continue?
-    </span>
-  </p>
-</div>
-
-<div id="dialog-confirm-twotoosmall" title="" style="display:none">
-  <p>
-    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
-    <span class="dialog-confirm-text">
-      The slot you are moving to already has a session in it, <br>
-      the room is also smaller than the requested amount.<br>
-      Are you sure you want to continue?
-    </span>
-  </p>
-</div>
-
-<div id="can-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
-</div>
-
-<div id="can-not-extend-dialog" title="" class="ui-dialog dialog" style="display:none">
-  <p>
-    <span class="ui-icon ui-icon-alert" style="background: white; float: left; margin: 0 7px 20px 0;"></span>
-    You can not extend this session. The slot is not available.
-  </p>
 </div>
 
 {% endblock %}

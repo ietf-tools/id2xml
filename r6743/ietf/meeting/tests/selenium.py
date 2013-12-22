@@ -362,6 +362,7 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         action_chain2 = ActionChains(driver)
         unscheduled = driver.find_element_by_css_selector("#sortable-list")
         action_chain2.drag_and_drop(mext, unscheduled).perform()
+        time.sleep(5)
 
         # get the list of ss in this timeslot
         ss_list = a83.scheduledsession_set.filter(timeslot = forces_ts)
@@ -371,6 +372,39 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         for ss in ss_list:
             if ss.pk != forces_ss.pk:
                 ss.delete()
+
+    def test_case1229_two_session_cancel(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+        mext_request = m83.session_set.get(group__acronym = "mext")
+        forces_request, forces_ss,forces_ts = self.find_forces(m83)
+
+        self.load_and_wait(a83)
+
+        action_chain1 = ActionChains(driver)
+
+        print "clicking mext: %u" % (mext_request.pk)
+        mext = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (mext_request.pk))
+        mext.click()
+
+        # put it in the box with forces in it.
+        mon1510 = driver.find_element_by_css_selector("#" + forces_ts.js_identifier)
+        action_chain1.drag_and_drop(mext, mon1510).perform()
+
+        # need some time to render it.
+        time.sleep(2)
+
+        cancel = driver.find_element_by_xpath("//button/span[text() = 'Cancel']")
+        cancel.click()
+        print "button clicked"
+        time.sleep(5)
+
+        # get the list of ss in this timeslot
+        ss_list = a83.scheduledsession_set.filter(timeslot = forces_ts)
+        self.assertEqual(len(ss_list), 1)
 
 
     def is_element_present(self, how, what):

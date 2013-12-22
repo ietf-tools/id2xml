@@ -354,6 +354,19 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         ss_list = a83.scheduledsession_set.filter(timeslot = forces_ts)
         self.assertEqual(len(ss_list), 2)
 
+        # it would be simpler to do this only in the database, but
+        # due to transactions, that is not reflected into the test server
+
+        mext = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (mext_request.pk))
+
+        action_chain2 = ActionChains(driver)
+        unscheduled = driver.find_element_by_css_selector("#sortable-list")
+        action_chain2.drag_and_drop(mext, unscheduled).perform()
+
+        # get the list of ss in this timeslot
+        ss_list = a83.scheduledsession_set.filter(timeslot = forces_ts)
+        self.assertEqual(len(ss_list), 1)
+
         # now delete the second item in that slot.
         for ss in ss_list:
             if ss.pk != forces_ss.pk:

@@ -406,6 +406,54 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         ss_list = a83.scheduledsession_set.filter(timeslot = forces_ts)
         self.assertEqual(len(ss_list), 1)
 
+    def test_case1222_extend_no_slot_right(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+        forces_request, forces_ss,forces_ts = self.find_forces(m83)
+
+        self.load_and_wait(a83)
+
+        print "clicking forces"
+        driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (forces_request.pk)).click()
+
+        print "clicking Extend"
+        extend = driver.find_element_by_id("double_slot")
+        extend.click()
+
+        time.sleep(5)  # give it time to render.
+
+        # assert that the dialog is visible.
+        self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#can-not-extend-dialog"))
+
+    def test_case1222_extend_slot_filled(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        # find current sidr timeslot in database on Monday afternoon.
+        sidr_ss = a83.scheduledsession_set.get(session__group__acronym = "sidr",
+                                               timeslot__time = datetime.datetime(2012,3,26,13,0))
+        sidr_ts = sidr_ss.timeslot
+        sidr_request = sidr_ss.session
+
+        self.load_and_wait(a83)
+
+        print "clicking forces"
+        driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (sidr_request.pk)).click()
+
+        print "clicking Extend"
+        extend = driver.find_element_by_id("double_slot")
+        extend.click()
+
+        time.sleep(5)  # give it time to render.
+
+        # assert that the dialog is visible.
+        self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#can-not-extend-dialog"))
 
     def is_element_present(self, how, what):
         try:

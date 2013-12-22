@@ -121,6 +121,7 @@ function toggle_dialog(parameters) {
 		$( this ).dialog( "close" );
 		__debug_toggle_result = "yes";
                 parameters.session.double_wide = false;
+                parameters.same_timeslot = true;
 		move_slot(parameters);
             },
 	    //"Swap Slots": function(){
@@ -1118,7 +1119,7 @@ function move_slot(parameters) {
 	$(parameters.dom_obj).addClass('free_slot')
     }
 
-    if(parameters.from_slot.empty){
+    if(parameters.from_slot != undefined && parameters.from_slot.empty){
 	$("#"+parameters.from_slot_id).removeClass('free_slot');
     }
     else{

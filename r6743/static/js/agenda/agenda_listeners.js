@@ -137,6 +137,7 @@ function resize_th(){
 /* with the hovering rooms the sizes get messed up
    this function looks at the tr's height and resizes the room's height */
     $.each($(".vert_time"), function(k,v){
+        $(v).offset({ left: 2});
 	$(v).height($("#"+v.parentElement.id).height()-2); /* -2 so the grid remains */
     })
 }

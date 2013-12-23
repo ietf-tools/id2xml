@@ -455,6 +455,14 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         # assert that the dialog is visible.
         self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#can-not-extend-dialog"))
 
+    def assert_Plenary_Visible(self, a83, visible):
+        # find something in Bleu, make sure it is visible.
+        tech_ss = a83.scheduledsession_set.get(timeslot__time = datetime.datetime(2012,3,26,16,30))
+        plenary_id = tech_ss.timeslot.js_identifier
+        self.scroll_into_view(plenary_id)
+        tech_plenary = self.driver.find_element_by_id(plenary_id)
+        self.assertEqual(tech_plenary.is_displayed(), visible)
+
     def test_case1224_hide_and_display_rooms(self):
         driver = self.driver
         driver.maximize_window()
@@ -463,15 +471,10 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         a83 = m83.agenda
 
         self.load_and_wait(a83)
+        self.assert_Plenary_Visible(True)
 
         print "clicking to hide room Amphitheatre Bleu"
 
-        # find something in Bleu, make sure it is visible.
-        tech_ss = a83.scheduledsession_set.get(timeslot__time = datetime.datetime(2012,3,26,16,30))
-        plenary_id = tech_ss.timeslot.js_identifier
-        self.scroll_into_view(plenary_id)
-        tech_plenary = driver.find_element_by_id(plenary_id)
-        self.assertTrue(tech_plenary.is_displayed())
 
         # hide the display.
         close_button = "close_Amphitheatre_Bleu"
@@ -480,17 +483,25 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         time.sleep(1)
 
         # confirm that it is hidden.
-        tech_plenary = driver.find_element_by_id(plenary_id)
-        self.assertFalse(tech_plenary.is_displayed())
+        self.assert_Plenary_Visible(False)
 
         # now show it all.
         driver.find_element_by_id("show_hidden_rooms").click()
         time.sleep(1)
 
         # confirm that it is visible again
-        tech_plenary = driver.find_element_by_id(plenary_id)
-        self.scroll_into_view(plenary_id)
-        self.assertTrue(tech_plenary.is_displayed())
+        self.assert_Plenary_Visible(True)
+
+    def asssert_Trill_Visible(self, a83, visible):
+
+        # find something on 2013-03-26, trill for instance.
+        trill_ss = a83.scheduledsession_set.get(timeslot__time = datetime.datetime(2012,3,26,9,0),
+                                                session__group__acronym = "trill")
+        trill_id = trill_ss.timeslot.js_identifier
+        self.scroll_into_view(trill_id)
+        trill = self.driver.find_element_by_id(trill_id)
+        self.assertEqual(trill.is_displayed(), visible)
+
 
     def test_case1224_hide_and_display_days(self):
         driver = self.driver
@@ -500,35 +511,59 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         a83 = m83.agenda
 
         self.load_and_wait(a83)
-
-        print "clicking to hide day"
-
-        # find something on 2013-03-26, trill for instance.
-        trill_ss = a83.scheduledsession_set.get(timeslot__time = datetime.datetime(2012,3,26,9,0),
-                                                session__group__acronym = "trill")
-        trill_id = trill_ss.timeslot.js_identifier
-        self.scroll_into_view(trill_id)
-        trill = driver.find_element_by_id(trill_id)
-        self.assertTrue(trill.is_displayed())
+        self.assert_Trill_Visible(True)
 
         # hide the display.
+        print "clicking to hide day"
         close_button = "close_2012-03-26"
         self.scroll_into_view(close_button)
         driver.find_element_by_id(close_button).click()
         time.sleep(1)
 
         # confirm that it is hidden.
-        trill = driver.find_element_by_id(trill_id)
-        self.assertFalse(trill.is_displayed())
+        self.assert_Trill_Visible(False)
 
         # now show it all.
         driver.find_element_by_id("show_hidden_days").click()
         time.sleep(1)
 
         # confirm that it is visible again
-        self.scroll_into_view(trill_id)
-        trill = driver.find_element_by_id(trill_id)
-        self.assertTrue(trill.is_displayed())
+        self.assert_Trill_Visible(True)
+
+    def test_case1224_hide_days_rooms_showall(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        self.load_and_wait(a83)
+        self.assert_Trill_Visible(True)
+        self.assert_Plenary_Visible(True)
+
+        # hide a day
+        print "clicking to hide day"
+        close_button = "close_2012-03-26"
+        self.scroll_into_view(close_button)
+        driver.find_element_by_id(close_button).click()
+
+        # hide a room.
+        close_button = "close_Amphitheatre_Bleu"
+        self.scroll_into_view(close_button)
+        driver.find_element_by_id(close_button).click()
+        time.sleep(1)
+
+        # confirm that it is hidden.
+        self.assert_Trill_Visible(False)
+        self.assert_Plenary_Visible(False)
+
+        # now show it all.
+        driver.find_element_by_id("show_all_button").click()
+        time.sleep(1)
+
+        # confirm that it is visible again
+        self.assert_Trill_Visible(True)
+        self.assert_Plenary_Visible(True)
 
     def is_element_present(self, how, what):
         try:

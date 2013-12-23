@@ -169,13 +169,17 @@ function all_click(event){
 }
 
 /************ click functions *********************************************************************/
+function update_room_count() {
+   $("#hidden_rooms").html((hidden_rooms.length.toString()+"/"+total_rooms.toString()));
+}
+
 function close_room(event){
     var close_room = $(event.target).attr('id');
     close_room =  close_room.substr(6);
     //console.log("close_room",close_room);
     $("#"+close_room).hide("fast");
     hidden_rooms.push("#"+close_room);
-    $("#hidden_rooms").html((hidden_rooms.length.toString()+"/"+total_rooms.toString()));
+    update_room_count();
 }
 
 function show_hidden_rooms(event){
@@ -183,7 +187,11 @@ function show_hidden_rooms(event){
 	$(room).show("fast");
     });
     hidden_rooms = [];
-    $("#hidden_rooms").html(hidden_rooms.length.toString()+"/"+total_rooms.toString());
+    update_room_count();
+}
+
+function update_day_count() {
+    $("#hidden_days").html(hidden_days.length.toString()+"/"+total_days.toString());
 }
 
 function close_day(event){
@@ -192,7 +200,7 @@ function close_day(event){
     close_day = ".day_"+close_day;
     $(close_day).hide("slow");
     hidden_days.push(close_day);
-    $("#hidden_days").html(hidden_days.length.toString()+"/"+total_days.toString());
+    update_day_count();
 }
 
 function show_all(){
@@ -205,8 +213,7 @@ function show_hidden_days(event){
 	$(room).show("fast");
     });
     hidden_days = [];
-    $("#hidden_days").html(hidden_days.length.toString()+"/"+total_days.toString());
-
+    update_day_count();
 }
 
 function show_all_area(event){

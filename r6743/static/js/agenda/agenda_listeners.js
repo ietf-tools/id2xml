@@ -74,11 +74,6 @@ function listeners(){
     $(".close_day").unbind('click');
     $(".close_day").click(close_day);
 
-    // $("#show_hidden_days").unbind('click');
-    // $("#show_hidden_days").click(show_hidden_days);
-    // $("#show_hidden_rooms").unbind('click');
-    // $("#show_hidden_rooms").click(show_hidden_rooms);
-
     $("#show_all_area").unbind('click');
     $("#show_all_area").click(show_all_area);
 
@@ -434,6 +429,11 @@ function unassigned_sort_change(){
 /* the functionality of these listeners will never change so they do not need to be run twice  */
 function static_listeners(){
     $('#close_ietf_menubar').click(hide_ietf_menu_bar);
+
+    $("#show_hidden_days").unbind('click');
+    $("#show_hidden_days").click(show_hidden_days);
+    $("#show_hidden_rooms").unbind('click');
+    $("#show_hidden_rooms").click(show_hidden_rooms);
 
     $('#unassigned_sort_button').unbind('change');
     $('#unassigned_sort_button').change(unassigned_sort_change);

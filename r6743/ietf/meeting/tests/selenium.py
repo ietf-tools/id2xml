@@ -571,6 +571,65 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.assert_Trill_Visible(a83,True)
         self.assert_Plenary_Visible(a83,True)
 
+    def press_button(self, buttonid):
+        self.scroll_into_view(buttonid)
+        self.driver.find_element_by_id(buttonid).click()
+
+    def count_area(self, m83, name, expected):
+        upcase = name.upper()
+        # turn off all areas, then look for items which are still "highlighted"
+        self.press_button(upcase)
+        time.sleep(1)
+        elements = self.driver.find_elements_by_css_selector(".ui-draggable-disabled")
+        print "%s non-draggable elements: %u " % (upcase, len(elements))
+        self.assertEqual(len(elements), expected)
+
+        # it would be nice to just compare to the number in the database, using something like:
+        #reqlist    = m83.session_set.filter(group__parent__acronym = name)
+        #schedlist  = m83.agenda.scheduledsession_set.filter(session__group__parent__acronym = name)
+        #reqlen    = len(reqlist)
+        #schedlen  = len(schedlist)
+        #elemlen   = len(elements)
+        #print "%s non-draggable elements: %u <=> %u/%u" % (upcase, len(elements), reqlen, schedlen)
+        #import pdb; pdb.set_trace()
+
+        # BUT if a session has multiple places it will have > session.
+        # if some sessions are unplaced, it will have < session.
+        # and then there is the problem of sessions with two slots
+        # this is pretty rough equality.  If we could get a list of unique
+        # elements (by name) that would make comparison easier.
+        #
+
+        # pretty button again
+        self.press_button(upcase)
+        time.sleep(1)
+        elements = self.driver.find_elements_by_css_selector(".ui-draggable-disabled")
+        self.assertEqual(len(elements), 0)
+
+    def test_case1226_show_areas(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        self.load_and_wait(a83)
+
+        elements = self.driver.find_elements_by_css_selector(".ui-draggable")
+        print "draggable elements: %u" % (len(elements))
+        self.assertEqual(len(elements), 149)
+
+        # these numbers are hard to derive, they have been checked by hand.
+        self.count_area(m83, "APP", 17)
+        self.count_area(m83, "GEN", 9)
+        self.count_area(m83, "INT", 20)
+        self.count_area(m83, "IRTF",8)
+        self.count_area(m83, "OPS", 17)
+        self.count_area(m83, "RAI", 23)
+        self.count_area(m83, "RTG", 21)
+        self.count_area(m83, "SEC", 12)
+        self.count_area(m83, "TSV", 15)
+
     def is_element_present(self, how, what):
         try:
             self.driver.find_element(by=how, value=what)

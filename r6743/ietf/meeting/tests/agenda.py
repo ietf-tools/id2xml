@@ -52,7 +52,8 @@ class AgendaInfoTestCase(TestCase):
             self.assertTrue(timeslots[slotnum].time < timeslots[slotnum+1].time)
 
     # this tests that a slot in room 252A at 11:20 AM on Friday,
-    # has slot 10 minutes later after it
+    # has slot 10 minutes later after it.
+    # this test case is not stable reasons not yet explained.
     def test_TimeSlot2408_has_SlotToTheRight(self):
         ss2408 = ScheduledSession.objects.get(pk = 2408)
         self.assertTrue(ss2408.slot_to_the_right is not None)

@@ -455,6 +455,43 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         # assert that the dialog is visible.
         self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#can-not-extend-dialog"))
 
+    def test_case1224_hide_and_display_rooms(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        self.load_and_wait(a83)
+
+        print "clicking to hide room Amphitheatre Bleu"
+
+        # find something in Bleu, make sure it is visible.
+        tech_ss = a83.scheduledsession_set.get(timeslot__time = datetime.datetime(2012,3,26,16,30))
+        plenary_id = tech_ss.timeslot.js_identifier
+        self.scroll_into_view(plenary_id)
+        tech_plenary = driver.find_element_by_id(plenary_id)
+        self.assertTrue(tech_plenary.is_displayed())
+
+        # hide the display.
+        close_button = "close_Amphitheatre_Bleu"
+        self.scroll_into_view(close_button)
+        driver.find_element_by_id(close_button).click()
+        time.sleep(1)
+
+        # confirm that it is hidden.
+        tech_plenary = driver.find_element_by_id(plenary_id)
+        self.assertFalse(tech_plenary.is_displayed())
+
+        # now show it all.
+        driver.find_element_by_id("show_hidden_rooms").click()
+        time.sleep(1)
+
+        # confirm that it is visible again
+        tech_plenary = driver.find_element_by_id(plenary_id)
+        self.scroll_into_view(plenary_id)
+        self.assertTrue(tech_plenary.is_displayed())
+
     def is_element_present(self, how, what):
         try:
             self.driver.find_element(by=how, value=what)

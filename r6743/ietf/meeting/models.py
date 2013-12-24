@@ -208,6 +208,13 @@ class Meeting(models.Model):
                 pass
         return ''
 
+    def set_official_agenda(self, agenda):
+        if self.agenda != agenda:
+            self.agenda = agenda
+            if self.agenda is not None:
+                self.agenda.sendEmail()
+            self.save()
+
     class Meta:
         ordering = ["-date", ]
 
@@ -586,6 +593,17 @@ class Schedule(models.Model):
         self.scheduledsession_set.all().delete()
         self.delete()
 
+    # send email to every session requester whose session is now scheduled.
+    # mark the sessions as now state scheduled, rather than waiting.
+    def sendEmail(self):
+        for ss in self.scheduledsession_set.all():
+            session = ss.session
+            if session.status.slug == "schedw":
+                session.status = "appr"
+                session.scheduled = datetime.now()
+                import ietf.secr.meeting.views
+                ietf.secr.meeting.views.send_notification(None, [session])
+                session.save()
 
 # to be renamed ScheduleTimeslotSessionAssignments (stsa)
 class ScheduledSession(models.Model):

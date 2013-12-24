@@ -495,13 +495,13 @@ def meeting_update(request, meeting):
         value = update_dict["agenda"]
         #debug.log("4 meeting.agenda: %s" % (value))
         if value is None or value == "None":
-            meeting.agenda = None
+            meeting.set_official_agenda(None)
         else:
             schedule = get_schedule(meeting, value)
             if not schedule.public:
                 return HttpResponse(status = 406)
             #debug.log("3 meeting.agenda: %s" % (schedule))
-            meeting.agenda = schedule
+            meeting.set_official_agenda(schedule)
 
     #debug.log("2 meeting.agenda: %s" % (meeting.agenda))
     meeting.save()

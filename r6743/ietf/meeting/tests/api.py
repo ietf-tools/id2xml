@@ -581,6 +581,8 @@ class ApiTestCase(TestCase):
         # new to reload the object
         mtg83 = get_meeting(83)
         self.assertEqual(mtg83.agenda, new_sched)
+        from django.core import mail
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_setNonPublicMeetingAgendaSecretariat(self):
         mtg83 = get_meeting(83)

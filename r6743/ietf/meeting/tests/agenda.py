@@ -137,4 +137,10 @@ class AgendaInfoTestCase(TestCase):
         json_dict = rfcform83.json_dict(host_scheme)
         self.assertEqual(json_dict["bof"], "True")
 
+    def test_emailWillBeSent(self):
+        mtg83 = get_meeting(83)
+        mtg83.agenda.sendEmail()
+        from django.core import mail
+        self.assertEquals(len(mail.outbox), 1)
+
 

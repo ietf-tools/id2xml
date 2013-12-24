@@ -599,10 +599,10 @@ class Schedule(models.Model):
         for ss in self.scheduledsession_set.all():
             session = ss.session
             if session.status.slug == "schedw":
-                session.status = "appr"
-                session.scheduled = datetime.now()
-                import ietf.secr.meeting.views
-                ietf.secr.meeting.views.send_notification(None, [session])
+                session.status_id = "sched"
+                session.scheduled = datetime.datetime.now()
+                import ietf.secr.meetings.views
+                ietf.secr.meetings.views.send_notification(None, [session])
                 session.save()
 
 # to be renamed ScheduleTimeslotSessionAssignments (stsa)

@@ -137,10 +137,22 @@ class AgendaInfoTestCase(TestCase):
         json_dict = rfcform83.json_dict(host_scheme)
         self.assertEqual(json_dict["bof"], "True")
 
-    def test_emailWillBeSent(self):
+    def test_noEmailWillBeSent(self):
+        # all the sessions already marked scheduled
         mtg83 = get_meeting(83)
         mtg83.agenda.sendEmail()
         from django.core import mail
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEquals(len(mail.outbox), 0)
+
+    def test_emailWillBeSent(self):
+        # unmark sessions as scheduled
+        mtg83 = get_meeting(83)
+        for ss in mtg83.agenda.scheduledsession_set.all():
+            session = ss.session
+            session.status_id = "schedw"
+            session.save()
+        mtg83.agenda.sendEmail()
+        from django.core import mail
+        self.assertEquals(len(mail.outbox), 150)
 
 

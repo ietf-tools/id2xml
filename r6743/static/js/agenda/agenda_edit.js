@@ -153,6 +153,8 @@ function read_only_result(msg) {
     // XX go fetch the owner and display it.
     console.log("owner href:", schedule_owner_href);
 
+    $("#pageloaded").show();
+
     listeners();
     droppable();
 }

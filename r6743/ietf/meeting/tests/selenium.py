@@ -34,18 +34,19 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.wait_for_load()
 
     def wait_for_load(self):
-        itercount=0
-        while itercount < 1000 and not self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
-            time.sleep(2)
-            itercount = itercount+1
-        self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"))
-        print "Found page loading"
+        if not self.is_element_visible(how=By.CSS_SELECTOR,what="#pageloaded"):
+            itercount=0
+            while itercount < 1000 and not self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
+                time.sleep(2)
+                itercount = itercount+1
+            self.assertTrue(self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"))
+            print "Found page loading"
 
-        itercount=0
-        while itercount < 1000 and self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
-            time.sleep(2)
-            itercount = itercount+1
-        self.assertFalse(self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"))
+            itercount=0
+            while itercount < 1000 and self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
+                time.sleep(2)
+                itercount = itercount+1
+            self.assertFalse(self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"))
         print "Found page loaded"
 
     def find_forces(self, m83):

@@ -608,13 +608,14 @@ function start_spin(opts){
     // $("#schedule_name").hide();
     $("#spinner").show();
     $("#spinner").spin({lines:16, radius:8, length:16, width:4});
-
+    $("#pageloaded").hide();
 }
 function stop_spin(){
 //spinner
     $("#schedule_name").show();
     $("#spinner").hide();
     $("#spinner").spin(false);
+    $("#pageloaded").show();
 }
 
 /*

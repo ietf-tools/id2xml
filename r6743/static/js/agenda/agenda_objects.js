@@ -686,9 +686,12 @@ function session_obj(json) {
     session.ogroup = session.group;
     if(session.group != undefined) {
         /* it has an inline group object, intern it, and redirect to interned object */
-        //console.log("using embedded group: ",session.group.href);
+        //console.log(session.title, "using embedded group: ",
+        //            session.group.acronym, session.group.href, session.group);
         session.group = load_group_from_json(session.group);
         session.group_href = session.group.href;
+        //console.log(session.title, "2 using embedded group: ",
+        //            session.group.acronym, session.group.href, session.group);
     } else if(session.group_href != undefined) {
         console.log("session ",session.session_id,
                     "has no embedded group, load by href", session.group_href);
@@ -1063,16 +1066,17 @@ Session.prototype.event_template = function() {
         bucket_list_style = bucket_list_style + " meeting_box_double";
     }
 
-    pinned = "";
+    var pinned = "";
     if(this.pinned) {
         bucket_list_style = bucket_list_style + " meeting_box_pinned";
         pinned="<td class=\"pinned-tack\">P</td>";
     }
 
-    groupacronym = "nogroup";
+    var groupacronym = "nogroup";
     if(this.group != undefined) {
         groupacronym = this.group.acronym;
     }
+    //console.log("acronym", groupacronym, this.group.acronym, this.visible_title());
 
     // see comment in ietf.ccs, and
     // http://stackoverflow.com/questions/5148041/does-firefox-support-position-relative-on-table-elements
@@ -1318,11 +1322,14 @@ var __debug_group_load = false;
 function create_group_by_href(href) {
     if(agenda_globals.group_objs[href] == undefined) {
        agenda_globals.group_objs[href]=new Group();
-        g = agenda_globals.group_objs[href];
+        var g = agenda_globals.group_objs[href];
+        if(__debug_group_load) {
+            console.log("creating new group for", href);
+        }
         g.loaded = false;
         g.loading= false;
     }
-    return g;
+    return agenda_globals.group_objs[href];
 }
 
 function load_group_by_href(href) {
@@ -1342,7 +1349,7 @@ function load_group_by_href(href) {
 // fields are added to the group object, and the group
 // is marked loaded.  The resulting group object is returned.
 function load_group_from_json(json) {
-    g = create_group_by_href(json.href);
+    var g = create_group_by_href(json.href);
     for(var key in json) {
         if(json[key].length > 0) {
             g[key]=json[key];
@@ -1357,7 +1364,7 @@ var group_references   = 0;
 var group_demand_loads = 0;
 function find_group_by_href(href, msg) {
     group_references++;
-    g=agenda_globals.group_objs[href];
+    var g=agenda_globals.group_objs[href];
     if(g == undefined) {
         group_demand_loads++;
         if(__debug_group_load) {

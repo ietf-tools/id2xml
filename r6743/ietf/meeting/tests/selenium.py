@@ -630,6 +630,36 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.count_area(m83, "SEC", 12)
         self.count_area(m83, "TSV", 15)
 
+    def test_case1123_conflicts_for_both_sessions(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+
+        self.load_and_wait(a83)
+        # there are two session requests, we want the one on Monday.
+        ccamp_ss = a83.scheduledsession_set.get(session__group__acronym = "ccamp",
+                                                   timeslot__time = datetime.datetime(2012,3,26,13,0))
+        ccamp_request = ccamp_ss.session
+        self.scroll_into_view("session_%u" % ccamp_request.pk)
+
+        ccamp = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (ccamp_request.pk))
+        ccamp.click()
+        print "ccamp[%u] has: %s" % (ccamp_request.pk, ccamp.get_attribute("class"))
+
+        # now look for the other ccamp session.
+        ccamp2_ss = a83.scheduledsession_set.get(session__group__acronym = "ccamp",
+                                                    timeslot__time = datetime.datetime(2012,3,28,9,0))
+        ccamp2_request = ccamp2_ss.session
+        self.scroll_into_view("session_%u" % (ccamp2_request.pk))
+        print "ccamp2 id: session_%u" % (ccamp2_request.pk)
+        second_ccamp = driver.find_element_by_css_selector("#session_%u" % (ccamp2_request.pk))
+        # examine it to see if it has "same_group" class.
+        print "ccamp[%u] has: %s" % (ccamp2_request.pk, second_ccamp.get_attribute("class"))
+        classes = second_ccamp.get_attribute("class").split()
+        self.assertTrue("same_group" in classes)
+
     def is_element_present(self, how, what):
         try:
             self.driver.find_element(by=how, value=what)

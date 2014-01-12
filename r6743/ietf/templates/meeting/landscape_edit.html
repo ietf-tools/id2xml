@@ -266,7 +266,22 @@ Please save this agenda to your account first.
 	<tr><td class="ss_info_name_short">Group:</td><td><span id="info_grp"></span>
             <!-- <button id="agenda_sreq_button" class="right">Edit Request</button> --></tr>
 	<tr><td class="ss_info_name_short">Name:</td> <td id="info_name"></td></tr>
-	<tr><td class="ss_info_name_short">Area:</td> <td><span id="info_area"></span><button id="show_all_area" class="right">Show All</button></td></tr>
+	<tr><td class="ss_info_name_short">Area:</td> <td><span id="info_area"></span>
+            <button id="show_all_area" class="right">Show All</button></td></tr>
+        <tr>
+          <td colspan=2>
+            <div class="agenda_nice_button" id="agenda_find_free">
+              <button class="agenda_selected_buttons small_button" id="find_free">Find Free</button>
+            </div>
+            <div class="agenda_nice_button button_disabled" id="agenda_double_slot">
+              <button class="agenda_selected_buttons small_button" disabled id="double_slot">Extend</button>
+            </div>
+            <div id="agenda_pin_slot" class="agenda_nice_button button_disabled">
+              <button class="agenda_selected_buttons small_button" disabled id="pin_slot">Pin</button>
+            </div>
+          </td>
+        </tr>
+
       </table>
     </div>
 
@@ -279,6 +294,19 @@ Please save this agenda to your account first.
 	<tr><td class="ss_info_name_long">Location:</td><td colspan=2 id="info_location"></td></tr>
 	<tr><td class="ss_info_name_long">Responsible AD:</td><td colspan=2 id="info_responsible"></td></tr>
 	<tr><td class="ss_info_name_long">Requested By:</td><td colspan=2 id="info_requestedby"></td></tr>
+        <tr>
+          <td colspan=3>
+            <div class="agenda_nice_button button_disabled" id="agenda_prev_session">
+              <button class="agenda_selected_buttons small_button" disabled id="prev_session">Prev</button>
+            </div>
+            <div class="agenda_nice_button button_disabled" id="agenda_show">
+              <button class="agenda_selected_buttons small_button" disabled id="show_session">Show</button>
+            </div>
+            <div class="agenda_nice_button button_disabled" id="agenda_next_session">
+              <button class="agenda_selected_buttons small_button" disabled id="next_session">Next</button>
+            </div>
+          </td>
+        </tr>
       </table>
     </div>
 
@@ -306,15 +334,6 @@ Please save this agenda to your account first.
           </tr>
 	</tbody>
       </table>
-    </div>
-    <div class="agenda_find_free"><button class="agenda_selected_buttons small_button" id="find_free">Find Free</button></div>
-    <div class="agenda_double_slot button_disabled">
-      <button class="agenda_selected_buttons small_button" disabled
-      id="double_slot">Extend</button>
-    </div>
-    <div id="agenda_pin_slot" class="button_disabled">
-      <button class="agenda_selected_buttons small_button" disabled
-      id="pin_slot">Pin</button>
     </div>
     <div class="color_legend">
       {% for area in area_list %}

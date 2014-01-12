@@ -228,6 +228,11 @@ function show_all_area(event){
     });
 }
 
+function show_all_session(event){
+    var session_class = "." + last_session.short_name;
+
+    $(session_class).parent().parent().parent().effect("highlight", {color:"lightcoral"}, 5000);
+}
 
 /************ END click functions *********************************************************************/
 
@@ -509,6 +514,9 @@ var __DEBUG__SESSION_OBJ;
 var __DEBUG__SLOT_OBJ;
 var __debug_click_slot_id;
 var __debug_click_container;
+
+// current_item is the domid that was clicked
+// last_session is the session active.
 var current_item = null;
 var current_timeslot = null;
 var current_scheduledslot = null;
@@ -763,23 +771,39 @@ function update_pin_session(scheduledsession, state) {
 						 });
 }
 
+function enable_button(divid, buttonid, func) {
+    $(buttonid).unbind('click');
+    $(buttonid).click(func);
+    $(buttonid).attr('disabled',false);
+
+    $(divid).removeClass("button_disabled");
+    $(divid).addClass("button_enabled");
+}
+
+function disable_button(divid, buttonid) {
+    $(buttonid).unbind('click');
+    $(buttonid).attr('disabled',true);
+
+    $(divid).addClass("button_disabled");
+    $(divid).removeClass("button_enabled");
+}
+
 function fill_in_session_info(session, success, extra) {
     if(session == null || session == "None" || !success){
 	empty_info_table();
     }
     session.generate_info_table();
-    $('#double_slot').click(extend_slot);
-    $(".agenda_double_slot").removeClass("button_disabled");
-    $(".agenda_double_slot").addClass("button_enabled");
-    $(".agenda_selected_buttons").attr('disabled',false);
-
     if(!read_only) {
+        enable_button("#agenda_double_slot", "#double_slot", extend_slot);
+
         $("#agenda_pin_slot").removeClass("button_disabled");
         $("#agenda_pin_slot").addClass("button_enabled");
         set_pin_session_button(session.scheduledsession);
     } else {
         $("#pin_slot").unbind('click');
     }
+
+    enable_button("#agenda_show", "#show_session", show_all_session);
 
     // here is where we would set up the session request edit button.
     // $(".agenda_sreq_button").html(session.session_req_link);

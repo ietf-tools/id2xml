@@ -735,6 +735,27 @@ function load_sessions(href) {
     return agenda_globals.session_promise;
 }
 
+function count_sessions() {
+    $.each(agenda_globals.sessions_objs, function(title) {
+        //console.log("title", title, this);
+        var lastone  = null;
+        var sessions = agenda_globals.sessions_objs[title];
+        var num_sessions = sessions.length;
+        $.each(sessions, function(index) {
+            //console.log("session", index, this);
+            this.number = index;          // a number
+            this.maxNum = num_sessions;
+
+            this.prev_session = lastone;
+            this.next_session = null;
+            if(index < num_sessions) {
+                this.next_session = sessions[index+1];
+            }
+            lastone = this;
+        });
+    });
+}
+
 
 // augument to jQuery.getJSON( url, [data], [callback] )
 Session.prototype.load_session_obj = function(andthen, arg) {

@@ -536,14 +536,6 @@ function meeting_event_click(event){
     event.preventDefault();
     meeting_clicked = true;
 
-    if(last_session != null) {
-        last_session.unselectit();
-    }
-
-    /* clear set ot conflict views */
-    clear_conflict_classes();
-    conflict_classes = {};
-
     var slot_id = $(event.target).closest('.agenda_slot').attr('id');
     var container  = $(event.target).closest('.meeting_box_container');
     __debug_click_slot_id   = slot_id;
@@ -555,10 +547,25 @@ function meeting_event_click(event){
 
     var session_id = container.attr('session_id');
     var session = agenda_globals.meeting_objs[session_id];
+
+    select_session(session);
+    __DEBUG__SS_OBJ   = current_scheduledslot;
+    __DEBUG__SLOT_OBJ = current_timeslot;
+    __DEBUG__SESSION_OBJ = session;
+}
+
+function select_session(session) {
+    if(last_session != null) {
+        last_session.unselectit();
+    }
     last_session = session;
 
     empty_info_table();
     current_item = session.element();
+
+    /* clear set ot conflict views */
+    clear_conflict_classes();
+    conflict_classes = {};
 
     current_timeslot      = session.slot;
     if(current_timeslot) {
@@ -570,9 +577,6 @@ function meeting_event_click(event){
     }
 
     fill_in_session_info(session, true, session.slot);
-    __DEBUG__SS_OBJ   = current_scheduledslot;
-    __DEBUG__SLOT_OBJ = current_timeslot;
-    __DEBUG__SESSION_OBJ = session;
 }
 
 var last_item = null; // used during location change we make the background color
@@ -789,10 +793,18 @@ function disable_button(divid, buttonid) {
 }
 
 function fill_in_session_info(session, success, extra) {
+    var prev_session = null;
+    var next_session = null;
+
     if(session == null || session == "None" || !success){
 	empty_info_table();
+        return;
     }
     session.generate_info_table();
+
+    prev_session = session.prev_session;
+    next_session = session.next_session;
+
     if(!read_only) {
         enable_button("#agenda_double_slot", "#double_slot", extend_slot);
 
@@ -804,6 +816,24 @@ function fill_in_session_info(session, success, extra) {
     }
 
     enable_button("#agenda_show", "#show_session", show_all_session);
+
+    if(prev_session) {
+        enable_button("#agenda_prev_session", "#prev_session", function(event) {
+            prev_session.element()[0].scrollIntoView(true);
+            select_session(prev_session);
+        });
+    } else {
+        disable_button("#agenda_prev_session", "#prev_session");
+    }
+    if(next_session) {
+        enable_button("#agenda_next_session", "#next_session", function(event) {
+            next_session.element()[0].scrollIntoView(true);
+            select_session(next_session);
+        });
+    } else {
+        disable_button("#agenda_next_session", "#next_session");
+    }
+
 
     // here is where we would set up the session request edit button.
     // $(".agenda_sreq_button").html(session.session_req_link);

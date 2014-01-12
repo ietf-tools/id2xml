@@ -101,7 +101,7 @@ function initStuff(){
         droppable();
         duplicate_sessions = find_double_timeslots();
         empty_info_table();
-
+        count_sessions();
 
         if(load_conflicts) {
             recalculate(null);

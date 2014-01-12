@@ -2,6 +2,7 @@ from django import forms
 
 from ietf.group.models import Group
 from django.forms.formsets import formset_factory
+from ietf.person.forms import EmailsField
 import os
 
 # -------------------------------------------------
@@ -55,10 +56,13 @@ BETHERE_CHOICES = ((False , 'No'), (True , 'Yes'))
 # not using the ModelFormset, too complex.
 class MustBePresentForm(forms.Form):
     from ietf.person.models import Person
-    person   = forms.ModelChoiceField(queryset= Person.objects.all(), required=False)
+
+    #person   = forms.ModelChoiceField(queryset= Person.objects.all(), required=False)
+    person   = EmailsField(required=False)
     bethere  = forms.ChoiceField(required = False, choices = BETHERE_CHOICES)
-    #bethere  = forms.BooleanField()
-    #pk       = forms.IntegerField(widget = forms.HiddenInput)
+    # something like this is desired to make pre-existing items read-only
+    #self.fields['person'].widget.attrs['readonly'] = True
+
 
 MustBePresentFormSet = formset_factory(MustBePresentForm, extra = 1)
 

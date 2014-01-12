@@ -307,7 +307,7 @@ def confirm(request, acronym):
 
 def make_essential_person(pk, person, required):
     essential_person = dict()
-    essential_person["person"]     = person.pk
+    essential_person["person"]     = person.email_set.all()[0].pk
     essential_person["bethere"]    = required
     return essential_person
 
@@ -451,8 +451,11 @@ def edit_mtg(request, num, acronym):
 
             for bepresent in bepresent_formset.forms:
                 if bepresent.is_valid() and 'person' in bepresent.cleaned_data:
-                    #print "analyzing for session id = %u" % (session.pk)
-                    person = bepresent.cleaned_data['person']
+                    persons_cleaned = bepresent.cleaned_data['person']
+                    if(len(persons_cleaned) == 0):
+                        continue
+
+                    person = bepresent.cleaned_data['person'][0].person
                     if 'bethere' in bepresent.changed_data and bepresent.cleaned_data['bethere']=='True':
                         #print "Maybe adding bethere constraint for %s" % (person)
                         if session.people_constraints.filter(person = person).count()==0:

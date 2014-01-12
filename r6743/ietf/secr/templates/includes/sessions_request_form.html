@@ -50,7 +50,24 @@
              </table>
            </td>
            </tr>
-           <tr bgcolor="#cccccc">
+           <tr class="bg1"><td>People who need to be present:</td>
+           <td>
+             {{ bepresent_formset.management_form }}
+             <table style="width: 100%;">
+               <tr>
+                 <th style="width: 70%;">Person</th>
+                 <th>Status</td>
+               </tr>
+               {% for person_constraint in person_conflict_list %}
+               <tr class="{% cycle 'bg1' 'bg2'%}">
+                  <td>{{ person_constraint.person_conflicted }}</td>
+                  <td>{{ person_constraint.status }}</td>
+               </tr>
+               {% endfor %}
+             </table>
+           </td>
+           </tr>
+           <tr class="bg2">
              <td valign="top">Special Requests:<br />&nbsp;<br />i.e. Meetecho, WebEx (please state which, and the reason needed), restrictions on meeting times / days, etc.</td>
              <td>{{ form.comments.errors }}{{ form.comments }}</td>
            </tr>

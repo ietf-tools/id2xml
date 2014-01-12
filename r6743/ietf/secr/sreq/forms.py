@@ -1,6 +1,7 @@
 from django import forms
 
 from ietf.group.models import Group
+from django.forms.formsets import formset_factory
 import os
 
 # -------------------------------------------------
@@ -44,12 +45,22 @@ def join_conflicts(data):
 
 class GroupSelectForm(forms.Form):
     group = forms.ChoiceField()
-    
+
     def __init__(self,*args,**kwargs):
         choices = kwargs.pop('choices')
         super(GroupSelectForm, self).__init__(*args,**kwargs)
         self.fields['group'].widget.choices = choices
 
+BETHERE_CHOICES = ((False , 'No'), (True , 'Yes'))
+# not using the ModelFormset, too complex.
+class MustBePresentForm(forms.Form):
+    from ietf.person.models import Person
+    person   = forms.ModelChoiceField(queryset= Person.objects.all(), required=False)
+    bethere  = forms.ChoiceField(required = False, choices = BETHERE_CHOICES)
+    #bethere  = forms.BooleanField()
+    #pk       = forms.IntegerField(widget = forms.HiddenInput)
+
+MustBePresentFormSet = formset_factory(MustBePresentForm, extra = 1)
 
 class SessionForm(forms.Form):
     num_session = forms.ChoiceField(choices=NUM_SESSION_CHOICES)

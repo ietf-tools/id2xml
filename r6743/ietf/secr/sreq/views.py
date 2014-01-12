@@ -14,6 +14,7 @@ from ietf.secr.utils.group import get_my_groups, groups_by_session
 from ietf.ietfauth.decorators import has_role
 from ietf.utils.mail import send_mail
 from ietf.meeting.models import Meeting, Session, Constraint
+from ietf.meeting.helpers import get_meeting
 
 from ietf.group.models import Group, Role
 from ietf.name.models import SessionStatusName, ConstraintName
@@ -77,12 +78,6 @@ def get_lock_message():
     except IOError:
         message = "This application is currently locked."
     return message
-
-def get_meeting():
-    '''
-    Function to get the current IETF regular meeting.  Simply returns the meeting with the most recent date
-    '''
-    return Meeting.objects.filter(type='ietf').order_by('-date')[0]
 
 def get_requester_text(person,group):
     '''
@@ -307,18 +302,62 @@ def confirm(request, acronym):
         RequestContext(request, {}),
     )
 
+def make_essential_person(pk, person, required):
+    essential_person = dict()
+    essential_person["person"]     = person.pk
+    essential_person["bethere"]    = required
+    return essential_person
+
+def make_bepresent_formset(group, session, default=True):
+    dict_of_essential_people = {}
+
+    for x in session.people_constraints.all():
+        #print "add db: %u %s" % (x.person.pk, x.person)
+        dict_of_essential_people[x.person.pk] = make_essential_person(x.person.pk, x.person, True)
+
+    # now, add the co-chairs if they were not already present
+    chairs  = group.role_set.filter(name='chair')
+    for chairrole in chairs:
+        chair = chairrole.person
+        if not chair.pk in dict_of_essential_people:
+            #print "add chair: %u" % (chair.pk)
+            dict_of_essential_people[chair.pk] = make_essential_person(chair.pk, chair, default)
+
+    # add the responsible AD
+    if not group.ad.pk in dict_of_essential_people:
+        #print "add ad: %u" % (chair.pk)
+        dict_of_essential_people[group.ad.pk] = make_essential_person(group.ad.pk, group.ad, default)
+
+    # make the form set of these people
+    list_of_essential_people = []
+    for k,x in dict_of_essential_people.iteritems():
+        #print "k: %s x: %s" % (k,x)
+        list_of_essential_people.append(x)
+
+    list_of_essential_people.reverse()
+    #for t in list_of_essential_people:
+    #    print "t: %s" % (t)
+
+    formset = MustBePresentFormSet(initial=list_of_essential_people)
+    return formset
+
 @check_permissions
 def edit(request, acronym):
+    return edit_mtg(request, None, acronym)
+
+@check_permissions
+def edit_mtg(request, num, acronym):
     '''
     This view allows the user to edit details of the session request
     '''
-    meeting = get_meeting()
+    meeting = get_meeting(num)
     group = get_object_or_404(Group, acronym=acronym)
     sessions = Session.objects.filter(meeting=meeting,group=group).order_by('id')
     sessions_count = sessions.count()
     initial = get_initial_session(sessions)
     session_conflicts = session_conflicts_as_string(group, meeting)
     login = request.user.get_profile()
+    session = sessions[0]
 
     if request.method == 'POST':
         button_text = request.POST.get('submit', '')
@@ -327,7 +366,8 @@ def edit(request, acronym):
             return HttpResponseRedirect(url)
 
         form = SessionForm(request.POST,initial=initial)
-        if form.is_valid():
+        bepresent_formset = MustBePresentFormSet(request.POST)
+        if form.is_valid() or bepresent_formset.is_valid():
             if form.has_changed():
                 # might be cleaner to simply delete and rewrite all records (but maintain submitter?)
                 # adjust duration or add sessions
@@ -403,6 +443,30 @@ def edit(request, acronym):
                 # send notification
                 send_notification(group,meeting,login,form.cleaned_data,'update')
 
+            for bepresent in bepresent_formset.forms:
+                if bepresent.is_valid() and 'person' in bepresent.cleaned_data:
+                    #print "analyzing for session id = %u" % (session.pk)
+                    person = bepresent.cleaned_data['person']
+                    if 'bethere' in bepresent.changed_data and bepresent.cleaned_data['bethere']=='True':
+                        #print "Maybe adding bethere constraint for %s" % (person)
+                        if session.people_constraints.filter(person = person).count()==0:
+                            # need to create new constraint.
+                            #print "  yes"
+                            nc = session.people_constraints.create(person = person,
+                                                                   meeting = meeting,
+                                                                   name_id = 'bethere',
+                                                                   source = session.group)
+                            nc.save()
+                    else:
+                        #print "Maybe deleting bethere constraint for %s" % (person)
+                        if session.people_constraints.filter(person = person).count() > 0:
+                            #print "  yes"
+                            session.people_constraints.filter(person = person).delete()
+
+            # nuke any cache that might be lingering around.
+            from ietf.meeting.helpers import session_constraint_expire
+            session_constraint_expire(session)
+
             messages.success(request, 'Session Request updated')
             url = reverse('sessions_view', kwargs={'acronym':acronym})
             return HttpResponseRedirect(url)
@@ -410,10 +474,13 @@ def edit(request, acronym):
     else:
         form = SessionForm(initial=initial)
 
+    bepresent_formset = make_bepresent_formset(group, session, False)
+
     return render_to_response('sreq/edit.html', {
         'meeting': meeting,
         'form': form,
         'group': group,
+        'bepresent_formset' : bepresent_formset,
         'session_conflicts': session_conflicts},
         RequestContext(request, {}),
     )

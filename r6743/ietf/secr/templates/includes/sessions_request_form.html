@@ -56,12 +56,12 @@
              <table style="width: 100%;">
                <tr>
                  <th style="width: 70%;">Person</th>
-                 <th>Status</td>
+                 <th>Must be present?</th>
                </tr>
-               {% for person_constraint in person_conflict_list %}
-               <tr class="{% cycle 'bg1' 'bg2'%}">
-                  <td>{{ person_constraint.person_conflicted }}</td>
-                  <td>{{ person_constraint.status }}</td>
+               {% for essential_person_form in bepresent_formset.forms %}
+               <tr class="{% cycle 'bg3' 'bg2'%}">
+                 <td>{{ essential_person_form.person }}</td>
+                 <td>{{ essential_person_form.bethere }}</td>
                </tr>
                {% endfor %}
              </table>

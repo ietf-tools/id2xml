@@ -10,4 +10,5 @@ urlpatterns = patterns('ietf.secr.sreq.views',
     url(r'^(?P<acronym>[A-Za-z0-9_\-\+]+)/edit/$', 'edit', name='sessions_edit'),
     url(r'^(?P<acronym>[A-Za-z0-9_\-\+]+)/new/$', 'new', name='sessions_new'),
     url(r'^(?P<acronym>[A-Za-z0-9_\-\+]+)/no_session/$', 'no_session', name='sessions_no_session'),
+    url(r'^(?P<num>[A-Za-z0-9_\-\+]+)/(?P<acronym>[A-Za-z0-9_\-\+]+)/edit/$', 'edit_mtg', name='sessions_edit'),
 )

@@ -45,10 +45,13 @@ def get_initial_session(sessions):
     This function takes a queryset of sessions ordered by 'id' for consistency.  It returns
     a dictionary to be used as the initial for a legacy session form
     '''
+    initial = {}
+    if(len(sessions) == 0):
+        return initial
+
     meeting = sessions[0].meeting
     group = sessions[0].group
     conflicts = group.constraint_source_set.filter(meeting=meeting)
-    initial = {}
     # even if there are three sessions requested, the old form has 2 in this field
     initial['num_session'] = sessions.count() if sessions.count() <= 2 else 2
 
@@ -357,7 +360,10 @@ def edit_mtg(request, num, acronym):
     initial = get_initial_session(sessions)
     session_conflicts = session_conflicts_as_string(group, meeting)
     login = request.user.get_profile()
-    session = sessions[0]
+
+    session = Session()
+    if(len(sessions) > 0):
+        session = sessions[0]
 
     if request.method == 'POST':
         button_text = request.POST.get('submit', '')

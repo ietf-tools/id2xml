@@ -792,6 +792,12 @@ function disable_button(divid, buttonid) {
     $(divid).removeClass("button_enabled");
 }
 
+function highlight_session(session) {
+    var element = prev_session.element()[0];
+    element.scrollIntoView(true);
+    element.parent().parent().parent().effect("highlight", {color:"lightcoral"}, 5000);
+}
+
 function fill_in_session_info(session, success, extra) {
     var prev_session = null;
     var next_session = null;
@@ -819,7 +825,7 @@ function fill_in_session_info(session, success, extra) {
 
     if(prev_session) {
         enable_button("#agenda_prev_session", "#prev_session", function(event) {
-            prev_session.element()[0].scrollIntoView(true);
+            highlight_session(prev_session);
             select_session(prev_session);
         });
     } else {
@@ -827,7 +833,7 @@ function fill_in_session_info(session, success, extra) {
     }
     if(next_session) {
         enable_button("#agenda_next_session", "#next_session", function(event) {
-            next_session.element()[0].scrollIntoView(true);
+            highlight_session(next_session);
             select_session(next_session);
         });
     } else {

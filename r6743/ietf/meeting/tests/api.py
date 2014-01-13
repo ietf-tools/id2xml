@@ -756,4 +756,71 @@ class ApiTestCase(TestCase):
         ts_one_json = json.loads(resp.content)
         self.assertEqual(ts_one_json['roomtype'], "plenary")
 
+    def test_avtcore_spans_two_slots(self):
+        m83 = get_meeting(83)
+        o83 = m83.agenda
+
+        avtcore_ss = o83.scheduledsession_set.filter(session__group__acronym = "avtcore")
+        self.assertEqual(len(avtcore_ss), 2)
+
+        avtcore_ss0 = avtcore_ss[0]
+        avtcore_ss1 = avtcore_ss[1]
+        # check avtcore's second sessionscheduled replies with an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, avtcore_ss1.pk))
+        avtcore_json = json.loads(resp.content)
+        self.assertEqual(avtcore_json['extendedfrom_id'], avtcore_ss0.pk)
+
+        # check avtcore's first session replies without an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, avtcore_ss0.pk))
+        avtcore_json = json.loads(resp.content)
+        self.assertFalse("extendedfrom_id" in avtcore_json)
+
+    # different test: ccamp has two sessions, but one of them spans two slots.
+    def test_ccamp_spans_one_slots(self):
+        m83 = get_meeting(83)
+        o83 = m83.agenda
+
+        ccamp_ss = o83.scheduledsession_set.filter(session__group__acronym = "ccamp").order_by("timeslot__time")
+        self.assertEqual(len(ccamp_ss), 3)
+
+        ccamp_ss0 = ccamp_ss[0]
+        # check ccamp's session replies without an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, ccamp_ss0.pk))
+        ccamp_json = json.loads(resp.content)
+        self.assertFalse("extendedfrom_id" in ccamp_json)
+
+        ccamp_ss1 = ccamp_ss[1]
+        # check ccamp's session replies with an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, ccamp_ss1.pk))
+        ccamp_json = json.loads(resp.content)
+        self.assertTrue("extendedfrom_id" in ccamp_json)
+
+        ccamp_ss2 = ccamp_ss[2]
+        # check ccamp's session replies without an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, ccamp_ss2.pk))
+        ccamp_json = json.loads(resp.content)
+        self.assertFalse("extendedfrom_id" in ccamp_json)
+
+    # negative test against a session that has two actual session requests
+    # which are not extended versions of each other.
+    def test_ccamp_spans_one_slots(self):
+        m83 = get_meeting(83)
+        o83 = m83.agenda
+
+        core_ss = o83.scheduledsession_set.filter(session__group__acronym = "core")
+        self.assertEqual(len(core_ss), 2)
+
+        core_ss0 = core_ss[0]
+        # check core's session replies without an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, core_ss0.pk))
+        core_json = json.loads(resp.content)
+        self.assertFalse("extendedfrom_id" in core_json)
+
+        core_ss1 = core_ss[1]
+        # check core's session replies without an extendedfrom attribute
+        resp = self.client.get('/meeting/83/schedule/%s/session/%u.json' % (o83.name, core_ss1.pk))
+        core_json = json.loads(resp.content)
+        self.assertFalse("extendedfrom_id" in core_json)
+
+
 

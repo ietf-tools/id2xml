@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}IETF Datatracker{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="hero-unit text-center">
+		<img class="ietflogo" src="/images/ietflogo{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.png" alt="IETF">
+		<h1>Datatracker</h1>
+		{% ifnotequal server_mode "production" %}
+			<p>Development Mode<p>
+		{% endifnotequal %}
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-7">
+		<h2>Search Documents</h2>
+		{% include "doc/search/search_form.html" %}
+
+	</div>
+	<div class="col-md-5">
+		<h2>About</h2>
+		<p>The IETF Datatracker is the IETF's web system for managing organizational information, such as:</p>
+		<ul>
+			<li><a href="{% url doc_search %}">Internet-Drafts (I-Ds) and Requests for Comments (RFCs)</a></li>
+			<li><a href="/ipr/">IPR disclosures</a></li>
+			<li><a href="/liaison/">Liaison statements</a></li>
+			<li><a href="/meeting/agenda/">Meeting agendas</a> and <a href="/meeting/">session agendas, slides and minutes</a></li>
+			<li><a href="/iesg/agenda/">IESG telechat agendas</a></li>
+		</ul>
+	</div>
+
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/doc-search.js"></script>
+{% endblock %}

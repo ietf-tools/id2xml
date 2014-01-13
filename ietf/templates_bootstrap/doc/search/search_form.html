@@ -1,0 +1,112 @@
+{% load widget_tweaks %}
+
+<form role="form" id="search_form" class="form-horizontal" action="{% url doc_search %}">
+
+<div class="input-group search_field">
+	{{ form.name|add_class:"form-control input-lg"|attr:"placeholder:Document name, number, title, etc." }}
+	<span class="input-group-btn">
+		<button class="btn btn-primary input-lg btn-lg" type="submit">Search</button>
+	</span>
+</div>
+
+<p/>
+{{ form.sort }} {# hidden field #}
+
+<div class="panel-group" id="accordion1">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<p class="panel-title">
+				<a data-toggle="collapse" data-parent="#accordion1" href="#collapse1">
+					Search document types...
+				</a>
+			</p>
+		</div>
+		<div id="collapse1" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="col-sm-offset-4 col-sm-8 search_field">
+					<div class="checkbox">
+						<label class="control-label" for="rfcs">{{ form.rfcs }} RFCs</label>
+					</div>
+					<div class="checkbox">
+						<label class="control-label" for="activedrafts">{{ form.activedrafts }} Internet-Drafts (active)</label>
+					</div>
+					<div class="checkbox">
+						<label class="control-label" for="olddrafts">{{ form.olddrafts }} Internet-Drafts (expired/replaced/withdrawn)</label>
+					</div>
+
+					{% for doc_type in form.doctypes %}
+						<div class="checkbox">
+							<label class="control-label" for="{{doc_type.slug}}">
+							<input type="checkbox" advdoctype="true" {% if doc_type.slug in meta.checked %}checked="checked"{% endif %}name="{{doc_type.slug}}"/>{{doc_type}}
+							</label>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="panel-group" id="accordion2">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<p class="panel-title">
+				<a data-toggle="collapse" data-parent="#accordion2" href="#collapse2">
+					Additional search criteria...
+				</a>
+			</p>
+		</div>
+		<div id="collapse2" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div class="form-group search_field">
+					<label for="author" class="col-sm-4"><input type="radio" name="by" value="author" {% if meta.by == "author" %}checked{% endif %}/> Author:</label>
+					<div class="col-sm-8">
+						 {{ form.author|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="group" class="col-sm-4"><input type="radio" name="by" value="group" {% if meta.by == "group" %}checked{% endif %}/> WG:</label>
+					<div class="col-sm-8">
+						{{ form.group|add_class:"form-control" }}
+					</div>
+				</div>
+
+
+				<div class="form-group search_field">
+					<label for="area" class="col-sm-4"><input type="radio" name="by" value="area" {% if meta.by == "area" %}checked{% endif %}/> Area:</label>
+					<div class="col-sm-8">
+						{{ form.area|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="ad" class="col-sm-4"><input type="radio" name="by" value="ad" {% if meta.by == "ad" %}checked{% endif %}/> Responsible AD:</label>
+					<div class="col-sm-8">
+						{{ form.ad|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="state" class="col-sm-4"><input type="radio" name="by" value="state" {% if meta.by == "state" %}checked{% endif %}/> IESG State:</label>
+					<div class="col-sm-4">
+						{{ form.state|add_class:"form-control" }}
+					</div>
+					<div class="col-sm-4">
+						{{ form.substate|add_class:"form-control" }}
+					</div>
+				</div>
+
+				<div class="form-group search_field">
+					<label for="stream" class="col-sm-4"><input type="radio" name="by" value="stream" {% if meta.by == "stream" %}checked="checked"{% endif %}/> Stream:</label>
+					<div class="col-sm-4">
+						{{ form.stream|add_class:"form-control" }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</form>

@@ -1,0 +1,150 @@
+{% load ietf_filters %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>	   <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>		   <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>		   <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>
+			{% block title %}No title{% endblock %}
+			{% if server_mode %}
+				{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
+			{% endif %}
+		</title>
+		<!--<meta name="description" content="">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+		<style>
+			{% block morecss %}{% endblock %}
+		</style>
+		<link rel="stylesheet" href="/css/ietf.css">
+
+		<script src="/js/lib/modernizr-2.7.1.min.js"></script>
+
+		{% block pagehead %}{% endblock %}
+
+		<link rel="shortcut icon" href="/images/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.ico">
+		<link rel="apple-touch-icon-precomposed" href="/images/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.png">
+
+		<link rel="search" href="/js/datatracker-search.xml" type="application/opensearchdescription+xml" title="IETF Datatracker Search" />
+	</head>
+
+	<body {% block bodyAttrs %}{%endblock%}>
+		<!--[if lt IE 7]>
+			<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
+
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">
+					IETF Datatracker
+					{% if server_mode %}
+						{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
+					{% endif %}
+				</a>
+			</div>
+
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+					{% with "top" as flavor %}
+						{% include "base/left_menu.html" %}
+					{% endwith %}
+				</ul>
+
+				<form class="navbar-form navbar-right hidden-sm hidden-xs" action="/doc/search/" role="search">
+					<div class="form-group">
+						<input class="form-control" type="text" name="name" placeholder="Search documents" />
+						<input type="hidden" name="activedrafts" value="on"/>
+						<input type="hidden" name="rfcs" value="on"/>
+					</div>
+				</form>
+			</div>
+		</nav>
+
+		<div class="content container">
+			<div class="row">
+				<div class="col-md-3 hidden-sm hidden-xs">
+					<ul class="nav nav-pills nav-stacked panel panel-default panel-body">
+						{% with "left" as flavor %}
+							{% include "base/left_menu.html" %}
+						{% endwith %}
+					</ul>
+				</div>
+				<div class="col-md-9">
+					{% block content %}{% endblock %}
+					{% block content_end %}{% endblock %}
+				</div>
+			</div>
+
+			<footer class="row">
+				<div class="col-md-12 hidden-xs text-center">
+					<hr>
+				  <small>
+						<ul class="nav nav-pills center-pills">
+							<li><a href="http://www.ietf.org/">IETF</a></li>
+							<li><a href="http://tools.ietf.org/">IETF Tools</a></li>
+							<li><a href="http://www.ietf.org/iesg/">IESG</a></li>
+							<li><a href="http://www.iab.org/">IAB</a></li>
+							<li><a href="http://www.irtf.org/">IRTF</a></li>
+							<li><a href="http://www.rfc-editor.org/">RFC Editor</a></li>
+							<li><a href="http://www.iana.org/">IANA</a></li>
+							<li><a href="http://iaoc.ietf.org">IASA &amp; IAOC</a></li>
+							<li><a href="http://trustee.ietf.org/">IETF Trust</a></li>
+							<li><a href="http://www.internetsociety.org/">ISOC</a></li>
+						</ul>
+					</small>
+				</div>
+			</footer>
+
+			<footer class="row">
+				<div class="col-md-12 text-muted">
+					<small>
+						{% if version_num %}
+							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
+						{% endif %}
+							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
+
+						{% if messages %}
+							<ul class="messages">
+							{% for message in messages %}
+								<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+							{% endfor %}
+							</ul>
+						{% endif %}
+
+						{% include "debug.html" %}
+					</small>
+				</div>
+			</footer>
+		</div>
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script src="/js/lib/jquery-1.10.2.min.js"><\/script>')</script>
+		<script src="/js/lib/bootstrap.min.js"></script>
+		<script src="/js/ietf.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+			{% block scripts %}{% endblock %}
+			//]]>
+		</script>
+		{% block js %}{% endblock %}
+<!--		<script>
+      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      ga('create','UA-XXXXX-X');ga('send','pageview');
+		</script>
+-->	</body>
+</html>

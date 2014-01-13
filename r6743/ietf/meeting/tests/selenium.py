@@ -34,6 +34,7 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.wait_for_load()
 
     def wait_for_load(self):
+        time.sleep(1)
         if not self.is_element_visible(how=By.CSS_SELECTOR,what="#pageloaded"):
             itercount=0
             while itercount < 1000 and not self.is_element_visible(how=By.CSS_SELECTOR,what="#spinner"):
@@ -641,8 +642,10 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.load_and_wait(a83)
         # there are two session requests, we want the one on Monday.
         ccamp_ss = a83.scheduledsession_set.get(session__group__acronym = "ccamp",
-                                                   timeslot__time = datetime.datetime(2012,3,26,13,0))
+                                                timeslot__time = datetime.datetime(2012,3,26,13,0))
         ccamp_request = ccamp_ss.session
+        # this delay should not be necessary, but seems to help, otherwise the element is not yet created.
+        time.sleep(4)
         self.scroll_into_view("session_%u" % ccamp_request.pk)
 
         ccamp = driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (ccamp_request.pk))
@@ -651,7 +654,7 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
 
         # now look for the other ccamp session.
         ccamp2_ss = a83.scheduledsession_set.get(session__group__acronym = "ccamp",
-                                                    timeslot__time = datetime.datetime(2012,3,28,9,0))
+                                                 timeslot__time = datetime.datetime(2012,3,28,9,0))
         ccamp2_request = ccamp2_ss.session
         self.scroll_into_view("session_%u" % (ccamp2_request.pk))
         print "ccamp2 id: session_%u" % (ccamp2_request.pk)

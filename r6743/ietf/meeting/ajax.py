@@ -76,67 +76,6 @@ def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=Fal
 
     return json.dumps({'message':'valid'})
 
-
-
-@group_required('Area Director','Secretariat')
-@dajaxice_register
-def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, extended_from_id=None, duplicate=False):
-    schedule = get_object_or_404(Schedule, pk = int(schedule_id))
-    meeting  = schedule.meeting
-    ss_id = 0
-    ess_id = 0
-    ess = None
-    ss = None
-
-    #print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
-
-    if not canedit:
-        #raise Exception("Not permitted")
-        return json.dumps({'error':'no permission'})
-
-    session_id = int(session_id)
-    session = get_object_or_404(meeting.session_set, pk=session_id)
-
-    if scheduledsession_id is not None:
-        ss_id = int(scheduledsession_id)
-
-    if extended_from_id is not None:
-        ess_id = int(extended_from_id)
-
-    if ss_id != 0:
-        ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
-
-    # this cleans up up two sessions in one slot situation, the
-    # ... extra scheduledsessions need to be cleaned up.
-
-    if ess_id == 0:
-        # if this is None, then we must be moving.
-        for ssO in schedule.scheduledsession_set.filter(session = session):
-            #print "sched(%s): removing session %s from slot %u" % ( schedule, session, ssO.pk )
-            #if ssO.extendedfrom is not None:
-            #    ssO.extendedfrom.session = None
-            #    ssO.extendedfrom.save()
-            ssO.session = None
-            ssO.extendedfrom = None
-            ssO.save()
-    else:
-        ess = get_object_or_404(schedule.scheduledsession_set, pk = ess_id)
-        ss.extendedfrom = ess
-
-    try:
-        # find the scheduledsession, assign the Session to it.
-        if ss:
-            #print "ss.session: %s session:%s duplicate=%s"%(ss, session, duplicate)
-            ss.session = session
-            if(duplicate):
-                ss.id = None
-            ss.save()
-    except Exception:
-        return json.dumps({'error':'invalid scheduledsession'})
-
-    return json.dumps({'message':'valid'})
-
 @group_required('Secretariat')
 @dajaxice_register
 def update_timeslot_purpose(request,

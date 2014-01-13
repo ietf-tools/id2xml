@@ -687,8 +687,20 @@ class ScheduledSession(models.Model):
         ss['scheduledsession_id'] = self.id
         ss['href']          = urljoin(host_scheme, self.json_url())
         ss['timeslot_id'] = self.timeslot.id
-        if self.extendedfrom_id != 0 and self.extendedfrom is not None:
-            ss['extendedfrom_id']  = self.extendedfrom.id
+
+        efset = self.session.scheduledsession_set.filter(schedule=self.schedule).order_by("timeslot__time")
+        if efset.count() > 1:
+            # now we know that there is some work to do finding the extendedfrom_id.
+            # loop through the list of items
+            previous = None
+            for efss in efset:
+                if efss.pk == self.pk:
+                    extendedfrom = previous
+                    break
+                previous = efss
+            if extendedfrom is not None:
+                ss['extendedfrom_id']  = extendedfrom.id
+
         if self.session:
             ss['session_id']  = self.session.id
         ss["pinned"]   = self.pinned

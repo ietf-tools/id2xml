@@ -793,9 +793,9 @@ function disable_button(divid, buttonid) {
 }
 
 function highlight_session(session) {
-    var element = prev_session.element()[0];
+    var element = session.element()[0];
     element.scrollIntoView(true);
-    element.parent().parent().parent().effect("highlight", {color:"lightcoral"}, 5000);
+    session.element().parent().parent().parent().effect("pulsate", {color:"lightcoral"}, 10000);
 }
 
 function fill_in_session_info(session, success, extra) {
@@ -825,16 +825,16 @@ function fill_in_session_info(session, success, extra) {
 
     if(prev_session) {
         enable_button("#agenda_prev_session", "#prev_session", function(event) {
-            highlight_session(prev_session);
             select_session(prev_session);
+            highlight_session(prev_session);
         });
     } else {
         disable_button("#agenda_prev_session", "#prev_session");
     }
     if(next_session) {
         enable_button("#agenda_next_session", "#next_session", function(event) {
-            highlight_session(next_session);
             select_session(next_session);
+            highlight_session(next_session);
         });
     } else {
         disable_button("#agenda_next_session", "#next_session");

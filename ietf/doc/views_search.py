@@ -361,7 +361,7 @@ def retrieve_search_results(form, all_types=False):
     meta['headers'] = [{'title': 'Document', 'key':'document'},
                        {'title': 'Title', 'key':'title'},
                        {'title': 'Date', 'key':'date'},
-                       {'title': 'Status', 'key':'status', 'colspan':'2'},
+                       {'title': 'Status', 'key':'status', 'colspan':'2'}, # FACELIFT: colspan not needed anymore
                        {'title': 'IPR', 'key':'ipr'},
                        {'title': 'AD / Shepherd', 'key':'ad'}]
 

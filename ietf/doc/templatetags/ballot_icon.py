@@ -103,19 +103,21 @@ def render_ballot_icon(doc, user):
 
     for i, (ad, pos) in enumerate(positions):
         if i > 0 and i % 5 == 0:
-            res.append("</tr>")
-            res.append("<tr>")
+            res.append("</tr><tr>")
 
         c = "position-%s" % (pos.pos.slug if pos else "norecord")
 
         if user_is_person(user, ad):
             c += " my"
 
-        res.append('<td class="%s" />' % c)
+        res.append('<td class="%s"></td>' % c)
 
-    res.append("</tr>")
-    res.append("</table></a>")
+    # add sufficient table calls to last row to avoid HTML validation warning
+    while (i + 1) % 5 != 0:
+        res.append('<td class="empty"></td>')
+        i = i + 1
 
+    res.append("</tr></table></a>")
     return "".join(res)
 
 class BallotIconNode(template.Node):
@@ -174,11 +176,11 @@ def state_age_colored(doc):
                               Q(desc__istartswith="Sub state has been changed to ")|
                               Q(desc__istartswith="State has been changed to ")|
                               Q(desc__istartswith="IESG process started in state")
-                          ).order_by('-time')[0].time.date() 
+                          ).order_by('-time')[0].time.date()
         except IndexError:
             state_date = datetime.date(1990,1,1)
         days = (datetime.date.today() - state_date).days
-        # loosely based on 
+        # loosely based on
         # http://trac.tools.ietf.org/group/iesg/trac/wiki/PublishPath
         if main_state == "lc":
             goal1 = 30

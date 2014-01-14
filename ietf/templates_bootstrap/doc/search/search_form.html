@@ -3,9 +3,9 @@
 <form role="form" id="search_form" class="form-horizontal" action="{% url doc_search %}">
 
 <div class="input-group search_field">
-	{{ form.name|add_class:"form-control input-lg"|attr:"placeholder:Document name, number, title, etc." }}
+	{{ form.name|add_class:"form-control"|attr:"placeholder:Document name, number, title, etc." }}
 	<span class="input-group-btn">
-		<button class="btn btn-primary input-lg btn-lg" type="submit">Search</button>
+		<button class="btn btn-primary" type="submit">Search</button>
 	</span>
 </div>
 
@@ -117,3 +117,4 @@
 </div>
 
 </form>
+<p></p>

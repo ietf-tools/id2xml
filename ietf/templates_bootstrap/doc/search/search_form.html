@@ -9,65 +9,60 @@
 	</span>
 </div>
 
-<p/>
+<p></p>
 {{ form.sort }} {# hidden field #}
 
 <div class="panel-group" id="accordion1">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<p class="panel-title">
+			<p class="panel-title toggle_advanced">
 				<a data-toggle="collapse" data-parent="#accordion1" href="#collapse1">
-					Search document types...
+					Additional search criteria...
 				</a>
 			</p>
 		</div>
 		<div id="collapse1" class="panel-collapse collapse">
 			<div class="panel-body">
-				<div class="col-sm-offset-4 col-sm-8 search_field">
-					<div class="checkbox">
-						<label class="control-label" for="rfcs">{{ form.rfcs }} RFCs</label>
+				<div class="form-group">
+					<div class="col-sm-4">
+						<label class="control-label">Document Types</label>
 					</div>
-					<div class="checkbox">
-						<label class="control-label" for="activedrafts">{{ form.activedrafts }} Internet-Drafts (active)</label>
-					</div>
-					<div class="checkbox">
-						<label class="control-label" for="olddrafts">{{ form.olddrafts }} Internet-Drafts (expired/replaced/withdrawn)</label>
-					</div>
-
-					{% for doc_type in form.doctypes %}
+					<div class="col-sm-8 search_field">
 						<div class="checkbox">
-							<label class="control-label" for="{{doc_type.slug}}">
-							<input type="checkbox" advdoctype="true" {% if doc_type.slug in meta.checked %}checked="checked"{% endif %}name="{{doc_type.slug}}"/>{{doc_type}}
-							</label>
+							<label class="control-label" for="id_rfcs">{{ form.rfcs }} RFC</label>
 						</div>
-					{% endfor %}
+						<div class="checkbox">
+							<label class="control-label" for="id_activedrafts">{{ form.activedrafts }} Internet-Draft (active)</label>
+						</div>
+						<div class="checkbox">
+							<label class="control-label" for="id_olddrafts">{{ form.olddrafts }} Internet-Draft (expired, replaced or withdrawn)</label>
+						</div>
+
+						{% for doc_type in form.doctypes %}
+							<div class="checkbox">
+								<label class="control-label" for="id_{{doc_type.slug}}">
+								<input type="checkbox" class="advdoctype" {% if doc_type.slug in meta.checked %}checked{% endif %}name="{{doc_type.slug}}" id="id_{{doc_type.slug}}"/>{{doc_type}}
+								</label>
+							</div>
+						{% endfor %}
+					</div>
 				</div>
-			</div>
-		</div>
-	</div>
-</div>
 
-
-<div class="panel-group" id="accordion2">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<p class="panel-title">
-				<a data-toggle="collapse" data-parent="#accordion2" href="#collapse2">
-					Additional search criteria...
-				</a>
-			</p>
-		</div>
-		<div id="collapse2" class="panel-collapse collapse">
-			<div class="panel-body">
 				<div class="form-group search_field">
-					<label for="author" class="col-sm-4"><input type="radio" name="by" value="author" {% if meta.by == "author" %}checked{% endif %}/> Author:</label>
+					<div class="col-sm-4">
+						<input type="radio" name="by" value="author" {% if meta.by == "author" %}checked{% endif %}/>
+						<label for="id_author" class="control-label">Author</label>
+					</div>
 					<div class="col-sm-8">
 						 {{ form.author|add_class:"form-control" }}
 					</div>
 				</div>
 
 				<div class="form-group search_field">
-					<label for="group" class="col-sm-4"><input type="radio" name="by" value="group" {% if meta.by == "group" %}checked{% endif %}/> WG:</label>
+					<div class="col-sm-4">
+						<input type="radio" name="by" value="group" {% if meta.by == "group" %}checked{% endif %}/>
+						<label for="id_group" class="control-label">WG</label>
+					</div>
 					<div class="col-sm-8">
 						{{ form.group|add_class:"form-control" }}
 					</div>
@@ -75,23 +70,32 @@
 
 
 				<div class="form-group search_field">
-					<label for="area" class="col-sm-4"><input type="radio" name="by" value="area" {% if meta.by == "area" %}checked{% endif %}/> Area:</label>
+					<div class="col-sm-4">
+						<input type="radio" name="by" value="area" {% if meta.by == "area" %}checked{% endif %}/>
+						<label for="id_area" class="control-label">Area</label>
+					</div>
 					<div class="col-sm-8">
 						{{ form.area|add_class:"form-control" }}
 					</div>
 				</div>
 
 				<div class="form-group search_field">
-					<label for="ad" class="col-sm-4"><input type="radio" name="by" value="ad" {% if meta.by == "ad" %}checked{% endif %}/> Responsible AD:</label>
+					<div class="col-sm-4">
+						<input type="radio" name="by" value="ad" {% if meta.by == "ad" %}checked{% endif %}/>
+						<label for="id_ad" class="control-label">AD</label>
+					</div>
 					<div class="col-sm-8">
 						{{ form.ad|add_class:"form-control" }}
 					</div>
 				</div>
 
 				<div class="form-group search_field">
-					<label for="state" class="col-sm-4"><input type="radio" name="by" value="state" {% if meta.by == "state" %}checked{% endif %}/> IESG State:</label>
 					<div class="col-sm-4">
-						{{ form.state|add_class:"form-control" }}
+						<input type="radio" name="by" value="state" {% if meta.by == "state" %}checked{% endif %}/>
+						<label for="id_state" class="control-label">IESG State</label>
+					</div>
+					<div class="col-sm-4">
+						{{ form.state|add_class:"form-control col-sm-4" }}
 					</div>
 					<div class="col-sm-4">
 						{{ form.substate|add_class:"form-control" }}
@@ -99,7 +103,10 @@
 				</div>
 
 				<div class="form-group search_field">
-					<label for="stream" class="col-sm-4"><input type="radio" name="by" value="stream" {% if meta.by == "stream" %}checked="checked"{% endif %}/> Stream:</label>
+					<div class="col-sm-4">
+						<input type="radio" name="by" value="stream" {% if meta.by == "stream" %}checked{% endif %}/>
+						<label for="id_stream" class="control-label">Stream</label>
+					</div>
 					<div class="col-sm-4">
 						{{ form.stream|add_class:"form-control" }}
 					</div>

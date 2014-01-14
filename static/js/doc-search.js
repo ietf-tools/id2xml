@@ -12,32 +12,22 @@ $(function () {
                     advanced = true;
             });
 
-	var additional_doctypes = form.find("input[advdoctype=true]:checked");
+	var additional_doctypes = form.find("input.advdoctype:checked");
 	if (additional_doctypes.length > 0)
-	    advanced = true; 
+	    advanced = true;
 
         return advanced;
     }
 
     function toggleSubmit() {
         var nameSearch = $.trim($("#id_name").val());
-        form.find("input[type=submit]").get(0).disabled = !nameSearch && !anyAdvancedActive();
-    }
-
-    function togglePlusMinus(toggler, toggled) {
-        var img = toggler.find("img").get(0);
-        if (toggled.is(":hidden")) {
-            toggled.show();
-            img.src = "/images/minus.png";
-        } else { 
-            toggled.hide();
-            img.src = "/images/plus.png";
-        }
+        form.find("button[type=submit]").get(0).disabled = !nameSearch && !anyAdvancedActive();
     }
 
     function updateAdvanced() {
         form.find("input[name=by]:checked").closest(".search_field").find("input,select").not("input[name=by]").each(function () {
             this.disabled = false;
+            this.focus();
         });
 
         form.find("input[name=by]").not(":checked").closest(".search_field").find("input,select").not("input[name=by]").each(function () {
@@ -48,7 +38,7 @@ $(function () {
     }
 
     if (form.length > 0) {
-        form.find(".search_field input[name=by]").closest("label").click(updateAdvanced);
+        form.find(".search_field input[name=by]").closest(".search_field").find("label,input").click(updateAdvanced);
 
         form.find(".search_field input,select")
             .change(toggleSubmit).click(toggleSubmit).keyup(toggleSubmit);
@@ -56,7 +46,6 @@ $(function () {
         form.find(".toggle_advanced").click(function () {
             var advanced = $(this).next();
             advanced.find('.search_field input[type="radio"]').attr("checked", false);
-            togglePlusMinus($(this), advanced);
             updateAdvanced();
         });
 

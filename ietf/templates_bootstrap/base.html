@@ -89,41 +89,38 @@
 			<footer class="row">
 				<div class="col-md-12 hidden-xs text-center">
 					<hr>
-				  <small>
-						<ul class="nav nav-pills center-pills">
-							<li><a href="http://www.ietf.org/">IETF</a></li>
-							<li><a href="http://tools.ietf.org/">IETF Tools</a></li>
-							<li><a href="http://www.ietf.org/iesg/">IESG</a></li>
-							<li><a href="http://www.iab.org/">IAB</a></li>
-							<li><a href="http://www.irtf.org/">IRTF</a></li>
-							<li><a href="http://www.rfc-editor.org/">RFC Editor</a></li>
-							<li><a href="http://www.iana.org/">IANA</a></li>
-							<li><a href="http://iaoc.ietf.org">IASA &amp; IAOC</a></li>
-							<li><a href="http://trustee.ietf.org/">IETF Trust</a></li>
-							<li><a href="http://www.internetsociety.org/">ISOC</a></li>
-						</ul>
-					</small>
+					<ul class="nav nav-pills center-pills">
+						<li><a href="http://www.ietf.org/">IETF</a></li>
+						<li><a href="http://tools.ietf.org/">IETF Tools</a></li>
+						<li><a href="http://www.ietf.org/iesg/">IESG</a></li>
+						<li><a href="http://www.iab.org/">IAB</a></li>
+						<li><a href="http://www.irtf.org/">IRTF</a></li>
+						<li><a href="http://www.rfc-editor.org/">RFC Editor</a></li>
+						<li><a href="http://www.iana.org/">IANA</a></li>
+						<li><a href="http://iaoc.ietf.org">IASA &amp; IAOC</a></li>
+						<li><a href="http://trustee.ietf.org/">IETF Trust</a></li>
+						<li><a href="http://www.internetsociety.org/">ISOC</a></li>
+					</ul>
 				</div>
 			</footer>
 
 			<footer class="row">
 				<div class="col-md-12 text-muted">
-					<small>
-						{% if version_num %}
-							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
-						{% endif %}
-							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
+				<!--
+					{% if version_num %}
+						<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
+					{% endif %}
+						<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
+				-->
+					{% if messages %}
+						<ul class="messages">
+						{% for message in messages %}
+							<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+						{% endfor %}
+						</ul>
+					{% endif %}
 
-						{% if messages %}
-							<ul class="messages">
-							{% for message in messages %}
-								<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-							{% endfor %}
-							</ul>
-						{% endif %}
-
-						{% include "debug.html" %}
-					</small>
+					{# include "debug.html" #}
 				</div>
 			</footer>
 		</div>

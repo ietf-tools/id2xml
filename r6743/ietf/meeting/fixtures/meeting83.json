@@ -171,15 +171,15 @@
 {"pk": 2518, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 2263, "timeslot": 2925}},
 {"pk": 2519, "model": "meeting.scheduledsession", "fields": {"schedule": 24, "notes": "Auto created", "session": 22089, "timeslot": 2926}},
 
-{"pk": 206, "model": "meeting.room", "fields": {"meeting": 83, "name": "212/213", "capacity": 60}},
-{"pk": 207, "model": "meeting.room", "fields": {"meeting": 83, "name": "243", "capacity": 100}},
-{"pk": 208, "model": "meeting.room", "fields": {"meeting": 83, "name": "253", "capacity": 100}},
-{"pk": 209, "model": "meeting.room", "fields": {"meeting": 83, "name": "252A", "capacity": 100}},
-{"pk": 210, "model": "meeting.room", "fields": {"meeting": 83, "name": "241", "capacity": 200}},
-{"pk": 211, "model": "meeting.room", "fields": {"meeting": 83, "name": "252B", "capacity": 200}},
-{"pk": 212, "model": "meeting.room", "fields": {"meeting": 83, "name": "242AB", "capacity": 260}},
-{"pk": 213, "model": "meeting.room", "fields": {"meeting": 83, "name": "Maillot", "capacity": 380}},
-{"pk": 214, "model": "meeting.room", "fields": {"meeting": 83, "name": "Amphitheatre Bleu", "capacity": 826}},
+{"pk": 206, "model": "meeting.room", "fields": {"meeting": 83, "name": "212/213", "capacity": 60, "resources": [ 1 ]}},
+{"pk": 207, "model": "meeting.room", "fields": {"meeting": 83, "name": "243", "capacity": 100, "resources": [ 1, 2 ]}},
+{"pk": 208, "model": "meeting.room", "fields": {"meeting": 83, "name": "253", "capacity": 100, "resources": [ 1, 2, 3 ]}},
+{"pk": 209, "model": "meeting.room", "fields": {"meeting": 83, "name": "252A", "capacity": 100, "resources": [ 1 ]}},
+{"pk": 210, "model": "meeting.room", "fields": {"meeting": 83, "name": "241", "capacity": 200, "resources": [ 1 ]}},
+{"pk": 211, "model": "meeting.room", "fields": {"meeting": 83, "name": "252B", "capacity": 200, "resources": [ 1 ]}},
+{"pk": 212, "model": "meeting.room", "fields": {"meeting": 83, "name": "242AB", "capacity": 260, "resources": [ 1 ]}},
+{"pk": 213, "model": "meeting.room", "fields": {"meeting": 83, "name": "Maillot", "capacity": 380, "resources": [ 1,3 ]}},
+{"pk": 214, "model": "meeting.room", "fields": {"meeting": 83, "name": "Amphitheatre Bleu", "capacity": 826, "resources": [ 1 ]}},
 {"pk": 215, "model": "meeting.room", "fields": {"meeting": 83, "name": "Hall Maillot A", "capacity": 1000}},
 {"pk": 216, "model": "meeting.room", "fields": {"meeting": 83, "name": "Salon Etoile d'Or (Concorde Hotel)", "capacity": 1000}},
 
@@ -545,6 +545,35 @@
 {"pk": 5095, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2278, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2501}},
 {"pk": 5096, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2276, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2502}},
 {"pk": 5091, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2272, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2497}},
-{"pk": 5092, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2273, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2498}}
+{"pk": 5092, "model": "meeting.scheduledsession", "fields": {"notes": "Auto created", "session": 2273, "modified": "2013-04-11 09:08:17", "schedule": 103, "pinned": true, "timeslot": 2498}},
+
+    {
+        "pk": 1,
+        "model": "meeting.resourceassociation",
+        "fields": {
+            "desc": "Projector in room",
+            "name": "project",
+            "icon": "12161797831849255690jcartier_board.svg"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "meeting.resourceassociation",
+        "fields": {
+            "desc": "Second projector in room",
+            "name": "proj2",
+            "icon": "projector2.png"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "meeting.resourceassociation",
+        "fields": {
+            "desc": "Meetecho support in room",
+            "name": "meetecho",
+            "icon": "meetecho-mini.png"
+        }
+    }
+
 
 ]

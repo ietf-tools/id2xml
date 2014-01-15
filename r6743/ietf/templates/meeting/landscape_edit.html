@@ -241,13 +241,15 @@ Please save this agenda to your account first.
     <th class="vert_time">
       <div class="close very_small close_room top_left small_button" id="close_{{r.name|to_acceptable_id}}">X</div>
       <div class="right room_name">{{r.name}} <span class="capacity">({{r.capacity}})</span></div>
-
-      <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r.name}}</span>-->
     </th>
     <th class="room_features">
-      {% for resource in r.resources_set %}
-        <img src="{{ resource.url }}" />
+      <div class="resource_list">
+      {% for resource in r.resources.all %}
+      <span class="resource_image">
+      <img src="/images/{{ resource.icon }}" height=24 alt="{{resource.desc}}" title="{{resource.desc}}"/>
+      </span>
       {% endfor %}
+      </div>
     </th>
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}

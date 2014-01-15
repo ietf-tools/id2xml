@@ -1077,3 +1077,13 @@ background: -webkit-linear-gradient(top, #99beff 0%,#1e5799 100%); /* Chrome10+,
 /* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99beff', endColorstr='#1e5799',GradientType=1 ); /\* IE6-9 *\/ */
 
 }
+
+.resource_image {
+    float: left;
+}
+.resource_list {
+    width: 75px;
+}
+.room_features {
+    background-color:#2647A0;
+}

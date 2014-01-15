@@ -937,6 +937,18 @@
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
     </object>
+    <object pk="unavail" model="name.timeslottypename">
+        <field type="CharField" name="name">Room Unavailable</field>
+        <field type="TextField" name="desc">A room was not booked for the timeslot indicated</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
+    <object pk="reserved" model="name.timeslottypename">
+        <field type="CharField" name="name">Room Reserved</field>
+        <field type="TextField" name="desc">A room has been reserved for use by another body the timeslot indicated</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
     <object pk="draft" model="doc.statetype">
         <field type="CharField" name="label">State</field>
     </object>

@@ -1087,3 +1087,6 @@ background: -webkit-linear-gradient(top, #99beff 0%,#1e5799 100%); /* Chrome10+,
 .room_features {
     background-color:#2647A0;
 }
+.agenda_requested_feature {
+    float: right;
+}

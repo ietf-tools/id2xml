@@ -840,6 +840,27 @@ function fill_in_session_info(session, success, extra) {
         disable_button("#agenda_next_session", "#next_session");
     }
 
+    $("#agenda_requested_features").html("");
+    // fill in list of resources into #agenda_requested_features
+    if(session.resources != undefined) {
+        $.each(session.resources, function(index) {
+            resource = this;
+
+            $("#agenda_requested_features").html(function(inbox, oldhtml) {
+                return "<div id=\"resource_"+resource.resource_id+"\"class=\"agenda_requested_feature\">"+
+                    "<img height=30 src=\""+
+                    resource.icon+"\" title=\""+
+                    resource.desc+"\" alt=\""+
+                    resource.name+
+                    "\" />"+
+                    "</div>"+
+                    oldhtml
+            });
+
+            console.log(session.title, "asks for resource", resource.desc);
+        });
+    }
+
 
     // here is where we would set up the session request edit button.
     // $(".agenda_sreq_button").html(session.session_req_link);

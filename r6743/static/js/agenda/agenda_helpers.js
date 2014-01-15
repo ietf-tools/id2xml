@@ -312,6 +312,7 @@ function empty_info_table(){
     }
     $("#info_responsible").html("");
     $("#info_requestedby").html("");
+    $("#agenda_requested_features").html("");
 
     /* need to reset listeners, because we just changed the HTML */
     listeners();

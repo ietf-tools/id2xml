@@ -229,6 +229,7 @@ class ResourceAssociation(models.Model):
         res1['name'] = self.name.slug
         res1['icon'] = "/images/%s" % (self.icon)
         res1['desc'] = self.desc
+        res1['resource_id'] = self.pk
         return res1
 
 class Room(models.Model):

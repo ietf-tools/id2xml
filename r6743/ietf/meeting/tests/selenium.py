@@ -323,6 +323,44 @@ class SeleniumTestCase(django.test.TestCase,RealDatabaseTest):
         self.assertEqual(len(ss), 1)
         ss[0].delete()
 
+    def test_case1243_websec_shows_one_request(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+        websec_requests  = m83.session_set.filter(group__acronym = "websec")
+        websec_request = websec_requests[0]
+
+        self.load_and_wait(a83)
+        print "clicking websec"
+        driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (websec_request.pk)).click()
+
+        # validate that the #agenda_requested_features div is non-empty
+        feature = driver.find_element_by_id("agenda_requested_features")
+        features = feature.find_elements_by_class_name("agenda_requested_feature")
+        #import pdb; pdb.set_trace()
+        self.assertEqual(len(features), 1)
+
+    def test_case1243_ospf_shows_two_requests(self):
+        driver = self.driver
+        driver.maximize_window()
+
+        m83 = get_meeting(83)
+        a83 = m83.agenda
+        ospf_requests  = m83.session_set.filter(group__acronym = "ospf")
+        ospf_request = ospf_requests[0]
+
+        self.load_and_wait(a83)
+        print "clicking ospf"
+        driver.find_element_by_css_selector("#session_%u > tbody > #meeting_event_title > th.meeting_obj" % (ospf_request.pk)).click()
+
+        # validate that the #agenda_requested_features div is non-empty
+        feature = driver.find_element_by_id("agenda_requested_features")
+        features = feature.find_elements_by_class_name("agenda_requested_feature")
+        #import pdb; pdb.set_trace()
+        self.assertEqual(len(features), 2)
+
     def test_case1195_two_sessions(self):
         driver = self.driver
         driver.maximize_window()

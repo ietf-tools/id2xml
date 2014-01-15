@@ -638,6 +638,19 @@ class ApiTestCase(TestCase):
         avtcore_json = json.loads(resp.content)
         self.assertFalse("extendedfrom_id" in avtcore_json)
 
+    def test_websec_has_special_request(self):
+        m83 = get_meeting(83)
+
+        websecs = m83.session_set.filter(group__acronym = "websec")
+        self.assertEqual(len(websecs), 1)
+        websec = websecs[0]
+
+        # check websec has a resource request
+        resp = self.client.get('/meeting/83/session/%u.json' % (websec.pk))
+        websec_json = json.loads(resp.content)
+        self.assertTrue("resources" in websec_json)
+        self.assertEqual(len(websec_json['resources']), 1)
+
     # different test: ccamp has two sessions, but one of them spans two slots.
     def test_ccamp_spans_one_slots(self):
         m83 = get_meeting(83)

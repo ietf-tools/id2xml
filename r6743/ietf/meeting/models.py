@@ -224,6 +224,12 @@ class ResourceAssociation(models.Model):
     icon = models.CharField(max_length=64)       # icon to be found in /static/img
     desc = models.CharField(max_length=256)
 
+    def json_dict(self, host_scheme):
+        res1 = dict()
+        res1['name'] = self.name.slug
+        res1['icon'] = "/images/%s" % (self.icon)
+        res1['desc'] = self.desc
+        return res1
 
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
@@ -803,6 +809,7 @@ class Session(models.Model):
     modified = models.DateTimeField(default=datetime.datetime.now)
 
     materials = models.ManyToManyField(Document, blank=True)
+    resources = models.ManyToManyField(ResourceAssociation)
 
     unique_constraints_dict = None
 
@@ -913,6 +920,10 @@ class Session(models.Model):
                 sess1['area']           = str(self.group.parent.acronym).upper()
             sess1['description']    = str(self.group.name)
             sess1['group_id']       = str(self.group.pk)
+        reslist = []
+        for r in self.resources.all():
+            reslist.append(r.json_dict(host_scheme))
+        sess1['resources']      = reslist
         sess1['session_id']     = str(self.pk)
         sess1['name']           = str(self.name)
         sess1['title']          = str(self.short_name)

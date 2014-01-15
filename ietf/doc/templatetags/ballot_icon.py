@@ -213,7 +213,7 @@ def state_age_colored(doc):
             title = ' title="Goal is &lt;%d days"' % (goal1,)
         else:
             title = ''
-        return mark_safe('<span class="%s"%s>(for&nbsp;%d&nbsp;day%s)</span>' % (
+        return mark_safe('<span class="%s"%s>(for %d day%s)</span>' % (
                 class_name, title, days, 's' if days != 1 else ''))
     else:
         return ""

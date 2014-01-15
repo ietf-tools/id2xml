@@ -949,6 +949,24 @@
         <field type="BooleanField" name="used">True</field>
         <field type="IntegerField" name="order">0</field>
     </object>
+    <object pk="project" model="name.roomresourcename">
+        <field type="CharField" name="name">LCD Projector</field>
+        <field type="TextField" name="desc">The room will have a computer projector</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
+    <object pk="proj2" model="name.roomresourcename">
+        <field type="CharField" name="name">second LCD projector</field>
+        <field type="TextField" name="desc">The room will have a second computer projector</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
+    <object pk="meetecho" model="name.roomresourcename">
+        <field type="CharField" name="name">Meetecho Remote Partition Support</field>
+        <field type="TextField" name="desc">The room will have a meetecho wrangler</field>
+        <field type="BooleanField" name="used">True</field>
+        <field type="IntegerField" name="order">0</field>
+    </object>
     <object pk="draft" model="doc.statetype">
         <field type="CharField" name="label">State</field>
     </object>

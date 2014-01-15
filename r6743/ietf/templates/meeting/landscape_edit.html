@@ -205,6 +205,7 @@ Please save this agenda to your account first.
 <table id="meetings" class="ietf-navbar" style="width:100%">
 <tr>
   <th class="schedule_title"><div id="pageloaded" style="display:none">loaded</div><div id="spinner"><!-- spinney goes here --></div></th>
+  <th></th>
 {% for day in time_slices %}
   <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title agenda_slot_unavailable">
     <div id="close_{{day|date:'Y-m-d'}}" class="close top_left very_small close_day">x</div>
@@ -221,6 +222,7 @@ Please save this agenda to your account first.
 
 <tr>
       <th class="th_column"><button id="show_all_button" class="styled_button">show all</button></th>
+      <th></th>
     {% for day in time_slices %}
 	  {% for slot in date_slices|lookup:day %}
 	      <th class="day_{{day}}-{{slot.0|date:'Hi'}} day_{{day}} room_title ">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>
@@ -241,6 +243,11 @@ Please save this agenda to your account first.
       <div class="right room_name">{{r.name}} <span class="capacity">({{r.capacity}})</span></div>
 
       <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r.name}}</span>-->
+    </th>
+    <th class="room_features">
+      {% for resource in r.resources_set %}
+        <img src="{{ resource.url }}" />
+      {% endfor %}
     </th>
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}

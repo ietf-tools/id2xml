@@ -19,7 +19,7 @@ from django.template.defaultfilters import slugify, date as date_format, time as
 from ietf.group.models import Group
 from ietf.person.models import Person
 from ietf.doc.models import Document
-from ietf.name.models import MeetingTypeName, TimeSlotTypeName, SessionStatusName, ConstraintName
+from ietf.name.models import MeetingTypeName, TimeSlotTypeName, SessionStatusName, ConstraintName, RoomResourceName
 
 countries = pytz.country_names.items()
 countries.sort(lambda x,y: cmp(x[1], y[1]))
@@ -218,10 +218,18 @@ class Meeting(models.Model):
     class Meta:
         ordering = ["-date", ]
 
+class ResourceAssociation(models.Model):
+    name = models.ForeignKey(RoomResourceName)
+    #url  = models.UrlField()       # not sure what this was for.
+    icon = models.CharField(max_length=64)       # icon to be found in /static/img
+    desc = models.CharField(max_length=256)
+
+
 class Room(models.Model):
     meeting = models.ForeignKey(Meeting)
     name = models.CharField(max_length=255)
     capacity = models.IntegerField(null=True, blank=True)
+    resources = models.ManyToManyField(ResourceAssociation)
 
     def __unicode__(self):
         return "%s size: %u" % (self.name, self.capacity)

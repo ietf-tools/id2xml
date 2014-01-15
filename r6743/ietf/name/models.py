@@ -31,7 +31,7 @@ class DocRelationshipName(NameModel):
     """Updates, Replaces, Obsoletes, Reviews, ... The relationship is
     always recorded in one direction."""
     revname = models.CharField(max_length=255)
-    
+
 class DocTypeName(NameModel):
     """Draft, Agenda, Minutes, Charter, Discuss, Guideline, Email,
     Review, Issue, Wiki"""
@@ -66,3 +66,6 @@ class FeedbackType(NameModel):
     """Type of feedback: questionnaires, nominations, comments"""
 class DBTemplateTypeName(NameModel):
     """reStructuredText, Plain, Django"""
+class RoomResourceName(NameModel):
+    "Room resources: Audio Stream, Meetecho, . . ."
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. /data/pythonenv/IETFDB/bin/activate
+# clientportal depends upon hacking the base.css, rather than extending it.
+
+export DJANGO_SETTINGS_MODULE=settings
+ ietf/meeting/save_meeting83.py $*

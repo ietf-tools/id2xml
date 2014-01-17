@@ -103,8 +103,9 @@ class SessionForm(forms.Form):
             if self.initial['length_session3'] != '0' and self.initial['length_session3'] != None:
                 self.fields['third_session'].initial = True
 
-        self.fields['resources'] = forms.MultipleChoiceField(choices=[(x.pk,x.desc) for x in ResourceAssociation.objects.all()], widget=forms.CheckboxSelectMultiple)
-        print "resources: %s" % (self.fields['resources'].initial)
+        resources = self.initial['resources']
+        resource_choices = [r.pk for r in resources]
+        self.initial['resources'] = resource_choices
 
     def clean_conflict1(self):
         conflict = self.cleaned_data['conflict1']

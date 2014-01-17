@@ -68,6 +68,7 @@ def get_initial_session(sessions):
     initial['conflict2'] = ' '.join([ c.target.acronym for c in conflicts.filter(name__slug='conflic2') ])
     initial['conflict3'] = ' '.join([ c.target.acronym for c in conflicts.filter(name__slug='conflic3') ])
     initial['comments'] = sessions[0].comments
+    initial['resources'] = sessions[0].resources.all()
     return initial
 
 def get_lock_message():
@@ -179,7 +180,7 @@ def approve(request, acronym):
 
     if has_role(request.user,'Secretariat') or group.parent.role_set.filter(name='ad',person=request.user.get_profile()):
         session.status = SessionStatusName.objects.get(slug='appr')
-        session.save()
+        session_save(session)
 
         messages.success(request, 'Third session approved')
         url = reverse('sessions_view', kwargs={'acronym':acronym})
@@ -212,7 +213,7 @@ def cancel(request, acronym):
     # mark sessions as deleted
     for session in sessions:
         session.status_id = 'deleted'
-        session.save()
+        session_save(session)
 
         # clear schedule assignments if already scheduled
         session.scheduledsession_set.all().delete()
@@ -273,7 +274,7 @@ def confirm(request, acronym):
                                       requested_duration=datetime.timedelta(0,int(duration)),
                                       comments=form['comments'],
                                       status=SessionStatusName.objects.get(slug=slug))
-                new_session.save()
+                session_save(new_session)
 
         # write constraint records
         save_conflicts(group,meeting,form['conflict1'],'conflict')
@@ -348,6 +349,12 @@ def make_bepresent_formset(group, session, default=True):
 def edit(request, acronym):
     return edit_mtg(request, None, acronym)
 
+def session_save(session):
+    session.save()
+    if session.status_id == "schedw" and session.meeting.agenda != None:
+        # send an email to iesg-secretariat to alert to change
+        pass
+
 @check_permissions
 def edit_mtg(request, num, acronym):
     '''
@@ -368,7 +375,7 @@ def edit_mtg(request, num, acronym):
     if request.method == 'POST':
         button_text = request.POST.get('submit', '')
         if button_text == 'Cancel':
-            url = reverse('sessions_view', kwargs={'acronym':acronym})
+            url = reverse('sessions_view', kwargs={'acronym':acronym, 'num':num})
             return HttpResponseRedirect(url)
 
         form = SessionForm(request.POST,initial=initial)
@@ -381,7 +388,7 @@ def edit_mtg(request, num, acronym):
                 if 'length_session1' in form.changed_data:
                     session = sessions[0]
                     session.requested_duration = datetime.timedelta(0,int(form.cleaned_data['length_session1']))
-                    session.save()
+                    session_save(session)
 
                 # session 2
                 if 'length_session2' in form.changed_data:
@@ -403,7 +410,7 @@ def edit_mtg(request, num, acronym):
                         duration = datetime.timedelta(0,int(form.cleaned_data['length_session2']))
                         session = sessions[1]
                         session.requested_duration = duration
-                        session.save()
+                        session_save(session)
 
                 # session 3
                 if 'length_session3' in form.changed_data:
@@ -425,7 +432,7 @@ def edit_mtg(request, num, acronym):
                         duration = datetime.timedelta(0,int(form.cleaned_data['length_session3']))
                         session = sessions[2]
                         session.requested_duration = duration
-                        session.save()
+                        session_save(session)
 
 
                 if 'attendees' in form.changed_data:
@@ -441,6 +448,12 @@ def edit_mtg(request, num, acronym):
                 if 'conflict3' in form.changed_data:
                     Constraint.objects.filter(meeting=meeting,source=group,name='conflic3').delete()
                     save_conflicts(group,meeting,form.cleaned_data['conflict3'],'conflic3')
+
+                if 'resources' in form.changed_data:
+                    new_resource_ids = form.cleaned_data['resources']
+                    new_resources = [ ResourceAssociation.objects.get(pk=a)
+                                      for a in new_resource_ids]
+                    session.resources = new_resources
 
                 # deprecated
                 # log activity
@@ -477,7 +490,7 @@ def edit_mtg(request, num, acronym):
             session_constraint_expire(session)
 
             messages.success(request, 'Session Request updated')
-            url = reverse('sessions_view', kwargs={'acronym':acronym})
+            url = reverse('sessions_view', kwargs={'acronym':acronym, 'num':num})
             return HttpResponseRedirect(url)
 
     else:
@@ -636,7 +649,7 @@ def no_session(request, acronym):
                       requested_by=login,
                       requested_duration=0,
                       status=SessionStatusName.objects.get(slug='notmeet'))
-    session.save()
+    session_save(session)
 
     # send notification
     to_email = SESSION_REQUEST_EMAIL
@@ -738,16 +751,11 @@ def view(request, acronym, num = None):
         if has_role(request.user,'Secretariat') or group.parent.role_set.filter(name='ad',person=request.user.get_profile()):
             show_approve_button = True
 
-    resources = None
-    if sessions[0].resources:
-        resources = sessions[0].resources.all()
-
     # build session dictionary (like querydict from new session request form) for use in template
     session = get_initial_session(sessions)
 
     return render_to_response('sreq/view.html', {
         'session': session,
-        'resources': resources,
         'activities': activities,
         'meeting': meeting,
         'group': group,

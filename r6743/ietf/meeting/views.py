@@ -23,6 +23,7 @@ from ietf.ietfauth.decorators import group_required, has_role
 from django.middleware.gzip import GZipMiddleware
 from django.db.models import Max
 from django.forms.models import modelform_factory
+from django.forms import ModelForm
 
 import debug
 import urllib
@@ -35,7 +36,7 @@ from ietf.proceedings.models import Meeting as OldMeeting, WgMeetingSession, Pro
 
 # New models
 from ietf.person.models  import Person
-from ietf.meeting.models import TimeSlot, Session, Schedule
+from ietf.meeting.models import TimeSlot, Session, Schedule, Room
 from ietf.group.models import Group
 
 from ietf.meeting.helpers import agenda_info
@@ -168,6 +169,7 @@ def agenda_create(request, num=None, name=None):
                 args=[meeting.number, newschedule.name]))
 
 
+@group_required('Secretariat')
 @decorator_from_middleware(GZipMiddleware)
 def edit_timeslots(request, num=None):
 
@@ -182,8 +184,8 @@ def edit_timeslots(request, num=None):
     rooms = meeting.room_set.order_by("capacity")
     rooms = rooms.all()
 
+    # this import locate here to break cyclic loop.
     from ietf.meeting.ajax import timeslot_roomsurl, AddRoomForm, timeslot_slotsurl, AddSlotForm
-
     roomsurl  =reverse(timeslot_roomsurl, args=[meeting.number])
     adddayurl =reverse(timeslot_slotsurl, args=[meeting.number])
 
@@ -199,6 +201,38 @@ def edit_timeslots(request, num=None):
                                           "time_slices":time_slices,
                                           "slot_slices": slots,
                                           "date_slices":date_slices,
+                                          "meeting":meeting},
+                                         RequestContext(request)), mimetype="text/html")
+
+class RoomForm(ModelForm):
+    class Meta:
+        model = Room
+        exclude = ('meeting',)
+
+@group_required('Secretariat')
+def edit_roomurl(request, num, roomid):
+    meeting = get_meeting(num)
+
+    try:
+        room = meeting.room_set.get(pk=roomid)
+    except Room.DoesNotExist:
+        raise Http404("No room %u for meeting %s" % (roomid, meeting.name))
+
+    if request.POST:
+        roomform = RoomForm(request.POST)
+        new_room = roomform.save(commit=False)
+        new_room.meeting = meeting
+        new_room.save()
+        roomform.save_m2m()
+        return HttpResponseRedirect( reverse(edit_timeslots, args=[meeting.number]) )
+
+    roomform = RoomForm(instance=room)
+    meeting_base_url = request.build_absolute_uri(meeting.base_url())
+    site_base_url = request.build_absolute_uri('/')[:-1] # skip the trailing slash
+    return HttpResponse(render_to_string("meeting/room_edit.html",
+                                         {"meeting_base_url": meeting_base_url,
+                                          "site_base_url": site_base_url,
+                                          "editroom":  roomform,
                                           "meeting":meeting},
                                          RequestContext(request)), mimetype="text/html")
 

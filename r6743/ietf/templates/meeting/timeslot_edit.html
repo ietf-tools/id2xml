@@ -100,6 +100,7 @@ promiselist.push(ts_promise);
         <div class="addbutton" id="add_room">+ROOM</div>
         <div class="addbutton" id="add_day">+DAY</div>
       </th>
+      <th><!-- resources --></th>
     {% for day in time_slices %}
 	  {% for slot in slot_slices|lookup:day %}
 	      <th class="day_{{day}} room_title">
@@ -124,9 +125,19 @@ promiselist.push(ts_promise);
 	   id="delete_{{r.name|to_acceptable_id}}"
 	   href="{{r.json_url}}"
 	   roomid="{{r.pk}}">X</div>
-      <div class="right room_name">{{r.name}} <span class="capacity">({{r.capacity}})</span></div>
+      <div class="right room_name"><a class="edit_room editlink"
+      href="/meeting/{{ meeting.number }}/room/{{r.pk}}.html" >{{r.name}} <span class="capacity">({{r.capacity}})</span></a></div>
 
       <!-- <span class="hide_room light_blue_border">X</span><span class="left">{{r.name}}</span></th> -->
+    <th class="room_features">
+      <div class="resource_list">
+      {% for resource in r.resources.all %}
+      <span class="resource_image">
+      <img src="/images/{{ resource.icon }}" height=24 alt="{{resource.desc}}" title="{{resource.desc}}"/>
+      </span>
+      {% endfor %}
+      </div>
+    </th>
     {% for day in time_slices %}
       {% for slot in date_slices|lookup:day %}
         <td slot_time="{{day}} {{slot.0|date:'H:i'}}" slot_duration="{{slot.2}}" slot_room="{{r.pk}}" id="{{r.name|slugify}}_{{day}}_{{slot.0|date:'Hi'}}" class="day_{{day}} agenda-column-{{day}}-{{slot.0|date:'Hi'}} agenda_slot {% cycle 'agenda_slot_alt' '' %} agenda_slot_unavailable" ></td>

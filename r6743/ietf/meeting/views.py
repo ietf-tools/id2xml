@@ -219,7 +219,7 @@ def edit_roomurl(request, num, roomid):
         raise Http404("No room %u for meeting %s" % (roomid, meeting.name))
 
     if request.POST:
-        roomform = RoomForm(request.POST)
+        roomform = RoomForm(request.POST, instance=room)
         new_room = roomform.save(commit=False)
         new_room.meeting = meeting
         new_room.save()

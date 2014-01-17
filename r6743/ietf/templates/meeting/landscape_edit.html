@@ -222,7 +222,7 @@ Please save this agenda to your account first.
 
 <tr>
       <th class="th_column"><button id="show_all_button" class="styled_button">show all</button></th>
-      <th></th>
+      <th><!-- resources --></th>
     {% for day in time_slices %}
 	  {% for slot in date_slices|lookup:day %}
 	      <th class="day_{{day}}-{{slot.0|date:'Hi'}} day_{{day}} room_title ">{{slot.0|date:'Hi'}}-{{slot.1|date:'Hi'}} </th>

@@ -142,18 +142,16 @@ function duration_set(d){
 
 function add_room(event) {
     event.preventDefault();
-    var rooms_url  = $(event.target).attr('href');
 
     $("#add_room_dialog").dialog({
         "title" : "Add new room",
-      buttons : {
-        "Cancel" : function() {
-            $(this).dialog("close");
+        buttons : {
+            "Cancel" : function() {
+                $(this).dialog("close");
+            }
         }
-      }
     });
-
-    $("#room_delete_dialog").dialog("open");
+    $("#add_room_dialog").dialog("open");
 }
 
 function delete_room(event) {

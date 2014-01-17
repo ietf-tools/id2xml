@@ -83,6 +83,7 @@ promiselist.push(ts_promise);
   <th class="schedule_title"><div id="pageloaded" style="display:none"><span id="schedule_name">name: {{meeting.number}}</span></div>
   <div id="spinner"><!-- spinney goes here --></div>
   </th>
+      <th><!-- resources --></th>
 {% for day in time_slices %}
   <th colspan="{{date_slices|colWidth:day}}" id="{{day|date:'Y-m-d'}}-btn" class=" day_{{day}} agenda_slot_title">
     <div style="display: none;" class="delete delete_day bottom_left" id="delete_{{day|date:'Y-m-d'}}">X</div>

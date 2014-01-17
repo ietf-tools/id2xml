@@ -22,6 +22,7 @@ if not settings.SELENIUM_TESTS_ONLY:
 
 if settings.SELENIUM_TESTS:
     from ietf.meeting.tests.selenium      import SeleniumTestCase
+    from ietf.meeting.tests.timeslot_edit import TimeslotEditTestCase
 
 
 

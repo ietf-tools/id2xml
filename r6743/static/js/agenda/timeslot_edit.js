@@ -18,7 +18,7 @@
 
 //////////////-GLOBALS----////////////////////////////////////////
 
-var agenda_globals = AgendaGlobals();
+var agenda_globals;
 
 var days = [];
 var legend_status = {};   // agenda area colors.
@@ -56,6 +56,7 @@ $(document).ready(function() {
    This is ran at page load and sets up the entire page.
 */
 function init_timeslot_edit(){
+    agenda_globals = new AgendaGlobals();
     log("initstuff() ran");
     var directorpromises = [];
     setup_slots(directorpromises);
@@ -90,6 +91,8 @@ function init_timeslot_edit(){
     $("label[for*='id_duration']").hide();
     $("#duration_time").val("01:00");
     format_datetime();
+
+    $("#pageloaded").show();
 }
 
 function create_datetimepicker(){
@@ -228,8 +231,8 @@ function fill_timeslots() {
     // add no_timeslot class to all timeslots, it will be removed
     // when an item is placed into the slot.
     $(".agenda_slot").addClass("no_timeslot");
-    $.each(timeslot_bydomid, function(key) {
-        ts = timeslot_bydomid[key];
+    $.each(agenda_globals.timeslot_bydomid, function(key) {
+        ts = agenda_globals.timeslot_bydomid[key];
         insert_timeslotedit_cell(ts);
     });
 

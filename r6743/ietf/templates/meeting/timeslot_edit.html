@@ -30,18 +30,12 @@
 <script type='text/javascript' src='/js/jquery-ui-timepicker/jquery-ui-sliderAccess.js.js'></script>
 <link rel='stylesheet' type='text/css' href='/css/jquery-ui-timepicker-addon.css' />
 
-{% if server_mode %}
-	{% ifnotequal server_mode "production" %}
-	<script src="https://towtruck.mozillalabs.com/towtruck.js"></script>
-	{% endifnotequal %}
-{% endif %}
-
 {% dajaxice_js_import %}
 
 <script type='text/javascript' src='/js/spin/dist/spin.min.js'></script>
 <script type='text/javascript' src='/js/agenda/timeslot_edit.js'></script>
-<script type='text/javascript' src='/js/agenda/agenda_helpers.js'></script>
 <script type='text/javascript' src='/js/agenda/agenda_objects.js'></script>
+<script type='text/javascript' src='/js/agenda/agenda_helpers.js'></script>
 <script type='text/javascript' src='/js/agenda/agenda_listeners.js'></script>
 
 
@@ -86,7 +80,7 @@ promiselist.push(ts_promise);
 <div class="agenda_div">
 
 <table id="meetings" class="ietf-navbar" style="width:100%">
-  <th class="schedule_title"><span id="schedule_name">name: {{meeting.number}}</span>
+  <th class="schedule_title"><div id="pageloaded" style="display:none"><span id="schedule_name">name: {{meeting.number}}</span></div>
   <div id="spinner"><!-- spinney goes here --></div>
   </th>
 {% for day in time_slices %}

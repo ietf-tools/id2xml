@@ -224,6 +224,9 @@ class ResourceAssociation(models.Model):
     icon = models.CharField(max_length=64)       # icon to be found in /static/img
     desc = models.CharField(max_length=256)
 
+    def __unicode__(self):
+        return self.desc
+
     def json_dict(self, host_scheme):
         res1 = dict()
         res1['name'] = self.name.slug

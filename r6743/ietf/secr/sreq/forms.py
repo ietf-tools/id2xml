@@ -1,6 +1,7 @@
 from django import forms
 
 from ietf.group.models import Group
+from ietf.meeting.models import ResourceAssociation
 from django.forms.formsets import formset_factory
 from ietf.person.forms import EmailsField
 import os
@@ -80,6 +81,7 @@ class SessionForm(forms.Form):
     wg_selector2 = forms.ChoiceField(choices=WG_CHOICES,required=False)
     wg_selector3 = forms.ChoiceField(choices=WG_CHOICES,required=False)
     third_session = forms.BooleanField(required=False)
+    resources     = forms.MultipleChoiceField(choices=[(x.pk,x.desc) for x in ResourceAssociation.objects.all()], widget=forms.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
         super(SessionForm, self).__init__(*args, **kwargs)
@@ -100,7 +102,10 @@ class SessionForm(forms.Form):
         if self.initial and 'length_session3' in self.initial:
             if self.initial['length_session3'] != '0' and self.initial['length_session3'] != None:
                 self.fields['third_session'].initial = True
-                
+
+        self.fields['resources'] = forms.MultipleChoiceField(choices=[(x.pk,x.desc) for x in ResourceAssociation.objects.all()], widget=forms.CheckboxSelectMultiple)
+        print "resources: %s" % (self.fields['resources'].initial)
+
     def clean_conflict1(self):
         conflict = self.cleaned_data['conflict1']
         check_conflict(conflict)

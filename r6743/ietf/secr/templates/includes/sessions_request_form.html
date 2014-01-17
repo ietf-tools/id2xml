@@ -1,4 +1,4 @@
-         <span class="required">*</span> Required Field 
+         <span class="required">*</span> Required Field
          <form id="session-request-form" action="." method="POST" name="form_post">
          {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
          <table id="sessions-new-table" cellspacing="1" cellpadding="1" border="0">
@@ -67,14 +67,19 @@
              </table>
            </td>
            </tr>
-           <tr class="bg2">
+           <tr class="bg2"><td>Resources requested:</td>
+           <td>
+           {{ form.resources }}
+           </td>
+           </tr>
+           <tr class="bg1">
              <td valign="top">Special Requests:<br />&nbsp;<br />i.e. Meetecho, WebEx (please state which, and the reason needed), restrictions on meeting times / days, etc.</td>
              <td>{{ form.comments.errors }}{{ form.comments }}</td>
            </tr>
          </table>
-         
+
          {% include "includes/buttons_save_cancel.html" %}
-      
+
          </form>
 {% block content_end %}
 <script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>

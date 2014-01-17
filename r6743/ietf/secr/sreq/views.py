@@ -704,11 +704,11 @@ def tool_status(request):
         RequestContext(request, {}),
     )
 
-def view(request, acronym):
+def view(request, acronym, num = None):
     '''
     This view displays the session request info
     '''
-    meeting = get_meeting()
+    meeting = get_meeting(num)
     group = get_object_or_404(Group, acronym=acronym)
     sessions = Session.objects.filter(~Q(status__in=('canceled','notmeet','deleted')),meeting=meeting,group=group).order_by('id')
 
@@ -738,11 +738,16 @@ def view(request, acronym):
         if has_role(request.user,'Secretariat') or group.parent.role_set.filter(name='ad',person=request.user.get_profile()):
             show_approve_button = True
 
+    resources = None
+    if sessions[0].resources:
+        resources = sessions[0].resources.all()
+
     # build session dictionary (like querydict from new session request form) for use in template
     session = get_initial_session(sessions)
 
     return render_to_response('sreq/view.html', {
         'session': session,
+        'resources': resources,
         'activities': activities,
         'meeting': meeting,
         'group': group,

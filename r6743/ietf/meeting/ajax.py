@@ -180,6 +180,26 @@ def timeslot_delroom(request, meeting, roomid):
     room.delete()
     return HttpResponse('{"error":"none"}', status = 200)
 
+@group_required('Secretariat')
+def timeslot_updroom(request, meeting, roomid):
+    room = get_object_or_404(meeting.room_set, pk=roomid)
+
+    update_dict = QueryDict(request.raw_post_data, encoding=request._encoding)
+    if "name" in update_dict:
+        room.name = update_dict["name"]
+
+    if "capacity" in update_dict:
+        room.capacity = update_dict["capacity"]
+
+    if "resources" in update_dict:
+        new_resource_ids = update_dict["resources"]
+        new_resources = [ ResourceAssociation.objects.get(pk=a)
+                          for a in new_resource_ids]
+        room.resources = new_resources
+
+    room.save()
+    return HttpResponse('{"error":"none"}', status = 200)
+
 def timeslot_roomsurl(request, num=None):
     meeting = get_meeting(num)
 
@@ -198,9 +218,8 @@ def timeslot_roomurl(request, num=None, roomid=None):
         room = get_object_or_404(meeting.room_set, pk=roomid)
         return HttpResponse(json.dumps(room.json_dict(request.build_absolute_uri('/'))),
                             mimetype="application/json")
-# XXX FIXME: timeslot_updroom() doesn't exist
-#    elif request.method == 'PUT':
-#        return timeslot_updroom(request, meeting)
+    elif request.method == 'PUT':
+        return timeslot_updroom(request, meeting, roomid)
     elif request.method == 'DELETE':
         return timeslot_delroom(request, meeting, roomid)
 

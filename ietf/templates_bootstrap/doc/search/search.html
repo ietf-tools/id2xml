@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Search Documents{% endblock %}
+
+{% block content %}
+<h1>Search Documents</h1>
+
+{% include "doc/search/search_form.html" %}
+
+{% if meta.searching %}
+	{% include "doc/search/search_results.html" %}
+{% endif %}
+{% endblock content %}
+
+{% block js %}
+<script src="/js/doc-search.js"></script>
+{% endblock %}

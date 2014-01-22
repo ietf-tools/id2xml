@@ -64,7 +64,7 @@ User
 <li><a href="{% url ietf.sync.views.discrepancies %}">Sync discrepancies</a>
 {% endif %}
 
-{% if flavor == "top" %}<li class="potentially-hidden divider"></li>{% endif %}
+{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
 <li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>RFC streams</li>
 {% streams_menu %}
 
@@ -91,10 +91,10 @@ Groups
 <li><a href="/wg/">All active WGs</a></li>
 
 {% if flavor == "top" %}<li class="divider"></li>{% endif %}
-<li {%if flavor == "top" %}class="potentially-hidden dropdown-header"{% else %}class="nav-header"{% endif %}>By area</li>
+<li {%if flavor == "top" %}class="hidden-sm hidden-xs dropdown-header"{% else %}class="nav-header"{% endif %}>By area</li>
 {% wg_menu %}
 
-{% if flavor == "top" %}<li class="potentially-hidden divider"></li>{% endif %}
+{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
 <li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>New work</li>
 <li><a href="{% url ietf.wginfo.views.chartering_wgs %}">Chartering WGs</a></li>
 <li><a href="{% url ietf.wginfo.views.bofs %}">BoF proposals</a></li>

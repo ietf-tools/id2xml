@@ -63,22 +63,24 @@ $(function () {
             dataType: 'json',
             success: function(response){
                 if (response.success) {
-                    trigger.replaceWith('added');
+                    trigger.replaceWith('<span class="glyphicon glyphicon-star"></span>');
                 }
             }
         });
     });
 
     $("a.ballot-icon").click(function (e) {
-        e.preventDefault();
+    	// find the name of the ID in the current table row
+    	var id = $(this).closest("tr").find("td.doc a:first-child").text().trim();
 
+        e.preventDefault();
         $.ajax({
             url: $(this).data("popup"),
             success: function (data) {
-                showModalBox(data);
+                showModalBox(id, data);
             },
             error: function () {
-                showModalBox("<div>Error retrieving popup content</div>");
+                console.log("Error retrieving popup content");
             }
         });
     }).each(function () {
@@ -92,3 +94,16 @@ $(function () {
         }
     });
 });
+
+function showModalBox(title, content) {
+	// set the modal title based on the ID name
+	var c = $(content);
+	c.find("#modal-label").text("Ballot Positions: " + title);
+	$("body").append(c);
+
+	// remove the modal from the DOM on hide
+	$('#modal-overlay').on('hidden.bs.modal', function () { $(this).remove(); });
+
+	// show the modal
+	$('#modal-overlay').modal();
+}

@@ -39,12 +39,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <td class="addtolist">
 {% if show_add_to_list and user.is_authenticated %}
 	<a href="{% url community_add_document doc.name %}" title="Add to your personal ID list">
-		<span class="glyphicon glyphicon-pushpin"></span>
+		<span class="glyphicon glyphicon-star-empty"></span>
 	</a>
 {% endif %}
 </td>
 
 <td class="doc">
+	<p>
 	<a href="{{ doc.get_absolute_url }}">
 	{% if doc.get_state_slug == "rfc" %}
 		RFC {{ doc.rfc_number }}
@@ -54,11 +55,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	</a>
 
 	{% if doc.get_state_slug == "rfc" and "draft" in doc.name %}
-		<br/><i>(was {{ doc.name }})</i>
+		<i>(was {{ doc.name }})</i>
 	{% endif %}
+	<br>
+	<b>{{ doc.title }}</b>
+	</p>
 </td>
 
-<td class="title"><b>{{ doc.title }}</b></td>
 
 <td class="date">
 	{% if doc.get_state_slug == "rfc" %}
@@ -74,21 +77,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	{% endif %}
 
 	{% if doc.get_state_slug == "active" and doc.expirable and doc.expires|timesince_days|expires_soon:request %}
-		<span class="ietf-highlight-y">expires soon</span>
+		<wbr><span class="label label-warning">expires soon</span>
 	{% endif %}
 </td>
 
 {% include "doc/search/status_columns.html" %}
 
-<td class="ipr">
+<td class="ipr text-center">
 	{% if doc.iprs %}
 		<a href="{% url ipr_search %}?option=document_search&amp;id={{ doc.name }}">{{ doc.iprs|length }}</a>
 	{% endif %}
 </td>
 
 {% if ad_name == None or ad_name != doc.ad.plain_name %}
-	<td class="ad">{{ doc.ad|default:"" }}
-		<div class="search-text-shepherd">{{doc.shepherd|default:""}}</div>
+	<td class="ad">
+		<p>{{ doc.ad|default:"" }}</p>
+		<p class="text-muted">{{doc.shepherd|default:""}}</p>
 	</td>
 {% endif %}
 

@@ -33,35 +33,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->{% endcomment %}
 
 {% load ietf_filters %}
-<div class="search-results table-responsive">
+<div class="search-results">
 
 {% if not docs %}
 <h2>No documents match your query.</h2>
 {% else %}
 
 {% if meta.max %}
-<h2>Too many documents match the query! Returning only a partial result.</h2>
+<h2>Too many documents match your query! Returning only a partial result.</h2>
 {% endif %}
 
-<table class="table table-condensed">
+<table class="table table-condensed ietf-doctable">
 	<thead>
 		<tr>
 		<th>
 		{% if show_add_to_list and user.is_authenticated %}
-			<span class="glyphicon glyphicon-briefcase"></span>
+			<!--<span class="glyphicon glyphicon-briefcase"></span>-->
 		{% endif %}
 		</th>
 
 		{% for h in meta.headers %}
-			<th class="{{ h.key }}">
-			{% if "sort_url" in h %}
-				<a href="{{ h.sort_url }}">{{ h.title }}
-				{% if h.sorted %}<span class="caret"></span>{% endif %}
-				</a>
-			{% else %}
-				{{ h.title }}
+			{% if h.title != "Title" %}
+				<th class="{{ h.key }}">
+				{% if "sort_url" in h %}
+					<a href="{{ h.sort_url }}">{{ h.title }}
+					{% if h.sorted %}<span class="caret"></span>{% endif %}
+					</a>
+				{% else %}
+					{{ h.title }}
+				{% endif %}
+				</th>
 			{% endif %}
-			</th>
 		{% endfor %}
 		</tr>
 	</thead>
@@ -71,7 +73,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<tbody>
 	{% for doc_group in grouped_docs %}
 		<tr class="warning">
-		<td colspan="{{ meta.headers|length|add:1}}">
+		<td></td>
+		<td colspan="{{ meta.headers|length|add:"-1" }}">
 		{{ doc_group.grouper|plural:doc_group.list }}
 		</td></tr>
 

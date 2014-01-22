@@ -155,7 +155,7 @@ def ballotposition(doc, user):
 
 
 @register.filter
-def state_age_colored(doc):
+def state_age_colored(doc, flavor=""):
     if doc.type_id == 'draft':
         if not doc.get_state_slug() in ["active", "rfc"]:
             # Don't show anything for expired/withdrawn/replaced drafts
@@ -204,16 +204,26 @@ def state_age_colored(doc):
             goal1 = 14
             goal2 = 28
         if days > goal2:
-            class_name = "ietf-small ietf-highlight-r"
+            if flavor == "facelift":
+                class_name = "label label-danger"
+            else:
+                class_name = "ietf-small ietf-highlight-r"
         elif days > goal1:
-            class_name = "ietf-small ietf-highlight-y"
+            if flavor == "facelift":
+                class_name = "label label-warning"
+            else:
+                class_name = "ietf-small ietf-highlight-y"
         else:
             class_name = "ietf-small"
         if days > goal1:
             title = ' title="Goal is &lt;%d days"' % (goal1,)
         else:
             title = ''
-        return mark_safe('<span class="%s"%s>(for %d day%s)</span>' % (
-                class_name, title, days, 's' if days != 1 else ''))
+        # It's too bad that this function returns HTML; this makes it hard to
+        # style. For the facelift, I therefore needed to add a new "flavor"
+        # parameter, which is ugly.
+        return mark_safe('<span class="%s"%s>%sfor %d day%s%s</span>' % (
+                class_name, title, '(' if flavor != "facelift" else "", days,
+                's' if days != 1 else '', '(' if flavor != "facelift" else "" ))
     else:
         return ""

@@ -26,17 +26,21 @@ form .errorlist { color: red; font-weight: bold; }
 .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
 .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
 
-/* Hide on small screens. Mostly used for submenus. */
-@media (max-width: 768px) {
-	.potentially-hidden { display: none !important; }
-}
-
 /* Style the left menu */
 .nav-header { font-weight: bold; padding: 5px; }
 .nav-stacked>li, .nav-stacked>li+li { margin-top: 0; line-height: 1;}
 .nav-stacked>li>a { padding: 3px 15px; }
 
+/* Make the panel title font normally large */
 .panel-title { font-size: 14px }
+
+/*
+ * The main container should use all the available horizontal space.
+ *
+ * XXX This doesn't quite work yet - at the moment, it uses all the
+ * space minus the computed responsive width of the leftmenu. Since we
+ * clamp that below, there is extra whitespace on the right.
+ */
 
 .fluid-container {
   padding-left: 15px;
@@ -45,22 +49,45 @@ form .errorlist { color: red; font-weight: bold; }
   margin-right: auto;
 }
 
+/* A new type of Bootstrap label */
+.label-blank { color: #000; background-color: #fff; border: 1px solid #000;}
+
+/* Don't make the left menu change width past a threshold, wastes space */
 .leftmenu { max-width: 225px; }
 
+/* Styles needed for the ballot table.*/
 .position-discuss,
-.position-block    { background-color: #c00000;}
-.position-yes      { background-color: #80ff80;}
-.position-noobj    { background-color: #80ff80;}
-.position-abstain  { background-color: #ffff00;}
-.position-recuse   { background-color: #c0c0c0;}
-.position-norecord { background-color: #ffffff;}
-
-.ballot-icon table td { border: 1px solid #666; height: 8px; width: 8px; padding: 0;}
-.ballot-icon table td.my { border: 3px solid #000;}
+.position-block    { background-color: #d9534f; color: #d9534f; }
+.position-yes      { background-color: #5cb85c; color: #5cb85c; }
+.position-noobj    { background-color: #5bc0de; color: #5bc0de; }
+.position-abstain  { background-color: #ec971f; color: #ec971f; }
+.position-recuse   { background-color: #808080; color: #808080; }
+.position-norecord { background-color: #ffffff; color: #ffffff; }
+.ballot-icon table td { border: 1px solid #fff; height: 10px; width: 8px; padding: 0;}
+.ballot-icon table td.my { border: 2px solid #000;}
 .ballot-icon table td.empty { border: 0 }
 
-/* FACELIFT: replace with bootstrap label classes eventually */
-.ietf-highlight-y { padding:0 2px;background:yellow;}
-.ietf-highlight-r { padding:0 2px;background:#ffa0a0;}
-
+/*
+ * We use Bootstrap's warning style for intermediate table headings in the
+ * search results. Make those a bit more noticeable.
+ */
 .table .warning { font-weight: bold; }
+
+/* Style the search form and results */
+#search_form .search_field:first-child { padding-bottom: .5em; }
+.search-results { padding-top: 2em; }
+.ietf-doctable td.date, .ietf-doctable td.docxxx { white-space: nowrap; }
+.ietf-doctable div.ballot-icon { margin: 0 0 .25em .25em;  }
+.ietf-doctable td.statusxxx { min-width: 15em; }
+.ietf-doctable td.ad p { margin-bottom: .5em; }
+
+.modal { position: absolute; }
+@media (min-width: 992px) { .modal-dialog { width: 80%; max-width: 70em; }}
+.position-group { margin-bottom: 2em }
+.ad-ballot-comment { margin-top: 2em; }
+
+/* Ballot discuss and comment text needs to look a bit different than pre */
+pre.ballot { padding: 0; margin: 0; border: 0; background-color: inherit; }
+
+}
+

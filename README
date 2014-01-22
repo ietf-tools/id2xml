@@ -1,15 +1,15 @@
 In order to test the datatracker facelift, you need to add this to
 settings_local.py:
 
-# Override directory for Bootstrap'ed templates
+# Override directory for facelifted templates
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIRS = (
-    BASE_DIR + "/templates_bootstrap",
+    BASE_DIR + "/templates_facelift",
     BASE_DIR + "/templates",
     BASE_DIR + "/secr/templates",
 )
-MEDIA_ROOT = BASE_DIR + "/../static_bootstrap/"
+MEDIA_ROOT = BASE_DIR + "/../static_facelift/"
 
 You also need to add 'widget_tweaks' to INSTALLED_APPS in settings.py -
 have not found a way to add this in settings_local.py. And you need to

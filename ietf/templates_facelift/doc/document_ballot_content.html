@@ -1,5 +1,8 @@
 {% load ietf_filters %}
 
+{# We use editable==false as a check for whether this is rendered as a popup #}
+
+{% if not editable %}
 <div class="modal fade" id="modal-overlay" tabindex="-1" role="dialog" aria-labelledby="modal-label" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -10,6 +13,7 @@
 					<p>Ballot deferred by {{ deferred.by }} on {{ deferred.time|date:"Y-m-d" }}.</p>
 				{% endif %}
 			</div>
+{% endif %}
 
 			<div class="modal-body row">
 				<div class="col-md-3 hidden-sm hidden-xs">
@@ -100,11 +104,14 @@
 						{% endif %}
 					{% endif %}
 				{% endif %}
+{% if not editable %}
 				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+{% endif %}
 			</div>
 
+{% if not editable %}
 		</div>
 	</div>
 </div>
-
+{% endif %}
 

@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 {% load ietf_filters %}
 
-<tr class="small">
+<tr>
 
 <td class="addtolist">
 {% if show_add_to_list and user.is_authenticated %}
@@ -62,8 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	</p>
 </td>
 
-
-<td class="date">
+<td class="nowrap">
 	{% if doc.get_state_slug == "rfc" %}
 		{{ doc.latest_revision_date|date:"Y-m" }}
 	{% else %}

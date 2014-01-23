@@ -23,7 +23,7 @@ $('ul.nav li.dropdown-submenu').hover(hoverin, hoverout);
 
 $(function () {
     // search form
-    var form = jQuery("#search_form");
+    var form = $("#search_form");
 
     function anyAdvancedActive() {
         var advanced = false;
@@ -130,3 +130,9 @@ function showModalBox(title, content) {
 	// show the modal
 	$('#modal-overlay').modal();
 }
+
+
+// This used to be in js/history.js
+$(".snippet .show-all").click(function () {
+	$(this).parents(".snippet").addClass("hidden").siblings(".full").removeClass("hidden");
+});

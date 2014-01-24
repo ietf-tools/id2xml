@@ -537,3 +537,14 @@ def pos_to_label(text):
         'Recuse':       'default',
     }.get(str(text), 'blank')
 
+@register.filter
+def capfirst_allcaps(text):
+    """Like capfirst, except it doesn't lowercase words in ALL CAPS."""
+    result = []
+    for token in re.split("(\W+)", text):
+        if not re.match("^[A-Z]+$", token):
+            result.append(token.lower())
+        else:
+            result.append(token)
+    result[0] = result[0][0].upper() + result[0][1:]
+    return "".join(result)

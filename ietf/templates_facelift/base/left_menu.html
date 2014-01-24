@@ -43,7 +43,7 @@ User
 </a>
 <ul class="dropdown-menu">
 {% endif %}
-<li><a href="{% url account_index %}">{% if request.user.is_authenticated %}Manage Account{% else %}New account{% endif %}</a></li>
+<li><a href="{% url account_index %}">{% if request.user.is_authenticated %}Manage account{% else %}New account{% endif %}</a></li>
 <li><a href="{%url ietf.cookies.views.settings %}" rel="nofollow">Options</a></li>
 
 {% if user|has_role:"Area Director" %}
@@ -97,7 +97,7 @@ Groups
 {% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
 <li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>New work</li>
 <li><a href="{% url ietf.wginfo.views.chartering_wgs %}">Chartering WGs</a></li>
-<li><a href="{% url ietf.wginfo.views.bofs %}">BoF proposals</a></li>
+<li><a href="{% url ietf.wginfo.views.bofs %}">BOF proposals</a></li>
 
 {% if flavor == "top" %}<li class="divider"></li>{% endif %}
 <li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>Other</li>
@@ -106,7 +106,7 @@ Groups
 
 <li><a href="/wg/">Active WGs</a></li>
 <li><a href="{% url ietf.wginfo.views.chartering_wgs %}">Chartering WGs</a></li>
-<li><a href="{% url ietf.wginfo.views.bofs %}">BoFs</a></li>
+<li><a href="{% url ietf.wginfo.views.bofs %}">BOFs</a></li>
 <li><a href="http://tools.ietf.org/wg/concluded">Concluded WGs</a></li>
 <li><a href="http://www.ietf.org/list/nonwg.html">Non-WG lists</a></li>
 {% if flavor == "top" %}</ul>{% endif %}
@@ -152,9 +152,9 @@ Meetings
 
 <li><a href="/meeting/agenda/">Agenda</a></li>
 <li><a href="/meeting/">Materials</a></li>
-<li><a href="http://www.ietf.org/meeting/proceedings.html">Past Proceedings</a></li>
+<li><a href="http://www.ietf.org/meeting/proceedings.html">Past proceedings</a></li>
 <li><a href="http://www.ietf.org/meeting/upcoming.html">Upcoming</a></li>
-<li><a href="/meeting/requests">Session Requests</a></li>
+<li><a href="/meeting/requests">Session requests</a></li>
 {% if flavor == "top" %}</ul>{% endif %}
 
 <li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>
@@ -165,7 +165,7 @@ Other
 <ul class="dropdown-menu">
 {% endif %}
 
-<li><a href="/ipr/">IPR Disclosures</a></li>
-<li><a href="/liaison/">Liaison Statements</a></li>
-<li><a href="/iesg/agenda/">IESG Agenda</a></li>
+<li><a href="/ipr/">IPR disclosures</a></li>
+<li><a href="/liaison/">Liaison statements</a></li>
+<li><a href="/iesg/agenda/">IESG agenda</a></li>
 {% if flavor == "top" %}</ul>{% endif %}

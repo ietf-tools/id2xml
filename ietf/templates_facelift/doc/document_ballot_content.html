@@ -62,6 +62,26 @@
 
 					<p class="alert alert-warning"><b>Summary:</b> <i>{{ summary }}</i></p>
 
+					{% if editable and user|has_role:"Area Director,Secretariat" %}
+						{% if user|has_role:"Area Director" %}
+							<a class="btn btn-default" href="{% url ietf.doc.views_ballot.edit_position name=doc.name,ballot_id=ballot.pk %}">Edit position</a>
+						{% endif %}
+
+						{% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
+							{% if deferred %}
+								<a class="btn btn-default" href="{% url doc_undefer_ballot name=doc.name %}">Undefer ballot</a>
+							{% else %}
+								<a class="btn btn-warning" href="{% url doc_defer_ballot name=doc.name %}">Defer ballot</a>
+							{% endif %}
+
+							{% if user|has_role:"Secretariat" %}
+								<a class="btn btn-danger" href="{% url doc_clear_ballot name=doc.name %}">Clear ballot</a>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+
+
+
 					{% for p in text_positions %}
 						<h4 id="{{ p.ad.plain_name|slugify }}" class="ad-ballot-comment">{% if p.old_ad %}[{% endif %}{{ p.ad.plain_name }} <span class="label label-{{ p.pos|pos_to_label }}">{{p.pos}}</span>{% if p.old_ad %}]{% endif %}</h4>
 
@@ -83,10 +103,12 @@
 							</div>
 						{% endif %}
 					{% endfor %}
+{% if not editable %}
 				</div>
 			</div>
 
 			<div class="modal-footer">
+{% endif %}
 				{% if editable and user|has_role:"Area Director,Secretariat" %}
 					{% if user|has_role:"Area Director" %}
 						<a class="btn btn-default" href="{% url ietf.doc.views_ballot.edit_position name=doc.name,ballot_id=ballot.pk %}">Edit position</a>
@@ -106,12 +128,12 @@
 				{% endif %}
 {% if not editable %}
 				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-{% endif %}
 			</div>
+{% endif %}
 
-{% if not editable %}
 		</div>
 	</div>
+{% if not editable %}
 </div>
 {% endif %}
 

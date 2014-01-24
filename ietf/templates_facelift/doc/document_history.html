@@ -12,7 +12,7 @@
 {{ top|safe }}
 
 {% if diff_revisions and diff_revisions|length > 1 %}
-	<h2>Revision Differences</h2>
+	<h2>Revision differences</h2>
 
 	<form class="form-horizontal"  role="form" action="http{% if request.is_secure %}s{% endif %}:{{rfcdiff_prefix}}" method="get" target="_blank">
 

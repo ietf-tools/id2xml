@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load ietf_filters %}
+
 {% block title %}Writeups for {{ doc.name }}-{{ doc.rev }}{% endblock %}
 
 {% block content %}
@@ -7,7 +9,7 @@
 
 	{% for title, subtitle, writeups in sections %}
 		<h2>
-			{{ title }}
+			{{ title|capfirst_allcaps }}
 			{% if subtitle %}
 				<br><small>{{ subtitle|safe }}</small>
 			{% endif %}

@@ -4,6 +4,7 @@ import pytz, datetime
 from urlparse import urljoin
 import copy
 import os
+import sys
 import re
 
 import debug
@@ -226,6 +227,9 @@ class Room(models.Model):
                                     duration=ts.duration)
         self.meeting.create_all_timeslots()
 
+    def domid(self):
+        return "room%u" % (self.pk)
+
     def json_url(self):
         return "/meeting/%s/room/%s.json" % (self.meeting.number, self.id)
 
@@ -331,14 +335,27 @@ class TimeSlot(models.Model):
         #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
         return "%s_%s_%s" % (slugify(self.get_location()), self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
 
-    def json_dict(self, selfurl):
+    def new_js_identifier(self):
+        # this returns a unique identifier that is js happy.
+        #  {{s.timeslot.time|date:'Y-m-d'}}_{{ s.timeslot.time|date:'Hi' }}"
+        # also must match:
+        #  {{r|slugify}}_{{day}}_{{slot.0|date:'Hi'}}
+        domid="ts%u" % (self.pk)
+        if self.location is not None:
+            domid = self.location.domid()
+        return "%s_%s_%s" % (domid, self.time.strftime('%Y-%m-%d'), self.time.strftime('%H%M'))
+
+    def json_dict(self, host_scheme):
         ts = dict()
         ts['timeslot_id'] = self.id
-        ts['room']        = slugify(self.location)
+        ts['href']        = urljoin(host_scheme, self.json_url())
+        ts['room']        = self.get_location()
         ts['roomtype'] = self.type.slug
+        if self.location is not None:
+            ts['capacity'] = self.location.capacity
         ts["time"]     = date_format(self.time, 'Hi')
-        ts["date"]     = time_format(self.time, 'Y-m-d')
-        ts["domid"]    = self.js_identifier
+        ts["date"]     = fmt_date(self.time)
+        ts["domid"]    = self.new_js_identifier()
         return ts
 
     def json_url(self):
@@ -425,7 +442,7 @@ class Schedule(models.Model):
 
 #     def url_edit(self):
 #         return "/meeting/%s/agenda/%s/edit" % (self.meeting.number, self.name)
-# 
+#
 #     @property
 #     def relurl_edit(self):
 #         return self.url_edit("")
@@ -1088,5 +1105,5 @@ class Session(models.Model):
             # the filenames to match the document name instead
             filename = docs[0].external_url
             self._agenda_file = "%s/agenda/%s" % (self.meeting.number, filename)
-            
+
         return self._agenda_file

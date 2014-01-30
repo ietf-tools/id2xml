@@ -71,82 +71,62 @@ def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=Fal
 
 @role_required('Area Director','Secretariat')
 @dajaxice_register
-def update_timeslot(request, schedule_id, session_id, scheduledsession_id=None, extended_from_id=None, duplicate=False):
-    schedule = get_object_or_404(Schedule, pk = int(schedule_id))
-    meeting  = schedule.meeting
-    ss_id = 0
-    ess_id = 0
-    ess = None
-    ss = None
+def update_timeslot_purpose(request,
+                            meeting_num,
+                            timeslot_id=None,
+                            purpose =None,
+                            room_id = None,
+                            duration= None,
+                            time    = None):
 
-    #print "duplicate: %s schedule.owner: %s user: %s" % (duplicate, schedule.owner, request.user.get_profile())
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
-
-    if not canedit:
-        #raise Exception("Not permitted")
-        return json.dumps({'error':'no permission'})
-
-    session_id = int(session_id)
-    session = get_object_or_404(meeting.session_set, pk=session_id)
-
-    if scheduledsession_id is not None:
-        ss_id = int(scheduledsession_id)
-
-    if extended_from_id is not None:
-        ess_id = int(extended_from_id)
-
-    if ss_id != 0:
-        ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
-
-    # this cleans up up two sessions in one slot situation, the
-    # ... extra scheduledsessions need to be cleaned up.
-
-    if ess_id == 0:
-        # if this is None, then we must be moving.
-        for ssO in schedule.scheduledsession_set.filter(session = session):
-            #print "sched(%s): removing session %s from slot %u" % ( schedule, session, ssO.pk )
-            #if ssO.extendedfrom is not None:
-            #    ssO.extendedfrom.session = None
-            #    ssO.extendedfrom.save()
-            ssO.session = None
-            ssO.extendedfrom = None
-            ssO.save()
-    else:
-        ess = get_object_or_404(schedule.scheduledsession_set, pk = ess_id)
-        ss.extendedfrom = ess
-
-    try:
-        # find the scheduledsession, assign the Session to it.
-        if ss:
-            #print "ss.session: %s session:%s duplicate=%s"%(ss, session, duplicate)
-            ss.session = session
-            if(duplicate):
-                ss.id = None
-            ss.save()
-    except Exception:
-        return json.dumps({'error':'invalid scheduledsession'})
-
-    return json.dumps({'message':'valid'})
-
-@role_required('Secretariat')
-@dajaxice_register
-def update_timeslot_purpose(request, timeslot_id=None, purpose=None):
+    meeting = get_meeting(meeting_num)
     ts_id = int(timeslot_id)
-    try:
-       timeslot = TimeSlot.objects.get(pk=ts_id)
-    except:
-        return json.dumps({'error':'invalid timeslot'})
+    time_str = time
+    if ts_id == 0:
+        try:
+            time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+        except:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid time: %s' % (time_str)})
+
+        try:
+            room = meeting.room_set.get(pk = int(room_id))
+        except Room.DoesNotExist:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid room id'})
+
+        timeslot = TimeSlot(meeting=meeting,
+                            location = room,
+                            time = time,
+                            duration = duration)
+    else:
+        try:
+           timeslot = TimeSlot.objects.get(pk=ts_id)
+        except:
+            print '\n'.join(traceback.format_exception(*sys.exc_info()))
+            return json.dumps({'error':'invalid timeslot'})
 
     try:
         timeslottypename = TimeSlotTypeName.objects.get(pk = purpose)
     except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
         return json.dumps({'error':'invalid timeslot type',
                            'extra': purpose})
 
     timeslot.type = timeslottypename
-    timeslot.save()
+    try:
+        timeslot.save()
+    except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'failed to save'})
 
-    return json.dumps(timeslot.json_dict(request.build_absolute_uri('/')))
+    try:
+        # really should return 201 created, but dajaxice sucks.
+        json_dict = timeslot.json_dict(request.build_absolute_uri('/'))
+        return json.dumps(json_dict)
+    except:
+        print '\n'.join(traceback.format_exception(*sys.exc_info()))
+        return json.dumps({'error':'failed to save'})
 
 #############################################################################
 ## ROOM API
@@ -190,6 +170,26 @@ def timeslot_delroom(request, meeting, roomid):
     room.delete()
     return HttpResponse('{"error":"none"}', status = 200)
 
+@role_required('Secretariat')
+def timeslot_updroom(request, meeting, roomid):
+    room = get_object_or_404(meeting.room_set, pk=roomid)
+
+    update_dict = QueryDict(request.raw_post_data, encoding=request._encoding)
+    if "name" in update_dict:
+        room.name = update_dict["name"]
+
+    if "capacity" in update_dict:
+        room.capacity = update_dict["capacity"]
+
+    if "resources" in update_dict:
+        new_resource_ids = update_dict["resources"]
+        new_resources = [ ResourceAssociation.objects.get(pk=a)
+                          for a in new_resource_ids]
+        room.resources = new_resources
+
+    room.save()
+    return HttpResponse('{"error":"none"}', status = 200)
+
 def timeslot_roomsurl(request, num=None):
     meeting = get_meeting(num)
 
@@ -208,9 +208,8 @@ def timeslot_roomurl(request, num=None, roomid=None):
         room = get_object_or_404(meeting.room_set, pk=roomid)
         return HttpResponse(json.dumps(room.json_dict(request.build_absolute_uri('/'))),
                             mimetype="application/json")
-# XXX FIXME: timeslot_updroom() doesn't exist
-#    elif request.method == 'PUT':
-#        return timeslot_updroom(request, meeting)
+    elif request.method == 'PUT':
+        return timeslot_updroom(request, meeting, roomid)
     elif request.method == 'DELETE':
         return timeslot_delroom(request, meeting, roomid)
 
@@ -225,7 +224,7 @@ def timeslot_slotlist(request, mtg):
     json_array=[]
     for slot in slots:
         json_array.append(slot.json_dict(request.build_absolute_uri('/')))
-    return HttpResponse(json.dumps(json_array),
+    return HttpResponse(json.dumps(json_array, sort_keys=True, indent=2),
                         mimetype="application/json")
 
 @role_required('Secretariat')

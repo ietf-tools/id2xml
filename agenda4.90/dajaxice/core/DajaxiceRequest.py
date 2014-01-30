@@ -50,7 +50,7 @@ def debug(msg):
 def info(msg):
     syslog.syslog(syslog.LOG_INFO, msg)
 def warning(msg):
-    syslog.syslog(syslog.LOG_WANRNING, msg)
+    syslog.syslog(syslog.LOG_WARNING, msg)
 def error(msg):
     syslog.syslog(syslog.LOG_ERR, msg)
 log = syslog

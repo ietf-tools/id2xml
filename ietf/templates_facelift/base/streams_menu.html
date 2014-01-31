@@ -1,0 +1,6 @@
+{% load ietf_filters %}
+{% if editable_streams %}
+  {% for stream in editable_streams %}
+    <li><a href="{% url "ietf.group.views_stream.stream_edit" stream.slug %}">{{ stream.name }} stream</a></li>
+  {% endfor %}
+{% endif %}

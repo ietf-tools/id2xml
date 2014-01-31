@@ -1,0 +1,96 @@
+{% load ietf_filters %}
+
+<div class="row">
+	<div class="col-md-3 hidden-sm hidden-xs">
+		{% for n, positions in position_groups %}
+			<div class="position-group">
+				<h4><span class="label label-{{ n|pos_to_label }}"> {{ n.name }}</span></h4>
+				{% for p in positions %}
+					<div>
+						{% if p.old_ad %}[{% endif %}
+						{% if user|has_role:"Secretariat" %}
+							<a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name,ballot_id=ballot.pk %}?ad={{ p.ad.pk }}" title="Click to edit the position of {{ p.ad.plain_name }}">
+						{% endif %}
+						{{ p.ad.plain_name }}
+						{% if user|has_role:"Secretariat" %}</a>{% endif %}
+						{% if p.old_ad %}]{% endif %}
+
+						{% if p.comment or p.discuss %}
+							<a href="#{{ p.ad.plain_name|slugify }}">
+							<span class="glyphicon glyphicon-comment"></span></a>
+						{% endif %}
+					</div>
+					{% if p.old_positions %}<div class="text-muted small">(was {{ p.old_positions|join:", " }})</div>{% endif %}
+					{% empty %}
+						<i>none</i>
+				{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="col-md-9">
+		<p></p>
+		{% if all_ballots and all_ballots|length > 1 %}
+			<div class="other-ballots">
+				Available ballots:
+				{% for b in all_ballots %}
+					<a{% if b != ballot %} href="{% url "doc_ballot" name=doc.name,ballot_id=b.pk %}"{% endif %}>{{ b.ballot_type.name }} ({{ b.rev }})</a>
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		{% if ballot.ballot_type.question %}
+			<h4>{{ ballot.ballot_type.question }}</h4>
+		{% endif %}
+		{% if not ballot_open %}
+			<p class="alert alert-warning"><b>Note:</b> This ballot was opened for revision {{ ballot.rev }} and is now closed.</p>
+		{% endif %}
+
+		<p class="alert alert-warning"><b>Summary:</b> <i>{{ summary }}</i></p>
+
+		{% if editable and user|has_role:"Area Director,Secretariat" %}
+			{% if user|has_role:"Area Director" %}
+				<a class="btn btn-default" href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name,ballot_id=ballot.pk %}">Edit position</a>
+			{% endif %}
+
+			{% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
+				{% if deferred %}
+					<a class="btn btn-default" href="{% url "doc_undefer_ballot" name=doc.name %}">Undefer ballot</a>
+				{% else %}
+					<a class="btn btn-warning" href="{% url "doc_defer_ballot" name=doc.name %}">Defer ballot</a>
+				{% endif %}
+
+				{% if user|has_role:"Secretariat" %}
+					<a class="btn btn-danger" href="{% url "doc_clear_ballot" name=doc.name %}">Clear ballot</a>
+				{% endif %}
+			{% endif %}
+		{% endif %}
+
+		{% for p in text_positions %}
+			<h4 id="{{ p.ad.plain_name|slugify }}" class="ad-ballot-comment">
+				{% if p.old_ad %}[{% endif %}
+				{{ p.ad.plain_name }}
+				{% if p.old_ad %}]{% endif %}
+				<span class="label label-{{ p.pos|pos_to_label }}">{{p.pos}}</span>
+			</h4>
+
+			{% if p.pos.blocking and p.discuss %}
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						<h5 class="panel-title"><b>{{ p.pos.name }}</b> ({{ p.discuss_time|date:"Y-m-d" }})</h5>
+					</div>
+					<div class="panel-body"><pre class="ballot">{{ p.discuss|wrap_text:80|escape }}</pre></div>
+					</div>
+			{% endif %}
+
+			{% if p.comment %}
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h5 class="panel-title"><b>Comment</b> ({{ p.comment_time|date:"Y-m-d" }})</h5>
+					</div>
+					<div class="panel-body"><pre class="ballot">{{ p.comment|wrap_text:80|escape }}</pre></div>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	</div>

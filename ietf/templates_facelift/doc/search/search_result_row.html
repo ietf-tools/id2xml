@@ -46,13 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <td class="doc">
 	<p>
-	<a href="{{ doc.get_absolute_url }}">
-	{% if doc.get_state_slug == "rfc" %}
-		RFC {{ doc.rfc_number }}
-	{% else %}
-		{{ doc.name }}-{{ doc.rev }}
-	{% endif %}
-	</a>
+	<a href="{{ doc.get_absolute_url }}">{% if doc.get_state_slug == "rfc" %}RFC {{ doc.rfc_number }}{% else %}{{ doc.name }}-{{ doc.rev }}{% endif %}</a>
 
 	{% if doc.get_state_slug == "rfc" and "draft" in doc.name %}
 		<i>(was {{ doc.name }})</i>
@@ -63,16 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </td>
 
 <td class="nowrap">
-	{% if doc.get_state_slug == "rfc" %}
-		{{ doc.latest_revision_date|date:"Y-m" }}
-	{% else %}
-		{{ doc.latest_revision_date|date:"Y-m-d" }}
-	{% endif %}
-
-	{% if doc.latest_revision_date|timesince_days|new_enough:request %}
-		<span class="ietf-highlight-y">
-			<a{% if doc.get_state_slug != "rfc" %} href="http:{{ rfcdiff_prefix }}?url2={{ doc.name }}-{{ doc.rev }}"{% endif %}>new</a>
-		</span>
+	{% if doc.latest_revision_date|timesince_days|new_enough:request and doc.get_state_slug != "rfc" %}<a href="http:{{ rfcdiff_prefix }}?url2={{ doc.name }}-{{ doc.rev }}">{% endif %}{% if doc.get_state_slug == "rfc" %}{{ doc.latest_revision_date|date:"Y-m" }}{% else %}{{ doc.latest_revision_date|date:"Y-m-d" }}{% endif %}{% if doc.latest_revision_date|timesince_days|new_enough:request %}{% if doc.get_state_slug != "rfc" %}</a>{% endif %}
+		<wbr><span class="label label-success">new</span>
 	{% endif %}
 
 	{% if doc.get_state_slug == "active" and doc.expirable and doc.expires|timesince_days|expires_soon:request %}

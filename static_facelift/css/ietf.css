@@ -78,8 +78,6 @@ form .errorlist { color: red; font-weight: bold; }
 .ietf-doctable div.ballot-icon { margin: 0 0 .25em .25em;  }
 .ietf-doctable td.ad p { margin-bottom: .5em; }
 
-.modal { position: absolute; }
-@media (min-width: 992px) { .modal-dialog { width: 80%; max-width: 70em; }}
 .position-group { margin-bottom: 2em }
 .ad-ballot-comment { margin-top: 2em; }
 

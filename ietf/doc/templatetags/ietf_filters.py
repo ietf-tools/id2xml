@@ -472,7 +472,7 @@ def format_history_text_facelift(text):
         full = urlize_ietf_docs(full)
 
     full = mark_safe(keep_spacing(linebreaksbr(urlize(sanitize_html(full)))))
-    snippet = truncate_html_words(full, 25, '<span class="text-muted">(&hellip;)</span>')
+    snippet = truncatewords_html(full, 25)
     if snippet != full:
         return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-primary show-all pull-right">Show all</button></div><div class="hidden full">%s</div>' % (snippet, full))
     return full

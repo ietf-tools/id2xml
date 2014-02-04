@@ -71,16 +71,16 @@
 			</div>
 		</nav>
 
-		<div class="content fluid-container">
+		<div class="content container-fluid">
 			<div class="row">
-				<div class="col-md-3 hidden-sm hidden-xs leftmenu">
+				<div class="col-md-3 col-lg-2 hidden-sm hidden-xs leftmenu">
 					<ul class="nav nav-pills nav-stacked panel panel-default panel-body">
 						{% with "left" as flavor %}
 							{% include "base/left_menu.html" %}
 						{% endwith %}
 					</ul>
 				</div>
-				<div class="col-md-9">
+				<div class="col-md-9 col-lg-10">
 					{% block content %}{% endblock %}
 					{% block content_end %}{% endblock %}
 				</div>

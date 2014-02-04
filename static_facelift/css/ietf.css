@@ -34,26 +34,8 @@ form .errorlist { color: red; font-weight: bold; }
 /* Make the panel title font normally large */
 .panel-title { font-size: 14px }
 
-/*
- * The main container should use all the available horizontal space.
- *
- * XXX This doesn't quite work yet - at the moment, it uses all the
- * space minus the computed responsive width of the leftmenu. Since we
- * clamp that below, there is extra whitespace on the right.
- */
-
-.fluid-container {
-  padding-left: 15px;
-  padding-right: 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 /* A new type of Bootstrap label */
 .label-blank { color: #000; background-color: #fff; border: 1px solid #000;}
-
-/* Don't make the left menu change width past a threshold, wastes space */
-.leftmenu { max-width: 225px; }
 
 /* Styles needed for the ballot table.*/
 .position-discuss,

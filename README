@@ -10,6 +10,7 @@ TEMPLATE_DIRS = (
     BASE_DIR + "/secr/templates",
 )
 MEDIA_ROOT = BASE_DIR + "/../static_facelift/"
+STATIC_ROOT = MEDIA_ROOT # changed with django 1.6
 
 You also need to add 'widget_tweaks' to INSTALLED_APPS in settings.py -
 have not found a way to add this in settings_local.py. And you need to

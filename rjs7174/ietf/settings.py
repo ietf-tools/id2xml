@@ -19,6 +19,9 @@ LOG_DIR  = '/var/log/datatracker'
 import sys
 sys.path.append(os.path.abspath(BASE_DIR + "/.."))
 
+# dajaxice now in subdirectory
+sys.path.append(os.path.abspath(BASE_DIR + "/../django-dajaxice"))
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

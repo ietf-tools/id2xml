@@ -35,6 +35,7 @@
 import itertools
 
 from django.shortcuts import get_object_or_404, render_to_response
+from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.conf import settings
@@ -47,6 +48,10 @@ from ietf.doc.utils import get_chartering_type
 from ietf.group.utils import get_charter_text
 from ietf.doc.templatetags.ietf_filters import clean_whitespace
 from ietf.ietfauth.utils import has_role
+
+from ietf.utils.pipe import pipe
+from tempfile import mkstemp
+import os
 
 def roles(group, role_name):
     return Role.objects.filter(group=group, name=role_name).select_related("email", "person")
@@ -286,3 +291,125 @@ def history(request, acronym):
                               construct_group_menu_context(request, group, "history", {
                 "events": events,
                 }), RequestContext(request))
+
+def get_node_styles(node,group):
+
+    styles=dict()
+
+    # Shape and style (note that old diamond shape is never used
+
+    styles['style'] = 'filled'
+
+    if node.get_state('draft').slug == 'rfc':
+       styles['shape'] = 'box'
+    elif node.get_state('draft-iesg') and not node.get_state('draft-iesg').slug in ['watching','dead']:
+       styles['shape'] = 'parallelogram'
+    elif node.get_state('draft').slug == 'expired':
+       styles['shape'] = 'house'
+       styles['style'] ='solid'
+       styles['peripheries'] = 3
+    else:
+       pass # quieter form of styles['shape'] = 'ellipse'
+
+    # Color (note that the old 'Flat out red' is never used
+    if node.group.acronym == 'none':
+        styles['color'] = '"#FF800D"' # orangeish
+    elif node.group == group:
+        styles['color'] = '"#0AFE47"' # greenish
+    else:
+        styles['color'] = '"#9999FF"' # blueish
+
+    # Label
+    label = node.name
+    if label.startswith('draft-'):
+        if label.startswith('draft-ietf-'):
+            label=label[11:]
+        else:
+            label=label[6:]
+        try:
+            t=label.index('-')
+            label="%s\\n%s" % (label[:t],label[t+1:])
+        except:
+            pass
+    if node.group.acronym != 'none' and node.group != group:
+        label = "(%s) %s"%(node.group.acronym,label)
+    if node.get_state('draft').slug == 'rfc':
+        label = "%s\\n(%s)"%(label,node.canonical_name())
+    styles['label'] = '"%s"'%label
+
+    return styles
+
+def get_edge_styles(edge):
+
+    # Note that the old style=dotted, color=red styling is never used
+
+    styles = { 'refnorm' : { 'color':'blue'   },
+               'refinfo' : { 'color':'green'  },
+               'refold'  : { 'color':'orange' },
+               'refunk'  : { 'style':'dashed' },
+             }
+    return styles[edge.relationship.slug]
+
+def nodename(name):
+    return name.replace('-','_')
+    
+def make_dot(group):
+
+    edges = list(RelatedDocument.objects.filter(source__group=group,source__type='draft',relationship__slug__startswith='ref'))
+
+    nodes = set([x.source for x in edges]).union([x.target.document for x in edges])
+
+    for node in nodes:
+        node.nodename=nodename(node.name)
+        node.styles = get_node_styles(node,group)
+
+    for edge in edges:
+        edge.sourcename=nodename(edge.source.name)
+        edge.targetname=nodename(edge.target.document.name)
+        edge.styles = get_edge_styles(edge)
+
+    return render_to_string('wginfo/dot.txt',
+                             dict( nodes=nodes, edges=edges )
+                            )
+
+def dependencies_dot(request, acronym):
+
+    group = get_object_or_404(Group, acronym=acronym)
+
+    return HttpResponse(make_dot(group),
+                        content_type='text/plain; charset=UTF-8'
+                        )
+
+def dependencies_pdf(request, acronym):
+
+    group = get_object_or_404(Group, acronym=acronym)
+    
+    dothandle,dotname = mkstemp()  
+    os.close(dothandle)
+    dotfile = open(dotname,"w")
+    dotfile.write(make_dot(group))
+    dotfile.close()
+
+    unflathandle,unflatname = mkstemp()
+    os.close(unflathandle)
+
+    pshandle,psname = mkstemp()
+    os.close(pshandle)
+
+    pdfhandle,pdfname = mkstemp()
+    os.close(pdfhandle)
+
+    pipe("unflatten -f -l 10 -o %s %s" % (unflatname,dotname))
+    pipe("dot -Tps -Gsize=10.5,8.0 -Gmargin=0.25 -Gratio=auto -Grotate=90 -o %s %s" % (psname,unflatname))
+    pipe("ps2pdf %s %s" % (psname,pdfname))
+    
+    pdfhandle = open(pdfname,"r")
+    pdf = pdfhandle.read()
+    pdfhandle.close()
+
+    os.unlink(pdfname)
+    os.unlink(psname)
+    os.unlink(unflatname)
+    os.unlink(dotname)
+
+    return HttpResponse(pdf, content_type='application/pdf')

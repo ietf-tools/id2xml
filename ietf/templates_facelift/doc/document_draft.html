@@ -322,7 +322,7 @@
 	<a class="btn btn-default btn-xs" href="http://www.fenron.net/~fenner/ietf/deps/index.cgi?dep={{ name }}" rel="nofollow">Dependencies</a>
 	<a class="btn btn-default btn-xs" href="{% url "doc_references" doc.canonical_name %}" rel="nofollow">References</a>
 	<a class="btn btn-default btn-xs" href="{% url "doc_referenced_by" doc.canonical_name %}" rel="nofollow">Referenced by</a>
-	<a class="btn btn-default btn-xs" href="http://tools.ietf.org/idnits?url=http://tools.ietf.org/id/{{ doc.filename_with_rev }}" rel="nofollow" target="_blank">Nits</a>
+	<a class="btn btn-default btn-xs" href="http://www.ietf.org/tools/idnits?url=http://www.ietf.org/archive/id/{{ doc.filename_with_rev }}" rel="nofollow" target="_blank">Nits</a>
 	<a class="btn btn-default btn-xs" href="/feed/document-changes/{{ name }}/">History</a>
 	<a class="btn btn-default btn-xs" href="http://www.google.com/search?as_q={{ doc.name }}&amp;as_sitesearch={{ search_archive }}" rel="nofollow" target="_blank">Search lists</a>
 	{% if user|has_role:"Area Director" %}

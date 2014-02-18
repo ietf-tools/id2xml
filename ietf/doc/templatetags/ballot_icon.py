@@ -105,19 +105,21 @@ def ballot_icon(context, doc):
 
     for i, (ad, pos) in enumerate(positions):
         if i > 0 and i % 5 == 0:
-            res.append("</tr>")
-            res.append("<tr>")
+            res.append("</tr><tr>")
 
         c = "position-%s" % (pos.pos.slug if pos else "norecord")
 
         if user_is_person(user, ad):
             c += " my"
 
-        res.append('<td class="%s" />' % c)
+        res.append('<td class="%s"></td>' % c)
 
-    res.append("</tr>")
-    res.append("</table></a>")
+    # add sufficient table calls to last row to avoid HTML validation warning
+    while (i + 1) % 5 != 0:
+        res.append('<td class="empty"></td>')
+        i = i + 1
 
+    res.append("</tr></table></a>")
     return "".join(res)
 
 @register.filter
@@ -138,7 +140,7 @@ def ballotposition(doc, user):
 
 
 @register.filter
-def state_age_colored(doc):
+def state_age_colored(doc, flavor=""):
     if doc.type_id == 'draft':
         if not doc.get_state_slug() in ["active", "rfc"]:
             # Don't show anything for expired/withdrawn/replaced drafts
@@ -157,7 +159,7 @@ def state_age_colored(doc):
         except IndexError:
             state_date = datetime.date(1990,1,1)
         days = (datetime.date.today() - state_date).days
-        # loosely based on 
+        # loosely based on
         # http://trac.tools.ietf.org/group/iesg/trac/wiki/PublishPath
         if iesg_state == "lc":
             goal1 = 30
@@ -181,16 +183,26 @@ def state_age_colored(doc):
             goal1 = 14
             goal2 = 28
         if days > goal2:
-            class_name = "ietf-small ietf-highlight-r"
+            if flavor == "facelift":
+                class_name = "label label-danger"
+            else:
+                class_name = "ietf-small ietf-highlight-r"
         elif days > goal1:
-            class_name = "ietf-small ietf-highlight-y"
+            if flavor == "facelift":
+                class_name = "label label-warning"
+            else:
+                class_name = "ietf-small ietf-highlight-y"
         else:
             class_name = "ietf-small"
         if days > goal1:
             title = ' title="Goal is &lt;%d days"' % (goal1,)
         else:
             title = ''
-        return mark_safe('<span class="%s"%s>(for&nbsp;%d&nbsp;day%s)</span>' % (
-                class_name, title, days, 's' if days != 1 else ''))
+        # It's too bad that this function returns HTML; this makes it hard to
+        # style. For the facelift, I therefore needed to add a new "flavor"
+        # parameter, which is ugly.
+        return mark_safe('<span class="%s"%s>%sfor %d day%s%s</span>' % (
+                class_name, title, '(' if flavor != "facelift" else "", days,
+                's' if days != 1 else '', '(' if flavor != "facelift" else "" ))
     else:
         return ""

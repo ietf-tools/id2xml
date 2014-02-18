@@ -81,7 +81,7 @@ class SearchForm(forms.Form):
         active_ads.sort(key=extract_last_name)
         inactive_ads.sort(key=extract_last_name)
 
-        self.fields['ad'].choices = c = [('', 'any AD')] + [(ad.pk, ad.plain_name()) for ad in active_ads] + [('', '------------------')] + [(ad.pk, ad.name) for ad in inactive_ads]
+        self.fields['ad'].choices = c = [('', 'any AD')] + [(ad.pk, ad.plain_name()) for ad in active_ads] + [(ad.pk, ad.name) for ad in inactive_ads]
         self.fields['substate'].choices = [('', 'any substate'), ('0', 'no substate')] + [(n.slug, n.name) for n in DocTagName.objects.filter(slug__in=IESG_SUBSTATE_TAGS)]
 
     def clean_name(self):
@@ -144,7 +144,7 @@ def fill_in_search_attributes(docs):
     for d in docs:
         if isinstance(d,DocAlias):
             d = d.document
-        rel_this_doc = d.all_related_that_doc(['replaces','obs']) 
+        rel_this_doc = d.all_related_that_doc(['replaces','obs'])
         for rel in rel_this_doc:
             rel_id_camefrom.setdefault(rel.document.pk,[]).append(d.pk)
         rel_docs += [x.document for x in rel_this_doc]
@@ -236,7 +236,7 @@ def retrieve_search_results(form, all_types=False):
     """Takes a validated SearchForm and return the results."""
     if not form.is_valid():
         raise ValueError("SearchForm doesn't validate: %s" % form.errors)
-        
+
     query = form.cleaned_data
 
     types=[];
@@ -278,7 +278,7 @@ def retrieve_search_results(form, all_types=False):
     if query["olddrafts"]:
         allowed_draft_states.extend(['repl', 'expired', 'auth-rm', 'ietf-rm'])
 
-    docs = docs.filter(Q(states__slug__in=allowed_draft_states) | 
+    docs = docs.filter(Q(states__slug__in=allowed_draft_states) |
                        ~Q(type__slug='draft')).distinct()
 
     # radio choices
@@ -361,7 +361,7 @@ def retrieve_search_results(form, all_types=False):
     meta['headers'] = [{'title': 'Document', 'key':'document'},
                        {'title': 'Title', 'key':'title'},
                        {'title': 'Date', 'key':'date'},
-                       {'title': 'Status', 'key':'status', 'colspan':'2'},
+                       {'title': 'Status', 'key':'status', 'colspan':'2'}, # FACELIFT: colspan not needed anymore
                        {'title': 'IPR', 'key':'ipr'},
                        {'title': 'AD / Shepherd', 'key':'ad'}]
 
@@ -416,14 +416,14 @@ def ad_dashboard_group(doc):
             return '%s Internet-Draft' % doc.get_state('draft').name
     elif doc.type.slug=='conflrev':
         if doc.get_state_slug('conflrev') in ('appr-reqnopub-sent','appr-noprob-sent'):
-            return 'Approved Conflict Review' 
+            return 'Approved Conflict Review'
         elif doc.get_state_slug('conflrev') in ('appr-reqnopub-pend','appr-noprob-pend','appr-reqnopub-pr','appr-noprob-pr'):
             return "%s Conflict Review" % State.objects.get(type__slug='draft-iesg',slug='approved')
         else:
           return '%s Conflict Review' % doc.get_state('conflrev')
     elif doc.type.slug=='statchg':
         if doc.get_state_slug('statchg') in ('appr-sent',):
-            return 'Approved Status Change' 
+            return 'Approved Status Change'
         if doc.get_state_slug('statchg') in ('appr-pend','appr-pr'):
             return '%s Status Change' % State.objects.get(type__slug='draft-iesg',slug='approved')
         else:
@@ -437,7 +437,7 @@ def ad_dashboard_group(doc):
         return "Document"
 
 def ad_dashboard_sort_key(doc):
-    
+
     if doc.type.slug=='draft' and doc.get_state_slug('draft') == 'rfc':
         return "21%04d" % int(doc.rfc_number())
     if doc.type.slug=='statchg' and doc.get_state_slug('statchg') == 'appr-sent':
@@ -450,26 +450,26 @@ def ad_dashboard_sort_key(doc):
     seed = ad_dashboard_group(doc)
 
     if doc.type.slug=='conflrev' and doc.get_state_slug('conflrev') == 'adrev':
-        state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')        
+        state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')
         return "1%d%s" % (state.order,seed)
 
     if doc.type.slug=='charter':
         if doc.get_state_slug('charter') in ('notrev','infrev'):
             return "100%s" % seed
         elif  doc.get_state_slug('charter') == 'intrev':
-            state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')        
+            state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')
             return "1%d%s" % (state.order,seed)
         elif  doc.get_state_slug('charter') == 'extrev':
-            state = State.objects.get(type__slug='draft-iesg',slug='lc')        
+            state = State.objects.get(type__slug='draft-iesg',slug='lc')
             return "1%d%s" % (state.order,seed)
         elif  doc.get_state_slug('charter') == 'iesgrev':
-            state = State.objects.get(type__slug='draft-iesg',slug='iesg-eva')        
+            state = State.objects.get(type__slug='draft-iesg',slug='iesg-eva')
             return "1%d%s" % (state.order,seed)
 
     if doc.type.slug=='statchg' and  doc.get_state_slug('statchg') == 'adrev':
-        state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')        
+        state = State.objects.get(type__slug='draft-iesg',slug='ad-eval')
         return "1%d%s" % (state.order,seed)
-    
+
     if seed.startswith('Needs Shepherd'):
         return "100%s" % seed
     if seed.endswith(' Document'):

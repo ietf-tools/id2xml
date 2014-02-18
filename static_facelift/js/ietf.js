@@ -1,6 +1,29 @@
+// See http://stackoverflow.com/questions/8878033/how-to-make-twitter-bootstrap-menu-dropdown-on-hover-rather-than-click
+// Tweaked here, so it only expands on hover for non-collapsed navbars, and works for submenus
+
+function hoverin() {
+	navbar = $(this).closest('.navbar');
+	if (navbar.size() == 0 || navbar.find('.navbar-toggle').is(':hidden')) {
+		$(this).addClass('open');
+	}
+}
+
+function hoverout() {
+	navbar = $(this).closest('.navbar');
+	if (navbar.size() == 0|| navbar.find('.navbar-toggle').is(':hidden')) {
+		$(this).removeClass('open');
+	}
+}
+
+$('ul.nav li.dropdown').hover(hoverin, hoverout);
+$('ul.nav li.dropdown-submenu').hover(hoverin, hoverout);
+
+
+// This used to be in doc-search.js; consolidate all JS in one file.
+
 $(function () {
     // search form
-    var form = jQuery("#search_form");
+    var form = $("#search_form");
 
     function anyAdvancedActive() {
         var advanced = false;
@@ -107,3 +130,9 @@ function showModalBox(title, content) {
 	// show the modal
 	$('#modal-overlay').modal();
 }
+
+
+// This used to be in js/history.js
+$(".snippet .show-all").click(function () {
+	$(this).parents(".snippet").addClass("hidden").siblings(".full").removeClass("hidden");
+});

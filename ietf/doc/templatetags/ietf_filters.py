@@ -9,7 +9,7 @@ from email.utils import parseaddr
 from django import template
 from django.conf import settings
 from django.utils.html import escape, fix_ampersands
-from django.template.defaultfilters import truncatewords_html, linebreaksbr, wordwrap, stringfilter, urlize
+from django.template.defaultfilters import truncatewords_html, linebreaksbr, wordwrap, stringfilter, urlize, striptags
 from django.template import resolve_variable
 from django.utils.safestring import mark_safe, SafeData
 from django.utils.html import strip_tags
@@ -536,12 +536,15 @@ def pos_to_label(text):
 
 @register.filter
 def capfirst_allcaps(text):
+    from django.template import defaultfilters
     """Like capfirst, except it doesn't lowercase words in ALL CAPS."""
-    result = []
-    for token in re.split("(\W+)", text):
+    result = text
+    i = False
+    for token in re.split("(\W+)", striptags(text)):
         if not re.match("^[A-Z]+$", token):
-            result.append(token.lower())
-        else:
-            result.append(token)
-    result[0] = result[0][0].upper() + result[0][1:]
-    return "".join(result)
+            if not i:
+                result = result.replace(token, token.capitalize())
+                i = True
+            else:
+                result = result.replace(token, token.lower())
+    return result

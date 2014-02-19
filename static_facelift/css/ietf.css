@@ -59,6 +59,7 @@ form .errorlist { color: red; font-weight: bold; }
 .search-results { padding-top: 2em; }
 .ietf-doctable div.ballot-icon { margin: 0 0 .25em .25em;  }
 .ietf-doctable td.ad p { margin-bottom: .5em; }
+.ietf-doctable td.doc { width: 50%; }
 
 .position-group { margin-bottom: 2em }
 .ad-ballot-comment { margin-top: 2em; }

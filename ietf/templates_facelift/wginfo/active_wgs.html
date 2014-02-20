@@ -12,52 +12,60 @@
 </p>
 
 {% for area in areas %}
-	<h2>{{ area.name }} ({{ area.acronym|upper }})</h2>
+	<h2>{{ area.name }} <small>{{ area.acronym|upper }}</small></h2>
 
-	{% if area.ads %}
-		<h3>{{ area.acronym|upper }} Area Director{{ area.ads|pluralize }}</h3>
-		<p>
-		{% for ad in area.ads %}
-			<a href="mailto:{{ ad.email.address }}">{{ ad.person.plain_name }} &lt;{{ ad.email.address }}&gt;</a>
-			{% if ad.name == "pre-ad" %} (Incoming AD){% endif %}
-			<br>
-		{% endfor %}
-		</p>
-	{% endif %}
+	<div class="row">
+		<div class="col-sm-6">
+			{% if area.ads %}
+				<h3>Area Director{{ area.ads|pluralize }}</h3>
+				<p>
+				{% for ad in area.ads %}
+					<a href="mailto:{{ ad.email.address }}">{{ ad.person.plain_name }} &lt;{{ ad.email.address }}&gt;</a>
+					{% if ad.name == "pre-ad" %} (Incoming AD){% endif %}
+					<br>
+				{% endfor %}
+				</p>
+			{% endif %}
+		</div>
 
-	{% if area.urls %}
-		<h3>{{ area.acronym|upper }}-specific web page{{ area.urls|pluralize}}</h3>
-		<p>
-		  {% for url in area.urls %}
-		  	<a href="{{ url.url }}">{{ url.name }}</a>
-		  	<br>
-		  {% endfor %}
-		</p>
-	{% endif %}
+		<div class="col-sm-6">
+			{% if area.urls %}
+				<h3>Area-specific web page{{ area.urls|pluralize}}</h3>
+				<p>
+				  {% for url in area.urls %}
+					<a href="{{ url.url }}">{{ url.name }}</a>
+					<br>
+				  {% endfor %}
+				</p>
+			{% endif %}
+		</div>
+	</div>
 
 	{% if area.groups %}
-		<h3>Active {{ area.acronym|upper }} Working Group{{ area.groups|pluralize}}</h3>
-		<table class="table">
+		<h3>Active Working Group{{ area.groups|pluralize}}</h3>
+		<table class="table table-condensed table-striped ietf">
 			<thead>
 				<th>Group</th>
 				<th>Name</th>
 				<th>Chairs</th>
 				<th>AD</th>
 			</thead>
-			{% for group in area.groups %}
-				<tr>
-					<td><a href="/wg/{{ group.acronym }}/">{{ group.acronym }}</a></td>
-					<td>{{ group.name }}</td>
-					<td>{% for chair in group.chairs %}<a href="mailto:{{ chair.email.address }}">{{ chair.person.plain_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-					<td>
-						{% for ad in area.ads %}
-							{% if ad.person_id == group.ad_id %}
-								{{ ad.person }}
-							{% endif %}
-						{% endfor %}
-					</td>
-				</tr>
-			{% endfor %}
+			<tbody>
+				{% for group in area.groups %}
+					<tr>
+						<td><a href="/wg/{{ group.acronym }}/">{{ group.acronym }}</a></td>
+						<td>{{ group.name }}</td>
+						<td>{% for chair in group.chairs %}<a href="mailto:{{ chair.email.address }}">{{ chair.person.plain_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+						<td>
+							{% for ad in area.ads %}
+								{% if ad.person_id == group.ad_id %}
+									<a href="mailto:{{ ad.email.address }}">{{ ad.person }}</a>
+								{% endif %}
+							{% endfor %}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
 		</table>
 	{% else %}
 		<p>No active Working Groups.</p>

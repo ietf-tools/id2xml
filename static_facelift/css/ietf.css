@@ -57,9 +57,9 @@ form .errorlist { color: red; font-weight: bold; }
 /* Style the search form and results */
 #search_form .search_field:first-child { padding-bottom: .5em; }
 .search-results { padding-top: 2em; }
-.ietf-doctable div.ballot-icon { margin: 0 0 .25em .25em;  }
-.ietf-doctable td.ad p { margin-bottom: .5em; }
-.ietf-doctable td.doc { width: 50%; }
+table.ietf div.ballot-icon { margin: 0 0 .25em .25em;  }
+table.ietf td.ad p { margin-bottom: .5em; }
+table.ietf td.doc { width: 50%; }
 
 .position-group { margin-bottom: 2em }
 .ad-ballot-comment { margin-top: 2em; }

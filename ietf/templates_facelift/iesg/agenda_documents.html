@@ -23,41 +23,49 @@
 {% for t in telechats %}
 
 	<h2>IESG telechat {{t.date}}</h2>
+	<p>
+		<a class="btn btn-default" role="button" href="/iesg/agenda/">
+			<span class="glyphicon glyphicon-list"></span>
+			Full IESG agenda
+		</a>
 
-	<a href="/iesg/agenda/">Full IESG Agenda</a>
+		<a class="btn btn-default" role="button" href="/iesg/agenda/telechat-{{t.date|date:"Y"}}-{{t.date|date:"m"}}-{{t.date|date:"d"}}-docs.tgz">
+			<span class="glyphicon glyphicon-download"></span>
+			Download documents
+		</a>
+	</p>
 
-	<a href="/iesg/agenda/telechat-{{t.date|date:"Y"}}-{{t.date|date:"m"}}-{{t.date|date:"d"}}-docs.tgz">Download Documents</a>
+	{% for num, section in t.sections %}
+		{% if "docs" not in section or section.docs %}
+			{% if num|sectionlevel == 1 %}<h3>{{ num }}. {{ section.title|safe }}</h3>{% endif %}
+			{% if num|sectionlevel == 2 %}<h4>{{ num }} {{ section.title|safe }}</h4>{% endif %}
+			{% if num|sectionlevel == 3 %}<h5>{{ num }} {{ section.title|safe }}</h5>{% endif %}
+		{% endif %}
 
-	<table class="table table-condensed table-striped ietf-doctable">
+		{% if "docs" in section and section.docs %}
+			<table class="table table-condensed table-striped ietf">
+				<thead>
+					<tr>
+						<th>
+						{% if show_add_to_list and user.is_authenticated %}
+							<!--<span class="glyphicon glyphicon-briefcase"></span>-->
+						{% endif %}
+						</th>
 
-		{% for num, section in t.sections %}
-			{% if "docs" not in section or section.docs %}
-				<tr class="warning">
-					<td colspan="6">
-						{{ num }}{% if num|sectionlevel == 1 %}.{% endif %} {{ section.title }}
-					</td>
-				</tr>
-			{% endif %}
-
-			{% if "docs" in section and section.docs %}
-				<tr class="info">
-					<th>
-					{% if show_add_to_list and user.is_authenticated %}
-						<!--<span class="glyphicon glyphicon-briefcase"></span>-->
-					{% endif %}
-					</th>
-
-					<th>Document</th>
-					<th>Date</th>
-					<th>Status</th>
-					<th>IPR</th>
-					<th>AD / Shepherd</th>
-				</tr>
-				{% comment %} FACELIFT: We use the same template as the search results now. {% endcomment %}
-				{% for doc in section.docs %}{% include "doc/search/search_result_row.html" %}{% endfor %}
-			{% endif %}
-		{% endfor %}
-	</table>
+						<th>Document</th>
+						<th>Date</th>
+						<th>Status</th>
+						<th>IPR</th>
+						<th>AD / Shepherd</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% comment %} FACELIFT: We use the same template as the search results now. {% endcomment %}
+					{% for doc in section.docs %}{% include "doc/search/search_result_row.html" %}{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	{% endfor %}
 {% endfor %}
 
 </form>

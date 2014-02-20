@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Active IETF Working Groups{% endblock %}
+
+{% block content %}
+<h1>Active IETF Working Groups</h1>
+
+<p>
+  <a class="btn btn-default" role="button" href="http://www.ietf.org/wg/concluded/">Concluded WGs (www.ietf.org)</a>
+  <a class="btn btn-default" role="button" href="http://tools.ietf.org/wg/concluded/">Concluded WGs (tools.ietf.org)</a>
+  <a class="btn btn-default" role="button" href="http://www.ietf.org/dyn/wg/charter/history/">Historic charters</a>
+</p>
+
+{% for area in areas %}
+	<h2>{{ area.name }} ({{ area.acronym|upper }})</h2>
+
+	{% if area.ads %}
+		<h3>{{ area.acronym|upper }} Area Director{{ area.ads|pluralize }}</h3>
+		<p>
+		{% for ad in area.ads %}
+			<a href="mailto:{{ ad.email.address }}">{{ ad.person.plain_name }} &lt;{{ ad.email.address }}&gt;</a>
+			{% if ad.name == "pre-ad" %} (Incoming AD){% endif %}
+			<br>
+		{% endfor %}
+		</p>
+	{% endif %}
+
+	{% if area.urls %}
+		<h3>{{ area.acronym|upper }}-specific web page{{ area.urls|pluralize}}</h3>
+		<p>
+		  {% for url in area.urls %}
+		  	<a href="{{ url.url }}">{{ url.name }}</a>
+		  	<br>
+		  {% endfor %}
+		</p>
+	{% endif %}
+
+	{% if area.groups %}
+		<h3>Active {{ area.acronym|upper }} Working Group{{ area.groups|pluralize}}</h3>
+		<table class="table">
+			<thead>
+				<th>Group</th>
+				<th>Name</th>
+				<th>Chairs</th>
+				<th>AD</th>
+			</thead>
+			{% for group in area.groups %}
+				<tr>
+					<td><a href="/wg/{{ group.acronym }}/">{{ group.acronym }}</a></td>
+					<td>{{ group.name }}</td>
+					<td>{% for chair in group.chairs %}<a href="mailto:{{ chair.email.address }}">{{ chair.person.plain_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+					<td>
+						{% for ad in area.ads %}
+							{% if ad.person_id == group.ad_id %}
+								{{ ad.person }}
+							{% endif %}
+						{% endfor %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% else %}
+		<p>No active Working Groups.</p>
+	{% endif %}
+{% endfor %}
+
+{% endblock %}

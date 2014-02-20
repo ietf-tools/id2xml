@@ -40,12 +40,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% else %}
 
 {% if meta.max %}
-<h2>Too many documents match your query! Returning only a partial result.</h2>
+<p>Too many documents match your query! Returning only a partial result.</p>
 {% endif %}
 
-<table class="table table-condensed table-striped ietf-doctable">
+<table class="table table-condensed table-striped ietf">
 	<thead>
-		<tr class="info">
+		<tr>
 			<th>
 			{% if show_add_to_list and user.is_authenticated %}
 				<!--<span class="glyphicon glyphicon-briefcase"></span>-->

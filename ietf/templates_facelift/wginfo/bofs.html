@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}BoFs{% endblock %}
+
+{% block content %}
+{% load ietf_filters %}
+
+<h1>Birds-of-a-Feather (BoFs)</h1>
+
+<p>Groups in the BoF state.</p>
+
+{% if user|has_role:"Area Director,Secretariat" %}
+	<p><a class="btn btn-default" role="button" href="{% url "bof_create" %}">Create new BoF</a></p>
+{% endif %}
+
+{% if not groups %}
+	<p>No groups found.</p>
+{% else %}
+	<table class="table table-condensed table-striped ietf">
+		<thead>
+			<tr>
+			  <th>Group</th>
+			  <th>Name</th>
+			  <th>Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for g in groups %}
+			<tr>
+			  <td><a href="{% url "group_charter" acronym=g.acronym %}">{{ g.acronym }}</a></td>
+			  <td><a {%comment%}href="{% url "doc_view" name=g.charter.name %}"{%endcomment%}>{{ g.name }}</a></td>
+			  <td class="nowrap">{{ g.time|date:"Y-m-d" }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endif %}
+
+{% endblock %}

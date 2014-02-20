@@ -20,7 +20,7 @@
 	<br>
 	<b>{{ doc.title }}</b>
 	{% if doc.pages %}
-		<br><span class="text-muted">({{doc.pages}} page{{ doc.pages|pluralize }})</span>
+		<br><small class="text-muted">{{doc.pages}} page{{ doc.pages|pluralize }}</small>
 	{% endif %}
 	</p>
 </td>
@@ -46,7 +46,7 @@
 {% if ad_name == None or ad_name != doc.ad.plain_name %}
 	<td class="ad">
 		<p>{{ doc.ad|default:"" }}</p>
-		<p class="text-muted">{{doc.shepherd|default:""}}</p>
+		<small class="text-muted">{{doc.shepherd|default:""}}</small>
 	</td>
 {% endif %}
 

@@ -30,8 +30,8 @@
 		<li><a href="{% url "ietf.sync.views.discrepancies" %}">Sync discrepancies</a>
 	{% endif %}
 
-	{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
 	{% if editable_streams %}
+		{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
 		<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>RFC streams</li>
 		{% streams_menu %}
 	{% endif %}

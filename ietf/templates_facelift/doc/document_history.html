@@ -84,22 +84,25 @@
 	<p><a class="btn btn-primary" href="{% url "doc_add_comment" name=doc.name %}">Add comment</a></p>
 {% endif %}
 
-<table class="table table-condensed table-striped">
-	<tr>
-		<th>Date</th>
-		<th>Version</th>
-		<th>By</th>
-		<th>Text</th>
-	</tr>
-
-	{% for e in events %}
-		<tr class="{% cycle oddrow,evenrow %}" id="history-{{ e.pk }}">
-			<td class="nowrap">{{ e.time|date:"Y-m-d" }}</td>
-			<td class="text-center">{{ e.rev }}</td>
-			<td>{{ e.by|escape }}</td>
-			<td>{{ e.desc|format_history_text_facelift }}
-			</td>
+<table class="table table-condensed table-striped ietf">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Version</th>
+			<th>By</th>
+			<th>Text</th>
 		</tr>
-	{% endfor %}
+	</thead>
+
+	<tbody>
+		{% for e in events %}
+			<tr id="history-{{ e.pk }}">
+				<td class="nowrap">{{ e.time|date:"Y-m-d" }}</td>
+				<td class="text-center">{{ e.rev }}</td>
+				<td>{{ e.by|escape }}</td>
+				<td>{{ e.desc|format_history_text_facelift }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
 </table>
 {% endblock content %}

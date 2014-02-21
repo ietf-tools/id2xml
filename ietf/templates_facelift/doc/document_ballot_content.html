@@ -79,7 +79,7 @@
 					<div class="panel-heading">
 						<h5 class="panel-title"><b>{{ p.pos.name }}</b> ({{ p.discuss_time|date:"Y-m-d" }})</h5>
 					</div>
-					<div class="panel-body"><pre class="ballot">{{ p.discuss|wrap_text:80|escape }}</pre></div>
+					<div class="panel-body"><pre class="ballot">{{ p.discuss|wrap_text:80|escape|urlize }}</pre></div>
 					</div>
 			{% endif %}
 
@@ -88,7 +88,7 @@
 					<div class="panel-heading">
 						<h5 class="panel-title"><b>Comment</b> ({{ p.comment_time|date:"Y-m-d" }})</h5>
 					</div>
-					<div class="panel-body"><pre class="ballot">{{ p.comment|wrap_text:80|escape }}</pre></div>
+					<div class="panel-body"><pre class="ballot">{{ p.comment|wrap_text:80|escape|urlize }}</pre></div>
 				</div>
 			{% endif %}
 		{% endfor %}

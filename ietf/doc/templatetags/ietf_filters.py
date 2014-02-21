@@ -471,7 +471,7 @@ def format_history_text_facelift(text):
     if text.startswith("This was part of a ballot set with:"):
         full = urlize_ietf_docs(full)
 
-    full = mark_safe(keep_spacing(linebreaksbr(urlize(sanitize_html(full)))))
+    full = mark_safe(keep_spacing(linebreaksbr(urlize_html(sanitize_html(full)))))
     snippet = truncatewords_html(full, 25)
     if snippet != full:
         return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-primary show-all pull-right">Show all</button></div><div class="hidden full">%s</div>' % (snippet, full))
@@ -548,3 +548,27 @@ def capfirst_allcaps(text):
             else:
                 result = result.replace(token, token.lower())
     return result
+
+# See https://djangosnippets.org/snippets/2072/ and
+# https://stackoverflow.com/questions/9939248/how-to-prevent-django-basic-inlines-from-autoescaping
+@register.filter
+def urlize_html(html, autoescape=False):
+    """
+    Returns urls found in an (X)HTML text node element as urls via Django urlize filter.
+    """
+    try:
+        from BeautifulSoup import BeautifulSoup
+        from django.utils.html import urlize
+    except ImportError:
+        if settings.DEBUG:
+            raise template.TemplateSyntaxError, "Error in urlize_html The Python BeautifulSoup libraries aren't installed."
+        return html
+    else:
+        soup = BeautifulSoup(html)
+
+        textNodes = soup.findAll(text=True)
+        for textNode in textNodes:
+            urlizedText = urlize(textNode, autoescape=autoescape)
+            textNode.replaceWith(BeautifulSoup(urlizedText))
+
+        return str(soup)

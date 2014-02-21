@@ -37,7 +37,7 @@ form .errorlist { color: red; font-weight: bold; }
 /* A new type of Bootstrap label */
 .label-blank { color: #000; background-color: #fff; border: 1px solid #000;}
 
-/* Styles needed for the ballot table.*/
+/* Styles needed for the ballot table */
 .position-discuss,
 .position-block    { background-color: #d9534f; }
 .position-yes      { background-color: #5cb85c; }
@@ -57,7 +57,7 @@ form .errorlist { color: red; font-weight: bold; }
 /* Style the search form and results */
 #search_form .search_field:first-child { padding-bottom: .5em; }
 .search-results { padding-top: 2em; }
-table.ietf div.ballot-icon { margin: 0 0 .25em .25em;  }
+table.ietf div.ballot-icon { margin: 0 0 .25em .25em; }
 table.ietf td.ad p { margin-bottom: .5em; }
 table.ietf td.doc { width: 50%; }
 
@@ -71,3 +71,16 @@ table.doc tr th, table.doc tr td { border-top: 0; }
 table.doc hr { margin: 0; }
 
 .buttonlist .btn { margin-bottom: .5em }
+
+/*.caps { font-size: 97% }*/
+
+table.ietf button.show-all { margin: .25em 0 0 .25em; }
+
+/* Make preformatted text a bit more condensed in display */
+pre { line-height: 1.214285715;  }
+
+span.amp {
+   font-family:Baskerville,"Goudy Old Style","Palatino","Book Antiqua",serif;
+   font-size:110%;
+   font-style:italic;
+}

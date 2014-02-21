@@ -29,15 +29,20 @@
 	</div>
 
 	<div class="col-md-9">
-		<p></p>
 		{% if all_ballots and all_ballots|length > 1 %}
-			<div class="other-ballots">
-				Available ballots:
+			<ul class="pagination">
+				<li class="disabled"><span><b>Ballots</b></span></li>
 				{% for b in all_ballots %}
-					<a{% if b != ballot %} href="{% url "doc_ballot" name=doc.name ballot_id=b.pk %}"{% endif %}>{{ b.ballot_type.name }} ({{ b.rev }})</a>
+					<li {% if b == ballot %}class="active"{% endif %}>
+						<a href="{% url "doc_ballot" name=doc.name ballot_id=b.pk %}">
+							{{ b.ballot_type.name }} ({{ b.rev }})
+						</a>
+					</li>
 				{% endfor %}
-			</div>
+			</ul>
 		{% endif %}
+
+		<p class="alert alert-warning"><b>Summary:</b> <i>{{ summary }}</i></p>
 
 		{% if ballot.ballot_type.question %}
 			<h4>{{ ballot.ballot_type.question }}</h4>
@@ -45,8 +50,6 @@
 		{% if not ballot_open %}
 			<p class="alert alert-warning"><b>Note:</b> This ballot was opened for revision {{ ballot.rev }} and is now closed.</p>
 		{% endif %}
-
-		<p class="alert alert-warning"><b>Summary:</b> <i>{{ summary }}</i></p>
 
 		{% if editable and user|has_role:"Area Director,Secretariat" %}
 			{% if user|has_role:"Area Director" %}

@@ -17,7 +17,7 @@
 
 		{% for name, text, url in writeups %}
 			{% if text %}
-				<pre>{{ text }}</pre>
+				<pre>{{ text|urlize }}</pre>
 			{% endif %}
 
 			<p>

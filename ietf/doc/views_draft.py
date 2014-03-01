@@ -230,6 +230,13 @@ def change_stream(request, name):
             old_stream = doc.stream
 
             if new_stream != old_stream:
+                if new_stream.slug == "irtf":
+                    print new_stream
+                    if doc.notify == "":
+                        doc.notify = "irtf@irtf.org"
+                    elif "irtf@irtf.org" not in doc.notify:
+                        doc.notify += ", irtf@irtf.org"
+
                 save_document_in_history(doc)
                 
                 doc.stream = new_stream

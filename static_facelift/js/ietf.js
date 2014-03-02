@@ -136,3 +136,15 @@ function showModalBox(title, content) {
 $(".snippet .show-all").click(function () {
 	$(this).parents(".snippet").addClass("hidden").siblings(".full").removeClass("hidden");
 });
+
+
+// This used to be in js/iesg-discusses.js
+$("label.btn:has(input)").click(function () {
+	val = $(this).children().attr("value");
+	if (val == "all") {
+		$("tr").show();
+	} else {
+		$("tr").filter("." + val).show();
+		$("tr").not("." + val).hide();
+	}
+});

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Milestones under review{% endblock %}
+
+{% block content %}
+<h1>Milestones under review</h1>
+
+{% for ad in ads %}
+	<h2>{{ ad.plain_name }}</h2>
+	{% for g in ad.groups_needing_review %}
+		<p>
+			{{ g.name }}
+			(<a href="/wg/{{ g.acronym }}/">{{ g.acronym }}</a>)
+			<a href="{% url "wg_edit_milestones" acronym=g.acronym %}">has new milestones</a>:</p>
+		{% include "wginfo/milestones.html" with milestones=g.milestones_needing_review %}
+	{% endfor %}
+{% endfor %}
+
+{% endblock %}

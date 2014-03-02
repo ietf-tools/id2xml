@@ -15,9 +15,7 @@
 <form action="" method="post">{% csrf_token %}
 
 {% if user|has_role:"Secretariat" %}
-	<div class="secretariat-actions">
-		<input title="Save reschedule changes done with the drop-down boxes below" type="submit" value="Save Reschedules"/>
-	</div>
+	<input title="Save reschedule changes done with the drop-down boxes below" type="submit" value="Save reschedules" class="btn btn-default"></button>
 {% endif %}
 
 {% for t in telechats %}
@@ -71,7 +69,3 @@
 </form>
 
 {% endblock content %}
-
-{% block content_end %}
-	<script type="text/javascript" src="/js/agenda-documents.js"></script>
-{% endblock %}

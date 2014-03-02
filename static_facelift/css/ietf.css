@@ -72,6 +72,14 @@ table.doc hr { margin: 0; }
 
 .buttonlist .btn { margin-bottom: .5em }
 
+/*
+ * The bootstrap glyphicons are only pixel perfect at 16px, which is kinda
+ * dumb, since the default font size is 14px. Fix this. Eventually, we might
+ * want to switch to http://fontawesome.io/, which doesn't have this issue and
+ * has more icons.
+ */
+span.glyphicon { font-size: 16px; top: 2px; }
+
 /*.caps { font-size: 97% }*/
 
 table.ietf button.show-all { margin: .25em 0 0 .25em; }

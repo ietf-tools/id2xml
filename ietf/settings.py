@@ -200,7 +200,8 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
-    'widget_tweaks'
+    'widget_tweaks',
+    'typogrify',
 )
 
 INTERNAL_IPS = (
@@ -405,4 +406,3 @@ if not SERVER_MODE == 'production':
 # sensitive or site-specific changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *
 
-    

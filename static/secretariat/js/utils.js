@@ -1,5 +1,54 @@
 /* utils.js - utility functions */
 
+// set X-CSRFToken AJAX request header
+// from https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+function sameOrigin(url) {
+    // test that a given url is a same-origin URL
+    // url could be relative or scheme relative or absolute
+    var host = document.location.host; // host + port
+    var protocol = document.location.protocol;
+    var sr_origin = '//' + host;
+    var origin = protocol + sr_origin;
+    // Allow absolute or scheme relative URLs to same origin
+    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+// end set csrftoken
 
 //returns the requested GET parameter from the URL
 function get_param(param) {
@@ -79,7 +128,7 @@ function init_proceedings_upload() {
   $('#slides.sortable tbody').sortable({
      axis:'y',
      containment:'parent',
-     update: function(event, ui){  
+     update: function(event, ui){
          var data = $(this).sortable("toArray");
          var element_id = ui.item.attr("id");
          var slide_name = $("tr#"+element_id+" td.hidden").text();
@@ -147,7 +196,7 @@ $(document).ready(function() {
   }
 
 
-  // unset Primary Area selection unless it appears as URL parameter 
+  // unset Primary Area selection unless it appears as URL parameter
   //if (($('#id_primary_area').length) && (get_param('primary_area') == '')) {
   //    $('#id_primary_area')[0].selectedIndex = -1;
 
@@ -155,7 +204,7 @@ $(document).ready(function() {
   if ($('#areas-button-list').length) {
       init_area_table();
   }
-  // Setup autocomplete for adding names 
+  // Setup autocomplete for adding names
   if ($('input.name-autocomplete').length) {
       $('input.name-autocomplete').autocomplete({
           source: "/secr/areas/getpeople/",
@@ -206,7 +255,7 @@ $(document).ready(function() {
       init_proceedings_table();
   }
 
-  // special features for Proceedings Upload Material Page 
+  // special features for Proceedings Upload Material Page
   if ($('#proceedings-upload-table').length) {
       init_proceedings_upload();
   }

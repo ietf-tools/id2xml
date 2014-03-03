@@ -53,6 +53,8 @@ from ietf.doc.views_status_change import RELATION_SLUGS as status_change_relatio
 from ietf.ipr.models import IprDocAlias
 from ietf.doc.mails import email_ad
 
+from ietf.ipr.models import IprDetail
+
 def render_document_top(request, doc, tab, name):
     tabs = []
     tabs.append(("Document", "document", urlreverse("doc_view", kwargs=dict(name=name)), True))
@@ -520,14 +522,24 @@ def document_history(request, name):
     # grab event history
     events = doc.docevent_set.all().order_by("-time", "-id").select_related("by")
 
+   
+
+
     augment_events_with_revision(doc, events)
     add_links_in_new_revision_events(doc, events, diff_revisions)
+
+    # get ipr_id that related to the doc from doc table
+    doc_ipr_id = doc.ipr().values("ipr_id")
+    # get ip detail information
+    doc_ipr_detail= IprDetail.objects.filter(ipr_id__in=doc_ipr_id)
+    
 
     return render_to_response("doc/document_history.html",
                               dict(doc=doc,
                                    top=top,
                                    diff_revisions=diff_revisions,
                                    events=events,
+                                   doc_ipr=doc_ipr_detail,
                                    ),
                               context_instance=RequestContext(request))
 

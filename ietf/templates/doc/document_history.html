@@ -74,6 +74,20 @@
   </tr>
   {% endfor %}
 </table>
+
+
+<h2>Document IPR Information</h2>
+<table class="ietf-table">
+  <th>Date</th><th>IPR</th>
+  {% for i in doc_ipr %}
+  <tr class="{% cycle oddrow,evenrow %}" id="history-{{ e.pk }}">
+    <td>{{ i.submitted_date }}</td>
+    <td><a href={{ i.get_absolute_url }}>{{ i }}</a>></td>
+  </tr>
+  {% endfor %}
+</table>
+
+
 {% endblock content %}
 
 {% block content_end %}

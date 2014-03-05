@@ -380,8 +380,13 @@ def make_dot(group):
     for x in relations:
         if x.target.document.rfc_number() in ['5000','5741']:
             continue
-        state = x.target.document.get_state('draft')
-        if (state and state.slug!='rfc') or x.is_downref():
+        source_state = x.source.get_state('draft')
+        if source_state and source_state.slug in ['auth-rm','ietf-rm']:
+            continue
+        target_state = x.target.document.get_state('draft')
+        if source_state.slug=='rfc' and target_state.slug=='rfc':
+            continue
+        if (target_state and target_state.slug!='rfc') or x.is_downref():
             edges.add(Edge(x))
 
     nodes = set([x.relateddocument.source for x in edges]).union([x.relateddocument.target.document for x in edges])

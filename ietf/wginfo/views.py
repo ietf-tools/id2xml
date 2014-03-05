@@ -40,6 +40,7 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
+from django.db.models import Q
 
 from ietf.doc.views_search import SearchForm, retrieve_search_results
 from ietf.group.models import Group, GroupURL, Role
@@ -318,12 +319,16 @@ class Edge(object):
 
         # Note that the old style=dotted, color=red styling is never used
 
-        styles = { 'refnorm' : { 'color':'blue'   },
-                   'refinfo' : { 'color':'green'  },
-                   'refold'  : { 'color':'orange' },
-                   'refunk'  : { 'style':'dashed' },
-                 }
-        return styles[self.relateddocument.relationship.slug]
+        if self.relateddocument.is_downref():
+            return { 'color':'red' }
+        else:
+            styles = { 'refnorm' : { 'color':'blue'   },
+                       'refinfo' : { 'color':'green'  },
+                       'refold'  : { 'color':'orange' },
+                       'refunk'  : { 'style':'dashed' },
+                       'replaces': { 'color':'pink', 'style':'dashed' },
+                     }
+            return styles[self.relateddocument.relationship.slug]
 
 def get_node_styles(node,group):
 
@@ -380,14 +385,22 @@ def make_dot(group):
     for x in relations:
         if x.target.document.rfc_number() in ['5000','5741']:
             continue
-        source_state = x.source.get_state('draft')
-        if source_state and source_state.slug in ['auth-rm','ietf-rm']:
+        source_state = x.source.get_state_slug('draft')
+        target_state = x.target.document.get_state_slug('draft')
+        if source_state in ['auth-rm','ietf-rm']:
             continue
-        target_state = x.target.document.get_state('draft')
-        if source_state.slug=='rfc' and target_state.slug=='rfc':
+        if source_state=='rfc' and target_state=='rfc':
             continue
-        if (target_state and target_state.slug!='rfc') or x.is_downref():
+        # Probably want this to be selectable via the URL
+        if source_state=='expired':
+           continue
+        if target_state!='rfc' or x.is_downref():
             edges.add(Edge(x))
+
+    replacements = RelatedDocument.objects.filter(relationship__slug='replaces',target__document__in=[x.relateddocument.target.document for x in edges])
+
+    for x in replacements:
+        edges.add(Edge(x))
 
     nodes = set([x.relateddocument.source for x in edges]).union([x.relateddocument.target.document for x in edges])
 

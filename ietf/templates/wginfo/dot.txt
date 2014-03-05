@@ -21,13 +21,6 @@ digraph draftdeps {
                 label="Individual\nsubmission",
                 style=filled,
                 wg=individual];
-            key_nonexist [color="#FF0000",
-                label="Doesn't\nExist",
-                peripheries=3,
-                shape=diamond,
-                status=NULL,
-                style=solid,
-                wg=NULL];
         }
         subgraph key_b {
             graph [rank=same];
@@ -55,13 +48,18 @@ digraph draftdeps {
         key_colors -> key_shapes [color=white,
             fontcolor=black,
             label="Line\ncolor\nreflects\nReference\ntype"];
-        key_wgdoc -> key_rfc [color=orange,
+        key_wgdoc -> key_active [color=orange,
             label="Orange link:\nUnsplit"];
         key_otherwgdoc -> key_active [color=green,
             label="Green link:\nInformative"];
         key_individual -> key_iesg [color=blue,
             label="Blue link:\nNormative"];
         key_individual -> key_expired [label="Black link:\nUnknown",
+            style=dashed];
+        key_wgdoc -> key_rfc [color=red,
+            label="Red link:\nDownref!"];
+        key_otherwgdoc -> key_expired [color=pink,
+            label="Pink link:\nReplaces",
             style=dashed];
     }
 

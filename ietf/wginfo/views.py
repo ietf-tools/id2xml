@@ -291,6 +291,39 @@ def history(request, acronym):
                               construct_group_menu_context(request, group, "history", {
                 "events": events,
                 }), RequestContext(request))
+   
+ 
+def nodename(name):
+    return name.replace('-','_')
+
+class Edge(object):
+    def __init__(self,relateddocument):
+        self.relateddocument=relateddocument
+
+    def __hash__(self):
+        return hash("|".join([str(hash(nodename(self.relateddocument.source.name))),
+                             str(hash(nodename(self.relateddocument.target.document.name))),
+                             self.relateddocument.relationship.slug]))
+
+    def __eq__(self,other):
+        return self.__hash__() == other.__hash__()
+
+    def sourcename(self):
+        return nodename(self.relateddocument.source.name)
+
+    def targetname(self):
+        return nodename(self.relateddocument.target.document.name)
+
+    def styles(self):
+
+        # Note that the old style=dotted, color=red styling is never used
+
+        styles = { 'refnorm' : { 'color':'blue'   },
+                   'refinfo' : { 'color':'green'  },
+                   'refold'  : { 'color':'orange' },
+                   'refunk'  : { 'style':'dashed' },
+                 }
+        return styles[self.relateddocument.relationship.slug]
 
 def get_node_styles(node,group):
 
@@ -339,34 +372,23 @@ def get_node_styles(node,group):
 
     return styles
 
-def get_edge_styles(edge):
-
-    # Note that the old style=dotted, color=red styling is never used
-
-    styles = { 'refnorm' : { 'color':'blue'   },
-               'refinfo' : { 'color':'green'  },
-               'refold'  : { 'color':'orange' },
-               'refunk'  : { 'style':'dashed' },
-             }
-    return styles[edge.relationship.slug]
-
-def nodename(name):
-    return name.replace('-','_')
-    
 def make_dot(group):
 
-    edges = list(RelatedDocument.objects.filter(source__group=group,source__type='draft',relationship__slug__startswith='ref'))
+    relations = RelatedDocument.objects.filter(source__group=group,source__type='draft',relationship__slug__startswith='ref')
 
-    nodes = set([x.source for x in edges]).union([x.target.document for x in edges])
+    edges = set()
+    for x in relations:
+        if x.target.document.rfc_number() in ['5000','5741']:
+            continue
+        state = x.target.document.get_state('draft')
+        if (state and state.slug!='rfc') or x.is_downref():
+            edges.add(Edge(x))
+
+    nodes = set([x.relateddocument.source for x in edges]).union([x.relateddocument.target.document for x in edges])
 
     for node in nodes:
         node.nodename=nodename(node.name)
         node.styles = get_node_styles(node,group)
-
-    for edge in edges:
-        edge.sourcename=nodename(edge.source.name)
-        edge.targetname=nodename(edge.target.document.name)
-        edge.styles = get_edge_styles(edge)
 
     return render_to_string('wginfo/dot.txt',
                              dict( nodes=nodes, edges=edges )

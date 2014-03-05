@@ -177,7 +177,10 @@ class RelatedDocument(models.Model):
         if self.source.get_state().slug == 'rfc':
             source_lvl = self.source.std_level.slug
         else:
-            source_lvl = self.source.intended_std_level.slug
+            source_lvl = self.source.intended_std_level and self.source.intended_std_level.slug
+
+        if not source_lvl:
+            return None
 
         if source_lvl not in ['bcp','ps','ds','std']:
             return None

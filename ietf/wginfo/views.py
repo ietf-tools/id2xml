@@ -346,6 +346,10 @@ def get_node_styles(node,group):
        styles['shape'] = 'house'
        styles['style'] ='solid'
        styles['peripheries'] = 3
+    elif node.get_state('draft').slug == 'repl':
+       styles['shape'] = 'ellipse'
+       styles['style'] ='solid'
+       styles['peripheries'] = 3
     else:
        pass # quieter form of styles['shape'] = 'ellipse'
 
@@ -381,10 +385,10 @@ def make_dot(group):
 
     references = Q(source__group=group,source__type='draft',relationship__slug__startswith='ref')
     both_rfcs  = Q(source__states__slug='rfc',target__document__states__slug='rfc')
-    expired    = Q(source__states__slug='expired')
+    inactive   = Q(source__states__slug__in=['expired','repl'])
     attractor  = Q(target__name__in=['rfc5000','rfc5741'])
     removed    = Q(source__states__slug__in=['auth-rm','ietf-rm'])
-    relations = RelatedDocument.objects.filter(references).exclude(both_rfcs).exclude(expired).exclude(attractor).exclude(removed)
+    relations = RelatedDocument.objects.filter(references).exclude(both_rfcs).exclude(inactive).exclude(attractor).exclude(removed)
 
     edges = set()
     for x in relations:

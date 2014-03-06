@@ -47,8 +47,11 @@ digraph draftdeps {
                 label="Expired!",
                 peripheries=3,
                 shape=house,
-                status=expired,
                 style=solid];
+            key_replaced [color="#9999FF",
+                label="Replaced",
+                peripheries=3,
+                shape=ellipse];
         }
         key_colors -> key_shapes [color=white,
             fontcolor=black,
@@ -59,12 +62,12 @@ digraph draftdeps {
             label="Green link:\nInformative"];
         key_individual -> key_iesg [color=blue,
             label="Blue link:\nNormative"];
-        key_individual -> key_expired [label="Black link:\nUnknown",
+        key_otherwgdoc -> key_expired [label="Black link:\nUnknown",
             style=dashed];
         key_wgdoc -> key_rfc [color=red,
             label="Red link:\nDownref!",
             arrowhead=normalnormal];
-        key_otherwgdoc -> key_expired [color=pink,
+        key_individual -> key_replaced [color=pink,
             label="Pink link:\nReplaces",
             style=dashed,
             arrowhead=diamond];

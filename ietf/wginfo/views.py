@@ -438,9 +438,9 @@ def dependencies_pdf(request, acronym):
     pdfhandle,pdfname = mkstemp()
     os.close(pdfhandle)
 
-    pipe("unflatten -f -l 10 -o %s %s" % (unflatname,dotname))
-    pipe("dot -Tps -Gsize=10.5,8.0 -Gmargin=0.25 -Gratio=auto -Grotate=90 -o %s %s" % (psname,unflatname))
-    pipe("ps2pdf %s %s" % (psname,pdfname))
+    pipe("%s -f -l 10 -o %s %s" % (settings.UNFLATTEN_BINARY,unflatname,dotname))
+    pipe("%s -Tps -Gsize=10.5,8.0 -Gmargin=0.25 -Gratio=auto -Grotate=90 -o %s %s" % (settings.DOT_BINARY,psname,unflatname))
+    pipe("%s %s %s" % (settings.PS2PDF_BINARY,psname,pdfname))
     
     pdfhandle = open(pdfname,"r")
     pdf = pdfhandle.read()

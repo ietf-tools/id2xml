@@ -379,21 +379,16 @@ def get_node_styles(node,group):
 
 def make_dot(group):
 
-    relations = RelatedDocument.objects.filter(source__group=group,source__type='draft',relationship__slug__startswith='ref')
+    references = Q(source__group=group,source__type='draft',relationship__slug__startswith='ref')
+    both_rfcs  = Q(source__states__slug='rfc',target__document__states__slug='rfc')
+    expired    = Q(source__states__slug='expired')
+    attractor  = Q(target__name__in=['rfc5000','rfc5741'])
+    removed    = Q(source__states__slug__in=['auth-rm','ietf-rm'])
+    relations = RelatedDocument.objects.filter(references).exclude(both_rfcs).exclude(expired).exclude(attractor).exclude(removed)
 
     edges = set()
     for x in relations:
-        if x.target.document.rfc_number() in ['5000','5741']:
-            continue
-        source_state = x.source.get_state_slug('draft')
         target_state = x.target.document.get_state_slug('draft')
-        if source_state in ['auth-rm','ietf-rm']:
-            continue
-        if source_state=='rfc' and target_state=='rfc':
-            continue
-        # Probably want this to be selectable via the URL
-        if source_state=='expired':
-           continue
         if target_state!='rfc' or x.is_downref():
             edges.add(Edge(x))
 

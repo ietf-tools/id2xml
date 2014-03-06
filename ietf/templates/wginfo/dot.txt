@@ -6,7 +6,8 @@ digraph draftdeps {
     subgraph cluster_key {
         graph [label=Key,
             rankdir=LR,
-            margin=.5
+            margin=.5,
+            fontname=Helvetica
         ];
         subgraph key_a {
             graph [rank=same];

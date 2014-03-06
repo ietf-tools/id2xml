@@ -320,13 +320,13 @@ class Edge(object):
         # Note that the old style=dotted, color=red styling is never used
 
         if self.relateddocument.is_downref():
-            return { 'color':'red' }
+            return { 'color':'red','arrowhead':'normalnormal' }
         else:
             styles = { 'refnorm' : { 'color':'blue'   },
                        'refinfo' : { 'color':'green'  },
                        'refold'  : { 'color':'orange' },
                        'refunk'  : { 'style':'dashed' },
-                       'replaces': { 'color':'pink', 'style':'dashed' },
+                       'replaces': { 'color':'pink', 'style':'dashed', 'arrowhead':'diamond' },
                      }
             return styles[self.relateddocument.relationship.slug]
 

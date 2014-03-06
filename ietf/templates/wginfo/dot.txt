@@ -1,8 +1,12 @@
 {% load mail_filters %}{% autoescape off %}
 digraph draftdeps {
+    graph [fontame=Helvetica];
+    node [fontname=Helvetica];
+    edge [fontname=Helvetica];
     subgraph cluster_key {
         graph [label=Key,
-            rankdir=LR
+            rankdir=LR,
+            margin=.5
         ];
         subgraph key_a {
             graph [rank=same];
@@ -57,10 +61,12 @@ digraph draftdeps {
         key_individual -> key_expired [label="Black link:\nUnknown",
             style=dashed];
         key_wgdoc -> key_rfc [color=red,
-            label="Red link:\nDownref!"];
+            label="Red link:\nDownref!",
+            arrowhead=normalnormal];
         key_otherwgdoc -> key_expired [color=pink,
             label="Pink link:\nReplaces",
-            style=dashed];
+            style=dashed,
+            arrowhead=diamond];
     }
 
 {% for node in nodes %}

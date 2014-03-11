@@ -215,6 +215,8 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
+    'widget_tweaks',
+    'typogrify',
 )
 
 INTERNAL_IPS = (

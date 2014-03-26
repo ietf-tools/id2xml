@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ietf.settings")
+
 from ietf import settings
 from django.core import management
-management.setup_environ(settings)
 
 from ietf.doc.models import RelatedDocument,State,DocEvent
 from ietf.person.models import Person

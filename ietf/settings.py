@@ -220,6 +220,9 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
+    # FACELIFT: apps for facelift UI
+    'widget_tweaks',
+    'typogrify',
 )
 
 INTERNAL_IPS = (

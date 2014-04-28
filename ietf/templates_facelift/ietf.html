@@ -101,17 +101,12 @@
 							<li><a href="http://trustee.ietf.org/">IETF Trust</a></li>
 							<li><a href="http://www.internetsociety.org/">ISOC</a></li>
 						</ul>
-					</div>
-				</footer>
 
-				<footer class="row">
-					<div class="col-md-12 text-muted">
-					<!--
+						<p class="small">
 						{% if version_num %}
-							<a href="/release/{{version_num}}/">Version {{ version_num }}, {{revision_date}}</a>
+							<a href="/release/{{version_num}}/">IETF Datatracker Version {{ version_num }}, {{revision_date}}</a><br>
 						{% endif %}
 							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
-					-->
 						{% if messages %}
 							<ul class="messages">
 							{% for message in messages %}
@@ -119,8 +114,11 @@
 							{% endfor %}
 							</ul>
 						{% endif %}
+						</p>
 
-						{# include "debug.html" #}
+						{% ifnotequal server_mode "production" %}
+							{% include "debug.html" %}
+						{% endifnotequal %}
 					</div>
 				</footer>
 			</div>

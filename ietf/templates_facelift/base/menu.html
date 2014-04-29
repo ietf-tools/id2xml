@@ -78,10 +78,7 @@
 	<li><a href="{% url "ietf.wginfo.views.bofs" %}">BOF proposals</a></li>
 
 	{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>Other</li>
-	<li><a href="http://tools.ietf.org/wg/concluded">Concluded WGs</a></li>
-	<li><a href="http://www.ietf.org/list/nonwg.html">Non-WG lists</a></li>
-
+	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>Other groups</li>
 	<li><a href="/wg/">Active WGs</a></li>
 	<li><a href="{% url "ietf.wginfo.views.chartering_wgs" %}">Chartering WGs</a></li>
 	<li><a href="{% url "ietf.wginfo.views.bofs" %}">BOFs</a></li>
@@ -118,6 +115,11 @@
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}
 		<li><a href="{% url "rfc_status_changes" %}">RFC status changes</a></li>
 	{% endif %}
+	{% if flavor == "top" %}<li class="divider"></li>{% endif %}
+	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>RFC streams</li>
+	<li><a href="{% url "ietf.group.views_stream.streams" %}iab/">IAB</a></li>
+	<li><a href="{% url "ietf.group.views_stream.streams" %}irtf/">IRTF</a></li>
+	<li><a href="{% url "ietf.group.views_stream.streams" %}ise/">ISE</a></li>
 {% if flavor == "top" %}</ul>{% endif %}
 
 <li {% if flavor == "top" %}class="dropdown"{% else %}class="nav-header"{% endif %}>

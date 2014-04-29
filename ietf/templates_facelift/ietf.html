@@ -102,9 +102,11 @@
 							<li><a href="http://www.internetsociety.org/">ISOC</a></li>
 						</ul>
 
-						<p class="small">
+						<p class="small text-muted">
 						{% if version_num %}
-							<a href="/release/{{version_num}}/">IETF Datatracker Version {{ version_num }}, {{revision_date}}</a><br>
+							IETF Datatracker |
+							<a href="/release/{{version_num}}/">Version {{ version_num }}</a>
+							| {{revision_date}} |
 						{% endif %}
 							<a href="http://tools.ietf.org/tools/ietfdb/newticket">Report a bug</a>
 						{% if messages %}

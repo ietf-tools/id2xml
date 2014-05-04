@@ -45,7 +45,7 @@ form .errorlist { color: red; font-weight: bold; }
 .position-abstain  { background-color: #ec971f; }
 .position-recuse   { background-color: #808080; }
 .position-norecord { background-color: inherit; }
-.ballot-icon table td { border: 1px solid #fff; height: 10px; width: 8px; }
+.ballot-icon table td { border: 1px solid #ddd; height: 10px; width: 8px; }
 .ballot-icon table td.my { border: 2px solid #000;}
 
 /*

@@ -87,8 +87,13 @@ table.ietf button.show-all { margin: .25em 0 0 .25em; }
 /* Make preformatted text a bit more condensed in display */
 pre { line-height: 1.214285715;  }
 
+/* Make ampersands pretty */
 span.amp {
    font-family:Baskerville,"Goudy Old Style","Palatino","Book Antiqua",serif;
    font-size:110%;
    font-style:italic;
 }
+
+/* Turn off link underlining for panels in the search results */
+td.ipr a:hover, td.doc a:hover { text-decoration: none }
+

@@ -67,7 +67,9 @@
 
 {% if ad_name == None or ad_name != doc.ad.plain_name %}
 	<td class="ad">
-		<p>{{ doc.ad|default:"" }}</p>
+		{% if doc.ad %}
+			<p>{{ doc.ad|default:"" }}</p>
+		{% endif %}
 		<small class="text-muted">{{doc.shepherd|default:""}}</small>
 	</td>
 {% endif %}

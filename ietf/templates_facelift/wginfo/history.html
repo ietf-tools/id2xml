@@ -1,0 +1,28 @@
+{% extends "wginfo/group_base.html" %}
+{% load ietf_filters %}
+
+{% block group_content %}
+
+<table class="table table-condensed table-striped ietf">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>By</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for e in events %}
+			<tr>
+				<td class="nowrap">{{ e.time|date:"Y-m-d"}}</td>
+				<td>
+					{{ e.by.plain_name }}
+				</td>
+				<td>{{ e.desc|format_history_text_facelift }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}
+

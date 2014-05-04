@@ -1,3 +1,4 @@
+{% load widget_tweaks %}
 {% load ietf_filters %}
 
 <tr>
@@ -19,19 +20,38 @@
 	{% endif %}
 	<br>
 	<b>{{ doc.title }}</b>
+	{% if doc.has_errata %}
+		<a href="http://www.rfc-editor.org/errata_search.php?rfc={{ doc.rfc_number }}">
+			<span class="label label-danger">Errata</span>
+		</a>
+	{% endif %}
+
 	{% if doc.pages %}
 		<br><small class="text-muted">{{doc.pages}} page{{ doc.pages|pluralize }}</small>
 	{% endif %}
 	</p>
+
+	{% if user|has_role:"Secretariat" %}
+		<div class="form-group">
+			<label for="{{ doc.reschedule_form.telechat_date.auto_id}} ">Reschedule:</label>
+			{{ doc.reschedule_form.telechat_date|add_class:"form-control" }}
+			</select>
+		</div>
+		{% if doc.reschedule_form.show_clear %}
+			<div class="checkbox">
+				<label>{{ doc.reschedule_form.clear_returning_item }} <b>Clear "returning item"</b></label>
+			</div>
+		{% endif %}
+	{% endif %}
 </td>
 
 <td class="nowrap">
 	{% if doc.latest_revision_date|timesince_days|new_enough:request and doc.get_state_slug != "rfc" %}<a href="http:{{ rfcdiff_prefix }}?url2={{ doc.name }}-{{ doc.rev }}">{% endif %}{% if doc.get_state_slug == "rfc" %}{{ doc.latest_revision_date|date:"Y-m" }}{% else %}{{ doc.latest_revision_date|date:"Y-m-d" }}{% endif %}{% if doc.latest_revision_date|timesince_days|new_enough:request %}{% if doc.get_state_slug != "rfc" %}</a>{% endif %}
-		<wbr><span class="label label-success">new</span>
+		<wbr><span class="label label-success">New</span>
 	{% endif %}
 
 	{% if doc.get_state_slug == "active" and doc.expirable and doc.expires|timesince_days|expires_soon:request %}
-		<wbr><span class="label label-warning">expires soon</span>
+		<wbr><span class="label label-warning">Expires soon</span>
 	{% endif %}
 </td>
 

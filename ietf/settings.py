@@ -220,7 +220,15 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
+    # FACELIFT: apps for facelift UI
+    'widget_tweaks',
+    'typogrify',
+    'crispy_forms',
 )
+
+# FACELIFT: set crispy form template
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = not DEBUG
 
 INTERNAL_IPS = (
 # AMS servers

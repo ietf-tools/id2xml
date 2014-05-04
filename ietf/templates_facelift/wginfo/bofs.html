@@ -1,0 +1,39 @@
+{% extends "ietf.html" %}
+
+{% block title %}BOFs{% endblock %}
+
+{% block content %}
+{% load ietf_filters %}
+
+<h1>Birds-of-a-feather (BOFs)</h1>
+
+<p>Groups in the <i>BOF</i> state.</p>
+
+{% if user|has_role:"Area Director,Secretariat" %}
+	<p><a class="btn btn-default" role="button" href="{% url "bof_create" %}">Create new BOF</a></p>
+{% endif %}
+
+{% if not groups %}
+	<p>No BOFs found.</p>
+{% else %}
+	<table class="table table-condensed table-striped ietf">
+		<thead>
+			<tr>
+			  <th>BOF</th>
+			  <th>Name</th>
+			  <th>Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for g in groups %}
+			<tr>
+			  <td><a href="{% url "group_charter" acronym=g.acronym %}">{{ g.acronym }}</a></td>
+			  <td>{{ g.name }}</td>
+			  <td class="nowrap">{{ g.time|date:"Y-m-d" }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endif %}
+
+{% endblock %}

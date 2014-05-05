@@ -33,9 +33,9 @@
 				<a href="{% url "ietf.wginfo.views.history" acronym=group.acronym %}">History</a>
 			</li>
 			{% if group.list_archive|startswith:"http:" or group.list_archive|startswith:"https:" or group.list_archive|startswith:"ftp:" %}
-				<li><a href="{{ group.list_archive }}">List Archive &rarr;</a></li>
+				<li><a href="{{ group.list_archive }}">List archive &rarr;</a></li>
 			{% endif %}
-			<li><a href="http://tools.ietf.org/wg/{{ group.acronym }}/">Tools WG Page &rarr;</a></li>
+			<li><a href="http://tools.ietf.org/wg/{{ group.acronym }}/">Tools page &rarr;</a></li>
 		</ul>
 	</p>
 

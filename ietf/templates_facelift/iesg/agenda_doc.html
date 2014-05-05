@@ -22,7 +22,7 @@
 			<a href="{% url "doc_view" name=doc.canonical_name %}">{{ doc.canonical_name }}</a>
 		</dd>
 
-		<dt>{{ doc.intended_std_level }}</dt><dd><i>{{ doc.title }}</i></dd>
+		<dt>{{ doc.intended_std_level }}</dt><dd><b>{{ doc.title }}</b></dd>
 
 		{% if doc.note %}
 			<dt>Note</dt><dd>{{ doc.note|linebreaksbr }}</dd>

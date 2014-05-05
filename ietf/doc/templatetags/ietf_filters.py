@@ -529,10 +529,11 @@ def ics_esc(text):
 def pos_to_label(text):
     """Return a valid Bootstrap3 label type for a ballot position."""
     return {
-        'Discuss':      'danger',
-        'No Objection': 'primary',
         'Yes':          'success',
+        'No Objection': 'info',
         'Abstain':      'warning',
+        'Discuss':      'danger',
+        'Block':        'danger',
         'Recuse':       'default',
     }.get(str(text), 'blank')
 

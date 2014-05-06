@@ -97,3 +97,5 @@ span.amp {
 /* Turn off link underlining for panels in the search results */
 td.ipr a:hover, td.doc a:hover { text-decoration: none }
 
+.line-through { text-decoration: line-through; }
+

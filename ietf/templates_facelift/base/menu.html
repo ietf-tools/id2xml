@@ -13,14 +13,15 @@
 		<li><a href="{% if debug %}http://{% else %}https://{% endif %}{{ request.get_host }}/accounts/login/">Sign in</a></li>
 	{% else %}
 		{% if user.is_authenticated %}
-			<li><a href="/accounts/">{{ user }}</a> | <a href="/accounts/logout/" >Sign out</a></li>
+			<li><a href="/accounts/logout/" >Sign out</a></li>
+			<li><a href="/accounts/profile/">Edit profile</a></li>
 		{% else %}
 			<li><a href="{% if debug %}http://{% else %}https://{% endif %}{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in</a></li>
 		{% endif %}
 	{% endif %}
 
 	<li><a href="{% url "account_index" %}">{% if request.user.is_authenticated %}Manage account{% else %}New account{% endif %}</a></li>
-	<li><a href="{%url "ietf.cookies.views.settings" %}" rel="nofollow">Options</a></li>
+	<li><a href="{%url "ietf.cookies.views.settings" %}" rel="nofollow">Settings</a></li>
 
 	{% if user|has_role:"Area Director" %}
 		{% if flavor == "top" %}<li class="divider"></li>{% endif %}

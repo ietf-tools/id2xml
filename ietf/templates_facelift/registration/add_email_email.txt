@@ -2,11 +2,11 @@
 Hello,
 
 We have received a request to add the email address '{{ email }}'
-to the user account '{{ user }}' at '{{ domain }}'. 
+to the user account '{{ user }}' at '{{ request.get_host }}'.
 If you requested this change, please confirm that this is your email
 address by clicking on following link:
 
-   https://{{ domain }}{% url "confirm_new_email" user today email auth %}
+   https://{{ request.get_host }}{% url "confirm_new_email" user today email auth %}
 
 This link will expire in {{ expire }} days.
 

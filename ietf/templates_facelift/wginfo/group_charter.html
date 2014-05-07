@@ -5,7 +5,7 @@
 {% block group_content %}
 
 {% if group.state_id == "conclude" %}
-	<span class="ietf-concluded-warning">Note: The data for concluded WGs
+	<span class="ietf-concluded-warning"><b>Note:</b> The data for concluded WGs
 	is occasionally incorrect.</span>
 {% endif %}
 
@@ -142,7 +142,7 @@
 
 {% with group.groupurl_set.all as urls %}
 	{% if urls %}
-		<p>In addition to the charter maintained by the IETF Secretariat, there is additional information about this working group on the web at:
+		<p class="alert alert-info">In addition to the charter maintained by the IETF Secretariat, there is additional information about this working group on the web at:
 			{% for url in urls %}
 				<a href="{{ url.url }}">{{ url.name }}</a>{% if not forloop.last %}, {% endif %}
 			{% endfor %}
@@ -150,16 +150,16 @@
 	{% endif %}
 {% endwith %}
 
-<h2>Charter for {% if group.state_id == "proposed" %}Proposed{% endif %} Working Group</h2>
+<h2>Charter for {% if group.state_id == "proposed" %}proposed{% endif %} Working Group</h2>
 
 <p>{{ group.charter_text|escape|format_charter|safe }}</p>
 
-<h2>{% if group.state_id == "proposed" %}Proposed{% endif %} Milestones</h2>
+<h2>{% if group.state_id == "proposed" %}Proposed milestones{% else %}Milestones{% endif %}</h2>
 
 {% include "wginfo/milestones.html" with milestones=group.milestones %}
 
 {% if milestones_in_review %}
-	<p>Plus {{ milestones_in_review|length }} new milestone{{ milestones_in_review|pluralize }}
+	<p class="alert alert-info">Plus {{ milestones_in_review|length }} new milestone{{ milestones_in_review|pluralize }}
 	currently in Area Director review.</p>
 {% endif %}
 

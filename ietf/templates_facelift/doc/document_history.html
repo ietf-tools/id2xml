@@ -14,14 +14,14 @@
 {% if diff_revisions and diff_revisions|length > 1 %}
 	<h2>Revision differences</h2>
 
-	<form class="form-horizontal"  role="form" action="http{% if request.is_secure %}s{% endif %}:{{rfcdiff_prefix}}" method="get" target="_blank">
+	<form class="form-horizontal" role="form" action="{{rfcdiff_prefix}}" method="get" target="_blank">
 
 		<div class="form-group">
 			<div class="col-sm-2 ">
 				<label for="url1" class="control-label">From revision</label>
 			</div>
 			<div class="col-sm-10">
-				<select class="form-control" id="url1">
+				<select class="form-control" id="url1" name="url1">
 					{% for name, rev, time, url in diff_revisions %}
 						<option value="{{ url }}" {% if forloop.counter == 2 %} selected="selected" {% endif %}>
 							{{ name }}{% if rev %}-{{ rev }}{% endif %}
@@ -37,7 +37,7 @@
 				<label for="url2" class="control-label">To revision</label>
 			</div>
 			<div class="col-sm-10">
-				<select class="form-control" id="url2">
+				<select class="form-control" id="url2" name="url2">
 					{% for name, rev, time, url in diff_revisions %}
 						<option value="{{ url }}" {% if forloop.counter == 1 %} selected="selected" {% endif %}>
 							{{ name }}{% if rev %}-{{ rev }}{% endif %}

@@ -13,9 +13,9 @@
 		<dd>
 			{% with doc.rfc_number as rfc_number %}
 				{% if rfc_number %}
-					<a href="http://www.rfc-editor.org/rfc/rfc{{rfc_number}}/">
+					<a href="//www.rfc-editor.org/rfc/rfc{{rfc_number}}/">
 				{% else %}
-					<a href="http://www.ietf.org/id/{{doc.name}}-{{doc.rev}}.txt">
+					<a href="//www.ietf.org/id/{{doc.name}}-{{doc.rev}}.txt">
 				{% endif %}
 				<span class="glyphicon glyphicon-file"></span></a>
 			{% endwith %}

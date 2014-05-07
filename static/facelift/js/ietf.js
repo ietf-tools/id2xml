@@ -139,15 +139,16 @@ $(".snippet .show-all").click(function () {
 
 
 // This used to be in js/iesg-discusses.js
-$("label.btn:has(input)").click(function () {
-	val = $(this).children().attr("value");
-	if (val == "all") {
-		$("tr").show();
-	} else {
-		$("tr").filter("." + val).show();
-		$("tr").not("." + val).hide();
-	}
-});
+// AND IT'S BROKEN: causes document history to be hidden
+// $("label.btn:has(input)").click(function () {
+// 	val = $(this).children().attr("value");
+// 	if (val == "all") {
+// 		$("tr").show();
+// 	} else {
+// 		$("tr").filter("." + val).show();
+// 		$("tr").not("." + val).hide();
+// 	}
+// });
 
 // Store the shown/hidden state for the search form collapsible persistently
 $('#searchcollapse').on('hidden.bs.collapse', function() {

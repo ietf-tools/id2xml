@@ -11,18 +11,16 @@
 {% block content %}
 {{ top|safe }}
 
-<p>
-	<ul class="pagination">
-		<li class="disabled"><span><b>Snapshots</b></span></li>
-		{% for rev in revisions %}
-		<li {% if rev == doc.rev %}class="active"{% endif %}>
-			<a href="{% url "doc_view" name=doc.name %}{{ rev }}/" >
-				{{ rev }}
-			</a>
-		</li>
-		{% endfor %}
-	</ul>
-</p>
+<ul class="pagination pagination-sm">
+	<li class="disabled"><span><b>Snapshots</b></span></li>
+	{% for rev in revisions %}
+	<li {% if rev == doc.rev %}class="active"{% endif %}>
+		<a href="{% url "doc_view" name=doc.name %}{{ rev }}/" >
+			{{ rev }}
+		</a>
+	</li>
+	{% endfor %}
+</ul>
 
 <table class="table table-condensed ietf">
 	<tr>
@@ -45,10 +43,10 @@
 			{% endif %}
 
 			{% if snapshot %}
-				<span class="label label-info">Snapshot</span>
+				<span class="label label-info pull-right">Snapshot</span>
 			{% endif %}
 
-			<a href="/feed/group-changes/{{ group.acronym }}/">XXX Atom feed</a>
+			<!-- XXX add this back <a href="/feed/group-changes/{{ group.acronym }}/">Atom feed</a>-->
 		</td>
 	</tr>
 

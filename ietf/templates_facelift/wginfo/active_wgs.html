@@ -9,10 +9,10 @@
 <a class="btn btn-default" href="//www.ietf.org/dyn/wg/charter/history/">Historic charters</a>
 
 {% for area in areas %}
-	<h2 id="{{area.acronym}}">{{ area.name }} ({{ area.acronym|upper }})</h2>
+	<h2 id="{{area.acronym}}">{{ area.name }} ({{ area.acronym }})</h2>
 
 	{% if area.ads %}
-		<h3>{{ area.acronym|upper }} Area Director{{ area.ads|pluralize }} (AD{{ area.ads|pluralize }})</h3>
+		<h3>{{ area.acronym }} Area Director{{ area.ads|pluralize }} (AD{{ area.ads|pluralize }})</h3>
 		<ul class="list-unstyled">
 			{% for ad in area.ads %}
 				<li>
@@ -24,7 +24,7 @@
 	{% endif %}
 
 	{% if area.urls %}
-		<h3>{{ area.acronym|upper }} area-specific web page{{ area.urls|pluralize}}</h3>
+		<h3>{{ area.acronym }} area-specific web page{{ area.urls|pluralize}}</h3>
 		<ul class="list-unstyled">
 			{% for url in area.urls %}
 				<li><a href="{{ url.url }}">{{ url.name }}</a></li>
@@ -33,7 +33,7 @@
 	{% endif %}
 
 	{% if area.groups %}
-		<h3>{{ area.acronym|upper }} active WG{{ area.groups|pluralize}}</h3>
+		<h3>{{ area.acronym }} active WG{{ area.groups|pluralize}}</h3>
 		<table class="table table-condensed table-striped">
 			<thead>
 				<tr>
@@ -65,7 +65,7 @@
 			</tbody>
 		</table>
 	{% else %}
-		<h3>No active {{ area.acronym|upper }} WGs</h3>
+		<h3>No active {{ area.acronym }} WGs</h3>
 	{% endif %}
 
 	<hr>

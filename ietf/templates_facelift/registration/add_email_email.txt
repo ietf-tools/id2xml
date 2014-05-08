@@ -1,12 +1,12 @@
 {% autoescape off %}
 Hello,
 
-We have received a request to add the email address '{{ email }}'
-to the user account '{{ user }}' at '{{ request.get_host }}'.
+We have received a request to add the email address {{ email }}
+to the user account {{ user }} at {% if debug %}{{ request.get_host }}{% else %}{{ domain }}{% endif %}.
 If you requested this change, please confirm that this is your email
 address by clicking on following link:
 
-   https://{{ request.get_host }}{% url "confirm_new_email" user today email auth %}
+   https://{% if debug %}{{ request.get_host }}{% else %}{{ domain }}{% endif %}{% url "confirm_new_email" user today email auth %}
 
 This link will expire in {{ expire }} days.
 

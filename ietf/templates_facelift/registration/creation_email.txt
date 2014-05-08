@@ -2,11 +2,11 @@
 Hello,
 
 We have received an account creation request for {{ username }}
-at {{ request.get_host }}.  In order to set a new password for the
+at {% if debug %}{{ request.get_host }}{% else %}{{ domain }}{% endif %}.  In order to set a new password for the
 {{ username }} account, please go to the following link and
 follow the instructions there:
 
-   https://{{ request.get_host }}{% url "confirm_account" username today realm auth %}
+   https://{% if debug %}{{ request.get_host }}{% else %}{{ domain }}{% endif %}{% url "confirm_account" username today realm auth %}
 
 This link will expire in {{ expire }} days.
 

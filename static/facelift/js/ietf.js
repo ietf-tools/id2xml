@@ -76,17 +76,17 @@ $(function () {
     }
 
     // search results
-    $('.search-results .addtolist a').click(function(e) {
+    $('.addtolist a').click(function(e) {
         e.preventDefault();
         var trigger = $(this);
         $.ajax({
             url: trigger.attr('href'),
-            type: 'POST',
+            type: 'GET',
             cache: false,
             dataType: 'json',
             success: function(response){
                 if (response.success) {
-                    trigger.replaceWith('<span class="glyphicon glyphicon-star"></span>');
+                    trigger.replaceWith('<span class="glyphicon glyphicon-tag text-danger"></span>');
                 }
             }
         });

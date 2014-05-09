@@ -96,3 +96,4 @@ td.ipr a:hover, td.doc a:hover { text-decoration: none }
 
 .line-through { text-decoration: line-through; }
 
+.displayField-date { white-space: nowrap; }

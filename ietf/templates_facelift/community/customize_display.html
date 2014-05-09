@@ -1,0 +1,16 @@
+{% load crispy_forms_tags %}
+
+<form role="form" method="post" action="#custom">
+	{% csrf_token %}
+	{{ display_form|crispy }}
+	<label>Show fields</label>
+	{% for field in dc.get_display_fields_config %}
+		<div class="checkbox">
+			<label for="id_{{ field.codename }}">
+				<input id="id_{{ field.codename }}" type="checkbox" name="{{ field.codename }}" {% if field.active %}checked{% endif %}>
+				{{ field.description }}
+			</label>
+		</div>
+	{% endfor %}
+	<input type="submit" class="btn btn-primary" name="save_display">
+</form>

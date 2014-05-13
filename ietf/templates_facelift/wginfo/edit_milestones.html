@@ -1,0 +1,133 @@
+{% extends "ietf.html" %}
+
+{% block title %}XXX BROKEN {{ title }}{% endblock %}
+
+{% block pagehead %}
+	<link rel="stylesheet" type="text/css" href="/css/token-input.css"></link>
+{% endblock %}
+
+{% block content %}
+
+{% load ietf_filters %}
+
+<h1>XXX BROKEN {{ title }}</h1>
+
+<p>
+  <a class="btn btn-default" href="{% url "group_charter" acronym=group.acronym %}">{{ group.acronym }} {{ group.type.name }}</a>
+  <a class="btn btn-default" href="{% url "doc_view" name=group.charter.canonical_name %}">{{ group.acronym }} charter</a>
+</p>
+
+{% if needs_review %}
+	<p class="alert alert-info">
+		Note that as {{ group.type.name }} chair, you cannot edit descriptions of existing
+		milestones, and milestones you add are subject to review by the Area
+		Director.
+	</p>
+{% endif %}
+
+{% if can_reset %}
+	<p class="alert alert-info">
+		You can <a class="btn btn-default"  href="{% url "wg_reset_charter_milestones" acronym=group.acronym %}">reset
+		this list</a> to the milestones currently in use for the {{ group.acronym }} {{ group.type.name }}.
+	</p>
+{% endif %}
+
+{% if form_errors %}
+	<p class="alert alert-danger">
+		There were errors, see below.
+	</p>
+{% endif %}
+
+{% for form in forms %}
+	<form class="form-horizontal" role="form" method="post">
+		{% csrf_token %}
+		{% include "wginfo/milestone_form.html" with action="edit"%}
+	</form>
+{% endfor %}
+
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Milestone</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		{% for form in forms reversed %}
+			<tr>
+				<td>
+					{% if form.milestone.resolved %}
+						<span class="label label-success">{{ form.milestone.resolved }}</span>
+					{% else %}
+						{{ form.milestone.due|date:"M Y" }}
+					{% endif %}
+				</td>
+
+				<td>
+					<button class="btn btn-default btn-xs pull-right" data-toggle="modal" data-target="#{{form.prefix}}">Edit</button>
+
+					{{ form.milestone.desc }}
+
+					{% if form.needs_review %}<span class="label label-info">Awaiting accept</span>{% endif %}
+					{% if form.changed %}<span class="label label-info">Changed</span>{% endif %}
+
+					{% for d in form.docs_names %}
+						<br><a href="{% url "doc_view" name=d.name %}">{{ d.name }}</a>
+					{% endfor %}
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+
+<form class="form-horizontal" role="form" method="post">
+	{% csrf_token %}
+	{% include "wginfo/milestone_form.html" with form=empty_form action="add new" %}
+</form>
+<button class="btn btn-default" data-toggle="modal" data-target="#addmilestone">
+	Add
+	{% if milestone_set == "chartering" %}
+		charter
+	{% endif%}
+	milestone
+	{% if needs_review %}
+		for AD review
+	{% endif %}
+</button>
+
+<a class="btn btn-danger pull-right" href="{% if milestone_set == "charter" %}{% url "doc_view" name=group.charter.canonical_name %}{% else %}{% url "group_charter" acronym=group.acronym %}{% endif %}">Cancel editing</a>
+
+<input class="button" type="submit" data-labelsave="Save" data-labelreview="Review changes" value="Save" style="display:none"/>
+<input type="hidden" name="action" value="save">
+{% endblock %}
+
+{% block js %}
+	<script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>
+	<script type="text/javascript" src="/js/lib/json2.js"></script>
+	<script type="text/javascript" src="/js/tokenized-field.js"></script>
+{% endblock %}
+
+{% block scripts %}
+function setSubmitButtonState() {
+	console.log("XXX");
+	var action, label;
+	if ($("input[name$=delete]:visible").length > 0)
+		action = "review";
+	else
+		action = "save";
+	console.log(action);
+
+	$("input[name=action]").val(action);
+
+	var submit = $("input[type=submit]");
+	submit.val(submit.data("label" + action));
+	if ($("#milestones-form .edit-milestone.changed").length > 0 || action == "review")
+		submit.show();
+	else
+		submit.hide();
+		submit.show();
+}
+setSubmitButtonState();
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Edit IESG note for {{ doc.name }}{% endblock %}
+
+{% block content %}
+<h1>Edit IESG note for {{ doc.name }}</h1>
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<button type="submit" class="btn btn-primary" >Submit</button>
+	<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Cancel</a>
+</form>
+
+{% endblock %}

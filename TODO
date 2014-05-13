@@ -5,3 +5,7 @@ Rethink the search results display, esp. status column
 Use affix for navigation on active_wgs.html
 
 Edit glyphicon-exclamation-sign, etc. to alerts.
+
+Some of the milestone editing functionality is lacking features compared to before.
+
+Fix text file uploads for various writeups.

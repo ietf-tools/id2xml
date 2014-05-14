@@ -1,0 +1,65 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+{% load ietf_filters %}
+
+{% block title %}
+{% if action == "edit" %}
+	Edit WG {{ wg.acronym }}
+{% else %}
+	{% if action == "charter" %}
+		Start chartering new WG
+	{% else %}
+		Create new WG or BoF
+	{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="/facelift/css/tokenfield-typeahead.min.css"></link>
+<link rel="stylesheet" href="/facelift/css/bootstrap-tokenfield.min.css"></link>
+{% endblock %}
+
+{% block content %}
+<h1>
+{% if action == "edit" %}
+	Edit WG {{ wg.acronym }}
+{% else %}
+	{% if action == "charter" %}
+		Start chartering new WG
+	{% else %}
+		Create new WG or BoF
+	{% endif %}
+{% endif %}
+</h1>
+
+<p class="alert alert-info">Note that persons with authorization to manage information, e.g.
+chairs and delegates, need a datatracker account to actually do
+so. New accounts can be <a href="{% url "create_account" %}">created here</a>.</p>
+
+<form class="tokenized-form" role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		{% if action == "edit" %}
+			<button class="btn btn-primary" type="submit">Submit</button>
+			<a class="btn btn-default pull-right" href="{% url "group_charter" acronym=wg.acronym %}">Back</a>
+		{% else %}
+			{% if action == "charter" %}
+				<button class="btn btn-primary" type="submit">Start chartering</button>
+				<a class="btn btn-default pull-right" href="{% url "ietf.wginfo.views.chartering_wgs" %}">Back</a>
+			{% else %}
+				<button class="btn btn-primary" type="submit">Create group or BOF</button>
+				<a class="btn btn-default pull-right" href="{% url "ietf.wginfo.views.bofs" %}">Back</a>
+			{% endif %}
+		{% endif %}
+	</div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="/facelift/js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="/facelift/js/lib/typeahead.js"></script>
+<script type="text/javascript" src="/facelift/js/lib/bootstrap-tokenfield.min.js"></script>
+{% endblock %}

@@ -15,9 +15,11 @@
 		Technical summary, Working Group summary, document quality, personnel, RFC Editor note, IRTF note, IESG note, IANA note. This text will be appended to all announcements and messages to the IRTF or RFC Editor.
 	</span>
 
-	<button type="submit" class="btn btn-primary" name="save_ballot_writeup">Submit</button>
-	<button type="submit" class="btn btn-warning" name="issue_ballot">Save and {% if ballot_issued %}re-{% endif %}issue ballot</button>
-	<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Back</a>
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="save_ballot_writeup">Save</button>
+		<button type="submit" class="btn btn-warning" name="issue_ballot">Save & {% if ballot_issued %}re-{% endif %}issue ballot</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
 </form>
 
 {% endblock%}

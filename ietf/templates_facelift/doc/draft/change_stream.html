@@ -9,7 +9,9 @@
 <form role="form" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
-	<button type="submit" class="btn btn-primary">Submit</button>
-	<a class="btn btn-default" href="{{ doc.get_absolute_url }}">Back</a>
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	</div>
 </form>
 {% endblock %}

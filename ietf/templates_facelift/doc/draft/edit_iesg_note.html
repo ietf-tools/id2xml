@@ -9,8 +9,10 @@
 <form role="form" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
-	<button type="submit" class="btn btn-primary" >Submit</button>
-	<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Cancel</a>
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" >Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
 </form>
 
 {% endblock %}

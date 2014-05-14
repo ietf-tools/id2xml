@@ -48,7 +48,7 @@
 		{% else %}
 			none
 			{% if user|has_role:"Area Director,Secretariat" %}
-				- <a href="{% url "ietf.wginfo.edit.submit_initial_charter" acronym=group.acronym %}">Submit Charter</a>
+				<a class="btn btn-warning btn-xs" href="{% url "ietf.wginfo.edit.submit_initial_charter" acronym=group.acronym %}">Submit charter</a>
 			{% endif %}
 		{% endif %}
 		</td>

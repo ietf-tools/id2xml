@@ -15,6 +15,6 @@ Shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}
 		<a class="btn btn-primary" href="{{doc_edit_url}}">Edit</a>
 	{% endif %}
 {% endif %}
-<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Back</a>
+<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
 
 {% endblock %}

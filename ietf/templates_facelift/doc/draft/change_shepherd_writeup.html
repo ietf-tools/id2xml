@@ -12,9 +12,11 @@ Edit shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}
 <form class="tokenized-form" role="form" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
-	<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
-	<button type="submit" class="btn btn-warning" name="reset_text">Reset to template text</button>
-	<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Back</a>
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
+		<button type="submit" class="btn btn-warning" name="reset_text">Reset to template text</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
 </form>
 
 {% endblock %}

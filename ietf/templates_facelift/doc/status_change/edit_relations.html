@@ -58,7 +58,9 @@
 		<div class="alert alert-danger">{{ form.non_field_errors }}</div>
 	{% endif %}
 
-	<button type="submit" class="btn btn-primary" name="Submit" value="Submit">Submit</button>
-	<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Cancel</a>
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="Submit">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
 </form>
 {% endblock %}

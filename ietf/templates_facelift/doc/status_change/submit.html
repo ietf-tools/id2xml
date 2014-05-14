@@ -13,10 +13,10 @@
 	{% csrf_token %}
 	{{ form|crispy }}
 
-	<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
-	<div class="pull-right">
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
 		<button type="submit" class="btn btn-warning" name="reset_text">Reset to template text</button>
-		<a class="btn btn-default" href="{% url "doc_view" name=doc.canonical_name %}">Cancel</a>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.canonical_name %}">Back</a>
 	</div>
 </form>
 {% endblock %}

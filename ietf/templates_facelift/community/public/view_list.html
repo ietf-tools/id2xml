@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ietf.html" %}
 
 {% block pagehead %}
 <link rel="alternate" type="application/rss+xml" title="Changes on {{ cl.long_name }} RSS Feed" href="../changes/feed/" />
@@ -10,7 +10,7 @@
 {% block content %}
 <h1>{{ cl.long_name }}</h1>
 <p>
-Subscribe to notification email list:
+Subscribe to notification email lists:
 </p>
 <ul>
   <li><a href="../subscribe/">All changes email list</a></li>

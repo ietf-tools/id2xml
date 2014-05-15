@@ -8,9 +8,6 @@
 				{% for p in positions %}
 					<div>
 						{% if p.old_ad %}<span class="text-muted">{% endif %}
-						{% if user|has_role:"Secretariat" %}
-							<a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}?ad={{ p.ad.pk }}" title="Click to edit the position of {{ p.ad.plain_name }}">
-						{% endif %}
 						{% if p.comment or p.discuss %}
 							<a href="#{{ p.ad.plain_name|slugify }}">
 						{% endif %}
@@ -30,7 +27,7 @@
 
 	<div class="col-md-10">
 		{% if all_ballots and all_ballots|length > 1 %}
-			<ul class="pagination">
+			<ul class="pagination pagination-sm">
 				<li class="disabled"><span><b>Ballots</b></span></li>
 				{% for b in all_ballots %}
 					<li {% if b == ballot %}class="active"{% endif %}>
@@ -42,18 +39,18 @@
 			</ul>
 		{% endif %}
 
-		<p class="alert alert-warning"><b>Summary:</b> <i>{{ summary }}</i></p>
-
-		{% if ballot.ballot_type.question %}
-			<h4>{{ ballot.ballot_type.question }}</h4>
-		{% endif %}
+		<p class="alert alert-info"><b>Summary:</b> {{ summary }}</p>
 		{% if not ballot_open %}
 			<p class="alert alert-warning"><b>Note:</b> This ballot was opened for revision {{ ballot.rev }} and is now closed.</p>
 		{% endif %}
 
+		{% if ballot.ballot_type.question %}
+			<p class="well"><b>Ballot question:</b> "{{ ballot.ballot_type.question }}"</p>
+		{% endif %}
+
 		{% if editable and user|has_role:"Area Director,Secretariat" %}
 			{% if user|has_role:"Area Director" %}
-				<a class="btn btn-default" href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}">Edit position</a>
+				<a class="btn btn-primary" href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}">Edit position</a>
 			{% endif %}
 
 			{% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
@@ -80,6 +77,10 @@
 							<span class="text-muted small">(was {{ p.old_positions|join:", " }})</span>
 						{% endif %}
 						<span class="label label-{{ p.pos|pos_to_label }}">{{p.pos}}</span>
+						{% if editable and user|has_role:"Secretariat" %}
+							<a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}?ad={{ p.ad.pk }}" title="Click to edit the position of {{ p.ad.plain_name }}" class="btn btn-default btn-xs">
+						Edit position</a>
+						{% endif %}
 					</span>
 				</h4>
 

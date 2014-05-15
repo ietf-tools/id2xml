@@ -151,19 +151,18 @@ $(".snippet .show-all").click(function () {
 // });
 
 // Store the shown/hidden state for the search form collapsible persistently
-$('#searchcollapse').on('hidden.bs.collapse', function() {
-	localStorage.removeItem(this.id);
-}).on('shown.bs.collapse', function() {
-	localStorage[this.id] = "show";
-}).each(function() {
-	if (localStorage[this.id] === "show") {
-		$(this).collapse('show');
-	} else {
-		$(this).collapse('hide');
-	}
-});
-
-
+// Not such a great idea after all, comment out for now.
+// $('#searchcollapse').on('hidden.bs.collapse', function() {
+// 	localStorage.removeItem(this.id);
+// }).on('shown.bs.collapse', function() {
+// 	localStorage[this.id] = "show";
+// }).each(function() {
+// 	if (localStorage[this.id] === "show") {
+// 		$(this).collapse('show');
+// 	} else {
+// 		$(this).collapse('hide');
+// 	}
+// });
 
 
 function to_disp(t) {

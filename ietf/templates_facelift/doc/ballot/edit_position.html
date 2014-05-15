@@ -1,0 +1,63 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Change position for {{ ad.plain_name }} on {{ doc }}{% endblock %}
+
+{% block content %}
+<h1>Change position for {{ ad.plain_name }} on {{ doc }}</h1>
+
+<div class="question">{{ ballot.ballot_type.question }}</div>
+
+{% if ballot_deferred %}
+	<p class="alert alert-info">
+		Ballot deferred by {{ ballot_deferred.by }} on {{ ballot_deferred.time|date:"Y-m-d" }}.
+	</p>
+{% endif %}
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{% for field in form %}
+		{{ field|as_crispy_field }}
+		{% if field.name == "discuss" and old_pos and old_pos.discuss_time %}
+			<span class="help-block">Last edited {{ old_pos.discuss_time }}</span>
+		{% elif field.name == "comment" and old_pos and old_pos.comment_time %}
+			<span class="help-block">Last edited {{ old_pos.comment_time }}</span>
+		{% endif %}
+	{% endfor %}
+
+
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="send_mail">Save & send email</button>
+		<button type="submit" class="btn btn-default" value="Save">Save</button>
+
+		{% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
+			{% if ballot_deferred %}
+				<button type="submit" class="btn btn-warning" name="Undefer" value="Undefer">Undefer</button>
+			{% else %}
+				<button type="submit" class="btn btn-danger" name="Defer" value="Defer">Defer</button>
+			{% endif %}
+		{% endif %}
+		<a class="btn btn-default pull-right" href="{{ return_to_url }}">Back</a>
+	</div>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+var block_pos = {{ blocking_positions|safe }};
+
+function discuss_toggle(val) {
+	if (val in block_pos) {
+		$("#div_id_discuss").show();
+	} else {
+		$("#div_id_discuss").hide();
+	}
+}
+
+$("input[name=position]").click(function () {
+	discuss_toggle($(this).val());
+});
+
+discuss_toggle($("input[name=position]:checked").val());
+{% endblock %}

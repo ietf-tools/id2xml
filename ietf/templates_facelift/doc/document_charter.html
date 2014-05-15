@@ -15,9 +15,7 @@
 	<li class="disabled"><span><b>Snapshots</b></span></li>
 	{% for rev in revisions %}
 	<li {% if rev == doc.rev %}class="active"{% endif %}>
-		<a href="{% url "doc_view" name=doc.name %}{{ rev }}/" >
-			{{ rev }}
-		</a>
+		<a href="{% url "doc_view" name=doc.name %}{{ rev }}/">{{ rev }}</a>
 	</li>
 	{% endfor %}
 </ul>
@@ -43,7 +41,7 @@
 			{% endif %}
 
 			{% if snapshot %}
-				<span class="label label-info pull-right">Snapshot</span>
+				<span class="label label-warning">Snapshot</span>
 			{% endif %}
 
 			<!-- XXX add this back <a href="/feed/group-changes/{{ group.acronym }}/">Atom feed</a>-->
@@ -165,24 +163,24 @@
 <h2>Charter {{ doc.canonical_name }}-{{ doc.rev }}</h2>
 
 {% if not snapshot and user|has_role:"Area Director,Secretariat" and chartering and group.state_id != "conclude" %}
-	<p><a class="btn btn-primary" href="{% url "charter_submit" name=doc.name %}">Change charter text</a></p>
+	<p><a class="btn btn-default" href="{% url "charter_submit" name=doc.name %}">Change charter text</a></p>
 {% endif %}
 
 {% if doc.rev != "" %}
-		{{ content|safe|keep_spacing|sanitize_html|wordwrap:80|safe }}
+	{{ content|safe|keep_spacing|sanitize_html|wordwrap:80|safe }}
 {% endif %}
 
 {% if not snapshot and chartering %}
 	<h2>Proposed milestones</h2>
 	{% if user|has_role:"Area Director,Secretariat" %}
 		<p><a class="btn btn-primary" href="{% url "wg_edit_charter_milestones" acronym=doc.group.acronym %}">Edit milestones</a></p>
-{% endif %}
+	{% endif %}
 
-{% if milestones %}
-	{% include "wginfo/milestones.html" %}
-{% else %}
-	<p>No milestones for charter found.</p>
-{% endif %}
+	{% if milestones %}
+		{% include "wginfo/milestones.html" %}
+	{% else %}
+		<p>No milestones for charter found.</p>
+	{% endif %}
 {% endif %}
 
 {% endblock %}

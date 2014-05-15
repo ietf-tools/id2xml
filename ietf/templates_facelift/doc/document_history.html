@@ -81,7 +81,7 @@
 
 <h2>Document history</h2>
 {% if user|has_role:"Area Director,Secretariat,IANA,RFC Editor" %}
-	<p><a class="btn btn-primary" href="{% url "doc_add_comment" name=doc.name %}">Add comment</a></p>
+	<p><a class="btn btn-default" href="{% url "doc_add_comment" name=doc.name %}">Add comment</a></p>
 {% endif %}
 
 <table class="table table-condensed table-striped ietf">

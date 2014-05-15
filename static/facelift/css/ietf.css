@@ -31,8 +31,10 @@ form label { padding-right: .5em; font-weight: bold;}
 /* Make the panel title font normally large */
 .panel-title { font-size: 14px }
 
-/* A new type of Bootstrap label */
-.label-blank { color: #000; background-color: #fff; border: 1px solid #000;}
+/* A new type of Bootstrap label and panel*/
+.label-blank { color: #333; background-color: #eee; border: 1px solid #333; }
+.panel-blank { color: #333; border: 1px solid #333; }
+.panel-blank > .panel-heading { background-color: #eee; border-bottom: 1px solid #333; }
 
 /* Styles needed for the ballot table */
 .position-discuss,

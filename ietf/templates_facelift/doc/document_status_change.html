@@ -8,12 +8,10 @@
 {{ top|safe }}
 
 <ul class="pagination pagination-sm">
-	<li class="disabled"><span><b>Versions</b></span></li>
+	<li class="disabled"><span><b>Snapshots</b></span></li>
 	{% for rev in revisions %}
 	<li {% if rev == doc.rev %}class="active"{% endif %}>
-		<a href="{% url "doc_view" name=doc.name %}{{ rev }}/" >
-			{{ rev }}
-		</a>
+		<a href="{% url "doc_view" name=doc.name %}{{ rev }}/">{{ rev }}</a>
 	</li>
 	{% endfor %}
 </ul>
@@ -37,7 +35,7 @@
 				</a>
 			{% endif %}
 			{% if snapshot %}
-				<span class="label label-info pull-right">Snapshot</span>
+				<span class="label label-warning">Snapshot</span>
 			{% endif %}
 		</td>
 	</tr>

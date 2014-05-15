@@ -340,7 +340,7 @@
 
 	{% if actions %}
 		{% for label, url in actions %}
-			<a class="btn btn-primary btn-xs" href="{{ url }}">{{ label|capfirst }}</a>
+			<a class="btn btn-default btn-xs" href="{{ url }}">{{ label|capfirst_allcaps }}</a>
 		{% endfor %}
 	{% endif %}
 </p>

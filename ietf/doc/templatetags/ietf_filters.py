@@ -552,6 +552,17 @@ def capfirst_allcaps(text):
                 result = result.replace(token, token.lower())
     return result
 
+@register.filter
+def lower_allcaps(text):
+    from django.template import defaultfilters
+    """Like lower, except it doesn't lowercase words in ALL CAPS."""
+    result = text
+    i = False
+    for token in re.split("(\W+)", striptags(text)):
+        if not re.match("^[A-Z]+$", token):
+            result = result.replace(token, token.lower())
+    return result
+
 # See https://djangosnippets.org/snippets/2072/ and
 # https://stackoverflow.com/questions/9939248/how-to-prevent-django-basic-inlines-from-autoescaping
 @register.filter

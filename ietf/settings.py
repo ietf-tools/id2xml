@@ -155,6 +155,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'ietf.urls'
 
 TEMPLATE_DIRS = (
+    BASE_DIR + "/templates_facelift",
     BASE_DIR + "/templates",
     BASE_DIR + "/secr/templates",
     BASE_DIR+"/../django-dajaxice/dajaxice/templates",

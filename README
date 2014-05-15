@@ -1,23 +1,19 @@
-In order to test the datatracker facelift, you need to add this to
-settings_local.py:
+This is the "facelift" datatracker branch that uses Twitter Bootstrap for
+the UI.
 
-# Override directory for facelifted templates
-import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_DIRS = (
-    BASE_DIR + "/templates_facelift",
-    BASE_DIR + "/templates",
-    BASE_DIR + "/secr/templates",
-)
-MEDIA_ROOT = BASE_DIR + "/../static_facelift/"
-STATIC_ROOT = MEDIA_ROOT # changed with django 1.6
+You need to install django-widget-tweaks and django-crispy-forms, too:
+	https://pypi.python.org/pypi/django-widget-tweaks
+	https://pypi.python.org/pypi/django-crispy-forms
 
-You also need to add 'widget_tweaks' to INSTALLED_APPS in settings.py -
-have not found a way to add this in settings_local.py. And you need to
-install it; see https://pypi.python.org/pypi/django-widget-tweaks
-
-The goal here is: *** NO CHANGES TO THE PYTHON CODE ***
+The meta goal of this effort is: *** NO CHANGES TO THE PYTHON CODE ***
 
 Whenever changes to the python code are made, they can only fix HTML bugs,
 or add comments (tagged with "FACELIFT") about functionality that can be
-removed once the facelift templates become default.
+removed once the facelift templates become default. Or they need to add
+functionality that is only called from the new facelift templates.
+
+Javascript that is only used on one template goes into that template.
+Javascript that is used by more than one template goes into ietf.js.
+
+All CSS goes into ietf.css. No CSS in the templates or - god forbid -
+style tags! (And no CSS or HTML styling in python code!!)

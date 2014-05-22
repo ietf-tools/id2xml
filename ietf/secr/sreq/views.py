@@ -330,11 +330,11 @@ def add_essential_people(group,initial):
     if e:
         people.add(e)
     initial['bethere'] = list(people)
-    
+
 
 @check_permissions
 def edit(request, acronym):
-    return edit_mtg(request, None, acronym)
+    return edit_mtg(request, num=None, acronym=acronym)
 
 def session_save(session):
     session.save()
@@ -507,7 +507,7 @@ def main(request):
     # warn if there are no associated groups
     if not scheduled_groups and not unscheduled_groups:
         messages.warning(request, 'The account %s is not associated with any groups.  If you have multiple Datatracker accounts you may try another or report a problem to ietf-action@ietf.org' % request.user)
-     
+
     # load form select with unscheduled groups
     choices = zip([ g.pk for g in unscheduled_groups ],
                   [ str(g) for g in unscheduled_groups ])

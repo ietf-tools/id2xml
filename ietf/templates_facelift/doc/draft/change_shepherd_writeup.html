@@ -9,7 +9,7 @@ Edit shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}
 {% block content %}
 <h1>Edit shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}</h1>
 
-<form class="tokenized-form" role="form" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

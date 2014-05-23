@@ -93,12 +93,10 @@ def ballot_icon(context, doc):
 
     title = "IESG positions (click to show more%s)" % (", right-click to edit position" if edit_position_url else "")
 
-    res = ['<a href="%s" data-popup="%s" data-edit="%s" title="%s" class="ballot-icon"><table>' % (
-            urlreverse("doc_ballot", kwargs=dict(name=doc.name, ballot_id=ballot.pk)),
+    # FACELIFT: data-edit is not used right now
+    res = ['<a href="%s" data-toggle="modal" data-target="#modal-%d" data-edit="%s" title="%s" class="ballot-icon"><table>' % (
             urlreverse("ietf.doc.views_doc.ballot_popup", kwargs=dict(name=doc.name, ballot_id=ballot.pk)),
-            edit_position_url,
-            title
-            )]
+            ballot.pk, edit_position_url, title)]
 
     res.append("<tr>")
 
@@ -119,6 +117,7 @@ def ballot_icon(context, doc):
         i = i + 1
 
     res.append("</tr></table></a>")
+    res.append('<div id="modal-%d" class="modal fade" tabindex="-1" aria-labelledby="modal-title-%d" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"></div></div></div>' % (ballot.pk, ballot.pk))
 
     return "".join(res)
 

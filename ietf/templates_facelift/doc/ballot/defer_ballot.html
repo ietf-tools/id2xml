@@ -3,7 +3,7 @@
 {% block title %}Defer ballot for {{ doc }}{% endblock %}
 
 {% block content %}
-<h1>Defer ballot for {{ doc }}</h1>
+<h1>Defer ballot<br><small>{{ doc }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}
@@ -14,7 +14,7 @@
 	</p>
 
 	<div class="buttonlist">
-		<button type="submit" class="btn btn-danger" name="submit_response">Defer</button>
+		<input type="submit" class="btn btn-danger" value="Defer ballot">
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
 	</div>
 </form>

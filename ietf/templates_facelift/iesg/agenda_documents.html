@@ -13,13 +13,11 @@
 <h1>Documents on future IESG telechat agendas</h1>
 
 {% if user|has_role:"Secretariat" %}
-	<form role="form" class="form-inline">
+	<form role="form" class="form-inline" method="post">
 	{% csrf_token %}
-	<input title="Save reschedule changes done with the drop-down boxes below" type="submit" value="Save reschedules" class="btn btn-primary"></button>
 {% endif %}
 
 {% for t in telechats %}
-
 	<h2>IESG telechat {{t.date}}</h2>
 	<p>
 		<a class="btn btn-default" role="button" href="/iesg/agenda/">
@@ -64,9 +62,11 @@
 			</table>
 		{% endif %}
 	{% endfor %}
+	<hr>
 {% endfor %}
 
 {% if user|has_role:"Secretariat" %}
+	<input title="Save reschedule changes done with the drop-down boxes below" type="submit" value="Save reschedules" class="btn btn-primary">
 	</form>
 {% endif %}
 

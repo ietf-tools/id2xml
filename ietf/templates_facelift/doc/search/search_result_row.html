@@ -34,8 +34,7 @@
 	{% if user|has_role:"Secretariat" %}
 		<div class="form-group">
 			<label for="{{ doc.reschedule_form.telechat_date.auto_id}} ">Reschedule:</label>
-			{{ doc.reschedule_form.telechat_date|add_class:"form-control" }}
-			</select>
+			{{ doc.reschedule_form.telechat_date|add_class:"form-control input-sm" }}
 		</div>
 		{% if doc.reschedule_form.show_clear %}
 			<div class="checkbox">

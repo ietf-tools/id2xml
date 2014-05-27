@@ -139,109 +139,36 @@ function to_disp(t) {
 }
 
 
-function from_disp(t) {
-	var s = t.split(",");
-	var i, length;
-
-	for (i = 0, length = s.length; i < length; i++) {
-		s[i] = s[i].replace(/.*\((.*)\).*/g, "$1");
-	}
-	return s.join(", ");
-}
-
-
 $(".tokenized-form").submit(function (e) {
-	e.preventDefault();
+ 	$(this).find(".tokenized-field").each(function () {
+ 		var f = $(this);
+ 		var io = f.data("io");
+ 		var format = f.data("format");
+		var t = f.tokenfield("getTokens");
 
-	$(this).find(".tokenized-field").each(function () {
-		var x, length;
-		var f = $(this);
-		var io = f.data("io");
-		var format = f.data("format");
-		var display = f.data("display");
-		var result = f.data("result");
-		var url = f.data("ajax-url");
-		var s = $.grep(f.val().split(","), function (n, i) {
-			return !n.match(/^\s+$/);
-		});
-
-		var empty = true;
-		for (x = 0, length = s.length; x < length; x++) {
-			console.log(x, s[x]);
-
-			// need to use a closure here
-			(function (i) {
-				console.log(i, s[i]);
-				s[i] = from_disp(s[i].trim());
-				if (s[i]) {
-					empty = false;
-					console.log("ajax", i, s[i]);
-					$.ajax({
-						url: url + s[i]
-					}).done(function(data) {
-						console.log("done", i, s[i], data);
-						if (data[0] && s[i] === data[0][display]) {
-							s[i] = data[0][result];
-							console.log("done", i, s[i]);
-						}
-					});
-				}
-			})(x);
-		}
-		console.log(x);
-
-		if (empty) {
-			$(".tokenized-form").unbind('submit').submit();
+		var v = _.pluck(t, "value");
+		if (format === "json") {
+			v = JSON.stringify(v);
+		} else if (format === "csv") {
+			v = v.join(", ");
 		} else {
-			console.log("waiting");
-			$(document).ajaxStop(function() {
-				if (format === "json") {
-					f.val(JSON.stringify(s));
-				} else if (format === "csv") {
-					f.val(s.join(", "));
-				} else {
-					console.log("unknown format");
-					f.val(s.join(" "));
-				}
-
-				if (io) {
-					$(io).val(f.val());
-				}
-				console.log("final: " + f.val());
-				$(".tokenized-form").unbind('submit').submit();
-			});
+			console.log(io, "unknown format");
+			v = v.join(" ");
 		}
-	});
+		f.val(v);
+		if (io) {
+			$(io).val(v);
+		}
+ 	});
 });
 
 
 $(".tokenized-field").each(function () {
-	// which field of the JSON are we supposed to display
-	var display = $(this).data("display");
-	if (!display) {
-		display = "name";
-	}
-	console.log("display: ", display);
-	$(this).data("display", display)
-
-	// which field of the JSON are we supposed to return
-	var result = $(this).data("result");
-	if (!result) {
-		result = "id";
-	}
-	console.log("result: ", result);
-	$(this).data("result", result);
-
-	// what kind of data are we returning (json or csv)
-	var format = $(this).data("format");
-	if (!format) {
-		format = "csv";
-	}
-	console.log("format: " + format);
-	$(this).data("format", format);
+	// autocomplete interferes with the token popup
+	$(this).attr("autocomplete", "off");
 
 	// in which field ID are we expected to place the result
-	// (we also read the prefill information from there
+	// (we also read the prefill information from there)
 	var io = $(this).data("io");
 	var raw = "";
 	if (io) {
@@ -251,25 +178,55 @@ $(".tokenized-field").each(function () {
 		raw = $(this).val();
 	}
 	console.log("io: ", io);
-	console.log("raw: ", raw);
+	console.log(io, "raw", raw);
 	$(this).data("io", io);
 
+	// which field of the JSON are we supposed to display
+	var display = $(this).data("display");
+	if (!display) {
+		display = "name";
+	}
+	console.log(io, "display", display);
+	$(this).data("display", display)
+
+	// which field of the JSON are we supposed to return
+	var result = $(this).data("result");
+	if (!result) {
+		result = "id";
+	}
+	console.log(io, "result", result);
+	$(this).data("result", result);
+
+	// what kind of data are we returning (json or csv)
+	var format = $(this).data("format");
+	if (!format) {
+		format = "csv";
+	}
+	console.log(io, "format", format);
+	$(this).data("format", format);
+
+	// make tokens to prefill the input
 	if (raw) {
 		raw = $.parseJSON(raw);
-		var pre = "";
+		var pre = [];
 		if (!raw[0] || !raw[0][display]) {
 			$.each(raw, function(k, v) {
-				console.log(k, v);
-				pre += to_disp(v) + ", ";
+				var obj = {};
+				obj["value"] = k;
+				obj["label"] = to_disp(v);
+				pre.push(obj);
 			});
 		} else {
 			for (var i in raw) {
-				pre += to_disp(raw[i][display]) + ", ";
+				var obj = {};
+				obj["value"] = raw[i][result];
+				obj["label"] = to_disp(raw[i][display]);
+				pre.push(obj);
 			}
 		}
 		$(this).val(pre);
 	}
-	console.log("pre: ", pre);
+	console.log(io, "pre", pre);
 
 	// check if the ajax-url contains a query parameter, add one if not
 	var url = $(this).data("ajax-url");
@@ -277,7 +234,7 @@ $(".tokenized-field").each(function () {
 		url += "?q=";
 	}
 	$(this).data("ajax-url", url)
-	console.log("ajax-url: ", url);
+	console.log(io, "ajax-url", url);
 
 	var bh = new Bloodhound({
 		datumTokenizer: function (d) {
@@ -291,7 +248,8 @@ $(".tokenized-field").each(function () {
 				return $.map($.grep(data, function (n, i) {
 					return true;
 				}), function (n, i) {
-					n["value"] = to_disp(n[display]);
+					n["label"] = to_disp(n[display]);
+					n["value"] = n[result];
 					return n;
 				});
 			}
@@ -305,9 +263,9 @@ $(".tokenized-field").each(function () {
 			hint: true,
 		}, {
 			source: bh.ttAdapter(),
+			displayKey: "label",
 		}],
-		createTokensOnBlur: true,
 		beautify: true,
 		delimiter: [',', ';']
-	});
+	}).tokenfield("setTokens", pre);
 });

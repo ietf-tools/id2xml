@@ -30,7 +30,7 @@
 			{% endif %}
 		</th>
 		<td>
-			<a href="{{ txt_url }}"><span class="glyphicon glyphicon-file"></span></a>
+			<a href="{{ txt_url }}"><span class="fa fa-file"></span></a>
 			{{ group.name }} {{ group.type.name }}
 			{% if group.type.slug == "wg" %}
 				<a href="{% url "ietf.wginfo.views.group_charter" acronym=group.acronym %}">
@@ -44,7 +44,7 @@
 				<span class="label label-warning">Snapshot</span>
 			{% endif %}
 
-			<!-- XXX add this back <a href="/feed/group-changes/{{ group.acronym }}/">Atom feed</a>-->
+			<a class="pull-right" href="/feed/group-changes/{{ group.acronym }}/"><span class="fa fa-rss"></span> Atom feed</a>
 		</td>
 	</tr>
 
@@ -60,7 +60,7 @@
 			{% endif %}
 			{{ doc.get_state.name }}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 
@@ -83,7 +83,7 @@
 					On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
 				{% endif %}
 				{% if user|has_role:"Area Director,Secretariat" %}
-					<span class="glyphicon glyphicon-pencil"></span>
+					<span class="fa fa-pencil"></span>
 					</a>
 				{% endif %}
 
@@ -102,7 +102,7 @@
 			{% endif %}
 			{{ doc.ad|default:"none" }}
 			{% if request.user|has_role:"Area Director,Secretariat" %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>
@@ -116,7 +116,7 @@
 			{% endif %}
 			{{ doc.notify|default:"none" }}
 			{% if user|has_role:"Area Director,Secretariat" %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>

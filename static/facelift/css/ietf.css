@@ -47,6 +47,9 @@ form label { padding-right: .5em; font-weight: bold;}
 .ballot-icon table td { border: 1px solid #ddd; height: 10px; width: 8px; }
 .ballot-icon table td.my { border: 2px solid #000;}
 
+/* Don't increase the font size of blockquotes like Bootstrap3 likes to do */
+//blockquote { font-size: 16px }
+
 /*
  * We use Bootstrap's warning style for intermediate table headings in the
  * search results. Make those a bit more noticeable.
@@ -70,16 +73,6 @@ table.doc tr th, table.doc tr td { border-top: 0; }
 table.doc hr { margin: 0; }
 
 .buttonlist .btn { margin-bottom: .5em }
-
-/*
- * The bootstrap glyphicons are only pixel perfect at 16px, which is kinda
- * dumb, since the default font size is 14px. Fix this. Eventually, we might
- * want to switch to http://fontawesome.io/, which doesn't have this issue and
- * has more icons.
- */
-span.glyphicon { font-size: 16px; top: 2px; }
-
-/*.caps { font-size: 97% }*/
 
 table.ietf button.show-all { margin: .25em 0 0 .25em; }
 

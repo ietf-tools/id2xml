@@ -6,7 +6,7 @@
 {% block title %}Documents on future IESG telechat agendas{% endblock %}
 
 {% block pagehead %}
-	<link rel="alternate" type="application/atom+xml" href="/feed/iesg-agenda/" />
+	<link rel="alternate" type="application/atom+xml" href="/feed/iesg-agenda/">
 {% endblock %}
 
 {% block content %}
@@ -21,14 +21,17 @@
 	<h2>IESG telechat {{t.date}}</h2>
 	<p>
 		<a class="btn btn-default" role="button" href="/iesg/agenda/">
-			<span class="glyphicon glyphicon-list"></span>
+			<span class="fa fa-list"></span>
 			Full IESG agenda
 		</a>
 
 		<a class="btn btn-default" role="button" href="/iesg/agenda/telechat-{{t.date|date:"Y"}}-{{t.date|date:"m"}}-{{t.date|date:"d"}}-docs.tgz">
-			<span class="glyphicon glyphicon-download"></span>
+			<span class="fa fa-download"></span>
 			Download documents
 		</a>
+
+		<a class="btn btn-default" href="/feed/iesg-agenda/"><span class="fa fa-rss"></span> Atom feed</a>
+
 	</p>
 
 	{% for num, section in t.sections %}
@@ -44,7 +47,7 @@
 					<tr>
 						<th>
 						{% if show_add_to_list and user.is_authenticated %}
-							<!--<span class="glyphicon glyphicon-briefcase"></span>-->
+							<!--<span class="fa fa-briefcase"></span>-->
 						{% endif %}
 						</th>
 

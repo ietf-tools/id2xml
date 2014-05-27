@@ -19,6 +19,7 @@
 
 		<link rel="stylesheet" href="/facelift/css/bootstrap.min.css">
 		<link rel="stylesheet" href="/facelift/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="/facelift/css/font-awesome.min.css">
 		<link rel="stylesheet" href="/facelift/css/ietf.css">
 		<style>
 			{% block morecss %}{% endblock %}
@@ -29,7 +30,7 @@
 		<link rel="shortcut icon" href="/facelift/images/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.ico">
 		<link rel="apple-touch-icon-precomposed" href="/facelift/images/ietficon{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.png">
 
-		<link rel="search" href="/facelift/other/ietf-search.xml" type="application/opensearchdescription+xml" title="IETF Datatracker Search" />
+		<link rel="search" href="/facelift/other/ietf-search.xml" type="application/opensearchdescription+xml" title="IETF Datatracker Search">
 	</head>
 
 	{% filter amp|smartypants %}
@@ -63,9 +64,9 @@
 
 					<form class="navbar-form navbar-right hidden-sm hidden-xs" action="/doc/search/" role="search">
 						<div class="form-group">
-							<input class="form-control" type="text" name="name" placeholder="Search documents" />
-							<input type="hidden" name="activedrafts" value="on"/>
-							<input type="hidden" name="rfcs" value="on"/>
+							<input class="form-control" type="text" name="name" placeholder="Search documents">
+							<input type="hidden" name="activedrafts" value="on>
+							<input type="hidden" name="rfcs" value="on">
 						</div>
 					</form>
 				</div>

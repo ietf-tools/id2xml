@@ -17,7 +17,7 @@
 				{% else %}
 					<a href="//www.ietf.org/id/{{doc.name}}-{{doc.rev}}.txt">
 				{% endif %}
-				<span class="glyphicon glyphicon-file"></span></a>
+				<span class="fa fa-file"></span></a>
 			{% endwith %}
 			<a href="{% url "doc_view" name=doc.canonical_name %}">{{ doc.canonical_name }}</a>
 		</dd>

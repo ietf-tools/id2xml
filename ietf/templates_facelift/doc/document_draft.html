@@ -45,7 +45,7 @@
 					{% endif %}
 					Replaces
 					{% if can_edit_stream_info %}
-						<span class="glyphicon glyphicon-pencil"></span>
+						<span class="fa fa-pencil"></span>
 						</a>
 					{% endif %}
 					{{ replaces|join:", "|urlize_ietf_docs|default:"None" }}
@@ -64,7 +64,7 @@
 			{% endif %}
 			{{ doc.stream|default:"No stream defined" }}
 			{% if can_change_stream %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>
@@ -89,7 +89,7 @@
 			{% endif %}
 			{{ doc.intended_std_level|default:"Unknown" }}
 			{% if can_edit or can_edit_stream_info %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>
@@ -128,7 +128,7 @@
 			{% endif %}
 			{{ stream_state|default:"(None)" }}
 			{% if doc.stream and can_edit_stream_info %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 
@@ -164,7 +164,7 @@
 		{% endif %}
 		{{ doc.shepherd|default:"No shepherd assigned" }}
 		{% if can_edit_stream_info %}
-			<span class="glyphicon glyphicon-pencil"></span>
+			<span class="fa fa-pencil"></span>
 			</a>
 		{% endif %}
 	</td>
@@ -183,7 +183,7 @@
 				(None)
 			{% endif %}
 			{% if can_edit_shepherd_writeup %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>
@@ -206,7 +206,7 @@
 		{% endif %}
 		{{ iesg_state_summary|default:"I-D Exists" }}
 		{% if iesg_state and can_edit %}
-			<span class="glyphicon glyphicon-pencil"></span>
+			<span class="fa fa-pencil"></span>
 			</a>
 		{% endif %}
 
@@ -218,7 +218,7 @@
 				{% endif %}
 				{{ iana_review_state }}
 				{% if can_edit_iana_state %}
-					<span class="glyphicon glyphicon-pencil"></span>
+					<span class="fa fa-pencil"></span>
 					</a>
 				{% endif %}
 			</div>
@@ -230,7 +230,7 @@
 				{% endif %}
 				{{ iana_action_state }}
 				{% if can_edit_iana_state %}
-					<span class="glyphicon glyphicon-pencil"></span>
+					<span class="fa fa-pencil"></span>
 					</a>
 				{% endif %}
 			</div>
@@ -258,7 +258,7 @@
 				{% endif %}
 			{% endif %}
 			{% if can_edit %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</div>
@@ -277,7 +277,7 @@
 		{% endif %}
 		{{ doc.ad|default:"(None)" }}
 		{% if can_edit %}
-			<span class="glyphicon glyphicon-pencil"></span>
+			<span class="fa fa-pencil"></span>
 			</a>
 		{% endif %}
 	</td>
@@ -293,7 +293,7 @@
 				{% endif %}
 				{{ doc.note|default:"(None)"|linebreaksbr }}
 				{% if can_edit %}
-					<span class="glyphicon glyphicon-pencil"></span>
+					<span class="fa fa-pencil"></span>
 					</a>
 				{% endif %}
 			</td>
@@ -309,7 +309,7 @@
 		{% endif %}
 		{{ doc.notify|default:"No addresses provided"}}
 		{% if can_edit %}
-			<span class="glyphicon glyphicon-pencil"></span>
+			<span class="fa fa-pencil"></span>
 			</a>
 		{% endif %}
 	</td>

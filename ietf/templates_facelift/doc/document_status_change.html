@@ -31,7 +31,7 @@
 			{% endif %}
 			{{ doc.title }}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 			{% if snapshot %}
@@ -57,7 +57,7 @@
 			{% endif %}
 			{{ doc.get_state.name }}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 
@@ -84,7 +84,7 @@
 				{% if doc.returning_item %}(returning item){% endif %}
 			{% endif %}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 
@@ -102,7 +102,7 @@
 			{% endif %}
 			{{doc.ad}}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>
@@ -116,7 +116,7 @@
 			{% endif %}
 			{{doc.notify}}
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="glyphicon glyphicon-pencil"></span>
+				<span class="fa fa-pencil"></span>
 				</a>
 			{% endif %}
 		</td>

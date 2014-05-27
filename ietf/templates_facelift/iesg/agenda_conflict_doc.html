@@ -8,7 +8,7 @@
 			<dt>Conflict review</dt>
 			<dd>
 				<a href="//www.ietf.org/id/{{doc.name}}-{{doc.rev}}.txt">
-					<span class="glyphicon glyphicon-file"></span>
+					<span class="fa fa-file"></span>
 				</a>
 				<a href="{% url "doc_view" name=doc.canonical_name %}">{{ doc.canonical_name }}</a>
 				<br>
@@ -18,7 +18,7 @@
 			<dt>{{ conflictdoc.stream }} {{ conflictdoc.intended_std_level }}</dt>
 			<dd>
 				<a href="//www.ietf.org/id/{{ conflictdoc.name }}-{{ conflictdoc.rev }}.txt">
-					<span class="glyphicon glyphicon-file"></span>
+					<span class="fa fa-file"></span>
 				</a>
 				<a href="{% url "doc_view" name=conflictdoc.name %}">{{ conflictdoc.name }}</a>
 				<br>

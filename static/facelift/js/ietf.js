@@ -88,7 +88,7 @@ $(function () {
 			dataType: 'json',
 			success: function(response){
 				if (response.success) {
-					trigger.replaceWith('<span class="glyphicon glyphicon-tag text-danger"></span>');
+					trigger.replaceWith('<span class="fa fa-tag text-danger"></span>');
 				}
 			}
 		});
@@ -268,4 +268,14 @@ $(".tokenized-field").each(function () {
 		beautify: true,
 		delimiter: [',', ';']
 	}).tokenfield("setTokens", pre);
+
+	// only allow tokens from the popup to be added to the field, no free text
+	$(this).on('tokenfield:createtoken', function (event) {
+		var existingTokens = $(this).tokenfield('getTokens');
+		$.each(existingTokens, function(index, token) {
+			if (event.attrs.id === undefined) {
+				event.preventDefault();
+			}
+    	});
+    });
 });

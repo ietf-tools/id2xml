@@ -33,7 +33,7 @@ class WGForm(forms.Form):
     chairs = EmailsField(label="Chairs", required=False)
     secretaries = EmailsField(label="Secretaries", required=False)
     techadv = EmailsField(label="Technical Advisors", required=False)
-    delegates = EmailsField(label="Delegates", required=False, help_text=mark_safe("Type in name to search for person. Chairs can delegate the authority to update the state of group documents - max %s persons at a given time." % MAX_GROUP_DELEGATES))
+    delegates = EmailsField(label="Delegates", required=False, help_text=mark_safe("Type in name to search for person. Chairs can delegate the authority to update the state of group documents - at most %s persons at a given time." % MAX_GROUP_DELEGATES))
     ad = forms.ModelChoiceField(Person.objects.filter(role__name="ad", role__group__state="active").order_by('name'), label="Shepherding AD", empty_label="(None)", required=False)
     parent = forms.ModelChoiceField(Group.objects.filter(type="area", state="active").order_by('name'), label="IETF Area", empty_label="(None)", required=False)
     list_email = forms.CharField(max_length=64, required=False)

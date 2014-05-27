@@ -17,9 +17,9 @@
 {% block content %}
 {{ top|safe }}
 
-<table class="table table-condensed doc">
+<table class="table table-condensed table-striped doc">
 	<tr>
-		<th>Document type</th>
+		<th class="nowrap">Document type</th>
 		<td>
 			{% if doc.get_state_slug == "rfc" %}
 				RFC - {{ doc.std_level }}
@@ -37,27 +37,36 @@
 				{{ doc.get_state }} Internet-Draft {% if submission %}({{ submission|safe }}){% endif %}
 				{% if resurrected_by %}- resurrect requested by {{ resurrected_by }}{% endif %}
 			{% endif %}
-
-			{% if replaces or can_edit_stream_info %}
-				<div>
-					{% if can_edit_stream_info %}
-						<a href="{% url "doc_change_replaces" name=doc.name %}">
-					{% endif %}
-					Replaces
-					{% if can_edit_stream_info %}
-						<span class="fa fa-pencil"></span>
-						</a>
-					{% endif %}
-					{{ replaces|join:", "|urlize_ietf_docs|default:"None" }}
-				</div>
-			{% endif %}
-
-			{% if replaced_by %}<div>Replaced by: {{ replaced_by|join:", "|urlize_ietf_docs }}</div>{% endif %}
 		</td>
 	</tr>
 
+	{% if replaces or can_edit_stream_info %}
+		<tr>
+			<th class="nowrap">Replaces</th>
+			<td>
+				{{ replaces|join:", "|urlize_ietf_docs|default:"None" }}
+				{% if can_edit_stream_info %}
+					<a href="{% url "doc_change_replaces" name=doc.name %}">
+				{% endif %}
+				{% if can_edit_stream_info %}
+					<span class="fa fa-pencil"></span>
+					</a>
+				{% endif %}
+			</td>
+		</tr>
+	{% endif %}
+
+	{% if replaced_by %}
+		<tr>
+			<th class="nowrap">Replaced by</th>
+			<td>
+				{{ replaced_by|join:", "|urlize_ietf_docs }}
+			</td>
+		</tr>
+	{% endif %}
+
 	<tr>
-		<th>Document stream</th>
+		<th class="nowrap">Document stream</th>
 		<td>
 			{% if can_change_stream %}
 				<a href="{% url "doc_change_stream" name=doc.name %}">
@@ -71,7 +80,7 @@
 	</tr>
 
 	<tr>
-		<th>Last updated</th>
+		<th class="nowrap">Last updated</th>
 		<td>
 			{{ doc.time|date:"Y-m-d" }}
 			{% if latest_revision and latest_revision.time.date != doc.time.date %}
@@ -82,7 +91,7 @@
 
 {% if doc.get_state_slug != "rfc" %}
 	<tr>
-		<th>Intended RFC status</th>
+		<th class="nowrap">Intended RFC status</th>
 		<td>
 			{% if can_edit or can_edit_stream_info %}
 				<a href="{% url "doc_change_intended_status" name=doc.name %}">
@@ -97,12 +106,14 @@
 {% endif %}
 
 	<tr>
-		<th>Other versions</th>
+		<th class="nowrap">Other versions</th>
 		<td>
 			{% if doc.get_state_slug != "active" and doc.get_state_slug != "rfc" %}(expired, archived):{% endif %}
 			{% if file_urls %}
 				{% for label, url in file_urls %}
-					<a href="{{ url }}">{{ label}}</a>{% if not forloop.last%}, {% endif %}
+					<a class="btn btn-default btn-xs" href="{{ url }}">
+						<span class="fa fa-file-{% if label == "pdf" %}pdf-{% elif label == "xml" or label == "html" %}code-{% elif label == "plain text" %}text-{% endif %}o"></span>
+					{{ label }}</a>
 				{% endfor %}
 			{% else %}
 				(not online)
@@ -112,16 +123,14 @@
 
 {% if conflict_reviews %}
 	<tr>
-		<th>IETF conflict review</th>
+		<th class="nowrap">IETF conflict review</th>
 		<td>{{ conflict_reviews|join:", "|urlize_ietf_docs }}</td>
 	</tr>
 {% endif %}
 
-<tr><td colspan="2"><hr></td></tr>
-
 <tr>
 	{% if doc.stream %}
-		<th>{{ doc.stream }} state</th>
+		<th class="nowrap">{{ doc.stream }} state</th>
 		<td class="stream-state">
 			{% if doc.stream and can_edit_stream_info %}
 				<a href="{% url "doc_change_stream_state" name=doc.name state_type=stream_state_type_slug %}">
@@ -141,13 +150,13 @@
 			{% endif %}
 		</td>
 	{% else %}
-		<th>Stream state</th><td>(No stream defined)</td>
+		<th class="nowrap">Stream state</th><td>(No stream defined)</td>
 	{% endif %}
 </tr>
 
 {% if consensus %}
 	<tr>
-		<th>Consensus</th>
+		<th class="nowrap">Consensus</th>
 		<td>
 			<a title="Whether the document is the result of a community consensus process as defined in RFC 5741" {% if can_edit or can_edit_stream_info %}class="editlink" href="{% url "doc_edit_consensus" name=doc.name %}"{% endif %}>
 			{{ consensus }}
@@ -157,7 +166,7 @@
 {% endif %}
 
 <tr>
-	<th>Document shepherd</th>
+	<th class="nowrap">Document shepherd</th>
 	<td>
 		{% if can_edit_stream_info %}
 			<a href="{% url "doc_edit_shepherd" name=doc.name %}">
@@ -172,7 +181,7 @@
 
 {% if shepherd_writeup or can_edit_shepherd_writeup %}
 	<tr>
-		<th>Shepherd write-up</th>
+		<th class="nowrap">Shepherd write-up</th>
 		<td>
 			{% if can_edit_shepherd_writeup %}
 				<a href="{% url "doc_shepherd_writeup" name=doc.name %}">
@@ -190,8 +199,6 @@
 	</tr>
 {% endif %}
 
-<tr><td colspan="2"><hr></td></tr>
-
 {% if published and started_iesg_process and published.time < started_iesg_process.time %}
 	<tr>
 		<td colspan="2" class="warning">This information refers to IESG processing after the RFC was initially published:</td>
@@ -199,7 +206,7 @@
 {% endif %}
 
 <tr>
-	<th><a href="{% url "state_help" "draft-iesg" %}">IESG state</a></th>
+	<th class="nowrap"><a href="{% url "state_help" "draft-iesg" %}">IESG state</a></th>
 	<td>
 		{% if iesg_state and can_edit %}
 			<a href="{% url "doc_change_state" name=doc.name %}">
@@ -270,7 +277,7 @@
 </tr>
 
 <tr>
-	<th>Responsible AD</th>
+	<th class="nowrap">Responsible AD</th>
 	<td>
 		{% if can_edit %}
 			<a href="{% url "doc_change_ad" name=doc.name %}">
@@ -286,7 +293,7 @@
 {% if iesg_state %}
 	{% if doc.note or can_edit %}
 		<tr>
-			<th>IESG note</th>
+			<th class="nowrap">IESG note</th>
 			<td>
 				{% if can_edit %}
 					<a href="{% url "doc_change_iesg_note" name=doc.name %}">
@@ -302,7 +309,7 @@
 {% endif %}
 
 <tr>
-	<th>Send notices to</th>
+	<th class="nowrap">Send notices to</th>
 	<td>
 		{% if can_edit %}
 			<a href="{% url "doc_change_notify" name=doc.name %}">
@@ -323,7 +330,7 @@
 	<a class="btn btn-default btn-xs" href="{% url "doc_references" doc.canonical_name %}" rel="nofollow">References</a>
 	<a class="btn btn-default btn-xs" href="{% url "doc_referenced_by" doc.canonical_name %}" rel="nofollow">Referenced by</a>
 	<a class="btn btn-default btn-xs" href="//www.ietf.org/tools/idnits?url=https://www.ietf.org/archive/id/{{ doc.filename_with_rev }}" rel="nofollow" target="_blank">Nits</a>
-	<a class="btn btn-default btn-xs" href="/feed/document-changes/{{ name }}/">History</a>
+	<a class="btn btn-default btn-xs" href="/feed/document-changes/{{ name }}/"><span class="fa fa-rss"></span> History</a>
 	<a class="btn btn-default btn-xs" href="//www.google.com/search?as_q={{ doc.name }}&amp;as_sitesearch={{ search_archive }}" rel="nofollow" target="_blank">Search lists</a>
 	{% if user|has_role:"Area Director" %}
 		<a class="btn btn-default btn-xs" href="//www.iesg.org/bin/c5i?mid=6&amp;rid=77&amp;target={{ doc.name }}" rel="nofollow" target="_blank">Search lists (ARO)</a>

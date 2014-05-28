@@ -16,9 +16,9 @@
 	{% endfor %}
 </ul>
 
-<table class="table table-condensed ietf">
+<table class="table table-condensed table-striped">
 	<tr>
-		<th>
+		<th class="nowrap">
 			{% if doc.get_state_slug not in approved_states %}
 				Proposed conflict review
 			{% else %}
@@ -38,32 +38,21 @@
 	</tr>
 
 	<tr>
-		<th><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
+		<th class="nowrap"><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<a title="{{ doc.get_state.desc }}" class="editlink" href="{% url "conflict_review_change_state" name=doc.name %}">
+				<a title="{{ doc.get_state.desc }}" class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_change_state" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{ doc.get_state.name }}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				</a>
-			{% endif %}
-
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				{% if request.user|has_role:"Secretariat" %}
-					{% if doc.get_state_slug = 'appr-reqnopub-pend' or doc.get_state_slug = 'appr-noprob-pend' %}
-						<a href="{% url "conflict_review_approve" name=doc.name %}">Approve conflict review</a>
-					{% endif %}
-				{% endif %}
-			{% endif %}
 		</td>
 	</tr>
 
 	{% if not snapshot %}
 		<tr>
-			<th>Telechat date</th>
+			<th class="nowrap">Telechat date</th>
 			<td>
 				{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-					<a class="editlink" href="{% url "conflict_review_telechat_date" name=doc.name %}">
+					<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_telechat_date" name=doc.name %}">Edit</a>
 				{% endif %}
 
 				{% if not telechat %}
@@ -73,58 +62,54 @@
 					{% if doc.returning_item %} (returning item){% endif %}
 				{% endif %}
 
-				{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-					</a>
-				{% endif %}
-
 				{% if ballot_summary %}
-					<div class="ballot-summary">{{ ballot_summary }}</div>
+					<br><i>{{ ballot_summary }}</i>
 				{% endif %}
 			</td>
 		</tr>
 	{% endif %}
 
 	<tr>
-		<th>Shepherding AD</th>
+		<th class="nowrap">Shepherding AD</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a class="editlink" href="{% url "conflict_review_ad" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_ad" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{doc.ad}}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
 	<tr>
-		<th>Send notices to</th>
+		<th class="nowrap">Send notices to</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a class="editlink" href="{% url "conflict_review_notices" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_notices" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{doc.notify}}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
 	<tr>
-		<th>Last updated</th>
+		<th class="nowrap">Last updated</th>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>
 
-</div>
-
 <h2>Conflict review for {{ conflictdoc.name }}-{{ conflictdoc.rev }}</h2>
 {% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug != 'apprsent' %}
-	<p><a class="btn btn-default" href="{% url "conflict_review_submit" name=doc.name %}">Change conflict review text</a></p>
+	<a class="btn btn-default" href="{% url "conflict_review_submit" name=doc.name %}">Change conflict review text</a>
+{% endif %}
+
+{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
+	{% if request.user|has_role:"Secretariat" %}
+		{% if doc.get_state_slug = 'appr-reqnopub-pend' or doc.get_state_slug = 'appr-noprob-pend' %}
+			<a class="btn btn-warning" href="{% url "conflict_review_approve" name=doc.name %}">Approve conflict review</a>
+		{% endif %}
+	{% endif %}
 {% endif %}
 
 {% if doc.rev %}
-{{ content|fill:"80"|safe|linebreaksbr|keep_spacing|sanitize_html|safe }}
+<p>{{ content|fill:"80"|safe|linebreaksbr|keep_spacing|sanitize_html|safe }}</p>
 {% endif %}
 
 {% endblock %}

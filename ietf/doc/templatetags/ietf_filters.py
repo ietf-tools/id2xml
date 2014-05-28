@@ -473,7 +473,7 @@ def format_history_text_facelift(text):
     full = mark_safe(keep_spacing(linebreaksbr(urlize_html(sanitize_html(full)))))
     snippet = truncatewords_html(full, 25)
     if snippet != full:
-        return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-default show-all pull-right"><span class="caret"></span></button></div><div class="hidden full">%s</div>' % (snippet, full))
+        return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-default show-all pull-right"><span class="fa fa-caret-down"></span></button></div><div class="hidden full">%s</div>' % (snippet, full))
     return full
 
 @register.filter

@@ -20,9 +20,9 @@
 	{% endfor %}
 </ul>
 
-<table class="table table-condensed ietf">
+<table class="table table-condensed table-striped">
 	<tr>
-		<th>
+		<th class="nowrap">
 			{% if doc.get_state_slug != "approved" %}
 				Proposed charter
 			{% else %}
@@ -30,7 +30,6 @@
 			{% endif %}
 		</th>
 		<td>
-			<a href="{{ txt_url }}"><span class="fa fa-file"></span></a>
 			{{ group.name }} {{ group.type.name }}
 			{% if group.type.slug == "wg" %}
 				<a href="{% url "ietf.wginfo.views.group_charter" acronym=group.acronym %}">
@@ -49,20 +48,16 @@
 	</tr>
 
 	<tr>
-		<th>WG state</th>
+		<th class="nowrap">WG state</th>
 		<td>{{ group.state.name }}</td>
 	</tr>
 	<tr>
-		<th><a href="/doc/help/state/charter/">Charter state</a></th>
+		<th class="nowrap"><a href="/doc/help/state/charter/">Charter state</a></th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<a title="{{ doc.get_state.desc }}" href="{% url "charter_change_state" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" title="{{ doc.get_state.desc }}" href="{% url "charter_change_state" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{ doc.get_state.name }}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 
 			</a>
 			{% if chartering == "initial" %}
@@ -71,59 +66,49 @@
 			{% if chartering == "rechartering" %}
 				<span class="label label-info">Rechartering</span>
 			{% endif %}
-
-			{% if not snapshot and chartering %}
-				{% if user|has_role:"Area Director,Secretariat" %}
-					<a href="{% url "charter_telechat_date" name=doc.name %}">
-				{% endif %}
-				<br>
-				{% if not telechat %}
-					Not on agenda of IESG telechat
-				{% else %}
-					On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
-				{% endif %}
-				{% if user|has_role:"Area Director,Secretariat" %}
-					<span class="fa fa-pencil"></span>
-					</a>
-				{% endif %}
-
-				{% if ballot_summary %}
-					<div class="text-muted">{{ ballot_summary }}</div>
-				{% endif %}
-			{% endif %}
 		</td>
 	</tr>
 
+{% if not snapshot and chartering %}
 	<tr>
-		<th>Responsible AD</th>
+		<th class="nowrap">Telechat date</th>
+		<td>
+			{% if user|has_role:"Area Director,Secretariat" %}
+				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_telechat_date" name=doc.name %}">Edit</a>
+			{% endif %}
+			{% if not telechat %}
+				Not on agenda of IESG telechat
+			{% else %}
+				On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
+			{% endif %}
+
+			{% if ballot_summary %}
+				<br><i>{{ ballot_summary }}</i>
+			{% endif %}
+{% endif %}
+
+	<tr>
+		<th class="nowrap">Responsible AD</th>
 		<td>
 			{% if request.user|has_role:"Area Director,Secretariat" %}
-				<a href="{% url "charter_edit_ad" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_ad" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{ doc.ad|default:"none" }}
-			{% if request.user|has_role:"Area Director,Secretariat" %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
 	<tr>
-		<th>Send notices to</th>
+		<th class="nowrap">Send notices to</th>
 		<td>
 			{% if user|has_role:"Area Director,Secretariat" %}
-				<a href="{% url "charter_edit_notify" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_notify" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{ doc.notify|default:"none" }}
-			{% if user|has_role:"Area Director,Secretariat" %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
 	<tr>
-		<th>Last updated</th>
+		<th class="nowrap">Last updated</th>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>
@@ -133,13 +118,13 @@
 		{% if chartering	%}
 			{% url "charter_startstop_process" name=doc.name option='abandon' as abandon_url %}
 			{% if abandon_url %}
-				<a class="btn btn-default" href="{{ abandon_url }}">Abandon chartering</a>
+				<a class="btn btn-danger" href="{{ abandon_url }}">Abandon chartering</a>
 			{% endif %}
 
 		{% if request.user|has_role:"Secretariat" %}
 			{% url "charter_approve" name=doc.name as approve_url %}
 			{% if approve_url %}
-				<a class="btn btn-default" href="{{ approve_url }}">Approve charter</a>
+				<a class="btn btn-warning" href="{{ approve_url }}">Approve charter</a>
 			{% endif %}
 		{% endif %}
 

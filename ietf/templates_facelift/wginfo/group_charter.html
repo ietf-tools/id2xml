@@ -9,7 +9,7 @@
 	is occasionally incorrect.</span>
 {% endif %}
 
-<table class="table table-condensed ietf group">
+<table class="table table-condensed">
 	<tr><th rowspan="6">{{ group.type.name }}</th></tr>
 
 	<tr>
@@ -60,7 +60,7 @@
 		<th>Chair{{ group.chairs|pluralize }}</th>
 		<td>
 			{% for chair in group.chairs %}
-				<a href="mailto:{{ chair.email.address }}">{{ chair.person.plain_name }}</a><br>
+				<a href="mailto:{{ chair.email.address }}"><span class="fa fa-envelope-o"></span> {{ chair.person.plain_name }}</a><br>
 			{% endfor %}
 		</td>
 	</tr>
@@ -69,7 +69,7 @@
 		<th>Area Director</th>
 		<td>
 			{% if group.areadirector %}
-				<a href="mailto:{{ group.areadirector.address }}">{{ group.areadirector.person.plain_name }}</a>
+				<a href="mailto:{{ group.areadirector.address }}"><span class="fa fa-envelope-o"></span> {{ group.areadirector.person.plain_name }}</a>
 			{% else %}?{% endif %}
 		</td>
 	</tr>
@@ -79,7 +79,7 @@
 		<th>Technical Advisor{{ group.techadvisors|pluralize }}</th>
 		<td>
 			{% for techadvisor in group.techadvisors %}
-				<a href="mailto:{{ techadvisor.email.address }}">{{ techadvisor.person.plain_name }}</a><br>
+				<a href="mailto:{{ techadvisor.email.address }}"><span class="fa fa-envelope-o"></span> {{ techadvisor.person.plain_name }}</a><br>
 			{% endfor %}
 		</td>
 	{% endif %}
@@ -90,7 +90,7 @@
 		<th>Editor{{ group.editors|pluralize }}</th>
 		<td>
 			{% for editor in group.editors %}
-				<a href="mailto:{{ editor.email.address }}">{{ editor.person.plain_name }}</a><br>
+				<a href="mailto:{{ editor.email.address }}"><span class="fa fa-envelope-o"></span> {{ editor.person.plain_name }}</a><br>
 			{% endfor %}
 		</td>
 	{% endif %}
@@ -101,7 +101,7 @@
 		<th>Secretar{{ group.secretaries|pluralize:"y,ies" }}</th>
 		<td>
 			{% for secretary in group.secretaries %}
-				<a href="mailto:{{ secretary.email.address }}">{{ secretary.person.plain_name }}</a><br>
+				<a href="mailto:{{ secretary.email.address }}"><span class="fa fa-envelope-o"></span> {{ secretary.person.plain_name }}</a><br>
 			{% endfor %}
 		</td>
 	{% endif %}
@@ -112,7 +112,7 @@
 		<th>Delegate{{ group.delegates|pluralize }}</th>
 		<td>
 			{% for delegate in group.delegates %}
-				<a href="mailto:{{ delegate.email.address }}">{{ delegate.person.plain_name }}</a><br>
+				<a href="mailto:{{ delegate.email.address }}"><span class="fa fa-envelope-o"></span> {{ delegate.person.plain_name }}</a><br>
 			{% endfor %}
 		</td>
 	{% endif %}

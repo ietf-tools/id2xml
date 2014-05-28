@@ -47,7 +47,7 @@
 				{% if can_edit_stream_info %}
 					<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_replaces" name=doc.name %}">Edit</a>
 				{% endif %}
-				{{ replaces|join:", "|urlize_ietf_docs|default:"None" }}
+				{{ replaces|join:", "|urlize_ietf_docs|default:"(None)" }}
 			</td>
 		</tr>
 	{% endif %}
@@ -67,7 +67,7 @@
 			{% if can_change_stream %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_stream" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ doc.stream|default:"No stream defined" }}
+			{{ doc.stream|default:"(None)" }}
 		</td>
 	</tr>
 
@@ -88,7 +88,7 @@
 			{% if can_edit or can_edit_stream_info %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_intended_status" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ doc.intended_std_level|default:"Unknown" }}
+			{{ doc.intended_std_level|default:"(None)" }}
 		</td>
 	</tr>
 {% endif %}
@@ -157,7 +157,7 @@
 		{% if can_edit_stream_info %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_edit_shepherd" name=doc.name %}">Edit</a>
 		{% endif %}
-		{{ doc.shepherd|default:"No shepherd assigned" }}
+		{{ doc.shepherd|default:"(None)" }}
 	</td>
 </tr>
 
@@ -235,7 +235,7 @@
 			{% endif %}
 		{% else %}
 			{% if can_edit %}
-				Not on an upcoming telechat agenda
+				(None)
 			{% endif %}
 		{% endif %}
 
@@ -275,7 +275,7 @@
 		{% if can_edit %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_notify" name=doc.name %}">Edit</a>
 		{% endif %}
-		{{ doc.notify|default:"No addresses provided"}}
+		{{ doc.notify|default:"(None)"}}
 	</td>
 </tr>
 </table>

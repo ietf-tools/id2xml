@@ -12,7 +12,7 @@
 	</div>
 {% endif %}
 
-<table class="table table-condensed table-striped ietf">
+<table class="table table-condensed table-striped">
 	<thead>
 		<tr>
 			<th>
@@ -42,10 +42,10 @@
 	<tbody>
 	{% for doc_group in grouped_docs %}
 		<tr class="warning">
-			<td></td>
-			<td colspan="{{ meta.headers|length|add:"-1" }}">
+			<th></th>
+			<th colspan="{{ meta.headers|length|add:"-1" }}">
 				{{ doc_group.grouper|plural:doc_group.list }}
-			</td>
+			</th>
 		</tr>
 
 		{% for doc in doc_group.list %}

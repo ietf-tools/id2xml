@@ -56,7 +56,7 @@
 				{% endif %}
 
 				{% if not telechat %}
-					Not on agenda of an IESG telechat
+					(None)
 				{% else %}
 					On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
 					{% if doc.returning_item %} (returning item){% endif %}

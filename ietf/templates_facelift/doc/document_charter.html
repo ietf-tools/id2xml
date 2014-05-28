@@ -77,7 +77,7 @@
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_telechat_date" name=doc.name %}">Edit</a>
 			{% endif %}
 			{% if not telechat %}
-				Not on agenda of IESG telechat
+				(None)
 			{% else %}
 				On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
 			{% endif %}
@@ -93,7 +93,7 @@
 			{% if request.user|has_role:"Area Director,Secretariat" %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_ad" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ doc.ad|default:"none" }}
+			{{ doc.ad|default:"(None)" }}
 		</td>
 	</tr>
 
@@ -103,7 +103,7 @@
 			{% if user|has_role:"Area Director,Secretariat" %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_notify" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ doc.notify|default:"none" }}
+			{{ doc.notify|default:"(None)" }}
 		</td>
 	</tr>
 

@@ -143,9 +143,9 @@
 		<th class="nowrap">Consensus</th>
 		<td>
 			{% if can_edit or can_edit_stream_info %}
-				<a class="btn btn-default btn-xs pull-right" title="Whether the document is the result of a community consensus process as defined in RFC 5741" href="{% url "doc_edit_consensus" name=doc.name %}">Edit</a>
+				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_edit_consensus" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ consensus }}
+			<span title="Whether the document is the result of a community consensus process as defined in RFC 5741">{{ consensus }}</span>
 			</a>
 		</td>
 	</tr>

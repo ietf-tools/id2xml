@@ -9,7 +9,7 @@
 
 <p>The text will be submitted as <b>{{ doc.canonical_name }}-{{ next_rev }}</b>:</p>
 
-<form role="form" method="post">
+<form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 

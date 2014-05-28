@@ -1,19 +1,9 @@
-Check the current facelift'ed functionality for all roles (AD, secretariat, etc.)
-
-Rethink the search results display, esp. status column
-
 Use affix for navigation on active_wgs.html
 
-Edit glyphicon-exclamation-sign, etc. to alerts.
-
 Some of the milestone editing functionality is lacking features compared to before.
-
-Fix text file uploads for various writeups.
 
 Figure out why {% if debug %} does not work in the text templates under ietf/templates_facelift/community/public.
 
 Make django generate HTML5 date inputs or use a js-based datepicker.
 
 Deferring ballots does not work.
-
-tokenized-field validation missing

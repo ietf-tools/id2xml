@@ -13,7 +13,7 @@ Change the document shepherd for {{ doc.name }}-{{ doc.rev }}
 
 {% block content %}
 <h1>Change the document shepherd for {{ doc.name }}-{{ doc.rev }}</h1>
-<form class="tokenized-form" role="form" method="post">
+<form class="tokenized-form" role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

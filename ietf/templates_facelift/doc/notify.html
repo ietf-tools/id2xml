@@ -7,7 +7,7 @@
 {% block content %}
 <h1>Edit notification addresses for {{titletext}}</h1>
 
-<form role="form" method="post">
+<form role="form" method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

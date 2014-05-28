@@ -9,7 +9,7 @@ Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}
 {% block content %}
 <h1>Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}</h1>
 
-<form role="form" method="post">
+<form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

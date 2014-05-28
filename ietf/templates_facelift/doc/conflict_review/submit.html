@@ -11,7 +11,7 @@ Edit conflict review for {{ conflictdoc.canonical_name }}-{{ conflictdoc.rev }}
 
 <p class="alert alert-info">The text will be submitted as <strong>{{ review.canonical_name }}-{{ next_rev }}</strong></p>
 
-<form role="form" method="post">
+<form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

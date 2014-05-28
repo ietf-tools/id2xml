@@ -9,7 +9,7 @@ Change the responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}
 {% block content %}
 <h1>Change the responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}</h1>
 
-<form role="form" method="post">
+<form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">

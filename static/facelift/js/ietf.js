@@ -130,10 +130,12 @@ $(".snippet .show-all").click(function () {
 
 
 function to_disp(t) {
-	return _.unescape(t).replace(/[<>]/g, function (m) {
+	// typehead/tokenfield don't fully deal with HTML entities
+	return $('<div/>').html(t).text().replace(/[<>"]/g, function (m) {
 		return {
 			'<': '(',
-			'>': ')'
+			'>': ')',
+			'"': ''
 		}[m];
 	});
 }
@@ -146,7 +148,7 @@ $(".tokenized-form").submit(function (e) {
  		var format = f.data("format");
 		var t = f.tokenfield("getTokens");
 
-		var v = _.pluck(t, "value");
+		var v = $.map(t, function(o) { return o["value"]; })
 		if (format === "json") {
 			v = JSON.stringify(v);
 		} else if (format === "csv") {

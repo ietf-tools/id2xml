@@ -91,6 +91,7 @@ MEDIA_URL = '//www.ietf.org/'
 
 STATIC_URL = "/"
 STATIC_ROOT = os.path.abspath(BASE_DIR + "/../static/")
+STATIC_URL = STATIC_ROOT + '/'
 
 WSGI_APPLICATION = "ietf.wsgi.application"
 
@@ -242,7 +243,7 @@ INTERNAL_IPS = (
 )
 
 # no slash at end
-IDTRACKER_BASE_URL = "//datatracker.ietf.org"
+IDTRACKER_BASE_URL = "https://datatracker.ietf.org"
 RFCDIFF_PREFIX = "//www.ietf.org/rfcdiff"
 
 # Valid values:
@@ -445,9 +446,15 @@ BADNESS_MUCHTOOBIG = 500
 SELENIUM_TESTS = False
 SELENIUM_TESTS_ONLY = False
 
+# Set debug apps in DEV_APPS settings_local
+DEV_APPS = ()
+
 # Put the production SECRET_KEY in settings_local.py, and also any other
 # sensitive or site-specific changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *            # pyflakes:ignore
+
+# Add DEV_APPS to INSTALLED_APPS
+INSTALLED_APPS += DEV_APPS
 
 # We provide a secret key only for test and development modes.  It's
 # absolutely vital that django fails to start in production mode unless a

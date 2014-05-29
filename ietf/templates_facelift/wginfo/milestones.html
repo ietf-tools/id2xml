@@ -12,7 +12,7 @@
 			<tr>
 				<td class="nowrap">
 					{% if milestone.resolved %}
-						<span class="label label-success">{{ milestone.resolved }}<span>
+						<span class="label label-success">{{ milestone.resolved }}</span>
 					{% else %}
 						{{ milestone.due|date:"M Y" }}
 					{% endif %}
@@ -25,4 +25,5 @@
 				</td>
 			</tr>
 		{% endfor %}
+	</tbody>
 </table>

@@ -117,7 +117,7 @@ def ballot_icon(context, doc):
         i = i + 1
 
     res.append("</tr></table></a>")
-    res.append('<div id="modal-%d" class="modal fade" tabindex="-1" aria-labelledby="modal-title-%d" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"></div></div></div>' % (ballot.pk, ballot.pk))
+    res.append('<div id="modal-%d" class="modal fade" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"></div></div></div>' % ballot.pk)
 
     return "".join(res)
 

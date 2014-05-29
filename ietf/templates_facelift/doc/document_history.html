@@ -84,7 +84,7 @@
 {% if user|has_role:"Area Director,Secretariat,IANA,RFC Editor" %}
 	<a class="btn btn-default" href="{% url "doc_add_comment" name=doc.name %}"><span class="fa fa-plus"></span> Add comment</a>
 {% endif %}
-	<a class="btn btn-default" href="/feed/document-changes/{{ doc.canonical_name }}/"><span class="fa fa-rss"> Atom feed</a>
+	<a class="btn btn-default" href="/feed/document-changes/{{ doc.canonical_name }}/"><span class="fa fa-rss"></span> Atom feed</a>
 </div>
 
 <table class="table table-condensed table-striped ietf">

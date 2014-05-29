@@ -56,7 +56,7 @@ class WGForm(forms.Form):
         self.confirm_msg = ""
         self.autoenable_confirm = False
         if self.wg:
-            self.fields['acronym'].widget.attrs['readonly'] = True
+            self.fields['acronym'].widget.attrs['readonly'] = ""
 
     def clean_acronym(self):
         self.confirm_msg = ""

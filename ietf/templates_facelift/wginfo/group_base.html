@@ -5,50 +5,43 @@
 {% block title %}{{ group.name }} ({{ group.acronym }}) - {% block group_subtitle %}{% endblock %}{% endblock %}
 
 {% block content %}
-{% comment %}
-<div
-	{% if group.state_id == "dormant" or group.state_id == "conclude" %}class="bg-warning"{% endif %}
-	{% if group.state_id == "proposed" %}class="bg-info"{% endif %}
->
-{% endcomment %}
 
-	<h1>{{ group.name}} ({{ group.acronym }})
-		{% if group.state_id == "dormant" or group.state_id == "conclude" %}
-			<span class="label label-warning">Concluded {{ group.type.name }}</span>
-		{% endif %}
-		{% if group.state_id == "proposed" %}
-			<span class="label label-info">Proposed {{ group.type.name }}</span>
-		{% endif %}
-	</h1>
-
-	<p>
-		<ul class="nav nav-tabs">
-			<li {% if selected == "documents" %}class="active"{% endif %}>
-				<a href="{% url "ietf.wginfo.views.group_documents" acronym=group.acronym %}">Documents</a>
-			</li>
-			<li {% if selected == "charter" %}class="active"{% endif %}>
-				<a href="{% url "ietf.wginfo.views.group_charter" acronym=group.acronym %}">Charter</a>
-			</li>
-			<li {% if selected == "history" %}class="active"{% endif %}>
-				<a href="{% url "ietf.wginfo.views.history" acronym=group.acronym %}">History</a>
-			</li>
-			{% if group.list_archive|startswith:"http:" or group.list_archive|startswith:"https:" or group.list_archive|startswith:"ftp:" %}
-				<li><a href="{{ group.list_archive }}">List archive <span class="fa fa-long-arrow-right"></span></a></li>
-			{% endif %}
-			<li><a href="//tools.ietf.org/wg/{{ group.acronym }}/">Tools page <span class="fa fa-long-arrow-right"></span></a></li>
-		</ul>
-	</p>
-
-	{% if menu_actions %}
-	<div class="buttonlist">
-		{% for name, url in menu_actions %}
-			<a class="btn {% if name == "Request closing group" %}btn-warning{% else %}btn-default{% endif %}" href="{{ url }}">{{ name }}</a>
-		{% endfor %}
-	</div>
+<h1>{{ group.name}} ({{ group.acronym }})
+	{% if group.state_id == "dormant" or group.state_id == "conclude" %}
+		<span class="label label-warning">Concluded {{ group.type.name }}</span>
 	{% endif %}
+	{% if group.state_id == "proposed" %}
+		<span class="label label-info">Proposed {{ group.type.name }}</span>
+	{% endif %}
+</h1>
 
-	{% block group_content %}
-	{% endblock group_content %}
+<ul class="nav nav-tabs">
+	<li {% if selected == "documents" %}class="active"{% endif %}>
+		<a href="{% url "ietf.wginfo.views.group_documents" acronym=group.acronym %}">Documents</a>
+	</li>
+	<li {% if selected == "charter" %}class="active"{% endif %}>
+		<a href="{% url "ietf.wginfo.views.group_charter" acronym=group.acronym %}">Charter</a>
+	</li>
+	<li {% if selected == "history" %}class="active"{% endif %}>
+		<a href="{% url "ietf.wginfo.views.history" acronym=group.acronym %}">History</a>
+	</li>
+	{% if group.list_archive|startswith:"http:" or group.list_archive|startswith:"https:" or group.list_archive|startswith:"ftp:" %}
+		<li><a href="{{ group.list_archive }}">List archive <span class="fa fa-long-arrow-right"></span></a></li>
+	{% endif %}
+	<li><a href="//tools.ietf.org/wg/{{ group.acronym }}/">Tools page <span class="fa fa-long-arrow-right"></span></a></li>
+</ul>
+
+<p></p>
+
+{% if menu_actions %}
+<div class="buttonlist">
+	{% for name, url in menu_actions %}
+		<a class="btn {% if name == "Request closing group" %}btn-warning{% else %}btn-default{% endif %}" href="{{ url }}">{{ name }}</a>
+	{% endfor %}
 </div>
+{% endif %}
+
+{% block group_content %}
+{% endblock group_content %}
 
 {% endblock content %}

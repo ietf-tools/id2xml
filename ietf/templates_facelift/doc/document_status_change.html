@@ -16,7 +16,7 @@
 	{% endfor %}
 </ul>
 
-<table class="table table-condensed ietf">
+<table class="table table-condensed table-striped">
 	<tr>
 		<th>
 			{% if doc.get_state_slug not in approved_states %}
@@ -27,13 +27,9 @@
 		</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a href="{% url "status_change_title" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "status_change_title" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{ doc.title }}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 			{% if snapshot %}
 				<span class="label label-warning">Snapshot</span>
 			{% endif %}
@@ -53,21 +49,9 @@
 
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<a title="{{ doc.get_state.desc }}" href="{% url "status_change_change_state" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "status_change_change_state" name=doc.name %}">Edit</a>
 			{% endif %}
-			{{ doc.get_state.name }}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
-
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
-				{% if request.user|has_role:"Secretariat" %}
-					{% if doc.get_state_slug = 'appr-pend' %}
-						- <a href="{% url "status_change_approve" name=doc.name %}">Approve RFC status changes</a>
-					{% endif %}
-				{% endif %}
-			{% endif %}
+			<span title="{{ doc.get_state.desc }}">{{ doc.get_state.name }}</span>
 		</td>
 	</tr>
 
@@ -75,21 +59,17 @@
 		<th>Telechat date</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a href="{% url "status_change_telechat_date" name=doc.name %}">
-			{%endif%}
+				<a class="btn btn-default btn-xs pull-right" href="{% url "status_change_telechat_date" name=doc.name %}">Edit</a>
+			{% endif %}
 			{% if not telechat %}
 				(None)
 			{% else %}
 				On agenda of {{ telechat.telechat_date|date:"Y-m-d" }} IESG telechat
 				{% if doc.returning_item %}(returning item){% endif %}
 			{% endif %}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 
 			{% if ballot_summary %}
-				<div class="text-muted">{{ ballot_summary }}</div>
+				<br><i>{{ ballot_summary }}</i>
 			{% endif %}
 		</td>
 	</tr>
@@ -98,13 +78,9 @@
 		<th>Shepherding AD</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a href="{% url "status_change_ad" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "status_change_ad" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{doc.ad}}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
@@ -112,13 +88,9 @@
 		<th>Send notices to</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<a href="{% url "status_change_notices" name=doc.name %}">
+				<a class="btn btn-default btn-xs pull-right" href="{% url "status_change_notices" name=doc.name %}">Edit</a>
 			{% endif %}
 			{{doc.notify}}
-			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-				<span class="fa fa-pencil"></span>
-				</a>
-			{% endif %}
 		</td>
 	</tr>
 
@@ -128,14 +100,20 @@
 	</tr>
 </table>
 
-<p>
-	{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
-		<a class="btn btn-default" href="{% url "status_change_relations" name=doc.name %}">Edit affected RFCs</a>
-		<a class="btn btn-default" href="{% url "status_change_last_call"  name=doc.name %}">Edit last call text</a>
+<p class="buttonlist">
+	{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
+		{% if doc.get_state_slug not in approved_states %}
+			<a class="btn btn-default" href="{% url "status_change_relations" name=doc.name %}">Edit affected RFCs</a>
+			<a class="btn btn-default" href="{% url "status_change_last_call"  name=doc.name %}">Edit last call text</a>
+		{% endif %}
+
+		{% if doc.get_state_slug != 'apprsent' %}
+			<a class="btn btn-default" href="{% url "status_change_submit" name=doc.name %}">Edit status change text</a>
+		{% endif %}
 	{% endif %}
 
-	{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug != 'apprsent' %}
-		<a class="btn btn-default" href="{% url "status_change_submit" name=doc.name %}">Edit status change text</a>
+	{% if request.user|has_role:"Secretariat" and doc.get_state_slug = 'appr-pend' %}
+				<a class="btn btn-warning" href="{% url "status_change_approve" name=doc.name %}">Approve RFC status change</a>
 	{% endif %}
 </p>
 

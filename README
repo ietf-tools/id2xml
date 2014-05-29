@@ -17,3 +17,6 @@ Javascript that is used by more than one template goes into ietf.js.
 
 All CSS goes into ietf.css. No CSS in the templates or - god forbid -
 style tags! (And no CSS or HTML styling in python code!!)
+
+Templates that use jquery or bootstrap plugins include the css in the pagehead
+block, and the js in the js block.

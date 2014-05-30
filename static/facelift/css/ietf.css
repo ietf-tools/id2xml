@@ -47,15 +47,6 @@ form label { padding-right: .5em; font-weight: bold;}
 .ballot-icon table td { border: 1px solid #ddd; height: 10px; width: 8px; }
 .ballot-icon table td.my { border: 2px solid #000;}
 
-/* Don't increase the font size of blockquotes like Bootstrap3 likes to do */
-//blockquote { font-size: 16px }
-
-/*
- * We use Bootstrap's warning style for intermediate table headings in the
- * search results. Make those a bit more noticeable.
- */
-.table .warning { font-weight: bold; }
-
 /* Style the search form and results */
 #search_form .search_field:first-child { padding-bottom: .5em; }
 .search-results { padding-top: 2em; }

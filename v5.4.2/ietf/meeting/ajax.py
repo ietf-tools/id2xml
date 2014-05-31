@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from dajaxice.decorators import dajaxice_register
 
 from ietf.ietfauth.utils import role_required, has_role, user_is_person
-from ietf.meeting.helpers import get_meeting, get_schedule, get_schedule_by_id, agenda_permissions
+from ietf.meeting.helpers import get_meeting, get_schedule, get_schedule_by_id, agenda_permissions, get_person_by_email, get_schedule_by_name
 from ietf.meeting.models import TimeSlot, Session, Schedule, Room, Constraint, ScheduledSession, ResourceAssociation
 from ietf.meeting.views   import edit_timeslots, edit_agenda
 from ietf.name.models import TimeSlotTypeName
@@ -21,24 +21,30 @@ def dajaxice_core_js(request):
     from dajaxice.finders import DajaxiceStorage
     return HttpResponse(DajaxiceStorage().dajaxice_core_js(), content_type="application/javascript")
 
-@dajaxice_register
-def readonly(request, meeting_num, schedule_id):
-    meeting = get_meeting(meeting_num)
-    schedule = get_schedule_by_id(meeting, schedule_id)
+# should asking if an agenda is read-only require any kind of permission?
+def agenda_permission_api(request, num, owner, name):
+    meeting  = get_meeting(num)
+    person   = get_person_by_email(owner)
+    schedule = get_schedule_by_name(meeting, person, name)
 
+    save_perm   = False
     secretariat = False
-    write_perm  = False
+    cansee      = False
+    canedit     = False
+    owner_href  = ""
 
-    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
+    if schedule is not None:
+        cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
+        owner_href = request.build_absolute_uri(schedule.owner.json_url())
 
-    # FIXME: the naming here needs improvement, one can have
-    # read_only == True and write_perm == True?
+    if has_role(request.user, "Area Director") or secretariat:
+        save_perm  = True
 
-    return json.dumps(
-        {'secretariat': secretariat,
-         'write_perm':  write_perm,
-         'owner_href':  request.build_absolute_uri(schedule.owner.json_url()),
-         'read_only':   read_only})
+    return HttpResponse(json.dumps({'secretariat': secretariat,
+                                    'save_perm':   save_perm,
+                                    'read_only':   canedit==False,
+                                    'owner_href':  owner_href}),
+                        content_type="application/json")
 
 @dajaxice_register
 def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=False):

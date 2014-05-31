@@ -48,6 +48,7 @@ var schedule_id    = {{ schedule.id }};
 var schedule_owner_href = "{{ schedule.owner_email }}";
 var schedule_name  = "{{ schedule.name }}";
 var meeting_base_url = "{{ meeting_base_url }}";
+var schedule_owner_email = "{{ schedule.owner_email }}";
 var site_base_url = "{{ site_base_url }}";
 var scheduledsession_post_href = "{% url "ietf.meeting.ajax.scheduledsessions_json" meeting.number schedule.name %}";
 var total_days = {{time_slices|length}};

@@ -243,7 +243,7 @@ def edit_agenda(request, num=None, name=None):
     saveasurl=reverse(edit_agenda,
                       args=[meeting.number, schedule.name])
 
-    can_see, can_edit = agenda_permissions(meeting, schedule, user)
+    can_see, can_edit,secretariat = agenda_permissions(meeting, schedule, user)
 
     if not can_see:
         return HttpResponse(render_to_string("meeting/private_agenda.html",

@@ -29,19 +29,7 @@ def readonly(request, meeting_num, schedule_id):
     secretariat = False
     write_perm  = False
 
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
-    read_only = not canedit
-
-    user = request.user
-    if has_role(user, "Secretariat"):
-        secretariat = True
-        write_perm  = True
-
-    if has_role(user, "Area Director"):
-        write_perm  = True
-
-    if user_is_person(user, schedule.owner):
-        read_only = False
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
 
     # FIXME: the naming here needs improvement, one can have
     # read_only == True and write_perm == True?
@@ -60,7 +48,7 @@ def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=Fal
 
     schedule = get_object_or_404(Schedule, pk = int(schedule_id))
     meeting  = schedule.meeting
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
 
     if not canedit:
         return json.dumps({'error':'no permission'})
@@ -325,16 +313,16 @@ def agenda_update(request, meeting, schedule):
     if not user.is_authenticated():
         return HttpResponse({'error':'no permission'}, status=403)
 
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     #read_only = not canedit ## not used
 
     def is_truthy_enough(value):
         return not (value == "0" or value == 0 or value=="false")
 
     # TODO: Secretariat should always get canedit
-    if not (canedit or has_role(user, "Secretariat")):
+    if not (canedit or secretariat):
         return HttpResponse({'error':'no permission'}, status=403)
-    
+
     if "public" in request.POST:
         schedule.public = is_truthy_enough(request.POST["public"])
 
@@ -470,7 +458,7 @@ def sessions_json(request, num):
 #############################################################################
 
 def scheduledsessions_post(request, meeting, schedule):
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     if not canedit:
         return HttpResponse(json.dumps({'error':'no permission to modify this agenda'}),
                             status = 403,
@@ -528,7 +516,7 @@ def scheduledsessions_json(request, num, name):
 
 
 def scheduledsession_update(request, meeting, schedule, scheduledsession_id):
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     if not canedit or True:
         return HttpResponse(json.dumps({'error':'no permission to update this agenda'}),
                             status = 403,
@@ -536,7 +524,7 @@ def scheduledsession_update(request, meeting, schedule, scheduledsession_id):
 
 
 def scheduledsession_delete(request, meeting, schedule, scheduledsession_id):
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     if not canedit:
         return HttpResponse(json.dumps({'error':'no permission to update this agenda'}),
                             status = 403,
@@ -558,7 +546,7 @@ def scheduledsession_delete(request, meeting, schedule, scheduledsession_id):
                         content_type="application/json")
 
 def scheduledsession_get(request, meeting, schedule, scheduledsession_id):
-    cansee,canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
 
     if not cansee:
         return HttpResponse(json.dumps({'error':'no permission to see this agenda'}),

@@ -137,12 +137,14 @@ def agenda_permissions(meeting, schedule, user):
     # do this in positive logic.
     cansee = False
     canedit = False
+    secretariat = False
 
     if schedule.public:
         cansee = True
     elif has_role(user, 'Secretariat'):
         cansee = True
-        # secretariat is not superuser for edit!
+        secretariat = True
+        # NOTE: secretariat is not superuser for edit!
     elif schedule.visible and has_role(user, ['Area Director', 'IAB Chair', 'IRTF Chair']):
         cansee = True
 
@@ -150,7 +152,7 @@ def agenda_permissions(meeting, schedule, user):
         cansee = True
         canedit = True
 
-    return cansee, canedit
+    return cansee, canedit, secretariat
 
 def session_constraint_expire(session):
     from django.core.urlresolvers import reverse

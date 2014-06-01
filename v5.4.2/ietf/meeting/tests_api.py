@@ -35,6 +35,7 @@ class ApiTests(TestCase):
         def do_unschedule(scheduledsession):
             url = urlreverse("ietf.meeting.ajax.scheduledsession_json",
                              kwargs=dict(num=scheduledsession.session.meeting.number,
+                                         owner=scheduledsession.schedule.owner_email(),
                                          name=scheduledsession.schedule.name,
                                          scheduledsession_id=scheduledsession.pk,))
             return self.client.delete(url)
@@ -426,9 +427,9 @@ class ApiTests(TestCase):
             "pinned": True
             }
 
-        # unauthorized post gets redirected to login page (302)
+        # unauthorized post gets failure (no redirect)
         r = self.client.post(url, post_data)
-        self.assertEqual(r.status_code, 302,
+        self.assertEqual(r.status_code, 403,
                          "post to %s should have failed, no permission, got: %u/%s" %
                          (url, r.status_code, r.content))
         self.assertTrue(not ScheduledSession.objects.get(pk=scheduled.pk).pinned)

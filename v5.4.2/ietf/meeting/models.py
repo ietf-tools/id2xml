@@ -674,8 +674,9 @@ class ScheduledSession(models.Model):
             return ""
 
     def json_url(self):
-        return "/meeting/%s/schedule/%s/session/%u.json" % (self.schedule.meeting.number,
-                                                            self.schedule.name, self.id)
+        return "/meeting/%s/agenda/%s/%s/session/%u.json" % (self.schedule.meeting.number,
+                                                             self.schedule.owner_email(),
+                                                             self.schedule.name, self.id)
 
     def json_dict(self, host_scheme):
         ss = dict()

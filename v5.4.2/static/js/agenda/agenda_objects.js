@@ -423,6 +423,7 @@ function load_timeslots(href) {
 // ScheduledSession is DJANGO name for this object, but needs to be renamed.
 // It represents a TimeSlot that can be assigned in this schedule.
 //   { "scheduledsession_id": "{{s.id}}",
+//     "href:        "{{s.href}}",
 //     "timeslot_id":"{{s.timeslot.id}}",
 //     "session_id" :"{{s.session.id}}",
 //     "extendedfrom_id"    :refers to another scheduledsession by ss.id

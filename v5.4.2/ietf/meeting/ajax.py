@@ -49,30 +49,52 @@ def agenda_permission_api(request, num, owner, name):
                                     'owner_href':  owner_href}),
                         content_type="application/json")
 
-@dajaxice_register
-def update_timeslot_pinned(request, schedule_id, scheduledsession_id, pinned=False):
 
-    if not has_role(request.user,('Area Director','Secretariat')):
-        return json.dumps({'error':'no permission'})
+@require_POST
+@role_required('Area Director','Secretariat')
+def update_timeslot_pinned(request, num, owner, name, scheduledsession_id):
+    meeting = get_meeting(num)
+    person   = get_person_by_email(owner)
+    schedule = get_schedule_by_name(meeting, person, name)
+    meeting_pk = 0
+    person_pk  = 0
+    schedule_pk =0
 
-    schedule = get_object_or_404(Schedule, pk = int(schedule_id))
-    meeting  = schedule.meeting
+    if schedule is None or person is None or meeting is None:
+        if meeting:
+            meeting_pk = meeting.pk
+        if person:
+            person_pk = person.pk
+        if schedule:
+            schedule_pk=schedule.pk
+
+        return HttpResponse(json.dumps({'error' : 'invalid meeting=%s/person=%s/schedule=%s' % (num,owner,name),
+                                        'meeting': meeting_pk,
+                                        'person':  person_pk,
+                                        'schedule': schedule_pk}),
+                            content_type="application/json",
+                            status=404);
+
+    scheduledsessions = schedule.scheduledsession_set.filter(pk = scheduledsession_id)
+    if len(scheduledsessions) == 0:
+        return HttpResponse(json.dumps({'error' : 'invalid scheduledsession'}),
+                            content_type="application/json",
+                            status=404);
+    ss = scheduledsessions[0]
+
     cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
 
     if not canedit:
-        return json.dumps({'error':'no permission'})
+        return HttpResponse(json.dumps({'error':'no permission'}),
+                            content_type="application/json",
+                            status=406)
 
-    if scheduledsession_id is not None:
-        ss_id = int(scheduledsession_id)
-
-    if ss_id == 0:
-        return json.dumps({'error':'no permission'})
-
-    ss = get_object_or_404(schedule.scheduledsession_set, pk=ss_id)
-    ss.pinned = pinned
+    ss.pinned = is_truthy_enough(request.POST["pinned"])
     ss.save()
 
-    return json.dumps({'message':'valid'})
+    return HttpResponse(json.dumps({'message':'valid'}),
+                        content_type="application/json")
+
 
 @dajaxice_register
 def update_timeslot_purpose(request,

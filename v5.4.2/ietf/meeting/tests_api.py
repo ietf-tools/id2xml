@@ -420,27 +420,31 @@ class ApiTests(TestCase):
         scheduled = ScheduledSession.objects.filter(
             session__meeting=meeting, session__group__acronym="mars").first()
 
-        url = '/dajaxice/ietf.meeting.update_timeslot_pinned/'
+        url = '/meeting/%s/agenda/%s/%s/session/%u.json' % (meeting.number, meeting.agenda.owner_email(), meeting.agenda.name, scheduled.pk)
 
         post_data = {
-            'argv': json.dumps({
-                "schedule_id": meeting.agenda.pk,
-                "scheduledsession_id": scheduled.pk,
-                "pinned": True,
-            })}
+            "pinned": True
+            }
 
-        # unauthorized post
+        # unauthorized post gets redirected to login page (302)
         r = self.client.post(url, post_data)
-        self.assertEqual(r.status_code, 200)
-        self.assertTrue("error" in json.loads(r.content))
+        self.assertEqual(r.status_code, 302,
+                         "post to %s should have failed, no permission, got: %u/%s" %
+                         (url, r.status_code, r.content))
         self.assertTrue(not ScheduledSession.objects.get(pk=scheduled.pk).pinned)
 
         # set pinned
         meeting.agenda.owner = Person.objects.get(user__username="secretary")
         meeting.agenda.save()
+
+        # need to rebuild URL, since the agenda owner has changed.
+        url = '/meeting/%s/agenda/%s/%s/session/%u.json' % (meeting.number, meeting.agenda.owner_email(), meeting.agenda.name, scheduled.pk)
+
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.post(url, post_data)
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 200,
+                         "post to %s should have worked, but got: %u/%s" %
+                         (url, r.status_code, r.content))
         self.assertTrue(ScheduledSession.objects.get(pk=scheduled.pk).pinned)
 
 class UnusedButExposedApiTests(TestCase):

@@ -15,6 +15,9 @@ from ietf.name.models import TimeSlotTypeName
 
 import debug                            # pyflakes:ignore
 
+def is_truthy_enough(value):
+    return not (value == "0" or value == 0 or value=="false")
+
 def dajaxice_core_js(request):
     # this is a slightly weird hack to get, we seem to need this because
     # we're not using the built-in static files support
@@ -321,9 +324,6 @@ def agenda_update(request, meeting, schedule):
 
     cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     #read_only = not canedit ## not used
-
-    def is_truthy_enough(value):
-        return not (value == "0" or value == 0 or value=="false")
 
     # TODO: Secretariat should always get canedit
     if not (canedit or secretariat):

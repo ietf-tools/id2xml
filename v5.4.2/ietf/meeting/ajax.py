@@ -3,6 +3,7 @@ import datetime
 
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
+from django.http import QueryDict
 from django.views.decorators.http import require_POST
 
 from dajaxice.decorators import dajaxice_register
@@ -496,7 +497,7 @@ def scheduledsessions_json(request, num, name):
                             status = 406,
                             content_type="application/json")
 
-
+# accepts both POST and PUT in order to implement Postel Doctrine.
 def scheduledsession_update(request, meeting, schedule, ss):
     cansee,canedit,secretariat = agenda_permissions(meeting, schedule, request.user)
     if not canedit:
@@ -504,7 +505,13 @@ def scheduledsession_update(request, meeting, schedule, ss):
                             status = 403,
                             content_type="application/json")
 
-    ss.pinned = is_truthy_enough(request.POST["pinned"])
+    if request.method == 'POST':
+        put_vars = request.POST
+        ss.pinned = is_truthy_enough(put_vars["pinned"])
+    else:
+        put_vars = QueryDict(request.body)
+        ss.pinned = is_truthy_enough(put_vars.get("pinned"))
+
     ss.save()
     return HttpResponse(json.dumps({'message':'valid'}),
                         content_type="application/json")

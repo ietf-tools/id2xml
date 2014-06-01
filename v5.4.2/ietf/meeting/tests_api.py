@@ -428,7 +428,7 @@ class ApiTests(TestCase):
             }
 
         # unauthorized post gets failure (no redirect)
-        r = self.client.post(url, post_data)
+        r = self.client.put(url, post_data)
         self.assertEqual(r.status_code, 403,
                          "post to %s should have failed, no permission, got: %u/%s" %
                          (url, r.status_code, r.content))
@@ -442,7 +442,7 @@ class ApiTests(TestCase):
         url = '/meeting/%s/agenda/%s/%s/session/%u.json' % (meeting.number, meeting.agenda.owner_email(), meeting.agenda.name, scheduled.pk)
 
         self.client.login(username="secretary", password="secretary+password")
-        r = self.client.post(url, post_data)
+        r = self.client.put(url, post_data)
         self.assertEqual(r.status_code, 200,
                          "post to %s should have worked, but got: %u/%s" %
                          (url, r.status_code, r.content))

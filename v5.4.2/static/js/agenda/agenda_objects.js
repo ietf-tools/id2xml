@@ -487,6 +487,27 @@ ScheduledSlot.prototype.saveit = function() {
     return saveit;
 };
 
+ScheduledSlot.prototype.set_pinned = function(state, completefunc) {
+    var ss = this;
+    var pinned_struct = { "pinned" : state };
+    var pinned_update = $.ajax(this.href, {
+        "content-type": "text/json",
+        "type": "PUT",
+        "data": pinned_struct,
+    });
+
+    pinned_update.success(function(result, status, jqXHR) {
+        if(result.message != "valid") {
+            alert("Update of pinned failed");
+            return;
+        }
+        ss.pinned = state;
+        completefunc(this);
+    });
+};
+
+
+
 function remove_from_slot_status(domid, ss_id) {
     var found_at;
     if(agenda_globals.__debug_session_move) {

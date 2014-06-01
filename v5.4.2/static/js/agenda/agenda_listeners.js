@@ -735,6 +735,7 @@ function set_pin_session_button(scheduledsession) {
     }
     state = scheduledsession.pinned;
     //console.log("button set to: ",state);
+    $("#pin_slot").attr('disabled',false);
     if(state) {
         $("#pin_slot").html("unPin");
         $("#agenda_pin_slot").addClass("button_down");
@@ -754,25 +755,11 @@ function set_pin_session_button(scheduledsession) {
 
 function update_pin_session(scheduledsession, state) {
     start_spin();
-    console.log("Calling dajaxice", scheduledsession, state);
-    Dajaxice.ietf.meeting.update_timeslot_pinned(function(message) {
-        console.log("dajaxice callback");
+    scheduledsession.set_pinned(state, function(schedulesession) {
         stop_spin();
-        if(message.message != "valid") {
-            alert("Update of pinned failed");
-            return;
-        }
-        scheduledsession.pinned = state;
-        session = scheduledsession.session()
-        session.pinned = state;
         session.repopulate_event(scheduledsession.domid());
         set_pin_session_button(scheduledsession);
-    },
-						 {
-                                                     'schedule_id': schedule_id,
-						     'scheduledsession_id':  scheduledsession.scheduledsession_id,
-                                                     'pinned': state
-						 });
+    });
 }
 
 function enable_button(divid, buttonid, func) {
@@ -897,7 +884,7 @@ function draw_constraints(session) {
                 highlight_conflict(conflict);
             }
         });
-                
+
 
         $.each(group_set, function(index) {
             group = group_set[index];

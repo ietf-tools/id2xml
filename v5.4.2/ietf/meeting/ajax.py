@@ -25,6 +25,33 @@ def dajaxice_core_js(request):
     from dajaxice.finders import DajaxiceStorage
     return HttpResponse(DajaxiceStorage().dajaxice_core_js(), content_type="application/javascript")
 
+# look up a schedule by number, owner and schedule name, returning an API error if it can not be found
+def get_meeting_schedule(num, owner, name):
+    meeting = get_meeting(num)
+    person   = get_person_by_email(owner)
+    schedule = get_schedule_by_name(meeting, person, name)
+
+    if schedule is None or person is None or meeting is None:
+        meeting_pk = 0
+        person_pk  = 0
+        schedule_pk =0
+        # to make diagnostics more meaningful, log what we found
+        if meeting:
+            meeting_pk = meeting.pk
+        if person:
+            person_pk = person.pk
+        if schedule:
+            schedule_pk=schedule.pk
+        return HttpResponse(json.dumps({'error' : 'invalid meeting=%s/person=%s/schedule=%s' % (num,owner,name),
+                                        'meeting': meeting_pk,
+                                        'person':  person_pk,
+                                        'schedule': schedule_pk}),
+                            content_type="application/json",
+                            status=404);
+    return meeting, person, schedule
+
+
+
 # should asking if an agenda is read-only require any kind of permission?
 def agenda_permission_api(request, num, owner, name):
     meeting  = get_meeting(num)
@@ -484,9 +511,8 @@ def scheduledsessions_get(request, num, schedule):
                         content_type="application/json")
 
 # this returns the list of scheduled sessions for the given named agenda
-def scheduledsessions_json(request, num, name):
-    meeting = get_meeting(num)
-    schedule = get_schedule(meeting, name)
+def scheduledsessions_json(request, num, owner, name):
+    meeting, person, schedule = get_meeting_schedule(num, owner, name)
 
     if request.method == 'GET':
         return scheduledsessions_get(request, meeting, schedule)
@@ -552,27 +578,7 @@ def scheduledsession_get(request, meeting, schedule, ss):
 
 # this return a specific session, updates a session or deletes a SPECIFIC scheduled session
 def scheduledsession_json(request, num, owner, name, scheduledsession_id):
-    meeting = get_meeting(num)
-    person   = get_person_by_email(owner)
-    schedule = get_schedule_by_name(meeting, person, name)
-
-    if schedule is None or person is None or meeting is None:
-        meeting_pk = 0
-        person_pk  = 0
-        schedule_pk =0
-        # to make diagnostics more meaningful, log what we found
-        if meeting:
-            meeting_pk = meeting.pk
-        if person:
-            person_pk = person.pk
-        if schedule:
-            schedule_pk=schedule.pk
-        return HttpResponse(json.dumps({'error' : 'invalid meeting=%s/person=%s/schedule=%s' % (num,owner,name),
-                                        'meeting': meeting_pk,
-                                        'person':  person_pk,
-                                        'schedule': schedule_pk}),
-                            content_type="application/json",
-                            status=404);
+    meeting, person, schedule = get_meeting_schedule(num, owner, name)
 
     scheduledsessions = schedule.scheduledsession_set.filter(pk = scheduledsession_id)
     if len(scheduledsessions) == 0:

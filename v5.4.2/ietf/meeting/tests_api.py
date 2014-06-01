@@ -43,6 +43,7 @@ class ApiTests(TestCase):
         def do_schedule(schedule,session,timeslot):
             url = urlreverse("ietf.meeting.ajax.scheduledsessions_json",
                               kwargs=dict(num=session.meeting.number,
+                                          owner=schedule.owner_email(),
                                           name=schedule.name,))
             post_data = '{ "session_id": "%s", "timeslot_id": "%s" }'%(session.pk,timeslot.pk)
             return self.client.post(url,post_data,content_type='application/x-www-form-urlencoded')
@@ -51,6 +52,7 @@ class ApiTests(TestCase):
             session = scheduledsession.session
             url = urlreverse("ietf.meeting.ajax.scheduledsessions_json",
                               kwargs=dict(num=session.meeting.number,
+                                          owner=schedule.owner_email(),
                                           name=schedule.name,))
             post_data = '{ "session_id": "%s", "timeslot_id": "%s", "extendedfrom_id": "%s" }'%(session.pk,scheduledsession.timeslot.slot_to_the_right.pk,scheduledsession.pk)
             return self.client.post(url,post_data,content_type='application/x-www-form-urlencoded')
@@ -207,7 +209,8 @@ class ApiTests(TestCase):
         self.assertEqual(set([x['short_name'] for x in info]),set(['mars','ames']))
 
         schedule = meeting.agenda
-        url = urlreverse("ietf.meeting.ajax.scheduledsessions_json",kwargs=dict(num=meeting.number,name=schedule.name))
+        url = urlreverse("ietf.meeting.ajax.scheduledsessions_json",
+                         kwargs=dict(num=meeting.number,owner=schedule.owner_email(),name=schedule.name))
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         info = json.loads(r.content)

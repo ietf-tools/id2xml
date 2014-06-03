@@ -1,0 +1,22 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}
+{% endblock %}
+
+{% block content %}
+<h1>Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}</h1>
+
+<form role="form" enctype="multipart/form-data" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="save_addresses">Submit</button>
+		<input type="submit" class="btn btn-warning" name="regenerate_addresses" value="Regenerate address list">
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
+</form>
+
+{% endblock %}

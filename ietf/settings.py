@@ -87,10 +87,11 @@ USE_I18N = False
 
 USE_TZ = False
 
-MEDIA_URL = 'http://www.ietf.org/'
+MEDIA_URL = '//www.ietf.org/'
 
 STATIC_URL = "/"
 STATIC_ROOT = os.path.abspath(BASE_DIR + "/../static/")
+STATIC_URL = STATIC_ROOT + '/'
 
 WSGI_APPLICATION = "ietf.wsgi.application"
 
@@ -155,6 +156,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'ietf.urls'
 
 TEMPLATE_DIRS = (
+    BASE_DIR + "/templates_facelift",
     BASE_DIR + "/templates",
     BASE_DIR + "/secr/templates",
     BASE_DIR+"/../django-dajaxice/dajaxice/templates",
@@ -220,7 +222,15 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
+    # FACELIFT: apps for facelift UI
+    'widget_tweaks',
+    'typogrify',
+    'crispy_forms',
 )
+
+# FACELIFT: set crispy form template
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = not DEBUG
 
 INTERNAL_IPS = (
 # AMS servers
@@ -233,7 +243,7 @@ INTERNAL_IPS = (
 )
 
 # no slash at end
-IDTRACKER_BASE_URL = "http://datatracker.ietf.org"
+IDTRACKER_BASE_URL = "https://datatracker.ietf.org"
 RFCDIFF_PREFIX = "//www.ietf.org/rfcdiff"
 
 # Valid values:
@@ -261,11 +271,11 @@ INTERNET_DRAFT_PATH = '/a/www/ietf-ftp/internet-drafts/'
 INTERNET_DRAFT_PDF_PATH = '/a/www/ietf-datatracker/pdf/'
 RFC_PATH = '/a/www/ietf-ftp/rfc/'
 CHARTER_PATH = '/a/www/ietf-ftp/charter/'
-CHARTER_TXT_URL = 'http://www.ietf.org/charter/'
+CHARTER_TXT_URL = '//www.ietf.org/charter/'
 CONFLICT_REVIEW_PATH = '/a/www/ietf-ftp/conflict-reviews'
-CONFLICT_REVIEW_TXT_URL = 'http://www.ietf.org/cr/'
+CONFLICT_REVIEW_TXT_URL = '//www.ietf.org/cr/'
 STATUS_CHANGE_PATH = '/a/www/ietf-ftp/status-changes'
-STATUS_CHANGE_TXT_URL = 'http://www.ietf.org/sc/'
+STATUS_CHANGE_TXT_URL = '//www.ietf.org/sc/'
 AGENDA_PATH = '/a/www/www6s/proceedings/'
 IPR_DOCUMENT_PATH = '/a/www/ietf-ftp/ietf/IPR/'
 IETFWG_DESCRIPTIONS_PATH = '/a/www/www6s/wg-descriptions/'
@@ -280,15 +290,15 @@ INTERNET_DRAFT_ARCHIVE_DIR = '/a/www/www6s/draft-archive'
 DOC_HREFS = {
     "agenda": "/meeting/{meeting}/agenda/{doc.group.acronym}/",
     #"charter": "/doc/{doc.name}-{doc.rev}/",
-    "charter": "http://www.ietf.org/charter/{doc.name}-{doc.rev}.txt",
+    "charter": "//www.ietf.org/charter/{doc.name}-{doc.rev}.txt",
     #"draft": "/doc/{doc.name}-{doc.rev}/",
-    "draft": "http://tools.ietf.org/html/{doc.name}-{doc.rev}",
+    "draft": "//tools.ietf.org/html/{doc.name}-{doc.rev}",
     # I can't figure out the liaison maze. Hopefully someone
     # who understands this better can take care of it.
     #"liai-att": None
     #"liaison": None
-    "minutes": "http://www.ietf.org/proceedings/{meeting}/minutes/{doc.external_url}",
-    "slides": "http://www.ietf.org/proceedings/{meeting}/slides/{doc.external_url}",
+    "minutes": "//www.ietf.org/proceedings/{meeting}/minutes/{doc.external_url}",
+    "slides": "//www.ietf.org/proceedings/{meeting}/slides/{doc.external_url}",
 }
 
 # Override this in settings_local.py if needed
@@ -312,15 +322,15 @@ IANA_APPROVE_EMAIL = "drafts-approval@icann.org"
 
 # Put real password in settings_local.py
 IANA_SYNC_PASSWORD = "secret"
-IANA_SYNC_CHANGES_URL = "https://datatracker.iana.org:4443/data-tracker/changes"
-IANA_SYNC_PROTOCOLS_URL = "http://www.iana.org/protocols/"
+IANA_SYNC_CHANGES_URL = "//datatracker.iana.org:4443/data-tracker/changes"
+IANA_SYNC_PROTOCOLS_URL = "//www.iana.org/protocols/"
 
 RFC_TEXT_RSYNC_SOURCE="ftp.rfc-editor.org::rfcs-text-only"
 
 RFC_EDITOR_SYNC_PASSWORD="secret"
-RFC_EDITOR_SYNC_NOTIFICATION_URL = "http://www.rfc-editor.org/parser/parser.php"
-RFC_EDITOR_QUEUE_URL = "http://www.rfc-editor.org/queue2.xml"
-RFC_EDITOR_INDEX_URL = "http://www.rfc-editor.org/rfc/rfc-index.xml"
+RFC_EDITOR_SYNC_NOTIFICATION_URL = "//www.rfc-editor.org/parser/parser.php"
+RFC_EDITOR_QUEUE_URL = "//www.rfc-editor.org/queue2.xml"
+RFC_EDITOR_INDEX_URL = "//www.rfc-editor.org/rfc/rfc-index.xml"
 
 # Liaison Statement Tool settings
 LIAISON_UNIVERSAL_FROM = 'Liaison Statement Management Tool <lsmt@' + IETF_DOMAIN + '>'
@@ -356,7 +366,7 @@ INTERNET_DRAFT_DAYS_TO_EXPIRE = 185
 
 IDSUBMIT_REPOSITORY_PATH = INTERNET_DRAFT_PATH
 IDSUBMIT_STAGING_PATH = '/a/www/www6s/staging/'
-IDSUBMIT_STAGING_URL = 'http://www.ietf.org/staging/'
+IDSUBMIT_STAGING_URL = '//www.ietf.org/staging/'
 IDSUBMIT_IDNITS_BINARY = '/a/www/ietf-datatracker/scripts/idnits'
 
 IDSUBMIT_MAX_PLAIN_DRAFT_SIZE = 6291456  # Max size of the txt draft in bytes
@@ -399,7 +409,7 @@ SECR_AUTH_UNRESTRICTED_URLS = (
     (r'^/secr/sreq/'),
 )
 SECR_BLUE_SHEET_PATH = '/a/www/ietf-datatracker/documents/blue_sheet.rtf'
-SECR_BLUE_SHEET_URL = 'https://datatracker.ietf.org/documents/blue_sheet.rtf'
+SECR_BLUE_SHEET_URL = '//datatracker.ietf.org/documents/blue_sheet.rtf'
 SECR_INTERIM_LISTING_DIR = '/a/www/www6/meeting/interim'
 SECR_MAX_UPLOAD_SIZE = 40960000
 SECR_PROCEEDINGS_DIR = '/a/www/www6s/proceedings/'
@@ -436,9 +446,15 @@ BADNESS_MUCHTOOBIG = 500
 SELENIUM_TESTS = False
 SELENIUM_TESTS_ONLY = False
 
+# Set debug apps in DEV_APPS settings_local
+DEV_APPS = ()
+
 # Put the production SECRET_KEY in settings_local.py, and also any other
 # sensitive or site-specific changes.  DO NOT commit settings_local.py to svn.
 from settings_local import *            # pyflakes:ignore
+
+# Add DEV_APPS to INSTALLED_APPS
+INSTALLED_APPS += DEV_APPS
 
 # We provide a secret key only for test and development modes.  It's
 # absolutely vital that django fails to start in production mode unless a

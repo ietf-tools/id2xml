@@ -1,0 +1,28 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Set telechat date for {{ doc.name }}
+{% endblock %}
+
+{% block content %}
+<h1>Set telechat date for {{ doc.name }}</h1>
+
+{% if not doc.get_state_slug in okstates %}
+	<div class="alert alert-warning">
+		This charter is currently in the <i>{{ doc.get_state.name }}</i> state.
+		Are you sure you want to put it on a telechat agenda?
+	</div>
+{% endif %}
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+    </div>
+</form>
+
+{% endblock %}

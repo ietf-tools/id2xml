@@ -1,0 +1,25 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Make last call for {{ doc.name }}{% endblock %}
+
+{% block content %}
+<h1>Make last call for {{ doc.name }}</h1>
+
+<p class="alert alert-info">
+	<b>Last call for:</b>
+	{{ doc.name }} ({{ doc.group.acronym }}) to {{ doc.intended_std_level.name }}
+</p>
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Make last call</button>
+		<button type="reset" class="btn btn-warning">Reset</button>
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	</div>
+</form>
+
+{% endblock %}

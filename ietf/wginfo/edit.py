@@ -33,13 +33,13 @@ class WGForm(forms.Form):
     chairs = EmailsField(label="Chairs", required=False)
     secretaries = EmailsField(label="Secretaries", required=False)
     techadv = EmailsField(label="Technical Advisors", required=False)
-    delegates = EmailsField(label="Delegates", required=False, help_text=mark_safe("Type in name to search for person<br>Chairs can delegate the authority to update the state of group documents - max %s persons at a given time" % MAX_GROUP_DELEGATES))
+    delegates = EmailsField(label="Delegates", required=False, help_text=mark_safe("Type in name to search for person. Chairs can delegate the authority to update the state of group documents - at most %s persons at a given time." % MAX_GROUP_DELEGATES))
     ad = forms.ModelChoiceField(Person.objects.filter(role__name="ad", role__group__state="active").order_by('name'), label="Shepherding AD", empty_label="(None)", required=False)
     parent = forms.ModelChoiceField(Group.objects.filter(type="area", state="active").order_by('name'), label="IETF Area", empty_label="(None)", required=False)
     list_email = forms.CharField(max_length=64, required=False)
     list_subscribe = forms.CharField(max_length=255, required=False)
     list_archive = forms.CharField(max_length=255, required=False)
-    urls = forms.CharField(widget=forms.Textarea, label="Additional URLs", help_text="Format: http://site/path (Optional description). Separate multiple entries with newline.", required=False)
+    urls = forms.CharField(widget=forms.Textarea, label="Additional URLs", help_text="Format: https://site/path (Optional description). Separate multiple entries with newline. Prefer HTTPS URLs where possible.", required=False)
 
     def __init__(self, *args, **kwargs):
         self.wg = kwargs.pop('wg', None)
@@ -56,7 +56,7 @@ class WGForm(forms.Form):
         self.confirm_msg = ""
         self.autoenable_confirm = False
         if self.wg:
-            self.fields['acronym'].widget.attrs['readonly'] = True
+            self.fields['acronym'].widget.attrs['readonly'] = ""
 
     def clean_acronym(self):
         self.confirm_msg = ""
@@ -135,7 +135,7 @@ def get_or_create_initial_charter(wg):
         )
         charter.save()
         charter.set_state(State.objects.get(used=True, type="charter", slug="notrev"))
-                
+
        # Create an alias as well
         DocAlias.objects.create(
             name=charter.name,
@@ -151,7 +151,7 @@ def submit_initial_charter(request, acronym=None):
         wg.charter = get_or_create_initial_charter(wg)
         wg.save()
     return redirect('charter_submit', name=wg.charter.name, option="initcharter")
-        
+
 @role_required('Area Director', 'Secretariat')
 def edit(request, acronym=None, action="edit"):
     """Edit or create a WG, notifying parties as
@@ -198,12 +198,12 @@ def edit(request, acronym=None, action="edit"):
                 wg.charter = get_or_create_initial_charter(wg)
 
             changes = []
-                
+
             def desc(attr, new, old):
                 entry = "%(attr)s changed to <b>%(new)s</b> from %(old)s"
                 if new_wg:
                     entry = "%(attr)s changed to <b>%(new)s</b>"
-                    
+
                 return entry % dict(attr=attr, new=new, old=old)
 
             def diff(attr, name):

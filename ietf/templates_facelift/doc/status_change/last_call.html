@@ -1,0 +1,31 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+{% load ietf_filters %}
+
+{% block title %}Last call text for {{ doc }}{% endblock %}
+
+{% block content %}
+<h1>Last call text for {{ doc }}</h1>
+
+<form class="edit-last-call-text" role="form" method="post">
+	{% csrf_token %}
+	{{ last_call_form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="save_last_call_text">Save text</button>
+		<button type="submit" class="btn btn-info" name="send_last_call_request">Save text & request last call</button>
+		{% if user|has_role:"Secretariat" %}
+			<a class="btn btn-danger" href="{% url "doc_make_last_call" name=doc.name %}">Make last call</a>
+		{% endif %}
+		<button type="submit" class="btn btn-warning" name="regenerate_last_call_text">Reset to template text</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
+</form>
+
+{% comment %}
+	<! FACELIFT: This block was commented out in the previous version already. Not sure if it is needed. -->
+	{% if can_request_last_call and need_intended_status %}
+		<p>You need to select intended status of {{ need_intended_status }} and regenerate last call text to request last call.</p>
+	{% endif %}
+{% endcomment %}
+{% endblock%}

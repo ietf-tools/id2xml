@@ -1,0 +1,16 @@
+{% autoescape off %}{% load ietf_filters %}
+Hello,
+
+This is a notification from the {{ clist.long_name }}.
+
+Document: {{ notification.doc }},
+https://{% if debug %}{{ request.get_host }}{% else %}{{ domain }}{% endif %}/doc/{{ notification.doc }}
+
+Change:
+{{ notification.desc|textify|striptags }}
+
+Best regards,
+
+        The datatracker draft tracking service
+        (for the IETF Secretariat)
+{% endautoescape %}

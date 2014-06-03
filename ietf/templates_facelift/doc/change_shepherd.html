@@ -1,0 +1,29 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Change the document shepherd for {{ doc.name }}-{{ doc.rev }}
+{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="/facelift/css/tokenfield-typeahead.min.css">
+<link rel="stylesheet" href="/facelift/css/bootstrap-tokenfield.min.css">
+{% endblock %}
+
+{% block content %}
+<h1>Change the document shepherd for {{ doc.name }}-{{ doc.rev }}</h1>
+<form class="tokenized-form" role="form" enctype="multipart/form-data" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script src="/facelift/js/lib/typeahead.bundle.min.js"></script>
+<script src="/facelift/js/lib/bootstrap-tokenfield.min.js"></script>
+{% endblock %}

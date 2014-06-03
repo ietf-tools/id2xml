@@ -1,0 +1,36 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Change which documents {{ doc }} replaces{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="/facelift/css/tokenfield-typeahead.min.css">
+<link rel="stylesheet" href="/facelift/css/bootstrap-tokenfield.min.css">
+{% endblock %}
+
+{% block content %}
+<h1>Change which documents {{ doc }} replaces</h1>
+
+<form class="tokenized-form" role="form" method="post">
+	{% csrf_token %}
+	<div class="form-group">
+		<label>{{ form.replaces.label }}</label>
+		<input type="text" class="form-control tokenized-field" data-ajax-url="{% url "doc_ajax_internet_draft" %}?term=" data-display="label" data-io="#id_replaces" data-format="json">
+		<span class="help-block">Enter draft names, separated with commas.</span>
+	</div>
+
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		<input type="submit" class="btn btn-danger" value="Save">
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	</div>
+
+</form>
+{% endblock %}
+
+{% block js %}
+<script src="/facelift/js/lib/typeahead.bundle.min.js"></script>
+<script src="/facelift/js/lib/bootstrap-tokenfield.min.js"></script>
+{% endblock %}

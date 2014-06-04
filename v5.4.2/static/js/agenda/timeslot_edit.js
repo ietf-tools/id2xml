@@ -16,36 +16,36 @@
 
 
 
-//////////////-GLOBALS----////////////////////////////////////////
+/* ////////////-GLOBALS----/////////////////////////////////////// */
 
 var agenda_globals;
 
 var days = [];
-var legend_status = {};   // agenda area colors.
+var legend_status = {};   /* agenda area colors. */
 
 var duplicate_sessions = {};
 
-// the following are initialized in the timeslot_edit.html template
-// var meeting_slots_href = URL to get/post new timeslots.
+/* the following are initialized in the timeslot_edit.html template */
+/* var meeting_slots_href = URL to get/post new timeslots.          */
 
 /********* colors ************************************/
 
-var highlight = "red"; // when we click something and want to highlight it.
-var dragging_color = "blue"; // color when draging events.
-var none_color = '';         // unset the color.
+var highlight = "red";       /* when we click something and want to highlight it. */
+var dragging_color = "blue"; /* color when draging events. */
+var none_color = '';         /* unset the color. */
 var color_droppable_empty_slot = 'rgb(0, 102, 153)';
 
 // these are used for debugging only.
-var last_json_txt   = "";   // last txt from a json call.
-var last_json_reply = [];   // last parsed content
+var last_json_txt   = "";    /* last txt from a json call. */
+var last_json_reply = [];    /* last parsed content */
 
 var hidden_rooms = [];
-var total_rooms = 0; // the number of rooms
+var total_rooms = 0;         /* the number of rooms */
 var hidden_days = [];
-var total_days = 0; // the number of days
+var total_days = 0;          /* the number of days  */
 /****************************************************/
 
-/////////////-END-GLOBALS-///////////////////////////////////////
+/* ///////////-END-GLOBALS-///////////////////////////////////// */
 
 /* refactor this out into the html */
 $(document).ready(function() {
@@ -229,23 +229,22 @@ function delete_slot(event) {
 }
 
 function fill_timeslots() {
-    // add no_timeslot class to all timeslots, it will be removed
-    // when an item is placed into the slot.
+    /* add no_timeslot class to all timeslots, it will be removed */
+    /* when an item is placed into the slot. */
     $(".agenda_slot").addClass("no_timeslot");
     $.each(agenda_globals.timeslot_bydomid, function(key) {
         ts = agenda_globals.timeslot_bydomid[key];
         insert_timeslotedit_cell(ts);
     });
 
-    // now add a create option for every slot which hasn't got a timeslot
+    /* now add a create option for every slot which hasn't got a timeslot */
     $.each($(".no_timeslot"),function(slot) {
         create_timeslotedit_cell(this);
     });
-
 }
 
 function build_select_box(roomtype, domid, slot_id, select_id) {
-    //console.log("updating for", ts);
+    /* console.log("updating for", ts); */
     roomtypesession="";
     roomtypeother="";
     roomtypeplenary="";
@@ -340,7 +339,7 @@ function create_timeslotedit_cell(slot_id) {
     var duration=object.attr('slot_duration');
     var domid= object.attr('id');
 
-    //$(slot_id).removeClass("agenda_slot_unavailable")
+    /* $(slot_id).removeClass("agenda_slot_unavailable") */
     $(slot_id).removeClass("agenda_slot_other")
     $(slot_id).removeClass("agenda_slot_session")
     $(slot_id).removeClass("agenda_slot_plenary")

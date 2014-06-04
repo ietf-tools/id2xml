@@ -62,7 +62,7 @@ def stream_edit(request, acronym):
                 for e in new:
                     Role.objects.get_or_create(name_id=slug, email=e, group=group, person=e.person)
 
-            return redirect("ietf.group.views.streams")
+            return redirect("ietf.group.views_stream.streams")
     else:
         form = StreamEditForm(initial=dict(delegates=Email.objects.filter(role__group=group, role__name="delegate")))
 

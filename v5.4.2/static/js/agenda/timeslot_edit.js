@@ -25,6 +25,9 @@ var legend_status = {};   // agenda area colors.
 
 var duplicate_sessions = {};
 
+// the following are initialized in the timeslot_edit.html template
+// var meeting_slots_href = URL to get/post new timeslots.
+
 /********* colors ************************************/
 
 var highlight = "red"; // when we click something and want to highlight it.
@@ -301,25 +304,25 @@ function insert_timeslotedit_cell(ts) {
         var newpurpose = $("#"+select_id).val()
         console.log("setting id: #"+select_id+" to "+newpurpose+" ("+roomtypeclass+")");
 
-        // how does dajaxice relay an error?
-        Dajaxice.ietf.meeting.update_timeslot_purpose(
-            function(json) {
-                if(json == "") {
-                    console.log("No reply from server....");
-                } else {
-                    stop_spin();
-                    for(var key in json) {
-	                ts[key]=json[key];
-                    }
-                    console.log("server replied, updating cell contents: "+ts.roomtype);
-                    insert_timeslotedit_cell(ts);
-                }
-            },
-	    {
-                'meeting_num': meeting_number,
-		'timeslot_id': ts.timeslot_id,
-                'purpose': newpurpose,
-	    });
+        var purpose_struct = { "purpose" : newpurpose };
+        var purpose_update = $.ajax(ts.href, {
+            "content-type": "text/json",
+            "type": "PUT",
+            "data": purpose_struct,
+        });
+
+        purpose_update.success(function(result, status, jqXHR) {
+            if(result.message != "valid") {
+                alert("Update of pinned failed");
+                return;
+            }
+            stop_spin();
+            for(var key in result) {
+	        ts[key]=result[key];
+            }
+            console.log("server replied, updating cell contents: "+ts.roomtype);
+            insert_timeslotedit_cell(ts);
+        });
     });
 }
 
@@ -348,28 +351,34 @@ function create_timeslotedit_cell(slot_id) {
 	start_spin();
         var newpurpose = $("#"+select_id).val()
         console.log("creating setting id: #"+select_id+" to "+newpurpose+" ("+roomtypeclass+")");
+        var ts = {
+            'room_id': room,
+            'time'   : time,
+            'duration':duration,
+            //'purpose': newpurpose,
+            'type': newpurpose,
+	};
 
-        Dajaxice.ietf.meeting.update_timeslot_purpose(
-            function(json) {
-                if(json == "") {
-                    console.log("No reply from server....");
-                } else {
-                    stop_spin();
-                    for(var key in json) {
-	                ts[key]=json[key];
-                    }
-                    console.log("server replied, updating cell contents: "+ts.roomtype);
-                    insert_timeslotedit_cell(ts);
-                }
-            },
-	    {
-		'timeslot_id': "0",            /* 0 indicates to make a new one */
-                'meeting_num': meeting_number,
-                'room_id': room,
-                'time'   : time,
-                'duration':duration,
-                'purpose': newpurpose,
-	    });
+
+        var new_timeslot_promise = $.ajax(meeting_slots_href, {
+            "content-type": "text/json",
+            "type": "POST",
+            "data": ts,
+        });
+
+        new_timeslot_promise.success(function(result, status, jqXHR) {
+            if(status != 201) {
+                alert("creation of new timeslot failed");
+                return;
+            }
+            stop_spin();
+
+            for(var key in result) {
+	        ts[key]=result[key];
+            }
+            console.log("server replied, updating cell contents: "+ts.roomtype);
+            insert_timeslotedit_cell(ts);
+        });
     });
 }
 

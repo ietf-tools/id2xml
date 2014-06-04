@@ -77,62 +77,6 @@ def agenda_permission_api(request, num, owner, name):
                                     'owner_href':  owner_href}),
                         content_type="application/json")
 
-
-@dajaxice_register
-def update_timeslot_purpose(request,
-                            meeting_num,
-                            timeslot_id=None,
-                            purpose =None,
-                            room_id = None,
-                            duration= None,
-                            time    = None):
-
-    if not has_role(request.user,'Secretariat'):
-        return json.dumps({'error':'no permission'})
-
-    meeting = get_meeting(meeting_num)
-    ts_id = int(timeslot_id)
-    time_str = time
-    if ts_id == 0:
-        try:
-            time = datetime.datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
-        except:
-            return json.dumps({'error':'invalid time: %s' % (time_str)})
-
-        try:
-            room = meeting.room_set.get(pk = int(room_id))
-        except Room.DoesNotExist:
-            return json.dumps({'error':'invalid room id'})
-
-        timeslot = TimeSlot(meeting=meeting,
-                            location = room,
-                            time = time,
-                            duration = duration)
-    else:
-        try:
-           timeslot = TimeSlot.objects.get(pk=ts_id)
-        except:
-            return json.dumps({'error':'invalid timeslot'})
-
-    try:
-        timeslottypename = TimeSlotTypeName.objects.get(pk = purpose)
-    except:
-        return json.dumps({'error':'invalid timeslot type',
-                           'extra': purpose})
-
-    timeslot.type = timeslottypename
-    try:
-        timeslot.save()
-    except:
-        return json.dumps({'error':'failed to save'})
-
-    try:
-        # really should return 201 created, but dajaxice sucks.
-        json_dict = timeslot.json_dict(request.build_absolute_uri('/'))
-        return json.dumps(json_dict)
-    except:
-        return json.dumps({'error':'failed to save'})
-
 #############################################################################
 ## ROOM API
 #############################################################################
@@ -246,10 +190,35 @@ def timeslot_addslot(request, meeting):
     timeslot_dayurl = None
     # XXX FIXME: newroom is undefined.  Placeholder:
     newroom = None
-    if "HTTP_ACCEPT" in request.META and "application/json" in request.META['HTTP_ACCEPT']:
-        return redirect(timeslot_dayurl, meeting.number, newroom.pk)
+    values   = newslot.json_dict(request.build_absolute_uri('/'))
+    response = HttpResponse(json.dumps(values),
+                            content_type="application/json",
+                            status=201)
+    response['Location'] = values['href']
+    return response
+
+@role_required('Secretariat')
+def timeslot_updslot(request, meeting, slotid):
+    slot = get_object_or_404(meeting.timeslot_set, pk=slotid)
+
+    # at present, updates to the purpose only is supported.
+    # updates to time or duration would need likely need to be
+    # propogated to the entire vertical part of the grid, and nothing
+    # needs to do that yet.
+    if request.method == 'POST':
+        put_vars = request.POST
+        slot.type_id = put_vars["purpose"]
     else:
-        return redirect(edit_timeslots, meeting.number)
+        put_vars = QueryDict(request.body)
+        slot.type_id = put_vars.get("purpose")
+
+    slot.save()
+
+    # need to return the new object.
+    dict1 = slot.json_dict(request.build_absolute_uri('/'))
+    dict1['message'] = 'valid'
+    return HttpResponse(json.dumps(dict1),
+                        content_type="application/json")
 
 @role_required('Secretariat')
 def timeslot_delslot(request, meeting, slotid):
@@ -277,10 +246,8 @@ def timeslot_sloturl(request, num=None, slotid=None):
         slot = get_object_or_404(meeting.timeslot_set, pk=slotid)
         return HttpResponse(json.dumps(slot.json_dict(request.build_absolute_uri('/'))),
                             content_type="application/json")
-    elif request.method == 'POST':
-        # not yet implemented!
-        #return timeslot_updslot(request, meeting)
-        return HttpResponse(status=406)
+    elif request.method == 'POST' or request.method == 'PUT':
+        return timeslot_updslot(request, meeting, slotid)
     elif request.method == 'DELETE':
         return timeslot_delslot(request, meeting, slotid)
 

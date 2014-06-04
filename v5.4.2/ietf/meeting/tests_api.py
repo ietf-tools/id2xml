@@ -251,7 +251,7 @@ class ApiTests(TestCase):
         # create slot
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.post(url, post_data)
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 201)
         self.assertTrue(meeting.timeslot_set.filter(time=slot_time))
         self.assertEqual(meeting.timeslot_set.count(),prior_slotcount+1)
 
@@ -451,59 +451,30 @@ class ApiTests(TestCase):
                          (url, r.status_code, r.content))
         self.assertTrue(ScheduledSession.objects.get(pk=scheduled.pk).pinned)
 
-class UnusedButExposedApiTests(TestCase):
+class TimeSlotEditingApiTests(TestCase):
 
-    def test_manipulate_timeslot_via_dajaxice(self):
+    def test_manipulate_timeslot(self):
         meeting = make_meeting_test_data()
-        slot_time = datetime.date.today()
-
-        url = '/dajaxice/ietf.meeting.update_timeslot_purpose/'
-
-        create_post_data = {
-            'argv' : json.dumps({
-                "meeting_num" : meeting.number,
-                "timeslot_id" : 0,
-                "purpose"     : "plenary",
-                "room_id"     : meeting.room_set.first().id,
-                "time"        : slot_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "duration"    : 3600
-        })}
+        slot = meeting.timeslot_set.all()[0]
+        self.assertEqual(TimeSlot.objects.get(pk=slot.pk).type.name,'Session')
 
         prior_timeslot_count = meeting.timeslot_set.count()
-        # Create as nobody should fail
-        r = self.client.post(url, create_post_data)
-        self.assertEqual(r.status_code, 200)
-        info = json.loads(r.content)
-        self.assertTrue('error' in info and info['error']=='no permission')
-        self.assertEqual(meeting.timeslot_set.count(),prior_timeslot_count)
 
-        # Successful create
-        self.client.login(username="secretary", password="secretary+password")
-        r = self.client.post(url, create_post_data)
-        self.assertEqual(r.status_code, 200)
-        info = json.loads(r.content)
-        self.assertFalse('error' in info)
-        self.assertTrue('roomtype' in info)
-        self.assertEqual(info['roomtype'],'plenary')
-        self.assertEqual(meeting.timeslot_set.count(),prior_timeslot_count+1)
+        url = urlreverse("ietf.meeting.ajax.timeslot_sloturl",
+                         kwargs=dict(num=meeting.number, slotid=slot.pk))
 
         modify_post_data = {
-            'argv' : json.dumps({
-                "meeting_num" : meeting.number,
-                "timeslot_id" : meeting.timeslot_set.get(time=slot_time).id,
-                "purpose"     : "session"
-        })}
+            "purpose"       : "plenary"
+        }
 
         # Fail as non-secretariat
         self.client.login(username="plain", password="plain+password")
         r = self.client.post(url, modify_post_data)
-        self.assertEqual(r.status_code, 200)
-        info = json.loads(r.content)
-        self.assertTrue('error' in info and info['error']=='no permission')
-        self.assertEqual(meeting.timeslot_set.get(time=slot_time).type.name,'Plenary')
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(TimeSlot.objects.get(pk=slot.pk).type.name,'Session')
 
         # Successful change of purpose
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.post(url, modify_post_data)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(meeting.timeslot_set.get(time=slot_time).type.name,'Session')
+        self.assertEqual(TimeSlot.objects.get(pk=slot.pk).type.name,'Plenary')

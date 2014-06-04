@@ -49,13 +49,14 @@ function my_js_callback(data){
 var meeting_number   = "{{ meeting.number }}";
 var meeting_base_url = "{{ meeting_base_url }}";
 var site_base_url = "{{ site_base_url }}";
+var meeting_slots_href = "{% url "ietf.meeting.ajax.timeslot_slotsurl" meeting.number %}";
 total_days = {{time_slices|length}};
 total_rooms = {{rooms|length}};
 
 first_day = new Date("{% with timeslots|first as day %} {{ day.time }} {% endwith %}"); /* needed for the datepicker */
 
 function setup_slots(promiselist){
-var ts_promise = load_timeslots("{% url "ietf.meeting.ajax.timeslot_slotsurl" meeting.number %}");
+var ts_promise = load_timeslots(meeting_slots_href);
 promiselist.push(ts_promise);
 
 {% for day in time_slices %}

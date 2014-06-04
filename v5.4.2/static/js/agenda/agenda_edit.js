@@ -170,19 +170,6 @@ function read_only_check() {
     });
 }
 
-function dajaxice_callback(message) {
-    /* if the message is empty, we got nothing back from the server, which probably
-       means you are offline.
-    */
-    console.log("callback: ",message);
-    if(message == ""){
-	alert("No response from server. Network may be unavailable");
-    }
-    else{
-	stop_spin();
-    }
-}
-
 function print_all_ss(objs){
     console.log(objs)
 }

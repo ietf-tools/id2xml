@@ -13,13 +13,6 @@ from ietf.utils.mail import outbox
 
 
 class ApiTests(TestCase):
-    def test_dajaxice_core_js(self):
-        # this is vital for Dajaxice to work and we have hacked it
-        # slightly to avoid copying static files around, so make sure
-        # we can fetch it
-        r = self.client.get("/dajaxice/dajaxice.core.js")
-        self.assertEqual(r.status_code, 200)
-
     def test_update_agenda(self):
         meeting = make_meeting_test_data()
         schedule = Schedule.objects.get(meeting__number=42,name="test-agenda")

@@ -6,8 +6,6 @@ from django.http import HttpResponse
 from django.http import QueryDict
 from django.views.decorators.http import require_POST
 
-from dajaxice.decorators import dajaxice_register
-
 from ietf.ietfauth.utils import role_required, has_role, user_is_person
 from ietf.meeting.helpers import get_meeting, get_schedule, get_schedule_by_id, agenda_permissions, get_person_by_email, get_schedule_by_name
 from ietf.meeting.models import TimeSlot, Session, Schedule, Room, Constraint, ScheduledSession, ResourceAssociation
@@ -18,12 +16,6 @@ import debug                            # pyflakes:ignore
 
 def is_truthy_enough(value):
     return not (value == "0" or value == 0 or value=="false")
-
-def dajaxice_core_js(request):
-    # this is a slightly weird hack to get, we seem to need this because
-    # we're not using the built-in static files support
-    from dajaxice.finders import DajaxiceStorage
-    return HttpResponse(DajaxiceStorage().dajaxice_core_js(), content_type="application/javascript")
 
 # look up a schedule by number, owner and schedule name, returning an API error if it can not be found
 def get_meeting_schedule(num, owner, name):

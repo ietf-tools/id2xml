@@ -697,36 +697,6 @@ function info_name_select_change(){
     console.log("selecting new item:", last_session.title);
 }
 
-function XMLHttpGetRequest(url, sync) {
-    var oXMLHttpRequest = new XMLHttpRequest;
-    oXMLHttpRequest.open('GET', url, sync);
-    oXMLHttpRequest.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-    oXMLHttpRequest.setRequestHeader("X-CSRFToken", Dajaxice.get_cookie('csrftoken'));
-
-    return oXMLHttpRequest;
-}
-
-function retrieve_session_by_id(session_id) {
-    var session_obj = {};
-    var oXMLHttpRequest = XMLHttpGetRequest(meeting_base_url+'/session/'+session_id+".json", false);
-    oXMLHttpRequest.send();
-    if(oXMLHttpRequest.readyState == XMLHttpRequest.DONE) {
-        try{
-            last_json_txt = oXMLHttpRequest.responseText;
-            session_obj   = JSON.parse(oXMLHttpRequest.responseText);
-            last_json_reply = session_obj;
-        }
-        catch(exception){
-            console.log("retrieve_session_by_id("+session_id+") exception: "+exception);
-        }
-    }
-    return session_obj;
-}
-
-function dajaxice_error(a){
-    console.log("dajaxice_error");
-}
-
 function set_pin_session_button(scheduledsession) {
     $("#pin_slot").unbind('click');
     if(scheduledsession == undefined) {

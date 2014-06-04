@@ -128,17 +128,10 @@ def get_schedule_by_id(meeting, schedid):
 
 # seems this belongs in ietf/person/utils.py?
 def get_person_by_email(email):
-    persons = Person.objects.filter(email__address=email).distinct()
-    if len(persons) > 0:
-        return persons[0]
-    return None
-
+    return Person.objects.filter(email__address=email).distinct().first()
 
 def get_schedule_by_name(meeting, owner, name):
-    schedules = meeting.schedule_set.filter(owner = owner, name = name)
-    if len(schedules) > 0:
-        return schedules[0]
-    return None
+    return meeting.schedule_set.filter(owner = owner, name = name).first()
 
 def meeting_updated(meeting):
     meeting_time = datetime.datetime(*(meeting.date.timetuple()[:7]))

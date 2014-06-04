@@ -28,14 +28,14 @@
 
 
 	<div class="buttonlist">
-		<input type="submit" class="btn btn-primary" name="send_mail" value="Save and send email">
+		<button type="submit" class="btn btn-primary" name="send_mail">Save & send email</button>
 		<input type="submit" class="btn btn-default" value="Save">
 
 		{% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
 			{% if ballot_deferred %}
-				<input type="submit" class="btn btn-warning" name="Undefer" value="Undefer">
+				<input type="submit" class="btn btn-warning" name="Undefer" value="Undefer ballot">
 			{% else %}
-				<input type="submit" class="btn btn-danger" name="Defer" value="Defer">
+				<input type="submit" class="btn btn-danger" name="Defer" value="Defer ballot">
 			{% endif %}
 		{% endif %}
 		<a class="btn btn-default pull-right" href="{{ return_to_url }}">Back</a>

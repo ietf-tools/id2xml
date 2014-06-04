@@ -298,7 +298,9 @@ function insert_timeslotedit_cell(ts) {
 
     var select_id = domid + "_select";
     var roomtypeclass = build_select_box(roomtype, domid, slot_id, select_id);
+    /* console.log("Creating box for old ", select_id); */
 
+    $("#"+select_id).off();  /* removes all old events */
     $("#"+select_id).change(function(eventObject) {
 	start_spin();
         var newpurpose = $("#"+select_id).val()
@@ -346,16 +348,18 @@ function create_timeslotedit_cell(slot_id) {
 
     var select_id = domid + "_select";
     var roomtypeclass = build_select_box(roomtype, "default", slot_id, select_id);
+    /* console.log("Creating box for new ", $("#"+select_id)); */
 
+    $("#"+select_id).off();  /* removes all old events */
     $("#"+select_id).change(function(eventObject) {
 	start_spin();
         var newpurpose = $("#"+select_id).val()
-        console.log("creating setting id: #"+select_id+" to "+newpurpose+" ("+roomtypeclass+")");
+        /* console.log("creating new slot id: #"+select_id+" to "+newpurpose+" (was "+roomtypeclass+")"); */
         var ts = {
             'room_id': room,
             'time'   : time,
             'duration':duration,
-            //'purpose': newpurpose,
+            /* 'purpose': newpurpose, */
             'type': newpurpose,
 	};
 
@@ -367,17 +371,17 @@ function create_timeslotedit_cell(slot_id) {
         });
 
         new_timeslot_promise.success(function(result, status, jqXHR) {
-            if(status != 201) {
+            stop_spin();
+            if(jqXHR.status != 201) {
+                __debug_object = jqXHR;
                 alert("creation of new timeslot failed");
                 return;
             }
-            stop_spin();
 
-            for(var key in result) {
-	        ts[key]=result[key];
-            }
-            console.log("server replied, updating cell contents: "+ts.roomtype);
-            insert_timeslotedit_cell(ts);
+            ts_obj = make_timeslot(result);
+            /* change the domid of the unavailable slot to that which we just created */
+            $(slot_id).attr('id', ts_obj.domid);
+            insert_timeslotedit_cell(ts_obj);
         });
     });
 }

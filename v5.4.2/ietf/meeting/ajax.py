@@ -184,7 +184,9 @@ def timeslot_addslot(request, meeting):
     newslot.meeting = meeting
     newslot.save()
 
-    newslot.create_concurrent_timeslots()
+    # no longer create concurrent timeslots, because they will default, when there is
+    # no timeslots, to unavailable, which can be created later on.
+    # newslot.create_concurrent_timeslots()
 
     # XXX FIXME: timeslot_dayurl is undefined.  Placeholder:
     timeslot_dayurl = None

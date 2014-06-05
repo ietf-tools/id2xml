@@ -1,9 +1,10 @@
 This is the "facelift" datatracker branch that uses Twitter Bootstrap for
 the UI.
 
-You need to install django-widget-tweaks and django-crispy-forms, too:
+You need to install a few new django extensions:
 	https://pypi.python.org/pypi/django-widget-tweaks
 	https://pypi.python.org/pypi/django-crispy-forms
+	https://pypi.python.org/pypi/django-typogrify
 
 The meta goal of this effort is: *** NO CHANGES TO THE PYTHON CODE ***
 

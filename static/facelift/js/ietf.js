@@ -20,8 +20,7 @@ $('ul.nav li.dropdown-submenu').hover(hoverin, hoverout);
 
 
 // This used to be in doc-search.js; consolidate all JS in one file.
-
-$(function () {
+$(document).ready(function () {
 	// search form
 	var form = $("#search_form");
 
@@ -93,6 +92,62 @@ $(function () {
 			}
 		});
 	});
+});
+
+
+// This used to be in js/draft-submit.js
+$(document).ready(function () {
+    // fill in submitter info when an author button is clicked
+    $("form.idsubmit input[type=button].author").click(function () {
+        var name = $(this).data("name");
+        var email = $(this).data("email");
+
+        $(this).parents("form").find("input[name=submitter-name]").val(name || "");
+        $(this).parents("form").find("input[name=submitter-email]").val(email || "");
+    });
+
+    $("form.idsubmit").submit(function() {
+        if (this.submittedAlready)
+            return false;
+        else {
+            this.submittedAlready = true;
+            return true;
+        }
+    });
+
+    $("form.idsubmit #cancel-submission").submit(function () {
+       return confirm("Cancel this submission?");
+    });
+
+    $("form.idsubmit #add-author").click(function (e) {
+        // clone the last author block and make it empty
+        var cloner = $("#cloner");
+        var next = cloner.clone();
+        next.find('input:not([type=hidden])').val('');
+
+        // find the author number
+        var t = next.children('h3').text();
+        n = parseInt(t.replace(/\D/g, ''));
+
+        // change the number in attributes and text
+        next.find('*').each(function () {
+            var e = this;
+            $.each(['id', 'for', 'name', 'value'], function (i, v) {
+                if ($(e).attr(v)) {
+                    $(e).attr(v, $(e).attr(v).replace(n-1, n));
+                }
+            })
+        });
+
+        t = t.replace(n, n+1);
+        next.children('h3').text(t);
+
+        // move the cloner id to next and insert next into the DOM
+        cloner.removeAttr('id');
+        next.attr('id', 'cloner');
+        next.insertAfter(cloner);
+
+    });
 });
 
 

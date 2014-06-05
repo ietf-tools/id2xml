@@ -1,0 +1,16 @@
+{% load crispy_forms_tags %}
+
+<p>
+	If you are one of the authors, please click the button below
+	with your name on it to automatically fill in the
+	submitter information. Otherwise,
+	please manually enter your name and email address.
+</p>
+
+<p class="buttonlist">
+	{% for author in submission.authors_parsed %}
+		<input type="button" class="author btn btn-default" data-name="{{ author.name  }}" data-email="{{ author.email }}" value="{{ author.name }}">
+	{% endfor %}
+</p>
+
+{{ submitter_form|crispy}}

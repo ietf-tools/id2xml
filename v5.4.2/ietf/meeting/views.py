@@ -309,7 +309,7 @@ def edit_agenda_properties(request, num=None, owner=None, name=None):
         raise Http404("No meeting information for meeting %s owner %s schedule %s available" % (num, owner, name))
     form     = AgendaPropertiesForm(instance=schedule)
 
-    cansee, canedit = agenda_permissions(meeting, schedule, request.user)
+    cansee, canedit, secretariat = agenda_permissions(meeting, schedule, request.user)
 
     if not (canedit or has_role(request.user,'Secretariat')):
         return HttpResponseForbidden("You may not edit this agenda")

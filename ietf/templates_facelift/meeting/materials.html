@@ -1,19 +1,17 @@
-{% extends "base.html" %}{% load ietf_filters %}
-{# Copyright The IETF Trust 2007, All Rights Reserved #}
-{% block title %}IETF {{ meeting_num }} Preliminary &amp; Interim Materials{% endblock %}
-{% block morecss %}
-table.ietf-materials { width: 99%; border-bottom:1px solid #cbcbcb; nopadding: 0; margin: 0; vertical-align: top; border-collapse: collapse;}
-table.ietf-materials tr {vertical-align: top; }
-table.ietf-materials td { padding:0.5em 0; }
-{% endblock morecss %}
+{% extends "ietf.html" %}
+
+{% load ietf_filters %}
+
+{% block title %}IETF {{ meeting_num }} preliminary &amp; interim materials{% endblock %}
 
 {% block content %}
-<h1>IETF {{ meeting_num }} Meeting Materials</h1>
+<h1>IETF {{ meeting_num }} meeting materials</h1>
 
 {% if submission_started %}
-<p>Submission cutoff date: {{ cut_off_date|date:"F j, Y" }}<br/>
-Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
+  <p>Submission cutoff date: {{ cut_off_date|date:"F j, Y" }}</p>
+  <p>Corrections to submissions cutoff date: {{ cor_cut_off_date|date:"F j, Y" }}</p>
 {% endif %}
+
 <ul>
 <li><a href="{% url "proceedings" %}">Meeting Materials Manager</a> (for session chairs only; password required)</li>
 <li><a href="/meeting/{{meeting_num}}/requests">Meeting Request/Conflict Table</a></li>

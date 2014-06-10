@@ -273,9 +273,9 @@ def agenda_add(request, meeting):
     newagenda.save()
 
     if "HTTP_ACCEPT" in request.META and "application/json" in request.META['HTTP_ACCEPT']:
-        return redirect(agenda_infourl, meeting.number, newagenda.name)
+        return redirect(agenda_infourl, meeting.number, newagenda.owner_email(), newagenda.name)
     else:
-        return redirect(edit_agenda, meeting.number, newagenda.name)
+        return redirect(edit_agenda, meeting.number, newagenda.owner_email(), newagenda.name)
 
 @require_POST
 def agenda_update(request, meeting, schedule):
@@ -314,7 +314,7 @@ def agenda_update(request, meeting, schedule):
         return HttpResponse(json.dumps(schedule.json_dict(request.build_absolute_uri('/'))),
                             content_type="application/json")
     else:
-        return redirect(edit_agenda, meeting.number, schedule.name)
+        return redirect(edit_agenda, meeting.number, schedule.owner_email(), schedule.name)
 
 @role_required('Secretariat')
 def agenda_del(request, meeting, schedule):
@@ -337,11 +337,13 @@ def agenda_infosurl(request, num=None):
     # unacceptable action
     return HttpResponse(status=406)
 
-def agenda_infourl(request, num=None, name=None):
-    meeting = get_meeting(num)
-    #log.debug("agenda: %s / %s" % (meeting, name))
+def agenda_infourl(request, num=None, owner=None, name=None):
+    meeting  = get_meeting(num)
+    person   = get_person_by_email(owner)
+    schedule = get_schedule_by_name(meeting, person, name)
+    if schedule is None:
+        raise Http404("No meeting information for meeting %s schedule %s available" % (num,name))
 
-    schedule = get_schedule(meeting, name)
     #debug.log("results in agenda: %u / %s" % (schedule.id, request.method))
 
     if request.method == 'GET':

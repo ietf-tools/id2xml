@@ -456,7 +456,7 @@ class Schedule(models.Model):
         return u"%s:%s(%s)" % (self.meeting, self.name, self.owner)
 
     def base_url(self):
-        return "/meeting/%s/agenda/%s" % (self.meeting.number, self.name)
+        return "/meeting/%s/agenda/%s/%s" % (self.meeting.number, self.owner_email(), self.name)
 
     # temporary property to pacify the places where Schedule.scheduledsession_set is used
     @property

@@ -128,10 +128,16 @@ def get_schedule_by_id(meeting, schedid):
 
 # seems this belongs in ietf/person/utils.py?
 def get_person_by_email(email):
+    # email == None may actually match people who haven't set an email!
+    if email is None:
+        return None
     return Person.objects.filter(email__address=email).distinct().first()
 
 def get_schedule_by_name(meeting, owner, name):
-    return meeting.schedule_set.filter(owner = owner, name = name).first()
+    if owner is not None:
+        return meeting.schedule_set.filter(owner = owner, name = name).first()
+    else:
+        return meeting.schedule_set.filter(name = name).first()
 
 def meeting_updated(meeting):
     meeting_time = datetime.datetime(*(meeting.date.timetuple()[:7]))

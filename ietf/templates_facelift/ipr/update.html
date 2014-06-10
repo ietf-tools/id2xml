@@ -1,0 +1,38 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}IPR update{% endblock %}
+
+{% block content %}
+
+<h1>Updating {{ type|title }} IPR Disclosure<br><small>{{ ipr.title }}</small></h1>
+
+<form role="form" method="post">
+	{% csrf_token %}
+
+	{% if form.errors %}
+		<div class="alert alert-danger">
+			<p>
+				There were errors in the submitted form -- see below.  Please correct these and resubmit.
+			</p>
+			{% if form.non_field_errors %}
+				<ul class="errorlist">
+					{% for error in form.non_field_errors %}
+						<li>{{ error }}</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		</div>
+	{% endif %}
+
+	<h2>Contact information for submitter of this update</h2>
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		<button class="btn btn-primary" type="submit">Submit</button>
+		<a class="btn btn-default pull-right" onClick="history.go(-1);">Back</a>
+	</div>
+</form>
+
+{% endblock %}

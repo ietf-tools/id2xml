@@ -1,0 +1,9 @@
+{% load ietf_filters %}
+
+{% if editable_streams %}
+	{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
+	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>My RFC streams</li>
+	{% for stream in editable_streams %}
+		<li><a href="{% url "ietf.group.views_stream.stream_edit" stream.slug %}">{{ stream.name }}</a></li>
+	{% endfor %}
+{% endif %}

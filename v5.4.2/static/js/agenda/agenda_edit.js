@@ -160,9 +160,9 @@ function read_only_result(msg) {
 }
 
 function read_only_check() {
-    var read_only_url  = meeting_base_url + "/" + schedule_owner_href + "/" + schedule_name + "/permissions";
+    var read_only_url  = meeting_base_url + "/agenda/" + schedule_owner_email + "/" + schedule_name + "/permissions";
     console.log("Loading readonly status from: ", read_only_url);
-    var read_only_load = $.ajax(this.href);
+    var read_only_load = $.ajax(read_only_url);
 
     read_only_load.success(function(newobj, status, jqXHR) {
         last_json_reply = newobj;

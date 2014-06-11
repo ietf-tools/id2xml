@@ -4,14 +4,10 @@
 {% load ietf_filters %}
 
 {% block title %}
-{% if action == "edit" %}
-	Edit WG {{ wg.acronym }}
+{% if group %}
+	Edit {{ group.type.name }} {{ group.acronym }}
 {% else %}
-	{% if action == "charter" %}
-		Start chartering new WG
-	{% else %}
-		Create new WG or BoF
-	{% endif %}
+	Start chartering new group
 {% endif %}
 {% endblock %}
 
@@ -23,12 +19,12 @@
 {% block content %}
 <h1>
 {% if action == "edit" %}
-	Edit WG {{ wg.acronym }}
+	Edit WG {{ group.type.name }} {{ group.acronym }}
 {% else %}
 	{% if action == "charter" %}
-		Start chartering new WG
+		Start chartering new group
 	{% else %}
-		Create new WG or BoF
+		Create new group or BOF
 	{% endif %}
 {% endif %}
 </h1>

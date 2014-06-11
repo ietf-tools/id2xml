@@ -10,7 +10,7 @@
 <p>Groups in the <i>BOF</i> state.</p>
 
 {% if user|has_role:"Area Director,Secretariat" %}
-	<p><a class="btn btn-default" role="button" href="{% url "bof_create" %}">Create new BOF</a></p>
+	<p><a class="btn btn-default" role="button" href="{% url "bof_create" group_type="wg" %}">Create new BOF</a></p>
 {% endif %}
 
 {% if not groups %}
@@ -27,7 +27,7 @@
 		<tbody>
 			{% for g in groups %}
 			<tr>
-			  <td><a href="{% url "group_charter" acronym=g.acronym %}">{{ g.acronym }}</a></td>
+			  <td><a href="{% url "group_charter" group_type=g.type_id acronym=g.acronym %}">{{ g.acronym }}</a></td>
 			  <td>{{ g.name }}</td>
 			  <td class="nowrap">{{ g.time|date:"Y-m-d" }}</td>
 			</tr>

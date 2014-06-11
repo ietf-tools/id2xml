@@ -2,10 +2,10 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}Request closing of {{ wg.acronym }} {{ wg.type.name }}{% endblock %}
+{% block title %}Request closing of {{ group.acronym }} {{ group.type.name }}{% endblock %}
 
 {% block content %}
-<h1>Request closing of {{ wg.acronym }} {{ wg.type.name }}</h1>
+<h1>Request closing of {{ group.acronym }} {{ group.type.name }}</h1>
 
 <p>
    Please provide instructions regarding the disposition of each
@@ -21,7 +21,7 @@
 
 	<div class="buttonlist">
 		<button type="submit" class="btn btn-primary">Submit</button>
-		<a class="btn btn-default pull-right" href="{% url "group_charter" acronym=wg.acronym %}">Back</a>
+		<a class="btn btn-default pull-right" href="{% url "group_charter" group_type=group.type_id acronym=group.acronym %}">Back</a>
 	</div>
 
 </form>

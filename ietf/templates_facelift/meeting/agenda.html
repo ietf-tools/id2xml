@@ -2,7 +2,12 @@
 
 {% load ietf_filters %}
 
-{% block title %}IETF {{ schedule.meeting.number }} meeting agenda{% endblock %}
+{% block title %}
+IETF {{ schedule.meeting.number }} meeting agenda
+{% if "-utc" in request.path %}
+	(UTC)
+{% endif %}
+{% endblock %}
 
 {% block morecss %}
 iframe#weekview { height: 600px; width: 100%; }
@@ -11,7 +16,11 @@ iframe#weekview { height: 600px; width: 100%; }
 {% block content %}
 
 <h1>
-	IETF {{ schedule.meeting.number }} meeting agenda<br>
+	IETF {{ schedule.meeting.number }} meeting agenda
+	{% if "-utc" in request.path %}
+		(UTC)
+	{% endif %}
+	<br>
 	<small>
 		{{ schedule.meeting.city }}, {{ schedule.meeting.date|date:"F j" }} -
 		{% if schedule.meeting.date.month != schedule.meeting.end_date.month %}
@@ -21,18 +30,25 @@ iframe#weekview { height: 600px; width: 100%; }
 	</small>
 </h1>
 
-<p class="label label-info pull-right">Updated {{ updated|date:"Y-m-d H:i:s T" }}</p>
-
-<p class="alert alert-info"><b>Note:</b> IETF agendas are subject to change, up to and during a meeting.</p>
+<p class="label label-info">Updated {{ updated|date:"Y-m-d \a\t G:i:s (T)" }}</p>
+<p></p>
+<p class="alert alert-info">
+	<b>Note:</b> IETF agendas are subject to change, up to and during a meeting.
+</p>
 
 <p class="noprint buttonlist">
-	<a class="btn btn-default" href="/meeting/agenda-utc">Agenda with UTC times</a>
+{% if "-utc" in request.path %}
+	<a class="btn btn-default" href="/meeting/agenda">Agenda in local timezone</a>
+{% else %}
+	<a class="btn btn-default" href="/meeting/agenda-utc">Agenda in UTC timezone</a>
+{% endif %}
 	<a class="btn btn-default" href="/meeting/{{schedule.meeting.number}}/agenda.txt">Plaintext agenda</a>
 	<a class="btn btn-default" href="//tools.ietf.org/agenda/{{schedule.meeting.number}}/">Tools-style agenda</a>
 </p>
 
 {# cache this part for 5 minutes -- it takes 3-6 seconds to generate #}
-{% load cache %}{% cache 300 ietf_meeting_agenda schedule.meeting.number %}
+{% load cache %}
+{% cache 300 ietf_meeting_agenda_utc schedule.meeting.number request.path %}
 
 <h2>Agenda</h2>
 
@@ -77,7 +93,7 @@ iframe#weekview { height: 600px; width: 100%; }
 											{% for wg in area.list %}
 												<div class="btn-group btn-group-xs btn-group-justified">
 													<button class="btn btn-default pickview {{wg.acronym}}">
-													{% if wg.state.name = "BOF" %}
+													{% if wg.wg.is_bof %}
 														<i>{{wg.acronym}}</i>
 													{% else %}
 														{{wg.acronym}}
@@ -131,7 +147,11 @@ iframe#weekview { height: 600px; width: 100%; }
 		{% ifchanged  %}
 			<tr class="warning">
 				<th colspan="6">
-					{{ item.timeslot.time|date:"l" }}, {{ item.timeslot.time|date:"F j, Y" }} ({{item.timeslot.tzname}})
+					{% if "-utc" in request.path %}
+						{{ item.timeslot.utc_start_time|date:"l, F j, Y" }} (UTC)
+					{% else %}
+						{{ item.timeslot.time|date:"l, F j, Y" }} ({{item.timeslot.tzname}})
+					{% endif %}
 				</th>
 			</tr>
 		{% endifchanged %}
@@ -140,10 +160,19 @@ iframe#weekview { height: 600px; width: 100%; }
 			{% ifchanged %}
 				<tr class="info">
 					<th class="nowrap text-right">
-						{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+						{% if "-utc" in request.path %}
+							{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
+						{% else %}
+							{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+						{% endif %}
 					</th>
 					<th colspan="5">
-						{{ item.timeslot.time|date:"l"}} {{item.timeslot.name|capfirst_allcaps}}
+						{% if "-utc" in request.path %}
+							{{ item.timeslot.utc_start_time|date:"l"}}
+						{% else %}
+							{{ item.timeslot.time|date:"l"}}
+						{% endif %}
+						{{item.timeslot.name|capfirst_allcaps}}
 					</th>
 				</tr>
 			{% endifchanged %}
@@ -153,7 +182,11 @@ iframe#weekview { height: 600px; width: 100%; }
 			{% with item.timeslot.time|date:"D-Hi"|lower|add:"-"|add:item.session.group.acronym|lower as session_id %}
 			<tr id="row-{{session_id}}">
 				<td class="nowrap text-right">
-					{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+					{% if "-utc" in request.path %}
+						{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
+					{% else %}
+						{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+					{% endif %}
 				</td>
 				<td colspan="3">
 					{% if item.timeslot.show_location %}
@@ -174,7 +207,11 @@ iframe#weekview { height: 600px; width: 100%; }
 
 					{% if item.timeslot.type.slug == 'plenary' %}
 						<th class="nowrap text-right">
-							{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+							{% if "-utc" in request.path %}
+								{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
+							{% else %}
+								{{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
+							{% endif %}
 						</th>
 						<td colspan="3">
 							{% if item.timeslot.show_location %}
@@ -248,17 +285,15 @@ iframe#weekview { height: 600px; width: 100%; }
 										{% endif %}
 
 										{% if item.session.slides %}
-											<div id="{{schedule.meeting.number}}-{{item.timeslot.time|date:"D-Hi"|lower}}-{{item.session.group.parent.acronym|upper}}-{{item.session.group.acronym|lower}}">
-												<h4>Slides</h4>
-												<ul class="fa-ul list-unstyled">
-													{% for slide in item.session.slides %}
-														<li>
-															<span class="fa-li fa fa-file-{{slide.file_extension|lower}}-o"></span>
-															<a href="{{ slide.href }}">{{ slide.title|clean_whitespace }}</a>
-														</li>
-													{% endfor %}
-												</ul>
-											</div>
+											<h4>Slides</h4>
+											<ul class="fa-ul list-unstyled">
+												{% for slide in item.session.slides %}
+													<li>
+														<span class="fa-li fa fa-file-{{slide.file_extension|lower}}-o"></span>
+														<a href="{{ slide.href }}">{{ slide.title|clean_whitespace }}</a>
+													</li>
+												{% endfor %}
+											</ul>
 										{% endif %}
 									</div>
 									<div class="modal-footer">
@@ -274,11 +309,6 @@ iframe#weekview { height: 600px; width: 100%; }
 							<a class="btn btn-default btn-xs" href="/meeting/{{schedule.meeting.number}}/agenda/{{item.session.group.acronym}}-drafts.tgz" title="Download meeting materials as .tar archive"><span class="fa fa-file-archive-o"></span></a>
 							<a class="btn btn-default btn-xs" href="/meeting/{{ schedule.meeting.number }}/agenda/{{item.session.group.acronym}}-drafts.pdf" title="Download meeting materials as PDF file"><span class="fa fa-file-pdf-o"></span></a>
 						{% endif %}
-						<!--
-						<button onclick="pickAgendaColor('{{schedule.meeting.number}}-{{item.timeslot.time|date:"D-Hi"|lower}}-{{item.session.group.parent.acronym|upper}}-{{item.session.group.acronym|lower}}',this);" title="color tag this line"/ class="noprint pull-right btn btn-default">
-							<span class="fa fa-tag"></span>
-						</button>
-						-->
 					</td>
 				</tr>
 				{% endwith %}

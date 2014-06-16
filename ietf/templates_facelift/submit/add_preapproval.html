@@ -1,5 +1,6 @@
 {% extends "submit/submit_base.html" %}
 
+{% load humanize %}
 {% load crispy_forms_tags %}
 
 {% block title %}Add pre-approval{% endblock %}
@@ -10,12 +11,12 @@
 
 <h2>Add pre-approval</h2>
 
-<p>You can register a pre-approved draft name. Then the WG Chair
-approval step of WG -00 submissions is suspended for that draft name
+<p>You can register a pre-approved draft name. Then the chair
+approval step of group -00 submissions is suspended for that draft name
 so a future submission is posted to the data tracker immediately.</p>
 
-<p>When the revision 00 draft is submitted, the pre-approval will not
-be shown anymore as it has fulfilled its purpose (only revision 00 submissions are
+<p>When the revision -00 draft is submitted, the pre-approval will not
+be shown anymore as it has fulfilled its purpose (only revision -00 submissions are
 subject to approval). If the draft never shows up, you can instead
 later cancel the pre-approval to get rid of it.</p>
 
@@ -25,15 +26,15 @@ later cancel the pre-approval to get rid of it.</p>
 like <code>.txt</code> in the name.</p>
 
 {% if user|has_role:"Secretariat" %}
-	<p class="alert alert-info">Only WG submissions are subject to approval and are thus pre-approvable.</p>
+	<p class="alert alert-info">Only group submissions are subject to approval and are thus pre-approvable.</p>
 {% else %}
-	<p>As WG Chair{% if groups|length > 1 %} of {{ groups|length }} groups{% endif %} you can pre-approve draft names on the form:</p>
+	<p>As chair{% if groups|length > 1 %} of {{ groups|length|apnumber }} groups{% endif %} you can pre-approve draft names on the form:</p>
 
-	<ul>
-	{% for g in groups %}
-		<li class="name-template">draft-ietf-<b>{{ g.acronym }}</b>-<i>something</i></li>
-	{% endfor %}
-	</ul>
+	<p class="buttonlist">
+		{% for g in groups %}
+			<button class="btn btn-default name-template">draft-ietf-<b>{{ g.acronym }}</b>-<i>something</i></button>
+		{% endfor %}
+	</p>
 {% endif %}
 
 <form role="form" method="post">
@@ -50,6 +51,6 @@ like <code>.txt</code> in the name.</p>
 
 {% block scripts %}
 $(".name-template").click(function (){
-	$("form input[name=name]").val($(this).text().replace("something", ""));
+	$("form input[name=name]").text("").focus().val($(this).text().replace("something", ""));
 });
 {% endblock %}

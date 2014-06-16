@@ -24,7 +24,7 @@
 	</tr>
 
 	<tr>
-	{% if group.parent %}
+	{% if group.parent and group.parent.type_id == "area" %}
 		<th>{{ group.parent.type.name }}</th>
 		<td>{{ group.parent.name }} ({{ group.parent.acronym }})</td>
 	{% endif %}
@@ -35,7 +35,7 @@
 		<td>
 			{{ group.state.name }}
 			{% if requested_close %}
-				(but in the process of being closed)
+				<div class="label label-info">In the process of being closed</div>
 			{% endif %}
 		</td>
 	</tr>
@@ -67,12 +67,14 @@
 	</tr>
 
 	<tr>
-		<th>Area Director</th>
-		<td>
-			{% if group.areadirector %}
-				<a href="mailto:{{ group.areadirector.address }}"><span class="fa fa-envelope-o"></span> {{ group.areadirector.person.plain_name }}</a>
-			{% else %}?{% endif %}
-		</td>
+		{% if group.parent.type_id == "area" %}
+			<th>Area Director</th>
+			<td>
+				{% if group.areadirector %}
+					<a href="mailto:{{ group.areadirector.address }}"><span class="fa fa-envelope-o"></span> {{ group.areadirector.person.plain_name }}</a>
+				{% else %}?{% endif %}
+			</td>
+		{% endif %}
 	</tr>
 
 	<tr>

@@ -32,7 +32,7 @@
 
 	<h2 id="preapprovals">Pre-approved drafts not yet submitted</h2>
 
-	{% if user|has_role:"Secretariat,WG Chair" %}
+	{% if user|has_role:"Secretariat,WG Chair,RG Chair" %}
 		<p><a class="btn btn-default" href="{% url "submit_add_preapproval" %}">Add pre-approval</a></p>
 	{% endif %}
 

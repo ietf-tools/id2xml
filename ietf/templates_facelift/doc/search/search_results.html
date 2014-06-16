@@ -1,6 +1,6 @@
 {% load ietf_filters %}
 
-{% if not docs %}
+{% if not docs and not skip_no_matches_warning %}
 	<div class="alert alert-info">
 		No documents match your query.
 	</div>

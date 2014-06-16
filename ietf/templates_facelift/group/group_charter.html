@@ -5,7 +5,7 @@
 {% block group_content %}
 
 {% if group.state_id == "conclude" %}
-	<p class="alert alert-warning"><b>Note:</b> The data for concluded WGs is occasionally incorrect.</p>
+	<p class="alert alert-warning"><b>Note:</b> The data for concluded {{ group.type.name }}s is occasionally incorrect.</p>
 {% endif %}
 
 <table class="table table-condensed">
@@ -145,7 +145,7 @@
 
 {% with group.groupurl_set.all as urls %}
 	{% if urls %}
-		<p class="alert alert-info">In addition to the charter maintained by the IETF Secretariat, there is additional information about this working group on the web at:
+		<p class="alert alert-info">In addition to the charter, there is additional information about this working group on the web at:
 			{% for url in urls %}
 				<a href="{{ url.url }}">{{ url.name }}</a>{% if not forloop.last %}, {% endif %}
 			{% endfor %}
@@ -153,7 +153,7 @@
 	{% endif %}
 {% endwith %}
 
-<h2>Charter for {% if group.state_id == "proposed" %}proposed{% endif %} Working Group</h2>
+<h2>Charter for {% if group.state_id == "proposed" %}proposed{% endif %} {{ long_group_type }}</h2>
 
 <p>{{ group.charter_text|escape|format_charter|safe }}</p>
 
@@ -163,7 +163,7 @@
 
 {% if milestones_in_review %}
 	<p class="alert alert-info">Plus {{ milestones_in_review|length }} new milestone{{ milestones_in_review|pluralize }}
-	currently in Area Director review.</p>
+	currently in {{ milestone_reviewer }} review.</p>
 {% endif %}
 
 {% endblock %}

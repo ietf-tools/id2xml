@@ -25,10 +25,13 @@
 	<li {% if selected == "history" %}class="active"{% endif %}>
 		<a href="{% url "ietf.group.info.history" group_type=group.type_id acronym=group.acronym %}">History</a>
 	</li>
+	<li>
+		<a href="{% url 'ietf.group.info.dependencies_pdf' group_type=group.type_id acronym=group.acronym %}">Dependency graph</a>
+	</li>
 	{% if group.list_archive|startswith:"http:" or group.list_archive|startswith:"https:" or group.list_archive|startswith:"ftp:" %}
 		<li><a href="{{ group.list_archive }}">List archive <span class="fa fa-long-arrow-right"></span></a></li>
 	{% endif %}
-	<li><a href="//tools.ietf.org/wg/{{ group.acronym }}/">Tools page <span class="fa fa-long-arrow-right"></span></a></li>
+	<li><a href="tools.ietf.org/{{ group.type_id }}/{{ group.acronym }}/">Tools page <span class="fa fa-long-arrow-right"></span></a></li>
 </ul>
 
 <p></p>

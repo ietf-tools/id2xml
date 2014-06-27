@@ -8,7 +8,8 @@ from email.utils import parseaddr
 
 from django import template
 from django.utils.html import escape, fix_ampersands
-from django.template.defaultfilters import truncatewords_html, linebreaksbr, stringfilter, urlize
+# FACELIFT: added striptags
+from django.template.defaultfilters import truncatewords_html, linebreaksbr, stringfilter, urlize, striptags
 from django.template import resolve_variable
 from django.utils.safestring import mark_safe, SafeData
 from django.utils.html import strip_tags
@@ -51,12 +52,12 @@ def parse_email_list(value):
     u'<a href="mailto:joe@example.org">joe@example.org</a>, <a href="mailto:fred@example.com">fred@example.com</a>'
 
     Parsing a non-string should return the input value, rather than fail:
-    
+
     >>> parse_email_list(['joe@example.org', 'fred@example.com'])
     ['joe@example.org', 'fred@example.com']
-    
+
     Null input values should pass through silently:
-    
+
     >>> parse_email_list('')
     ''
 
@@ -90,7 +91,7 @@ def fix_angle_quotes(value):
     if "<" in value:
         value = re.sub("<([\w\-\.]+@[\w\-\.]+)>", "&lt;\1&gt;", value)
     return value
-    
+
 # there's an "ahref -> a href" in GEN_UTIL
 # but let's wait until we understand what that's for.
 @register.filter(name='make_one_per_line')
@@ -102,7 +103,7 @@ def make_one_per_line(value):
     'a\\nb\\nc'
 
     Pass through non-strings:
-    
+
     >>> make_one_per_line([1, 2])
     [1, 2]
 
@@ -113,7 +114,7 @@ def make_one_per_line(value):
         return re.sub(", ?", "\n", value)
     else:
         return value
-        
+
 @register.filter(name='timesum')
 def timesum(value):
     """
@@ -277,7 +278,7 @@ def truncate_ellipsis(text, arg):
         return escape(text[:num-1])+"&hellip;"
     else:
         return escape(text)
-    
+
 @register.filter
 def split(text, splitter=None):
     return text.split(splitter)
@@ -378,7 +379,7 @@ def linebreaks_lf(text):
 @register.filter(name='clean_whitespace')
 def clean_whitespace(text):
     """
-    Map all ASCII control characters (0x00-0x1F) to spaces, and 
+    Map all ASCII control characters (0x00-0x1F) to spaces, and
     remove unnecessary spaces.
     """
     text = re.sub("[\000-\040]+", " ", text)
@@ -387,7 +388,7 @@ def clean_whitespace(text):
 @register.filter(name='unescape')
 def unescape(text):
     """
-    Unescape &nbsp;/&gt;/&lt; 
+    Unescape &nbsp;/&gt;/&lt;
     """
     text = text.replace("&gt;", ">")
     text = text.replace("&lt;", "<")
@@ -426,7 +427,7 @@ def has_role(user, role_names):
 @register.filter
 def stable_dictsort(value, arg):
     """
-    Like dictsort, except it's stable (preserves the order of items 
+    Like dictsort, except it's stable (preserves the order of items
     whose sort key is the same). See also bug report
     http://code.djangoproject.com/ticket/12110
     """
@@ -455,6 +456,24 @@ def format_history_text(text):
     snippet = truncatewords_html(full, 25)
     if snippet != full:
         return mark_safe(u'<div class="snippet">%s<span class="show-all">[show all]</span></div><div style="display:none" class="full">%s</div>' % (snippet, full))
+    return full
+
+@register.filter
+def format_history_text_facelift(text):
+    """
+    Run history text through some cleaning and add expand button if it's too long.
+    FACELIFT: The original format_history_text can be removed when the facelift
+    templates become default.
+    """
+    full = mark_safe(text)
+
+    if text.startswith("This was part of a ballot set with:"):
+        full = urlize_ietf_docs(full)
+
+    full = mark_safe(keep_spacing(linebreaksbr(urlize_html(sanitize_html(full)))))
+    snippet = truncatewords_html(full, 25)
+    if snippet != full:
+        return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-default show-all pull-right"><span class="fa fa-caret-down"></span></button></div><div class="hidden full">%s</div>' % (snippet, full))
     return full
 
 @register.filter
@@ -502,3 +521,68 @@ def plural(text, seq, arg=u's'):
 def ics_esc(text):
     text = re.sub(r"([\n,;\\])", r"\\\1", text)
     return text
+
+
+# FACELIFT: The following filters are only used by the facelift UI:
+
+@register.filter
+def pos_to_label(text):
+    """Return a valid Bootstrap3 label type for a ballot position."""
+    return {
+        'Yes':          'success',
+        'No Objection': 'info',
+        'Abstain':      'warning',
+        'Discuss':      'danger',
+        'Block':        'danger',
+        'Recuse':       'default',
+    }.get(str(text), 'blank')
+
+@register.filter
+def capfirst_allcaps(text):
+    from django.template import defaultfilters
+    """Like capfirst, except it doesn't lowercase words in ALL CAPS."""
+    result = text
+    i = False
+    for token in re.split("(\W+)", striptags(text)):
+        if not re.match("^[A-Z]+$", token):
+            if not i:
+                result = result.replace(token, token.capitalize())
+                i = True
+            else:
+                result = result.replace(token, token.lower())
+    return result
+
+@register.filter
+def lower_allcaps(text):
+    from django.template import defaultfilters
+    """Like lower, except it doesn't lowercase words in ALL CAPS."""
+    result = text
+    i = False
+    for token in re.split("(\W+)", striptags(text)):
+        if not re.match("^[A-Z]+$", token):
+            result = result.replace(token, token.lower())
+    return result
+
+# See https://djangosnippets.org/snippets/2072/ and
+# https://stackoverflow.com/questions/9939248/how-to-prevent-django-basic-inlines-from-autoescaping
+@register.filter
+def urlize_html(html, autoescape=False):
+    """
+    Returns urls found in an (X)HTML text node element as urls via Django urlize filter.
+    """
+    try:
+        from BeautifulSoup import BeautifulSoup
+        from django.utils.html import urlize
+    except ImportError:
+        if settings.DEBUG:
+            raise template.TemplateSyntaxError, "Error in urlize_html The Python BeautifulSoup libraries aren't installed."
+        return html
+    else:
+        soup = BeautifulSoup(html)
+
+        textNodes = soup.findAll(text=True)
+        for textNode in textNodes:
+            urlizedText = urlize(textNode, autoescape=autoescape)
+            textNode.replaceWith(BeautifulSoup(urlizedText))
+
+        return str(soup)

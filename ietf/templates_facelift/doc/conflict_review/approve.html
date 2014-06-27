@@ -1,0 +1,20 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Approve {{ review.canonical_name }}{% endblock %}
+
+{% block content %}
+<h1>Approve {{ review.canonical_name }}</h1>
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-warning">Send announcement & close ballot</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=review.name %}">Back</a>
+	</div>
+</form>
+
+{% endblock %}

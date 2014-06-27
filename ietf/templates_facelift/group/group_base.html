@@ -1,0 +1,50 @@
+{% extends "ietf.html" %}
+
+{% load ietf_filters %}
+
+{% block title %}{{ group.name }} ({{ group.acronym }}) - {% block group_subtitle %}{% endblock %}{% endblock %}
+
+{% block content %}
+
+<h1>{{ group.name}} ({{ group.acronym }})
+	{% if group.state_id == "dormant" or group.state_id == "conclude" %}
+		<span class="label label-warning">Concluded {{ group.type.name }}</span>
+	{% endif %}
+	{% if group.state_id == "proposed" %}
+		<span class="label label-info">Proposed {{ group.type.name }}</span>
+	{% endif %}
+</h1>
+
+<ul class="nav nav-tabs">
+	<li {% if selected == "documents" %}class="active"{% endif %}>
+		<a href="{% url "ietf.group.info.group_documents" group_type=group.type_id acronym=group.acronym %}">Documents</a>
+	</li>
+	<li {% if selected == "charter" %}class="active"{% endif %}>
+		<a href="{% url "ietf.group.info.group_charter" group_type=group.type_id acronym=group.acronym %}">Charter</a>
+	</li>
+	<li {% if selected == "history" %}class="active"{% endif %}>
+		<a href="{% url "ietf.group.info.history" group_type=group.type_id acronym=group.acronym %}">History</a>
+	</li>
+	<li>
+		<a href="{% url 'ietf.group.info.dependencies_pdf' group_type=group.type_id acronym=group.acronym %}">Dependency graph</a>
+	</li>
+	{% if group.list_archive|startswith:"http:" or group.list_archive|startswith:"https:" or group.list_archive|startswith:"ftp:" %}
+		<li><a href="{{ group.list_archive }}">List archive <span class="fa fa-long-arrow-right"></span></a></li>
+	{% endif %}
+	<li><a href="tools.ietf.org/{{ group.type_id }}/{{ group.acronym }}/">Tools page <span class="fa fa-long-arrow-right"></span></a></li>
+</ul>
+
+<p></p>
+
+{% if menu_actions %}
+<div class="buttonlist">
+	{% for name, url in menu_actions %}
+		<a class="btn {% if name == "Request closing group" %}btn-warning{% else %}btn-default{% endif %}" href="{{ url }}">{{ name }}</a>
+	{% endfor %}
+</div>
+{% endif %}
+
+{% block group_content %}
+{% endblock group_content %}
+
+{% endblock content %}

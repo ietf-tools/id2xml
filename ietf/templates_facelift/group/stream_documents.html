@@ -1,0 +1,9 @@
+{% extends "ietf.html" %}
+
+{% block title %}{{ stream }} stream documents{% endblock %}
+
+{% block content %}
+<h1>{{ stream }} stream documents</h1>
+
+{% include "doc/search/search_results.html" %}
+{% endblock %}

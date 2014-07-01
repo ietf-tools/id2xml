@@ -1,0 +1,23 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Charter submission for {{ group.acronym }} {{ group.type.name }}
+{% endblock %}
+
+{% block content %}
+<h1>Charter submission for {{ group.acronym }} {{ group.type.name }}</h1>
+
+<p class="alert alert-info">The text will be submitted as <b>charter-ietf-{{ name }}-{{ next_rev }}</b>.</p>
+
+<form role="form" enctype="multipart/form-data" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-default pull-right" href="{% url "doc_view" name=group.charter.name %}">Back</a>
+    </div>
+</form>
+
+{% endblock %}

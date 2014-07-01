@@ -1,0 +1,25 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Ballot writeup and notes for {{ charter.chartered_group }}{% endblock %}
+
+{% block content %}
+
+<h1>Ballot writeup and notes<br><small>{{ charter.chartered_group }}</small></h1>
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ ballot_writeup_form.ballot_writeup|as_crispy_field }}
+	<span class="help-block">
+		Working group summary, personnel, IAB note, IESG note, IANA note.
+	</span>
+
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary" name="save_ballot_writeup">Save</button>
+		<button type="submit" class="btn btn-warning" name="send_ballot">Save & {% if ballot_issued %}re-{% endif %}issue ballot</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_writeup" name=charter.name %}">Back</a>
+	</div>
+</form>
+
+{% endblock%}

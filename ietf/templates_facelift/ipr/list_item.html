@@ -1,0 +1,36 @@
+<tr>
+	<td class="nowrap">{{ ipr.submitted_date }}</td>
+	<td class="nowarp">#{{ ipr.ipr_id }}</td>
+	<td>
+		{% if ipr.status == 1 %}
+			<a href="{% url "ietf.ipr.views.show" ipr.ipr_id %}">{{ ipr.title }}</a>
+		{% else %}
+			{{ ipr.title }}
+			<br><i>This IPR disclosure was removed at the request of the submitter.</i>
+		{% endif %}
+
+		{% for item in ipr.updates.all %}
+			{% if item.updated.status == 1 %}
+				{% if forloop.first %}<br>Updates ID{% endif %}
+				<a href="{% url "ietf.ipr.views.show" item.updated.ipr_id %}">#{{ item.updated.ipr_id }}</a>{% if forloop.last %}.{% else %}, {% endif %}
+			{% endif %}
+		{% endfor %}
+
+		{% for item in ipr.updated_by.all %}
+			{% if item.processed == 1 and item.ipr.status != 2 %}
+				{% if forloop.first %}<br>Updated by ID{% endif %}
+				<a href="{% url "ietf.ipr.views.show" item.ipr.ipr_id %}">#{{ item.ipr.ipr_id }}</a>{% if forloop.last %}.{% else %}, {% endif %}
+			{% endif %}
+		{% endfor %}
+
+		{% if ipr.status == 1 %}
+			{% if ipr.legacy_title_1 %}
+				<br><a href="{{ ipr.legacy_url_1 }}">{{ ipr.legacy_title_1 }}</a>
+			{% endif %}
+			{% if ipr.legacy_title_2 %}
+				<br><a href="{{ ipr.legacy_url_2 }}">{{ ipr.legacy_title_2 }}</a>
+			{% endif %}
+		{% endif %}
+
+	</td>
+</tr>

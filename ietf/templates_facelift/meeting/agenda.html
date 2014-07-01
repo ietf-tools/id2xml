@@ -11,6 +11,16 @@ IETF {{ schedule.meeting.number }} meeting agenda
 
 {% block morecss %}
 iframe#weekview { height: 600px; width: 100%; }
+tr:not(:first-child) th.gap {
+	height: 3em !important;
+	background-color: inherit !important;
+	border: none !important;
+}
+tr:first-child th.gap {
+	height: 0 !important;
+	background-color: inherit !important;
+	border: none !important;
+}
 {% endblock %}
 
 {% block content %}
@@ -146,6 +156,7 @@ iframe#weekview { height: 600px; width: 100%; }
 	{% for item in schedule.assignments.all %}
 
 		{% ifchanged  %}
+			<tr><th class="gap" colspan="6"></th></tr>
 			<tr class="warning">
 				<th colspan="6">
 					{% if "-utc" in request.path %}

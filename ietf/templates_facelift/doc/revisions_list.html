@@ -1,0 +1,8 @@
+<ul class="pagination pagination-sm">
+	<li class="disabled"><b>Versions</b></li>
+	{% for rev in revisions %}
+	<li {% if rev == doc.rev %}class="active"{% endif %}>
+		<a href="{% url "doc_view" name=doc.name %}{% if not forloop.last %}{{ rev }}/{% endif %}" >{{ rev }}</a>
+	</li>
+	{% endfor %}
+</ul>

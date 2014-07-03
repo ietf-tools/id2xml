@@ -28,3 +28,25 @@ def streams_menu(context):
                     editable_streams.append(s)
 
     return { 'editable_streams': editable_streams }
+
+@register.inclusion_tag('base/menu_streams.html', takes_context=True)
+def menu_streams(context, flavor):
+    editable_streams = []
+
+    user = context["request"].user if "request" in context else AnonymousUser()
+
+    if user.is_authenticated():
+        streams = StreamName.objects.exclude(slug="legacy")
+
+        if has_role(user, "Secretariat"):
+            editable_streams.extend(streams)
+        else:
+            acronyms = Group.objects.filter(acronym__in=(s.slug for s in streams),
+                                            role__name="chair",
+                                            role__person__user=user).distinct().values_list("acronym", flat=True)
+
+            for s in streams:
+                if s.slug in acronyms:
+                    editable_streams.append(s)
+
+    return { 'editable_streams': editable_streams, 'flavor': flavor }

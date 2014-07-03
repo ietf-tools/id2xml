@@ -1,0 +1,9 @@
+{% for area in areas %}
+	<li class="hidden-sm hidden-xs dropdown-submenu">
+		<a href="#">{{ area.short_area_name }}</a>
+		<ul class="dropdown-menu">
+		{% for g in area.active_groups %}
+			<li><a href="/wg/{{ g.acronym }}/">{{ g.acronym }} &mdash; {{ g.name}}</a></li>
+		{% endfor %}
+		</ul>
+{% endfor %}

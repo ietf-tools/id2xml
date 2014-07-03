@@ -1,0 +1,30 @@
+{% extends "ietf.html" %}
+
+{% block title %}Liaison statements{% endblock %}
+
+{% block content %}
+
+{% block content-title %}
+<h1>Liaison statements</h1>
+{% endblock %}
+
+{% block management-links %}
+{% if can_manage %}
+<p class="buttonlist">
+	{% if can_send_incoming %}
+		<a class="btn btn-default" href="{% url "add_liaison" %}?incoming">New incoming liaison</a>
+	{% endif %}
+	{% if can_send_outgoing %}
+		<a class="btn btn-default" href="{% url "add_liaison" %}">New outgoing liaison</a>
+	{% endif %}
+	{% if approvable %}
+	<a class="btn btn-default" href="{% url "liaison_approval_list" %}">Approve pending liaison statement{{ approvable|pluralize }} <span class="badge">{{ approvable }}</span></a>
+	{% endif %}
+</p>
+{% endif %}
+{% endblock %}
+
+{% include "liaisons/liaison_table.html" %}
+
+{% endblock %}
+

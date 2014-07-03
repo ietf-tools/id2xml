@@ -1,0 +1,58 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+{% load ietf_filters %}
+
+{% block title %}
+{% if group %}
+	Edit {{ group.type.name }} {{ group.acronym }}
+{% else %}
+	Start chartering new group
+{% endif %}
+{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="/facelift/css/tokenfield-typeahead.min.css">
+<link rel="stylesheet" href="/facelift/css/bootstrap-tokenfield.min.css">
+{% endblock %}
+
+{% block content %}
+<h1>
+{% if action == "edit" %}
+	Edit WG {{ group.type.name }} {{ group.acronym }}
+{% else %}
+	{% if action == "charter" %}
+		Start chartering new group
+	{% else %}
+		Create new group or BOF
+	{% endif %}
+{% endif %}
+</h1>
+
+<p class="alert alert-info">Note that persons with authorization to manage information, e.g.
+chairs and delegates, need a datatracker account to actually do
+so. New accounts can be <a href="{% url "create_account" %}">created here</a>.</p>
+
+<form class="tokenized-form" role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		{% if action == "edit" %}
+			<button class="btn btn-primary" type="submit">Submit</button>
+			<a class="btn btn-default pull-right" href="{{ group.about_url }}">Back</a>
+		{% else %}
+			{% if action == "charter" %}
+				<button class="btn btn-primary" type="submit">Start chartering</button>
+			{% else %}
+				<button class="btn btn-primary" type="submit">Create group or BOF</button>
+			{% endif %}
+		{% endif %}
+	</div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script src="/facelift/js/lib/typeahead.bundle.min.js"></script>
+<script src="/facelift/js/lib/bootstrap-tokenfield.min.js"></script>
+{% endblock %}

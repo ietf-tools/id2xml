@@ -47,7 +47,7 @@
 					<tr>
 						<th>
 						{% if show_add_to_list and user.is_authenticated %}
-							<!--<span class="fa fa-briefcase"></span>-->
+							<span class="fa fa-tags"></span>
 						{% endif %}
 						</th>
 
@@ -60,7 +60,9 @@
 				</thead>
 				<tbody>
 					{% comment %} FACELIFT: We use the same template as the search results now. {% endcomment %}
-					{% for doc in section.docs %}{% include "doc/search/search_result_row.html" %}{% endfor %}
+					{% for doc in section.docs %}
+						{% include "doc/search/search_result_row.html" %}
+					{% endfor %}
 				</tbody>
 			</table>
 		{% endif %}

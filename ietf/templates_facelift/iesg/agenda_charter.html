@@ -12,7 +12,7 @@
 			<a href="{{ doc.get_absolute_url }}">{{ doc.name}}-({{doc.rev}})</a>
 		</dd>
 
-		<dt>WG</dt><dd>{{ doc.group.name }} ({{doc.group.acronym}})</dd>
+		<dt>{{ doc.group.name }}</dt><dd>{{ doc.group.name }} ({{doc.group.acronym}})</dd>
 
 		<dt>Area</dt><dd>{{ doc.group.parent.acronym|upper }}  ({{ doc.ad|default:"(None)" }})</dd>
 	</dl>

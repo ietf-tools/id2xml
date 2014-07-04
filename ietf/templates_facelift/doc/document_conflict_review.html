@@ -88,7 +88,7 @@
 	</tr>
 </table>
 
-<h2>Conflict review for {{ conflictdoc.name }}-{{ conflictdoc.rev }}</h2>
+<h2>Conflict review<br><small>{{ conflictdoc.name }}-{{ conflictdoc.rev }}</small></h2>
 {% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug != 'apprsent' %}
 	<a class="btn btn-default" href="{% url "conflict_review_submit" name=doc.name %}">Change conflict review text</a>
 {% endif %}

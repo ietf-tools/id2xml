@@ -3,10 +3,11 @@
 {% load crispy_forms_tags %}
 {% load ietf_filters %}
 
-{% block title %}Edit info on {{ doc }}{% endblock %}
+{% block title %}Edit info for {{ doc }}{% endblock %}
 
 {% block content %}
-<h1>Edit info on {{ doc }}</h1>
+<h1>Edit info<br><small>{{ doc }}</small></h1>
+
 <form class="tokenized-form" role="form" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}

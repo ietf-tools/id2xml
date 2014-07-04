@@ -5,7 +5,7 @@
 {% block title %}Approve {{doc.canonical_name }}{% endblock %}
 
 {% block content %}
-<h1>Approve {{ doc.canonical_name }}</h1>
+<h1>Approve<br><small>{{ doc.canonical_name }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

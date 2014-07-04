@@ -2,17 +2,17 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}Change the shepherding AD for {{titletext}}{% endblock %}
+{% block title %}Change shepherding AD for {{titletext}}{% endblock %}
 
 {% block content %}
-<h1>Change the shepherding AD for {{titletext}}</h1>
+<h1>Change shepherding AD<br><small>{{titletext}}</small></h1>
 
 <form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">
-		<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
-		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.canonical_name %}">Back</a>
 	</div>
 </form>
 

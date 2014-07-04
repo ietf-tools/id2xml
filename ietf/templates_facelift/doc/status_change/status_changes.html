@@ -1,10 +1,10 @@
 {% extends "ietf.html" %}
 {% load ietf_filters %}
 
-{% block title %}RFC Status Changes{% endblock %}
+{% block title %}RFC status changes{% endblock %}
 
 {% block content %}
-<h1>RFC Status Changes</h1>
+<h1>RFC status changes</h1>
 
 {% if user|has_role:"Area Director,Secretariat" %}
 	<p><a class="btn btn-default" href="{% url "start_rfc_status_change" name='' %}">New RFC status change</a></p>

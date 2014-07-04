@@ -5,7 +5,7 @@
 {% block title %}Set notification list for {{ doc.name }}{% endblock %}
 
 {% block content %}
-<h1>Set notification list for {{ doc.name }}</h1>
+<h1>Set notification list<br><small>{{ doc.name }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

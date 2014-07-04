@@ -6,7 +6,7 @@
 {% block title %}Last call text for {{ doc }}{% endblock %}
 
 {% block content %}
-<h1>Last call text for {{ doc }}</h1>
+<h1>Last call text<br><small>{{ doc }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

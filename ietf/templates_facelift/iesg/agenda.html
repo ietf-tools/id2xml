@@ -2,14 +2,14 @@
 
 {% load ietf_filters %}
 
-{% block title %}IESG agenda {{ date }}{% endblock %}
+{% block title %}IESG agenda: {{ date }}{% endblock %}
 
 {% block pagehead %}
 <link rel="alternate" type="application/atom+xml" href="/feed/iesg-agenda/">
 {% endblock %}
 
 {% block content %}
-<h1>IESG agenda {{ date }} </h1>
+<h1>IESG agenda: {{ date }} </h1>
 
 <p class="buttonlist">
 	<a class="btn btn-default" role="button" href="/iesg/agenda/documents/">Documents on future agendas</a>
@@ -32,32 +32,32 @@
 
 {% if num >= "2" and num < "5" %}
   {% if num == "2" %}
-    <div class="alert alert-info"><p>
+    <p class="alert alert-info">
     Reviews should focus on these questions: "Is this document a
     reasonable basis on which to build the salient part of the Internet
     infrastructure? If not, what changes would make it so?"
-    </p></div>
+    </p>
   {% endif %}
 
   {% if num == "3.1" or num == "3.2" %}
-    <div class="alert alert-info"><p>
+    <p class="alert alert-info">
     Reviews should focus on these questions: "Is this document a
     reasonable contribution to the area of Internet engineering
     which it covers? If not, what changes would make it so?"
-    </p></div>
+    </p>
   {% endif %}
 
   {% if num == "3.3" %}
-    <div class="alert alert-info"><p>
+    <p class="alert alert-info">
     Reviews should focus on these questions: "Are the proposed
     changes to document status appropriate? Have all requirements
     for such a change been met? If not, what changes to the proposal
     would make it appropriate?"
-    </p></div>
+    </p>
   {% endif %}
 
   {% if num == "3.4" %}
-    <div class="alert alert-info"><p>
+    <p class="alert alert-info">
     The IESG will use RFC 5742 responses:
 		</p>
     <ol>
@@ -87,7 +87,7 @@
     <p>
     Other matters may be recorded in comments, and the comments will
     be passed on to the RFC Editor as community review of the document.
-    </p></div>
+    </p>
   {% endif %}
 
 

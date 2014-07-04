@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% block title %}Chartering or re-chartering Working Groups{% endblock %}
+{% block title %}Chartering or re-chartering groups{% endblock %}
 
 {% block content %}
 {% load ietf_filters %}
@@ -40,7 +40,7 @@
 				{% for g in t.chartering_groups %}
 				<tr>
 					<td>
-						<a href="{{ group.about_url }}">{{ g.acronym }}</a>
+						<a href="{{ g.about_url }}">{{ g.acronym }}</a>
 					</td>
 
 					<td>

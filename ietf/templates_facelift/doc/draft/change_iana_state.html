@@ -2,10 +2,10 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}Change IANA state of {{ doc }}{% endblock %}
+{% block title %}Change IANA state for {{ doc }}{% endblock %}
 
 {% block content %}
-<h1>Change IANA state of {{ doc }}</h1>
+<h1>Change IANA state<br><small>{{ doc }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

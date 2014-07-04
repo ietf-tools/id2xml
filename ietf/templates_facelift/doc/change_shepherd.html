@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-Change the document shepherd for {{ doc.name }}-{{ doc.rev }}
+Change document shepherd for {{ doc.name }}-{{ doc.rev }}
 {% endblock %}
 
 {% block pagehead %}
@@ -12,7 +12,8 @@ Change the document shepherd for {{ doc.name }}-{{ doc.rev }}
 {% endblock %}
 
 {% block content %}
-<h1>Change the document shepherd for {{ doc.name }}-{{ doc.rev }}</h1>
+<h1>Change document shepherd<br><small>{{ doc.name }}-{{ doc.rev }}</small></h1>
+
 <form class="tokenized-form" role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
 	{{ form|crispy }}

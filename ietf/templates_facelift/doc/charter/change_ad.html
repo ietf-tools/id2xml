@@ -3,11 +3,11 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-Change the responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}
+Change responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}
 {% endblock %}
 
 {% block content %}
-<h1>Change the responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}</h1>
+<h1>Change responsible AD<br><small>{{ charter.canonical_name }}-{{ charter.rev }}</small></h1>
 
 <form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}

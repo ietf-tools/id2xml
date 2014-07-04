@@ -20,13 +20,13 @@
 		</th>
 		<td>
 			{{ group.name }} {{ group.type.name }}
-			(<a href="{{ group.about_url }}">{{ group.acronym }}</a>) {{ group.type.name }}
+			<a href="{{ group.about_url }}">({{ group.acronym }})</a> {{ group.type.name }}
 
 			{% if snapshot %}
 				<span class="label label-warning">Snapshot</span>
 			{% endif %}
 
-			<a class="pull-right" href="/feed/group-changes/{{ group.acronym }}/"><span class="fa fa-rss"></span> Atom feed</a>
+			<a class="pull-right btn btn-default btn-xs" href="/feed/group-changes/{{ group.acronym }}/"><span class="fa fa-rss"></span></a>
 		</td>
 	</tr>
 
@@ -42,7 +42,6 @@
 			{% endif %}
 			{{ doc.get_state.name }}
 
-			</a>
 			{% if chartering == "initial" %}
 				<span class="label label-info">Initial chartering</span>
 			{% endif %}
@@ -128,7 +127,7 @@
 {% endif %}
 </p>
 
-<h2>Charter {{ doc.canonical_name }}-{{ doc.rev }}</h2>
+<h2>Charter<br><small>{{ doc.canonical_name }}-{{ doc.rev }}</small></h2>
 
 {% if not snapshot and can_manage and chartering and group.state_id != "conclude" %}
 	<p><a class="btn btn-default" href="{% url "charter_submit" name=doc.name %}">Change charter text</a></p>

@@ -5,7 +5,7 @@
 <ul class="nav nav-tabs">
 	{% for name, t, url, active, tooltip in tabs %}
 		<li {% if tooltip %}title="{{tooltip}}"{% endif %} class="{% if t == selected %}active {% endif %}{% if not active %}disabled {% endif %}">
-			<a href="{% if active %}{{ url }}{% endif %}">{{ name|capfirst_allcaps }}</a>
+			<a {% if active %}href="{{ url }}"{% endif %}>{{ name|capfirst_allcaps }}</a>
 		</li>
 	{% endfor %}
 </ul>

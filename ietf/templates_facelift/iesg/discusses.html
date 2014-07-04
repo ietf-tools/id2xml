@@ -9,17 +9,17 @@
 <h1>IESG discuss positions</h1>
 
 {% if user|has_role:"Area Director" %}
-<div class="btn-group" data-toggle="buttons">
-	<label class="btn btn-default active">
-		<input type="radio" name="discusses" value="all">All
+<p class="btn-group" data-toggle="buttons">
+	<label class="btn btn-default active discuss">
+		<input type="radio" value="all">All
 	</label>
-	<label class="btn btn-default">
-		<input type="radio" name="discusses" value="byme">By me
+	<label class="btn btn-default discuss">
+		<input type="radio" value="byme">By me
 	</label>
-	<label class="btn btn-default">
-		<input type="radio" name="discusses" value="forme">For me
+	<label class="btn btn-default discuss">
+		<input type="radio" value="forme">For me
 	</label>
-</div>
+</p>
 {% endif %}
 
 <table class="table table-condensed table-striped ietf">
@@ -58,4 +58,16 @@
 		{% endfor %}
 	</tbody>
 </table>
-{% endblock content %}
+{% endblock %}
+
+{% block scripts %}
+$(".discuss").click(function () {
+	var x = $(this).find("input").val();
+	if (x === "all") {
+		$("tbody tr").removeClass("hidden");
+	} else {
+		$("tbody tr." + x).removeClass("hidden");
+		$("tbody tr:not(." + x + ")").addClass("hidden");
+	}
+});
+{% endblock %}

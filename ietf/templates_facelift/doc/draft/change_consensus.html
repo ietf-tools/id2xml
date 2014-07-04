@@ -2,10 +2,10 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}Change whether {{ doc.name }}-{{ doc.rev }} is the result of a consensus process{% endblock %}
+{% block title %}Change consensus for {{ doc.name }}-{{ doc.rev }}{% endblock %}
 
 {% block content %}
-<h1>Change whether {{ doc.name }}-{{ doc.rev }} is the result of a consensus process</h1>
+<h1>Change consensus<br><small>{{ doc.name }}-{{ doc.rev }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

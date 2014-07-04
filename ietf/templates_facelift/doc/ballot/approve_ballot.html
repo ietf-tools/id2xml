@@ -3,7 +3,7 @@
 {% block title %}Approve ballot for {{ doc }}{% endblock %}
 
 {% block content %}
-<h1>Approve Ballot for {{ doc }}</h1>
+<h1>Approve ballot<br><small>{{ doc }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

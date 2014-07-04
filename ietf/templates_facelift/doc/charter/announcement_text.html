@@ -6,7 +6,7 @@
 {% block title %}WG {{ announcement }} announcement writeup for {{ charter.chartered_group.acronym }}{% endblock %}
 
 {% block content %}
-<h1>WG {{ announcement }} announcement writeup for {{ charter.chartered_group.acronym }}</h1>
+<h1>WG {{ announcement }} announcement writeup<br><small>{{ charter.chartered_group.acronym }}</small></h1>
 
 <form role="form" method="post">
 	{% csrf_token %}

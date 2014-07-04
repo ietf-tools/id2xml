@@ -5,14 +5,14 @@
 {% block title %}Edit notification addresses for {{titletext}}{% endblock %}
 
 {% block content %}
-<h1>Edit notification addresses for {{titletext}}</h1>
+<h1>Edit notification addresses<br><small>{{titletext}}</small></h1>
 
 <form role="form" method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ form|crispy }}
 	<div class="buttonlist">
-		<button type="submit" class="btn btn-primary" name="submit_response">Submit</button>
-		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.canonical_name %}">Back</a>
 	</div>
 </form>
 

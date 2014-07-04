@@ -2,7 +2,7 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}Change which documents {{ doc }} replaces{% endblock %}
+{% block title %}Change documents replaced by {{ doc }}{% endblock %}
 
 {% block pagehead %}
 <link rel="stylesheet" href="/facelift/css/tokenfield-typeahead.min.css">
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<h1>Change which documents {{ doc }} replaces</h1>
+<h1>Change documents replaced by<br><small>{{ doc }}</small></h1>
 
 <form class="tokenized-form" role="form" method="post">
 	{% csrf_token %}

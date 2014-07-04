@@ -7,7 +7,7 @@ Edit shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}
 {% endblock %}
 
 {% block content %}
-<h1>Edit shepherd writeup for {{ doc.canonical_name }}-{{ doc.rev }}</h1>
+<h1>Edit shepherd writeup<br><small>{{ doc.canonical_name }}-{{ doc.rev }}</small></h1>
 
 <form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}

@@ -68,13 +68,26 @@
 
 					<td>
 						{% if session.requested_duration %}
-							{% for constraint in session.constraints %}
-								<span class="{% if constraint.name.slug == "conflict" %}text-danger{% elif constraint.name.slug == "conflic2" %}text-warning{% elif constraint.name.slug == "conflic3" %}text-success{% else %}{{constraint.name.slug}}{% endif %}">
-									{{constraint.brief_display}}
-								</span>
-								{% if constraint.target.parent.id == constraint.source.parent.id %}
-									({{constraint.target.parent.acronym}})
+							{% regroup session.constraints by name as prioritized_constraints %}
+							{% for grouped_constraint in prioritized_constraints %}
+								{% if not forloop.first %}
+									{% ifchanged grouped_constraint.grouper %}<br>{% endifchanged %}
 								{% endif %}
+								{% for constraint in grouped_constraint.list %}
+									{% if constraint.target.parent.id == constraint.source.parent.id %}
+										<b>
+									{% endif %}
+									{% if constraint.name.slug == "bethere" %}
+										{{constraint.brief_display|clean_whitespace}}{% if not forloop.last %}, {% endif %}
+									{% else %}
+										<span class="{% if constraint.name.slug == "conflict" %}text-danger{% elif constraint.name.slug == "conflic2" %}text-warning{% elif constraint.name.slug == "conflic3" %}text-success{% else %}{{constraint.name.slug}}{% endif %}">
+											{{constraint.brief_display}}
+										</span>
+									{% endif %}
+									{% if constraint.target.parent.id == constraint.source.parent.id %}
+										</b>
+									{% endif %}
+								{% endfor %}
 							{% endfor %}
 						{% endif %}
 					</td>

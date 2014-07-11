@@ -1,0 +1,114 @@
+{% extends "stats/docevents_base.html" %}
+
+{% block moregraphs_html %}
+<dl>
+<dt>
+  <span class="legend-key legend-twotone-1">&nbsp;</span><span>new_revision</span>
+  <span class="legend-key legend-twotone-2">&nbsp;</span><span>changed_document</span>
+</dt><dd><div><canvas id="combo1"></canvas></div></dd>
+<dt>
+  <span class="legend-key legend-twocolor-1">&nbsp;</span><span>scheduled_for_telechat</span>
+  <span class="legend-key legend-twocolor-2">&nbsp;</span><span>iesg_approved</span>
+</dt><dd><div><canvas id="combo2"></canvas></div></dd>
+<dt>
+ <div>
+  <span class="legend-key legend-angryfruitsalad-1">&nbsp;</span><span>requested_last_call</span>
+  <span class="legend-key legend-angryfruitsalad-2">&nbsp;</span><span>changed_ballot_writeup</span>
+  <span class="legend-key legend-angryfruitsalad-3">&nbsp;</span><span>changed_ballot_approval</span>
+  <span class="legend-key legend-angryfruitsalad-4">&nbsp;</span><span>scheduled_for_telechat</span>
+  <span class="legend-key legend-angryfruitsalad-5">&nbsp;</span><span>iesg_approved</span>
+ </div>
+</dt><dd><div><canvas id="combo3"></canvas></div></dd>
+<dt>
+  <span class="legend-key legend-twocolor-1">&nbsp;</span><span>sent_last_call</span>
+  <span class="legend-key legend-twocolor-2">&nbsp;</span><span>iana_review</span>
+</dt><dd><div><canvas id="combo4"></canvas></div></dd>
+<dl/>
+<hr/>
+{% endblock %}
+
+{% block moregraphs_js %}
+    var data1 = {
+        labels: ['{{labels|join:"','"}}'],
+        datasets: [
+            { 
+              fillColor : "rgba(220,220,220,0.5)",
+              strokeColor : "rgba(220,220,220,1)",
+              data: {{event_counts.new_revision}} 
+            },
+            { 
+              fillColor : "rgba(151,187,205,0.5)",
+              strokeColor : "rgba(151,187,205,1)",
+              data: {{event_counts.changed_document}} 
+            }
+        ]
+    }
+    var data2 = {
+        labels: ['{{labels|join:"','"}}'],
+        datasets: [
+            { 
+              fillColor : "rgba(120,220,120,0.5)",
+              strokeColor : "rgba(120,220,120,1)",
+              data: {{event_counts.scheduled_for_telechat}} 
+            },
+            { 
+              fillColor : "rgba(220,220,220,0.5)",
+              strokeColor : "rgba(220,220,220,1)",
+              data: {{event_counts.iesg_approved}} 
+            },
+        ]
+    }
+    var data3 = {
+        labels: ['{{labels|join:"','"}}'],
+        datasets: [
+            { 
+              fillColor : "rgba(255,240,124,0.05)",
+              strokeColor: "rgba(255,240,124,1)",
+              data: {{event_counts.iesg_approved}} 
+            },
+            { 
+              fillColor : "rgba(161,218,180,0.05)",
+              strokeColor: "rgba(161,218,180,1)",
+              data: {{event_counts.scheduled_for_telechat}} 
+            },
+            { 
+              fillColor : "rgba(65,182,196,0.05)",
+              strokeColor: "rgba(65,182,196,1)",
+              data: {{event_counts.changed_ballot_approval_text}} 
+            },
+            { 
+              fillColor : "rgba(44,127,184,0.05)",
+              strokeColor: "rgba(44,127,184,1)",
+              data: {{event_counts.changed_ballot_writeup_text}} 
+            },
+            { 
+              fillColor : "rgba(37,52,148,0.05)",
+              strokeColor: "rgba(37,52,148,1)",
+              data: {{event_counts.requested_last_call}} 
+            },
+        ]
+    }
+    var data4 = {
+        labels: ['{{labels|join:"','"}}'],
+        datasets: [
+            { 
+              fillColor : "rgba(120,220,120,0.5)",
+              strokeColor : "rgba(120,220,120,1)",
+              data: {{event_counts.iana_review}} 
+            },
+            { 
+              fillColor : "rgba(220,220,220,0.5)",
+              strokeColor : "rgba(220,220,220,1)",
+              data: {{event_counts.sent_last_call}} 
+            },
+        ]
+    }
+    var ctx = document.getElementById("combo1").getContext("2d");
+    new Chart(ctx).Line(data1,options);
+    var ctx = document.getElementById("combo2").getContext("2d");
+    ndtry = new Chart(ctx).Line(data2,options);
+    var ctx = document.getElementById("combo3").getContext("2d");
+    new Chart(ctx).Line(data3,options);
+    var ctx = document.getElementById("combo4").getContext("2d");
+    new Chart(ctx).Line(data4,options);
+{% endblock %}

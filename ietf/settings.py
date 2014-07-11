@@ -203,6 +203,7 @@ INSTALLED_APPS = (
     'ietf.sync',
     'ietf.community',
     'ietf.release',
+    'ietf.stats',
     # secretariat apps
     'form_utils',
     'ietf.secr.announcement',

@@ -3,11 +3,14 @@
 {% load ietf_filters %}
 {% load crispy_forms_tags %}
 
-{% block title %}IPR details form{% endblock %}
+{% block title %}Patent disclosure and licensing declaration template for {{ section_list.disclosure_type|lower_allcaps }}{% endblock %}
 
 {% block content %}
 
-<h1>Patent disclosure and licensing declaration template for {{ section_list.disclosure_type|lower_allcaps }}</h1>
+<h1>
+	{{ section_list.disclosure_type|lower_allcaps|capfirst }}<br>
+	<small>Patent disclosure and licensing declaration template</small>
+</h1>
 
 {% if section_list.generic %}
 	<p>This document is an IETF IPR Patent Disclosure and Licensing
@@ -33,7 +36,7 @@
 	<p>This form is used to let the IETF know about patent information
 	regarding an IETF document or contribution when the person letting the
 	IETF know about the patent has no relationship with the patent owners.
-	Click <a href="https://datatracker.ietf.org/ipr/new-specific">here</a>
+	Click <a href="/ipr/new-specific">here</a>
 	if you want to disclose information about patents or patent
 	applications where you do have a relationship to the patent owners or
 	patent applicants.</p>
@@ -41,7 +44,7 @@
 
 {% if section_list.also_specific %}
 	<p><b>Note:</b> According to Section 6.4.3 of
-	<a href="https://www.ietf.org/rfc/rfc3979.txt">RFC 3979</a>,
+	<a href="//www.ietf.org/rfc/rfc3979.txt">RFC 3979</a>,
 	"Intellectual Property Rights in IETF Technology," you
 	are still required to file specific disclosures on IPR unless your
 	generic disclosure satisfies certain conditions. Please see the
@@ -53,7 +56,7 @@
 	it to <a href="mailto:ietf-ipr@ietf.org">ietf-ipr@ietf.org</a>.
 	Submissions made by e-mail that do not comply with the formal
 	requirements of Section 6, "IPR Disclosures," of
-	<a href="https://www.ietf.org/rfc/rfc3979.txt">RFC 3979</a>,
+	<a href="//www.ietf.org/rfc/rfc3979.txt">RFC 3979</a>,
 	"Intellectual Property Rights in IETF Technology",
 	will be posted, but will be marked as "non-compliant".
 </p>
@@ -230,9 +233,10 @@
 		{% endcomment %}
 
 		{% for radio in ipr.licensing_option %}
-			<div class="radio">{{ radio }}</div>
+			{% if not forloop.first %}
+				<div class="radio">{{ radio }}</div>
+			{% endif %}
 		{% endfor %}
-
 
 		{{ ipr.stdonly_license|as_crispy_field }}
 		{{ ipr.comments|as_crispy_field }}
@@ -245,7 +249,7 @@
 			{% if section_list.generic %}
 				<p>
 					<b>Note:</b> According to
-					<a href="https://www.ietf.org/rfc/rfc3979.txt?number=3979">RFC 3979</a>,
+					<a href="//www.ietf.org/rfc/rfc3979.txt">RFC 3979</a>,
 					Section 6.4.3, unless you check the box
 					above, and choose either option a) or b), you must still file specific
 					IPR disclosures as appropriate.

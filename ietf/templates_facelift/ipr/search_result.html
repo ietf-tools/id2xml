@@ -50,7 +50,7 @@
 
 					<tr>
 						<td class="nowrap">{{ ipr.submitted_date }}</td>
-						<td class="nowrap">#{{ ipr.ipr_id }}</td>
+						<td class="text-right">{{ ipr.ipr_id }}</td>
 						<td><a href="{% url "ietf.ipr.views.show" ipr_id=ipr.ipr_id %}">{{ ipr.title }}</a></td>
 					</tr>
 

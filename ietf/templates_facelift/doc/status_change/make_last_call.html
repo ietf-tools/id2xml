@@ -1,0 +1,47 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="/facelift/css/datepicker3.css"></link>
+{% endblock %}
+
+{% block title %}Make last call for {{ doc.name }}{% endblock %}
+
+{% block content %}
+
+<h1>Make last call<br><small>{{doc.name}}</small></h1>
+
+<div class="form-group">
+	<label>Last call text</label>
+	<pre>{{ announcement }}</pre>
+</div>
+
+<form role="form" enctype="multipart/form-data" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<button type="reset" class="btn btn-warning">Reset</button>
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	</div>
+</form>
+{% endblock %}
+
+
+{% block js %}
+<script src="/facelift/js/lib/bootstrap-datepicker.js"></script>
+{% endblock %}
+
+{% block scripts %}
+$('.dateinput').parent().addClass('input-group').prepend('<span class="input-group-addon"><span class="fa fa-calendar"></span></span>');
+
+$('.dateinput').datepicker({
+	format: "yyyy-mm-dd",
+	todayBtn: "linked",
+	todayHighlight: true,
+});
+{% endblock %}
+
+

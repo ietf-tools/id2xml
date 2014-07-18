@@ -1,0 +1,19 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Change shepherding AD for {{ doc.name }}-{{ doc.rev }}{% endblock %}
+
+{% block content %}
+<h1>Change shepherding AD<br><small>{{ doc.name }}-{{ doc.rev }}</small></h1>
+
+<form role="form" enctype="multipart/form-data" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
+	</div>
+</form>
+
+{% endblock %}

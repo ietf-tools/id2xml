@@ -1,0 +1,18 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Change intended status for {{ doc }}{% endblock %}
+
+{% block content %}
+<h1>Change intended status<br><small>{{ doc }}</small></h1>
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	</div>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
+
+{% load ietf_filters %}
+
+{% block title %}Begin IETF conflict review for {{doc_to_review.canonical_name}}-{{doc_to_review.rev}}{% endblock %}
+
+{% block content %}
+<h1>Begin IETF conflict review<br><small>{{doc_to_review.canonical_name}}-{{doc_to_review.rev}}</small></h1>
+
+{% if user|has_role:"Secretariat" %}
+<p class="helptext">For help on the initial state choice, see the <a href="{% url "state_help" type="conflict-review" %}">state table</a>.</p>
+{% endif %}
+
+<form role="form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<div class="buttonlist">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc_to_review.name %}">Back</a>
+	</div>
+</form>
+
+{% endblock %}

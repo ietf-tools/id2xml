@@ -1,0 +1,123 @@
+{% extends "ietf.html" %}
+
+{% block title %}IPR search{% endblock %}
+
+{% block content %}
+
+<h1>IPR search</h1>
+
+<div class="row">
+	<div class="col-md-6">
+
+		<h2>Document search</h2>
+
+		<form role="form">
+			<input type="hidden" name="option" value="document_search">
+			<div class="form-group">
+				<label for="document_search">I-D name</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="document_search" name="document_search" placeholder="draft-...">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+			</div>
+		</form>
+
+		<form role="form">
+			<input type="hidden" name="option" value="rfc_search">
+			<div class="form-group">
+				<label for="rfc_search">RFC number</label>
+				<div class="input-group">
+					<input type="number" class="form-control" id="rfc_search" name="rfc_search" placeholder="123...">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+			</div>
+		</form>
+
+		<form role="form">
+			<input type="hidden" name="option" value="title_search">
+			<div class="form-group">
+				<label for="title_search">Words in document title</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="title_search" name="title_search" placeholder="protocol...">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+			</div>
+		</form>
+
+		<form role="form">
+			<input type="hidden" name="option" value="wg_search">
+			<div class="form-group">
+				<label for="wg_search">Working group</label>
+				<div class="row">
+					<div class="col-sm-8">
+						<select class="form-control" id="wg_search" name="wg_search">
+							<option value="">(Select WG)</option>
+							{% for wg in wgs %}
+								<option value="{{ wg.acronym }}">{{ wg.acronym }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-sm-4">
+						<button class="btn btn-primary btn-block" type="submit"><span class="fa fa-search"></span> Search</button>
+					</div>
+				</div>
+			</div>
+		</form>
+
+	</div>
+	<div class="col-md-6">
+
+		<h2>IPR search</h2>
+
+		<form role="form">
+			<input type="hidden" name="option" value="patent_search">
+			<div class="form-group">
+				<label for="patent_search">Name of patent owner/applicant</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="patent_search" name="patent_search" placeholder="John Doe...">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+			</div>
+		</form>
+
+		<form role="form">
+			<input type="hidden" name="option" value="ipr_title_search">
+			<div class="form-group">
+				<label for="ipr_title_search">Words in IPR disclosure title</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="ipr_title_search" name="ipr_title_search" placeholder="protocol...">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+			</div>
+		</form>
+
+		<form role="form">
+			<input type="hidden" name="option" value="patent_info_search">
+			<div class="form-group">
+				<label for="patent_info_search">Text in patent information</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="patent_info_search" name="patent_info_search" placeholder="">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+					</span>
+				</div>
+				<span class="help-block">This search string must contain at least three characters, including at least one digit, and include punctuation marks. For best results, please enter the entire string, or as much of it as possible.</span>
+			</div>
+		</form>
+
+	</div>
+</div>
+
+
+<a class="btn btn-default pull-right" href="{% url "ietf.ipr.views.showlist" %}">Back</a>
+{% endblock %}

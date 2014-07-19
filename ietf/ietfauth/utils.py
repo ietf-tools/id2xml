@@ -100,10 +100,6 @@ def is_authorized_in_doc_stream(user, doc):
     document."""
     if has_role(user, ["Secretariat"]):
         return True
-    '''
-    if not doc.stream or not user.is_authenticated():
-        return False
-    '''
 
     if not user.is_authenticated():
         return False

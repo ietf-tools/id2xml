@@ -11,7 +11,7 @@
 
 <table class="table table-condensed table-striped">
 	<tr>
-		<th class="nowrap">
+		<th class="text-nowrap">
 			{% if doc.get_state_slug not in approved_states %}
 				Proposed conflict review
 			{% else %}
@@ -31,7 +31,7 @@
 	</tr>
 
 	<tr>
-		<th class="nowrap"><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
+		<th class="text-nowrap"><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
 				<a title="{{ doc.get_state.desc }}" class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_change_state" name=doc.name %}">Edit</a>
@@ -42,7 +42,7 @@
 
 	{% if not snapshot %}
 		<tr>
-			<th class="nowrap">Telechat date</th>
+			<th class="text-nowrap">Telechat date</th>
 			<td>
 				{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 					<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_telechat_date" name=doc.name %}">Edit</a>
@@ -63,7 +63,7 @@
 	{% endif %}
 
 	<tr>
-		<th class="nowrap">Shepherding AD</th>
+		<th class="text-nowrap">Shepherding AD</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_ad" name=doc.name %}">Edit</a>
@@ -73,7 +73,7 @@
 	</tr>
 
 	<tr>
-		<th class="nowrap">Send notices to</th>
+		<th class="text-nowrap">Send notices to</th>
 		<td>
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_notices" name=doc.name %}">Edit</a>
@@ -83,7 +83,7 @@
 	</tr>
 
 	<tr>
-		<th class="nowrap">Last updated</th>
+		<th class="text-nowrap">Last updated</th>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>

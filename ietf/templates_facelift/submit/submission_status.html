@@ -308,7 +308,7 @@
 	<tbody>
 		{% for e in submission.submissionevent_set.all %}
 			<tr>
-				<td class="nowrap">{{ e.time|date:"Y-m-d" }}</td>
+				<td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
 				<td>{{ e.by|default:"" }}</td>
 				<td>{{ e.desc }}</td>
 			</tr>

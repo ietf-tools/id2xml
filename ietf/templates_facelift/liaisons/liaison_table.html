@@ -23,7 +23,7 @@
 	<tbody>
 		{% for liaison in liaisons %}
 			<tr>
-				<td class="nowrap">{{ liaison.submitted|date:"Y-m-d" }}</td>
+				<td class="text-nowrap">{{ liaison.submitted|date:"Y-m-d" }}</td>
 				<td>{{ liaison.from_name }}</td>
 				<td>
 					{% if liaison.from_contact_id %}
@@ -32,7 +32,7 @@
 						{{ liaison.to_name|strip_email }}
 					{% endif %}
 				</td>
-				<td class="nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}</td>
+				<td class="text-nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}</td>
 				<td>
 					{% if not liaison.from_contact_id %}
 						{% for doc in liaison.attachments.all %}

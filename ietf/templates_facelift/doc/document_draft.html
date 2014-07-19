@@ -19,7 +19,7 @@
 
 <table class="table table-condensed table-striped doc">
 	<tr>
-		<th class="nowrap">Document type</th>
+		<th class="text-nowrap">Document type</th>
 		<td>
 			{% if doc.get_state_slug == "rfc" %}
 				RFC - {{ doc.std_level }}
@@ -42,7 +42,7 @@
 
 	{% if replaces or can_edit_stream_info %}
 		<tr>
-			<th class="nowrap">Replaces</th>
+			<th class="text-nowrap">Replaces</th>
 			<td>
 				{% if can_edit_stream_info %}
 					<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_replaces" name=doc.name %}">Edit</a>
@@ -54,7 +54,7 @@
 
 	{% if replaced_by %}
 		<tr>
-			<th class="nowrap">Replaced by</th>
+			<th class="text-nowrap">Replaced by</th>
 			<td>
 				{{ replaced_by|join:", "|urlize_ietf_docs }}
 			</td>
@@ -62,7 +62,7 @@
 	{% endif %}
 
 	<tr>
-		<th class="nowrap">Document stream</th>
+		<th class="text-nowrap">Document stream</th>
 		<td>
 			{% if can_change_stream %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_stream" name=doc.name %}">Edit</a>
@@ -72,7 +72,7 @@
 	</tr>
 
 	<tr>
-		<th class="nowrap">Last updated</th>
+		<th class="text-nowrap">Last updated</th>
 		<td>
 			{{ doc.time|date:"Y-m-d" }}
 			{% if latest_revision and latest_revision.time.date != doc.time.date %}
@@ -83,7 +83,7 @@
 
 {% if doc.get_state_slug != "rfc" %}
 	<tr>
-		<th class="nowrap">Intended RFC status</th>
+		<th class="text-nowrap">Intended RFC status</th>
 		<td>
 			{% if can_edit or can_edit_stream_info %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_intended_status" name=doc.name %}">Edit</a>
@@ -94,7 +94,7 @@
 {% endif %}
 
 	<tr>
-		<th class="nowrap">Other versions</th>
+		<th class="text-nowrap">Other versions</th>
 		<td>
 			{% if doc.get_state_slug != "active" and doc.get_state_slug != "rfc" %}<div class="pull-right label label-warning">Expired & archived</div>{% endif %}
 			{% if file_urls %}
@@ -111,14 +111,14 @@
 
 {% if conflict_reviews %}
 	<tr>
-		<th class="nowrap">IETF conflict review</th>
+		<th class="text-nowrap">IETF conflict review</th>
 		<td>{{ conflict_reviews|join:", "|urlize_ietf_docs }}</td>
 	</tr>
 {% endif %}
 
 <tr>
 	{% if doc.stream %}
-		<th class="nowrap">{{ doc.stream }} state</th>
+		<th class="text-nowrap">{{ doc.stream }} state</th>
 		<td class="stream-state">
 			{% if doc.stream and can_edit_stream_info %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_stream_state" name=doc.name state_type=stream_state_type_slug %}">Edit</a>
@@ -134,13 +134,13 @@
 			{% endif %}
 		</td>
 	{% else %}
-		<th class="nowrap">Stream state</th><td>(No stream defined)</td>
+		<th class="text-nowrap">Stream state</th><td>(No stream defined)</td>
 	{% endif %}
 </tr>
 
 {% if consensus %}
 	<tr>
-		<th class="nowrap">Consensus</th>
+		<th class="text-nowrap">Consensus</th>
 		<td>
 			{% if can_edit or can_edit_stream_info %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_edit_consensus" name=doc.name %}">Edit</a>
@@ -152,7 +152,7 @@
 {% endif %}
 
 <tr>
-	<th class="nowrap">Document shepherd</th>
+	<th class="text-nowrap">Document shepherd</th>
 	<td>
 		{% if can_edit_stream_info %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_edit_shepherd" name=doc.name %}">Edit</a>
@@ -163,7 +163,7 @@
 
 {% if shepherd_writeup or can_edit_shepherd_writeup %}
 	<tr>
-		<th class="nowrap">Shepherd write-up</th>
+		<th class="text-nowrap">Shepherd write-up</th>
 		<td>
 			{% if can_edit_shepherd_writeup %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_shepherd_writeup" name=doc.name %}">Edit</a>
@@ -184,7 +184,7 @@
 {% endif %}
 
 <tr>
-	<th class="nowrap"><a href="{% url "state_help" "draft-iesg" %}">IESG state</a></th>
+	<th class="text-nowrap"><a href="{% url "state_help" "draft-iesg" %}">IESG state</a></th>
 	<td>
 		{% if iesg_state and can_edit %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_state" name=doc.name %}">Edit</a>
@@ -195,7 +195,7 @@
 
 {% if iana_review_state %}
 	<tr>
-		<th class="nowrap">IANA review state</th>
+		<th class="text-nowrap">IANA review state</th>
 		<td>
 			{% if can_edit_iana_state %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_iana_state" name=doc.name state_type="iana-review" %}">Edit</a>
@@ -205,7 +205,7 @@
 	</tr>
 
 	<tr>
-		<th class="nowrap">IANA action state</th>
+		<th class="text-nowrap">IANA action state</th>
 		<td>
 			{% if can_edit_iana_state %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_iana_state" name=doc.name state_type="iana-action" %}">Edit</a>
@@ -217,13 +217,13 @@
 
 {% if rfc_editor_state %}
 	<tr>
-		<th class="nowrap">RFC Editor state</th>
+		<th class="text-nowrap">RFC Editor state</th>
 		<td><a href="//www.rfc-editor.org/queue2.html#{{ doc.name }}">{{ rfc_editor_state }}</a></td>
 	</tr>
 {% endif %}
 
 <tr>
-	<th class="nowrap">Telechat date</th>
+	<th class="text-nowrap">Telechat date</th>
 	<td>
 		{% if can_edit %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_telechat_date" name=doc.name %}">Edit</a>
@@ -246,7 +246,7 @@
 </tr>
 
 <tr>
-	<th class="nowrap">Responsible AD</th>
+	<th class="text-nowrap">Responsible AD</th>
 	<td>
 		{% if can_edit %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_ad" name=doc.name %}">Edit</a>
@@ -258,7 +258,7 @@
 {% if iesg_state %}
 	{% if doc.note or can_edit %}
 		<tr>
-			<th class="nowrap">IESG note</th>
+			<th class="text-nowrap">IESG note</th>
 			<td>
 				{% if can_edit %}
 					<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_iesg_note" name=doc.name %}">Edit</a>
@@ -270,7 +270,7 @@
 {% endif %}
 
 <tr>
-	<th class="nowrap">Send notices to</th>
+	<th class="text-nowrap">Send notices to</th>
 	<td>
 		{% if can_edit %}
 			<a class="btn btn-default btn-xs pull-right" href="{% url "doc_change_notify" name=doc.name %}">Edit</a>

@@ -12,11 +12,11 @@
 
 <table class="table table-condensed table-striped">
 	<tr>
-		<th class="nowrap">Submission date</th>
+		<th class="text-nowrap">Submission date</th>
 		<td>{{ liaison.submitted|date:"Y-m-d" }}</td>
 	</tr>
 	<tr>
-		<th class="nowrap">From</th>
+		<th class="text-nowrap">From</th>
 		<td>
 			{{ liaison.from_name }}
 			{% if liaison.from_contact %}(<a href="mailto:{{ liaison.from_contact.address }}">{{ liaison.from_contact.person }}</a>)
@@ -24,7 +24,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th class="nowrap">To</th>
+		<th class="text-nowrap">To</th>
 		<td>
 			{% if liaison.from_contact %}
 				{{ liaison.to_name }} ({{ liaison.to_contact|parse_email_list }})
@@ -36,7 +36,7 @@
 
 	{% if liaison.from_contact %}
 		<tr>
-			<th class="nowrap">Cc</th>
+			<th class="text-nowrap">Cc</th>
 			<td>
 				{{ liaison.cc|parse_email_list }}
 			</td>
@@ -45,7 +45,7 @@
 
 	{% if liaison.response_contact %}
 		<tr>
-			<th class="nowrap">Response contact</th>
+			<th class="text-nowrap">Response contact</th>
 			<td>
 				{{ liaison.response_contact|parse_email_list }}
 			</td>
@@ -54,7 +54,7 @@
 
 	{% if liaison.technical_contact %}
 		<tr>
-			<th class="nowrap">Technical contact</th>
+			<th class="text-nowrap">Technical contact</th>
 			<td>
 				{{ liaison.technical_contact|parse_email_list }}
 			</td>
@@ -63,7 +63,7 @@
 
 	{% if liaison.purpose %}
 		<tr>
-			<th class="nowrap">Purpose</th>
+			<th class="text-nowrap">Purpose</th>
 			<td>{{ liaison.purpose.name }}</td>
 		</tr>
 	{% endif %}
@@ -71,7 +71,7 @@
 
 	{% if liaison.deadline %}
 		<tr>
-			<th class="nowrap">Deadline</th>
+			<th class="text-nowrap">Deadline</th>
 			<td>
 				{{ liaison.deadline }}
 				{% if liaison.action_taken %}
@@ -91,7 +91,7 @@
 
 	{% if relations %}
 		<tr>
-			<th class="nowrap">Liaisons referring to this</th>
+			<th class="text-nowrap">Liaisons referring to this</th>
 			<td>
 				{% for rel in relations %}
 					<a href="{% url "liaison_detail" rel.pk %}">
@@ -106,7 +106,7 @@
 	{% if liaison.related_to %}
 		{% if liaison.related_to.approved or is_approving %}
 			<tr>
-				<th class="nowrap">Referenced liaison</th>
+				<th class="text-nowrap">Referenced liaison</th>
 				<td>
 					<a href="{% url "liaison_detail" liaison.related_to.pk %}">
 						{% if liaison.related_to.title %}{{ liaison.related_to.title }}{% else %}Liaison #{{ liaison.related_to.pk }}{% endif %}
@@ -117,7 +117,7 @@
 	{% endif %}
 
 	<tr>
-		<th class="nowrap">Attachments</th>
+		<th class="text-nowrap">Attachments</th>
 		<td>
 			{% for doc in liaison.attachments.all %}
 				<a href="//datatracker.ietf.org/documents/LIAISON/{{ doc.external_url }}">{{ doc.title }}</a>
@@ -130,7 +130,7 @@
 
 	{% if liaison.from_contact and liaison.body %}
 		<tr>
-			<th class="nowrap">Body</th>
+			<th class="text-nowrap">Body</th>
 			<td>
 				<pre>{{ liaison.body|wordwrap:"71" }}</pre>
 			</td>

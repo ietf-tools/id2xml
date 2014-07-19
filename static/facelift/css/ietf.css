@@ -5,10 +5,8 @@
  * that page template! (And not into the HTML of the page...)
  */
 
+/* Passing for static navbar; see http://getbootstrap.com/components/#navbar-fixed-top
 body { padding-top: 70px; }
-
-/* Helper style for tables */
-.nowrap { white-space: nowrap; }
 
 /* Helper to center navigation pills */
 .center-pills {	display: inline-block; }

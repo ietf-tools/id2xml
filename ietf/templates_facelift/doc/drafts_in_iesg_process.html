@@ -14,8 +14,8 @@
 <table class="table table-condensed table-striped">
 	<thead>
 		<tr>
-			<th class="nowrap">Area</th>
-			<th class="nowrap">{% if state.slug == "lc" %}Expires at{% else %}Date{% endif %}</th>
+			<th class="text-nowrap">Area</th>
+			<th class="text-nowrap">{% if state.slug == "lc" %}Expires at{% else %}Date{% endif %}</th>
 			<th>Document</th>
 		</tr>
 	</thead>
@@ -25,8 +25,8 @@
 
 			{% for doc in docs %}
 				<tr>
-					<td class="nowrap">{% if doc.area_acronym %}{{ doc.area_acronym }}{% endif %}</td>
-					<td class="nowrap">
+					<td class="text-nowrap">{% if doc.area_acronym %}{{ doc.area_acronym }}{% endif %}</td>
+					<td class="text-nowrap">
 						{% if state.slug == "lc" %}
 							{% if doc.lc_expires %}{{ doc.lc_expires|date:"Y-m-d" }}{% endif %}
 						{% else %}

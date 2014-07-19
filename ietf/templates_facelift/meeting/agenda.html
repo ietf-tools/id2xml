@@ -171,7 +171,7 @@ tr:first-child th.gap {
 		{% if item.timeslot.type.slug == 'session' %}
 			{% ifchanged %}
 				<tr class="info">
-					<th class="nowrap text-right">
+					<th class="text-nowrap text-right">
 						{% if "-utc" in request.path %}
 							{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
 						{% else %}
@@ -193,7 +193,7 @@ tr:first-child th.gap {
 		{% if item.timeslot.type.slug == 'break' or item.timeslot.type.slug == 'reg' or item.timeslot.type.slug == 'other' %}
 			{% with item.timeslot.time|date:"D-Hi"|lower|add:"-"|add:item.session.group.acronym|lower as session_id %}
 			<tr id="row-{{session_id}}">
-				<td class="nowrap text-right">
+				<td class="text-nowrap text-right">
 					{% if "-utc" in request.path %}
 						{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
 					{% else %}
@@ -218,7 +218,7 @@ tr:first-child th.gap {
 				<tr id="row-{{session_id}}" {% if item.timeslot.type.slug == 'plenary' %}class="{{item.timeslot.type.slug}}danger"{% endif %}>
 
 					{% if item.timeslot.type.slug == 'plenary' %}
-						<th class="nowrap text-right">
+						<th class="text-nowrap text-right">
 							{% if "-utc" in request.path %}
 								{{item.timeslot.utc_start_time|date:"G:i"}}-{{item.timeslot.utc_end_time|date:"G:i"}}
 							{% else %}
@@ -315,7 +315,7 @@ tr:first-child th.gap {
 							</div>
 						</div>
 					</td>
-					<td class="nowrap">
+					<td class="text-nowrap">
 						{% if item.session.agenda %}
 							<button class="btn btn-default btn-xs" data-toggle="modal" data-target="#modal-{{session_id}}"><span class="fa fa-arrows-alt" title="Show meeting materials"></span></button>
 							<a class="btn btn-default btn-xs" href="/meeting/{{schedule.meeting.number}}/agenda/{{item.session.group.acronym}}-drafts.tgz" title="Download meeting materials as .tar archive"><span class="fa fa-file-archive-o"></span></a>

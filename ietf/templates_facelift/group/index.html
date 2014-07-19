@@ -17,7 +17,7 @@
 	<tbody>
 		{% for stream in streams %}
 			<tr>
-				<td class="nowrap"><a href="/stream/{{stream.acronym}}/">{{ stream.acronym }}</a></td>
+				<td class="text-nowrap"><a href="/stream/{{stream.acronym}}/">{{ stream.acronym }}</a></td>
 				<td>{{ stream.name }}</td>
 				<td>
 					{% with stream.get_chair as role %}

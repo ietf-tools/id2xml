@@ -15,7 +15,7 @@
 	<tbody>
 		{% for ipr in iprs %}
 			<tr>
-				<td class="nowrap">{{ ipr.submitted_date }}</td>
+				<td class="text-nowrap">{{ ipr.submitted_date }}</td>
 				<td class="text-right">{{ ipr.ipr_id }}</td>
 				<td><a href="{% url "ietf.ipr.views.show" ipr_id=ipr.ipr_id %}">{{ ipr.title }}</a></td>
 			</tr>
@@ -43,7 +43,7 @@
 			{% if doc.iprs %}
 				{% for ipr in doc.iprs %}
 					<tr>
-						<td class="nowrap">{{ ipr.submitted_date }}</td>
+						<td class="text-nowrap">{{ ipr.submitted_date }}</td>
 						<td class="text-right">{{ ipr.ipr_id }}</td>
 						<td><a href="{% url "ietf.ipr.views.show" ipr_id=ipr.ipr_id %}">{{ ipr.title }}</a></td>
 					</tr>

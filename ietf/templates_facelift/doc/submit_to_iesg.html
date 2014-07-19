@@ -13,37 +13,37 @@ Publication request for {{doc.name}}-{{doc.rev}}
 
 <table class="table table-condensed table-striped">
 	<tr {% if warn.intended_std_level %}class="warning"{% endif %}>
-		<th class="nowrap">Intended status level</th>
+		<th class="text-nowrap">Intended status level</th>
 		<td>{% if warn.intended_std_level %}<span class="fa fa-warning"></span>{% endif %}</td>
 		<td>{{doc.intended_std_level}}</td>
 	</tr>
 
 	<tr>
-		<th class="nowrap">Responsible AD</th>
+		<th class="text-nowrap">Responsible AD</th>
 		<td></td>
 		<td>{{ad}}</td>
 	</tr>
 
 	<tr {% if warn.shepherd %}class="warning"{% endif %}>
-		<th class="nowrap">Document shepherd</th>
+		<th class="text-nowrap">Document shepherd</th>
 		<td>{% if warn.shepherd %}<span class="fa fa-warning"></span>{% endif %}</td>
 		<td>{{doc.shepherd}}</td>
 	</tr>
 
 	<tr {% if warn.shepherd_writeup %}class="warning"{% endif %}>
-		<th class="nowrap">Shepherd write-up exists</th>
+		<th class="text-nowrap">Shepherd write-up exists</th>
 		<td>{% if warn.shepherd_writeup %}<span class="fa fa-warning"></span>{% endif %}</td>
 		<td>{%if shepherd_writeup %}Yes{%else%}No{%endif%}</td>
 	</tr>
 
 	<tr>
-		<th class="nowrap">Also notify</th>
+		<th class="text-nowrap">Also notify</th>
 		<td></td>
 		<td>{% if notify %}{{notify}}{%else%}(None){%endif%}</td>
 	</tr>
 
 	<tr {% if warn.tags %}class="warning"{% endif %}>
-		<th class="nowrap">Annotation tags</th>
+		<th class="text-nowrap">Annotation tags</th>
 		<td>{% if warn.tags %}<span class="fa fa-warning"></span>{% endif %}</td>
 		<td>{% if not tags %}(None){%else%}{% for tag in tags %}{{ tag }}{% if not forloop.last%}, {%endif%}{% endfor %}{% endif %}</td>
 	</tr>

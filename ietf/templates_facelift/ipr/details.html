@@ -115,7 +115,7 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 	<div class="well">
 		<table class="ipr">
 			<tr>
-				<th class="nowrap">Legal name</th>
+				<th class="text-nowrap">Legal name</th>
 				<td>{{ ipr.legal_name }}</td>
 			</tr>
 		</table>
@@ -130,14 +130,14 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 
 	<div class="well">
 		<table class="ipr">
-			<tr><th class="nowrap">Name</th>		<td>{{ ipr.holder_contact.name }}</td></tr>
-			<tr><th class="nowrap">Title</th>		<td>{{ ipr.holder_contact.title }}</td></tr>
-			<tr><th class="nowrap">Department</th> <td>{{ ipr.holder_contact.department }}</td></tr>
-			<tr><th class="nowrap">Address1</th>	<td>{{ ipr.holder_contact.address1 }}</td></tr>
-			<tr><th class="nowrap">Address2</th>	<td>{{ ipr.holder_contact.address2 }}</td></tr>
-			<tr><th class="nowrap">Telephone</th>	<td>{{ ipr.holder_contact.telephone }}</td></tr>
-			<tr><th class="nowrap">Fax</th>		<td>{{ ipr.holder_contact.fax }}</td></tr>
-			<tr><th class="nowrap">Email</th>		<td>{{ ipr.holder_contact.email }}</td></tr>
+			<tr><th class="text-nowrap">Name</th>		<td>{{ ipr.holder_contact.name }}</td></tr>
+			<tr><th class="text-nowrap">Title</th>		<td>{{ ipr.holder_contact.title }}</td></tr>
+			<tr><th class="text-nowrap">Department</th> <td>{{ ipr.holder_contact.department }}</td></tr>
+			<tr><th class="text-nowrap">Address1</th>	<td>{{ ipr.holder_contact.address1 }}</td></tr>
+			<tr><th class="text-nowrap">Address2</th>	<td>{{ ipr.holder_contact.address2 }}</td></tr>
+			<tr><th class="text-nowrap">Telephone</th>	<td>{{ ipr.holder_contact.telephone }}</td></tr>
+			<tr><th class="text-nowrap">Fax</th>		<td>{{ ipr.holder_contact.fax }}</td></tr>
+			<tr><th class="text-nowrap">Email</th>		<td>{{ ipr.holder_contact.email }}</td></tr>
 		</table>
 	</div>
 {% endif %}
@@ -151,14 +151,14 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 	{% if ipr.ietf_contact.name %}
 		<div class="well">
 			<table class="ipr">
-				<tr><th class="nowrap">Name</th>		<td>{{ ipr.ietf_contact.name }}</td></tr>
-				<tr><th class="nowrap">Title</th>		<td>{{ ipr.ietf_contact.title }}</td></tr>
-				<tr><th class="nowrap">Department</th> <td>{{ ipr.ietf_contact.department }}</td></tr>
-				<tr><th class="nowrap">Address1</th>	<td>{{ ipr.ietf_contact.address1 }}</td></tr>
-				<tr><th class="nowrap">Address2</th>	<td>{{ ipr.ietf_contact.address2 }}</td></tr>
-				<tr><th class="nowrap">Telephone</th>	<td>{{ ipr.ietf_contact.telephone }}</td></tr>
-				<tr><th class="nowrap">Fax</th>		<td>{{ ipr.ietf_contact.fax }}</td></tr>
-				<tr><th class="nowrap">Email</th>		<td>{{ ipr.ietf_contact.email }}</td></tr>
+				<tr><th class="text-nowrap">Name</th>		<td>{{ ipr.ietf_contact.name }}</td></tr>
+				<tr><th class="text-nowrap">Title</th>		<td>{{ ipr.ietf_contact.title }}</td></tr>
+				<tr><th class="text-nowrap">Department</th> <td>{{ ipr.ietf_contact.department }}</td></tr>
+				<tr><th class="text-nowrap">Address1</th>	<td>{{ ipr.ietf_contact.address1 }}</td></tr>
+				<tr><th class="text-nowrap">Address2</th>	<td>{{ ipr.ietf_contact.address2 }}</td></tr>
+				<tr><th class="text-nowrap">Telephone</th>	<td>{{ ipr.ietf_contact.telephone }}</td></tr>
+				<tr><th class="text-nowrap">Fax</th>		<td>{{ ipr.ietf_contact.fax }}</td></tr>
+				<tr><th class="text-nowrap">Email</th>		<td>{{ ipr.ietf_contact.email }}</td></tr>
 			</table>
 		</div>
 	{% else %}
@@ -175,15 +175,15 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 	<div class="well">
 		<table class="ipr">
 		{% if ipr.rfclist %}
-			<tr><th class="nowrap">RFC numbers</th><td>{{ ipr.rfclist }}</td></tr>
+			<tr><th class="text-nowrap">RFC numbers</th><td>{{ ipr.rfclist }}</td></tr>
 		{% else %}
 			{% for iprdocalias in ipr.rfcs %}
-				<tr><th class="nowrap">{{ iprdocalias.formatted_name|rfcspace }}</th><td>"{{ iprdocalias.doc_alias.document.title }}"</td></tr>
+				<tr><th class="text-nowrap">{{ iprdocalias.formatted_name|rfcspace }}</th><td>"{{ iprdocalias.doc_alias.document.title }}"</td></tr>
 			{% endfor %}
 		{% endif %}
 
 		{% if ipr.draftlist %}
-			<tr><th class="nowrap">ID filenames (draft-...)</th><td>{{ ipr.draftlist }}</td></tr>
+			<tr><th class="text-nowrap">ID filenames (draft-...)</th><td>{{ ipr.draftlist }}</td></tr>
 		{% else %}
 		   {% for iprdocalias in ipr.drafts %}
 			   <tr><th>{{ iprdocalias.formatted_name }}</th><td>"{{ iprdocalias.doc_alias.document.title }}" (Internet-Draft)</td></tr>
@@ -191,7 +191,7 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 		{% endif %}
 
 		{% if ipr.other_designations %}
-			<tr><th class="nowrap">Designations for other contributions</th><td>{{ ipr.other_designations }}</td></tr>
+			<tr><th class="text-nowrap">Designations for other contributions</th><td>{{ ipr.other_designations }}</td></tr>
 		{% endif %}
 		</table>
 	</div>
@@ -218,8 +218,8 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 				</tr>
 
 				<tr><th>Date(s) granted or applied for </th><td>{{ ipr.date_applied }}</td></tr>
-				<tr><th class="nowrap">Country				</th><td>{{ ipr.country }}</td></tr>
-				<tr><th class="nowrap">Additional notes</th><td>{{ ipr.notes|linebreaks }}</td></tr>
+				<tr><th class="text-nowrap">Country				</th><td>{{ ipr.country }}</td></tr>
+				<tr><th class="text-nowrap">Additional notes</th><td>{{ ipr.notes|linebreaks }}</td></tr>
 			</table>
 		</div>
 
@@ -348,14 +348,14 @@ table.ipr td, table.ipr th { padding-right: 1em; vertical-align: top; }
 
 		<div class="well">
 			<table class="ipr">
-				<tr><th class="nowrap">Name</th>		<td>{{ ipr.submitter.name }}</td></tr>
-				<tr><th class="nowrap">Title</th>		<td>{{ ipr.submitter.title }}</td></tr>
-				<tr><th class="nowrap">Department</th> <td>{{ ipr.submitter.department }}</td></tr>
-				<tr><th class="nowrap">Address1</th>	<td>{{ ipr.submitter.address1 }}</td></tr>
-				<tr><th class="nowrap">Address2</th>	<td>{{ ipr.submitter.address2 }}</td></tr>
-				<tr><th class="nowrap">Telephone</th>	<td>{{ ipr.submitter.telephone }}</td></tr>
-				<tr><th class="nowrap">Fax</th>		<td>{{ ipr.submitter.fax }}</td></tr>
-				<tr><th class="nowrap">Email</th>		<td>{{ ipr.submitter.email }}</td></tr>
+				<tr><th class="text-nowrap">Name</th>		<td>{{ ipr.submitter.name }}</td></tr>
+				<tr><th class="text-nowrap">Title</th>		<td>{{ ipr.submitter.title }}</td></tr>
+				<tr><th class="text-nowrap">Department</th> <td>{{ ipr.submitter.department }}</td></tr>
+				<tr><th class="text-nowrap">Address1</th>	<td>{{ ipr.submitter.address1 }}</td></tr>
+				<tr><th class="text-nowrap">Address2</th>	<td>{{ ipr.submitter.address2 }}</td></tr>
+				<tr><th class="text-nowrap">Telephone</th>	<td>{{ ipr.submitter.telephone }}</td></tr>
+				<tr><th class="text-nowrap">Fax</th>		<td>{{ ipr.submitter.fax }}</td></tr>
+				<tr><th class="text-nowrap">Email</th>		<td>{{ ipr.submitter.email }}</td></tr>
 			</table>
 		</div>
 

@@ -47,6 +47,35 @@ form label { padding-right: .5em; font-weight: bold;}
 .ballot-icon table td { border: 1px solid #ddd; height: 10px; width: 8px; }
 .ballot-icon table td.my { border: 2px solid #000;}
 
+/* Style the right-hand page navigation affix used on some pages. */
+#affix .nav > li > a {
+  display: block;
+  padding: 4px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+  border-radius: 0;
+}
+#affix .nav > li > a:hover,
+#affix .nav > li > a:focus {
+  padding-left: 19px;
+  color: #428bca;
+  text-decoration: none;
+  background-color: transparent;
+  border-left: 1px solid #428bca;
+  border-radius: 0;
+}
+#affix .nav > .active > a,
+#affix .nav > .active:hover > a,
+#affix .nav > .active:focus > a {
+  padding-left: 18px;
+  font-weight: bold;
+  color: #428bca;
+  background-color: transparent;
+  border-left: 2px solid #428bca;
+  border-radius: 0;
+}
+
 /* Style the search form and results */
 #search_form .search_field:first-child { padding-bottom: .5em; }
 .search-results { padding-top: 2em; }

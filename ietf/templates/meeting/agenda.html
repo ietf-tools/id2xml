@@ -23,7 +23,12 @@ tr:first-child th.gap {
 }
 {% endblock %}
 
+{% block bodyAttrs %}data-spy="scroll" data-target="#affix"{% endblock %}
+
 {% block content %}
+
+<div class="row">
+	<div class="col-md-10">
 
 <h1>
 	IETF {{ schedule.meeting.number }} meeting agenda
@@ -153,10 +158,10 @@ tr:first-child th.gap {
 <table class="table table-condensed table-striped">
 	{% for item in schedule.assignments.all %}
 
-		{% ifchanged  %}
+		{% ifchanged item.timeslot.time|date:"Y-m-d" %}
 			<tr><th class="gap" colspan="6"></th></tr>
 			<tr class="warning">
-				<th colspan="6">
+				<th colspan="6" id="{{item.timeslot.time|slugify}}">
 					{% if "-utc" in request.path %}
 						{{ item.timeslot.utc_start_time|date:"l, F j, Y" }} (UTC)
 					{% else %}
@@ -326,6 +331,19 @@ tr:first-child th.gap {
 		{% endif %}
 	{% endfor %}
 </table>
+
+</div>
+<div class="col-md-2 hidden-print bs-docs-sidebar" id="affix">
+	<ul class="nav nav-pills nav-stacked small" data-spy="affix">
+		{% for item in schedule.assignments.all %}
+			{% ifchanged item.timeslot.time|date:"Y-m-d" %}
+				<li><a href="#{{item.timeslot.time|slugify}}">{{ item.timeslot.time|date:"l, F j, Y" }}</a>
+				{% endifchanged %}
+		{% endfor %}
+	</ul>
+</div>
+
+
 {% endcache %}
 {% endblock %}
 

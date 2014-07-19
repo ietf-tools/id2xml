@@ -5,6 +5,8 @@
  * that page template! (And not into the HTML of the page...)
  */
 
+body { padding-top: 70px; }
+
 /* Helper style for tables */
 .nowrap { white-space: nowrap; }
 

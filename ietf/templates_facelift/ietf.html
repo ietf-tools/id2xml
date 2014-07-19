@@ -37,8 +37,9 @@
 				<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 			<![endif]-->
 
-			<nav class="navbar navbar-default" role="navigation">
+			<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 				<div class="navbar-header">
+				<div class="container-fluid">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
 						<span class="sr-only">Toggle navigation</span>
 						<span class="icon-bar"></span>
@@ -52,7 +53,7 @@
 						{% endif %}
 					</a>
 				</div>
-
+				</div>
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav">
 						{% with "top" as flavor %}
@@ -72,14 +73,14 @@
 
 			<div class="content container-fluid">
 				<div class="row">
-					<div class="col-md-3 col-lg-2 hidden-sm hidden-xs leftmenu">
+					<div class="col-lg-2 hidden-md hidden-sm hidden-xs leftmenu">
 						<ul class="nav nav-pills nav-stacked panel panel-default panel-body">
 							{% with "left" as flavor %}
 								{% include "base/menu.html" %}
 							{% endwith %}
 						</ul>
 					</div>
-					<div class="col-md-9 col-lg-10">
+					<div class="col-lg-10">
 						{% block content %}{% endblock %}
 						{% block content_end %}{% endblock %}
 					</div>

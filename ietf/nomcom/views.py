@@ -12,6 +12,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.forms.models import modelformset_factory, inlineformset_factory
+from ietf.utils.mail import send_mail_text
 
 
 from ietf.dbtemplate.models import DBTemplate
@@ -595,8 +596,17 @@ def view_feedback_pending(request, year):
                 if form.instance.type and form.instance.type.slug in settings.NOMINEE_FEEDBACK_TYPES:
                     if form.instance.type.slug == 'nomina':
                         nominations.append(form.instance)
+                    #elif form.instance.type.slug == 'questio':
+                    #  print 'get a questio \n\n'
                     else:
                         extra.append(form.instance)
+
+                    if form.instance.type.slug == 'questio':
+                      questio_mail_to = form.instance.author
+                      questio_mail_from = settings.NOMCOM_FROM_EMAIL
+                      questio_mail_subject = 'Your questionnaire has been received.'
+                      questio_mail_txt = 'Your questionnaire has been received.'
+                      send_mail_text(request,questio_mail_to,questio_mail_from,questio_mail_subject,questio_mail_txt)
                 else:
                     if form.instance.type:
                         moved += 1

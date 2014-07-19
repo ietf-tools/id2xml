@@ -1,18 +1,29 @@
 {% extends "submit/submit_base.html" %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Submission status{% endblock %}
 
 {% block submit_content %}
 
-<p>Please enter the name of the Internet-Draft you wish to view
-  submission status for:</p>
+<p>
+	Please enter the name of the Internet-Draft you wish to view the
+	submission status of.
+</p>
 
-<form method="post">{% csrf_token %}
-  {% if error %}<div style="color: red;">{{ error }}</div>{% endif %}
-  <input type="text" name="name" value="{{ name|default:"draft-" }}" />
-  <input type="submit" value="See status" />
+<form role="form" method="post">
+	{% csrf_token %}
+
+	{% if error %}
+		<p class="alert alert-danger">{{ error }}</p>
+	{% endif %}
+
+	<div class="form-group">
+	    <label>I-D name</label>
+	    <input type="text" class="form-control" placeholder="draft-..." name="name" value="{{ name|default:"" }}">
+	</div>
+
+	<input class="btn btn-primary" type="submit" value="See status">
 </form>
-
-{% include "submit/problem-reports-footer.html" %}
 
 {% endblock %}

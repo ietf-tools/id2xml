@@ -84,40 +84,38 @@ tr:first-child th.gap {
 
 
 				{% regroup schedule.groups by parent.acronym as area_sessions %}
-				<div class="table-responsive">
-					<table class="table table-condensed">
-						<thead>
-							<tr>
-								{% for area in area_sessions %}
-									<th style="width:{% widthratio 1 area_sessions|length 100 %}%">
-										<button class="btn btn-default btn-block pickview {{area.grouper|lower}}">{{area.grouper|upper}}</button>
-									</th>
-								{% endfor %}
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								{% for area in area_sessions %}
-									<td class="view {{area.grouper|lower}}">
-										<div class="btn-group-vertical btn-block">
-											{% for wg in area.list %}
-												<div class="btn-group btn-group-xs btn-group-justified">
-													<button class="btn btn-default pickview {{wg.acronym}}">
-													{% if wg.wg.is_bof %}
-														<i>{{wg.acronym}}</i>
-													{% else %}
-														{{wg.acronym}}
-													{% endif %}
-													</button>
-												</div>
-											{% endfor %}
-										</div>
-									</td>
-								{% endfor %}
-							</tr>
-						</tbody>
-					</table>
-				</div>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							{% for area in area_sessions %}
+								<th style="width:{% widthratio 1 area_sessions|length 100 %}%">
+									<button class="btn btn-default btn-block pickview {{area.grouper|lower}}">{{area.grouper|upper}}</button>
+								</th>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							{% for area in area_sessions %}
+								<td class="view {{area.grouper|lower}}">
+									<div class="btn-group-vertical btn-block">
+										{% for wg in area.list %}
+											<div class="btn-group btn-group-xs btn-group-justified">
+												<button class="btn btn-default pickview {{wg.acronym}}">
+												{% if wg.wg.is_bof %}
+													<i>{{wg.acronym}}</i>
+												{% else %}
+													{{wg.acronym}}
+												{% endif %}
+												</button>
+											</div>
+										{% endfor %}
+									</div>
+								</td>
+							{% endfor %}
+						</tr>
+					</tbody>
+				</table>
 
 				<p>Also show sessions of these groups:</p>
 				<div class="btn-group btn-group-justified">

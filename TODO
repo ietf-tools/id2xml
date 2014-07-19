@@ -8,3 +8,4 @@ Make django generate HTML5 date inputs or use a js-based datepicker.
 
 Deferring ballots does not work. (Seems to be an upstream bug.)
 
+Make tables that are too wide to usefully work on small screens responsive. See http://getbootstrap.com/css/#tables-responsive

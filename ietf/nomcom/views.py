@@ -12,7 +12,6 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models import Count
 from django.forms.models import modelformset_factory, inlineformset_factory
-from ietf.utils.mail import send_mail_text
 
 
 from ietf.dbtemplate.models import DBTemplate

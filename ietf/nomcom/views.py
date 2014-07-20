@@ -29,7 +29,7 @@ from ietf.nomcom.forms import (NominateForm, FeedbackForm, QuestionnaireForm,
                                FeedbackEmailForm)
 from ietf.nomcom.models import Position, NomineePosition, Nominee, Feedback, NomCom, ReminderDates
 from ietf.nomcom.utils import (get_nomcom_by_year, store_nomcom_private_key,
-                               get_hash_nominee_position, send_reminder_to_nominees,
+                               get_hash_nominee_position, send_reminder_to_nominees,send_questionnaire_confirmation_to_nominees,
                                HOME_TEMPLATE, NOMINEE_ACCEPT_REMINDER_TEMPLATE,NOMINEE_QUESTIONNAIRE_REMINDER_TEMPLATE)
 from ietf.ietfauth.utils import role_required
 
@@ -596,17 +596,12 @@ def view_feedback_pending(request, year):
                 if form.instance.type and form.instance.type.slug in settings.NOMINEE_FEEDBACK_TYPES:
                     if form.instance.type.slug == 'nomina':
                         nominations.append(form.instance)
-                    #elif form.instance.type.slug == 'questio':
-                    #  print 'get a questio \n\n'
                     else:
                         extra.append(form.instance)
 
                     if form.instance.type.slug == 'questio':
                       questio_mail_to = form.instance.author
-                      questio_mail_from = settings.NOMCOM_FROM_EMAIL
-                      questio_mail_subject = 'Your questionnaire has been received.'
-                      questio_mail_txt = 'Your questionnaire has been received.'
-                      send_mail_text(request,questio_mail_to,questio_mail_from,questio_mail_subject,questio_mail_txt)
+                      send_questionnaire_confirmation_to_nominees(questio_mail_to)
                 else:
                     if form.instance.type:
                         moved += 1

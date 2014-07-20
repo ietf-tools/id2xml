@@ -255,6 +255,18 @@ def send_questionnaire_reminder_to_nominee(nominee_position):
     body += '\n\n%s' % render_to_string(path, context)
     send_mail_text(None, to_email, from_email, subject, body)
 
+
+def send_questionnaire_confirmation_to_nominees(to):
+    subject = 'Your questionnaire has been received.'
+    from_email = settings.NOMCOM_FROM_EMAIL
+    mail_path = '/nomcom/defaults/email/receive_nomination_questionnaire.txt'
+    to_email = to
+    context = {}
+    body = render_to_string(mail_path,context)
+    send_mail_text(None, to_email, from_email, subject, body)
+
+
+
 def send_reminder_to_nominees(nominees,type):
     addrs = []
     if type=='accept':

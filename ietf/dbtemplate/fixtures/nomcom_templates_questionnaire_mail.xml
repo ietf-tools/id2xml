@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+<object pk="12" model="dbtemplate.dbtemplate">
+        <field type="CharField" name="path">/nomcom/defaults/email/receive_nomination_questionnaire.txt</field>
+        <field type="CharField" name="title">Email sent to nominees to confirm that their questionnaire has been received.</field>
+        <field to="name.dbtemplatetypename" name="type" rel="ManyToOneRel">plain</field>
+        <field type="TextField" name="content">Hi,
+
+You questionnaire has been received. 
+The NomCom appreciate receiving your questionnaire.
+
+Best regards,
+NomCom</field>
+        <field to="group.group" name="group" rel="ManyToOneRel"><None></None></field>
+    </object>
+</django-objects>    

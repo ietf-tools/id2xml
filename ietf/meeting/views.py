@@ -9,6 +9,8 @@ from tempfile import mkstemp
 
 import debug                            # pyflakes:ignore
 
+from contextlib import closing
+
 from django import forms
 from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
@@ -362,7 +364,7 @@ def read_agenda_file(num, doc):
     #  DOC_PATH_FORMAT = { "agenda": "/foo/bar/agenda-{meeting.number}/agenda-{meeting-number}-{doc.group}*", }
     path = os.path.join(settings.AGENDA_PATH, "%s/agenda/%s" % (num, doc.external_url))
     if os.path.exists(path):
-        with open(path) as f:
+        with closing(open(path)) as f:
             return f.read()
     else:
         return None
@@ -401,6 +403,7 @@ def convert_to_pdf(doc_name):
         return
 
     t,tempname = mkstemp()
+    os.close(t)
     tempfile = open(tempname, "w")
 
     pageend = 0;
@@ -431,6 +434,7 @@ def convert_to_pdf(doc_name):
     infile.close()
     tempfile.close()
     t,psname = mkstemp()
+    os.close(t)
     pipe("enscript --margins 76::76: -B -q -p "+psname + " " +tempname)
     os.unlink(tempname)
     pipe("ps2pdf "+psname+" "+outpath)
@@ -473,6 +477,7 @@ def session_draft_tarfile(request, num, session):
     response['Content-Disposition'] = 'attachment; filename=%s-drafts.tgz'%(session)
     tarstream = tarfile.open('','w:gz',response)
     mfh, mfn = mkstemp()
+    os.close(mfh)
     manifest = open(mfn, "w")
 
     for doc_name in drafts:
@@ -512,6 +517,7 @@ def session_draft_pdf(request, num, session):
     drafts = session_draft_list(num, session);
     curr_page = 1
     pmh, pmn = mkstemp()
+    os.close(pmh)
     pdfmarks = open(pmn, "w")
     pdf_list = ""
 
@@ -528,6 +534,7 @@ def session_draft_pdf(request, num, session):
 
     pdfmarks.close()
     pdfh, pdfn = mkstemp()
+    os.close(pdfh)
     pipe("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=" + pdfn + " " + pdf_list + " " + pmn)
 
     pdf = open(pdfn,"r")

@@ -1,4 +1,6 @@
-{% extends "base.html" %}
+{% extends "ietf.html" %}
+
+{% load crispy_forms_tags %}
 
 {% block title %}Set up test email address{% endblock %}
 
@@ -14,12 +16,12 @@ cookie in your browser. So make sure cookies are enabled.</p>
 
 <p>Value of <code>testmailcc</code>: {{ cookie }}</p>
 
-<form action="" method="post">{% csrf_token %}
-  <table>
-  {{ form.as_table }}
-  </table>
-  <div>
-    <input type="submit" value="Set cookie" />
-  </div>
+<form role-"form" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+
+    <div class="buttonlist">
+	    <button class="btn btn-primary" type="submit">Set cookie</button>
+	</div>
 </form>
 {% endblock %}

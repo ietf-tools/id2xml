@@ -31,7 +31,7 @@ def stream_documents(request, acronym):
     return render_to_response('group/stream_documents.html', {'stream':stream, 'docs':docs, 'meta':meta }, context_instance=RequestContext(request))
 
 class StreamEditForm(forms.Form):
-    delegates = EmailsField(label="Delegates", required=False, help_text=u"Type in name to search for person")
+    delegates = EmailsField(label="Delegates", required=False, help_text=u"Type in name to search for person.")
 
 def stream_edit(request, acronym):
     group = get_object_or_404(Group, acronym=acronym)
@@ -62,7 +62,7 @@ def stream_edit(request, acronym):
                 for e in new:
                     Role.objects.get_or_create(name_id=slug, email=e, group=group, person=e.person)
 
-            return redirect("ietf.group.views.streams")
+            return redirect("ietf.group.views_stream.streams")
     else:
         form = StreamEditForm(initial=dict(delegates=Email.objects.filter(role__group=group, role__name="delegate")))
 
@@ -72,4 +72,4 @@ def stream_edit(request, acronym):
                                'form': form,
                                },
                               context_instance=RequestContext(request))
-    
+

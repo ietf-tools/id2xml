@@ -5,7 +5,7 @@
 		{% for n, positions in position_groups %}
 			<div class="position-group">
 				<h4><span class="label label-{{ n|pos_to_label }}"> {{ n.name }}</span></h4>
-				{% for p in positions %}
+				{% for p in positions|dictsort:"ad.last_name" %}
 					<div>
 						{% if p.old_ad %}<span class="text-muted">{% endif %}
 						{% if p.comment or p.discuss %}
@@ -71,7 +71,7 @@
 		{% endif %}
 
 		{% for n, positions in position_groups %}
-			{% for p in positions %}
+			{% for p in positions|dictsort:"ad.last_name" %}
 				<h4 id="{{ p.ad.plain_name|slugify }}">
 					{% if p.old_ad %}<span class="text-muted">{% endif %}
 						{{ p.ad.plain_name }}

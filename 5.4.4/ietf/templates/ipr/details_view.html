@@ -1,0 +1,279 @@
+{% extends "ipr/details_base.html" %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+
+{% block tab_content %}
+
+    {% if not ipr.compliant %}
+      <p style="color:red;">This IPR disclosure does not comply with the formal requirements of Section 6,
+        "IPR Disclosures," of RFC 3979, "Intellectual Property Rights in IETF Technology."
+      </p>
+    {% endif %}
+
+    {% if ipr.has_legacy_event %}
+      <p>The text of the original IPR disclosure is available in the <a href="{% url "ietf.ipr.views.history" id=ipr.id %}">disclosure history</a>.</p>
+    {% endif %}
+    <p>Only those sections of the relevant entry form where the submitter provided information are displayed.</p>
+
+    {% for item in ipr.relatedipr_source_set.all %}
+         <p>This IPR disclosure updates IPR disclosure ID #{{ item.target.id }},
+         {% if item.target.state.slug == "removed" %}
+             "{{ item.target.title }}", which was removed at the request of the submitter.
+         {% else %}
+             "<a href="{% url "ietf.ipr.views.show" id=item.target.id %}">{{ item.target.title }}</a>".
+
+         {% endif %}
+         </p>
+     {% endfor %}
+
+     {% for item in ipr.relatedipr_target_set.all %}
+     {% if item.source.state.slug == "posted" %}
+         <p>
+         This IPR disclosure has been updated by IPR disclosure ID #{{ item.source.id }},
+         "<a href="{% url "ietf.ipr.views.show" id=item.source.id %}">{{ item.source.title }}</a>".
+         </p>
+     {% endif %}
+     {% endfor %}
+
+     <p><a href="{% url "ietf.ipr.new.update" ipr.id %}" rel="nofollow">Update this IPR disclosure</a>. Note: Updates to IPR disclosures must only be made by authorized
+     representatives of the original submitters. Updates will automatically
+     be forwarded to the current Patent Holder's Contact and to the Submitter
+     of the original IPR disclosure.</p>
+     <!-- tag 1 -->
+     <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></p>
+
+    <table class="ipr">
+     <tr class="{% cycle dark,light as row_parity %}">
+        <th colspan="2">
+           {% cycle I,II,III,IV,V,VI,VII,VIII as section %}.
+           {% if ipr.get_classname == "ThirdPartyIprDisclosure" %}Possible{% endif %}
+           Patent Holder/Applicant ("Patent Holder")
+        </th>
+     </tr>
+     <tr class="{% cycle row_parity %}">
+            <td class="iprlabel">Legal Name:</td>   <td class="iprdata">{{ ipr.holder_legal_name }}</td>
+     </tr>
+    </table>
+
+   {% if ipr.holder_contact_name or ipr.holder_contact_info %}
+    <table class="ipr">
+     <tr class="{% cycle dark,light as row_parity %}"><th colspan="2">
+        {% cycle section %}.
+        Patent Holder's Contact for License Application
+        </th>
+     </tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td>     <td class="iprdata">{{ ipr.holder_contact_name }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td>        <td class="iprdata">{{ ipr.holder_contact_info|linebreaks }}</td></tr>
+    </table>
+   {% endif %}
+
+
+   {% if ipr.ietfer_name or ipr.ietfer_contact_info %}
+    <table class="ipr">
+     <tr class="{% cycle dark,light as row_parity %}">
+        <th colspan="2" >
+        {% cycle section %}.
+        Contact Information for the IETF Participant Whose Personal Belief Triggered this Disclosure:
+        </th>
+     </tr>
+     {% if ipr.ietfer_name %}
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td>     <td class="iprdata">{{ ipr.ietfer_name }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td>        <td class="iprdata">{{ ipr.ietfer_contact_info|linebreaks }}</td></tr>
+     {% else %}
+     <tr class="{% cycle row_parity %}"><td colspan="2"><i>No information submitted</i></td></tr>
+     {% endif %}
+    </table>
+   {% endif %}
+
+
+   {% if ipr.iprdocrel_set.all or ipr.other_designations %}
+    <table class="ipr">
+     <tr class="{% cycle dark,light as row_parity %}">
+        <th colspan="2" >
+        {% cycle section %}.
+        IETF Document or Other Contribution to Which this IPR Disclosure Relates:
+        </th>
+     </tr>
+     {% for iprdocrel in ipr.iprdocrel_set.all %}
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">{{ iprdocrel.doc_type }}:</td><td class="iprdata">"{{ iprdocrel.document.document.title }}"<br />({{ iprdocrel.formatted_name }})</td></tr>
+     {% endfor %}
+     {% if ipr.other_designations %}
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Designations for Other Contributions:</td><td class="iprdata">{{ ipr.other_designations }}</td></tr>
+     {% endif %}
+    </table>
+   {% endif %}
+
+   {% if ipr.patent_info %}
+     <table class="ipr">
+        <tr class="{% cycle dark,light as row_parity %}">
+           <th colspan="2" >
+           {% cycle section %}.
+           Disclosure of Patent Information (i.e., patents or patent
+           applications required to be disclosed by Section 6 of RFC 3979)
+           </th>
+        </tr>
+        {% if ipr.patent_info %}
+        <tbody class="{% cycle row_parity %}">
+           <tr>
+          <td colspan="2">
+          A. For granted patents or published pending patent applications,
+          please provide the following information:</td>
+           </tr>
+           <tr><td class="iprlabel">Patent, Serial, Publication, Registration,
+             or Application/File number(s): </td><td class="iprdata">{{ ipr.patent_info|linebreaks }}</td></tr>
+        </tbody>
+        <tr class="{% cycle row_parity %}">
+           <td colspan="2">
+             B. Does this disclosure relate to an unpublished pending patent application?:
+          <span class="iprdata">{{ ipr.has_patent_pending|yesno }}</span>
+           </td>
+        </tr>
+        <tbody class="{% cycle row_parity %}">
+        {% if ipr.get_classname == "GenericIprDisclosure" or ipr.get_classname == "NonDocSpecificIprDisclosure" %}
+          <tr class="{% cycle row_parity %}">
+             <td colspan="2">
+            C. Does this disclosure apply to all IPR owned by
+            the submitter?:
+            <span class="iprdata">{{ ipr.applies_to_all|yesno }}</span>
+             </td>
+          </tr>
+        {% else %}
+          <tr class="{% cycle row_parity %}">
+             <td colspan="2">
+            C. If an Internet-Draft or RFC includes multiple parts and it is not
+            reasonably apparent which part of such Internet-Draft or RFC is alleged
+            to be covered by the patent information disclosed in Section
+            V(A) or V(B), it is helpful if the discloser identifies here the sections of
+            the Internet-Draft or RFC that are alleged to be so
+            covered:
+             </td>
+          </tr>
+
+          {% for iprdocrel in ipr.iprdocrel_set.all %}
+            {% if iprdocrel.sections %}
+              <tr class="{% cycle row_parity %}"><td class="iprlabel">{{ iprdocrel.doc_type }}:</td><td class="iprdata">{{ iprdocrel.formatted_name }}<br />{{ iprdocrel.sections }}</td></tr>
+            {% endif %}
+          {% endfor %}
+          
+        {% endif %}
+        </tbody>
+    {% else %}
+        <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td class="iprdata">This disclosure relates to an unpublished pending patent application.</td></tr>
+    {% endif %}
+
+     </table>
+   {% endif %}
+
+
+   {% if ipr.licensing %}
+     <!-- Not to be shown for third-party disclosures -->
+     <table  class="ipr">
+        <tr class="{% cycle dark,light as row_parity %}">
+           <th colspan="2" >
+           {% cycle section %}.
+           Licensing Declaration
+           </th>
+        </tr>
+        <tbody class="{% cycle row_parity %}">
+        <tr>
+           <td colspan="2">
+           The Patent Holder states that its position with respect
+           to licensing any patent claims contained in the patent(s) or patent
+           application(s) disclosed above that would necessarily be infringed by
+           implementation of the technology required by the relevant IETF specification
+           ("Necessary Patent Claims"), for the purpose of implementing such
+           specification, is as follows(select one licensing declaration option only):
+           </td>
+        </tr>
+
+        <tr>
+         <td class="iprdata" colspan="2">{% if ipr.licensing.slug == "later" %}{{ ipr.licensing.desc|slice:"2:"|slice:":43" }}{% else %}{{ ipr.licensing.desc|slice:"2:" }}{% endif %}</td>
+        </tr>
+
+        </tbody>
+        {% if ipr.limited_to_std_track %}
+        <tr class="{% cycle row_parity %}">
+           <td></td><td>
+          Above licensing declaration is limited solely to standards-track IETF documents.
+           </td>
+        </tr>
+        {% endif %}
+
+        <tbody class="{% cycle row_parity %}">
+           <tr>
+          <td colspan="2">
+             Licensing information, comments, notes, or URL for further information:
+          </td>
+           </tr>
+           {% if ipr.licensing_comments %}
+           <tr ><td class="iprlabel"> </td><td class="iprdata">{{ ipr.licensing_comments|linebreaks }}</td></tr>
+           {% else %}
+           <tr ><td class="iprlabel"> </td><td><i>No information submitted</i></td></tr>
+           {% endif %}
+        </tbody>
+
+        {% if ipr.lic_checkbox %}
+        <tr class="{% cycle row_parity %}">
+           <td colspan="2">
+          <p>
+          {% if ipr.lic_checkbox != 1 %}{{ ipr.lic_checkbox }}{% endif %}
+          The individual submitting this template represents and warrants that all
+          terms and conditions that must be satisfied for implementers of any
+          covered IETF specification to obtain a license have been disclosed in this
+          IPR disclosure statement.
+          </p>
+          {% if ipr.get_classname == "GenericIprDisclosure" %}
+          <p>
+             Note: According to
+             <a href="http://www.ietf.org/rfc/rfc3979.txt?number=3979">RFC 3979</a>,
+             Section 6.4.3, unless you check the box
+             above, and choose either option a) or b), you must still file specific
+             IPR disclosures as appropriate.
+          </p>
+          {% endif %}
+           </td>
+        </tr>
+        {% endif %}
+
+        <tr class="{% cycle row_parity %}">
+           <td colspan="2">
+          <span class="iprdata">Note: The individual submitting this template represents and warrants
+          that he or she is authorized by the Patent Holder to agree to the
+          above-selected licensing declaration.</span>
+           </td>
+        </tr>
+     </table>
+
+    {% elif ipr.statement %}
+      <table  class="ipr">
+        <tr class="{% cycle dark,light as row_parity %}">
+           <th colspan="2" >
+           {% cycle section %}.
+           Statement
+           </th>
+        </tr>
+        <tbody class="{% cycle row_parity %}">
+        <tr>
+           <td colspan="2">
+             {{ ipr.statement|linebreaks }}
+           </td>
+        </tr>
+      </table>
+    {% endif %}
+
+      {% if ipr.notes %}
+     <table class="ipr">
+        <tr class="{% cycle dark,light as row_parity %}">
+           <th colspan="2" >
+           {% cycle section %}.
+           Other Notes:
+           </th>
+        </tr>
+           {% if ipr.notes %}
+           <tr class="{% cycle row_parity %}"><td class="iprlabel"> </td><td class="iprdata">{{ ipr.notes|linebreaks }}</td></tr>
+           {% else %}
+           <tr class="{% cycle row_parity %}"><td colspan="2"><i>No information submitted</i></td></tr>
+           {% endif %}
+     </table>
+      {% endif %}
+
+{% endblock %} <!-- tab_content -->

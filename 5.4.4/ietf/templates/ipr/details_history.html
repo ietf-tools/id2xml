@@ -1,0 +1,34 @@
+{% extends "ipr/details_base.html" %}
+{# Copyright The IETF Trust 2007, All Rights Reserved #}
+
+{% load ietf_filters %}
+
+{% block tab_content %}
+
+<h2>Disclosure history</h2>
+{% if user|has_role:"Area Director,Secretariat,IANA,RFC Editor" %}
+<div class="history-actions">
+  <a class="button" href="{% url "doc_add_comment" name=doc.name %}">Add comment</a>
+</div>
+{% endif %}
+
+
+<table class="ietf-table history">
+  <tr><th>Date</th><th>Type</th><th>By</th><th>Text</th></tr>
+
+  {% for e in events %}
+  <tr class="{% cycle oddrow,evenrow %}" id="history-{{ e.pk }}">
+    <td>{{ e.time|date:"Y-m-d" }}</td>
+    <td>{{ e.type }}</td>
+    <td>{{ e.by }}</td>
+    <td>{{ e.desc|format_history_text }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %} <!-- tab_content -->
+
+{% block content_end %}
+<script type="text/javascript" src="/js/history.js"></script>
+{% endblock content_end %}

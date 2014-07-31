@@ -5,7 +5,7 @@
 		{% for n, positions in position_groups %}
 			<div class="position-group">
 				<h4><span class="label label-{{ n|pos_to_label }}"> {{ n.name }}</span></h4>
-				{% for p in text_positions %}
+				{% for p in positions %}
 					<div>
 						{% if p.old_ad %}<span class="text-muted">{% endif %}
 						{% if p.comment or p.discuss %}
@@ -71,7 +71,7 @@
 		{% endif %}
 
 		{% for n, positions in position_groups %}
-			{% for p in text_positions %}
+			{% for p in positions %}
 				<h4 id="{{ p.ad.plain_name|slugify }}">
 					{% if p.old_ad %}<span class="text-muted">{% endif %}
 						{{ p.ad.plain_name }}
@@ -81,9 +81,9 @@
 							<span class="text-muted small">(was {{ p.old_positions|join:", " }})</span>
 						{% endif %}
 						<span class="label label-{{ p.pos|pos_to_label }}">{{p.pos}}</span>
-						{% if editable and user|has_role:"Secretariat" %}
+						{% if user|has_role:"Secretariat" %}
 							<a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}?ad={{ p.ad.pk }}" title="Click to edit the position of {{ p.ad.plain_name }}" class="btn btn-default btn-xs">
-						Edit position</a>
+						Edit</a>
 						{% endif %}
 					</span>
 				</h4>

@@ -18,7 +18,16 @@
 <form role="form" method="post">
 	{% csrf_token %}
 	{% for field in form %}
-		{{ field|as_crispy_field }}
+		{% if field.name == "position" %}
+			<div id="{{field.auto_id}}" class="form-group">
+				<label for="{{field.auto_id}}" class="control-label">{{field.label}}</label>
+				{% for pos in field %}
+					<div class="radio">{{ pos }}</div>
+				{% endfor %}
+			</div>
+		{% else %}
+			{{ field|as_crispy_field }}
+		{% endif %}
 		{% if field.name == "discuss" and old_pos and old_pos.discuss_time %}
 			<span class="help-block">Last edited {{ old_pos.discuss_time }}</span>
 		{% elif field.name == "comment" and old_pos and old_pos.comment_time %}

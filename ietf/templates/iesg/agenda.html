@@ -108,13 +108,12 @@
 {% endif %}
 
 {% if num|startswith:"6." and user|has_role:"Area Director,IAB Chair,Secretariat" %}
-<pre>
-{{ section.text|wordwrap:"76" }}
-</pre>
+	<pre>{{ section.text|wordwrap:"76" }}</pre>
 {% endif %}
 
 {% endfor %}
 </div>
+
 <div class="col-sm-2 hidden-print bs-docs-sidebar" id="affix">
 	<ul class="nav nav-pills nav-stacked small" data-spy="affix">
 		{% for num, section in sections %}
@@ -132,5 +131,6 @@
 			{% endif %}
 		{% endfor %}
 	</ul>
+</div>
 </div>
 {% endblock content %}

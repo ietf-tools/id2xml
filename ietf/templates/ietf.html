@@ -38,36 +38,37 @@
 			<![endif]-->
 
 			<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-				<div class="navbar-header">
 				<div class="container-fluid">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="/">
-						IETF Datatracker
-						{% if server_mode %}
-							{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
-						{% endif %}
-					</a>
-				</div>
-				</div>
-				<div class="collapse navbar-collapse" id="navbar-collapse">
-					<ul class="nav navbar-nav">
-						{% with "top" as flavor %}
-							{% include "base/menu.html" %}
-						{% endwith %}
-					</ul>
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="/">
+							IETF Datatracker
+							{% if server_mode %}
+								{% ifnotequal server_mode "production" %}∂{% endifnotequal %}
+							{% endif %}
+						</a>
+					</div>
 
-					<form class="navbar-form navbar-right hidden-sm hidden-xs" action="/doc/search/" role="search">
-						<div class="form-group">
-							<input class="form-control" type="text" name="name" placeholder="Search documents">
-							<input type="hidden" name="activedrafts" value="on">
-							<input type="hidden" name="rfcs" value="on">
-						</div>
-					</form>
+					<div class="collapse navbar-collapse" id="navbar-collapse">
+						<ul class="nav navbar-nav">
+							{% with "top" as flavor %}
+								{% include "base/menu.html" %}
+							{% endwith %}
+						</ul>
+
+						<form class="navbar-form navbar-right hidden-sm hidden-xs" action="/doc/search/" role="search">
+							<div class="form-group">
+								<input class="form-control" type="text" name="name" placeholder="Search documents">
+								<input type="hidden" name="activedrafts" value="on">
+								<input type="hidden" name="rfcs" value="on">
+							</div>
+						</form>
+					</div>
 				</div>
 			</nav>
 

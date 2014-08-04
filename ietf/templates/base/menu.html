@@ -10,7 +10,7 @@
 		<ul class="dropdown-menu">
 	{% endif %}
 	{% if request.get_full_path == "/accounts/logout/" %}
-		<li><a href="/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in</a></li>
+		<li><a href="/accounts/login{% if "/accounts/logout/" not in request.get_full_path %}/?next={{request.get_full_path|urlencode}}{% endif %}">Sign in</a></li>
 	{% else %}
 		{% if user.is_authenticated %}
 			<li><a href="/accounts/logout/" >Sign out</a></li>

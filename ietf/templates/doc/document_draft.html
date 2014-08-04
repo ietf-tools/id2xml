@@ -185,12 +185,16 @@
 		<th>Shepherd write-up</th>
 		<td>
 			{% if can_edit_shepherd_writeup %}
-				<a class="btn btn-default btn-xs" href="{% url "doc_shepherd_writeup" name=doc.name %}">Edit</a>
+				{% url "doc_edit_shepherd_writeup" name=doc.name as doc_edit_url %}
+				{% if doc_edit_url %}
+					<a class="btn btn-default btn-xs" href="{{doc_edit_url}}">Edit</a>
+				{% endif %}
 			{% endif %}
 		</td>
 		<td>
 			{% if shepherd_writeup %}
-				Last changed {{ shepherd_writeup.time|date:"Y-m-d"}}
+				<a class="btn btn-default btn-xs" href="{% url "doc_shepherd_writeup" name=doc.name %}">Show</a>
+				(last changed {{ shepherd_writeup.time|date:"Y-m-d"}})
 			{% else %}
 				(None)
 			{% endif %}

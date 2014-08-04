@@ -16,8 +16,10 @@ functionality that is only called from the new facelift templates.
 Javascript that is only used on one template goes into that template.
 Javascript that is used by more than one template goes into ietf.js.
 
-All CSS goes into ietf.css. No CSS in the templates or - god forbid -
-style tags! (And no CSS or HTML styling in python code!!)
+CSS that is only used on one template goes into that template.
+CSS that is used by more than one template goes into ietf.css. No CSS in the
+templates or - god forbid - style tags! (And no CSS or HTML styling in
+python code!!)
 
 Templates that use jquery or bootstrap plugins include the css in the pagehead
 block, and the js in the js block.

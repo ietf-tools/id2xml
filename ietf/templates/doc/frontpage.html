@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="hero-unit text-center">
+	<div class="text-center">
 		<img class="ietflogo" src="/facelift/images/ietflogo{% ifnotequal server_mode "production" %}-dev{% endifnotequal %}.png" alt="IETF">
 		<h1>Datatracker</h1>
 		{% ifnotequal server_mode "production" %}
@@ -14,12 +14,7 @@
 </div>
 
 <div class="row">
-	<div class="col-sm-7">
-		<h2>Search Documents</h2>
-		{% include "doc/search/search_form.html" %}
-
-	</div>
-	<div class="col-sm-5">
+	<div class="col-sm-4 col-sm-push-8">
 		<h2>About</h2>
 		<p>The IETF Datatracker is the IETF's web system for managing organizational information, such as:</p>
 		<ul>
@@ -30,6 +25,10 @@
 			<li><a href="/iesg/agenda/">IESG telechat agendas</a></li>
 		</ul>
 	</div>
+	<div class="col-sm-8 col-sm-pull-4">
+		<h2>Search Documents</h2>
+		{% include "doc/search/search_form.html" %}
 
+	</div>
 </div>
 {% endblock content %}

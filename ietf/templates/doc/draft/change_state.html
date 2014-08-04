@@ -32,14 +32,14 @@
 {% if next_states %}
 	<h2>Or jump directly to</h2>
 
-	<form role="form" method="post">
-		{% csrf_token %}
-		<div class="buttonlist">
+	<div class="buttonlist">
 		{% for n in next_states %}
-			<input type="hidden" name="state" value="{{ n.pk }}">
-			<input class="btn btn-default" type="submit" value="{{ n.name }}">
+			<form role="form" method="post">
+				{% csrf_token %}
+				<input type="hidden" name="state" value="{{ n.pk }}">
+				<input class="btn btn-default" type="submit" value="{{ n.name }}">
+			</form>
 		{% endfor %}
-	</form>
 	</div>
 {% endif %}
 
@@ -50,7 +50,7 @@
 		{% csrf_token %}
 		<input type="hidden" name="state" value="{{ to_iesg_eval.pk }}">
 		<input class="btn btn-warning" type="submit" value="{{ to_iesg_eval.name }}">
-		<p>But the ballot for this document has not yet been issued.</p>
+		But the ballot for this document has not yet been issued.
 		<a class="btn btn-default" href="{% url "doc_ballot_writeupnotes" name=doc.name %}">Edit ballot text</a>
 	</form>
 {% endif %}

@@ -10,13 +10,13 @@
 		<ul class="dropdown-menu">
 	{% endif %}
 	{% if request.get_full_path == "/accounts/logout/" %}
-		<li><a href="/accounts/login{% if "/accounts/logout/" not in request.get_full_path %}/?next={{request.get_full_path|urlencode}}{% endif %}">Sign in</a></li>
+		<li><a rel="nofollow" href="/accounts/login{% if "/accounts/logout/" not in request.get_full_path %}/?next={{request.get_full_path|urlencode}}{% endif %}">Sign in</a></li>
 	{% else %}
 		{% if user.is_authenticated %}
-			<li><a href="/accounts/logout/" >Sign out</a></li>
-			<li><a href="/accounts/profile/">Edit profile</a></li>
+			<li><a rel="nofollow" href="/accounts/logout/" >Sign out</a></li>
+			<li><a rel="nofollow" href="/accounts/profile/">Edit profile</a></li>
 		{% else %}
-			<li><a href="/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in</a></li>
+			<li><a rel="nofollow" href="/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in</a></li>
 		{% endif %}
 	{% endif %}
 
@@ -102,7 +102,7 @@
 			<li><a href="{{ cl.get_manage_url }}">WG {{ cl.short_name }} docs</a></li>
 		{% endfor %}
 	{% else %}
-		<li><a href="/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in to track docs</a></li>
+		<li><a rel="nofollow" href="/accounts/login/?next={{request.get_full_path|urlencode}}">Sign in to track docs</a></li>
 	{% endif %}
 
 	{% if user|has_role:"Area Director,Secretariat" %}

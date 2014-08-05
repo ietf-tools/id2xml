@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}
 Change responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}
@@ -9,13 +9,16 @@ Change responsible AD for {{ charter.canonical_name }}-{{ charter.rev }}
 {% block content %}
 <h1>Change responsible AD<br><small>{{ charter.canonical_name }}-{{ charter.rev }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
         <a class="btn btn-default pull-right" href="{% url "doc_view" name=charter.canonical_name %}">Back</a>
-    </div>
+    {% endbuttons %}
 </form>
 
 {% endblock %}

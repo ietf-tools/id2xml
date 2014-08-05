@@ -1,13 +1,15 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}{{ cl.long_name }}{% endblock %}
 
 {% block content %}
 <h1>{{ cl.long_name }}</h1>
 
-<ul class="nav nav-tabs">
+{% bootstrap_messages %}
+
+<ul class="nav nav-tabs nav-memory">
 	<li class="active"><a href="#view" data-toggle="tab">Documents</a></li>
 	<li><a href="#documents" data-toggle="tab">Explicitly added</a></li>
 	<li><a href="#rules" data-toggle="tab">Rules</a></li>
@@ -74,8 +76,11 @@
 
 		<form role="form" method="post">
 			{% csrf_token %}
-			{{ rule_form|crispy }}
-			<input type="submit" class="btn btn-primary" name="save_rule" value="Add rule">
+			{% bootstrap_form rule_form %}
+
+			{% buttons %}
+				<input type="submit" class="btn btn-primary" name="save_rule" value="Add rule">
+			{% endbuttons %}
 		</form>
 	</div>
 
@@ -102,4 +107,23 @@
 	</div>
 </div>
 
+{% endblock %}
+
+{% block js %}
+<script>
+    $('.nav-memory a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+    // store the currently selected tab in the hash value
+    $("ul.nav-tabs > li > a").on("shown.bs.tab", function (e) {
+        var id = $(e.target).attr("href").substr(1);
+        window.location.hash = id;
+    });
+
+    // on load of the page: switch to the currently selected tab
+    var hash = window.location.hash;
+    $('.nav-memory a[href="' + hash + '"]').tab('show');
+</script>
 {% endblock %}

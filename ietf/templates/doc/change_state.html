@@ -1,21 +1,24 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Change state for {{doc.title}}{% endblock %}
 
 {% block content %}
 <h1>Change state<br><small>{{doc.title}}</small></h1>
 
+{% bootstrap_messages %}
+
 <p><a class="btn btn-info" href="{{help_url}}">Help on states</a></p>
 
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% endblock %}

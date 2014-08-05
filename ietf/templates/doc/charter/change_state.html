@@ -1,20 +1,22 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 <h1>{{ title }}</h1>
 
+{% bootstrap_messages %}
+
 {% if not option %}
-<p class="helptext">For help on the states, see the <a href="{% url "state_help" type="charter" %}">state table</a>.</p>
+	<p><a class="btn btn-info" href="{% url "state_help" type="charter" %}">Help on states</a></p>
 {% endif %}
 
 <form role="form" method="post">
 	{% csrf_token %}
 	{% for field in form.visible_fields %}
-		{{ field|as_crispy_field }}
+		{% bootstrap_field field %}
 
 		{% if field.name == "charter_state" and chartering_type == "rechartering" %}
 			<div class="checkbox ballot-wo-extern">
@@ -30,15 +32,15 @@
 		<p class="alert alert-warning"><b>Warning:</b> Announced initial review time hasn't elapsed yet. It does so at {{ initial_review.expires }}.</p>
     {% endif %}
 
-	<div class="buttonlist">
+	{% buttons %}
 		{% if option == "initcharter" or option == "recharter" %}
 			<button class="btn btn-primary" type="submit">Initiate chartering</button>
 		{% endif %}
 		{% if not option or option == "abandon" %}
 			<button class="btn btn-primary" type="submit">Save & notify secretariat</button>
-			<a class="btn btn-default" href="{% url "doc_view" name=doc.name %}">Back</a>
+			<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
 		{% endif %}
-	</div>
+	{% endbuttons %}
 </form>
 
 {% if prev_state %}

@@ -226,11 +226,25 @@ INSTALLED_APPS = (
     'widget_tweaks',
     'typogrify',
     'crispy_forms',
+    'bootstrap3',
 )
 
 # FACELIFT: set crispy form template
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = not DEBUG
+
+# Settings for django-bootstrap3
+# See http://django-bootstrap3.readthedocs.org/en/latest/settings.html
+BOOTSTRAP3 = {
+    # Label class to use in horizontal forms
+    'horizontal_label_class': 'col-md-2',
+
+    # Field class to use in horiozntal forms
+    'horizontal_field_class': 'col-md-10',
+
+    # Set placeholder attributes to label if no placeholder is provided
+    'set_placeholder': False,
+}
 
 INTERNAL_IPS = (
 # AMS servers

@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 {% load ietf_filters %}
 
 {% block title %}Approval announcement writeup for {{ doc }}{% endblock %}
@@ -8,18 +8,20 @@
 {% block content %}
 <h1>Approval announcement writeup<br><small>{{ doc }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ approval_text_form|crispy }}
+	{% bootstrap_form approval_text_form %}
 
-	<div class="buttonlist">
+	{% buttons %}
 		<button type="submit" class="btn btn-primary" name="save_approval_text">Save text</button>
 		<button type="submit" class="btn btn-warning" name="regenerate_approval_text">Regenerate text</button>
 		{% if user|has_role:"Secretariat" and can_announce %}
 			<a class="btn btn-default" href="{% url "doc_approve_ballot" name=doc.name %}">Approve ballot</a>
 		{% endif %}
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% endblock%}

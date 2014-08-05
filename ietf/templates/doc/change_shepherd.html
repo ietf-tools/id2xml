@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}
 Change document shepherd for {{ doc.name }}-{{ doc.rev }}
@@ -14,13 +14,16 @@ Change document shepherd for {{ doc.name }}-{{ doc.rev }}
 {% block content %}
 <h1>Change document shepherd<br><small>{{ doc.name }}-{{ doc.rev }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form class="tokenized-form" role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 {% endblock %}
 

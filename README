@@ -3,7 +3,7 @@ the UI.
 
 You need to install a few new django extensions:
 	https://pypi.python.org/pypi/django-widget-tweaks
-	https://pypi.python.org/pypi/django-crispy-forms
+	https://pypi.python.org/pypi/django-bootstrap3
 	https://pypi.python.org/pypi/django-typogrify
 
 The meta goal of this effort is: *** NO CHANGES TO THE PYTHON CODE ***

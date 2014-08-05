@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}
 Set telechat date for {{ doc.name }}
@@ -8,6 +8,8 @@ Set telechat date for {{ doc.name }}
 
 {% block content %}
 <h1>Set telechat date<br><small>{{ doc.name }}</small></h1>
+
+{% bootstrap_messages %}
 
 {% if not doc.get_state_slug in okstates %}
 	<div class="alert alert-warning">
@@ -18,11 +20,12 @@ Set telechat date for {{ doc.name }}
 
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
         <a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-    </div>
+    {% endbuttons %}
 </form>
 
 {% endblock %}

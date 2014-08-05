@@ -1,15 +1,16 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Change {{ state_type.label }} for {{ doc }}{% endblock %}
+
 
 {% block content %}
 <h1>Change {{ state_type.label }}<br><small>{{ doc }}</small></h1>
 
 {% if next_states %}
 	<p>
-		Move document to {{ next_states|pluralize:"to one of" }} the recommended next state{{ next_states|pluralize }}:
+		<b>Move document to {{ next_states|pluralize:"to one of" }} the recommended next state{{ next_states|pluralize }}:</b>
 	</p>
 	<p class="buttonlist">
 		{% for state in next_states %}
@@ -21,11 +22,11 @@
 
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
 		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 {% endblock %}
 

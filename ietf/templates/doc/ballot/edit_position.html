@@ -1,11 +1,13 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Change position for {{ ad.plain_name }} on {{ doc }}{% endblock %}
 
 {% block content %}
 <h1>Change position for {{ ad.plain_name }}<br><small>{{ doc }}</small></h1>
+
+{% bootstrap_messages %}
 
 <div class="question">{{ ballot.ballot_type.question }}</div>
 
@@ -17,17 +19,9 @@
 
 <form role="form" method="post">
 	{% csrf_token %}
+
 	{% for field in form %}
-		{% if field.name == "position" %}
-			<div id="{{field.auto_id}}" class="form-group">
-				<label for="{{field.auto_id}}" class="control-label">{{field.label}}</label>
-				{% for pos in field %}
-					<div class="radio">{{ pos }}</div>
-				{% endfor %}
-			</div>
-		{% else %}
-			{{ field|as_crispy_field }}
-		{% endif %}
+		{% bootstrap_field field %}
 		{% if field.name == "discuss" and old_pos and old_pos.discuss_time %}
 			<span class="help-block">Last edited {{ old_pos.discuss_time }}</span>
 		{% elif field.name == "comment" and old_pos and old_pos.comment_time %}
@@ -35,8 +29,7 @@
 		{% endif %}
 	{% endfor %}
 
-
-	<div class="buttonlist">
+	{% buttons %}
 		<button type="submit" class="btn btn-primary" name="send_mail">Save & send email</button>
 		<input type="submit" class="btn btn-default" value="Save">
 
@@ -47,10 +40,9 @@
 				<input type="submit" class="btn btn-danger" name="Defer" value="Defer ballot">
 			{% endif %}
 		{% endif %}
-		<a class="btn btn-default pull-right" href="{{ return_to_url }}">Back</a>
-	</div>
+		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
+	{% endbuttons %}
 </form>
-
 {% endblock %}
 
 {% block scripts %}

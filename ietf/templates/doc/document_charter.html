@@ -2,6 +2,10 @@
 
 {% load ietf_filters %}
 
+{% block morecss %}
+.edit { width: 1px }
+{% endblock %}
+
 {% block title %}{{ doc.canonical_name }}-{{ doc.rev }}{% endblock %}
 
 {% block content %}
@@ -18,6 +22,7 @@
 				Charter
 			{% endif %}
 		</th>
+		<td class="edit"></td>
 		<td>
 			{{ group.name }} {{ group.type.name }}
 			<a href="{{ group.about_url }}">({{ group.acronym }})</a> {{ group.type.name }}
@@ -25,21 +30,22 @@
 			{% if snapshot %}
 				<span class="label label-warning">Snapshot</span>
 			{% endif %}
-
-			<a class="pull-right btn btn-default btn-xs" href="/feed/group-changes/{{ group.acronym }}/"><span class="fa fa-rss"></span></a>
 		</td>
 	</tr>
 
 	<tr>
 		<th class="text-nowrap">WG state</th>
+		<td class="edit"></td>
 		<td>{{ group.state.name }}</td>
 	</tr>
 	<tr>
 		<th class="text-nowrap"><a href="/doc/help/state/charter/">Charter state</a></th>
-		<td>
+		<td class="edit">
 			{% if not snapshot and can_manage %}
 				<a class="btn btn-default btn-xs pull-right" title="{{ doc.get_state.desc }}" href="{% url "charter_change_state" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{ doc.get_state.name }}
 
 			{% if chartering == "initial" %}
@@ -54,10 +60,12 @@
 {% if not snapshot and chartering %}
 	<tr>
 		<th class="text-nowrap">Telechat date</th>
-		<td>
+		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_telechat_date" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{% if not telechat %}
 				(None)
 			{% else %}
@@ -67,30 +75,36 @@
 			{% if ballot_summary %}
 				<br><i>{{ ballot_summary }}</i>
 			{% endif %}
+		</td>
 {% endif %}
 
 	<tr>
 		<th class="text-nowrap">Responsible AD</th>
-		<td>
+		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_ad" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{ doc.ad|default:"(None)" }}
 		</td>
 	</tr>
 
 	<tr>
 		<th class="text-nowrap">Send notices to</th>
-		<td>
+		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_notify" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{ doc.notify|default:"(None)" }}
 		</td>
 	</tr>
 
 	<tr>
 		<th class="text-nowrap">Last updated</th>
+		<td class="edit"></td>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>

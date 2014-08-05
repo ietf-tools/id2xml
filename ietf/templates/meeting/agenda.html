@@ -337,8 +337,8 @@ tr:first-child th.gap {
 	<ul class="nav nav-pills nav-stacked small" data-spy="affix">
 		{% for item in schedule.assignments.all %}
 			{% ifchanged item.timeslot.time|date:"Y-m-d" %}
-				<li><a href="#{{item.timeslot.time|slugify}}">{{ item.timeslot.time|date:"l, F j, Y" }}</a>
-				{% endifchanged %}
+				<li><a href="#{{item.timeslot.time|slugify}}">{{ item.timeslot.time|date:"l, F j, Y" }}</a></li>
+			{% endifchanged %}
 		{% endfor %}
 	</ul>
 </div>

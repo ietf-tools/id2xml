@@ -2,9 +2,14 @@
 
 {% load ietf_filters %}
 
+{% block bodyAttrs %}data-spy="scroll" data-target="#affix"{% endblock %}
+
 {% block title %}IETF {{ meeting.num }} timeslot requests{% endblock %}
 
 {% block content %}
+<div class="row">
+	<div class="col-sm-10">
+
 <h1 class="title">IETF {{ meeting.number }} timeslot requests<br>
 <small>{{meeting.city}}, {{meeting.country}} -- {{meeting.venue_name}}</small>
 </h1>
@@ -100,4 +105,14 @@
 		</tbody>
 	</table>
 {% endfor %}
+</div>
+<div class="col-sm-2 hidden-print bs-docs-sidebar" id="affix">
+	<ul class="nav nav-pills nav-stacked small" data-spy="affix">
+		{% for area in area_sessions %}
+			<li><a href="#{{area.grouper.acronym}}">{{ area.grouper.acronym|upper }}</a></li>
+		{% endfor %}
+	</ul>
+</div>
+</div>
+
 {% endblock %}

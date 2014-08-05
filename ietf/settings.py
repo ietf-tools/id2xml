@@ -228,10 +228,6 @@ INSTALLED_APPS = (
     'bootstrap3',
 )
 
-# FACELIFT: set crispy form template
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-CRISPY_FAIL_SILENTLY = not DEBUG
-
 # Settings for django-bootstrap3
 # See http://django-bootstrap3.readthedocs.org/en/latest/settings.html
 BOOTSTRAP3 = {
@@ -241,8 +237,17 @@ BOOTSTRAP3 = {
     # Field class to use in horiozntal forms
     'horizontal_field_class': 'col-md-10',
 
+    # Set HTML required attribute on required fields
+    'set_required': True,
+
     # Set placeholder attributes to label if no placeholder is provided
     'set_placeholder': False,
+
+    # Class to indicate required
+    'form_required_class': 'bootstrap3-required',
+
+    # Class to indicate error
+    'form_error_class': 'bootstrap3-error',
 }
 
 INTERNAL_IPS = (

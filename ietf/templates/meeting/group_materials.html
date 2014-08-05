@@ -2,11 +2,11 @@
 
 <tr>
 	<td>
-		<!--
+		{% comment %}
 		<a name="{{ session.group.acronym }}"></a>
 		<a name="wg-{{ session.group.acronym }}"></a>
 		<a name="session.group-{{ session.group.acronym }}"></a>
-		-->
+		{% endcomment %}
 		{% if session.name %}
 			{{ session.name }}
 		{% else %}

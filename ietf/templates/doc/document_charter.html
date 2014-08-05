@@ -15,7 +15,7 @@
 
 <table class="table table-condensed table-striped">
 	<tr>
-		<th class="text-nowrap">
+		<th>
 			{% if doc.get_state_slug != "approved" %}
 				Proposed charter
 			{% else %}
@@ -34,12 +34,12 @@
 	</tr>
 
 	<tr>
-		<th class="text-nowrap">WG state</th>
+		<th>WG state</th>
 		<td class="edit"></td>
 		<td>{{ group.state.name }}</td>
 	</tr>
 	<tr>
-		<th class="text-nowrap"><a href="/doc/help/state/charter/">Charter state</a></th>
+		<th><a href="/doc/help/state/charter/">Charter state</a></th>
 		<td class="edit">
 			{% if not snapshot and can_manage %}
 				<a class="btn btn-default btn-xs pull-right" title="{{ doc.get_state.desc }}" href="{% url "charter_change_state" name=doc.name %}">Edit</a>
@@ -59,7 +59,7 @@
 
 {% if not snapshot and chartering %}
 	<tr>
-		<th class="text-nowrap">Telechat date</th>
+		<th>Telechat date</th>
 		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_telechat_date" name=doc.name %}">Edit</a>
@@ -79,7 +79,7 @@
 {% endif %}
 
 	<tr>
-		<th class="text-nowrap">Responsible AD</th>
+		<th>Responsible AD</th>
 		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_ad" name=doc.name %}">Edit</a>
@@ -91,7 +91,7 @@
 	</tr>
 
 	<tr>
-		<th class="text-nowrap">Send notices to</th>
+		<th>Send notices to</th>
 		<td class="edit">
 			{% if can_manage %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "charter_edit_notify" name=doc.name %}">Edit</a>
@@ -103,7 +103,7 @@
 	</tr>
 
 	<tr>
-		<th class="text-nowrap">Last updated</th>
+		<th>Last updated</th>
 		<td class="edit"></td>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>

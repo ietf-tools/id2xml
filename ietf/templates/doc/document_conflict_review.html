@@ -2,6 +2,10 @@
 
 {% load ietf_filters %}
 
+{% block morecss %}
+.edit { width: 1px }
+{% endblock %}
+
 {% block title %}{{ doc.name }}-{{ doc.rev }}{% endblock %}
 
 {% block content %}
@@ -11,13 +15,14 @@
 
 <table class="table table-condensed table-striped">
 	<tr>
-		<th class="text-nowrap">
+		<th>
 			{% if doc.get_state_slug not in approved_states %}
 				Proposed conflict review
 			{% else %}
 				Conflict review
 			{% endif %}
 		</th>
+		<td class="edit"></td>
 		<td>
 			<a href="{% url "doc_view" name=conflictdoc.canonical_name %}">
 			{{ conflictdoc.canonical_name }}{% if conflictdoc.get_state_slug != 'rfc' %}-{{ conflictdoc.rev }}{% endif %}
@@ -31,23 +36,26 @@
 	</tr>
 
 	<tr>
-		<th class="text-nowrap"><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
-		<td>
+		<th><a href="/doc/help/state/conflict-review/">Conflict review state</a></th>
+		<td class="edit">
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" %}
 				<a title="{{ doc.get_state.desc }}" class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_change_state" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{ doc.get_state.name }}
 		</td>
 	</tr>
 
 	{% if not snapshot %}
 		<tr>
-			<th class="text-nowrap">Telechat date</th>
-			<td>
+			<th>Telechat date</th>
+			<td class="edit">
 				{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 					<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_telechat_date" name=doc.name %}">Edit</a>
 				{% endif %}
-
+			</td>
+			<td>
 				{% if not telechat %}
 					(None)
 				{% else %}
@@ -63,27 +71,32 @@
 	{% endif %}
 
 	<tr>
-		<th class="text-nowrap">Shepherding AD</th>
-		<td>
+		<th>Shepherding AD</th>
+		<td class="edit">
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_ad" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{doc.ad}}
 		</td>
 	</tr>
 
 	<tr>
-		<th class="text-nowrap">Send notices to</th>
-		<td>
+		<th>Send notices to</th>
+		<td class="edit">
 			{% if not snapshot and user|has_role:"Area Director,Secretariat" and doc.get_state_slug not in approved_states %}
 				<a class="btn btn-default btn-xs pull-right" href="{% url "conflict_review_notices" name=doc.name %}">Edit</a>
 			{% endif %}
+		</td>
+		<td>
 			{{doc.notify}}
 		</td>
 	</tr>
 
 	<tr>
-		<th class="text-nowrap">Last updated</th>
+		<th>Last updated</th>
+		<td class="edit"></td>
 		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>

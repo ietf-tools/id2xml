@@ -1,7 +1,7 @@
 {% extends "ietf.html" %}
 
 {% load ietf_filters %}
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Manage {{ group.name }} RFC stream{% endblock %}
 
@@ -12,6 +12,8 @@
 
 {% block content %}
 <h1>Manage {{ group.name }} RFC stream</h1>
+
+{% bootstrap_messages %}
 
 <p>
 	<b>Chair{{ chairs|pluralize }}:</b>
@@ -29,12 +31,12 @@
 
 <form class="tokenized-form" action="" role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
+	{% bootstrap_form form %}
 
-	<div class="buttonlist">
+	{% buttons %}
 		<input type="submit" class="btn btn-primary" value="Save">
 		<a class="btn btn-default pull-right" href="{% url "ietf.group.views_stream.streams" %}">Back</a>
-	</div>
+	{% endbuttons %}
 
 </form>
 {% endblock %}

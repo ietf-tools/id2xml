@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 {% load ietf_filters %}
 
 {% block title %}
@@ -29,15 +29,17 @@
 {% endif %}
 </h1>
 
+{% bootstrap_messages %}
+
 <p class="alert alert-info">Note that persons with authorization to manage information, e.g.
 chairs and delegates, need a datatracker account to actually do
 so. New accounts can be <a href="{% url "create_account" %}">created here</a>.</p>
 
-<form class="tokenized-form" role="form" method="post">
+<form class="tokenized-form form-horizontal" role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
+	{% bootstrap_form form layout='horizontal' %}
 
-	<div class="buttonlist">
+	{% buttons layout='horizontal' %}
 		{% if action == "edit" %}
 			<button class="btn btn-primary" type="submit">Submit</button>
 			<a class="btn btn-default pull-right" href="{{ group.about_url }}">Back</a>
@@ -48,7 +50,7 @@ so. New accounts can be <a href="{% url "create_account" %}">created here</a>.</
 				<button class="btn btn-primary" type="submit">Create group or BOF</button>
 			{% endif %}
 		{% endif %}
-	</div>
+	{% endbuttons %}
 </form>
 {% endblock %}
 

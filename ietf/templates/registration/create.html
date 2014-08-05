@@ -1,10 +1,12 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Account creation{% endblock %}
 
 {% block content %}
+
+{% bootstrap_messages %}
 
 {% if success %}
 	<h1>Account created successfully</h1>
@@ -18,8 +20,11 @@
 			<p>Please enter your email address in order to create a new datatracker account.</p>
 			<form role="form" method="post">
 				{% csrf_token %}
-				{{ form|crispy }}
-				<button type="submit" class="btn btn-primary">Create account</button>
+				{% bootstrap_form form %}
+
+				{% buttons %}
+					<button type="submit" class="btn btn-primary">Create account</button>
+				{% endbuttons %}
 			</form>
 		</div>
 

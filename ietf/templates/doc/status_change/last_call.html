@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 {% load ietf_filters %}
 
 {% block title %}Last call text for {{ doc }}{% endblock %}
@@ -8,10 +8,13 @@
 {% block content %}
 <h1>Last call text<br><small>{{ doc }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form class="edit-last-call-text" role="form" method="post">
 	{% csrf_token %}
-	{{ last_call_form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form last_call_form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary" name="save_last_call_text">Save text</button>
 		<button type="submit" class="btn btn-info" name="send_last_call_request">Save text & request last call</button>
 		{% if user|has_role:"Secretariat" %}
@@ -19,7 +22,7 @@
 		{% endif %}
 		<button type="submit" class="btn btn-warning" name="regenerate_last_call_text">Reset to template text</button>
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% comment %}

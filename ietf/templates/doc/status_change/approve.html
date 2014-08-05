@@ -1,20 +1,21 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Approve {{doc.canonical_name }}{% endblock %}
 
 {% block content %}
 <h1>Approve<br><small>{{ doc.canonical_name }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form role="form" method="post">
 	{% csrf_token %}
+	{% bootstrap_formset formset %}
 
-	{{ formset|crispy }}
-
-    <div class="buttonlist">
+	{% buttons %}
         <button type="submit" class="btn btn-primary" >Send announcement & close ballot</button>
         <a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-    </div>
+	{% endbuttons %}
 </form>
 {% endblock %}

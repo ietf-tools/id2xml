@@ -1,4 +1,4 @@
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 <p>
 	If you are one of the authors, please click the button below
@@ -7,10 +7,10 @@
 	please manually enter your name and email address.
 </p>
 
-<p class="buttonlist">
+{% buttons %}
 	{% for author in submission.authors_parsed %}
 		<input type="button" class="author btn btn-default" data-name="{{ author.name  }}" data-email="{{ author.email }}" value="{{ author.name }}">
 	{% endfor %}
-</p>
+{% endbuttons %}
 
-{{ submitter_form|crispy}}
+{% bootstrap_form submitter_form %}

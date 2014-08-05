@@ -1,11 +1,13 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Set up test email address{% endblock %}
 
 {% block content %}
 <h1>Set up test email address</h1>
+
+{% bootstrap_messages %}
 
 <p>Since this server is running in test mode, all email to be sent out
 is intercepted and thrown away.</p>
@@ -18,10 +20,10 @@ cookie in your browser. So make sure cookies are enabled.</p>
 
 <form role-"form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
+	{% bootstrap_form form %}
 
-    <div class="buttonlist">
+    {% buttons %}
 	    <button class="btn btn-primary" type="submit">Set cookie</button>
-	</div>
+	{% endbuttons %}
 </form>
 {% endblock %}

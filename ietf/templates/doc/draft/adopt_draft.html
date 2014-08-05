@@ -1,11 +1,13 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Adopt {{ doc }} in group{% endblock %}
 
 {% block content %}
 <h1>Adopt {{ doc }} in group</h1>
+
+{% bootstrap_messages %}
 
 <p class="alert alert-info">You can adopt this draft into a group.
 For a WG, the draft enters the IETF stream and the
@@ -15,11 +17,12 @@ Document".</p>
 
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
         <a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
-    </div>
+    {% endbuttons %}
 </form>
 
 {% endblock %}

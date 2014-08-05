@@ -1,16 +1,21 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
 <h1>Sign in</h1>
 
+{% bootstrap_messages %}
+
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<button type="submit" class="btn btn-primary">Sign in</button>
+	{% bootstrap_form form %}
+
+	{% buttons %}
+		<button type="submit" class="btn btn-primary">Sign in</button>
+	{% endbuttons %}
 </form>
 
 {% endblock %}

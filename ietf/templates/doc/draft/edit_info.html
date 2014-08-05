@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 {% load ietf_filters %}
 
 {% block title %}Edit info for {{ doc }}{% endblock %}
@@ -8,12 +8,15 @@
 {% block content %}
 <h1>Edit info<br><small>{{ doc }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form class="tokenized-form" role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button class="btn btn-primary" type="submit">Submit</button>
 		<a class="btn btn-default pull-right" href="{{ doc.get_absolute_url }}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 {% endblock %}

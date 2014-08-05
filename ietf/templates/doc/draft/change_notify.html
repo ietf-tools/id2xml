@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}
 Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}
@@ -9,14 +9,17 @@ Edit notification addresses for {{ doc.canonical_name }}-{{ doc.rev }}
 {% block content %}
 <h1>Edit notification addresses<br><small>{{ doc.canonical_name }}-{{ doc.rev }}</small></h1>
 
+{% bootstrap_messages %}
+
 <form role="form" enctype="multipart/form-data" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-primary" name="save_addresses">Submit</button>
 		<input type="submit" class="btn btn-warning" name="regenerate_addresses" value="Regenerate address list">
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.canonical_name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% endblock %}

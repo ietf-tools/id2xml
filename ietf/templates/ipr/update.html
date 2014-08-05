@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}IPR update{% endblock %}
 
@@ -8,7 +8,9 @@
 
 <h1>Updating {{ type|title }} IPR Disclosure<br><small>{{ ipr.title }}</small></h1>
 
-<form role="form" method="post">
+{% bootstrap_messages %}
+
+<form role="form" class="form-horizontal" method="post">
 	{% csrf_token %}
 
 	{% if form.errors %}
@@ -27,12 +29,12 @@
 	{% endif %}
 
 	<h2>Contact information for submitter of this update</h2>
-	{{ form|crispy }}
+	{% bootstrap_form form layout='horizontal' %}
 
-	<div class="buttonlist">
+	{% buttons layout='horizontal' %}
 		<button class="btn btn-primary" type="submit">Submit</button>
 		<a class="btn btn-default pull-right" onClick="history.go(-1);">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% endblock %}

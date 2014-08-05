@@ -1,11 +1,13 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Request publication for {{ doc }}{% endblock %}
 
 {% block content %}
 <h1>Request publication<br><small>{{ doc }}</small></h1>
+
+{% bootstrap_messages %}
 
 <p class="alert alert-info">
 	Send a publication request to the RFC Editor for {{ doc }} and move it to the <i>{{ next_state.name }}</i> stream state.
@@ -39,12 +41,13 @@ href="http://www.rfc-editor.org/indsubs.html">guidelines</a>.
 		<input class="form-control" type="text" placeholder="{{ message.to }}" disabled>
 	</div>
 
-	{{ form|crispy }}
-	<div class="buttonlist">
+	{% bootstrap_form form %}
+
+	{% buttons %}
 		<button type="submit" class="btn btn-danger">Email RFC Editor</button>
 		<button type="reset" class="btn btn-warning">Reset</button>
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
-	</div>
+	{% endbuttons %}
 </form>
 
 {% endblock %}

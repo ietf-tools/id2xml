@@ -1,12 +1,14 @@
 {% extends "submit/submit_base.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% load submit_tags %}
 
-{% block title %}Adjust meta-Data of submitted {{ submission.name }}{% endblock %}
+{% block title %}Adjust meta-data of submitted {{ submission.name }}{% endblock %}
 
 {% block submit_content %}
+
+{% bootstrap_messages %}
 
 <div class="modal fade" id="twopages" tabindex="-1" role="dialog" aria-labelledby="twopageslabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
@@ -61,20 +63,23 @@
 <form class="idsubmit" role="form" method="post">
 	{% csrf_token %}
 
-	{{ edit_form|crispy}}
+	{% bootstrap_form edit_form %}
+
 	<h3>Submitter</h3>
 	{% include "submit/submitter_form.html" %}
 
 	{% for form in author_forms %}
 		<div {% if forloop.last %}id="cloner"{% endif %}>
 			<h3>Author {{ forloop.counter }}</h3>
-			{{ form|crispy }}
+			{% bootstrap_form form %}
 			<input type="hidden" name="authors-prefix" value="{{ form.prefix  }}">
 		</div>
 	{% endfor %}
 
-	<input class="btn btn-default" type="button" value="Add another author" id="add-author">
-	<input class="btn btn-primary" type="submit" value="Submit for manual posting">
+	{% buttons %}
+		<input class="btn btn-default" type="button" value="Add another author" id="add-author">
+		<input class="btn btn-primary" type="submit" value="Submit for manual posting">
+	{% endbuttons %}
 </form>
 
 <p>

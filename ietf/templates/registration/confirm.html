@@ -1,6 +1,6 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Complete account creation{% endblock %}
 
@@ -15,11 +15,16 @@
 {% else %}
 	<h1>Complete account creation</h1>
 
+	{% bootstrap_messages %}
+
 	<p>In order to complete the setup of your account with login name {{ email }}, please choose a password:</p>
 	<form role="form" method="post">
 		{% csrf_token %}
-		{{ form|crispy }}
-		<button type="submit" class="btn btn-primary">Set password</button>
+		{% bootstrap_form form %}
+
+		{% buttons %}
+			<button type="submit" class="btn btn-primary">Set password</button>
+		{% endbuttons %}
 	</form>
 {% endif %}
 {% endblock %}

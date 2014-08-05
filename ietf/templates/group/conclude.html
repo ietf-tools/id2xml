@@ -1,11 +1,13 @@
 {% extends "ietf.html" %}
 
-{% load crispy_forms_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Request closing of {{ group.acronym }} {{ group.type.name }}{% endblock %}
 
 {% block content %}
 <h1>Request closing of {{ group.acronym }} {{ group.type.name }}</h1>
+
+{% bootstrap_messages %}
 
 <p>
    Please provide instructions regarding the disposition of each
@@ -17,12 +19,12 @@
 
 <form role="form" method="post">
 	{% csrf_token %}
-	{{ form|crispy }}
+	{% bootstrap_form form %}
 
-	<div class="buttonlist">
+	{% buttons %}
 		<button type="submit" class="btn btn-primary">Submit</button>
 		<a class="btn btn-default pull-right" href="{{ group.about_url }}">Back</a>
-	</div>
+	{% endbuttons %}
 
 </form>
 {% endblock %}

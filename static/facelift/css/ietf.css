@@ -89,11 +89,10 @@ table.ietf td.doc { width: 50%; }
 /* Ballot discuss and comment text needs to look a bit different than pre */
 pre.ballot { padding: 0; margin: 0; border: 0; background-color: inherit; }
 
-table.doc tr th, table.doc tr td { border-top: 0; }
-table.doc hr { margin: 0; }
-
+/* Add some padding when there are multiple buttons in a line than can wrap. */
 .buttonlist .btn { margin-bottom: .5em }
 
+/* Add some padding to the "show all" button used on the history tabs. */
 table.ietf button.show-all { margin: .25em 0 0 .25em; }
 
 /* Make preformatted text a bit more condensed in display */
@@ -109,6 +108,7 @@ span.amp {
 /* Turn off link underlining for panels in the search results */
 td.ipr a:hover, td.doc a:hover { text-decoration: none }
 
+/* Helper for line-through text. */
 .line-through { text-decoration: line-through; }
 
-.displayField-date { white-space: nowrap; }
+/*.displayField-date { white-space: nowrap; } not used anymore? */

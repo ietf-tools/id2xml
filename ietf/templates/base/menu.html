@@ -65,7 +65,7 @@
 <li><a href="{% url "ietf.group.info.active_groups" group_type="wg" %}">Active WGs</a></li>
 <li><a href="{% url "ietf.group.info.active_groups" group_type="rg" %}">Active RGs</a></li>
 
-	{% if flavor == "top" %}<li class="hidden-sm hidden-xs divider"></li>{% endif %}
+	{% if flavor == "top" %}<li class="divider"></li>{% endif %}
 	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>New work</li>
 	<li><a href="{% url "ietf.group.info.chartering_groups" %}">Chartering WGs</a></li>
 	<li><a href="{% url "ietf.group.info.bofs" group_type="wg" %}">BOFs</a></li>
@@ -76,7 +76,7 @@
 	<li><a href="//www.ietf.org/list/nonwg.html">Non-WG lists</a></li>
 
 	{% if flavor == "top" %}<li class="divider"></li>{% endif %}
-	<li {%if flavor == "top" %}class="hidden-sm hidden-xs dropdown-header"{% else %}class="nav-header"{% endif %}>By area</li>
+	<li {%if flavor == "top" %}class="dropdown-header"{% else %}class="nav-header"{% endif %}>By area</li>
 	{% wg_menu "facelift" %}
 {% if flavor == "top" %}</ul>{% endif %}
 

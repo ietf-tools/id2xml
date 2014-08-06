@@ -103,7 +103,7 @@
 				<td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
 				<td class="text-right">{{ e.rev }}</td>
 				<td>{{ e.by|escape }}</td>
-				<td>{{ e.desc|format_history_text_facelift }}</td>
+				<td>{{ e.desc|format_history_text }}</td>
 			</tr>
 		{% endfor %}
 	</tbody>

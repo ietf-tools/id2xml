@@ -8,7 +8,6 @@ from email.utils import parseaddr
 
 from django import template
 from django.utils.html import escape, fix_ampersands
-# FACELIFT: added striptags
 from django.template.defaultfilters import truncatewords_html, linebreaksbr, stringfilter, urlize, striptags
 from django.template import resolve_variable
 from django.utils.safestring import mark_safe, SafeData
@@ -448,28 +447,10 @@ def format_history_text(text):
     if text.startswith("This was part of a ballot set with:"):
         full = urlize_ietf_docs(full)
 
-    full = mark_safe(keep_spacing(linebreaksbr(urlize(sanitize_html(full)))))
-    snippet = truncatewords_html(full, 25)
-    if snippet != full:
-        return mark_safe(u'<div class="snippet">%s<span class="show-all">[show all]</span></div><div style="display:none" class="full">%s</div>' % (snippet, full))
-    return full
-
-@register.filter
-def format_history_text_facelift(text):
-    """
-    Run history text through some cleaning and add expand button if it's too long.
-    FACELIFT: The original format_history_text can be removed when the facelift
-    templates become default.
-    """
-    full = mark_safe(text)
-
-    if text.startswith("This was part of a ballot set with:"):
-        full = urlize_ietf_docs(full)
-
     full = mark_safe(keep_spacing(linebreaksbr(urlize_html(sanitize_html(full)))))
     snippet = truncatewords_html(full, 25)
     if snippet != full:
-        return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-default show-all pull-right"><span class="fa fa-caret-down"></span></button></div><div class="hidden full">%s</div>' % (snippet, full))
+        return mark_safe(u'<div class="snippet">%s<button class="btn btn-xs btn-default show-all"><span class="fa fa-caret-down"></span></button></div><div class="hidden full">%s</div>' % (snippet, full))
     return full
 
 @register.filter

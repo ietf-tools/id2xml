@@ -24,11 +24,4 @@
 		<a class="btn btn-default pull-right" href="{% url "doc_view" name=doc.name %}">Back</a>
 	{% endbuttons %}
 </form>
-
-{% comment %}
-	<! FACELIFT: This block was commented out in the previous version already. Not sure if it is needed. -->
-	{% if can_request_last_call and need_intended_status %}
-		<p>You need to select intended status of {{ need_intended_status }} and regenerate last call text to request last call.</p>
-	{% endif %}
-{% endcomment %}
 {% endblock%}

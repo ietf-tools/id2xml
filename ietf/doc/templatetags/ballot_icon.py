@@ -87,16 +87,9 @@ def ballot_icon(context, doc):
     positions = list(doc.active_ballot().active_ad_positions().items())
     positions.sort(key=sort_key)
 
-    edit_position_url = ""
-    if has_role(user, "Area Director"):
-        edit_position_url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=doc.name, ballot_id=ballot.pk))
-
-    title = "IESG positions (click to show more%s)" % (", right-click to edit position" if edit_position_url else "")
-
-    # FACELIFT: data-edit is not used right now
-    res = ['<a href="%s" data-toggle="modal" data-target="#modal-%d" data-edit="%s" title="%s" class="ballot-icon"><table>' % (
+    res = ['<a href="%s" data-toggle="modal" data-target="#modal-%d" title="IESG positions (click to show more)" class="ballot-icon"><table>' % (
             urlreverse("ietf.doc.views_doc.ballot_popup", kwargs=dict(name=doc.name, ballot_id=ballot.pk)),
-            ballot.pk, edit_position_url, title)]
+            ballot.pk)]
 
     res.append("<tr>")
 

@@ -105,7 +105,12 @@
 	<tr>
 		<th>Last updated</th>
 		<td class="edit"></td>
-		<td>{{ doc.time|date:"Y-m-d" }}</td>
+		<td>
+			{{ doc.time|date:"Y-m-d" }}
+		    <a class="btn btn-default btn-xs" href="/feed/group-changes/{{ group.acronym }}/">
+		    	<span class="fa fa-rss"></span>
+			</a>
+		</td>
 	</tr>
 </table>
 

@@ -2,6 +2,23 @@
 
 {% load ietf_filters %}
 
+{% block morecss %}
+{% comment %}
+FACELIFT: This is an ugly hack to suppress some whitespace in bootstrap-3.2.0.
+Will hopefully be fixed in later versions, so this can be removed.
+{% endcomment %}
+.clearfix:before, .clearfix:after, .dl-horizontal dd:before, .dl-horizontal dd:after,
+.container:before, .container:after, .container-fluid:before, .container-fluid:after,
+.row:before, .row:after, .form-horizontal .form-group:before, .form-horizontal .form-group:after,
+.btn-toolbar:before, .btn-toolbar:after, .btn-group-vertical>.btn-group:before,
+.btn-group-vertical>.btn-group:after, .nav:before, .nav:after, .navbar:before,
+.navbar:after, .navbar-header:before, .navbar-header:after, .navbar-collapse:before,
+.navbar-collapse:after, .pager:before, .pager:after, .panel-body:before,
+.panel-body:after, .modal-footer:before, .modal-footer:after {
+    content: none;
+}
+{% endblock %}
+
 {% block title %}IESG agenda: {{ date }}{% endblock %}
 
 {% block bodyAttrs %}data-spy="scroll" data-target="#affix"{% endblock %}
@@ -101,6 +118,7 @@
 		{% if doc.type_id == "draft" or doc.type_id == "statchg" %}{% include "iesg/agenda_doc.html" %}{% endif %}
 		{% if doc.type_id == "conflrev" %}{% include "iesg/agenda_conflict_doc.html" %}{% endif %}
 		{% if doc.type_id == "charter" %}{% include "iesg/agenda_charter.html" %}{% endif %}
+		{% if not forloop.last %}<hr>{% endif %}
 	{% empty %}
 	<p class="text-muted">(None)</p>
 	{% endfor %}

@@ -3,25 +3,24 @@
 <div class="row">
 	<div class="col-md-2 hidden-sm hidden-xs">
 		{% for n, positions in position_groups %}
-			<div class="position-group">
-				<h4><span class="label label-{{ n|pos_to_label }}"> {{ n.name }}</span></h4>
-				{% for p in positions|dictsort:"ad.last_name" %}
-					<div>
-						{% if p.old_ad %}<span class="text-muted">{% endif %}
-						{% if p.comment or p.discuss %}
-							<a href="#{{ p.ad.plain_name|slugify }}">
-						{% endif %}
-						{{ p.ad.plain_name }}
-						{% if p.comment or p.discuss %}
-							</a>
-						{% endif %}
-						{% if user|has_role:"Secretariat" %}</a>{% endif %}
-						{% if p.old_ad %}</span>{% endif %}
-					</div>
-				{% empty %}
-					(None)
-				{% endfor %}
-			</div>
+			<h4><span class="label label-{{ n|pos_to_label }}"> {{ n.name }}</span></h4>
+			{% for p in positions|dictsort:"ad.last_name" %}
+				<div>
+					{% if p.old_ad %}<span class="text-muted">{% endif %}
+					{% if p.comment or p.discuss %}
+						<a href="#{{ p.ad.plain_name|slugify }}">
+					{% endif %}
+					{{ p.ad.plain_name }}
+					{% if p.comment or p.discuss %}
+						</a>
+					{% endif %}
+					{% if user|has_role:"Secretariat" %}</a>{% endif %}
+					{% if p.old_ad %}</span>{% endif %}
+				</div>
+			{% empty %}
+				(None)
+			{% endfor %}
+			<br>
 		{% endfor %}
 	</div>
 

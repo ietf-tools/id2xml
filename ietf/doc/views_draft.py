@@ -29,6 +29,7 @@ from ietf.ietfauth.utils import has_role, is_authorized_in_doc_stream, user_is_p
 from ietf.ietfauth.utils import role_required
 from ietf.message.models import Message
 from ietf.name.models import IntendedStdLevelName, DocTagName, StreamName
+from ietf.doc.forms import TelechatForm
 from ietf.person.forms import EmailsField
 from ietf.person.models import Person, Email
 from ietf.secr.lib.template import jsonapi
@@ -876,21 +877,6 @@ def edit_notices(request, name):
                                'doc': doc,
                               },
                               context_instance = RequestContext(request))
-
-class TelechatForm(forms.Form):
-    telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False)
-    returning_item = forms.BooleanField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
-
-        dates = [d.date for d in TelechatDate.objects.active().order_by('date')]
-        init = kwargs['initial'].get("telechat_date")
-        if init and init not in dates:
-            dates.insert(0, init)
-
-        self.fields['telechat_date'].choices = [("", "(not on agenda)")] + [(d, d.strftime("%Y-%m-%d")) for d in dates]
-        
 
 @role_required("Area Director", "Secretariat")
 def telechat_date(request, name):

@@ -2,6 +2,7 @@ import os
 import re
 import urllib
 import math
+import datetime
 
 from django.conf import settings
 from django.db.models.query import EmptyQuerySet
@@ -315,7 +316,14 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
     prev_returning = bool(prev and prev.returning_item)
     prev_telechat = prev.telechat_date if prev else None
     prev_agenda = bool(prev_telechat)
-    
+    prev_telechat_happened = prev_telechat and prev_telechat < datetime.date.today()
+
+    prev_same_ballot = False
+    if prev_telechat:
+         prev_ballot = doc.docevent_set.filter(ballotdocevent__type='created_ballot').exclude(time__gt=prev_telechat).order_by('-time').first()
+         cur_ballot  = doc.docevent_set.filter(ballotdocevent__type='created_ballot').order_by('-time').first()
+         prev_same_ballot = (prev_ballot == cur_ballot)
+
     returning_item_changed = bool(new_returning_item != None and new_returning_item != prev_returning)
 
     if new_returning_item == None:
@@ -328,8 +336,13 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
         return
 
     # auto-update returning item
-    if (not returning_item_changed and on_agenda and prev_agenda
-        and new_telechat_date != prev_telechat):
+    if (     not returning_item_changed 
+         and on_agenda 
+         and prev_agenda
+         and new_telechat_date != prev_telechat
+         and prev_telechat_happened
+         and prev_same_ballot
+       ):
         returning = True
 
     e = TelechatDocEvent()

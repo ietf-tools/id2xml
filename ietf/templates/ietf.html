@@ -73,6 +73,16 @@
 			</nav>
 
 			<div class="content container-fluid">
+				{% if messages %}
+					<div class="row">
+						<div class="col-lg-12">
+							{% for message in messages %}
+								<p class="alert alert-info {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+							{% endfor %}
+						</div>
+					</div>
+				{% endif %}
+
 				<div class="row">
 					<div class="col-lg-2 hidden-md hidden-sm hidden-xs leftmenu">
 						<ul class="nav nav-pills nav-stacked panel panel-default panel-body">

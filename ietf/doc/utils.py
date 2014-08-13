@@ -307,6 +307,14 @@ def nice_consensus(consensus):
         }
     return mapping[consensus]
 
+def has_same_ballot(doc, date1, date2=datetime.date.today()):
+    """ Test if the most recent ballot created before the end of date1
+        is the same as the most recent ballot created before the
+        end of date 2. """
+    ballot1 = doc.latest_event(BallotDocEvent,type='created_ballot',time__lt=date1+datetime.timedelta(days=1))
+    ballot2 = doc.latest_event(BallotDocEvent,type='created_ballot',time__lt=date2+datetime.timedelta(days=1))
+    return ballot1==ballot2
+
 def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None):
     from ietf.doc.models import TelechatDocEvent
     
@@ -316,15 +324,6 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
     prev_returning = bool(prev and prev.returning_item)
     prev_telechat = prev.telechat_date if prev else None
     prev_agenda = bool(prev_telechat)
-    prev_telechat_happened = prev_telechat and prev_telechat < datetime.date.today()
-
-    prev_same_ballot = False
-    if prev_telechat:
-         prev_ballot = doc.docevent_set.filter(ballotdocevent__type='created_ballot').exclude(time__gt=prev_telechat).order_by('-time').first()
-         cur_ballot  = doc.docevent_set.filter(ballotdocevent__type='created_ballot').order_by('-time').first()
-         prev_same_ballot = (prev_ballot == cur_ballot)
-
-    returning_item_changed = bool(new_returning_item != None and new_returning_item != prev_returning)
 
     if new_returning_item == None:
         returning = prev_returning
@@ -335,13 +334,13 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
         # fully updated, nothing to do
         return
 
-    # auto-update returning item
-    if (     not returning_item_changed 
+    # auto-set returning item _ONLY_ if the caller did not provide a value
+    if (     new_returning_item != None
          and on_agenda 
          and prev_agenda
          and new_telechat_date != prev_telechat
-         and prev_telechat_happened
-         and prev_same_ballot
+         and prev_telechat < datetime.date.today()
+         and has_same_ballot(doc,prev.telechat_date)
        ):
         returning = True
 

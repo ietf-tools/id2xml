@@ -29,7 +29,6 @@ from ietf.ietfauth.utils import has_role, is_authorized_in_doc_stream, user_is_p
 from ietf.ietfauth.utils import role_required
 from ietf.message.models import Message
 from ietf.name.models import IntendedStdLevelName, DocTagName, StreamName
-from ietf.doc.forms import TelechatForm
 from ietf.person.forms import EmailsField
 from ietf.person.models import Person, Email
 from ietf.secr.lib.template import jsonapi
@@ -877,34 +876,6 @@ def edit_notices(request, name):
                                'doc': doc,
                               },
                               context_instance = RequestContext(request))
-
-@role_required("Area Director", "Secretariat")
-def telechat_date(request, name):
-    doc = get_object_or_404(Document, type="draft", name=name)
-    login = request.user.person
-
-    e = doc.latest_event(TelechatDocEvent, type="scheduled_for_telechat")
-    initial_returning_item = bool(e and e.returning_item)
-
-    initial = dict(telechat_date=e.telechat_date if e else None,
-                   returning_item = initial_returning_item,
-                  )
-    if request.method == "POST":
-        form = TelechatForm(request.POST, initial=initial)
-
-        if form.is_valid():
-            update_telechat(request, doc, login, form.cleaned_data['telechat_date'],form.cleaned_data['returning_item'])
-            return redirect('doc_view', name=doc.name)
-    else:
-        form = TelechatForm(initial=initial)
-
-    return render_to_response('doc/edit_telechat_date.html',
-                              dict(doc=doc,
-                                   form=form,
-                                   user=request.user,
-                                   login=login),
-                              context_instance=RequestContext(request))
-
 
 class IESGNoteForm(forms.Form):
     note = forms.CharField(widget=forms.Textarea, label="IESG note", required=False)

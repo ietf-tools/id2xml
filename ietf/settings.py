@@ -226,6 +226,7 @@ INSTALLED_APPS = (
     'widget_tweaks',
     'typogrify',
     'bootstrap3',
+    'mathfilters',
 )
 
 # Settings for django-bootstrap3

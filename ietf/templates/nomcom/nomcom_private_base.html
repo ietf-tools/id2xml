@@ -2,6 +2,8 @@
 
 {% load nomcom_tags %}
 
+{% block title %}NomCom {{ year }} Private{% block subtitle %}{% endblock %}{% endblock %}
+
 {% block content %}
 
 <h1>NomCom {{ year }} <small>Private area</small></h1>
@@ -11,11 +13,11 @@
 
 	{% if nomcom|has_publickey %}
 		<li {% if selected == "nominate" %}class="active"{% endif %}><a href="{% url "nomcom_private_nominate" year %}">Nominate</a></li>
-		<li {% if selected == "feedback" %}class="active"{% endif %}><a href="{% url "nomcom_private_feedback" year %}">Enter comments</a></li>
+		<li {% if selected == "feedback" %}class="active"{% endif %}><a href="{% url "nomcom_private_feedback" year %}">Enter feedback</a></li>
 		<li {% if selected == "questionnaire" %}class="active"{% endif %}><a href="{% url "nomcom_private_questionnaire" year %}">Questionnaire response</a></li>
 	{% endif %}
 
-	<li {% if selected == "view_feedback" %}class="active"{% endif %}><a href="{% url "nomcom_view_feedback" year %}">View comments</a></li>
+	<li {% if selected == "view_feedback" %}class="active"{% endif %}><a href="{% url "nomcom_view_feedback" year %}">View feedback</a></li>
 	<li {% if selected == "private_key" %}class="active"{% endif %}><a href="{% url "nomcom_private_key" year %}">Private key</a></li>
 
 	{% if user|is_chair:year %}
@@ -41,6 +43,7 @@
 		</li>
 	{% endif %}
 </ul>
+<p></p>
 
 {% block nomcom_content %}
 {% endblock %}

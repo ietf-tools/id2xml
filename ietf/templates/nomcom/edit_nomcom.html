@@ -6,7 +6,7 @@
 <h2>Edit settings</h2>
 
 {% if message %}
-<div class="info-message-{{ message.0 }}">{{ message.1 }}</div>
+<div class="alert alert-{{ message.0 }}">{{ message.1 }}</div>
 {% endif %}
 
 {% if form.errors %}<div class="info-message-error">Please correct the following errors</div>{% endif %}

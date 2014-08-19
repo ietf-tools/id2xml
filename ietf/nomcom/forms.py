@@ -403,6 +403,7 @@ class NominateForm(BaseNomcomForm, forms.ModelForm):
                     'candidate_email', 'candidate_phone',
                     'comments']
 
+        self.fields['nominator_email'].label = 'Nominator email'
         if self.nomcom:
             self.fields['position'].queryset = Position.objects.get_by_nomcom(self.nomcom).opened()
             self.fields['comments'].help_text = self.nomcom.initial_text

@@ -13,8 +13,10 @@
  </p>
 
 {% if message %}
-	<p class="alert alert-info info-message-{{ message.0 }}">{{ message.1 }}</p>
+	<p class="alert alert-{{ message.0 }}">{{ message.1 }}</p>
 {% endif %}
+
+{% bootstrap_messages %}
 
 {% if nomcom|has_publickey %}
 <div class="row">
@@ -55,7 +57,6 @@
 			{% endbuttons %}
 		</form>
 	</div>
-
 </div>
 {% endif %}
 

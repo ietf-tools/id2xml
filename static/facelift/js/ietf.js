@@ -1,6 +1,15 @@
+// Remember the state of the "browsehappy" alert
+$('#browsehappy .close').click(function(e) {
+	e.preventDefault();
+    $.cookie('browsehappy', 'closed', { path: '/' });
+});
+
+if(typeof $.cookie('browsehappy') === 'undefined') {
+    $('#browsehappy').show();
+}
+
 // See http://stackoverflow.com/questions/8878033/how-to-make-twitter-bootstrap-menu-dropdown-on-hover-rather-than-click
 // Tweaked here, so it only expands on hover for non-collapsed navbars, and works for submenus
-
 function hoverin() {
 	var navbar = $(this).closest('.navbar');
 	if (navbar.size() === 0 || navbar.find('.navbar-toggle').is(':hidden')) {
@@ -15,9 +24,9 @@ function hoverout() {
 	}
 }
 
-$('ul.nav li.dropdown').hover(hoverin, hoverout);
-$('ul.nav li.dropdown-submenu').hover(hoverin, hoverout);
-
+if (!('ontouchstart' in document.documentElement)) {
+	$('ul.nav li.dropdown, ul.nav li.dropdown-submenu').hover(hoverin, hoverout);
+}
 
 // This used to be in doc-search.js; consolidate all JS in one file.
 $(document).ready(function () {

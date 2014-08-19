@@ -3,7 +3,7 @@
 {% block nomcom_content %}
 <h3>{% if position %}Edit{% else %}Add{% endif %} position</h3>
 
-{% if form.errors %}<div class="info-message-error">Please correct the following errors</div>{% endif %}
+{% if form.errors %}<div class="alert alert-danger">Please correct the following errors</div>{% endif %}
 
 <form action="" method="post">{% csrf_token %}
 {{ form }}

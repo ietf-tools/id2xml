@@ -35,7 +35,7 @@
 
 	{% buttons %}
 		<input type="submit" class="btn btn-primary" value="Save">
-		<a class="btn btn-default pull-right" href="{% url "ietf.group.views_stream.streams" %}">Back</a>
+		<a class="btn btn-default pull-right" href="{% url "ietf.group.views_stream.streams" %}{{ group.acronym }}">Back</a>
 	{% endbuttons %}
 
 </form>

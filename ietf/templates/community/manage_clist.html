@@ -109,7 +109,8 @@
 
 {% endblock %}
 
-{% block js %}
+{% comment %}
+XXX scrolling jumps around when using this, unfortunately
 <script>
     $('.nav-memory a').click(function (e) {
         e.preventDefault();
@@ -126,4 +127,4 @@
     var hash = window.location.hash;
     $('.nav-memory a[href="' + hash + '"]').tab('show');
 </script>
-{% endblock %}
+{% endcomment %}

@@ -80,12 +80,11 @@
 {% endif %}
 
 <h2>Document history</h2>
-<div class="buttonlist">
 {% if user|has_role:"Area Director,Secretariat,IANA,RFC Editor" %}
+<div class="buttonlist">
 	<a class="btn btn-default" href="{% url "doc_add_comment" name=doc.name %}"><span class="fa fa-plus"></span> Add comment</a>
-{% endif %}
-	<a class="btn btn-default" href="/feed/document-changes/{{ doc.canonical_name }}/"><span class="fa fa-rss"></span> Atom feed</a>
 </div>
+{% endif %}
 
 <table class="table table-condensed table-striped ietf">
 	<thead>

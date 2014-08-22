@@ -1,8 +1,8 @@
 {% extends "ietf.html" %}
 
 {% block pagehead %}
-<link rel="alternate" type="application/rss+xml" title="Changes on {{ cl.long_name }} RSS feed" href="../changes/feed/" />
-<link rel="alternate" type="application/rss+xml" title="Significant changes on {{ cl.long_name }} RSS feed" href="../changes/significant/feed/" />
+	<link rel="alternate" type="application/atom+xml" title="Changes on {{ cl.long_name }}" href="../changes/feed/" />
+	<link rel="alternate" type="application/atom+xml" title="Significant changes on {{ cl.long_name }}" href="../changes/significant/feed/" />
 {% endblock %}
 
 {% block title %}{{ cl.long_name }}{% endblock %}

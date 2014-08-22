@@ -2,6 +2,10 @@
 
 {% load ietf_filters %}
 
+{% block pagehead %}
+	<link rel="alternate" type="application/atom+xml" href="/feed/group-changes/{{ group.acronym }}/">
+{% endblock %}
+
 {% block morecss %}
 .edit { width: 1px }
 {% endblock %}
@@ -105,12 +109,7 @@
 	<tr>
 		<th>Last updated</th>
 		<td class="edit"></td>
-		<td>
-			{{ doc.time|date:"Y-m-d" }}
-		    <a class="btn btn-default btn-xs" href="/feed/group-changes/{{ group.acronym }}/">
-		    	<span class="fa fa-rss"></span>
-			</a>
-		</td>
+		<td>{{ doc.time|date:"Y-m-d" }}</td>
 	</tr>
 </table>
 

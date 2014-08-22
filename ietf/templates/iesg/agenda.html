@@ -2,6 +2,10 @@
 
 {% load ietf_filters %}
 
+{% block pagehead %}
+	<link rel="alternate" type="application/atom+xml" href="/feed/iesg-agenda/">
+{% endblock %}
+
 {% block morecss %}
 {% comment %}
 FACELIFT: This is an ugly hack to suppress some whitespace in bootstrap-3.2.0.
@@ -23,10 +27,6 @@ Will hopefully be fixed in later versions, so this can be removed.
 
 {% block bodyAttrs %}data-spy="scroll" data-target="#affix"{% endblock %}
 
-{% block pagehead %}
-<link rel="alternate" type="application/atom+xml" href="/feed/iesg-agenda/">
-{% endblock %}
-
 {% block content %}
 <div class="row">
 	<div class="col-sm-10">
@@ -36,8 +36,6 @@ Will hopefully be fixed in later versions, so this can be removed.
 <p class="buttonlist">
 	<a class="btn btn-default" role="button" href="/iesg/agenda/documents/">Documents on future agendas</a>
 	<a class="btn btn-default" role="button" href="/iesg/discusses/">DISCUSS positions</a>
-	<a class="btn btn-default" href="/feed/iesg-agenda/"><span class="fa fa-rss"></span> Atom feed</a>
-
 </p>
 
 {% for num, section in sections %}

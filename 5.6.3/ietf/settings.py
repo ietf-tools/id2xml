@@ -237,6 +237,7 @@ INSTALLED_APPS = (
     'ietf.nomcom',
     'ietf.dbtemplate',
     'dajaxice',
+    'crispy_forms',
 )
 
 INTERNAL_IPS = (
@@ -487,3 +488,6 @@ if SERVER_MODE != 'production':
         SECRET_KEY = 'PDwXboUq!=hPjnrtG2=ge#N$Dwy+wn@uivrugwpic8mxyPfHka'
 
 X_FRAME_OPTIONS = "ALLOW-FROM tools.ietf.org"
+
+# Crispy Forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

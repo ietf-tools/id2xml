@@ -13,6 +13,11 @@ from ietf.utils.test_utils import TestCase
 from ietf.utils.test_data import make_test_data
 
 
+# TODO
+# show
+# show-history
+# by-drafts
+
 class IprTests(TestCase):
     def setUp(self):
         # for patent number search

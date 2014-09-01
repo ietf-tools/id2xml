@@ -1,23 +1,24 @@
+{% load ietf_filters %}
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
    <tr class="{{ forloop.counter|divisibleby:2|yesno:"oddrow,evenrow" }}">
-      <td>{{ ipr.submitted_date }}</td>
+      <td>{{ ipr.submitted_date|date:"Y-m-d" }}</td>
       <td>{{ ipr.id }}</td>
       <td>
-         {% if ipr.state.slug == 'posted' %}
+         {% if ipr.state_id == 'posted' %}
            <a href="{% url "ietf.ipr.views.show" ipr.id %}">{{ ipr.title }}</a>
          {% else %}
            {{ ipr.title }}
        <br/>This IPR disclosure was removed at the request of the submitter.
          {% endif %}
      <br />
-     {% for item in ipr.updates.all %}
-         {% if item.target.state.slug == 'posted' %}
+     {% for item in ipr.relatedipr_source_set.all %}
+         {% if item.target.state_id == 'posted' %}
             Updates ID <a href="{% url "ietf.ipr.views.show" item.target.id %}">#{{ item.target.id }}</a>.<br/>
          {% endif %}
      {% endfor %}
-     {% for item in ipr.updated_by.all %}
+     {% for item in ipr.relatedipr_target_set.all %}
         {% comment %}{% if item.processed == 1 and item.ipr.status != 2 %}{% endcomment %}
-        {% if item.source.state.slug != "rejected" %}
+        {% if item.source.state_id != "rejected" %}
             Updated by ID <a href="{% url "ietf.ipr.views.show" item.source.id %}">#{{ item.source.id }}</a>.<br/> 
         {% endif %}
      {% endfor %}

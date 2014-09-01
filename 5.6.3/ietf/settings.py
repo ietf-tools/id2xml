@@ -136,6 +136,21 @@ LOGGING['filters']['skip_unreadable_posts'] = {
 }
 LOGGING['handlers']['mail_admins']['filters'] += [ 'skip_unreadable_posts' ]
 
+LOGGING['handlers']['disk'] = {
+    'level': 'DEBUG',
+    #'formatter': 'simple',
+    'class': 'logging.FileHandler',
+    'filename': '/tmp/secr.log'
+}
+
+LOGGING['loggers']['ietf.secr.middleware.dbquery'] = {
+    'level': 'DEBUG',
+    'handlers': ['disk'] 
+}
+
+#import logging
+#hdlr = logging.FileHandler('/tmp/secr.log')
+#LOGGING['loggers']['ietf.secr.middleware.dbquery'] = dict(handlers=[hdlr],level='DEBUG')
 
 
 
@@ -155,6 +170,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'ietf.secr.middleware.dbquery.QueryCountDebugMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

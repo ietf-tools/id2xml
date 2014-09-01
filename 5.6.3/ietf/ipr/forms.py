@@ -1,9 +1,10 @@
 import re
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
 
 from django import forms
+from django.forms.models import BaseInlineFormSet
 
 from ietf.doc.models import DocAlias
 from ietf.group.models import Group
@@ -44,7 +45,8 @@ class HolderIprDisclosureForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(HolderIprDisclosureForm, self).__init__(*args,**kwargs)
         self.fields['licensing'].initial='noselect'
-
+        self.fields['compliant'].widget.attrs['class'] = 'hidden'
+        
     class Meta:
         model = HolderIprDisclosure
         exclude = [ 'by','docs','state','rel' ]
@@ -80,7 +82,11 @@ class ThirdPartyIprDisclosureForm(forms.ModelForm):
 class IprForm(BaseIprForm):
     # delete me
     pass
-    
+
+class TestDraftForm(forms.ModelForm):
+    class Meta:
+        model = IprDocRel
+        
 class DraftForm(forms.ModelForm):
     document = forms.CharField(widget=forms.TextInput(attrs={'class': 'draft-autocomplete'}),required=False)  # override ModelChoiceField
     
@@ -91,6 +97,13 @@ class DraftForm(forms.ModelForm):
         }
         help_texts = { 'sections': 'Sections' }
     
+    def __init__(self, *args,**kwargs):
+        super(DraftForm, self).__init__(*args,**kwargs)
+        i = self.initial.get('document')
+        if i:
+            da = DocAlias.objects.get(pk=self.initial['document'])
+            self.initial['document'] = da.name
+            
     def clean_document(self):
         name = self.cleaned_data.get('document')
         try:
@@ -114,7 +127,7 @@ class SearchForm(forms.Form):
         label='Name of patent owner/applicant:',
         required=False)
     patent_info = forms.CharField(
-        label='Characters in patent information (Full/Partial):',
+        label='Characters in patent information:',
         required=False)
     group = GroupModelChoiceField(
         label='Working group:',
@@ -129,11 +142,29 @@ class SearchForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                'Document Search',
+                'draft_name',
+                'rfc_number'
+            ),
+            Fieldset(
+                'Keyword Search',
+                'holder_legal_name',
+                'patent_info',
+                'group',
+                'document_title',
+                'title'
+            ),
+            ButtonHolder(
+                Submit('submit', 'Submit', css_class='button white')
+            )
+        )
         #self.helper.form_id = 'id-exampleForm'
         #self.helper.form_class = 'blueForms'
         #self.helper.form_method = 'post'
         #self.helper.form_action = 'submit_survey'
-        self.helper.add_input(Submit('submit', 'Submit'))
+        #self.helper.add_input(Submit('submit', 'Submit'))
         super(SearchForm, self).__init__(*args, **kwargs)
 """
 class IprForm(BaseIprForm):

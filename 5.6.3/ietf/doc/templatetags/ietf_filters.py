@@ -498,3 +498,8 @@ def plural(text, seq, arg=u's'):
 def ics_esc(text):
     text = re.sub(r"([\n,;\\])", r"\\\1", text)
     return text
+
+@register.filter
+def first_type(queryset, type):
+    first = queryset.filter(type_id=type).first()
+    return first.time if first else None

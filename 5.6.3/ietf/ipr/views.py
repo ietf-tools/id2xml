@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse as urlreverse
+from django.db.models import Q
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response as render, get_object_or_404, redirect
@@ -12,12 +13,25 @@ from django.template import RequestContext
 
 from ietf.doc.models import DocAlias
 from ietf.ipr.forms import HolderIprDisclosureForm, GenericIprDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm
-from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES
+from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr
 from ietf.ipr.models import IprDetail # delete me
 #from ietf.ipr.related import related_docs
 from ietf.ipr.view_sections import section_list_for_ipr
+from ietf.name.models import DocRelationshipName
+from ietf.person.models import Person
 from ietf.utils.draft_search import normalize_draftname
 
+# ----------------------------------------------------------------
+# Globals
+# ----------------------------------------------------------------
+# maps string type or ipr model class to corresponding edit form
+ipr_form_mapping = { 'specific':HolderIprDisclosureForm,
+                     'generic':GenericIprDisclosureForm,
+                     'third-party':ThirdPartyIprDisclosureForm,
+                     'HolderIprDisclosure':HolderIprDisclosureForm,
+                     'GenericIprDisclosure':GenericIprDisclosureForm,
+                     'ThirdPartyIprDisclosure':ThirdPartyIprDisclosureForm }
+                         
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
@@ -46,17 +60,6 @@ def get_ipr_summary(disclosure):
 
     return ipr
 
-def iprs_from_docs(docs):
-    iprs = []
-    for doc in docs:
-        disclosures = [ x.disclosure for x in IprDocRel.objects.filter(document=doc, disclosure__state__in=('posted','removed')) ]
-        doc.iprs = None
-        if disclosures:
-            doc.iprs = disclosures
-            iprs += disclosures
-    iprs = list(set(iprs))
-    return iprs, docs
-    
 def related_docs(alias):
     """Returns list of related documents"""
     results = list(alias.document.docalias_set.all())
@@ -131,9 +134,6 @@ def iprs_for_drafts_txt(request):
 
 def new(request, type):
     """Submit a new IPR Disclosure"""
-    ipr_form_mapping = { 'specific':HolderIprDisclosureForm,
-                         'generic':GenericIprDisclosureForm,
-                         'third-party':ThirdPartyIprDisclosureForm }
     
     DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=False, extra=1)
     RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=False, extra=1)
@@ -159,8 +159,7 @@ def new(request, type):
             # send email notification
             # TODO
             
-            messages.success(request, 'IPR Disclosure entered')
-            return redirect('ipr_showlist')
+            return render("ipr/submitted.html", context_instance=RequestContext(request))
     else:
         form = ipr_form_mapping[type]()
         disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
@@ -173,48 +172,7 @@ def new(request, type):
         'rfc_formset':rfc_formset},
         context_instance=RequestContext(request)
     )
-    
-def search(request):
-    """Search disclosures"""
-    if request.method == 'POST':
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            kwargs = {}
-            draft_name = form.cleaned_data['draft_name']
 
-            # construct seach query
-            if draft_name:
-                # TODO: handle multiple matches
-                name = normalize_draftname(draft_name)
-                doc = DocAlias.objects.filter(name__contains=name, name__startswith="draft").first()
-                docs = related_docs(doc)
-                iprs, docs = iprs_from_docs(docs)
-                iprs.sort(key=lambda x: (x.submitted_date, x.id))
-                results = iprs
-                
-            #if 
-            #    kwargs['acronym__istartswith'] = group_acronym
-
-            # perform query
-            #if kwargs:
-            #    qs = Group.objects.filter(**kwargs).distinct()
-            #else:
-                # redirect
-            #    pass
-                
-            #results = qs.order_by('acronym')
-            
-            
-    else:
-        form = SearchForm()
-        results = None
-        
-    return render("ipr/search2.html",  {
-        'form': form,
-        'results': results},
-        context_instance=RequestContext(request)
-    )
-    
 def show(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     
@@ -241,17 +199,73 @@ def showlist(request):
     #specific_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=0)
     #thirdpty_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=1)
     
-    generic_disclosures = GenericIprDisclosure.objects.filter(state__in=('posted','removed'))
-    specific_disclosures = HolderIprDisclosure.objects.filter(state__in=('posted','removed'))
-    thirdpty_disclosures = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed'))
+    # note submitted date_causes extra db hits
+    generic_disclosures = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
+    specific_disclosures = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
+    thirdpty_disclosures = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
     
-    return render("ipr/list.html",
-        {
-            'generic_disclosures' : generic_disclosures,
-            'specific_disclosures': specific_disclosures,
-            'thirdpty_disclosures': thirdpty_disclosures,
-        }, context_instance=RequestContext(request) )
+    gd = sorted(generic_disclosures, key=lambda x: x.submitted_date,reverse=True)
+    sd = sorted(specific_disclosures, key=lambda x: x.submitted_date,reverse=True)
+    td = sorted(thirdpty_disclosures, key=lambda x: x.submitted_date,reverse=True)
+    
+    return render("ipr/list.html", {
+            'generic_disclosures' : gd,
+            'specific_disclosures': sd,
+            'thirdpty_disclosures': td}, 
+            context_instance=RequestContext(request)
+    )
 
 def update(request, id):
-    pass
+    """Update disclosure.  Clones the existing disclosure and allows edit of attributes"""
+    base = get_object_or_404(IprDisclosureBase, id=id)
+    ipr = base.get_child()
     
+    #ipr.pk = None   # clone object
+    
+    DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=False, extra=1)
+    RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=False, extra=1)
+    
+    if request.method == 'POST':
+        form = ipr_form_mapping[ipr.get_classname()](request.POST)
+        #draft_formset = DraftFormset(request.POST, instance=IprDisclosureBase(), prefix='draft')
+        #rfc_formset = RfcFormset(request.POST, instance=IprDisclosureBase(), prefix='rfc')
+        draft_formset = DraftFormset(request.POST, instance=base, prefix='draft')
+        rfc_formset = RfcFormset(request.POST, instance=base, prefix='rfc')
+        if form.is_valid() and draft_formset.is_valid() and rfc_formset.is_valid(): 
+            disclosure = form.save(commit=False)
+            if not request.user.is_anonymous():
+                disclosure.by = request.user.person
+            else:
+                disclosure.by = Person.objects.get(name="(System)")
+            disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
+            disclosure.save()
+            
+            draft_formset = DraftFormset(request.POST.copy(), instance=disclosure.get_child(), prefix='draft', save_as_new=True)
+            draft_formset.save()
+            rfc_formset = RfcFormset(request.POST.copy(), instance=disclosure.get_child(), prefix='rfc', save_as_new=True)
+            rfc_formset.save()
+
+            set_disclosure_title(disclosure)
+            disclosure.save()
+            
+            # create updates relationship
+            RelatedIpr.objects.create(source=disclosure,
+                                      target=ipr,
+                                      relationship=DocRelationshipName.objects.get(slug='updates'))
+                                      
+            # send email notification
+            # TODO
+            
+            return render("ipr/submitted.html", context_instance=RequestContext(request))
+
+    else:
+        form = ipr_form_mapping[ipr.get_classname()](instance=ipr)
+        draft_formset = DraftFormset(queryset=IprDocRel.objects.exclude(document__name__startswith='rfc'),instance=base, prefix='draft')
+        rfc_formset = RfcFormset(queryset=IprDocRel.objects.filter(document__name__startswith='rfc'),instance=base, prefix='rfc')
+        
+    return render("ipr/details_edit.html",  {
+        'form': form,
+        'draft_formset':draft_formset,
+        'rfc_formset':rfc_formset},
+        context_instance=RequestContext(request)
+    )

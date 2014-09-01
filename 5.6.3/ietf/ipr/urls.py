@@ -15,5 +15,5 @@ urlpatterns = patterns('',
      (r'^update/$', RedirectView.as_view(url=reverse_lazy('ipr_showlist'))),
      (r'^update/(?P<id>\d+)/$', views.update),
      (r'^new-(?P<type>(specific|generic|third-party))/$', views.new),
-     url(r'^search/$', views.search, name="ipr_search"),
+     url(r'^search/$', search.search, name="ipr_search"),
 )

@@ -23,6 +23,8 @@ table.ipr { margin-top: 1em; }
 .required { color: red; float: right; padding-top: 0.7ex; font-size: 130%; }
 .errorlist { background: red; color: white; padding: 0.2ex 0.2ex 0.2ex 0.5ex; border: 0px; margin: 0px; }
  ul.errorlist { margin: 0px; }
+
+input.hidden { display:none; }
 {% endblock %}
 
 {% block content %}
@@ -93,6 +95,13 @@ will be posted, but will be marked as "non-compliant".</p>
 
       <p class="formlegend">Fields marked with "*" are required.</p>
 
+      {% if request.user.is_secretariat %}
+      {% else %}
+      <p>{{ form.compliant }}</p>
+      {% endif %}
+      
+      <table class="ipr">
+
       <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
         <th colspan=2>
@@ -157,15 +166,16 @@ will be posted, but will be marked as "non-compliant".</p>
         {% for rfc in rfc_formset %}
         <tr class="{% cycle row_parity %} rfc_row">
           <td class="iprlabel">RFC Names (rfcNNNN):<div><a id="rfc_add_link" href="javascript:void(0)">Add More</a></div></td>
-          <td class="iprdata">{{ rfc.document.errors }}{{ rfc.document }}</td><td colspan="2">{{ rfc.sections.errors }}{{ rfc.sections }}<div>Sections</div></td>
+          <td class="iprdata">{{ rfc.id }}{{ rfc.document.errors }}{{ rfc.document }}</td><td colspan="2">{{ rfc.sections.errors }}{{ rfc.sections }}<div>Sections</div></td>
         </tr>
+        {% comment %}{{ rfc.as_table }}{% endcomment %}
         {% endfor %}
         
         {{ draft_formset.management_form }}
         {% for draft in draft_formset %}
         <tr class="{% cycle row_parity %} draft_row">
           <td class="iprlabel">I-D Filenames (draft-...):<div><a id="draft_add_link" href="javascript:void(0)">Add More</a></div></td>
-          <td class="iprdata">{{ draft.document.errors }}{{ draft.document }}</td><td>{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td>{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
+          <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td>{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td>{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
         </tr>
         {% endfor %}
         

@@ -13,7 +13,7 @@
           </tr>
           {% endfor %}
 
-          <tr><td colspan="3"><hr>Total number of documents searched: {{ docs|length}}</td></tr>
+          <tr><td colspan="3"><hr>Total number of documents searched: {{ docs|length }}</td></tr>
           {% for doc in docs %}
           <tbody bgcolor="#{% cycle dadada,eaeaea as bgcolor %}">
              <tr >
@@ -22,13 +22,13 @@
             </td>
              </tr>
              {% if doc.iprs %}
-            {% for ipr in doc.iprs %}
+              {% for ipr in doc.iprs %}
                <tr valign="top">
                   <td width="100">{{ ipr.submitted_date }}</td>
                   <td width="90"><li>ID # {{ ipr.id }}</li></td>
                               <td><a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.title }}"</a></td>
                </tr>
-            {% endfor %}
+              {% endfor %}
              {% else %}
              <tr>
             <td></td>

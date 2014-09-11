@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% load ietf_filters %}
-{% block title %}IPR Details - Form{% endblock %}
+{% block title %}New IPR - Form{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/token-input.css"></link>
+{% endblock %}
+
 {% block bodyAttrs %}
     {% if section_list.holder_contact %}onload="toggle_submitter_info('holder')"{% endif %}
     {% if section_list.ietf_contact %}onload="toggle_submitter_info('ietf')"{% endif %}
@@ -95,6 +100,14 @@ will be posted, but will be marked as "non-compliant".</p>
 
       <p class="formlegend">Fields marked with "*" are required.</p>
 
+      <p>If this disclosure <b>updates</b> another disclosure(s) identify here which one(s).</p>
+      <table class="ipr">
+        <tr>
+          <td class="iprlabel">Updates:</td>
+          <td class="iprdata">{{ form.updates.errors }}{{ form.updates }}</td>
+        </tr>
+      </table>
+      
       {% if request.user.is_secretariat %}
       {% else %}
       <p>{{ form.compliant }}</p>
@@ -353,6 +366,8 @@ will be posted, but will be marked as "non-compliant".</p>
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript" src="/secretariat/js/jquery-ui-1.8.9.min.js"></script>
-<script type="text/javascript" src="/js/ipr-edit.js"></script>
+{% comment %} <script type="text/javascript" src="/secretariat/js/jquery-ui-1.8.9.min.js"></script> {% endcomment %}
+{% comment %} <script type="text/javascript" src="/js/ipr-edit.js"></script> {% endcomment %}
+<script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="/js/tokenized-field.js"></script>
 {% endblock %}

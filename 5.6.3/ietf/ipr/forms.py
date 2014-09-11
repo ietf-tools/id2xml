@@ -8,7 +8,8 @@ from django.forms.models import BaseInlineFormSet
 
 from ietf.doc.models import DocAlias
 from ietf.group.models import Group
-from ietf.ipr.models import IprDocRel, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, LICENSE_MAPPING, IprLicenseTypeName
+from ietf.ipr.fields import AutocompletedIprDisclosuresField
+from ietf.ipr.models import IprDocRel, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, LICENSE_MAPPING, IprLicenseTypeName
 from ietf.ipr.models import IprDetail, IprContact, LICENSE_CHOICES # remove 
 
 # ----------------------------------------------------------------
@@ -41,6 +42,8 @@ class GroupModelChoiceField(forms.ModelChoiceField):
 # ----------------------------------------------------------------
 class HolderIprDisclosureForm(forms.ModelForm):
     licensing = CustomModelChoiceField(IprLicenseTypeName.objects.all(),widget=forms.RadioSelect,empty_label=None)
+    #updates = forms.CharField(max_length=32,required=False)
+    updates = AutocompletedIprDisclosuresField(required=False)
     
     def __init__(self,*args,**kwargs):
         super(HolderIprDisclosureForm, self).__init__(*args,**kwargs)
@@ -65,19 +68,32 @@ class HolderIprDisclosureForm(forms.ModelForm):
             raise forms.ValidationError('You need to specify a contribution in Section IV')
         
         return cleaned_data
+    
+    #def clean_updates(self):
+    #    updates = self.cleaned_data.get('updates')
+    #    objects = []
+    #    if updates:
+    #        pks = updates.split(',')
+    #    else:
+    #        return objects
+    #    
+    #    try:
+    #        for pk in pks:
+    #            obj = IprDisclosureBase.objects.get(pk=pk)
+    #            objects.append(obj)
+    #    except IprDisclosureBase.DoesNotExist:
+    #        raise forms.ValidationError('Invalid Document')
+    #    return objects
         
 class GenericIprDisclosureForm(forms.ModelForm):
     class Meta:
         model = GenericIprDisclosure
-        exclude = [ 'by','docs' ]
+        exclude = [ 'by','docs','state','rel' ]
         
 class ThirdPartyIprDisclosureForm(forms.ModelForm):
-    rfclist = forms.CharField(required=False)
-    draftlist = forms.CharField(required=False)
-    
     class Meta:
         model = ThirdPartyIprDisclosure
-        exclude = [ 'by' ]
+        exclude = [ 'by','docs','state','rel' ]
 
 class IprForm(BaseIprForm):
     # delete me

@@ -7,7 +7,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse_lazy
 from django.utils.safestring import mark_safe
 
-from ietf.ipr.models import IprDetail
+from ietf.ipr.models import IprDisclosureBase
 
 class LatestIprDisclosuresFeed(Feed):
     feed_type = Atom1Feed
@@ -18,7 +18,7 @@ class LatestIprDisclosuresFeed(Feed):
     feed_url = "/feed/ipr/"
 
     def items(self):
-        q = IprDiscolsureBase.objects.filter(state__in=('posted','removed'))
+        q = IprDisclosureBase.objects.filter(state__in=('posted','removed'))
         return sorted(q, key=lambda x: x.submitted_date, reverse=True)[:30]
 
     def item_title(self, item):

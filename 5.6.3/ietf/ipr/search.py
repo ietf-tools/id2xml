@@ -18,6 +18,7 @@ from ietf.group.models import Group
 from ietf.doc.models import DocAlias
 
 def iprs_from_docs(docs):
+    """Returns a tuple of related iprs and original docs list"""
     iprs = []
     for doc in docs:
         disclosures = [ x.disclosure for x in IprDocRel.objects.filter(document=doc, disclosure__state__in=('posted','removed')) ]
@@ -48,7 +49,8 @@ def search(request):
     if search_type:
         docid = request.GET.get("id") or request.GET.get("id_document_tag") or ""
         initial = {}
-        iprs = docs = doc = None
+        docs = doc = None
+        iprs = []
         q = ""
         for key, value in request.GET.items():
             if key.endswith("search"):
@@ -68,16 +70,19 @@ def search(request):
                         start = DocAlias.objects.filter(name__contains=q, name__startswith="draft")
                     elif search_type == "rfc_search":
                         start = DocAlias.objects.filter(name="rfc%s" % q.lstrip("0"))
-
+                
+                # one match
                 if len(start) == 1:
                     first = start[0]
                     doc = str(first)
                     docs = related_docs(first)
                     iprs, docs = iprs_from_docs(docs)
                     template = "ipr/search_doc_result.html"
+                # multiple matches, select just one
                 elif start:
                     docs = start
                     template = "ipr/search_doc_list.html"
+                # no match
                 else:
                     template = "ipr/search_doc_result.html"
 

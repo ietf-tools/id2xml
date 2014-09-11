@@ -1,7 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
 from django.db import models
-
+from django.core.urlresolvers import reverse
 from ietf.doc.models import DocAlias
 
 LICENSE_CHOICES = (
@@ -192,18 +192,12 @@ from ietf.name.models import NameModel
 from ietf.message.models import Message
 
 class IprDisclosureStateName(NameModel):
-    "Pending, Parked, Posted, Rejected, Removed, Unknown"
-    # emulate ietf.doc.State
-    pass
-
+    """Pending, Parked, Posted, Rejected, Removed, Unknown"""
 class IprLicenseTypeName(NameModel):
-    "choices a-f from the current form made admin maintainable"
-    pass
-
+    """choices a-f from the current form made admin maintainable"""
 class IprEventTypeName(NameModel):
-    "Disclosure, MsgOut, MsgIn, Comment..."
-    pass
-
+    """Disclosure, MsgOut, MsgIn, Comment..."""
+    
 class IprDisclosureBase(models.Model):
     by                  = models.ForeignKey(Person) # who was logged in, or System if nobody was logged in
     compliant           = models.BooleanField(default=True) # complies to RFC3979
@@ -220,7 +214,7 @@ class IprDisclosureBase(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        pass
+        return reverse('ipr_show',kwargs={'id':self.id})
 
     def get_child(self):
         """Returns the child instance"""

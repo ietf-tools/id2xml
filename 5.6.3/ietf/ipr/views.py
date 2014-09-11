@@ -12,6 +12,7 @@ from django.shortcuts import render_to_response as render, get_object_or_404, re
 from django.template import RequestContext
 
 from ietf.doc.models import DocAlias
+from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import HolderIprDisclosureForm, GenericIprDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm
 from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr
 from ietf.ipr.models import IprDetail # delete me
@@ -84,7 +85,7 @@ def set_disclosure_title(disclosure):
     elif disclosure.get_classname() == 'GenericIprDisclosure':
         title = get_genitive(disclosure.holder_legal_name) + ' General License Statement'
     elif disclosure.get_classname() == 'ThirdPartyIprDisclosure':
-        title = get_genitive(disclosure.ietfer_name) + ' Statement about IPR related to {} belonging to {}'.format(ipr_summary,disclsoure.holder_legal_name)
+        title = get_genitive(disclosure.ietfer_name) + ' Statement about IPR related to {} belonging to {}'.format(ipr_summary,disclosure.holder_legal_name)
     
     # truncate for db
     if len(title) > 255:
@@ -98,6 +99,26 @@ def set_disclosure_title(disclosure):
 def about(request):
     return render("ipr/disclosure.html", {}, context_instance=RequestContext(request))
 
+def ajax_search(request):
+    q = [w.strip() for w in request.GET.get('q', '').split() if w.strip()]
+
+    if not q:
+        objs = IprDisclosureBase.objects.none()
+    else:
+        query = Q()
+        for t in q:
+            query &= Q(title__icontains=t)
+
+        objs = IprDisclosureBase.objects.filter(query)
+
+    objs = objs.distinct()[:10]
+
+    return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
+
+def edit(request, id):
+    """Secretariat only edit disclosure view"""
+    pass
+    
 def history(request, id):
     """Show the history for a specific IPR disclosure"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
@@ -133,7 +154,8 @@ def iprs_for_drafts_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 def new(request, type):
-    """Submit a new IPR Disclosure"""
+    """Submit a new IPR Disclosure.  If the updates field != None, this disclosure
+    updates one or more other disclosures."""
     
     DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=False, extra=1)
     RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=False, extra=1)
@@ -142,9 +164,15 @@ def new(request, type):
         form = ipr_form_mapping[type](request.POST)
         draft_formset = DraftFormset(request.POST, instance=IprDisclosureBase(), prefix='draft')
         rfc_formset = RfcFormset(request.POST, instance=IprDisclosureBase(), prefix='rfc')
+        if request.user.is_anonymous():
+            person = Person.objects.get(name="(System)")
+        else:
+            person = request.user.person
+            
         if form.is_valid() and draft_formset.is_valid() and rfc_formset.is_valid(): 
+            updates = form.cleaned_data.get('updates')
             disclosure = form.save(commit=False)
-            disclosure.by = request.user.person
+            disclosure.by = person
             disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
             disclosure.save()
             
@@ -156,23 +184,66 @@ def new(request, type):
             set_disclosure_title(disclosure)
             disclosure.save()
             
+            # create updates relationships
+            for ipr in updates:
+                RelatedIpr.objects.create(source=disclosure,
+                                          target=ipr,
+                                          relationship=DocRelationshipName.objects.get(slug='updates'))
+            
             # send email notification
             # TODO
             
             return render("ipr/submitted.html", context_instance=RequestContext(request))
+        
+        else:
+            #assert False, form.errors
+            pass
     else:
         form = ipr_form_mapping[type]()
         disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
         draft_formset = DraftFormset(instance=disclosure, prefix='draft')
         rfc_formset = RfcFormset(instance=disclosure, prefix='rfc')
         
-    return render("ipr/details_edit.html",  {
+    return render("ipr/new.html",  {
         'form': form,
         'draft_formset':draft_formset,
-        'rfc_formset':rfc_formset},
+        'rfc_formset':rfc_formset,
+        'type':type},
         context_instance=RequestContext(request)
     )
 
+def new_nondoc(request, type):
+    """Submit a new IPR Disclosure of type Generic or NonDocSpecific"""
+
+    if request.method == 'POST':
+        form = ipr_form_mapping[type](request.POST)
+        if request.user.is_anonymous():
+            person = Person.objects.get(name="(System)")
+        else:
+            person = request.user.person
+            
+        if form.is_valid() and draft_formset.is_valid() and rfc_formset.is_valid(): 
+            disclosure = form.save(commit=False)
+            disclosure.by = person
+            disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
+            disclosure.save()
+
+            set_disclosure_title(disclosure)
+            disclosure.save()
+            
+            # send email notification
+            # TODO
+            
+            return render("ipr/submitted.html", context_instance=RequestContext(request))
+    else:
+        form = ipr_form_mapping[type]()
+
+    return render("ipr/details_edit.html",  {
+        'form': form,
+        'type':type},
+        context_instance=RequestContext(request)
+    )
+    
 def show(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     
@@ -194,11 +265,6 @@ def show(request, id):
     )
 
 def showlist(request):
-    #disclosures = IprDetail.objects.all().prefetch_related("updates__updated", "updated_by__ipr")
-    #generic_disclosures  = disclosures.filter(status__in=[1,3], generic=1)
-    #specific_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=0)
-    #thirdpty_disclosures = disclosures.filter(status__in=[1,3], generic=0, third_party=1)
-    
     # note submitted date_causes extra db hits
     generic_disclosures = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
     specific_disclosures = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
@@ -215,6 +281,7 @@ def showlist(request):
             context_instance=RequestContext(request)
     )
 
+'''
 def update(request, id):
     """Update disclosure.  Clones the existing disclosure and allows edit of attributes"""
     base = get_object_or_404(IprDisclosureBase, id=id)
@@ -269,3 +336,4 @@ def update(request, id):
         'rfc_formset':rfc_formset},
         context_instance=RequestContext(request)
     )
+'''

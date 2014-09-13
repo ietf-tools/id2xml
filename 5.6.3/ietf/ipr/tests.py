@@ -132,7 +132,6 @@ class IprTests(TestCase):
 
     def test_new_generic(self):
         make_test_data()
-
         url = urlreverse("ietf.ipr.views.new", kwargs={ "type": "generic" })
 
         # faulty post
@@ -162,7 +161,6 @@ class IprTests(TestCase):
 
     def test_new_specific(self):
         draft = make_test_data()
-
         url = urlreverse("ietf.ipr.views.new", kwargs={ "type": "specific" })
 
         # successful post
@@ -195,7 +193,6 @@ class IprTests(TestCase):
 
     def test_new_thirdparty(self):
         draft = make_test_data()
-
         url = urlreverse("ietf.ipr.views.new", kwargs={ "type": "third-party" })
 
         # successful post
@@ -228,36 +225,35 @@ class IprTests(TestCase):
 
     def test_update(self):
         draft = make_test_data()
-        original_ipr = IprDetail.objects.get(title="Statement regarding rights")
-
-        url = urlreverse("ietf.ipr.new.update", kwargs={ "ipr_id": original_ipr.pk })
+        original_ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        url = urlreverse("ietf.ipr.views.new", kwargs={ "type": "specific" })
 
         # successful post
         r = self.client.post(url, {
-            "legal_name": "Test Legal",
-            "hold_name": "Test Holder",
-            "hold_telephone": "555-555-0100",
-            "hold_email": "test.holder@example.com",
-            "ietf_name": "Test Participant",
-            "ietf_telephone": "555-555-0101",
-            "ietf_email": "test.participant@example.com",
-            "rfclist": "",
-            "draftlist": "%s-%s" % (draft.name, draft.rev),
-            "patents": "none",
-            "date_applied": "never",
-            "country": "nowhere",
-            "licensing_option": "5",
-            "subm_name": "Test Submitter",
-            "subm_telephone": "555-555-0102",
-            "subm_email": "test.submitter@example.com"
+            "updates": str(original_ipr.pk),
+            "holder_legal_name": "Test Legal",
+            "holder_contact_name": "Test Holder",
+            "holder_contact_info": "555-555-0100",
+            "ietfer_name": "Test Participant",
+            "ietfer_contact_info": "555-555-0101",
+            "rfc-TOTAL_FORMS": 1,
+            "rfc-INITIAL_FORMS": 0,
+            "rfc-0-document": DocAlias.objects.filter(name__startswith="rfc").first().name,
+            "draft-TOTAL_FORMS": 1,
+            "draft-INITIAL_FORMS": 0,
+            "draft-0-document": "%s" % draft.name,
+            "draft-0-revisions": '00',
+            "patent_info": "none",
+            "has_patent_pending": False,
+            "licensing": "royalty",
             })
         self.assertEqual(r.status_code, 200)
         self.assertTrue("Your IPR disclosure has been submitted" in r.content)
 
-        iprs = IprDetail.objects.filter(title__icontains=draft.name)
+        iprs = IprDisclosureBase.objects.filter(title__icontains=draft.name)
         self.assertEqual(len(iprs), 1)
         ipr = iprs[0]
-        self.assertEqual(ipr.legal_name, "Test Legal")
-        self.assertEqual(ipr.status, 0)
+        self.assertEqual(ipr.holder_legal_name, "Test Legal")
+        self.assertEqual(ipr.state.slug, 'pending')
 
-        self.assertTrue(ipr.updates.filter(updated=original_ipr))
+        self.assertTrue(ipr.relatedipr_source_set.filter(target=original_ipr))

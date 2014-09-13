@@ -16,7 +16,6 @@ urlpatterns = patterns('',
      url(r'^(?P<id>\d+)/history/$', views.history, name='ipr_history'),
      #(r'^update/$', RedirectView.as_view(url=reverse_lazy('ipr_showlist'))),
      #(r'^update/(?P<id>\d+)/$', views.update),
-     # update now incorporated in new view
      (r'^new-(?P<type>(specific|generic|third-party))/$', views.new),
      url(r'^search/$', search.search, name="ipr_search"),
 )

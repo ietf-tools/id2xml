@@ -34,10 +34,13 @@
      {% endif %}
      {% endfor %}
 
+     {% comment %}
      <p><a href="{% url "ietf.ipr.views.update" ipr.id %}" rel="nofollow">Update this IPR disclosure</a>. Note: Updates to IPR disclosures must only be made by authorized
      representatives of the original submitters. Updates will automatically
      be forwarded to the current Patent Holder's Contact and to the Submitter
      of the original IPR disclosure.</p>
+     {% endcomment %} 
+     
      <!-- tag 1 -->
      <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></p>
 

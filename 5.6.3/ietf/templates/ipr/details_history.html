@@ -21,7 +21,11 @@
     <td>{{ e.time|date:"Y-m-d" }}</td>
     <td>{{ e.type }}</td>
     <td>{{ e.by }}</td>
-    <td>{{ e.desc|format_history_text }}
+    {% if e.msg %}
+      <td>{{ e.msg|format_message|format_history_text }}
+    {% else %}
+      <td>{{ e.desc|format_history_text }}
+    {% endif %}
     </td>
   </tr>
   {% endfor %}

@@ -10,6 +10,7 @@ from ietf.doc.models import DocAlias
 from ietf.group.models import Group
 from ietf.ipr.fields import AutocompletedIprDisclosuresField
 from ietf.ipr.models import IprDocRel, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, NonDocSpecificIprDisclosure, LICENSE_MAPPING, IprLicenseTypeName
+from ietf.message.models import Message
 
 # ----------------------------------------------------------------
 # Create base forms from models
@@ -91,6 +92,11 @@ class GenericDisclosureForm(forms.Form):
             obj.save()
         
         return obj
+        
+class MessageModelForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        exclude = ['time','by','content_type','related_groups','related_docs']
         
 class ThirdPartyIprDisclosureForm(forms.ModelForm):
     updates = AutocompletedIprDisclosuresField(required=False)

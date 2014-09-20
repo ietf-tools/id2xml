@@ -14,12 +14,17 @@ if not path in sys.path:
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ietf.settings'
 # -------------------------------------------------------------------------------------
 
+import email
 import re
 import urllib2
+from time import mktime, strptime
 from collections import namedtuple
+from datetime import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from ietf.ipr.models import *
+from ietf.message.models import Message
 from ietf.name.models import DocRelationshipName
 from ietf.name.utils import name
 from ietf.person.models import Email
@@ -243,6 +248,40 @@ def handle_licensing(old,new):
         new.licensing_comments = old.comments
         new.submitter_claims_all_terms_disclosed = old.lic_checkbox
 
+def handle_notification(rec):
+    """Map IprNotification to IprEvent and Message objects.
+    
+    NOTE: some IprNotifications contain non-ascii text causing
+    email.message_from_string() to fail, hence the workaround
+    """
+    parts = rec.notification.split('\r\n\r\n',1)
+    msg = email.message_from_string(parts[0])
+    msg.set_payload(parts[1])
+    disclosure = IprDisclosureBase.objects.get(pk=rec.ipr.pk)
+    type = IprEventTypeName.objects.get(slug='msgout')
+    subject = msg['subject']
+    subject = (subject[:252] + '...') if len(subject) > 255 else subject
+    message = Message.objects.create(
+        by = system,
+        subject = subject,
+        frm = msg.get('from'),
+        to = msg.get('to'),
+        cc = msg.get('cc'),
+        body = msg.get_payload()
+    )
+    event = IprEvent.objects.create(
+        type = type,
+        by = system,
+        disclosure = disclosure,
+        desc = 'Sent Message',
+        msg = message
+    )
+    # go back fix IprEvent.time
+    time_string = rec.date_sent.strftime('%Y-%m-%d ') + rec.time_sent
+    struct = strptime(time_string,'%Y-%m-%d %H:%M:%S')
+    event.time = datetime.fromtimestamp(mktime(struct))
+    event.save()
+    
 def handle_patent_info(old,new):
     """Map patent info.  patent_info and applies_to_all are mutually exclusive"""
     if old.applies_to_all and hasattr(new, 'applies_to_all'):
@@ -366,6 +405,11 @@ def main():
     for rec in all:
         handle_rel(rec)
 
+    # migrate IprNotifications
+    for rec in IprNotification.objects.all():
+        print 'notification: {}'.format(rec.pk)
+        handle_notification(rec)
+        
     # print stats
     for klass in (HolderIprDisclosure,
                   ThirdPartyIprDisclosure,

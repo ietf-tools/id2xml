@@ -13,7 +13,7 @@ from django.template import RequestContext
 
 from ietf.doc.models import DocAlias
 from ietf.ipr.fields import tokeninput_id_name_json
-from ietf.ipr.forms import HolderIprDisclosureForm, GenericDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm
+from ietf.ipr.forms import HolderIprDisclosureForm, GenericDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm
 from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr
 from ietf.ipr.models import IprDetail # delete me
 #from ietf.ipr.related import related_docs
@@ -122,6 +122,18 @@ def ajax_search(request):
 def edit(request, id):
     """Secretariat only edit disclosure view"""
     pass
+    
+def email(request, id):
+    """Send an email regarding this disclosure"""
+    ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
+    
+    form = MessageModelForm()
+    
+    return render("ipr/email.html",  {
+        'ipr': ipr,
+        'form':form},
+        context_instance=RequestContext(request)
+    )
     
 def history(request, id):
     """Show the history for a specific IPR disclosure"""

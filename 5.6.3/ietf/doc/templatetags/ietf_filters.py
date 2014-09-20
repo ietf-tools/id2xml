@@ -503,3 +503,14 @@ def ics_esc(text):
 def first_type(queryset, type):
     first = queryset.filter(type_id=type).first()
     return first.time if first else None
+
+@register.filter
+def format_message(msg):
+    text = '''Date: {}
+From: {}
+To: {}
+Subject: {}
+Cc: {}
+
+<pre>{}</pre>'''.format(msg.time,msg.frm,msg.to,msg.subject,msg.cc,msg.body)
+    return mark_safe(text)

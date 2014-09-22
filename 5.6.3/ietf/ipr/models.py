@@ -207,6 +207,8 @@ class IprDisclosureBase(models.Model):
     other_designations  = models.CharField(blank=True, max_length=255)
     rel                 = models.ManyToManyField('self', through='RelatedIpr', symmetrical=False)
     state               = models.ForeignKey(IprDisclosureStateName)
+    submitter_name      = models.CharField(max_length=255)
+    submitter_email     = models.EmailField()
     time                = models.DateTimeField(auto_now_add=True)
     title               = models.CharField(blank=True, max_length=255)
 
@@ -263,18 +265,21 @@ class IprDisclosureBase(models.Model):
 
 class HolderIprDisclosure(IprDisclosureBase):
     ietfer_name              = models.CharField(max_length=255, blank=True) # "Whose Personal Belief Triggered..."
+    ietfer_contact_email     = models.EmailField(blank=True)
     ietfer_contact_info      = models.TextField(blank=True)
     patent_info              = models.TextField()
     has_patent_pending       = models.BooleanField(default=False)
+    holder_contact_email     = models.EmailField()
     holder_contact_name      = models.CharField(max_length=255)
-    holder_contact_info      = models.TextField()
+    holder_contact_info      = models.TextField(blank=True)
     licensing                = models.ForeignKey(IprLicenseTypeName)
     licensing_comments       = models.TextField(blank=True)
     limited_to_std_track     = models.BooleanField(default=False)
     submitter_claims_all_terms_disclosed = models.BooleanField(default=False)
 
 class ThirdPartyIprDisclosure(IprDisclosureBase):
-    ietfer_name              = models.CharField(max_length=255, blank=True) # "Whose Personal Belief Triggered..."
+    ietfer_name              = models.CharField(max_length=255) # "Whose Personal Belief Triggered..."
+    ietfer_contact_email     = models.EmailField()
     ietfer_contact_info      = models.TextField(blank=True)
     patent_info              = models.TextField()
     has_patent_pending       = models.BooleanField(default=False)
@@ -282,7 +287,8 @@ class ThirdPartyIprDisclosure(IprDisclosureBase):
 class NonDocSpecificIprDisclosure(IprDisclosureBase):
     '''A Generic IPR Disclosure w/ patent information'''
     holder_contact_name      = models.CharField(max_length=255)
-    holder_contact_info      = models.TextField()
+    holder_contact_email     = models.EmailField()
+    holder_contact_info      = models.TextField(blank=True)
     patent_info              = models.TextField()
     has_patent_pending       = models.BooleanField(default=False)
     statement                = models.TextField() # includes licensing info
@@ -290,14 +296,15 @@ class NonDocSpecificIprDisclosure(IprDisclosureBase):
 class GenericIprDisclosure(IprDisclosureBase):
     applies_to_all           = models.BooleanField(default=False)
     holder_contact_name      = models.CharField(max_length=255)
-    holder_contact_info      = models.TextField()
+    holder_contact_email     = models.EmailField()
+    holder_contact_info      = models.TextField(blank=True)
     statement                = models.TextField() # includes licensing info
 
 class IprDocRel(models.Model):
     disclosure = models.ForeignKey(IprDisclosureBase)
     document   = models.ForeignKey(DocAlias)
     sections   = models.TextField(blank=True)
-    revisions  = models.CharField(max_length=16) # allows strings like 01-07
+    revisions  = models.CharField(max_length=16,blank=True) # allows strings like 01-07
 
     def doc_type(self):
         name = self.document.name

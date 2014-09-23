@@ -15,12 +15,12 @@ from ietf.doc.models import DocAlias
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import HolderIprDisclosureForm, GenericDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm
 from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr
-from ietf.ipr.models import IprDetail # delete me
 #from ietf.ipr.related import related_docs
 from ietf.ipr.view_sections import section_list_for_ipr
 from ietf.name.models import DocRelationshipName
 from ietf.person.models import Person
 from ietf.utils.draft_search import normalize_draftname
+from ietf.utils.mail import send_mail_text
 
 # ----------------------------------------------------------------
 # Globals
@@ -127,7 +127,51 @@ def email(request, id):
     """Send an email regarding this disclosure"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     
-    form = MessageModelForm()
+    if request.method == 'POST':
+        form = MessageModelForm(request.POST)
+        if form.is_valid():
+            # create IprEvent and attach identifier to subject line
+            type = IprEventNameType.objects.get(slug='msgout')
+            event = IprEvent.objects.create(
+                type = type,
+                by = request.user.person,
+                disclosure = ipr,
+                response_due = form.cleaned_data['response_due'],
+            )
+            subject = form.cleaned_data['subject'] + ' (id={})'.format(event.pk)
+            
+            # create Message and attach to event
+            msg = Message.objects.create(
+                by = request.user.person,
+                subject = subject,
+                frm = form.cleaned_data['frm'],
+                to = form.cleaned_data['to'],
+                cc = form.cleaned_data['cc'],
+                bcc = form.cleaned_data['bcc'],
+                body = form.cleaned_data['body']
+            )
+            event.msg = msg
+            event.save()
+            
+            # send email
+            send_mail_text(
+                request,
+                form.cleaned_data['to'],
+                form.cleaned_data['frm'],
+                subject,
+                txt,
+                cc=form.cleaned_data['cc'],
+                bcc=form.cleaned_data['bcc']
+            )
+    
+    else:
+        initial = { 
+            'to': ipr.submitter_email,
+            'frm': settings.IPR_EMAIL_TO,
+            'subject': 'Regarding {}'.format(ipr.title),
+            #'reply_to': settings.IPR_EMAIL_TO,
+        }
+        form = MessageModelForm(initial=initial)
     
     return render("ipr/email.html",  {
         'ipr': ipr,
@@ -279,7 +323,7 @@ def new_nondoc(request, type):
     
 def show(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
-    
+    #assert False, ipr.submitter_name
     if ipr.state.slug == 'removed':
         return render("ipr/removed.html",  {
             'ipr': ipr},

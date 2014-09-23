@@ -345,6 +345,7 @@ class IprEvent(models.Model):
     disclosure  = models.ForeignKey(IprDisclosureBase)
     desc        = models.TextField()
     msg         = models.ForeignKey(Message, null=True, blank=True)
+    response_due= models.DateTimeField(blank=True)
 
     def __unicode__(self):
         #return u"%s %s by %s at %s" % (self.disclosure.title, self.get_type_display().lower(), self.by.plain_name(), self.time)

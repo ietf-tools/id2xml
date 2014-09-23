@@ -38,7 +38,7 @@ URL_PATTERN = re.compile(r'https?://datatracker.ietf.org/ipr/(\d{1,4})/')
 DRAFT_PATTERN = re.compile(r'draft-[a-zA-Z0-9\-]+')
 DRAFT_HAS_REVISION_PATTERN = re.compile(r'.*-[0-9]{2}')
 
-ContactFields = namedtuple('ContactFields',['name','info'])
+ContactFields = namedtuple('ContactFields',['name','info','email'])
 
 # ---------------------------
 # Setup States
@@ -69,9 +69,9 @@ system = Person.objects.get(name="(System)")
 # ---------------------------
 # Mappings
 # ---------------------------
-contact_type_mapping = { 1:('holder_contact_name','holder_contact_info'),
-                         2:('ietfer_name','ietfer_contact_info'),
-                         3:None }   # submitter contact in legacy schema
+contact_type_mapping = { 1:('holder_contact_name','holder_contact_info','holder_contact_email'),
+                         2:('ietfer_name','ietfer_contact_info','ietfer_contact_email'),
+                         3:('submitter_name','submitter_info','submitter_email') }
 
 contact_type_name_mapping = { 1:'holder',2:'ietfer',3:'submitter' }
 
@@ -173,33 +173,15 @@ def handle_contacts(old,new):
                                        'address1',
                                        'address2',
                                        'telephone',
-                                       'fax',
-                                       'email'])
-
-        # if no place to migrate contact save as comment
-        if not fields:
-            if not is_contact_empty(contact):
-                desc = u'Legacy Contact.  Type={} ({})\n{}'.format(contact_type_name_mapping[contact.contact_type],contact.contact_type,info)
-                IprEvent.objects.create(type=comment_event,
-                                        by=system,
-                                        disclosure=new,
-                                        desc=desc)
-                # check if submitter contact email is in the system
-                if contact.contact_type == 3:
-                    try:
-                        email = Email.objects.get(address=contact.email)
-                        if email:
-                            new.by = email.person
-                    except ObjectDoesNotExist:
-                        pass
-                
-            continue
+                                       'fax'])
 
         fields = ContactFields(*fields)
         if hasattr(new,fields.name):
             setattr(new,fields.name,contact.name)
         if hasattr(new,fields.info):
             setattr(new,fields.info,info)
+        if hasattr(new,fields.email):
+            setattr(new,fields.email,contact.email)
 
 def handle_docs(old,new):
     """Create IprDocRel relationships"""

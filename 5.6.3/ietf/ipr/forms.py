@@ -73,6 +73,9 @@ class GenericDisclosureForm(forms.Form):
     other_designations = forms.CharField(max_length=255,required=False)
     holder_contact_name = forms.CharField(max_length=255)
     holder_contact_info = forms.CharField(max_length=255)
+    holder_contact_email = forms.EmailField()
+    submitter_name = forms.CharField(max_length=255)
+    submitter_email = forms.EmailField()
     patent_info = forms.CharField(max_length=255,widget=forms.Textarea,required=False)
     has_patent_pending = forms.BooleanField(required=False)
     statement = forms.CharField(max_length=255,widget=forms.Textarea,required=False)
@@ -94,9 +97,20 @@ class GenericDisclosureForm(forms.Form):
         return obj
         
 class MessageModelForm(forms.ModelForm):
+    response_due = forms.DateField(required=False,help_text='The date which a response is due in format YYYY-MM-DD')
+    
     class Meta:
         model = Message
-        exclude = ['time','by','content_type','related_groups','related_docs']
+        fields = ['to','frm','cc','bcc','subject','body']
+        exclude = ['time','by','content_type','related_groups','related_docs','reply_to']
+    
+    #helper = FormHelper()
+    #helper.form_class = 'form-horizontal'
+    
+    def __init__(self, *args, **kwargs):
+        super(MessageModelForm, self).__init__(*args, **kwargs)
+        self.fields['frm'].label='From'
+        self.fields['frm'].widget.attrs['readonly'] = True
         
 class ThirdPartyIprDisclosureForm(forms.ModelForm):
     updates = AutocompletedIprDisclosuresField(required=False)

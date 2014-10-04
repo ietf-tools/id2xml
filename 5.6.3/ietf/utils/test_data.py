@@ -240,8 +240,11 @@ def make_test_data():
         state=IprDisclosureStateName.objects.get(slug='posted'),
         patent_info='PTO12345',
         holder_contact_name='George',
+        holder_contact_email='george@acme.com',
         holder_contact_info='14 Main Street\nEarth',
         licensing=IprLicenseTypeName.objects.get(slug='royalty'),
+        submitter_name='George',
+        submitter_email='george@acme.com',
         )
 
     IprDocRel.objects.create(

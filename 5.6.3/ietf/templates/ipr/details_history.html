@@ -3,26 +3,40 @@
 
 {% load ietf_filters %}
 
+{% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/ipr.css"></link>
+{% endblock %}
+
 {% block tab_content %}
 
 <h2>Disclosure history</h2>
 {% if user|has_role:"Area Director,Secretariat,IANA,RFC Editor" %}
 <div class="history-actions">
-  <a class="button" href="{% url "doc_add_comment" name=doc.name %}">Add comment</a>
+  <a class="button" href="{% url "ipr_add_comment" id=ipr.id %}">Add comment</a>
+  <a class="button" href="{% url "ipr_add_email" id=ipr.id %}">Add email</a>
 </div>
 {% endif %}
 
 
 <table class="ietf-table history">
-  <tr><th>Date</th><th>Type</th><th>By</th><th>Text</th></tr>
+  <tr><th class="date-column">Date</th><th>Type</th><th>By</th><th>Text</th></tr>
 
   {% for e in events %}
   <tr class="{% cycle oddrow,evenrow %}" id="history-{{ e.pk }}">
-    <td>{{ e.time|date:"Y-m-d" }}</td>
-    <td>{{ e.type }}</td>
+    <td class="date-column">{{ e.time|date:"Y-m-d" }}</td>
+    <td>{{ e.type }}
+        {% if e.response_due %}
+          {% if e.response_due|past_due %}
+            <img src="/images/warning.png" title="Response overdue"/>
+          {% endif %}
+        {% endif %}
+    </td>
     <td>{{ e.by }}</td>
     {% if e.msg %}
       <td>{{ e.msg|format_message|format_history_text }}
+      {% if e.response_due %}
+          <br>Response Due: {{ ipr.get_latest_query.response_due|date:"Y-m-d" }}
+      {% endif %}
     {% else %}
       <td>{{ e.desc|format_history_text }}
     {% endif %}

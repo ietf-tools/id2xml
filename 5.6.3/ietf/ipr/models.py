@@ -1,7 +1,8 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-from django.db import models
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import models
 from ietf.doc.models import DocAlias
 
 LICENSE_CHOICES = (
@@ -196,7 +197,15 @@ class IprDisclosureStateName(NameModel):
 class IprLicenseTypeName(NameModel):
     """choices a-f from the current form made admin maintainable"""
 class IprEventTypeName(NameModel):
-    """Disclosure, MsgOut, MsgIn, Comment..."""
+    """
+    comment: a public comment
+    legacy: data from legacy models
+    msgin: an incoming email
+    msgout: an outgoing email
+    submitted: disclosure submission
+    posted: disclosure posted
+    update_notify: notification sent to original disclosure submitter
+    """
     
 class IprDisclosureBase(models.Model):
     by                  = models.ForeignKey(Person) # who was logged in, or System if nobody was logged in
@@ -216,7 +225,7 @@ class IprDisclosureBase(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('ipr_show',kwargs={'id':self.id})
+        return settings.IDTRACKER_BASE_URL + reverse('ipr_show',kwargs={'id':self.id})
 
     def get_child(self):
         """Returns the child instance"""
@@ -232,6 +241,10 @@ class IprDisclosureBase(models.Model):
     def get_classname(self):
         return self.__class__.__name__
         
+    def get_latest_query(self):
+        """Returns the latest IprEvent of type msgout"""
+        return self.latest_event(type='msgout')
+        
     def has_legacy_event(self):
         """Returns True if there is one or more LegacyMigrationIprEvents
         for this disclosure"""
@@ -246,23 +259,36 @@ class IprDisclosureBase(models.Model):
         while d.latest_event(WriteupDocEvent, type="xyz") returns a
         WriteupDocEvent event."""
         model = args[0] if args else IprEvent
-        e = model.objects.filter(doc=self).filter(**filter_args).order_by('-time', '-id')[:1]
+        e = model.objects.filter(disclosure=self).filter(**filter_args).order_by('-time', '-id')[:1]
         return e[0] if e else None
 
     @property
     def updates(self):
+        """Shortcut for disclosures this disclosure updates"""
         return self.relatedipr_source_set.filter(relationship__slug='updates')
     
     @property
     def updated_by(self):
+        """Shortcut for disclosures this disclosure is updated by"""
         return self.relatedipr_target_set.filter(relationship__slug='updates')
         
     @property
     def submitted_date(self):
-        """Return the date of the first Disclosure event or None"""
-        event = self.iprevent_set.filter(type='disclose').order_by('time').first()
-        return event.time if event else None
-
+        """Returns the date of the first Disclosure event or None"""
+        #event = self.iprevent_set.filter(type='submitted').order_by('time').first()
+        #return event.time if event else None
+        return self.time
+        
+    @property
+    def update_notified_date(self):
+        """Returns the date when the submitters of the IPR that this IPR updates
+        were notified"""
+        e = self.latest_event(type='update_notify')
+        if e:
+            return e.time
+        else:
+            return None
+            
 class HolderIprDisclosure(IprDisclosureBase):
     ietfer_name              = models.CharField(max_length=255, blank=True) # "Whose Personal Belief Triggered..."
     ietfer_contact_email     = models.EmailField(blank=True)

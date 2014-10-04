@@ -24,7 +24,7 @@ table.ipr { margin-top: 1em; }
 .iprdata { font-weight: bold; }
 
 .iprdata li { list-style:none;}
-.iprdata input[type="text"],textarea { width:80%; }
+.iprdata input[type=text],input[type=email],textarea { width:80%; }
 
 #id_contribution { table-layout:fixed; }
 .mini input { width:60px; }
@@ -34,7 +34,7 @@ table.ipr { margin-top: 1em; }
 .errorlist { background: red; color: white; padding: 0.2ex 0.2ex 0.2ex 0.5ex; border: 0px; margin: 0px; }
  ul.errorlist { margin: 0px; }
 
-input.hidden { display:none; }
+input.hidden { visibility:hidden; position:absolute; }
 {% endblock %}
 
 {% block content %}
@@ -51,9 +51,18 @@ the licensing of its necessary patent claims.  No actual license is
 implied by submission of this template. Please complete and submit a
 separate template for each IETF document or contribution to which the
 disclosed patent information relates.</p>
-{% endif %}
 
-{% if form.instance.get_classname == "GenericIprDisclosure" %}
+{% elif form.instance.get_classname == "ThirdPartyIprDicslosure" %}
+<h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
+<p>This form is used to let the IETF know about patent information
+regarding an IETF document or contribution when the person letting the
+IETF know about the patent has no relationship with the patent owners.
+Click <a href="https://datatracker.ietf.org/ipr/new-specific">here</a>
+if you want to disclose information about patents or patent
+applications where you do have a relationship to the patent owners or
+patent applicants.</p>
+
+{% else %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Generic IPR Disclosures</h1>
 <p>This document is an IETF IPR Patent Disclosure and Licensing
 Declaration Template and is submitted to inform the IETF of a) patent
@@ -69,16 +78,7 @@ generic disclosure satisfies certain conditions. Please see the
 RFC for details.</p>
 {% endif %}
 
-{% if form.instance.get_classname == "ThirdPartyIprDicslosure" %}
-<h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
-<p>This form is used to let the IETF know about patent information
-regarding an IETF document or contribution when the person letting the
-IETF know about the patent has no relationship with the patent owners.
-Click <a href="https://datatracker.ietf.org/ipr/new-specific">here</a>
-if you want to disclose information about patents or patent
-applications where you do have a relationship to the patent owners or
-patent applicants.</p>
-{% endif %}
+
 
 <p>If you wish to submit your IPR disclosure by e-mail, then please send
 it to <a href="mailto:ietf-ipr@ietf.org">ietf-ipr@ietf.org</a>.
@@ -117,9 +117,10 @@ will be posted, but will be marked as "non-compliant".</p>
         </tr>
       </table>
       
-      {% if request.user.is_secretariat %}
-        <p>{{ form.compliant }}</p>
+      {% if user|has_role:"Secretariat" %}
+        <p>{{ form.compliant.label }} {{ form.compliant }}</p>
       {% else %}
+        <input class="hidden" checked="checked" id="id_compliant" name="compliant" type="checkbox" />
       {% endif %}
       
       <table class="ipr">
@@ -146,7 +147,8 @@ will be posted, but will be marked as "non-compliant".</p>
         </th>
       </tr>
       <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.holder_contact_name.errors }} <span class="required">*</span> {{ form.holder_contact_name }}</td></tr>
-      <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.holder_contact_info.errors }} <span class="required">*</span> {{ form.holder_contact_info }}</td></tr>
+      <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.holder_contact_email.errors }} <span class="required">*</span> {{ form.holder_contact_email }}</td></tr>
+      <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.holder_contact_info.errors }}{{ form.holder_contact_info }}</td></tr>
       </table>
    {% endif %}
 
@@ -158,7 +160,8 @@ will be posted, but will be marked as "non-compliant".</p>
         Contact Information for the IETF Participant Whose Personal Belief Triggered this Disclosure:       
         </th>
         </tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_contact_email.errors }}{{ form.ietfer_contact_email }}</td></tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
       </table>
    {% endif %}
@@ -229,7 +232,7 @@ will be posted, but will be marked as "non-compliant".</p>
            </tr>
            <tr><td class="iprlabel">Patent, Serial, Publication, Registration,
              or Application/File number(s), Date(s) granted or applied for, Country,
-             and any additional notes: </td><td class="iprdata">{{ form.patent_info.errors }} <span class="required">*</span> {{ form.patent_info }}</td></tr>
+             and any additional notes: </td><td class="iprdata">{{ form.patent_info.errors }}{% if form.statement %}{% else %}<span class="required">*</span>{% endif %}{{ form.patent_info }}</td></tr>
         </tbody>
         <tr class="{% cycle row_parity %}">
            <td colspan="2">
@@ -375,18 +378,17 @@ will be posted, but will be marked as "non-compliant".</p>
       </table>
       {% endif %} <!-- form.statement  (Generic and NonDocSpecific) -->
       
-      {% if section_list.submitter %}
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
            {% cycle section %}.
-           Submitter of this Form
+           Contact Information of Submitter of this Form (if different from the Contact Information above)
            </th>
         </tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.instance.by.name }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.instance.by.email }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td colspan="2">Same as in section II above: {{ form.same_as_above }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata"><span class="required">*</span>{{ form.submitter_name.errors }}{{ form.submitter_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata"><span class="required">*</span>{{ form.submitter_email.errors }}{{ form.submitter_email }}</td></tr>
      </table>
-      {% endif %}
 
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">

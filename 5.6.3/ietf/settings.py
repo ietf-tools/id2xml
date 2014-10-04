@@ -345,7 +345,7 @@ CACHES = {
     }
 }
 
-IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
+IPR_EMAIL_TO = 'ietf-ipr@ietf.org'
 DOC_APPROVAL_EMAIL_CC = ["RFC Editor <rfc-editor@rfc-editor.org>", ]
 
 IANA_EVAL_EMAIL = "drafts-eval@icann.org"

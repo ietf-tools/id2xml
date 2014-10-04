@@ -1,5 +1,9 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+import base64
+import datetime
+import hashlib
+import itertools
 import os
 
 from django.conf import settings
@@ -7,20 +11,32 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse as urlreverse
 from django.db.models import Q
 from django.forms.models import inlineformset_factory
+from django.forms.formsets import formset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response as render, get_object_or_404, redirect
 from django.template import RequestContext
+from django.template.loader import render_to_string
 
 from ietf.doc.models import DocAlias
+from ietf.group.models import Role
+from ietf.ietfauth.utils import role_required, has_role
 from ietf.ipr.fields import tokeninput_id_name_json
-from ietf.ipr.forms import HolderIprDisclosureForm, GenericDisclosureForm, ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm
-from ietf.ipr.models import IprDisclosureStateName, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr
+from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
+    ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
+    AddCommentForm, AddEmailForm, NotifyForm)
+from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
+    HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel,
+    IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,
+    IprEventTypeName, IprEvent)
 #from ietf.ipr.related import related_docs
 from ietf.ipr.view_sections import section_list_for_ipr
+from ietf.message.models import Message
+from ietf.message.utils import infer_message
 from ietf.name.models import DocRelationshipName
 from ietf.person.models import Person
+from ietf.secr.utils.document import get_rfc_num, is_draft
 from ietf.utils.draft_search import normalize_draftname
-from ietf.utils.mail import send_mail_text
+from ietf.utils.mail import send_mail_text, send_mail, send_mail_message
 
 # ----------------------------------------------------------------
 # Globals
@@ -60,11 +76,145 @@ def get_ipr_summary(disclosure):
         ipr = ipr[0]
     elif len(ipr) == 2:
         ipr = " and ".join(ipr)
-    else:
+    elif len(ipr) > 2:
         ipr = ", ".join(ipr[:-1]) + ", and " + ipr[-1]
 
     return ipr
 
+def get_pseudo_submitter(ipr):
+    """Returns a tuple (name, email) contact for this disclosure.  Order of preference
+    is submitter, ietfer, holder (per legacy app)"""
+    if ipr.submitter_name and ipr.submitter_email:
+        return (ipr.submitter_name,ipr.submitter_email)
+    elif hasattr(ipr, 'ietfer_name') and ( ipr.ietfer_name and ipr.ietfer_contact_email ):
+        return (ipr.ietfer_name,ipr.ietfer_contact_email)
+    elif hasattr(ipr, 'holder_contact_name') and ( ipr.holder_contact_name and ipr.holder_contact_email ):
+        return (ipr.holder_contact_name,ipr.holder_contact_email)
+    else:
+        return ('UNKNOWN NAME - NEED ASSISTANCE HERE','UNKNOWN EMAIL - NEED ASSISTANCE HERE')
+
+def get_document_emails(ipr):
+    """Returns a list of messages to inform document authors that a new IPR disclosure
+    has been posted"""
+    messages = []
+    for rel in ipr.iprdocrel_set.all():
+        doc = rel.document.document
+        authors = doc.authors.all()
+        
+        if is_draft(doc):
+            doc_info = 'Internet-Draft entitled "{}" ({})'.format(doc.title,doc.name)
+        else:
+            doc_info = 'RFC entitled "{}" (RFC{})'.format(doc.title,get_rfc_num(doc))
+            
+        # build cc list
+        if doc.group.acronym == 'none':
+            if doc.ad and is_draft(doc):
+                cc_list = doc.ad.role_email('ad').address
+            else:
+                role = Role.objects.filter(group__acronym='gen',name='ad')[0]
+                cc_list = role.email.address
+
+        else:
+            cc_list = get_wg_email_list(doc.group)
+
+        author_emails = ','.join([a.address for a in authors])
+        author_names = ', '.join([a.person.name for a in authors])
+        cc_list += ", ipr-announce@ietf.org"
+    
+        context = dict(
+            doc_info=doc_info,
+            to_email=role.email.address,
+            to_name=role.person.name,
+            cc_email=cc_list,
+            ipr=ipr)
+        text = render_to_string('ipr/posted_document_email.txt',context)
+        messages.append(text)
+    
+    return messages
+
+def get_posted_emails(ipr):
+    """Return a list of messages suitable to initialize a NotifyFormset for
+    the notify view when a new disclosure is posted"""
+    messages = []
+    # NOTE 1000+ legacy iprs have no submitter_email
+    # add submitter message
+    if True:
+        context = dict(
+            to_email=ipr.submitter_email,
+            to_name=ipr.submitter_name,
+            cc_email=get_update_cc_addrs(ipr),
+            ipr=ipr)
+        text = render_to_string('ipr/posted_submitter_email.txt',context)
+        messages.append(text)
+    
+    # add email to related document authors / parties
+    if ipr.iprdocrel_set.all():
+        messages.extend(get_document_emails(ipr))
+    
+    # if Generic disclosure add message for General Area AD
+    if ipr.get_classname() in ('GenericIprDisclosure','NonDocSpecificIprDisclosure'):
+        role = Role.objects.filter(group__acronym='gen',name='ad').first()
+        context = dict(
+            to_email=role.email.address,
+            to_name=role.person.name,
+            ipr=ipr)
+        text = render_to_string('ipr/posted_generic_email.txt',context)
+        messages.append(text)
+        
+    return messages
+
+def get_update_submitter_emails(ipr):
+    """Returns list of messages, as flat strings, to submitters of IPR(s) being
+    updated"""
+    messages = []
+    email_to_iprs = {}
+    email_to_name = {}
+    for related in ipr.updates:
+        #email = related.target.submitter_email
+        #email_to_name[email] = related.target.submitter_name
+        name, email = get_pseudo_submitter(related.target)
+        email_to_name[email] = name
+        if email in email_to_iprs:
+            email_to_iprs[email].append(related.target)
+        else:
+            email_to_iprs[email] = [related.target]
+        
+    for email in email_to_iprs:
+        context = dict(
+            to_email=email,
+            to_name=email_to_name[email],
+            iprs=email_to_iprs[email],
+            new_ipr=ipr,
+            # TODO: implement reply_to
+            reply_to='ietf-ipr+test@ietf.org')
+        text = render_to_string('ipr/update_submitter_email.txt',context)
+        messages.append(text)
+    return messages
+    
+def get_update_cc_addrs(ipr):
+    """Returns list of email addresses to use in CC: for an IPR update.  Logic is from
+    legacy tool."""
+    # TODO
+    emails = []
+    
+    
+    return ','.join(list(set(emails)))
+
+def get_wg_email_list(group):
+    '''This function takes a Working Group object and returns a string of comman separated email
+    addresses for the Area Directors and WG Chairs
+    '''
+    result = []
+    roles = itertools.chain(Role.objects.filter(group=group.parent,name='ad'),
+                            Role.objects.filter(group=group,name='chair'))
+    for role in roles:
+        result.append(role.email.address)
+
+    if group.list_email:
+        result.append(group.list_email)
+
+    return ', '.join(result)
+    
 def related_docs(alias):
     """Returns list of related documents"""
     results = list(alias.document.docalias_set.all())
@@ -82,14 +232,17 @@ def related_docs(alias):
     
 def set_disclosure_title(disclosure):
     """Set the title of the disclosure"""
-    ipr_summary = get_ipr_summary(disclosure)
 
     if disclosure.get_classname() == 'HolderIprDisclosure':
+        ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.holder_legal_name) + ' Statement about IPR related to {}'.format(ipr_summary)
     elif disclosure.get_classname() == 'GenericIprDisclosure':
         title = get_genitive(disclosure.holder_legal_name) + ' General License Statement'
     elif disclosure.get_classname() == 'ThirdPartyIprDisclosure':
+        ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.ietfer_name) + ' Statement about IPR related to {} belonging to {}'.format(ipr_summary,disclosure.holder_legal_name)
+    
+    # TODO: NonDocSpecific
     
     # truncate for db
     if len(title) > 255:
@@ -97,12 +250,8 @@ def set_disclosure_title(disclosure):
     disclosure.title = title
 
 # ----------------------------------------------------------------
-# Views
+# Ajax Views
 # ----------------------------------------------------------------
-
-def about(request):
-    return render("ipr/disclosure.html", {}, context_instance=RequestContext(request))
-
 def ajax_search(request):
     q = [w.strip() for w in request.GET.get('q', '').split() if w.strip()]
 
@@ -118,11 +267,120 @@ def ajax_search(request):
     objs = objs.distinct()[:10]
 
     return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
+    
+# ----------------------------------------------------------------
+# Views
+# ----------------------------------------------------------------
+def about(request):
+    return render("ipr/disclosure.html", {}, context_instance=RequestContext(request))
 
+@role_required('Secretariat',)
+def add_comment(request, id):
+    """Add comment to disclosure history"""
+    ipr = get_object_or_404(IprDisclosureBase, id=id)
+    login = request.user.person
+
+    if request.method == 'POST':
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data.get('private'):
+                type_id = 'private_comment'
+            else:
+                type_id = 'comment'
+                
+            IprEvent.objects.create(
+                by=login,
+                type_id=type_id,
+                disclosure=ipr,
+                desc=form.cleaned_data['comment']
+            )
+            messages.success(request, 'Comment added.')
+            return redirect("ipr_history", id=ipr.id)
+    else:
+        form = AddCommentForm()
+  
+    return render('ipr/add_comment.html',dict(ipr=ipr,form=form),
+        context_instance=RequestContext(request))
+
+@role_required('Secretariat',)
+def add_email(request, id):
+    """Add email to disclosure history"""
+    ipr = get_object_or_404(IprDisclosureBase, id=id)
+    login = request.user.person
+    
+    if request.method == 'POST':
+        form = AddEmailForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message']
+            # create Message
+            msg = Message.objects.create(
+                by = request.user.person,
+                subject = message.get('subject',''),
+                frm = message.get('from',''),
+                to = message.get('to',''),
+                cc = message.get('cc',''),
+                bcc = message.get('bcc',''),
+                reply_to = message.get('reply_to',''),
+                body = message.get_payload(),
+            )
+
+            # create IprEvent
+            if form.cleaned_data['direction'] == 'incoming':
+                type_id = 'msgin'
+            else:
+                type_id = 'msgout'
+            event = IprEvent.objects.create(
+                type_id = type_id,
+                by = request.user.person,
+                disclosure = ipr,
+                msg = msg,
+            )
+            messages.success(request, 'Email added.')
+            return redirect("ipr_history", id=ipr.id)
+    else:
+        form = AddEmailForm()
+        
+    return render('ipr/add_email.html',dict(ipr=ipr,form=form),
+        context_instance=RequestContext(request))
+        
+@role_required('Secretariat',)
+def admin_pending(request):
+    """List/manage pending disclosures"""
+    iprs = IprDisclosureBase.objects.filter(state='pending')
+    iprs = sorted(iprs, key=lambda x: x.submitted_date,reverse=True)
+    
+    tabs = [('Pending','pending',urlreverse('ipr_admin_pending'),True),
+        ('Removed','removed',urlreverse('ipr_admin_removed'),True)]
+        
+    return render("ipr/admin_pending.html",  {
+        'iprs': iprs,
+        'tabs': tabs,
+        'selected': 'pending'},
+        context_instance=RequestContext(request)
+    )
+    
+@role_required('Secretariat',)
+def admin_removed(request):
+    """List/manage removed or rejected disclosures"""
+    iprs = IprDisclosureBase.objects.filter(state__in=('removed','rejected'))
+    iprs = sorted(iprs, key=lambda x: x.submitted_date,reverse=True)
+    
+    tabs = [('Pending','pending',urlreverse('ipr_admin_pending'),True),
+        ('Removed','removed',urlreverse('ipr_admin_removed'),True)]
+        
+    return render("ipr/admin_removed.html",  {
+        'iprs': iprs,
+        'tabs': tabs,
+        'selected': 'removed'},
+        context_instance=RequestContext(request)
+    )
+
+@role_required('Secretariat',)
 def edit(request, id):
     """Secretariat only edit disclosure view"""
     pass
-    
+
+@role_required('Secretariat',)
 def email(request, id):
     """Send an email regarding this disclosure"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
@@ -130,46 +388,44 @@ def email(request, id):
     if request.method == 'POST':
         form = MessageModelForm(request.POST)
         if form.is_valid():
-            # create IprEvent and attach identifier to subject line
-            type = IprEventNameType.objects.get(slug='msgout')
-            event = IprEvent.objects.create(
-                type = type,
-                by = request.user.person,
-                disclosure = ipr,
-                response_due = form.cleaned_data['response_due'],
-            )
-            subject = form.cleaned_data['subject'] + ' (id={})'.format(event.pk)
-            
-            # create Message and attach to event
+            # create Message
             msg = Message.objects.create(
                 by = request.user.person,
-                subject = subject,
+                subject = form.cleaned_data['subject'],
                 frm = form.cleaned_data['frm'],
                 to = form.cleaned_data['to'],
                 cc = form.cleaned_data['cc'],
                 bcc = form.cleaned_data['bcc'],
+                reply_to = form.cleaned_data['reply_to'],
                 body = form.cleaned_data['body']
             )
-            event.msg = msg
-            event.save()
-            
-            # send email
-            send_mail_text(
-                request,
-                form.cleaned_data['to'],
-                form.cleaned_data['frm'],
-                subject,
-                txt,
-                cc=form.cleaned_data['cc'],
-                bcc=form.cleaned_data['bcc']
+
+            # create IprEvent
+            event = IprEvent.objects.create(
+                type_id = 'msgout',
+                by = request.user.person,
+                disclosure = ipr,
+                response_due = form.cleaned_data['response_due'],
+                msg = msg,
             )
+
+            # send email
+            send_mail_message(None,msg)
+
+            messages.success(request, 'Email sent.')
+            return redirect('ipr_show', id=ipr.id)
     
     else:
+        # TODO make helper for this
+        parts = settings.IPR_EMAIL_TO.split('@')
+        sha = hashlib.sha1(str(ipr.pk))
+        digest = base64.urlsafe_b64encode(sha.digest())
+        reply_to = parts[0] + "+{}@".format(digest) + parts[1]
         initial = { 
             'to': ipr.submitter_email,
             'frm': settings.IPR_EMAIL_TO,
             'subject': 'Regarding {}'.format(ipr.title),
-            #'reply_to': settings.IPR_EMAIL_TO,
+            'reply_to': reply_to,
         }
         form = MessageModelForm(initial=initial)
     
@@ -183,6 +439,9 @@ def history(request, id):
     """Show the history for a specific IPR disclosure"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     events = ipr.iprevent_set.all().order_by("-time", "-id").select_related("by")
+    if not has_role(request.user, "Secretariat"):
+        events = events.exclude(type='private_comment')
+        
     tabs = [('Disclosure','disclosure',urlreverse('ipr_show',kwargs={'id':id}),True),
             ('History','history',urlreverse('ipr_history',kwargs={'id':id}),True)]
 
@@ -256,21 +515,28 @@ def new(request, type, updates=None):
             set_disclosure_title(disclosure)
             disclosure.save()
             
-            # create updates relationships
             if updates:
                 for ipr in updates:
-                    RelatedIpr.objects.create(source=disclosure,
-                        target=ipr,
-                        relationship=DocRelationshipName.objects.get(slug='updates')
-                    )
-            
+                    RelatedIpr.objects.create(source=disclosure,target=ipr,relationship_id='updates')
+                # TODO create iprevents on old
+                
+            # create IprEvent
+            IprEvent.objects.create(
+                type_id='submitted',
+                by=person,
+                disclosure=disclosure,
+                desc="Disclosure Submitted")
+
             # send email notification
-            # TODO
+            send_mail(request, settings.IPR_EMAIL_TO, ('IPR Submitter App', 'ietf-ipr@ietf.org'),
+                'New IPR Submission Notification',
+                "ipr/new_update_email.txt",
+                {"ipr": disclosure,})
             
             return render("ipr/submitted.html", context_instance=RequestContext(request))
         
         else:
-            #assert False, form.errors
+            # assert False, form.errors
             pass
     else:
         if updates:
@@ -289,41 +555,71 @@ def new(request, type, updates=None):
         context_instance=RequestContext(request)
     )
 
-def new_nondoc(request, type):
-    """Submit a new IPR Disclosure of type Generic or NonDocSpecific"""
-
+@role_required('Secretariat',)
+def notify(request, id, type):
+    """Send email notifications.
+    type = update: send notice to old ipr submitter(s)
+    type = posted: send notice to submitter, etc. that new IPR was posted
+    """
+    ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
+    NotifyFormset = formset_factory(NotifyForm,extra=0)
+    
     if request.method == 'POST':
-        form = ipr_form_mapping[type](request.POST)
-        if request.user.is_anonymous():
-            person = Person.objects.get(name="(System)")
-        else:
-            person = request.user.person
+        formset = NotifyFormset(request.POST)
+        if formset.is_valid():
+            for form in formset.forms:
+                message = infer_message(form.cleaned_data['text'])
+                message.by = request.user.person
+                message.save()
+                send_mail_message(None,message)
+                IprEvent.objects.create(
+                    type_id = form.cleaned_data['type'],
+                    by = request.user.person,
+                    disclosure = ipr,
+                    response_due = datetime.datetime.now().date() + datetime.timedelta(days=30),
+                    msg = message,
+                )
+            messages.success(request,'Notifications send')
+            return redirect("ipr_show", id=ipr.id)
             
-        if form.is_valid() and draft_formset.is_valid() and rfc_formset.is_valid(): 
-            disclosure = form.save(commit=False)
-            disclosure.by = person
-            disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
-            disclosure.save()
-
-            set_disclosure_title(disclosure)
-            disclosure.save()
-            
-            # send email notification
-            # TODO
-            
-            return render("ipr/submitted.html", context_instance=RequestContext(request))
     else:
-        form = ipr_form_mapping[type]()
-
-    return render("ipr/details_edit.html",  {
-        'form': form,
-        'type':type},
+        if type == 'update':
+            initial = [ {'type':'update_notify','text':m} for m in get_update_submitter_emails(ipr) ]
+        else:
+            initial = [ {'type':'msgout','text':m} for m in get_posted_emails(ipr) ]
+        formset = NotifyFormset(initial=initial)
+        
+    return render("ipr/notify.html", {
+        'formset': formset,
+        'ipr': ipr},
         context_instance=RequestContext(request)
     )
+
+@role_required('Secretariat',)
+def post(request, id):
+    """Posts the disclosure"""
+    ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
+    person = request.user.person
+    
+    ipr.state = IprDisclosureStateName.objects.get(slug='posted')
+    ipr.save()
+    
+    # TODO
+    # process updates if any
+    # process_updates(disclosure,updates)
+    
+    # create event
+    IprEvent.objects.create(
+        type_id='posted',
+        by=person,
+        disclosure=ipr,
+        desc="Disclosure Posted")
+    
+    messages.success(request, 'Disclosure Posted')
+    return redirect("ipr_notify", id=ipr.id, type='posted')
     
 def show(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
-    #assert False, ipr.submitter_name
     if ipr.state.slug == 'removed':
         return render("ipr/removed.html",  {
             'ipr': ipr},
@@ -342,22 +638,24 @@ def show(request, id):
     )
 
 def showlist(request):
-    # note submitted date_causes extra db hits
-    generic_disclosures = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
-    specific_disclosures = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
-    thirdpty_disclosures = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source')
+    """List all disclosures by type, excluding pending and rejected"""
+    generic = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    specific = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    thirdpty = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    nondocspecific = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     
-    gd = sorted(generic_disclosures, key=lambda x: x.submitted_date,reverse=True)
-    sd = sorted(specific_disclosures, key=lambda x: x.submitted_date,reverse=True)
-    td = sorted(thirdpty_disclosures, key=lambda x: x.submitted_date,reverse=True)
+    # combine nondocspecific with generic and re-sort
+    generic = itertools.chain(generic,nondocspecific)
+    generic = sorted(generic, key=lambda x: x.time,reverse=True)
     
     return render("ipr/list.html", {
-            'generic_disclosures' : gd,
-            'specific_disclosures': sd,
-            'thirdpty_disclosures': td}, 
+            'generic_disclosures' : generic,
+            'specific_disclosures': specific,
+            'thirdpty_disclosures': thirdpty}, 
             context_instance=RequestContext(request)
     )
 
+# use for link to update specific IPR
 def update(request, id):
     """Calls the 'new' view with updates parameter"""
     # determine disclosure type

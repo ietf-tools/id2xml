@@ -332,6 +332,8 @@ will be posted, but will be marked as "non-compliant".</p>
            Submitter of this Form
            </th>
         </tr>
+        
+        <tr class="{% cycle row_parity %}"><td colspan="2">Same as in section II above: {{ form.same_as_above }}</td></tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.instance.by.name }}</td></tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.instance.by.email }}</td></tr>
      </table>

@@ -10,6 +10,7 @@ from django import template
 from django.utils.html import escape, fix_ampersands
 from django.template.defaultfilters import truncatewords_html, linebreaksbr, stringfilter, urlize
 from django.template import resolve_variable
+from django.utils.text import wrap
 from django.utils.safestring import mark_safe, SafeData
 from django.utils.html import strip_tags
 
@@ -152,8 +153,8 @@ def sanitize_html(value):
 def square_brackets(value):
     """Adds square brackets around text."""
     if isinstance(value, (types.StringType,types.UnicodeType)):
-	if value == "":
-	     value = " "
+        if value == "":
+            value = " "
         return "[ %s ]" % value
     elif value > 0:
         return "[ X ]"
@@ -514,3 +515,37 @@ Cc: {}
 
 <pre>{}</pre>'''.format(msg.time,msg.frm,msg.to,msg.subject,msg.cc,msg.body)
     return mark_safe(text)
+    
+@register.filter
+def past_due(date):
+    "Returns true if today is after the date passed in.  Compares date only, not time"
+    return datetime.datetime.now().date() > date.date()
+
+# https://djangosnippets.org/snippets/134/
+class WordWrapNode(template.Node):
+    def __init__(self, nodelist, len):
+        self.nodelist = nodelist
+        self.len = len
+    
+    def render(self, context):
+        return wrap(str(self.nodelist.render(context)), int(self.len))
+
+@register.tag
+def wordwrap(parser, token):
+    """
+    {% wordwrap 80 %}
+    some really long text here, including other template functions, etc
+    {% endwordwrap %}
+    """
+    try:
+        tag_name, len = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, "wordwrap tag requires exactly one argument"
+    nodelist = parser.parse(('endwordwrap',))
+    parser.delete_first_token()
+    return WordWrapNode(nodelist, len)
+
+#wordwrap = register.tag(wordwrap)
+
+
+    

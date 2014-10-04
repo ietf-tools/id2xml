@@ -1,6 +1,8 @@
 {% extends "ipr/details_base.html" %}
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 
+{% load ietf_filters %}
+
 {% block tab_content %}
 
     {% if not ipr.compliant %}
@@ -41,9 +43,21 @@
      of the original IPR disclosure.</p>
      {% endcomment %} 
      
-     <!-- tag 1 -->
      <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></p>
-
+     {% if user|has_role:"Secretariat" and ipr.update_notified_date %}
+       <span class="alert">This update was notified to the submitter of the IPR that is being updated on: {{ ipr.update_notified_date|date:"Y-m-d" }}</span>
+     {% endif %}
+     
+     <!-- Admin action menu -->
+     {% if user|has_role:"Secretariat" %}
+     <div id="admin-menu">
+       <a href="{% url "ipr_notify" id=ipr.id type="update"%}">Notify the submitter of IPR that is being updated</a>
+       <a href="{% url "ipr_post" id=ipr.id %}">Post</a>
+       <a href="{% url "ipr_email" id=ipr.id %}">Email Submitter</a>
+     </div>
+     {% endif %}
+     
+    <!-- Begin Sections -->
     <table class="ipr">
      <tr class="{% cycle dark,light as row_parity %}">
         <th colspan="2">
@@ -263,6 +277,16 @@
       </table>
     {% endif %}
 
+    <table class="ipr">
+     <tr class="{% cycle dark,light as row_parity %}"><th colspan="2">
+        {% cycle section %}.
+        Contact Information of Submitter of this Form
+        </th>
+     </tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ ipr.submitter_name }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ ipr.submitter_email }}</td></tr>
+    </table>
+    
       {% if ipr.notes %}
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">

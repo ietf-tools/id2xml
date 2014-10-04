@@ -1,31 +1,17 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 
-{% block title %}IPR Details - {{ ipr.title }}{% endblock %}
+{% block title %}IPR Admin{% endblock %}
 
 {% block pagehead %}
-<meta name="description" content="IPR disclosure #{{ipr.ipr_id}}: {{ ipr.title }} ({{ ipr.submitted_date|date:"Y" }})" />
 <link rel="stylesheet" type="text/css" href="/css/ipr.css"></link>
-{% endblock %}
-
-
-{% block morecss %}
-table.ipr { margin-top: 1em; }
-.ipr .light td { background: #eeeeee; }
-.ipr .dark td { background: #dddddd; }
-.ipr th { background: #2647a0; color: white; }
-.ipr { width: 101ex; border: 0; border-collapse: collapse; }
-.ipr th, .ipr td { padding: 3px 6px; text-align: left; }
-.ipr tr { vertical-align: top; }
-.ipr td.iprlabel { width: 18ex; }
-.iprdata { font-weight: bold; }
 {% endblock %}
 
 {% block content %}
 
 {% load ietf_filters %}
 
-<h1>{{ ipr.title }}<br/>{{ name }}</h1>
+<h1>IPR Admin Page</h1>
 
 <div id="mytabs" class="yui-navset">
 <ul class="yui-nav">

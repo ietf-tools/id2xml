@@ -1,0 +1,92 @@
+table.ipr { margin-top: 1em; }
+.ipr .light td { background: #eeeeee; }
+.ipr .dark td { background: #dddddd; }
+.ipr th { background: #2647a0; color: white; }
+.ipr { width: 101ex; border: 0; border-collapse: collapse; }
+.ipr th, .ipr td { padding: 3px 6px; text-align: left; }
+.ipr tr { vertical-align: top; }
+.ipr td.iprlabel { width: 18ex; }
+.iprdata { font-weight: bold; }
+
+#email-form { background: #dddddd; }
+#ipr-table { background: #F2F2E6; width: 101ex;}
+#ipr-table tr td:first-child { text-align: right; }
+
+#ipr-table input,textarea { width: 80%; }
+.required {
+color: red;
+float: right;
+padding-left: 0.5em;
+font-size: 130%;
+}
+
+.button-group {
+    clear: both;
+    width: auto;
+    height: 2.5em;
+    padding: 4px 7px;
+    background: #F2F2E6;
+    border: 0 solid #ccc;
+    border-top: 1px solid #ccc;
+    margin: 5px 0 0 0;
+    overflow: hidden;
+}
+
+.button-group ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 7px;
+    text-align: center;
+}
+
+.button-group li {
+    display: inline;
+    padding: 5px;
+}
+
+.history-actions {
+margin-bottom: 1em;
+padding-left: 1px;
+}
+
+form.add-email #id_message {
+  width: 600px;
+  height: 300px;
+}
+
+form.add-email .actions {
+  padding-top: 20px;
+}
+
+ul#id_direction {
+  list-style-type: none;
+}
+
+ul#id_direction li {
+  display: inline;
+}
+
+.date-column {
+  width: 6.5em;
+}
+
+.id-column {
+  width: 3em;
+}
+
+.column-four {
+  width: 5.5em;
+}
+
+.column-five {
+  width: 7em;
+}
+
+form.send-notification .actions {
+  padding-top: 20px;
+}
+
+form.send-notification textarea {
+  width: 600px;
+  height: 300px;
+}

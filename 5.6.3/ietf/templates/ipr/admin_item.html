@@ -4,12 +4,10 @@
       <td class="date-column">{{ ipr.time|date:"Y-m-d" }}</td>
       <td class="id-column">{{ ipr.id }}</td>
       <td class="title-column">
-         {% if ipr.state_id == 'posted' %}
-           <a href="{% url "ietf.ipr.views.show" ipr.id %}">{{ ipr.title }}</a>
-         {% else %}
-           {{ ipr.title }}
-       <br/>This IPR disclosure was removed at the request of the submitter.
-         {% endif %}
+        <a href="{% url "ietf.ipr.views.show" ipr.id %}">{{ ipr.title }}</a>
+        {% if ipr.state_id == 'removed' %}
+          <br/>This IPR disclosure was removed at the request of the submitter.
+        {% endif %}
      <br />
      {% for item in ipr.relatedipr_source_set.all %}
          {% if item.target.state_id == 'posted' %}
@@ -22,6 +20,15 @@
             Updated by ID <a href="{% url "ietf.ipr.views.show" item.source.id %}">#{{ item.source.id }}</a>.<br/> 
         {% endif %}
      {% endfor %}
+      </td>
+      <td class="column-four">{{ ipr.get_latest_query.time|date:"Y-m-d" }}</td>
+      <td class="column-five">
+        {% if ipr.get_latest_query.response_due %}
+          {{ ipr.get_latest_query.response_due|date:"Y-m-d" }}
+          {% if ipr.get_latest_query.response_due|past_due %}
+            <img src="/images/warning.png" title="Response overdue"/>
+          {% endif %}
+        {% endif %}
       </td>
    </tr>
 

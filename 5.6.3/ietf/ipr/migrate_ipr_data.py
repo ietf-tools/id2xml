@@ -58,11 +58,14 @@ unwilling_to_commit_license_info = name(IprLicenseTypeName,"unwill", "Unwilling 
 see_below_license_info = name(IprLicenseTypeName,"seebelow", "See Below", desc="f) See Text Below for Licensing Declaration", order=6)
 none_selected_license_info = name(IprLicenseTypeName,"noselect", "None Selected")
 
-disclosure_event = name(IprEventTypeName, "disclose", "Disclosure")
+submitted_event = name(IprEventTypeName, "submitted", "Submitted")
+posted_event = name(IprEventTypeName, "posted", "Posted")
 msgin_event = name(IprEventTypeName, "msgin", "MsgIn")
 msgout_event = name(IprEventTypeName, "msgout", "MsgOut")
 comment_event = name(IprEventTypeName, "comment", "Comment")
+private_comment_event = name(IprEventTypeName, 'private_comment', "Private Comment")
 legacy_event = name(IprEventTypeName, "legacy", "Legacy")
+update_notify = name(IprEventTypeName, "update_notify", "Update Notify")
 
 system = Person.objects.get(name="(System)")
 
@@ -374,14 +377,24 @@ def main():
         # some handle routines modify new object
         new.save()
 
-        # create DisclosureEvent (=submitted)
-        event = IprEvent.objects.create(type=disclosure_event,
+        # create IprEvent:submitted
+        event = IprEvent.objects.create(type_id='submitted',
                                         by=system,
                                         disclosure=new,
                                         desc='IPR Disclosure Submitted')
         # need to set time after object creation to override auto_now_add
         event.time = rec.submitted_date
         event.save()
+        
+        if rec.status == 1:
+            # create IprEvent:posted
+            event = IprEvent.objects.create(type_id='posted',
+                                            by=system,
+                                            disclosure=new,
+                                            desc='IPR Disclosure Posted')
+            # need to set time after object creation to override auto_now_add
+            event.time = rec.submitted_date
+            event.save()
 
     # pass two, create relationships
     for rec in all:

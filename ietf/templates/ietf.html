@@ -3,7 +3,7 @@
 {% load typogrify_tags %}
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -73,7 +73,7 @@
 					</div>
 
 					<div class="collapse navbar-collapse" id="navbar-collapse">
-						<ul class="nav navbar-nav">
+						<ul class="hidden nav navbar-nav">
 							{% with "top" as flavor %}
 								{% include "base/menu.html" %}
 							{% endwith %}
@@ -86,11 +86,6 @@
 								<input type="hidden" name="rfcs" value="on">
 							</div>
 						</form>
-{% comment %}
-						<button class="btn btn-default navbar-btn navbar-right" data-toggle="modal" data-target="#navmodal">
-							<span class="fa fa-sitemap" title="Jump to group" data-placement="bottom"></span>
-						</button>
-{% endcomment %}
 					</div>
 				</div>
 			</nav>
@@ -107,14 +102,14 @@
 				{% endif %}
 
 				<div class="row">
-					<div class="col-lg-2 hidden-md hidden-sm hidden-xs leftmenu">
+					<div class="col-xs-3 col-md-2 leftmenu">
 						<ul class="nav nav-pills nav-stacked panel panel-default panel-body">
 							{% with "left" as flavor %}
 								{% include "base/menu.html" %}
 							{% endwith %}
 						</ul>
 					</div>
-					<div class="col-lg-10">
+					<div class="col-xs-9 col-md-10">
 						<!--[if lt IE 8]>
 						<p id="browsehappy" class="collapse alert alert-warning alert-dismissible">
 							<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -181,6 +176,8 @@
 	            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
 				{% endcomment %}
 				//]]>
+				$(".leftmenu").removeClass("col-xs-3 col-md-2").addClass("col-lg-2 hidden-md hidden-sm hidden-xs ").next().removeClass("col-xs-9 col-md-10").addClass("col-lg-10");
+				$(".hidden.nav").removeClass("hidden");
 			</script>
 		</body>
 	{% endfilter %}

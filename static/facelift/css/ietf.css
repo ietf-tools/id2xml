@@ -150,3 +150,8 @@ pre { line-height: 1.214;  }
 .line-through { text-decoration: line-through; }
 
 /*.displayField-date { white-space: nowrap; } not used anymore? */
+
+.hidden-nojs {
+	display: none !important;
+	visibility: hidden !important;
+}

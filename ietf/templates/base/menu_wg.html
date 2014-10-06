@@ -1,5 +1,5 @@
 {% for area in areas %}
-	<li class="dropdown-submenu visible-lg-block">
+	<li class="hidden-nojs dropdown-submenu visible-lg-block">
 		<a href="/wg/#{{ area.acronym }}">{{ area.short_area_name }}</a>
 		<ul class="dropdown-menu" role="menu">
 		{% for g in area.active_groups %}
@@ -9,7 +9,7 @@
 	</li>
 {% endfor %}
 
-<li class="dropdown-submenu visible-lg-block">
+<li class="hidden-nojs dropdown-submenu visible-lg-block">
 	<a href="">IRTF</a>
 	<ul class="dropdown-menu" role="menu">
 		{% for group in rgs %}

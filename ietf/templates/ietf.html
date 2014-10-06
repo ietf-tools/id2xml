@@ -77,7 +77,7 @@
 					</noscript>
 
 					<div class="collapse navbar-collapse" id="navbar-collapse">
-						<ul class="hidden nav navbar-nav">
+						<ul class="hidden-nojs nav navbar-nav">
 							{% with "top" as flavor %}
 								{% include "base/menu.html" %}
 							{% endwith %}
@@ -181,7 +181,7 @@
 				{% endcomment %}
 				//]]>
 				$(".leftmenu").removeClass("col-xs-3 col-md-2").addClass("col-lg-2 hidden-md hidden-sm hidden-xs ").next().removeClass("col-xs-9 col-md-10").addClass("col-lg-10");
-				$(".hidden.nav").removeClass("hidden");
+				$(".hidden-nojs").removeClass("hidden-nojs");
 			</script>
 		</body>
 	{% endfilter %}

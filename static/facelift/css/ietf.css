@@ -149,9 +149,11 @@ pre { line-height: 1.214;  }
 /* Helper for line-through text. */
 .line-through { text-decoration: line-through; }
 
-/*.displayField-date { white-space: nowrap; } not used anymore? */
-
+/* Tweak visibility of elements when js is disabled. These styles
+   are removed from the DOM when js is enabled by a script in the main
+   template. */
 .hidden-nojs {
 	display: none !important;
 	visibility: hidden !important;
 }
+.in-nojs { display: block !important; }

@@ -1,0 +1,96 @@
+#!/usr/bin/env python
+
+import os, sys, re
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+sys.path = [ basedir ] + sys.path
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ietf.settings")
+
+from django.conf import settings
+from django.contrib.auth import authenticate as django_authenticate
+
+from twisted.internet.protocol import Protocol,Factory
+from twisted.internet.endpoints import UNIXServerEndpoint
+from twisted.internet import reactor
+
+def parse_ldap_query(frame):
+    query=dict()
+    lines = frame.split('\n')
+    query['request-method']=lines[0].strip()
+    for line in lines[1:]:
+        if ': ' in line:
+            parts=line.partition(': ')
+            query[parts[0].strip()] = parts[2].strip()
+    return query
+
+def dump_query(frame):
+    print "Received:-------"
+    print frame
+    print "----------------"
+
+def dump_response(response):
+    print "-------Replied:"
+    for line in response:
+        print line.strip()
+    print "----------------"
+
+class SimpleLdapBind(Protocol):
+
+    def dataReceived(self, data):
+
+        dump_query(data)
+
+        query = parse_ldap_query(data)
+
+        response = list()
+
+        if query['request-method'] == 'UNBIND':
+            pass
+
+        elif query['request-method'] == 'BIND':
+            match = re.search('(?<=uid=)(.*?),',query['dn'])
+            if match:
+                print "Trying username=[%s], password=[%s]"%(match.group(1),query['cred'])
+                user = django_authenticate(username=match.group(1),password=query['cred'])
+            if user is not None and user.is_active:
+                response.append( "RESULT\n" )
+                response.append( "code: 0\n" )
+                response.append( "matched: %s\n"%query['dn'] )
+                response.append( "info: Welcome %s\n"%user.person.ascii )
+            else:
+                response.append( "RESULT\n" )
+                response.append( "code: 49\n" )
+        else:
+            response.append( "RESULT\n" )
+            response.append( "code: 53\n" )  # unwillingToPerform
+            response.append( "info: I don't implement %s\n"%query['request-method'] )
+
+        if response:
+            dump_response(response)
+            for line in response:
+                self.transport.write( line.encode('ascii') )
+            #self.transport.write('\n')
+
+        self.transport.loseConnection()
+
+
+class StupidLdapResponder(Protocol):
+
+    def dataReceived(self, data):
+
+        dump_query(data)
+
+        self.transport.write( "dn: cn=test, dc=ietf, dc=org\n")
+        self.transport.write( "cn: test\n")
+        self.transport.write( "objectclass: cnobject\n")
+        self.transport.write( "\n")
+        self.transport.write( "RESULT\n")
+        self.transport.write( "code: 0\n")
+        self.transport.write( "info: Have a nice day.\n")
+
+        self.transport.loseConnection()
+
+if __name__ == '__main__':
+
+    endpoint = UNIXServerEndpoint(reactor,address='/opt/local/var/run/openldap/slapd-back.sock',wantPID=True)
+    endpoint.listen(Factory.forProtocol(SimpleLdapBind))
+    reactor.run()

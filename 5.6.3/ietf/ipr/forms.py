@@ -10,15 +10,19 @@ from django.forms.models import BaseInlineFormSet
 from ietf.doc.models import DocAlias
 from ietf.group.models import Group
 from ietf.ipr.fields import AutocompletedIprDisclosuresField
-from ietf.ipr.models import IprDocRel, IprDisclosureBase, HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, NonDocSpecificIprDisclosure, LICENSE_MAPPING, IprLicenseTypeName
+from ietf.ipr.models import (IprDocRel, IprDisclosureBase, HolderIprDisclosure,
+    GenericIprDisclosure, ThirdPartyIprDisclosure, NonDocSpecificIprDisclosure,
+    LICENSE_MAPPING, IprLicenseTypeName, IprDisclosureStateName)
 from ietf.message.models import Message
 
 # ----------------------------------------------------------------
-# Create base forms from models
+# Globals
 # ----------------------------------------------------------------
-
-phone_re = re.compile(r'^\+?[0-9 ]*(\([0-9]+\))?[0-9 -]+( ?x ?[0-9]+)?$')
-phone_error_message = """Phone numbers may have a leading "+", and otherwise only contain numbers [0-9]; dash, period or space; parentheses, and an optional extension number indicated by 'x'."""
+STATE_CHOICES = [ (x.slug, x.name) for x in IprDisclosureStateName.objects.all() ]
+STATE_CHOICES.insert(0,('all','All States'))
+# ----------------------------------------------------------------
+# Base Classes
+# ----------------------------------------------------------------
 
 class CustomModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -156,7 +160,7 @@ class HolderIprDisclosureForm(IprDisclosureFormBase):
         exclude = [ 'by','docs','state','rel' ]
 
 class MessageModelForm(forms.ModelForm):
-    response_due = forms.DateField(required=False,help_text='The date which a response is due in format YYYY-MM-DD')
+    response_due = forms.DateField(required=False,help_text='The date which a response is due')
     
     class Meta:
         model = Message
@@ -177,6 +181,26 @@ class RfcForm(DraftForm):
     class Meta(DraftForm.Meta):
         exclude = ('revisions',)
 
+class ThirdPartyIprDisclosureForm(IprDisclosureFormBase):
+    class Meta:
+        model = ThirdPartyIprDisclosure
+        exclude = [ 'by','docs','state','rel' ]
+
+class SearchForm(forms.Form):
+    state =    forms.MultipleChoiceField(choices=STATE_CHOICES,widget=forms.CheckboxSelectMultiple,required=False)
+    draft =    forms.CharField(max_length=128,required=False)
+    rfc =      forms.IntegerField(required=False)
+    holder =   forms.CharField(max_length=128,required=False)
+    patent =   forms.CharField(max_length=128,required=False)
+    group =    GroupModelChoiceField(label="Working group name",queryset=Group.objects.filter(type='wg').order_by('acronym'),required=False)
+    doctitle = forms.CharField(max_length=128,required=False)
+    iprtitle = forms.CharField(max_length=128,required=False)
+
+class StateForm(forms.Form):
+    state = forms.ModelChoiceField(queryset=IprDisclosureStateName.objects,label="New State",empty_label=None)
+    private = forms.BooleanField(required=False,help_text="If this box is checked the comment will not appear in the disclosure's public history view.")
+    comment = forms.CharField(required=False, widget=forms.Textarea)
+'''
 class SearchForm(forms.Form):
     draft_name = forms.CharField(
         label='I-D name (draft-...):',
@@ -227,8 +251,4 @@ class SearchForm(forms.Form):
         #self.helper.form_action = 'submit_survey'
         #self.helper.add_input(Submit('submit', 'Submit'))
         super(SearchForm, self).__init__(*args, **kwargs)
-
-class ThirdPartyIprDisclosureForm(IprDisclosureFormBase):
-    class Meta:
-        model = ThirdPartyIprDisclosure
-        exclude = [ 'by','docs','state','rel' ]
+'''

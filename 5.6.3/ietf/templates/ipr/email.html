@@ -3,6 +3,7 @@
 {% block title %}IPR Email{% endblock %}
 
 {% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui-themes/smoothness-1.11.1/jquery-ui.min.css"></link>
 <link rel="stylesheet" type="text/css" href="/css/ipr.css"></link>
 {% endblock %}
 
@@ -12,10 +13,11 @@
 {% block content %}
 
 <div class="ipr">
-    <h2>Email</h2>
+    <h2>Send email to disclosure submitter</h2>
     
     <form action="" method="post">{% csrf_token %}
     <table id="ipr-table">
+      <th colspan=2>Email Form</th>
       {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
       {% for field in form.visible_fields %}
         <tr>
@@ -37,3 +39,7 @@
 
 {% endblock %}
 
+{% block js %}
+<script type="text/javascript" src="/js/jquery-ui-1.11.custom.min.js"></script>
+<script type="text/javascript" src="/js/ipr-email.js"></script>
+{% endblock %}

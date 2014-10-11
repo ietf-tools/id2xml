@@ -193,7 +193,7 @@ from ietf.name.models import NameModel
 from ietf.message.models import Message
 
 class IprDisclosureStateName(NameModel):
-    """Pending, Parked, Posted, Rejected, Removed, Unknown"""
+    """Pending, Parked, Posted, Rejected, Removed"""
 class IprLicenseTypeName(NameModel):
     """choices a-f from the current form made admin maintainable"""
 class IprEventTypeName(NameModel):

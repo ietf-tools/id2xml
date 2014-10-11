@@ -23,7 +23,7 @@ from ietf.ietfauth.utils import role_required, has_role
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
-    AddCommentForm, AddEmailForm, NotifyForm)
+    AddCommentForm, AddEmailForm, NotifyForm, StateForm)
 from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
     HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel,
     IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,
@@ -123,8 +123,8 @@ def get_document_emails(ipr):
     
         context = dict(
             doc_info=doc_info,
-            to_email=role.email.address,
-            to_name=role.person.name,
+            to_email=author_emails,
+            to_name=author_names,
             cc_email=cc_list,
             ipr=ipr)
         text = render_to_string('ipr/posted_document_email.txt',context)
@@ -309,6 +309,10 @@ def add_email(request, id):
     login = request.user.person
     
     if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect("ipr_history", id=ipr.id)
+        
         form = AddEmailForm(request.POST)
         if form.is_valid():
             message = form.cleaned_data['message']
@@ -344,41 +348,111 @@ def add_email(request, id):
         context_instance=RequestContext(request))
         
 @role_required('Secretariat',)
-def admin_pending(request):
-    """List/manage pending disclosures"""
-    iprs = IprDisclosureBase.objects.filter(state='pending')
-    iprs = sorted(iprs, key=lambda x: x.submitted_date,reverse=True)
+def admin(request,state):
+    """Administrative disclosure listing.  For non-posted disclosures"""
+    if state == 'removed':
+        states = ('removed','rejected')
+    else:
+        states = [state]
+    iprs = IprDisclosureBase.objects.filter(state__in=states).order_by('-time')
     
-    tabs = [('Pending','pending',urlreverse('ipr_admin_pending'),True),
-        ('Removed','removed',urlreverse('ipr_admin_removed'),True)]
-        
-    return render("ipr/admin_pending.html",  {
+    tabs = [('Pending','pending',urlreverse('ipr_admin',kwargs={'state':'pending'}),True),
+        ('Removed','removed',urlreverse('ipr_admin',kwargs={'state':'removed'}),True),
+        ('Parked','parked',urlreverse('ipr_admin',kwargs={'state':'parked'}),True)]
+    
+    template = 'ipr/admin_' + state + '.html'
+    return render(template,  {
         'iprs': iprs,
         'tabs': tabs,
-        'selected': 'pending'},
-        context_instance=RequestContext(request)
-    )
-    
-@role_required('Secretariat',)
-def admin_removed(request):
-    """List/manage removed or rejected disclosures"""
-    iprs = IprDisclosureBase.objects.filter(state__in=('removed','rejected'))
-    iprs = sorted(iprs, key=lambda x: x.submitted_date,reverse=True)
-    
-    tabs = [('Pending','pending',urlreverse('ipr_admin_pending'),True),
-        ('Removed','removed',urlreverse('ipr_admin_removed'),True)]
-        
-    return render("ipr/admin_removed.html",  {
-        'iprs': iprs,
-        'tabs': tabs,
-        'selected': 'removed'},
+        'selected': state},
         context_instance=RequestContext(request)
     )
 
 @role_required('Secretariat',)
-def edit(request, id):
+def edit(request, id, updates=None):
     """Secretariat only edit disclosure view"""
-    pass
+    ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
+    type = class_to_type[ipr.get_classname()]
+    
+    DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=False, extra=1)
+    RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=False, extra=1)
+
+    if request.method == 'POST':
+        form = ipr_form_mapping[type](request.POST)
+        if not type == 'generic':
+            draft_formset = DraftFormset(request.POST, instance=IprDisclosureBase(), prefix='draft')
+            rfc_formset = RfcFormset(request.POST, instance=IprDisclosureBase(), prefix='rfc')
+        else:
+            draft_formset = None
+            rfc_formset = None
+            
+        if request.user.is_anonymous():
+            person = Person.objects.get(name="(System)")
+        else:
+            person = request.user.person
+            
+        # check formset validity
+        if not type == 'generic':
+            valid_formsets = draft_formset.is_valid() and rfc_formset.is_valid()
+        else:
+            valid_formsets = True
+            
+        if form.is_valid() and valid_formsets: 
+            updates = form.cleaned_data.get('updates')
+            disclosure = form.save(commit=False)
+            disclosure.by = person
+            disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
+            disclosure.save()
+            
+            if not type == 'generic':
+                draft_formset = DraftFormset(request.POST, instance=disclosure, prefix='draft')
+                draft_formset.save()
+                rfc_formset = RfcFormset(request.POST, instance=disclosure, prefix='rfc')
+                rfc_formset.save()
+
+            set_disclosure_title(disclosure)
+            disclosure.save()
+            
+            if updates:
+                for ipr in updates:
+                    RelatedIpr.objects.create(source=disclosure,target=ipr,relationship_id='updates')
+                # TODO create iprevents on old
+                
+            # create IprEvent
+            IprEvent.objects.create(
+                type_id='submitted',
+                by=person,
+                disclosure=disclosure,
+                desc="Disclosure Submitted")
+
+            # send email notification
+            send_mail(request, settings.IPR_EMAIL_TO, ('IPR Submitter App', 'ietf-ipr@ietf.org'),
+                'New IPR Submission Notification',
+                "ipr/new_update_email.txt",
+                {"ipr": disclosure,})
+            
+            return render("ipr/submitted.html", context_instance=RequestContext(request))
+        
+        else:
+            # assert False, form.errors
+            pass
+    else:
+        if updates:
+            form = ipr_form_mapping[type](initial={'updates':updates})
+        else:
+            form = ipr_form_mapping[type]()
+        disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
+        draft_formset = DraftFormset(instance=disclosure, prefix='draft')
+        rfc_formset = RfcFormset(instance=disclosure, prefix='rfc')
+        
+    return render("ipr/new.html",  {
+        'form': form,
+        'draft_formset':draft_formset,
+        'rfc_formset':rfc_formset,
+        'type':type},
+        context_instance=RequestContext(request)
+    )
+
 
 @role_required('Secretariat',)
 def email(request, id):
@@ -386,6 +460,10 @@ def email(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     
     if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect("ipr_show", id=ipr.id)
+            
         form = MessageModelForm(request.POST)
         if form.is_valid():
             # create Message
@@ -540,7 +618,8 @@ def new(request, type, updates=None):
             pass
     else:
         if updates:
-            form = ipr_form_mapping[type](initial={'updates':updates})
+            obj = IprDisclosureBase.objects.get(pk=updates)
+            form = ipr_form_mapping[type](initial={'updates':str(updates)})
         else:
             form = ipr_form_mapping[type]()
         disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
@@ -620,7 +699,7 @@ def post(request, id):
     
 def show(request, id):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
-    if ipr.state.slug == 'removed':
+    if ipr.state.slug in ('removed','rejected') and not has_role(request.user, "Secretariat"):
         return render("ipr/removed.html",  {
             'ipr': ipr},
             context_instance=RequestContext(request)
@@ -638,11 +717,11 @@ def show(request, id):
     )
 
 def showlist(request):
-    """List all disclosures by type, excluding pending and rejected"""
-    generic = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    specific = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    thirdpty = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    nondocspecific = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    """List all disclosures by type, posted only"""
+    generic = GenericIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    specific = HolderIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    thirdpty = ThirdPartyIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    nondocspecific = ThirdPartyIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     
     # combine nondocspecific with generic and re-sort
     generic = itertools.chain(generic,nondocspecific)
@@ -654,6 +733,43 @@ def showlist(request):
             'thirdpty_disclosures': thirdpty}, 
             context_instance=RequestContext(request)
     )
+
+@role_required('Secretariat',)
+def state(request, id):
+    """Change the state of the disclosure"""
+    ipr = get_object_or_404(IprDisclosureBase, id=id)
+    login = request.user.person
+
+    if request.method == 'POST':
+        form = StateForm(request.POST)
+        if form.is_valid():
+            ipr.state = form.cleaned_data.get('state')
+            ipr.save()
+            IprEvent.objects.create(
+                by=login,
+                type_id=ipr.state.pk,
+                disclosure=ipr,
+                desc="State Changed to %s" % ipr.state.name
+            )
+            if form.cleaned_data.get('comment'):
+                if form.cleaned_data.get('private'):
+                    type_id = 'private_comment'
+                else:
+                    type_id = 'comment'
+                
+                IprEvent.objects.create(
+                    by=login,
+                    type_id=type_id,
+                    disclosure=ipr,
+                    desc=form.cleaned_data['comment']
+                )
+            messages.success(request, 'State Changed')
+            return redirect("ipr_show", id=ipr.id)
+    else:
+        form = StateForm(initial={'state':ipr.state.pk,'private':True})
+  
+    return render('ipr/state.html',dict(ipr=ipr,form=form),
+        context_instance=RequestContext(request))
 
 # use for link to update specific IPR
 def update(request, id):

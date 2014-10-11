@@ -58,6 +58,10 @@ form.add-email .actions {
   padding-top: 20px;
 }
 
+#id_response_due {
+  width: 150px;
+}
+
 ul#id_direction {
   list-style-type: none;
 }
@@ -90,3 +94,26 @@ form.send-notification textarea {
   width: 600px;
   height: 300px;
 }
+
+#id_state li {
+  display:inline;
+  list-style-type: none;
+  padding-right: 20px;
+}
+
+#id_state li label {
+  width: 100px;
+}
+
+.search-form-box input[type!=checkbox] {
+  width: 20em;
+}
+
+#state-form {
+  display: inline;
+}
+
+.ui-selectmenu-button {
+  vertical-align: middle;
+}
+

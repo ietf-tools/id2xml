@@ -5,9 +5,6 @@
       <td class="id-column">{{ ipr.id }}</td>
       <td class="title-column">
         <a href="{% url "ietf.ipr.views.show" ipr.id %}">{{ ipr.title }}</a>
-        {% if ipr.state_id == 'removed' %}
-          <br/>This IPR disclosure was removed at the request of the submitter.
-        {% endif %}
      <br />
      {% for item in ipr.relatedipr_source_set.all %}
          {% if item.target.state_id == 'posted' %}
@@ -21,6 +18,7 @@
         {% endif %}
      {% endfor %}
       </td>
+      {% if selected == 'pending' %}
       <td class="column-four">{{ ipr.get_latest_query.time|date:"Y-m-d" }}</td>
       <td class="column-five">
         {% if ipr.get_latest_query.response_due %}
@@ -30,5 +28,6 @@
           {% endif %}
         {% endif %}
       </td>
+      {% endif %}
    </tr>
 

@@ -57,7 +57,7 @@ class AutocompletedIprDisclosuresField(forms.CharField):
         # patterns may not have been fully constructed there yet
         self.widget.attrs["data-ajax-url"] = urlreverse("ipr_ajax_search")
 
-        return ",".join(e.pk for e in value)
+        return ",".join(str(e.pk) for e in value)
 
     def clean(self, value):
         value = super(AutocompletedIprDisclosuresField, self).clean(value)

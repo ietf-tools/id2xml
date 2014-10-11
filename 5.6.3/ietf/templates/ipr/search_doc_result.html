@@ -7,7 +7,7 @@
           <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
           {% for ipr in iprs %}
           <tr valign="top" bgcolor="#dadada">
-             <td width="100">{{ ipr.submitted_date }}</td>
+             <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
              <td width="90"><li>ID # {{ ipr.id }}</li></td>
                      <td><a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.title }}"</a></td>
           </tr>
@@ -24,7 +24,7 @@
              {% if doc.iprs %}
               {% for ipr in doc.iprs %}
                <tr valign="top">
-                  <td width="100">{{ ipr.submitted_date }}</td>
+                  <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
                   <td width="90"><li>ID # {{ ipr.id }}</li></td>
                               <td><a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.title }}"</a></td>
                </tr>

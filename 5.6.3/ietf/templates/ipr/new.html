@@ -105,26 +105,30 @@ will be posted, but will be marked as "non-compliant".</p>
 
       <p class="formlegend">Fields marked with "*" are required.</p>
 
-      <p>If this disclosure <b>updates</b> another disclosure(s) identify here which one(s).
+      <table class="ipr">
+      <tr class="{% cycle dark,light as row_parity %}"><th colspan=2>Updates</th></tr>
+      <tr class="{% cycle row_parity %}"><td colspan=2>If this disclosure <b>updates</b> another disclosure(s) identify here which one(s).
       Note: Updates to IPR disclosures must only be made by authorized
       representatives of the original submitters. Updates will automatically
       be forwarded to the current Patent Holder's Contact and to the Submitter
-      of the original IPR disclosure.</p>
-      <table class="ipr">
-        <tr>
+      of the original IPR disclosure.</td></tr>
+
+        <tr class="{% cycle row_parity %}">
           <td class="iprlabel">Updates:</td>
           <td class="iprdata">{{ form.updates.errors }}{{ form.updates }}</td>
         </tr>
-      </table>
       
       {% if user|has_role:"Secretariat" %}
-        <p>{{ form.compliant.label }} {{ form.compliant }}</p>
+        <tr class="{% cycle row_parity %}">
+          <td class="iprlabel">{{ form.compliant.label }}:</td><td class="iprdata">{{ form.compliant }} This disclosure complies with RFC 3979</td>
+        </tr>
       {% else %}
         <input class="hidden" checked="checked" id="id_compliant" name="compliant" type="checkbox" />
       {% endif %}
+      </table>
       
-      <table class="ipr">
-
+      <br>
+      
       <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
         <th colspan=2>
@@ -148,7 +152,7 @@ will be posted, but will be marked as "non-compliant".</p>
       </tr>
       <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.holder_contact_name.errors }} <span class="required">*</span> {{ form.holder_contact_name }}</td></tr>
       <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.holder_contact_email.errors }} <span class="required">*</span> {{ form.holder_contact_email }}</td></tr>
-      <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.holder_contact_info.errors }}{{ form.holder_contact_info }}</td></tr>
+      <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td><td class="iprdata">{{ form.holder_contact_info.errors }}{{ form.holder_contact_info }}</td></tr>
       </table>
    {% endif %}
 
@@ -162,7 +166,7 @@ will be posted, but will be marked as "non-compliant".</p>
         </tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_contact_email.errors }}{{ form.ietfer_contact_email }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
       </table>
    {% endif %}
 

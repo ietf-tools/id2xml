@@ -27,7 +27,7 @@
             {% if alias.iprs %}
                {% for ipr in alias.iprs %}
                   <tr valign="top">
-                 <td width="100">{{ ipr.submitted_date }}</td>
+                 <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
                  <td width="90"><li>ID # {{ ipr.id }}</li></td>
                  <td>
                     {% for item in ipr.updates.all %}

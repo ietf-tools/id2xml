@@ -1,9 +1,16 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% extends "base.html" %}
 {% block morecss %}
+form { clear:both; margin-top:1em;}
+label { float:left; width: 200px; }
 {% endblock %}
 {% block doctype %}{% endblock %}
 {% block title %}IPR Search Result{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/ipr.css"></link>
+{% endblock %}
+
 {% block content %}
 {% load ietf_filters %}
 
@@ -50,7 +57,7 @@
             {% for item in ipr.updates.all %}
                         {% if item != ipr %}
             <tr valign="top">
-               <td width="100">{{ item.target.submitted_date }}</td>
+               <td width="100">{{ item.target.submitted_date|date:"Y-m-d" }}</td>
                <td width="90"><li>ID # {{ item.target.id }}</li></td>
                <td>
                   IPR disclosure ID# {{ ipr.id }} <a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.title }}"</a>
@@ -67,8 +74,11 @@
         {% endblock %}
         <hr><br>
 
-        <a href="{% url "ietf.ipr.search.search" %}">IPR Search Main Page</a><br>
-        <a href="{% url "ietf.ipr.views.showlist" %}">IPR Disclosure Page</a>
+        <a href="{% url "ietf.ipr.views.showlist" %}">Back to IPR Disclosure Page</a>
         <br>
 {% endblock %}
 
+{% block js %}
+<script type="text/javascript" src="/js/lib/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/js/ipr-search.js"></script>
+{% endblock %}

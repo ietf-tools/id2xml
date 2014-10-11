@@ -53,27 +53,27 @@ class IprTests(TestCase):
 
     def test_search(self):
         draft = make_test_data()
-        ipr = IprDisclosureBase.objects.get(title="Statement regarding rights")
+        ipr = IprDisclosureBase.objects.get(title="Statement regarding rights").get_child()
 
         url = urlreverse("ipr_search")
 
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertTrue(q("form input[name=document_search]"))
+        self.assertTrue(q("form input[name=draft]"))
 
         # find by id
-        r = self.client.get(url + "?option=document_search&id=%s" % draft.name)
+        r = self.client.get(url + "?submit=draft&id=%s" % draft.name)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # find draft
-        r = self.client.get(url + "?option=document_search&document_search=%s" % draft.name)
+        r = self.client.get(url + "?submit=draft&draft=%s" % draft.name)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # search + select document
-        r = self.client.get(url + "?option=document_search&document_search=draft")
+        r = self.client.get(url + "?submit=draft&draft=draft")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(draft.name in r.content)
         self.assertTrue(ipr.title not in r.content)
@@ -81,36 +81,36 @@ class IprTests(TestCase):
         DocAlias.objects.create(name="rfc321", document=draft)
 
         # find RFC
-        r = self.client.get(url + "?option=rfc_search&rfc_search=321")
+        r = self.client.get(url + "?submit=rfc&rfc=321")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # find by patent owner
-        r = self.client.get(url + "?option=patent_search&patent_search=%s" % ipr.holder_legal_name)
+        r = self.client.get(url + "?submit=holder&holder=%s" % ipr.holder_legal_name)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
         
         # find by patent info
-        r = self.client.get(url + "?option=patent_info_search&patent_info_search=%s" % ipr.patent_info)
+        r = self.client.get(url + "?submit=patent&patent=%s" % ipr.patent_info)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
-        r = self.client.get(url + "?option=patent_info_search&patent_info_search=PTO9876")
+        r = self.client.get(url + "?submit=patent&patent=US12345")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # find by group acronym
-        r = self.client.get(url + "?option=wg_search&wg_search=%s" % draft.group.acronym)
+        r = self.client.get(url + "?submit=group&group=%s" % draft.group.pk)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # find by doc title
-        r = self.client.get(url + "?option=title_search&title_search=%s" % urllib.quote(draft.title))
+        r = self.client.get(url + "?submit=doctitle&doctitle=%s" % urllib.quote(draft.title))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
         # find by ipr title
-        r = self.client.get(url + "?option=ipr_title_search&ipr_title_search=%s" % urllib.quote(ipr.title))
+        r = self.client.get(url + "?submit=iprtitle&iprtitle=%s" % urllib.quote(ipr.title))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
@@ -325,7 +325,7 @@ I would like to revoke this declaration.
         
     def test_admin_pending(self):
         draft = make_test_data()
-        url = urlreverse("ipr_admin_pending")
+        url = urlreverse("ipr_admin",kwargs={'state':'pending'})
         self.client.login(username="secretary", password="secretary+password")
                 
         # test for presence of pending ipr
@@ -342,9 +342,9 @@ I would like to revoke this declaration.
         
     def test_admin_removed(self):
         draft = make_test_data()
-        url = urlreverse("ipr_admin_removed")
+        url = urlreverse("ipr_admin",kwargs={'state':'removed'})
         self.client.login(username="secretary", password="secretary+password")
-                
+        
         # test for presence of pending ipr
         ipr = IprDisclosureBase.objects.first()
         ipr.state_id = 'removed'
@@ -357,6 +357,9 @@ I would like to revoke this declaration.
         x = len(q('table#removed-iprs tr')) - 1     # minus header
         self.assertEqual(num,x)
         
+    def test_admin_parked(self):
+        pass
+    
     def test_post(self):
         draft = make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -370,3 +373,4 @@ I would like to revoke this declaration.
         self.assertEqual(r.status_code,200)
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         self.assertEqual(ipr.state.slug,'posted')
+    

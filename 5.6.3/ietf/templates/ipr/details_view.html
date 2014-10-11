@@ -36,14 +36,14 @@
      {% endif %}
      {% endfor %}
 
-     {% comment %}
+    {% if ipr.state_id == 'posted' %}
      <p><a href="{% url "ietf.ipr.views.update" ipr.id %}" rel="nofollow">Update this IPR disclosure</a>. Note: Updates to IPR disclosures must only be made by authorized
      representatives of the original submitters. Updates will automatically
      be forwarded to the current Patent Holder's Contact and to the Submitter
      of the original IPR disclosure.</p>
-     {% endcomment %} 
+     {% endif %}
      
-     <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}</strong></p>
+     <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}<br>State: {{ ipr.state }}</strong></p>
      {% if user|has_role:"Secretariat" and ipr.update_notified_date %}
        <span class="alert">This update was notified to the submitter of the IPR that is being updated on: {{ ipr.update_notified_date|date:"Y-m-d" }}</span>
      {% endif %}
@@ -51,9 +51,24 @@
      <!-- Admin action menu -->
      {% if user|has_role:"Secretariat" %}
      <div id="admin-menu">
-       <a href="{% url "ipr_notify" id=ipr.id type="update"%}">Notify the submitter of IPR that is being updated</a>
-       <a href="{% url "ipr_post" id=ipr.id %}">Post</a>
-       <a href="{% url "ipr_email" id=ipr.id %}">Email Submitter</a>
+       {% if ipr.updates and ipr.state_id == 'pending' and not ipr.update_notified_date %}
+       <a class="admin-action" href="{% url "ipr_notify" id=ipr.id type="update"%}" title="Notify the submitter of IPR that is being updated">Notify</a>
+       {% endif %}
+       {% if ipr.updates and ipr.state_id == 'pending' and ipr.update_notified_date or not ipr.updates and ipr.state_id == 'pending' %}
+       <a class="admin-action" href="{% url "ipr_post" id=ipr.id %}">Post</a>
+       {% endif %}
+       <a class="admin-action" href="{% url "ipr_email" id=ipr.id %}" title="Email submitter of this disclsoure">Email</a>
+       <a class="admin-action" href="{% url "ipr_edit" id=ipr.id %}">Edit</a>
+       <a class="admin-action" href="{% url "ipr_state" id=ipr.id %}">Change State</a>
+       {% comment %}
+       <form id="state-form" action="#"><select id="state-select" title="Change the state">
+         <option value="pending">Pending</option>
+         <option value="posted">Posted</option>
+         <option value="removed">Removed</option>
+         <option value="rejected">Rejected</option>
+         <option value="parked">Parked</option>
+       </select></form>
+       {% endcomment %}
      </div>
      {% endif %}
      
@@ -78,8 +93,9 @@
         Patent Holder's Contact for License Application
         </th>
      </tr>
-     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td>     <td class="iprdata">{{ ipr.holder_contact_name }}</td></tr>
-     <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td>        <td class="iprdata">{{ ipr.holder_contact_info|linebreaks }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ ipr.holder_contact_name }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ ipr.holder_contact_email }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td>        <td class="iprdata">{{ ipr.holder_contact_info|linebreaks }}</td></tr>
     </table>
    {% endif %}
 
@@ -93,8 +109,9 @@
         </th>
      </tr>
      {% if ipr.ietfer_name %}
-     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td>     <td class="iprdata">{{ ipr.ietfer_name }}</td></tr>
-     <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td>        <td class="iprdata">{{ ipr.ietfer_contact_info|linebreaks }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ ipr.ietfer_name }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ ipr.ietfer_contact_email }}</td></tr>
+     <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td>        <td class="iprdata">{{ ipr.ietfer_contact_info|linebreaks }}</td></tr>
      {% else %}
      <tr class="{% cycle row_parity %}"><td colspan="2"><i>No information submitted</i></td></tr>
      {% endif %}
@@ -111,7 +128,10 @@
         </th>
      </tr>
      {% for iprdocrel in ipr.iprdocrel_set.all %}
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">{{ iprdocrel.doc_type }}:</td><td class="iprdata">"{{ iprdocrel.document.document.title }}"<br />({{ iprdocrel.formatted_name }})</td></tr>
+        <tr class="{% cycle row_parity %}">
+          <td class="iprlabel">{{ iprdocrel.doc_type }}:</td>
+          <td class="iprdata">"{{ iprdocrel.document.document.title }}"<br />({{ iprdocrel.formatted_name }}){% if iprdocrel.revisions or iprdocrel.sections%}<br />{% if iprdocrel.revisions %}Revisions: {{ iprdocrel.revisions }}&nbsp&nbsp&nbsp&nbsp{% endif %}{% if iprdocrel.sections %}Sections: {{ iprdocrel.sections }}{% endif %}{% endif %}</td>
+        </tr>
      {% endfor %}
      {% if ipr.other_designations %}
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Designations for Other Contributions:</td><td class="iprdata">{{ ipr.other_designations }}</td></tr>
@@ -154,6 +174,7 @@
              </td>
           </tr>
         {% else %}
+          {% comment %}
           <tr class="{% cycle row_parity %}">
              <td colspan="2">
             C. If an Internet-Draft or RFC includes multiple parts and it is not
@@ -170,8 +191,9 @@
               <tr class="{% cycle row_parity %}"><td class="iprlabel">{{ iprdocrel.doc_type }}:</td><td class="iprdata">{{ iprdocrel.formatted_name }}<br />{{ iprdocrel.sections }}</td></tr>
             {% endif %}
           {% endfor %}
-          
+          {% endcomment %}
         {% endif %}
+        
         </tbody>
     {% else %}
         <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td class="iprdata">This disclosure relates to an unpublished pending patent application.</td></tr>
@@ -304,3 +326,8 @@
       {% endif %}
 
 {% endblock %} <!-- tab_content -->
+
+{% block js %}
+<script type="text/javascript" src="/js/jquery-ui-1.11.custom.min.js"></script>
+<script type="text/javascript" src="/js/ipr-view.js"></script>
+{% endblock %}

@@ -238,7 +238,7 @@ def make_test_data():
         title="Statement regarding rights",
         holder_legal_name="Native Martians United",
         state=IprDisclosureStateName.objects.get(slug='posted'),
-        patent_info='PTO12345',
+        patent_info='US12345',
         holder_contact_name='George',
         holder_contact_email='george@acme.com',
         holder_contact_info='14 Main Street\nEarth',

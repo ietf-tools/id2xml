@@ -35,7 +35,7 @@
     {% if e.msg %}
       <td>{{ e.msg|format_message|format_history_text }}
       {% if e.response_due %}
-          <br>Response Due: {{ ipr.get_latest_query.response_due|date:"Y-m-d" }}
+          <br>Response Due: {{ e.response_due|date:"Y-m-d" }}
       {% endif %}
     {% else %}
       <td>{{ e.desc|format_history_text }}

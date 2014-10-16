@@ -23,13 +23,13 @@ from ietf.ietfauth.utils import role_required, has_role
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
-    AddCommentForm, AddEmailForm, NotifyForm, StateForm)
+    AddCommentForm, AddEmailForm, NotifyForm, StateForm, NonDocSpecificIprDisclosureForm,
+    GenericIprDisclosureForm)
 from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
     HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel,
     IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,
     IprEventTypeName, IprEvent)
 #from ietf.ipr.related import related_docs
-from ietf.ipr.view_sections import section_list_for_ipr
 from ietf.message.models import Message
 from ietf.message.utils import infer_message
 from ietf.name.models import DocRelationshipName
@@ -46,8 +46,9 @@ ipr_form_mapping = { 'specific':HolderIprDisclosureForm,
                      'generic':GenericDisclosureForm,
                      'third-party':ThirdPartyIprDisclosureForm,
                      'HolderIprDisclosure':HolderIprDisclosureForm,
-                     'GenericIprDisclosure':GenericDisclosureForm,
-                     'ThirdPartyIprDisclosure':ThirdPartyIprDisclosureForm }
+                     'GenericIprDisclosure':GenericIprDisclosureForm,
+                     'ThirdPartyIprDisclosure':ThirdPartyIprDisclosureForm,
+                     'NonDocSpecificIprDisclosure':NonDocSpecificIprDisclosureForm }
 
 class_to_type = { 'HolderIprDisclosure':'specific',
                   'GenericIprDisclosure':'generic',
@@ -84,14 +85,19 @@ def get_ipr_summary(disclosure):
 def get_pseudo_submitter(ipr):
     """Returns a tuple (name, email) contact for this disclosure.  Order of preference
     is submitter, ietfer, holder (per legacy app)"""
-    if ipr.submitter_name and ipr.submitter_email:
-        return (ipr.submitter_name,ipr.submitter_email)
-    elif hasattr(ipr, 'ietfer_name') and ( ipr.ietfer_name and ipr.ietfer_contact_email ):
-        return (ipr.ietfer_name,ipr.ietfer_contact_email)
-    elif hasattr(ipr, 'holder_contact_name') and ( ipr.holder_contact_name and ipr.holder_contact_email ):
-        return (ipr.holder_contact_name,ipr.holder_contact_email)
-    else:
-        return ('UNKNOWN NAME - NEED ASSISTANCE HERE','UNKNOWN EMAIL - NEED ASSISTANCE HERE')
+    name = 'UNKNOWN NAME - NEED ASSISTANCE HERE'
+    email = 'UNKNOWN EMAIL - NEED ASSISTANCE HERE'
+    if ipr.submitter_email:
+        name = ipr.submitter_name
+        email = ipr.submitter_email
+    elif hasattr(ipr, 'ietfer_contact_email') and ipr.ietfer_contact_email:
+        name = ipr.ietfer_name
+        email = ipr.ietfer_contact_email
+    elif hasattr(ipr, 'holder_contact_email') and ipr.holder_contact_email:
+        name = ipr.holder_contact_name
+        email = ipr.holder_contact_email
+    
+    return (name,email)
 
 def get_document_emails(ipr):
     """Returns a list of messages to inform document authors that a new IPR disclosure
@@ -170,8 +176,6 @@ def get_update_submitter_emails(ipr):
     email_to_iprs = {}
     email_to_name = {}
     for related in ipr.updates:
-        #email = related.target.submitter_email
-        #email_to_name[email] = related.target.submitter_name
         name, email = get_pseudo_submitter(related.target)
         email_to_name[email] = name
         if email in email_to_iprs:
@@ -236,13 +240,11 @@ def set_disclosure_title(disclosure):
     if disclosure.get_classname() == 'HolderIprDisclosure':
         ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.holder_legal_name) + ' Statement about IPR related to {}'.format(ipr_summary)
-    elif disclosure.get_classname() == 'GenericIprDisclosure':
+    elif disclosure.get_classname() in ('GenericIprDisclosure','NonDocSpecificIprDisclosure'):
         title = get_genitive(disclosure.holder_legal_name) + ' General License Statement'
     elif disclosure.get_classname() == 'ThirdPartyIprDisclosure':
         ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.ietfer_name) + ' Statement about IPR related to {} belonging to {}'.format(ipr_summary,disclosure.holder_legal_name)
-    
-    # TODO: NonDocSpecific
     
     # truncate for db
     if len(title) > 255:
@@ -374,14 +376,23 @@ def edit(request, id, updates=None):
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     type = class_to_type[ipr.get_classname()]
     
-    DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=False, extra=1)
-    RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=False, extra=1)
+    # only include extra when initial formset is empty
+    if ipr.iprdocrel_set.filter(document__name__startswith='draft'):
+        draft_extra = 0
+    else:
+        draft_extra = 1
+    if ipr.iprdocrel_set.filter(document__name__startswith='rfc'):
+        rfc_extra = 0
+    else:
+        rfc_extra = 1
+    DraftFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=DraftForm, can_delete=True, extra=draft_extra)
+    RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=True, extra=rfc_extra)
 
     if request.method == 'POST':
-        form = ipr_form_mapping[type](request.POST)
+        form = ipr_form_mapping[ipr.get_classname()](request.POST,instance=ipr)
         if not type == 'generic':
-            draft_formset = DraftFormset(request.POST, instance=IprDisclosureBase(), prefix='draft')
-            rfc_formset = RfcFormset(request.POST, instance=IprDisclosureBase(), prefix='rfc')
+            draft_formset = DraftFormset(request.POST, instance=ipr, prefix='draft')
+            rfc_formset = RfcFormset(request.POST, instance=ipr, prefix='rfc')
         else:
             draft_formset = None
             rfc_formset = None
@@ -400,11 +411,11 @@ def edit(request, id, updates=None):
         if form.is_valid() and valid_formsets: 
             updates = form.cleaned_data.get('updates')
             disclosure = form.save(commit=False)
-            disclosure.by = person
-            disclosure.state = IprDisclosureStateName.objects.get(slug='pending')
             disclosure.save()
             
             if not type == 'generic':
+                # clear and recreate IprDocRels
+                # IprDocRel.objects.filter(disclosure=ipr).delete()
                 draft_formset = DraftFormset(request.POST, instance=disclosure, prefix='draft')
                 draft_formset.save()
                 rfc_formset = RfcFormset(request.POST, instance=disclosure, prefix='rfc')
@@ -413,39 +424,37 @@ def edit(request, id, updates=None):
             set_disclosure_title(disclosure)
             disclosure.save()
             
+            # clear and recreate IPR relationships
+            RelatedIpr.objects.filter(source=ipr).delete()
             if updates:
-                for ipr in updates:
-                    RelatedIpr.objects.create(source=disclosure,target=ipr,relationship_id='updates')
-                # TODO create iprevents on old
+                for target in updates:
+                    RelatedIpr.objects.create(source=disclosure,target=target,relationship_id='updates')
                 
             # create IprEvent
             IprEvent.objects.create(
-                type_id='submitted',
+                type_id='changed_disclosure',
                 by=person,
                 disclosure=disclosure,
-                desc="Disclosure Submitted")
-
-            # send email notification
-            send_mail(request, settings.IPR_EMAIL_TO, ('IPR Submitter App', 'ietf-ipr@ietf.org'),
-                'New IPR Submission Notification',
-                "ipr/new_update_email.txt",
-                {"ipr": disclosure,})
+                desc="Changed disclosure metadata")
             
-            return render("ipr/submitted.html", context_instance=RequestContext(request))
+            messages.success(request,'Disclosure modified')
+            return redirect("ipr_show", id=ipr.id)
         
         else:
             # assert False, form.errors
             pass
     else:
-        if updates:
-            form = ipr_form_mapping[type](initial={'updates':updates})
+        if ipr.updates:
+            form = ipr_form_mapping[ipr.get_classname()](instance=ipr,initial={'updates':[ x.target for x in ipr.updates ]})
         else:
-            form = ipr_form_mapping[type]()
-        disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
-        draft_formset = DraftFormset(instance=disclosure, prefix='draft')
-        rfc_formset = RfcFormset(instance=disclosure, prefix='rfc')
+            form = ipr_form_mapping[ipr.get_classname()](instance=ipr)
+        #disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
+        dqs=IprDocRel.objects.filter(document__name__startswith='draft')
+        rqs=IprDocRel.objects.filter(document__name__startswith='rfc')
+        draft_formset = DraftFormset(instance=ipr, prefix='draft',queryset=dqs)
+        rfc_formset = RfcFormset(instance=ipr, prefix='rfc',queryset=rqs)
         
-    return render("ipr/new.html",  {
+    return render("ipr/details_edit.html",  {
         'form': form,
         'draft_formset':draft_formset,
         'rfc_formset':rfc_formset,
@@ -626,7 +635,7 @@ def new(request, type, updates=None):
         draft_formset = DraftFormset(instance=disclosure, prefix='draft')
         rfc_formset = RfcFormset(instance=disclosure, prefix='rfc')
         
-    return render("ipr/new.html",  {
+    return render("ipr/details_edit.html",  {
         'form': form,
         'draft_formset':draft_formset,
         'rfc_formset':rfc_formset,
@@ -711,8 +720,7 @@ def show(request, id):
     return render("ipr/details_view.html",  {
         'ipr': ipr,
         'tabs':tabs,
-        'selected':'disclosure',
-        'section_list': section_list_for_ipr(ipr)},
+        'selected':'disclosure'},
         context_instance=RequestContext(request)
     )
 

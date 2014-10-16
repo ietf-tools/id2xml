@@ -79,7 +79,7 @@ class DraftForm(forms.ModelForm):
         return alias
 
 class GenericDisclosureForm(forms.Form):
-    """Custom ModelForm-like form to use for Generic or NonDocSpecific Iprs.
+    """Custom ModelForm-like form to use for new Generic or NonDocSpecific Iprs.
     If patent_info is submitted create a NonDocSpecificIprDisclosure object
     otherwise create a GenericIprDisclosure object."""
     compliant = forms.BooleanField(required=False)
@@ -114,7 +114,7 @@ class GenericDisclosureForm(forms.Form):
 class IprDisclosureFormBase(forms.ModelForm):
     """Base form for Holder and ThirdParty disclosures"""
     updates = AutocompletedIprDisclosuresField(required=False)
-    same_as_above = forms.BooleanField(required=False)
+    same_as_ii_above = forms.BooleanField(required=False)
     
     def __init__(self,*args,**kwargs):
         super(IprDisclosureFormBase, self).__init__(*args,**kwargs)
@@ -130,12 +130,8 @@ class IprDisclosureFormBase(forms.ModelForm):
         super(IprDisclosureFormBase, self).clean()
         cleaned_data = self.cleaned_data
         
-        # ensure a contribution is specified
-        if not self.data.get('draft-0-document') and not self.data.get('rfc-0-document') and not cleaned_data.get('other_designations'):
-            raise forms.ValidationError('You need to specify a contribution in Section IV')
-        
         # if same_as_above not checked require submitted
-        if not self.cleaned_data.get('same_as_above'):
+        if not self.cleaned_data.get('same_as_ii_above'):
             if not ( self.cleaned_data.get('submitter_name') and self.cleaned_data.get('submitter_email') ):
                 raise forms.ValidationError('Submitter information must be provided in section VII')
         
@@ -154,11 +150,24 @@ class IprDisclosureFormBase(forms.ModelForm):
 class HolderIprDisclosureForm(IprDisclosureFormBase):
     licensing = CustomModelChoiceField(IprLicenseTypeName.objects.all(),
         widget=forms.RadioSelect,empty_label=None,initial='noselect')
-    
+
     class Meta:
         model = HolderIprDisclosure
         exclude = [ 'by','docs','state','rel' ]
+        
+    def clean(self):
+        super(HolderIprDisclosureForm, self).clean()
+        cleaned_data = self.cleaned_data
+        if not self.data.get('draft-0-document') and not self.data.get('rfc-0-document') and not cleaned_data.get('other_designations'):
+            raise forms.ValidationError('You need to specify a contribution in Section IV')
+        return cleaned_data
 
+class GenericIprDisclosureForm(IprDisclosureFormBase):
+    """Use for editing a GenericIprDisclosure"""
+    class Meta:
+        model = GenericIprDisclosure
+        exclude = [ 'by','docs','state','rel' ]
+        
 class MessageModelForm(forms.ModelForm):
     response_due = forms.DateField(required=False,help_text='The date which a response is due')
     
@@ -173,6 +182,11 @@ class MessageModelForm(forms.ModelForm):
         self.fields['frm'].widget.attrs['readonly'] = True
         self.fields['reply_to'].widget.attrs['readonly'] = True
 
+class NonDocSpecificIprDisclosureForm(IprDisclosureFormBase):
+    class Meta:
+        model = NonDocSpecificIprDisclosure
+        exclude = [ 'by','docs','state','rel' ]
+        
 class NotifyForm(forms.Form):
     type = forms.CharField(widget=forms.HiddenInput)
     text = forms.CharField(widget=forms.Textarea)
@@ -186,6 +200,23 @@ class ThirdPartyIprDisclosureForm(IprDisclosureFormBase):
         model = ThirdPartyIprDisclosure
         exclude = [ 'by','docs','state','rel' ]
 
+    def clean(self):
+        super(ThirdPartyIprDisclosureForm, self).clean()
+        cleaned_data = self.cleaned_data
+        if not self.data.get('draft-0-document') and not self.data.get('rfc-0-document') and not cleaned_data.get('other_designations'):
+            raise forms.ValidationError('You need to specify a contribution in Section IV')
+        return cleaned_data
+    
+    def save(self, *args, **kwargs):
+        obj = super(ThirdPartyIprDisclosureForm, self).save(*args,commit=False)
+        if self.cleaned_data.get('same_as_ii_above') == True:
+            obj.submitter_name = obj.ietfer_name
+            obj.submitter_email = obj.ietfer_contact_email
+        if kwargs.get('commit',True):
+            obj.save()
+        
+        return obj
+        
 class SearchForm(forms.Form):
     state =    forms.MultipleChoiceField(choices=STATE_CHOICES,widget=forms.CheckboxSelectMultiple,required=False)
     draft =    forms.CharField(max_length=128,required=False)

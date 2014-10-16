@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% load ietf_filters %}
-{% block title %}IPR Details - Form{% endblock %}
-{% block bodyAttrs %}
-    {% if section_list.holder_contact %}onload="toggle_submitter_info('holder')"{% endif %}
-    {% if section_list.ietf_contact %}onload="toggle_submitter_info('ietf')"{% endif %}
-{% endblock bodyAttrs %}
+{% block title %}New IPR - Form{% endblock %}
+
+{% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/token-input.css"></link>
+{% endblock %}
 
 {% block morecss %}
 table.ipr { margin-top: 1em; }
@@ -19,17 +19,20 @@ table.ipr { margin-top: 1em; }
 .iprdata { font-weight: bold; }
 
 .iprdata li { list-style:none;}
+.iprdata input[type=text],input[type=email],textarea { width:80%; }
+
+#id_contribution { table-layout:fixed; }
+.mini input { width:60px; }
+
 
 .required { color: red; float: right; padding-top: 0.7ex; font-size: 130%; }
 .errorlist { background: red; color: white; padding: 0.2ex 0.2ex 0.2ex 0.5ex; border: 0px; margin: 0px; }
  ul.errorlist { margin: 0px; }
 
-input.hidden { display:none; }
+input.hidden { visibility:hidden; position:absolute; }
 {% endblock %}
 
 {% block content %}
-
-{% include "ipr/js.html" %}
 
 {% if form.instance.get_classname == "HolderIprDisclosure" %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Specific IPR Disclosures</h1>
@@ -41,9 +44,18 @@ the licensing of its necessary patent claims.  No actual license is
 implied by submission of this template. Please complete and submit a
 separate template for each IETF document or contribution to which the
 disclosed patent information relates.</p>
-{% endif %}
 
-{% if form.instance.get_classname == "GenericIprDisclosure" %}
+{% elif form.instance.get_classname == "ThirdPartyIprDicslosure" %}
+<h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
+<p>This form is used to let the IETF know about patent information
+regarding an IETF document or contribution when the person letting the
+IETF know about the patent has no relationship with the patent owners.
+Click <a href="https://datatracker.ietf.org/ipr/new-specific">here</a>
+if you want to disclose information about patents or patent
+applications where you do have a relationship to the patent owners or
+patent applicants.</p>
+
+{% else %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Generic IPR Disclosures</h1>
 <p>This document is an IETF IPR Patent Disclosure and Licensing
 Declaration Template and is submitted to inform the IETF of a) patent
@@ -59,16 +71,7 @@ generic disclosure satisfies certain conditions. Please see the
 RFC for details.</p>
 {% endif %}
 
-{% if form.instance.get_classname == "ThirdPartyIprDicslosure" %}
-<h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
-<p>This form is used to let the IETF know about patent information
-regarding an IETF document or contribution when the person letting the
-IETF know about the patent has no relationship with the patent owners.
-Click <a href="https://datatracker.ietf.org/ipr/new-specific">here</a>
-if you want to disclose information about patents or patent
-applications where you do have a relationship to the patent owners or
-patent applicants.</p>
-{% endif %}
+
 
 <p>If you wish to submit your IPR disclosure by e-mail, then please send
 it to <a href="mailto:ietf-ipr@ietf.org">ietf-ipr@ietf.org</a>.
@@ -95,18 +98,35 @@ will be posted, but will be marked as "non-compliant".</p>
 
       <p class="formlegend">Fields marked with "*" are required.</p>
 
-      {% if request.user.is_secretariat %}
-      {% else %}
-      <p>{{ form.compliant }}</p>
-      {% endif %}
-      
       <table class="ipr">
+      <tr class="{% cycle dark,light as row_parity %}"><th colspan=2>Updates</th></tr>
+      <tr class="{% cycle row_parity %}"><td colspan=2>If this disclosure <b>updates</b> another disclosure(s) identify here which one(s).
+      Note: Updates to IPR disclosures must only be made by authorized
+      representatives of the original submitters. Updates will automatically
+      be forwarded to the current Patent Holder's Contact and to the Submitter
+      of the original IPR disclosure.</td></tr>
 
+        <tr class="{% cycle row_parity %}">
+          <td class="iprlabel">Updates:</td>
+          <td class="iprdata">{{ form.updates.errors }}{{ form.updates }}</td>
+        </tr>
+      
+      {% if user|has_role:"Secretariat" %}
+        <tr class="{% cycle row_parity %}">
+          <td class="iprlabel">{{ form.compliant.label }}:</td><td class="iprdata">{{ form.compliant }} This disclosure complies with RFC 3979</td>
+        </tr>
+      {% else %}
+        <input class="hidden" checked="checked" id="id_compliant" name="compliant" type="checkbox" />
+      {% endif %}
+      </table>
+      
+      <br>
+      
       <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
         <th colspan=2>
             {% cycle I,II,III,IV,V,VI,VII,VIII as section %}.
-            {% if form.instance.get_classname == "ThirdPartyIprDicslosure" %}Possible{% endif %}
+            {% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}Possible{% endif %}
             Patent Holder/Applicant ("Patent Holder")
         </th>
         </tr>
@@ -124,7 +144,8 @@ will be posted, but will be marked as "non-compliant".</p>
         </th>
       </tr>
       <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.holder_contact_name.errors }} <span class="required">*</span> {{ form.holder_contact_name }}</td></tr>
-      <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.holder_contact_info.errors }} <span class="required">*</span> {{ form.holder_contact_info }}</td></tr>
+      <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.holder_contact_email.errors }} <span class="required">*</span> {{ form.holder_contact_email }}</td></tr>
+      <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td><td class="iprdata">{{ form.holder_contact_info.errors }}{{ form.holder_contact_info }}</td></tr>
       </table>
    {% endif %}
 
@@ -136,14 +157,20 @@ will be posted, but will be marked as "non-compliant".</p>
         Contact Information for the IETF Participant Whose Personal Belief Triggered this Disclosure:       
         </th>
         </tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Info:</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_contact_email.errors }}{{ form.ietfer_contact_email }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
       </table>
    {% endif %}
 
-
+   <!-- Begin Contribution Section -->
    {% if type != "generic" %}
       <table id="id_contribution" class="ipr">
+        <col width="20%">
+        <col width="50%">
+        <col width="15%">
+        <col width="15%">
+        
         <tr class="{% cycle dark,light as row_parity %}">
         <th colspan="4" >
         <span class="required">*</span>
@@ -166,7 +193,7 @@ will be posted, but will be marked as "non-compliant".</p>
         {% for rfc in rfc_formset %}
         <tr class="{% cycle row_parity %} rfc_row">
           <td class="iprlabel">RFC Names (rfcNNNN):<div><a id="rfc_add_link" href="javascript:void(0)">Add More</a></div></td>
-          <td class="iprdata">{{ rfc.id }}{{ rfc.document.errors }}{{ rfc.document }}</td><td colspan="2">{{ rfc.sections.errors }}{{ rfc.sections }}<div>Sections</div></td>
+          <td class="iprdata">{{ rfc.id }}{{ rfc.document.errors }}{{ rfc.document }}</td><td colspan="2" class="mini">{{ rfc.sections.errors }}{{ rfc.sections }}<div>Sections</div></td>
         </tr>
         {% comment %}{{ rfc.as_table }}{% endcomment %}
         {% endfor %}
@@ -175,15 +202,16 @@ will be posted, but will be marked as "non-compliant".</p>
         {% for draft in draft_formset %}
         <tr class="{% cycle row_parity %} draft_row">
           <td class="iprlabel">I-D Filenames (draft-...):<div><a id="draft_add_link" href="javascript:void(0)">Add More</a></div></td>
-          <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td>{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td>{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
+          <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td class="mini">{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td class="mini">{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
         </tr>
         {% endfor %}
         
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Designations for Other Contributions:</td><td colspan="3" class="iprdata">{{ form.other_designations.errors }} {{ form.other_designations }}</td></tr>
       </table>
    {% endif %}
-
-      {% if form.patent_info.name %}
+   <!-- End Contribution Section -->
+   
+    <!-- Begin Patent Section -->
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
@@ -201,12 +229,12 @@ will be posted, but will be marked as "non-compliant".</p>
            </tr>
            <tr><td class="iprlabel">Patent, Serial, Publication, Registration,
              or Application/File number(s), Date(s) granted or applied for, Country,
-             and any additional notes: </td><td class="iprdata">{{ form.patent_info.errors }} <span class="required">*</span> {{ form.patent_info }}</td></tr>
+             and any additional notes: </td><td class="iprdata">{{ form.patent_info.errors }}{% if form.statement %}{% else %}<span class="required">*</span>{% endif %}{{ form.patent_info }}</td></tr>
         </tbody>
         <tr class="{% cycle row_parity %}">
            <td colspan="2">
-             B. Does your disclosure relate to an unpublished pending patent application?:
-          <div class="iprdata">{{ form.has_patent_pending.errors }} {{ form.has_patent_pending }}</div>
+             B. {{ form.has_patent_pending.errors }} {{ form.has_patent_pending }}
+             This disclosure relates to an unpublished pending patent application.
            </td>
         </tr>
         <tbody class="{% cycle row_parity %}">
@@ -245,7 +273,7 @@ will be posted, but will be marked as "non-compliant".</p>
         {% endif %} <!-- form.patent_info -->
         
      </table>
-      {% endif %} <!-- form.patent_info.name -->
+     <!-- End Patent Section -->
 
 
       {% if form.licensing %}
@@ -323,21 +351,41 @@ will be posted, but will be marked as "non-compliant".</p>
      </table>
       {% endif %} <!-- form.licensing -->
 
-
-      {% if section_list.submitter %}
+      {% if form.statement %}
+      <table  class="ipr">
+        <tr class="{% cycle dark,light as row_parity %}">
+           <th colspan="2" >
+           {% cycle section %}.
+           Licensing Statement
+           </th>
+        </tr>
+        <tbody class="{% cycle row_parity %}">
+        <tr>
+           <td colspan="2">
+           Include any licensing statement here.
+           </td>
+        </tr>
+        <tr>
+           <td class="iprlabel">Statement:</td>
+           <td>
+          <span class="iprdata">{{ form.statement.errors }} {{ form.statement }}</span>
+           </td>
+        </tr>
+        </tbody>
+      </table>
+      {% endif %} <!-- form.statement  (Generic and NonDocSpecific) -->
+      
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
            {% cycle section %}.
-           Submitter of this Form
+           Contact Information of Submitter of this Form (if different from the Contact Information above)
            </th>
         </tr>
-        
-        <tr class="{% cycle row_parity %}"><td colspan="2">Same as in section II above: {{ form.same_as_above }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{{ form.instance.by.name }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{{ form.instance.by.email }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td colspan="2">Same as in section II above: {{ form.same_as_ii_above }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata"><span class="required">*</span>{{ form.submitter_name.errors }}{{ form.submitter_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata"><span class="required">*</span>{{ form.submitter_email.errors }}{{ form.submitter_email }}</td></tr>
      </table>
-      {% endif %}
 
      <table class="ipr">
         <tr class="{% cycle dark,light as row_parity %}">
@@ -355,6 +403,8 @@ will be posted, but will be marked as "non-compliant".</p>
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript" src="/secretariat/js/jquery-ui-1.8.9.min.js"></script>
+{% comment %} <script type="text/javascript" src="/secretariat/js/jquery-ui-1.8.9.min.js"></script> {% endcomment %}
 <script type="text/javascript" src="/js/ipr-edit.js"></script>
+<script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="/js/tokenized-field.js"></script>
 {% endblock %}

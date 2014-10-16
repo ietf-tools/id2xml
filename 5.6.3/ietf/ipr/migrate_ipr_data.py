@@ -70,6 +70,7 @@ comment_event = name(IprEventTypeName, "comment", "Comment")
 private_comment_event = name(IprEventTypeName, 'private_comment', "Private Comment")
 legacy_event = name(IprEventTypeName, "legacy", "Legacy")
 update_notify = name(IprEventTypeName, "update_notify", "Update Notify")
+changed_disclosure = name(IprEventTypeName,"changed_disclosure", "Changed disclosure metadata")
 
 system = Person.objects.get(name="(System)")
 

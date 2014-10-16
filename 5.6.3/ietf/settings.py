@@ -243,7 +243,6 @@ INSTALLED_APPS = (
     'ietf.secr.areas',
     'ietf.secr.drafts',
     'ietf.secr.groups',
-    'ietf.secr.ipradmin',
     'ietf.secr.meetings',
     'ietf.secr.proceedings',
     'ietf.secr.roles',

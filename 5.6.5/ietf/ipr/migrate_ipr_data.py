@@ -105,10 +105,11 @@ states_mapping = { 0:pending_disclosure_state,
 
 def clear():
     """Clear existing objects to allow rerun"""
+    IprDisclosureBase.objects.all().delete()
     IprEvent.objects.all().delete()
     RelatedIpr.objects.all().delete()
     IprDocRel.objects.all().delete()
-
+    
 def combine_fields(obj,fields):
     """Returns fields combined into one string.  Uses field_mapping to apply
     extra formatting for some fields."""
@@ -357,7 +358,6 @@ def main():
                    'notes':rec.other_notes,
                    'other_designations':rec.other_designations,
                    'state':states_mapping[rec.status],
-                   'time':rec.submitted_date,
                    'title':rec.title }
 
         # Determine Type.
@@ -372,14 +372,14 @@ def main():
             klass = HolderIprDisclosure
             kwargs['licensing'] = licensing_mapping[rec.licensing_option]
 
-        new,created = klass.objects.get_or_create(**kwargs)
-
+        new = klass.objects.create(**kwargs)
+        new.time = rec.submitted_date
         handle_licensing(rec,new)
         handle_legacy_fields(rec,new)
         handle_patent_info(rec,new)
         handle_contacts(rec,new)
         handle_docs(rec,new)
-        # some handle routines modify new object
+        # save changes to disclosure object
         new.save()
 
         # create IprEvent:submitted

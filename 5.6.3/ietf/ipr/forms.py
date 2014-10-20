@@ -9,7 +9,8 @@ from django.forms.models import BaseInlineFormSet
 
 from ietf.doc.models import DocAlias
 from ietf.group.models import Group
-from ietf.ipr.fields import AutocompletedIprDisclosuresField
+from ietf.ipr.fields import (AutocompletedIprDisclosuresField, AutocompletedDraftField,
+    AutocompletedRfcField)
 from ietf.ipr.models import (IprDocRel, IprDisclosureBase, HolderIprDisclosure,
     GenericIprDisclosure, ThirdPartyIprDisclosure, NonDocSpecificIprDisclosure,
     LICENSE_MAPPING, IprLicenseTypeName, IprDisclosureStateName)
@@ -54,7 +55,8 @@ class AddEmailForm(forms.Form):
         return message
 
 class DraftForm(forms.ModelForm):
-    document = forms.CharField(widget=forms.TextInput(attrs={'class': 'draft-autocomplete'}),required=False)  # override ModelChoiceField
+    #document = forms.CharField(widget=forms.TextInput(attrs={'class': 'draft-autocomplete'}),required=False)  # override ModelChoiceField
+    document = AutocompletedDraftField(required=False)
     
     class Meta:
         model = IprDocRel
@@ -63,13 +65,14 @@ class DraftForm(forms.ModelForm):
         }
         help_texts = { 'sections': 'Sections' }
     
+    """
     def __init__(self, *args,**kwargs):
         super(DraftForm, self).__init__(*args,**kwargs)
         i = self.initial.get('document')
         if i:
             da = DocAlias.objects.get(pk=self.initial['document'])
             self.initial['document'] = da.name
-            
+    
     def clean_document(self):
         name = self.cleaned_data.get('document')
         try:
@@ -77,6 +80,7 @@ class DraftForm(forms.ModelForm):
         except:
             raise forms.ValidationError('Invalid Document')
         return alias
+    """
 
 class GenericDisclosureForm(forms.Form):
     """Custom ModelForm-like form to use for new Generic or NonDocSpecific Iprs.
@@ -192,6 +196,9 @@ class NotifyForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea)
     
 class RfcForm(DraftForm):
+    #document = forms.CharField(widget=forms.TextInput(attrs={'class': 'rfc-autocomplete'}),required=False)
+    document = AutocompletedRfcField(required=False)
+    
     class Meta(DraftForm.Meta):
         exclude = ('revisions',)
 

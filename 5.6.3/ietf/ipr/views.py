@@ -270,6 +270,38 @@ def ajax_search(request):
 
     return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
     
+def ajax_draft_search(request):
+    q = [w.strip() for w in request.GET.get('q', '').split() if w.strip()]
+
+    if not q:
+        objs = DocAlias.objects.none()
+    else:
+        query = Q()
+        for t in q:
+            query &= Q(name__icontains=t)
+
+        objs = DocAlias.objects.filter(name__startswith='draft').filter(query)
+
+    objs = objs.distinct()[:10]
+
+    return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
+
+def ajax_rfc_search(request):
+    # expects one numeric term
+    q = [w.strip() for w in request.GET.get('q', '').split() if w.strip()]
+
+    if not q:
+        objs = DocAlias.objects.none()
+    else:
+        query = Q()
+        query &= Q(name__startswith='rfc%s' % q[0])
+
+        objs = DocAlias.objects.filter(query)
+
+    objs = objs.distinct()[:10]
+
+    return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
+    
 # ----------------------------------------------------------------
 # Views
 # ----------------------------------------------------------------

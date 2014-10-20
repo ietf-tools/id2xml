@@ -60,15 +60,6 @@
        <a class="admin-action" href="{% url "ipr_email" id=ipr.id %}" title="Email submitter of this disclsoure">Email</a>
        <a class="admin-action" href="{% url "ipr_edit" id=ipr.id %}">Edit</a>
        <a class="admin-action" href="{% url "ipr_state" id=ipr.id %}">Change State</a>
-       {% comment %}
-       <form id="state-form" action="#"><select id="state-select" title="Change the state">
-         <option value="pending">Pending</option>
-         <option value="posted">Posted</option>
-         <option value="removed">Removed</option>
-         <option value="rejected">Rejected</option>
-         <option value="parked">Parked</option>
-       </select></form>
-       {% endcomment %}
      </div>
      {% endif %}
      
@@ -328,6 +319,6 @@
 {% endblock %} <!-- tab_content -->
 
 {% block js %}
-<script type="text/javascript" src="/js/jquery-ui-1.11.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.8.11.custom.min.js"></script>
 <script type="text/javascript" src="/js/ipr-view.js"></script>
 {% endblock %}

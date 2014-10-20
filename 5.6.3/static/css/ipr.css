@@ -117,3 +117,6 @@ form.send-notification textarea {
   vertical-align: middle;
 }
 
+#id_contribution ul.token-input-list {
+  width: 332px;
+}

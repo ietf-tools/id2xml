@@ -1,6 +1,11 @@
+
 function cloneMore(selector, type) {
+    // customized for inclusion of jQuery Tokeninput fields
     var newElement = jQuery(selector).clone(true);
     var total = jQuery('#id_' + type + '-TOTAL_FORMS').val();
+    
+    // remove special token bits
+    newElement.find('.token-input-list').remove();
     newElement.find(':input').each(function() {
         var name = jQuery(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
         var id = 'id_' + name;
@@ -14,6 +19,9 @@ function cloneMore(selector, type) {
     total++;
     jQuery('#id_' + type + '-TOTAL_FORMS').val(total);
     jQuery(selector).after(newElement);
+    
+    // re-initialize tokenized fields
+    newElement.find(".tokenized-field").each(function () { setupTokenizedField(jQuery(this)); });
 }
 
 jQuery(function() {
@@ -23,10 +31,4 @@ jQuery(function() {
     jQuery('#rfc_add_link').click(function() {
         cloneMore('#id_contribution tr.rfc_row:last','rfc');
     });
-    
-    //$('input.draft-autocomplete').autocomplete({
-    //    source: "/doc/ajax/internet_draft/?",
-    //    minLength: 3,
-    //});
-
 })

@@ -93,23 +93,45 @@ class GenericDisclosureForm(forms.Form):
     holder_contact_name = forms.CharField(max_length=255)
     holder_contact_email = forms.EmailField()
     holder_contact_info = forms.CharField(max_length=255,widget=forms.Textarea,required=False)
-    submitter_name = forms.CharField(max_length=255)
-    submitter_email = forms.EmailField()
+    submitter_name = forms.CharField(max_length=255,required=False)
+    submitter_email = forms.EmailField(required=False)
     patent_info = forms.CharField(max_length=255,widget=forms.Textarea,required=False)
     has_patent_pending = forms.BooleanField(required=False)
     statement = forms.CharField(max_length=255,widget=forms.Textarea,required=False)
     updates = AutocompletedIprDisclosuresField(required=False)
+    same_as_ii_above = forms.BooleanField(required=False)
     
+    def __init__(self,*args,**kwargs):
+        super(GenericDisclosureForm, self).__init__(*args,**kwargs)
+        self.fields['compliant'].initial = True
+        
+    def clean(self):
+        super(GenericDisclosureForm, self).clean()
+        cleaned_data = self.cleaned_data
+        
+        # if same_as_above not checked require submitted
+        if not self.cleaned_data.get('same_as_ii_above'):
+            if not ( self.cleaned_data.get('submitter_name') and self.cleaned_data.get('submitter_email') ):
+                raise forms.ValidationError('Submitter information must be provided in section VII')
+        
+        return cleaned_data
+        
     def save(self, *args, **kwargs):
-        # super(GenericDisclosureForm, self).save(*args,*kwargs)
+        nargs = self.cleaned_data.copy()
+        same_as_ii_above = nargs.get('same_as_ii_above')
+        del nargs['same_as_ii_above']
+        
         if self.cleaned_data.get('patent_info'):
-            obj = NonDocSpecificIprDisclosure(**self.cleaned_data)
+            obj = NonDocSpecificIprDisclosure(**nargs)
         else:
-            nargs = self.cleaned_data.copy()
             del nargs['patent_info']
             del nargs['has_patent_pending']
             obj = GenericIprDisclosure(**nargs)
         
+        if same_as_ii_above == True:
+            obj.submitter_name = obj.holder_contact_name
+            obj.submitter_email = obj.holder_contact_email
+            
         if kwargs.get('commit',True):
             obj.save()
         
@@ -143,7 +165,7 @@ class IprDisclosureFormBase(forms.ModelForm):
     
     def save(self, *args, **kwargs):
         obj = super(IprDisclosureFormBase, self).save(*args,commit=False)
-        if self.cleaned_data.get('same_as_above') == True:
+        if self.cleaned_data.get('same_as_ii_above') == True:
             obj.submitter_name = obj.holder_contact_name
             obj.submitter_email = obj.holder_contact_email
         if kwargs.get('commit',True):

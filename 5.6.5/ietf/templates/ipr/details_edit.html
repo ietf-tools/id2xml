@@ -46,7 +46,7 @@ implied by submission of this template. Please complete and submit a
 separate template for each IETF document or contribution to which the
 disclosed patent information relates.</p>
 
-{% elif form.instance.get_classname == "ThirdPartyIprDicslosure" %}
+{% elif form.instance.get_classname == "ThirdPartyIprDisclosure" %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
 <p>This form is used to let the IETF know about patent information
 regarding an IETF document or contribution when the person letting the
@@ -193,16 +193,15 @@ will be posted, but will be marked as "non-compliant".</p>
         {{ rfc_formset.management_form }}
         {% for rfc in rfc_formset %}
         <tr class="{% cycle row_parity %} rfc_row">
-          <td class="iprlabel">RFC Name:<div><a id="rfc_add_link" href="javascript:void(0)">Add More</a></div></td>
+          <td class="iprlabel">RFC Name:{% if forloop.last %}<div><a id="rfc_add_link" href="javascript:void(0)">Add More</a></div>{% endif %}</td>
           <td class="iprdata">{{ rfc.id }}{{ rfc.document.errors }}{{ rfc.document }}</td><td colspan="2" class="mini">{{ rfc.sections.errors }}{{ rfc.sections }}<div>Sections</div></td>
         </tr>
-        {% comment %}{{ rfc.as_table }}{% endcomment %}
         {% endfor %}
         
         {{ draft_formset.management_form }}
         {% for draft in draft_formset %}
         <tr class="{% cycle row_parity %} draft_row">
-          <td class="iprlabel">I-D Filename:<div><a id="draft_add_link" href="javascript:void(0)">Add More</a></div></td>
+          <td class="iprlabel">I-D Filename:{% if forloop.last %}<div><a id="draft_add_link" href="javascript:void(0)">Add More</a></div>{% endif %}</td>
           <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td class="mini">{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td class="mini">{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
         </tr>
         {% endfor %}

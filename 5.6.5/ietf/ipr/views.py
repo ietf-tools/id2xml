@@ -195,12 +195,22 @@ def get_update_submitter_emails(ipr):
         messages.append(text)
     return messages
     
-def get_update_cc_addrs(ipr):
-    """Returns list of email addresses to use in CC: for an IPR update.  Logic is from
-    legacy tool."""
-    # TODO
-    emails = []
+def get_holders(ipr):
+    """Recursively function to follow chain of disclosure updates an return holder emails"""
+    items = []
+    for x in [ y.target for y in ipr.updates]:
+        items.extend(get_holders(x))
+    return [ipr.holder_contact_email] + items
     
+def get_update_cc_addrs(ipr):
+    """Returns list (as a string) of email addresses to use in CC: for an IPR update.
+    Logic is from legacy tool.  Append submitter or ietfer email of updated IPR,
+    append holder of updated IPR, follow chain of updates, appending holder emails"""
+    emails = []
+    if ipr.submitter_email:
+        emails.append(ipr.submitter_email)
+    elif hasattr(ipr,'ietfer_email') and ipr.ietfer_email:
+        emails.append(ipr.ietfer_email)
     
     return ','.join(list(set(emails)))
 
@@ -493,7 +503,6 @@ def edit(request, id, updates=None):
         'type':type},
         context_instance=RequestContext(request)
     )
-
 
 @role_required('Secretariat',)
 def email(request, id):

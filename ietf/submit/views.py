@@ -123,14 +123,12 @@ def search_submission(request):
 
 def can_edit_submission(user, submission, access_token):
     key_matched = access_token and submission.access_token() == access_token
-    if not key_matched: key_matched = submission.access_key == access_token # backwards-compat
     return key_matched or has_role(user, "Secretariat")
 
 def submission_status(request, submission_id, access_token=None):
     submission = get_object_or_404(Submission, pk=submission_id)
 
     key_matched = access_token and submission.access_token() == access_token
-    if not key_matched: key_matched = submission.access_key == access_token # backwards-compat
     if access_token and not key_matched:
         raise Http404
 
@@ -374,7 +372,6 @@ def confirm_submission(request, submission_id, auth_token):
     submission = get_object_or_404(Submission, pk=submission_id)
 
     key_matched = submission.auth_key and auth_token == generate_access_token(submission.auth_key)
-    if not key_matched: key_matched = auth_token == submission.auth_key # backwards-compat
 
     if request.method == 'POST' and submission.state_id in ("auth", "aut-appr") and key_matched:
         post_submission(request, submission)

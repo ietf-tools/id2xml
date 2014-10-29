@@ -14,7 +14,7 @@ from ietf.utils.test_data import make_test_data
 from ietf.utils.mail import outbox
 from ietf.utils.test_utils import TestCase
 from ietf.submit.utils import expirable_submissions, expire_submission, ensure_person_email_info_exists
-from ietf.person.models import Person, Email
+from ietf.person.models import Person
 from ietf.group.models import Group
 from ietf.doc.models import Document, DocAlias, DocEvent, State, BallotDocEvent, BallotPositionDocEvent, DocumentAuthor
 from ietf.submit.models import Submission, Preapproval

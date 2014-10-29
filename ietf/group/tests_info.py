@@ -1,7 +1,6 @@
 import os
 import shutil
 import calendar
-import json
 import datetime
 
 from pyquery import PyQuery

@@ -10,8 +10,6 @@ from django.db.models.query import EmptyQuerySet
 from django.forms import ValidationError
 from django.utils.html import strip_tags, escape
 
-from ietf.utils.mail import send_mail
-from ietf.utils import markup_txt
 from ietf.doc.models import Document, DocHistory, State
 from ietf.doc.models import DocAlias, RelatedDocument, BallotType, DocReminder
 from ietf.doc.models import DocEvent, BallotDocEvent, NewRevisionDocEvent, StateDocEvent
@@ -20,7 +18,7 @@ from ietf.name.models import DocReminderTypeName, DocRelationshipName
 from ietf.group.models import Role
 from ietf.person.models import Email
 from ietf.ietfauth.utils import has_role
-from ietf.utils import draft
+from ietf.utils import draft, markup_txt
 from ietf.utils.mail import send_mail
 
 #FIXME - it would be better if this lived in ietf/doc/mails.py, but there's

@@ -5,7 +5,7 @@ import calendar
 import json
 
 from django import forms
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseRedirect, Http404
+from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 

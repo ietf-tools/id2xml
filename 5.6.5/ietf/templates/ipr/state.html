@@ -2,15 +2,8 @@
 
 {% block title %}Change State of {{ ipr.title }}{% endblock %}
 
-{% block morecss %}
-form.add-comment #id_comment {
-  width: 600px;
-  height: 300px;
-}
-
-form.add-comment .actions {
-  padding-top: 20px;
-}
+{% block pagehead %}
+<link rel="stylesheet" type="text/css" href="/css/ipr.css"></link>
 {% endblock %}
 
 {% block content %}

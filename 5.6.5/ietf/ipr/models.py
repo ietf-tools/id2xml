@@ -245,6 +245,13 @@ class IprDisclosureBase(models.Model):
         """Returns the latest IprEvent of type msgout"""
         return self.latest_event(type='msgout')
         
+    def get_licensing_display(self):
+        """Returns full text licensing option"""
+        if hasattr(self, 'licensing'):
+            return LICENSE_MAPPING[self.licensing.slug]
+        else:
+            return ''
+            
     def has_legacy_event(self):
         """Returns True if there is one or more LegacyMigrationIprEvents
         for this disclosure"""

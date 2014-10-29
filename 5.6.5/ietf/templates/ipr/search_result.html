@@ -1,9 +1,7 @@
 {# Copyright The IETF Trust 2007, All Rights Reserved #}
 {% extends "base.html" %}
-{% block morecss %}
-form { clear:both; margin-top:1em;}
-label { float:left; width: 200px; }
-{% endblock %}
+{% load ietf_filters %}
+
 {% block doctype %}{% endblock %}
 {% block title %}IPR Search Result{% endblock %}
 
@@ -12,7 +10,6 @@ label { float:left; width: 200px; }
 {% endblock %}
 
 {% block content %}
-{% load ietf_filters %}
 
 {% include "ipr/search_form.html" %}
 <br>

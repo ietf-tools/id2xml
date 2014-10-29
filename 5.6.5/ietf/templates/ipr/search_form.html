@@ -2,8 +2,8 @@
 
 <h1>IPR Search</h1>
 <a href="{% url "ietf.ipr.views.showlist" %}">Back to IPR Disclosure Page</a>
-       
-<form>
+
+<form id="search-form">
 {% if user|has_role:"Secretariat" %}
 <h2>State Filter</h2>
 <div class="ietf-box search-form-box">

@@ -55,7 +55,6 @@ class AddEmailForm(forms.Form):
         return message
 
 class DraftForm(forms.ModelForm):
-    #document = forms.CharField(widget=forms.TextInput(attrs={'class': 'draft-autocomplete'}),required=False)  # override ModelChoiceField
     document = AutocompletedDraftField(required=False)
     
     class Meta:
@@ -64,23 +63,6 @@ class DraftForm(forms.ModelForm):
             'sections': forms.TextInput(),
         }
         help_texts = { 'sections': 'Sections' }
-    
-    """
-    def __init__(self, *args,**kwargs):
-        super(DraftForm, self).__init__(*args,**kwargs)
-        i = self.initial.get('document')
-        if i:
-            da = DocAlias.objects.get(pk=self.initial['document'])
-            self.initial['document'] = da.name
-    
-    def clean_document(self):
-        name = self.cleaned_data.get('document')
-        try:
-            alias = DocAlias.objects.get(name=name)
-        except:
-            raise forms.ValidationError('Invalid Document')
-        return alias
-    """
 
 class GenericDisclosureForm(forms.Form):
     """Custom ModelForm-like form to use for new Generic or NonDocSpecific Iprs.

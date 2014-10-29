@@ -26,9 +26,9 @@ from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     AddCommentForm, AddEmailForm, NotifyForm, StateForm, NonDocSpecificIprDisclosureForm,
     GenericIprDisclosureForm)
 from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
-    HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure, IprDocRel,
-    IprDocAlias, IprLicenseTypeName, SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,
-    IprEventTypeName, IprEvent)
+    HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure,
+    NonDocSpecificIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName,
+    SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,IprEventTypeName, IprEvent)
 #from ietf.ipr.related import related_docs
 from ietf.message.models import Message
 from ietf.message.utils import infer_message
@@ -196,28 +196,32 @@ def get_update_submitter_emails(ipr):
     return messages
     
 def get_holders(ipr):
-    """Recursively function to follow chain of disclosure updates an return holder emails"""
+    """Recursive function to follow chain of disclosure updates and return holder emails"""
     items = []
-    for x in [ y.target for y in ipr.updates]:
+    for x in [ y.target.get_child() for y in ipr.updates]:
         items.extend(get_holders(x))
     return [ipr.holder_contact_email] + items
     
 def get_update_cc_addrs(ipr):
     """Returns list (as a string) of email addresses to use in CC: for an IPR update.
-    Logic is from legacy tool.  Append submitter or ietfer email of updated IPR,
-    append holder of updated IPR, follow chain of updates, appending holder emails"""
+    Logic is from legacy tool.  Append submitter or ietfer email of first-order updated
+    IPR, append holder of updated IPR, follow chain of updates, appending holder emails
+    """
     emails = []
-    if ipr.submitter_email:
-        emails.append(ipr.submitter_email)
-    elif hasattr(ipr,'ietfer_email') and ipr.ietfer_email:
-        emails.append(ipr.ietfer_email)
+    if not ipr.updates:
+        return ''
+    for rel in ipr.updates:
+        if rel.target.submitter_email:
+            emails.append(rel.target.submitter_email)
+        elif hasattr(rel.target,'ietfer_email') and rel.target.ietfer_email:
+            emails.append(rel.target.ietfer_email)
+    emails = emails + get_holders(ipr)
     
     return ','.join(list(set(emails)))
 
 def get_wg_email_list(group):
-    '''This function takes a Working Group object and returns a string of comman separated email
-    addresses for the Area Directors and WG Chairs
-    '''
+    """Returns a string of comman separated email addresses for the Area Directors and WG Chairs
+    """
     result = []
     roles = itertools.chain(Role.objects.filter(group=group.parent,name='ad'),
                             Role.objects.filter(group=group,name='chair'))
@@ -627,7 +631,7 @@ def new(request, type, updates=None):
         else:
             valid_formsets = True
             
-        if form.is_valid() and valid_formsets: 
+        if form.is_valid() and valid_formsets:
             updates = form.cleaned_data.get('updates')
             disclosure = form.save(commit=False)
             disclosure.by = person
@@ -770,7 +774,7 @@ def showlist(request):
     generic = GenericIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     specific = HolderIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     thirdpty = ThirdPartyIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    nondocspecific = ThirdPartyIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    nondocspecific = NonDocSpecificIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     
     # combine nondocspecific with generic and re-sort
     generic = itertools.chain(generic,nondocspecific)

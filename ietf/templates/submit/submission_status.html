@@ -4,6 +4,11 @@
 
 {% block title %}Status of submission of {{ submission.name }}-{{ submission.rev }}{% endblock %}
 
+{% block pagehead %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/css/token-input.css"></link>
+{% endblock %}
+
 {% block submit_content %}
 
 {% if submission.state_id != "uploaded" %}
@@ -182,18 +187,17 @@
     <form method="post">{% csrf_token %}
       <table class="metadata-table">
         {% include "submit/submitter_form.html" %}
+        {% include "submit/replaces_form.html" %}
       </table>
 
       <input type="hidden" name="action" value="autopost" />
       <input type="submit" value="Post submission" />
       {% if requires_group_approval %}
         (Notifies group chairs to get approval)
+      {% elif requires_prev_authors_approval %}
+        (Notifies authors of previous draft revision to get approval)
       {% else %}
-        {% if requires_prev_authors_approval %}
-          (Notifies authors of previous revision of draft to get approval)
-        {% else %}
-          (Notifies submitter and authors for confirmation)
-        {% endif %}
+        (Notifies submitter and authors for confirmation)
       {% endif %}
     </form>
   {% endif %} 
@@ -205,6 +209,12 @@
       <tr><th>Name</th><td>{{ submission.submitter_parsed.name }}</td></tr>
       <tr><th>Email address</th><td>{{ submission.submitter_parsed.email }}</td></tr>
     </table> 
+  {% endif %} 
+  {% if submission.replaces %}
+    <h3>Replaced documents</h3>
+    <table class="metadata-table"> 
+      <tr><th>Replaces</th><td>{{ submission.replaces|split:","|join:", "|urlize_ietf_docs }}</td></tr>
+    </table>
   {% endif %} 
 {% endif %}
 
@@ -280,6 +290,9 @@
 {% endblock %}
 
 {% block js %}
+{{ block.super }}
+<script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="/js/tokenized-field.js"></script>
 <script type="text/javascript" src="/js/utils.js"></script>
 <script type="text/javascript" src="/js/draft-submit.js"></script>
 {% endblock %}

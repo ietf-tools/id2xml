@@ -75,6 +75,7 @@ urlpatterns = patterns('',
 
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/stream/$', views_draft.change_stream, name='doc_change_stream'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/replaces/$', views_draft.replaces, name='doc_change_replaces'),
+    url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/sug-repl/$', views_draft.review_suggested_replaces, name='doc_review_suggested_replaces'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/notify/$', views_draft.edit_notices, name='doc_change_notify'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/status/$', views_draft.change_intention, name='doc_change_intended_status'),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/edit/telechat/$', views_doc.telechat_date, name='doc_change_telechat_date'),

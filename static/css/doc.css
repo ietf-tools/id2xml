@@ -48,3 +48,5 @@ h4 { margin-bottom: 0; }
 h4 + p { margin-top: 0; max-width: 400px; }
 
 p.download-instead a { font-size: 20px; font-weight: bold; color: #2647a0; }
+
+.metabox .suggested-replaces { font-style: italic; }

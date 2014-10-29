@@ -4,6 +4,11 @@
 
 {% block title %}Adjust Meta-Data of Submitted {{ submission.name }}{% endblock %}
 
+{% block pagehead %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/css/token-input.css"></link>
+{% endblock %}
+
 {% block morecss %}
 {{ block.super }}
 table.metadata-table tr th { padding-right: 2em; }
@@ -64,6 +69,7 @@ div.manual-posting { margin-top: 2em; }
   {% endfor %}
 
   {% include "submit/submitter_form.html" %}
+  {% include "submit/replaces_form.html" %}
 
   {% with edit_form.note as field %}
   <tr{% if field.errors %} class="error"{% endif %}><th>{{ field.label_tag }}</th><td>{{ field }}{{ field.errors }}</td></tr>
@@ -109,6 +115,8 @@ div.manual-posting { margin-top: 2em; }
 
 {% block js %}
 {{ block.super }}
+<script type="text/javascript" src="/js/lib/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="/js/tokenized-field.js"></script>
 <script type="text/javascript" src="/js/utils.js"></script>
 <script type="text/javascript" src="/js/draft-submit.js"></script>
 {% endblock %}

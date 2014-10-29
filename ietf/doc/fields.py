@@ -7,9 +7,10 @@ from django.core.urlresolvers import reverse as urlreverse
 import debug                            # pyflakes:ignore
 
 from ietf.doc.models import Document, DocAlias
+from ietf.doc.utils import prettify_std_name
 
 def tokeninput_id_doc_name_json(objs):
-    return json.dumps([{ "id": o.pk, "name": escape(o.name) } for o in objs])
+    return json.dumps([{ "id": o.pk, "name": escape(prettify_std_name(o.name, spacing="")) } for o in objs])
 
 class AutocompletedDocumentsField(forms.CharField):
     """Tokenizing autocompleted multi-select field for choosing
@@ -46,7 +47,13 @@ class AutocompletedDocumentsField(forms.CharField):
             value = ""
         if isinstance(value, basestring):
             pks = self.parse_tokenized_value(value)
-            value = self.model.objects.filter(pk__in=pks, type=self.doc_type)
+            value = self.model.objects.filter(pk__in=pks)
+            filter_args = {}
+            if self.model == DocAlias:
+                filter_args["document__type"] = self.doc_type
+            else:
+                filter_args["type"] = self.doc_type
+            value = value.filter(**filter_args)
         if isinstance(value, self.model):
             value = [value]
 
@@ -77,7 +84,7 @@ class AutocompletedDocumentsField(forms.CharField):
 
         return objs
 
-class AutocompletedDocAliasField(AutocompletedDocumentsField):
+class AutocompletedDocAliasesField(AutocompletedDocumentsField):
     def __init__(self, model=DocAlias, *args, **kwargs):
-        super(AutocompletedDocAliasField, self).__init__(model=model, *args, **kwargs)
+        super(AutocompletedDocAliasesField, self).__init__(model=model, *args, **kwargs)
     

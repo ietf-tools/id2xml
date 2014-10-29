@@ -364,6 +364,7 @@ def document_main(request, name, rev=None):
 
                                        replaces=[d.name for d in doc.related_that_doc("replaces")],
                                        replaced_by=[d.name for d in doc.related_that("replaces")],
+                                       sug_replaces=[d.name for d in doc.related_that_doc("sug-repl")],
                                        updates=[prettify_std_name(d.name) for d in doc.related_that_doc("updates")],
                                        updated_by=[prettify_std_name(d.document.canonical_name()) for d in doc.related_that("updates")],
                                        obsoletes=[prettify_std_name(d.name) for d in doc.related_that_doc("obs")],

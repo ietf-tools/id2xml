@@ -294,6 +294,17 @@
  }
 },
 {
+ "pk": "sug-repl",
+ "model": "name.docrelationshipname", 
+ "fields": {
+  "order": 0, 
+  "revname": "Suggested Replaced by", 
+  "used": true, 
+  "name": "Suggested Replaces", 
+  "desc": ""
+ }
+},
+{
  "pk": "refunk", 
  "model": "name.docrelationshipname", 
  "fields": {

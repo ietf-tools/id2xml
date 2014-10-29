@@ -42,6 +42,13 @@
           </a>
         </div>
         {% endif %}
+        {% if sug_replaces %}
+          <div class="suggested-replaces">
+            <a{% if can_edit_stream_info %} class="editlink" href="{% url "doc_review_suggested_replaces" name=doc.name %}"{% endif %}>
+              Suggested replaces: {{ sug_replaces|join:", "|urlize_ietf_docs }}
+            </a>
+          </div>
+        {% endif %}
         {% if replaced_by %}<div>Replaced by: {{ replaced_by|join:", "|urlize_ietf_docs }}</div>{% endif %}
       </td>
     </tr>

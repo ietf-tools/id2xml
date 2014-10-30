@@ -66,7 +66,7 @@ class AutocompletedDocumentsField(forms.CharField):
             "model_name": self.model.__name__.lower()
         })
 
-        return ",".join(o.pk for o in value)
+        return ",".join(str(o.pk) for o in value)
 
     def clean(self, value):
         value = super(AutocompletedDocumentsField, self).clean(value)
@@ -77,7 +77,7 @@ class AutocompletedDocumentsField(forms.CharField):
         found_pks = [str(o.pk) for o in objs]
         failed_pks = [x for x in pks if x not in found_pks]
         if failed_pks:
-            raise forms.ValidationError(u"Could not recognize the following documents: {pks}. You can only input documents already registered in the Datatracker.".format(pks=", ".join(failed_pks)))
+            raise forms.ValidationError(u"Could not recognize the following documents: {pks}. You can only input documents already registered in the Datatracker.".format(pks=", ".join(str(pk) for pk in failed_pks)))
 
         if self.max_entries != None and len(objs) > self.max_entries:
             raise forms.ValidationError(u"You can select at most %s entries only." % self.max_entries)

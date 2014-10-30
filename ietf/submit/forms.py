@@ -222,7 +222,7 @@ class NameEmailForm(forms.Form):
         return line
 
 class ReplacesForm(forms.Form):
-    replaces = AutocompletedDocAliasesField(required=False, help_text="Drafts that this document replaces (approval required for replacing a draft you are not the author of)")
+    replaces = AutocompletedDocAliasesField(required=False, help_text="Any drafts that this document replaces (approval required for replacing a draft you are not the author of)")
 
 class EditSubmissionForm(forms.ModelForm):
     title = forms.CharField(required=True, max_length=255)

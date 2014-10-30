@@ -505,7 +505,7 @@ def set_replaces_for_document(request, doc, new_replaces, by, email_subject, ema
     e.save()
 
     # make sure there are no lingering suggestions duplicating new replacements
-    RelatedDocument.objects.filter(source=doc, target__in=new_replaces, relationship="sug-repl").delete()
+    RelatedDocument.objects.filter(source=doc, target__in=new_replaces, relationship="sug-replaces").delete()
 
     email_desc = e.desc.replace(", ", "\n    ")
 

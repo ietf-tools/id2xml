@@ -11,7 +11,7 @@ class Migration(DataMigration):
         )
 
     def backwards(self, orm):
-        orm.DocRelationshipName.objects.filter(slug="sug-repl").delete()
+        orm.DocRelationshipName.objects.filter(slug="sug-replaces").delete()
 
     models = {
         u'name.ballotpositionname': {

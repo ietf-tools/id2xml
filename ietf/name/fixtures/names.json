@@ -294,7 +294,7 @@
  }
 },
 {
- "pk": "sug-repl",
+ "pk": "sug-replaces",
  "model": "name.docrelationshipname", 
  "fields": {
   "order": 0, 

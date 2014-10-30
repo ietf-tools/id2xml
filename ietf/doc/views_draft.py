@@ -377,7 +377,7 @@ def review_suggested_replaces(request, name):
             or is_authorized_in_doc_stream(request.user, doc)):
         return HttpResponseForbidden("You do not have the necessary permissions to view this page")
 
-    suggested = list(doc.related_that_doc("sug-repl"))
+    suggested = list(doc.related_that_doc("sug-replaces"))
     if not suggested:
         raise Http404
 

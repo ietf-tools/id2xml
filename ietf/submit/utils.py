@@ -228,7 +228,7 @@ def update_replaces_from_submission(request, submission, draft):
 
     replaces = DocAlias.objects.filter(name__in=submission.replaces.split(",")).select_related("document", "document__group")
     existing_replaces = list(draft.related_that_doc("replaces"))
-    existing_suggested = set(draft.related_that_doc("sug-repl"))
+    existing_suggested = set(draft.related_that_doc("sug-replaces"))
 
     submitter_email = submission.submitter_parsed()["email"]
 
@@ -254,7 +254,7 @@ def update_replaces_from_submission(request, submission, draft):
 
 
     if suggested:
-        suggested_replaces = DocRelationshipName.objects.get(slug="sug-repl")
+        suggested_replaces = DocRelationshipName.objects.get(slug="sug-replaces")
         for r in suggested:
             RelatedDocument.objects.create(source=draft, target=r, relationship=suggested_replaces)
 

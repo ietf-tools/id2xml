@@ -1226,14 +1226,14 @@ class ChangeReplacesTests(TestCase):
         
         # Post that says replacea replaces base a
         RelatedDocument.objects.create(source=self.replacea, target=self.basea.docalias_set.first(),
-                                       relationship=DocRelationshipName.objects.get(slug="sug-repl"))
+                                       relationship=DocRelationshipName.objects.get(slug="sug-replaces"))
         self.assertEquals(self.basea.get_state().slug,'active')
         repljson='{"%d":"%s"}'%(DocAlias.objects.get(name=self.basea.name).id,self.basea.name)
         r = self.client.post(url, dict(replaces=repljson))
         self.assertEquals(r.status_code, 302)
         self.assertEqual(RelatedDocument.objects.filter(relationship__slug='replaces',source=self.replacea).count(),1) 
         self.assertEquals(Document.objects.get(name='draft-test-base-a').get_state().slug,'repl')
-        self.assertTrue(not RelatedDocument.objects.filter(relationship='sug-repl', source=self.replacea))
+        self.assertTrue(not RelatedDocument.objects.filter(relationship='sug-replaces', source=self.replacea))
 
         # Post that says replaceboth replaces both base a and base b
         url = urlreverse('doc_change_replaces', kwargs=dict(name=self.replaceboth.name))
@@ -1261,7 +1261,7 @@ class ChangeReplacesTests(TestCase):
     def test_review_suggested_replaces(self):
         replaced = self.basea.docalias_set.first()
         RelatedDocument.objects.create(source=self.replacea, target=replaced,
-                                       relationship=DocRelationshipName.objects.get(slug="sug-repl"))
+                                       relationship=DocRelationshipName.objects.get(slug="sug-replaces"))
 
         url = urlreverse('doc_review_suggested_replaces', kwargs=dict(name=self.replacea.name))
         login_testing_unauthorized(self, "secretary", url)
@@ -1273,6 +1273,6 @@ class ChangeReplacesTests(TestCase):
 
         r = self.client.post(url, dict(replaces=[replaced.pk]))
         self.assertEquals(r.status_code, 302)
-        self.assertTrue(not self.replacea.related_that_doc("sug-repl"))
+        self.assertTrue(not self.replacea.related_that_doc("sug-replaces"))
         self.assertEqual(len(self.replacea.related_that_doc("replaces")), 1)
         self.assertEquals(Document.objects.get(pk=self.basea.pk).get_state().slug, 'repl')

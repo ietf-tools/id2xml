@@ -504,6 +504,6 @@ def send_review_suggested_replaces_request(request, doc):
                   'Review of suggested replacements for %s-%s needed' % (doc.name, doc.rev),
                   'doc/mail/review_suggested_replaces_request.txt', {
                       'doc': doc,
-                      'suggested_replaces': doc.related_that_doc("sug-repl"),
+                      'suggested_replaces': doc.related_that_doc("sug-replaces"),
                       'review_url': settings.IDTRACKER_BASE_URL + urlreverse("doc_review_suggested_replaces", kwargs={ "name": doc.name }),
                   })

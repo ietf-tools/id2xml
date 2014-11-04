@@ -3916,5 +3916,185 @@
   "slug": "approve", 
   "order": 3
  }
+},
+{
+ "pk": "parked", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Parked", 
+  "desc": ""
+ }
+},
+{
+ "pk": "pending", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Pending", 
+  "desc": ""
+ }
+},
+{
+ "pk": "posted", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Posted", 
+  "desc": ""
+ }
+},
+{
+ "pk": "rejected", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Rejected", 
+  "desc": ""
+ }
+},
+{
+ "pk": "removed", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Removed", 
+  "desc": ""
+ }
+},
+{
+ "pk": "unknown", 
+ "model": "ipr.iprdisclosurestatename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Unknown", 
+  "desc": ""
+ }
+},
+{
+ "pk": "later", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 4, 
+  "used": true, 
+  "name": "Provided Later", 
+  "desc": "d) Licensing Declaration to be Provided Later (implies a willingness to commit to the provisions of a), b), or c) above to all implementers; otherwise, the next option 'Unwilling to Commit to the Provisions of a), b), or c) Above'. - must be selected)"
+ }
+},
+{
+ "pk": "no-licns", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 1, 
+  "used": true, 
+  "name": "No License", 
+  "desc": "a) No License Required for Implementers"
+ }
+},
+{
+ "pk": "noselect", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "None Selected", 
+  "desc": ""
+ }
+},
+{
+ "pk": "reason", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 3, 
+  "used": true, 
+  "name": "Reasonable", 
+  "desc": "c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee"
+ }
+},
+{
+ "pk": "royalty", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 2, 
+  "used": true, 
+  "name": "Royalty Free", 
+  "desc": "b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers"
+ }
+},
+{
+ "pk": "seebelow", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 6, 
+  "used": true, 
+  "name": "See Below", 
+  "desc": "f) See Text Below for Licensing Declaration"
+ }
+},
+{
+ "pk": "unwill", 
+ "model": "ipr.iprlicensetypename", 
+ "fields": {
+  "order": 5, 
+  "used": true, 
+  "name": "Unwilling to Commit", 
+  "desc": "e) Unwilling to Commit to the Provisions of a), b), or c) Above"
+ }
+},
+{
+ "pk": "comment", 
+ "model": "ipr.ipreventtypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Comment", 
+  "desc": ""
+ }
+},
+{
+ "pk": "disclose", 
+ "model": "ipr.ipreventtypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Disclosure", 
+  "desc": ""
+ }
+},
+{
+ "pk": "legacy", 
+ "model": "ipr.ipreventtypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "Legacy", 
+  "desc": ""
+ }
+},
+{
+ "pk": "msgin", 
+ "model": "ipr.ipreventtypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "MsgIn", 
+  "desc": ""
+ }
+},
+{
+ "pk": "msgout", 
+ "model": "ipr.ipreventtypename", 
+ "fields": {
+  "order": 0, 
+  "used": true, 
+  "name": "MsgOut", 
+  "desc": ""
+ }
 }
 ]

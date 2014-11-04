@@ -43,7 +43,10 @@
      of the original IPR disclosure.</p>
      {% endif %}
      
-     <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}<br>State: {{ ipr.state }}</strong></p>
+     <p><strong>Submitted Date: {{ ipr.submitted_date|date:"F j, Y" }}
+     {% if user|has_role:"Secretariat" %}<br>State: {{ ipr.state }}{% endif %}
+     </strong></p>
+     
      {% if user|has_role:"Secretariat" and ipr.update_notified_date %}
        <span class="alert">This update was notified to the submitter of the IPR that is being updated on: {{ ipr.update_notified_date|date:"Y-m-d" }}</span>
      {% endif %}
@@ -216,7 +219,7 @@
         </tr>
 
         <tr>
-         <td class="iprdata" colspan="2">{% if ipr.licensing.slug == "later" %}{{ ipr.licensing.desc|slice:"2:"|slice:":43" }}{% else %}{{ ipr.licensing.desc|slice:"2:" }}{% endif %}</td>
+         <td></td><td class="iprdata" colspan="2">{% if ipr.licensing.slug == "later" %}{{ ipr.licensing.desc|slice:"2:"|slice:":43" }}{% else %}{{ ipr.licensing.desc|slice:"2:" }}{% endif %}</td>
         </tr>
 
         </tbody>

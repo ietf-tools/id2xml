@@ -39,15 +39,16 @@ DRAFT_PATTERN = re.compile(r'draft-[a-zA-Z0-9\-]+')
 DRAFT_HAS_REVISION_PATTERN = re.compile(r'.*-[0-9]{2}')
 
 ContactFields = namedtuple('ContactFields',['name','info','email'])
+system = Person.objects.get(name="(System)")
 
 # ---------------------------
 # Setup States
 # ---------------------------
-pending_disclosure_state = name(IprDisclosureStateName, "pending", "Pending")
-parked_disclosure_state = name(IprDisclosureStateName, "parked", "Parked")
-posted_disclosure_state = name(IprDisclosureStateName, "posted", "Posted")
-rejected_disclosure_state = name(IprDisclosureStateName, "rejected", "Rejected")
-removed_disclosure_state = name(IprDisclosureStateName, "removed", "Removed")
+pending_disclosure_state = name(IprDisclosureStateName, "pending", "Pending",order=0)
+parked_disclosure_state = name(IprDisclosureStateName, "parked", "Parked",order=1)
+posted_disclosure_state = name(IprDisclosureStateName, "posted", "Posted",order=2)
+rejected_disclosure_state = name(IprDisclosureStateName, "rejected", "Rejected",order=3)
+removed_disclosure_state = name(IprDisclosureStateName, "removed", "Removed",order=4)
 #unknown_disclosure_state = name(IprDisclosureStateName, "unknown", "Unknown")
 
 no_license_license_info = name(IprLicenseTypeName, "no-licns", "No License", desc="a) No License Required for Implementers", order=1)
@@ -71,8 +72,6 @@ private_comment_event = name(IprEventTypeName, 'private_comment', "Private Comme
 legacy_event = name(IprEventTypeName, "legacy", "Legacy")
 update_notify = name(IprEventTypeName, "update_notify", "Update Notify")
 changed_disclosure = name(IprEventTypeName,"changed_disclosure", "Changed disclosure metadata")
-
-system = Person.objects.get(name="(System)")
 
 # ---------------------------
 # Mappings
@@ -139,7 +138,8 @@ def create_comment(old, new, url_field, title_field=None):
         data = get_url(url)
 
     # create event objects
-    desc = title_text + u"{}: {}\n\n{}".format(url_field,url,data)
+    #desc = title_text + u"{}: {}\n\n{}".format(url_field,url,data)
+    desc = title_text + u"From: {}\n\n{}".format(url,data)
     if url_field == 'legacy_url_0':
         klass = LegacyMigrationIprEvent
     else:
@@ -265,12 +265,12 @@ def handle_notification(rec):
         by = system,
         disclosure = disclosure,
         desc = 'Sent Message',
-        msg = message
+        message = message
     )
     # go back fix IprEvent.time
     time_string = rec.date_sent.strftime('%Y-%m-%d ') + rec.time_sent
     struct = strptime(time_string,'%Y-%m-%d %H:%M:%S')
-    event.time = datetime.fromtimestamp(mktime(struct))
+    event.time = datetime.date.fromtimestamp(mktime(struct))
     event.save()
     
 def handle_patent_info(old,new):
@@ -364,7 +364,8 @@ def main():
         if rec.third_party:
             klass = ThirdPartyIprDisclosure
         elif rec.generic:
-            if rec.patents and not rec.applies_to_all:
+            #if rec.patents and not rec.applies_to_all:
+            if rec.patents:
                 klass = NonDocSpecificIprDisclosure
             else:
                 klass = GenericIprDisclosure

@@ -1,4 +1,5 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
+import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -269,6 +270,15 @@ class IprDisclosureBase(models.Model):
         e = model.objects.filter(disclosure=self).filter(**filter_args).order_by('-time', '-id')[:1]
         return e[0] if e else None
 
+    def set_state(self, state):
+        """This just sets the state, doesn't log the change.  Takes a string"""
+        try:
+            statename = IprDisclosureStateName.objects.get(slug=state)
+        except IprDisclosureStateName.DoesNotExist:
+            return
+        self.state = statename
+        self.save()
+
     @property
     def updates(self):
         """Shortcut for disclosures this disclosure updates"""
@@ -377,13 +387,22 @@ class IprEvent(models.Model):
     by          = models.ForeignKey(Person)
     disclosure  = models.ForeignKey(IprDisclosureBase)
     desc        = models.TextField()
-    msg         = models.ForeignKey(Message, null=True, blank=True)
+    message     = models.ForeignKey(Message, null=True, blank=True,related_name='msgevents')
+    in_reply_to = models.ForeignKey(Message, null=True, blank=True,related_name='irtoevents')
     response_due= models.DateTimeField(blank=True,null=True)
 
     def __unicode__(self):
-        #return u"%s %s by %s at %s" % (self.disclosure.title, self.get_type_display().lower(), self.by.plain_name(), self.time)
         return u"%s %s by %s at %s" % (self.disclosure.title, self.type.name.lower(), self.by.plain_name(), self.time)
 
+    def response_past_due(self):
+        """Returns true if it's beyond the response_due date and not response has been
+        received"""
+        qs = IprEvent.objects.filter(disclosure=self.disclosure,in_reply_to=self.message)
+        if not qs and datetime.datetime.now().date() > self.response_due.date():
+            return True
+        else:
+            return False
+        
     class Meta:
         ordering = ['-time', '-id']
 

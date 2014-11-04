@@ -11,7 +11,7 @@ from ietf.ipr.models import IprDisclosureBase
 
 def tokeninput_id_name_json(objs):
     def format_ipr(x):
-        return escape(u"%s <%s>" % (x.title, x.pk))
+        return escape(u"%s <%s>" % (x.title, x.time.date().isoformat()))
     def format_doc(x):
         return escape(x.name)
 

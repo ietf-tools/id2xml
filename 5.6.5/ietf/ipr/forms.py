@@ -1,14 +1,18 @@
+import datetime
+from dateutil.tz import tzoffset
 import email
 import re
+import pytz
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
+#from crispy_forms.helper import FormHelper
+#from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
 
 from django import forms
 from django.forms.models import BaseInlineFormSet
 
 from ietf.doc.models import DocAlias
 from ietf.group.models import Group
+from ietf.ipr.mail import utc_from_string
 from ietf.ipr.fields import (AutocompletedIprDisclosuresField, AutocompletedDraftField,
     AutocompletedRfcField)
 from ietf.ipr.models import (IprDocRel, IprDisclosureBase, HolderIprDisclosure,
@@ -21,10 +25,10 @@ from ietf.message.models import Message
 # ----------------------------------------------------------------
 STATE_CHOICES = [ (x.slug, x.name) for x in IprDisclosureStateName.objects.all() ]
 STATE_CHOICES.insert(0,('all','All States'))
+
 # ----------------------------------------------------------------
 # Base Classes
 # ----------------------------------------------------------------
-
 class CustomModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return LICENSE_MAPPING[obj.pk]
@@ -33,6 +37,16 @@ class GroupModelChoiceField(forms.ModelChoiceField):
     '''Custom ModelChoiceField that displays group acronyms as choices.'''
     def label_from_instance(self, obj):
         return obj.acronym
+
+class MessageModelChoiceField(forms.ModelChoiceField):
+    '''Custom ModelChoiceField that displays messages.'''
+    def label_from_instance(self, obj):
+        date = obj.time.strftime("%Y-%m-%d")
+        if len(obj.subject) > 45:
+            subject = obj.subject[:43] + '....'
+        else:
+            subject = obj.subject
+        return '{} - {}'.format(date,subject)
 
 # ----------------------------------------------------------------
 # Forms
@@ -44,15 +58,43 @@ class AddCommentForm(forms.Form):
 class AddEmailForm(forms.Form):
     direction = forms.ChoiceField(choices=(("incoming", "Incoming"), ("outgoing", "Outgoing")),
         widget=forms.RadioSelect)
+    in_reply_to = MessageModelChoiceField(queryset=Message.objects,label="In Reply To",required=False)
     message = forms.CharField(required=True, widget=forms.Textarea)
 
+    def __init__(self, *args, **kwargs):
+        self.ipr = kwargs.pop('ipr', None)
+        super(AddEmailForm, self).__init__(*args, **kwargs)
+
+        if self.ipr:
+            self.fields['in_reply_to'].queryset = Message.objects.filter(msgevents__disclosure__id=self.ipr.pk)
+
     def clean_message(self):
+        '''Returns a ietf.message.models.Message object'''
         text = self.cleaned_data['message']
         message = email.message_from_string(text)
         for field in ('to','from','subject','date'):
             if not message[field]:
                 raise forms.ValidationError('Error parsing email: {} field not found.'.format(field))
+        date = utc_from_string(message['date'])
+        if not isinstance(date,datetime.datetime):
+            raise forms.ValidationError('Error parsing email date field')
         return message
+        
+    def clean(self):
+        if any(self.errors):
+            return self.cleaned_data
+        super(AddEmailForm, self).clean()
+        in_reply_to = self.cleaned_data['in_reply_to']
+        message = self.cleaned_data['message']
+        direction = self.cleaned_data['direction']
+        if in_reply_to:
+            if direction != 'incoming':
+                raise forms.ValidationError('Only incoming messages can have In Reply To selected')
+            date = utc_from_string(message['date'])
+            if date < in_reply_to.time:
+                raise forms.ValidationError('The incoming message must have a date later than the message it is replying to')
+        
+        return self.cleaned_data
 
 class DraftForm(forms.ModelForm):
     document = AutocompletedDraftField(required=False)
@@ -200,7 +242,6 @@ class NotifyForm(forms.Form):
     text = forms.CharField(widget=forms.Textarea)
     
 class RfcForm(DraftForm):
-    #document = forms.CharField(widget=forms.TextInput(attrs={'class': 'rfc-autocomplete'}),required=False)
     document = AutocompletedRfcField(required=False)
     
     class Meta(DraftForm.Meta):
@@ -242,55 +283,3 @@ class StateForm(forms.Form):
     state = forms.ModelChoiceField(queryset=IprDisclosureStateName.objects,label="New State",empty_label=None)
     private = forms.BooleanField(required=False,help_text="If this box is checked the comment will not appear in the disclosure's public history view.")
     comment = forms.CharField(required=False, widget=forms.Textarea)
-'''
-class SearchForm(forms.Form):
-    draft_name = forms.CharField(
-        label='I-D name (draft-...):',
-        required=False)
-    rfc_number = forms.IntegerField(
-        label='RFC Number:',
-        required=False)
-    holder_legal_name = forms.CharField(
-        label='Name of patent owner/applicant:',
-        required=False)
-    patent_info = forms.CharField(
-        label='Characters in patent information:',
-        required=False)
-    group = GroupModelChoiceField(
-        label='Working group:',
-        queryset=Group.objects.filter(type='wg',state='active').order_by('acronym'),
-        required=False)
-    document_title = forms.CharField(
-        label='Words in document title:',
-        required=False)
-    title = forms.CharField(
-        label='Words in IPR disclosure title:',
-        required=False)
-    
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset(
-                'Document Search',
-                'draft_name',
-                'rfc_number'
-            ),
-            Fieldset(
-                'Keyword Search',
-                'holder_legal_name',
-                'patent_info',
-                'group',
-                'document_title',
-                'title'
-            ),
-            ButtonHolder(
-                Submit('submit', 'Submit', css_class='button white')
-            )
-        )
-        #self.helper.form_id = 'id-exampleForm'
-        #self.helper.form_class = 'blueForms'
-        #self.helper.form_method = 'post'
-        #self.helper.form_action = 'submit_survey'
-        #self.helper.add_input(Submit('submit', 'Submit'))
-        super(SearchForm, self).__init__(*args, **kwargs)
-'''

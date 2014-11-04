@@ -23,7 +23,7 @@
       <td class="column-five">
         {% if ipr.get_latest_query.response_due %}
           {{ ipr.get_latest_query.response_due|date:"Y-m-d" }}
-          {% if ipr.get_latest_query.response_due|past_due %}
+          {% if ipr.get_latest_query.response_past_due %}
             <img src="/images/warning.png" title="Response overdue"/>
           {% endif %}
         {% endif %}

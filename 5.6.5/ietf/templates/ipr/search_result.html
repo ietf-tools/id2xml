@@ -26,6 +26,7 @@
           <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
           {% block iprlist %}
              {% for ipr in iprs %}
+             {% ifchanged %}<tr><td colspan="3"><h3>{{ ipr.state.name }}</h3></td></tr>{% endifchanged %}
              <tbody bgcolor="#{% cycle eeeeee,dddddd as bgcolor %}">
             <tr valign="top">
                <td colspan="3">

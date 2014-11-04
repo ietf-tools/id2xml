@@ -528,11 +528,6 @@ Cc: {}
 
 <pre>{}</pre>'''.format(msg.time,msg.frm,msg.to,msg.subject,msg.cc,msg.body)
     return mark_safe(text)
-    
-@register.filter
-def past_due(date):
-    "Returns true if today is after the date passed in.  Compares date only, not time"
-    return datetime.datetime.now().date() > date.date()
 
 # https://djangosnippets.org/snippets/134/
 class WordWrapNode(template.Node):

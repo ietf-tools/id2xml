@@ -1,11 +1,20 @@
 The Patent Holder states that its position with respect to licensing any patent claims contained in the patent(s) or patent application(s) disclosed above that would necessarily be infringed by implementation of the technology required by the relevant IETF specification ("Necessary Patent Claims"), for the purpose of implementing such specification, is as follows(select one licensing declaration option only):
 
-_{% if option == 1 %}X{% else %}_{% endif %}_ a) No License Required for Implementers.
-_{% if option == 2 %}X{% else %}_{% endif %}_ b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.
-_{% if option == 3 %}X{% else %}_{% endif %}_ c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.
-_{% if option == 4 %}X{% else %}_{% endif %}_ d) Licensing Declaration to be Provided Later (implies a willingness to commit to the provisions of a), b), or c) above to all implementers; otherwise, the next option "Unwilling to Commit to the Provisions of a), b), or c) Above" - must be selected)
-_{% if option == 5 %}X{% else %}_{% endif %}_ e) Unwilling to Commit to the Provisions of a), b), or c) Above
-_{% if option == 6 %}X{% else %}_{% endif %}_ f) See text box below for licensing declaration.
+{% if option == 1 %}
+  No License Required for Implementers.
+{% elif option == 2 %}
+  Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.
+{% elif option == 3 %}
+  Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.
+{% elif option == 4 %}
+  Licensing Declaration to be Provided Later (implies a willingness to commit to the provisions of a), b), or c) above to all implementers; otherwise, the next option "Unwilling to Commit to the Provisions of a), b), or c) Above" - must be selected)
+{% elif option == 5 %}
+  Unwilling to Commit to the Provisions of a), b), or c) Above
+{% elif option == 6 %}
+  See text box below for licensing declaration.
+{% else %}
+  None selected.
+{% endif %}
 
 Licensing information, comments, notes or URL for further information:
 {{ info }}

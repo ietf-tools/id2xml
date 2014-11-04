@@ -26,7 +26,7 @@
     <td class="date-column">{{ e.time|date:"Y-m-d" }}</td>
     <td>{{ e.type }}
         {% if e.response_due %}
-          {% if e.response_due|past_due %}
+          {% if e.response_past_due %}
             <img src="/images/warning.png" title="Response overdue"/>
           {% endif %}
         {% endif %}

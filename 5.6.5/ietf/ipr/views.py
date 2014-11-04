@@ -20,11 +20,12 @@ from django.template.loader import render_to_string
 from ietf.doc.models import DocAlias
 from ietf.group.models import Role
 from ietf.ietfauth.utils import role_required, has_role
+from ietf.ipr.mail import message_from_message
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
     AddCommentForm, AddEmailForm, NotifyForm, StateForm, NonDocSpecificIprDisclosureForm,
-    GenericIprDisclosureForm)
+    GenericIprDisclosureForm, utc_from_string)
 from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
     HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure,
     NonDocSpecificIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName,
@@ -361,21 +362,13 @@ def add_email(request, id):
         if button_text == 'Cancel':
             return redirect("ipr_history", id=ipr.id)
         
-        form = AddEmailForm(request.POST)
+        form = AddEmailForm(request.POST,ipr=ipr)
         if form.is_valid():
             message = form.cleaned_data['message']
+            in_reply_to = form.cleaned_data['in_reply_to']
             # create Message
-            msg = Message.objects.create(
-                by = request.user.person,
-                subject = message.get('subject',''),
-                frm = message.get('from',''),
-                to = message.get('to',''),
-                cc = message.get('cc',''),
-                bcc = message.get('bcc',''),
-                reply_to = message.get('reply_to',''),
-                body = message.get_payload(),
-            )
-
+            msg = message_from_message(message,request.user.person)
+            
             # create IprEvent
             if form.cleaned_data['direction'] == 'incoming':
                 type_id = 'msgin'
@@ -385,12 +378,13 @@ def add_email(request, id):
                 type_id = type_id,
                 by = request.user.person,
                 disclosure = ipr,
-                msg = msg,
+                message = msg,
+                in_reply_to = in_reply_to
             )
             messages.success(request, 'Email added.')
             return redirect("ipr_history", id=ipr.id)
     else:
-        form = AddEmailForm()
+        form = AddEmailForm(ipr=ipr)
         
     return render('ipr/add_email.html',dict(ipr=ipr,form=form),
         context_instance=RequestContext(request))
@@ -538,7 +532,7 @@ def email(request, id):
                 by = request.user.person,
                 disclosure = ipr,
                 response_due = form.cleaned_data['response_due'],
-                msg = msg,
+                message = msg,
             )
 
             # send email
@@ -710,7 +704,7 @@ def notify(request, id, type):
                     by = request.user.person,
                     disclosure = ipr,
                     response_due = datetime.datetime.now().date() + datetime.timedelta(days=30),
-                    msg = message,
+                    message = message,
                 )
             messages.success(request,'Notifications send')
             return redirect("ipr_show", id=ipr.id)
@@ -752,13 +746,17 @@ def post(request, id):
     return redirect("ipr_notify", id=ipr.id, type='posted')
     
 def show(request, id):
+    """View of individual declaration"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
-    if ipr.state.slug in ('removed','rejected') and not has_role(request.user, "Secretariat"):
-        return render("ipr/removed.html",  {
-            'ipr': ipr},
-            context_instance=RequestContext(request)
-        )
-        
+    if not has_role(request.user, 'Secretariat'):
+        if ipr.state.slug == 'removed':
+            return render("ipr/removed.html",  {
+                'ipr': ipr},
+                context_instance=RequestContext(request)
+            )
+        elif ipr.state.slug != 'posted':
+            raise Http404
+
     tabs = [('Disclosure','disclosure',urlreverse('ipr_show',kwargs={'id':id}),True),
             ('History','history',urlreverse('ipr_history',kwargs={'id':id}),True)]
 

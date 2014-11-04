@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
 
 from ietf.doc.models import DocAlias
-from ietf.ipr.models import IprDisclosureBase
+from ietf.ipr.models import IprDisclosureBase, IprDisclosureStateName
 from ietf.message.models import Message
 from ietf.utils.test_utils import TestCase
 from ietf.utils.test_data import make_test_data
@@ -29,13 +29,42 @@ class IprTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
 
-    def test_show(self):
+    def test_show_posted(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
 
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
+        
+    def test_show_parked(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        ipr.set_state('parked')
+        r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
+        self.assertEqual(r.status_code, 404)
+
+    def test_show_pending(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        ipr.set_state('pending')
+        r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
+        self.assertEqual(r.status_code, 404)
+        
+    def test_show_rejected(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        ipr.set_state('rejected')
+        r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
+        self.assertEqual(r.status_code, 404)
+        
+    def test_show_pending(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        ipr.set_state('removed')
+        r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue('This IPR disclosure was removed' in r.content)
         
     def test_iprs_for_drafts(self):
         draft = make_test_data()

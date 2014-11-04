@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response as render
 from django.template import RequestContext
 from django.conf import settings
 
+from ietf.ietfauth.utils import has_role
 from ietf.ipr.forms import SearchForm
 from ietf.ipr.models import IprDocRel, IprDisclosureBase, IprDisclosureStateName
 from ietf.ipr.related import related_docs
@@ -38,7 +39,6 @@ def iprs_from_docs(docs,states):
 def search(request):
     search_type = request.GET.get("submit")
     if search_type:
-        #assert False, (request.GET, request.GET.get(search_type))
         form = SearchForm(request.GET)
         docid = request.GET.get("id") or request.GET.get("id_document_tag") or ""
         docs = doc = None
@@ -138,7 +138,12 @@ def search(request):
                 
             # sort and render response
             iprs = [ ipr for ipr in iprs if not ipr.updated_by.all() ]
-            iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
+            if has_role(request.user, "Secretariat"):
+                iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
+                iprs = sorted(iprs, key=lambda x: x.state.order)
+            else:
+                iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
+            
             
             return render(template, {
                 "q": q,

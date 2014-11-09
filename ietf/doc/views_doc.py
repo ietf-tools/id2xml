@@ -30,9 +30,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from django.contrib import messages
 import os, datetime, urllib, json, glob
-
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponse, Http404
+from django.core.validators import validate_email, ValidationError
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -40,6 +43,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse as urlreverse
 from django.conf import settings
 from django import forms
+
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.encoding import force_text
+from django.utils.ipv6 import is_valid_ipv6_address
+from django.utils import six
+from django.utils.six.moves.urllib.parse import urlsplit, urlunsplit
 
 import debug                            # pyflakes:ignore
 
@@ -911,12 +921,26 @@ def edit_notify(request, name):
     doc = get_object_or_404(Document, name=name)
     init = { "notify" : doc.notify }
 
+
     if request.method == 'POST':
 
         if "save_addresses" in request.POST:
             form = NotifyForm(request.POST)
             if form.is_valid():
                 new_notify = form.cleaned_data['notify']
+             
+                for new_notify_item in set(new_notify.split(', ')):
+                   
+                    if new_notify_item: 
+                        try:
+                            validate_email(new_notify_item)
+                        except ValidationError:
+                            print new_notify_item
+                            new_notify_item = ""
+                            messages.error(request, 'Invalide email address! Please input a valid email address.')
+
+                        #raise ValidationError(_('Enter a valid IPv6 address.'), code='invalid')
+
                 if set(new_notify.split(',')) != set(doc.notify.split(',')):
                     e = make_notify_changed_event(request, doc, login, new_notify)
                     doc.notify = new_notify

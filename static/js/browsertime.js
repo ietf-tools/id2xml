@@ -32,6 +32,7 @@ jQuery(function($) {
 
 	    // to fill in the blank left from the text (will be wrong a year after the event):
 	    var thisyear = (new Date).getFullYear();
+            var savetheday;
 	    $(".timecolumn").each (
 		function() {
 		    var deco = $(this).find(".ietf-tiny"); // brittle...
@@ -41,6 +42,7 @@ jQuery(function($) {
 			if (mdday && mdfine) {
 			    var month = mdday[1];
 			    var daystr = mdday[2]
+                            savetheday = [thisyear, months[month], +daystr];
 			    var date1 = new Date(Date.UTC(thisyear, months[month], +daystr,
 							  +mdfine[1], +mdfine[2], 0, 0));
 			    var time1 = timehhmm(date1);
@@ -61,6 +63,32 @@ jQuery(function($) {
 	    $("#displayinbrowsertime")
 		.attr("disabled", "disabled") // FIX THIS to true for jQuery 1.6+
 		.val("Shown in Browser time");
+            if (frames[0]) {
+                //  (1900Z-2130Z)
+	        var timere2 = new RegExp("(\\d\\d)(\\d\\d)Z-(\\d\\d)(\\d\\d)Z");
+                // this breaks when the meeting is across a DST change
+                ($('div.utcfix', frames[0].document)).each ( function() {
+                    // console.log(this);
+                    $(this).contents().filter(function() {
+                        return this.nodeType === 3;
+                    }).each( function () {
+                        text = this.data;
+                        mdfine = timere2.exec(text);
+                        // console.log(mdfine);
+                        if (mdfine) {
+			    var date1 = new Date(Date.UTC(savetheday[0], savetheday[1], savetheday[2],
+						          +mdfine[1], +mdfine[2], 0, 0));
+			    var time1 = timehhmm(date1);
+			    var date2 = new Date(Date.UTC(savetheday[0], savetheday[1], savetheday[2],
+						          +mdfine[3], +mdfine[4], 0, 0));
+			    var time2 = timehhmm(date2);
+                            this.data = text.replace(timere2, time1 + "\u2013" + time2);
+                        }
+                        // console.log(this);
+                    });
+                    // console.log(this);
+                })
+            }
 	}
     );
 });

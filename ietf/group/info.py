@@ -37,6 +37,8 @@ import itertools
 from tempfile import mkstemp
 from collections import OrderedDict
 
+from django.core.exceptions import ObjectDoesNotExist
+from ietf.community.models import CommunityList
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -376,14 +378,35 @@ def group_documents(request, acronym, group_type=None):
 
     docs, meta, docs_related, meta_related = search_for_group_documents(group)
 
+    have_doc_status = { }
+    doc_is_tracked = { }
+    if request.user.is_authenticated():
+        try:
+            clist = CommunityList.objects.get(user=request.user)
+            clist.update()
+        except ObjectDoesNotExist:
+            pass
+        for doc in docs:
+            if clist.get_documents().filter(name=doc.name).count() > 0:
+                doc_is_tracked[doc.name] = True
+            have_doc_status[doc.name] = True
+
+        for doc_related in docs_related:
+            if clist.get_documents().filter(name=doc_related.name).count() > 0:
+                doc_is_tracked[doc_related.name] = True
+            have_doc_status[doc_related.name] = True
+
     context = construct_group_menu_context(request, group, "documents", group_type, {
                 'docs': docs,
                 'meta': meta,
                 'docs_related': docs_related,
-                'meta_related': meta_related
+                'meta_related': meta_related,
+                'have_doc_status':have_doc_status, 
+                'doc_is_tracked':doc_is_tracked
                 })
 
     return render(request, 'group/group_documents.html', context)
+
 
 def group_documents_txt(request, acronym, group_type=None):
     """Return tabulator-separated rows with documents for group."""

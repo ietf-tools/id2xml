@@ -92,3 +92,10 @@ jQuery(function($) {
 	}
     );
 });
+
+// BUG: unfortunately, weekview.js undoes the browsertime changes in
+// the weekview frame as soon as the window is resized.  More
+// unfortunately, the changes that browsertime performs in the text
+// may trigger a resize event for the iframe, so the changes may
+// actually never become visible.  But this is as far as I got in this
+// sprint.

@@ -1,16 +1,16 @@
+import base64
 import email
 import datetime
 from dateutil.tz import tzoffset
+import os
 import pytz
 import re
-from ietf.utils.log import log
+from django.conf import settings
+from ietf.ipr.models import IprEvent
 from ietf.message.models import Message
 from ietf.person.models import Person
+from ietf.utils.log import log
 
-# ----------------------------------------------------------------
-# Globals
-# ----------------------------------------------------------------
-response_pattern = re.compile(r'ietf-ipr\+([^@]+)@ietf.org')
 # ----------------------------------------------------------------
 # Date Functions
 # ----------------------------------------------------------------
@@ -60,8 +60,19 @@ def utc_from_string(s):
 # ----------------------------------------------------------------
 # Email Functions
 # ----------------------------------------------------------------
-
-def message_from_message(message,by=None,save=True):
+def get_reply_to():
+    """Returns a new reply-to address for use with an outgoing message.  This is an
+    address with "plus addressing" using a random string."""
+    local,domain = settings.IPR_EMAIL_TO.split('@')
+    while True:
+        rand = base64.urlsafe_b64encode(os.urandom(12))
+        address = "{}+{}@{}".format(local,rand,domain)
+        q = Message.objects.filter(reply_to=address)
+        if not q:
+            break
+    return address
+    
+def message_from_message(message,by=None):
     """Returns a ietf.message.models.Message.  msg=email.Message"""
     if not by:
         by = Person.objects.get(name="(System)")
@@ -76,39 +87,36 @@ def message_from_message(message,by=None,save=True):
         body = get_body(message),
         time = utc_from_string(message['date'])
     )
-    if save:
-        msg.save()
     return msg
-    
-def message_from_string(s,save=True):
-    """Returns ietf.message.models.Message. s=string"""
-    message = email.message_from_string(s)
-    return message_from_message(message,save=save)
-    
-def create_response_email(msg):
-    """Saves an incoming message.  msg=string"""
-    message = email.message.from_string(msg)
+
+def process_response_email(msg):
+    """Saves an incoming message.  msg=string.  Message "To" field is expected to
+    be in the format ietf-ipr+[identifier]@ietf.org.  Expect to find a message with
+    a matching value in the reply_to field, associated to an IPR disclosure through
+    IprEvent.  Create a Message object for the incoming message and associate it to
+    the original message via new IprEvent"""
+    message = email.message_from_string(msg)
     to = message.get('To')
-    match = response_pattern.match(to)
-    if not match:
-        log('Error parsing response digest ({})'.format(to))
-        return
-    else:
-        digest = match.groups()[0]
-        
+
     try:
-        event = IprEvent.objects.get(response_digest=digest)
+        to_message = Message.objects.get(reply_to=to)
     except IprEvent.DoesNotExist:
-        log('Error finding referenced message ({})'.format(to))
+        log('Error finding matching message ({})'.format(to))
         return
-    
-    messasge = message_from_string(msg)
+
+    try:
+        disclosure = to_message.msgevents.first().disclosure
+    except:
+        log('Error processing message ({})'.format(to))
+        return
+
+    ietf_message = message_from_message(message)
     IprEvent.objects.create(
-        type_id = 'incoming',
+        type_id = 'msgin',
         by = Person.objects.get(name="(System)"),
-        disclosure = event.disclosure,
-        message = event.message,
-        in_reply_to = message
+        disclosure = disclosure,
+        message = ietf_message,
+        in_reply_to = to_message
     )
     
-    return message
+    return ietf_message

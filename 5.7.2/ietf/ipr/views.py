@@ -20,7 +20,7 @@ from django.template.loader import render_to_string
 from ietf.doc.models import DocAlias
 from ietf.group.models import Role
 from ietf.ietfauth.utils import role_required, has_role
-from ietf.ipr.mail import message_from_message
+from ietf.ipr.mail import message_from_message, get_reply_to
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
@@ -202,7 +202,7 @@ def get_holders(ipr):
     for x in [ y.target.get_child() for y in ipr.updates]:
         items.extend(get_holders(x))
     return [ipr.holder_contact_email] + items
-    
+
 def get_update_cc_addrs(ipr):
     """Returns list (as a string) of email addresses to use in CC: for an IPR update.
     Logic is from legacy tool.  Append submitter or ietfer email of first-order updated
@@ -542,11 +542,7 @@ def email(request, id):
             return redirect('ipr_show', id=ipr.id)
     
     else:
-        # TODO make helper for this
-        parts = settings.IPR_EMAIL_TO.split('@')
-        sha = hashlib.sha1(str(ipr.pk))
-        digest = base64.urlsafe_b64encode(sha.digest())
-        reply_to = parts[0] + "+{}@".format(digest) + parts[1]
+        reply_to = get_reply_to()
         initial = { 
             'to': ipr.submitter_email,
             'frm': settings.IPR_EMAIL_TO,

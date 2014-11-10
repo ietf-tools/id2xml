@@ -20,16 +20,16 @@ LICENSE_CHOICES = (
 )
 
 LICENSE_MAPPING = {
-    'noselect':'None Selected',
-    'no-licns':'a) No License Required for Implementers.',
-    'royalty':'b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.',
-    'reason':'c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.',
-    'later':"""d) Licensing Declaration to be Provided Later (implies a willingness
+    'none-selected':'None Selected',
+    'no-license':'a) No License Required for Implementers.',
+    'royalty-free':'b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.',
+    'reasonable':'c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.',
+    'provided-later':"""d) Licensing Declaration to be Provided Later (implies a willingness
 to commit to the provisions of a), b), or c) above to all implementers;
 otherwise, the next option "Unwilling to Commit to the Provisions of
  a), b), or c) Above". - must be selected).""",
-    'unwill':'e) Unwilling to Commit to the Provisions of a), b), or c) Above.',
-    'seebelow':'f) See Text Below for Licensing Declaration.'
+    'unwilling-to-commit':'e) Unwilling to Commit to the Provisions of a), b), or c) Above.',
+    'see-below':'f) See Text Below for Licensing Declaration.'
 }
 
 STDONLY_CHOICES = (
@@ -188,26 +188,10 @@ class IprDocAlias(models.Model):
 # ===================================
 
 from ietf.doc.models import Document
-from ietf.name.models import DocRelationshipName
+from ietf.name.models import DocRelationshipName,IprDisclosureStateName,IprLicenseTypeName,IprEventTypeName
 from ietf.person.models import Person
-from ietf.name.models import NameModel
 from ietf.message.models import Message
 
-class IprDisclosureStateName(NameModel):
-    """Pending, Parked, Posted, Rejected, Removed"""
-class IprLicenseTypeName(NameModel):
-    """choices a-f from the current form made admin maintainable"""
-class IprEventTypeName(NameModel):
-    """
-    comment: a public comment
-    legacy: data from legacy models
-    msgin: an incoming email
-    msgout: an outgoing email
-    submitted: disclosure submission
-    posted: disclosure posted
-    update_notify: notification sent to original disclosure submitter
-    """
-    
 class IprDisclosureBase(models.Model):
     by                  = models.ForeignKey(Person) # who was logged in, or System if nobody was logged in
     compliant           = models.BooleanField(default=True) # complies to RFC3979

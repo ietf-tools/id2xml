@@ -242,7 +242,7 @@ def make_test_data():
         holder_contact_name='George',
         holder_contact_email='george@acme.com',
         holder_contact_info='14 Main Street\nEarth',
-        licensing=IprLicenseTypeName.objects.get(slug='royalty'),
+        licensing=IprLicenseTypeName.objects.get(slug='royalty-free'),
         submitter_name='George',
         submitter_email='george@acme.com',
         )

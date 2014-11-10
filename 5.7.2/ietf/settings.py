@@ -168,7 +168,6 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'ietf.secr.middleware.dbquery.QueryCountDebugMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -248,7 +247,6 @@ INSTALLED_APPS = (
     'ietf.secr.sreq',
     'ietf.nomcom',
     'ietf.dbtemplate',
-    'crispy_forms',
 )
 
 INTERNAL_IPS = (

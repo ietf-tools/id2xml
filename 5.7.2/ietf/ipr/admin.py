@@ -68,5 +68,5 @@ class IprEventAdmin(admin.ModelAdmin):
     list_display = ["disclosure", "type", "by", "time"]
     list_filter = ["time", "type"]
     search_fields = ["disclosure__title", "by__name"]
-    raw_id_fields = ["disclosure", "by", "msg"]
+    raw_id_fields = ["disclosure", "by", "message", "in_reply_to"]
 admin.site.register(IprEvent, IprEventAdmin)

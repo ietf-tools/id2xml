@@ -27,7 +27,7 @@ from ietf.ipr.models import *
 from ietf.message.models import Message
 from ietf.name.models import DocRelationshipName
 from ietf.name.utils import name
-from ietf.person.models import Email
+#from ietf.person.models import Email
 
 # ---------------------------
 # Globals
@@ -51,13 +51,13 @@ rejected_disclosure_state = name(IprDisclosureStateName, "rejected", "Rejected",
 removed_disclosure_state = name(IprDisclosureStateName, "removed", "Removed",order=4)
 #unknown_disclosure_state = name(IprDisclosureStateName, "unknown", "Unknown")
 
-no_license_license_info = name(IprLicenseTypeName, "no-licns", "No License", desc="a) No License Required for Implementers", order=1)
-royalty_free_license_info = name(IprLicenseTypeName,"royalty", "Royalty Free", desc="b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers", order=2)
-reasonable_license_info = name(IprLicenseTypeName,"reason", "Reasonable", desc="c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee", order=3)
-provided_later_license_info = name(IprLicenseTypeName,"later", "Provided Later", desc="d) Licensing Declaration to be Provided Later (implies a willingness to commit to the provisions of a), b), or c) above to all implementers; otherwise, the next option 'Unwilling to Commit to the Provisions of a), b), or c) Above'. - must be selected)", order=4)
-unwilling_to_commit_license_info = name(IprLicenseTypeName,"unwill", "Unwilling to Commit", desc="e) Unwilling to Commit to the Provisions of a), b), or c) Above", order=5)
-see_below_license_info = name(IprLicenseTypeName,"seebelow", "See Below", desc="f) See Text Below for Licensing Declaration", order=6)
-none_selected_license_info = name(IprLicenseTypeName,"noselect", "None Selected")
+no_license_license_info = name(IprLicenseTypeName, "no-license", "No License", desc="a) No License Required for Implementers", order=1)
+royalty_free_license_info = name(IprLicenseTypeName,"royalty-free", "Royalty Free", desc="b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers", order=2)
+reasonable_license_info = name(IprLicenseTypeName,"reasonable", "Reasonable", desc="c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee", order=3)
+provided_later_license_info = name(IprLicenseTypeName,"provided-later", "Provided Later", desc="d) Licensing Declaration to be Provided Later (implies a willingness to commit to the provisions of a), b), or c) above to all implementers; otherwise, the next option 'Unwilling to Commit to the Provisions of a), b), or c) Above'. - must be selected)", order=4)
+unwilling_to_commit_license_info = name(IprLicenseTypeName,"unwilling-to-commit", "Unwilling to Commit", desc="e) Unwilling to Commit to the Provisions of a), b), or c) Above", order=5)
+see_below_license_info = name(IprLicenseTypeName,"see-below", "See Below", desc="f) See Text Below for Licensing Declaration", order=6)
+none_selected_license_info = name(IprLicenseTypeName,"none-selected", "None Selected")
 
 submitted_event = name(IprEventTypeName, "submitted", "Submitted")
 posted_event = name(IprEventTypeName, "posted", "Posted")

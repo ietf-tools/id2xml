@@ -520,7 +520,17 @@ def first_type(queryset, type):
 
 @register.filter
 def format_message(msg):
-    text = '''Date: {}
+    """Format message for display in history.  Hide 'To' line for incoming responses
+    """
+    if msg.to.startswith('ietf-ipr+'):
+        text = '''Date: {}
+From: {}
+Subject: {}
+Cc: {}
+
+<pre>{}</pre>'''.format(msg.time,msg.frm,msg.subject,msg.cc,msg.body)
+    else:
+        text = '''Date: {}
 From: {}
 To: {}
 Subject: {}

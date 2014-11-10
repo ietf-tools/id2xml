@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 import urllib
@@ -8,6 +9,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
 
 from ietf.doc.models import DocAlias
+from ietf.ipr.mail import process_response_email, get_reply_to
 from ietf.ipr.models import IprDisclosureBase, IprDisclosureStateName
 from ietf.message.models import Message
 from ietf.utils.test_utils import TestCase
@@ -216,7 +218,7 @@ class IprTests(TestCase):
             "draft-0-revisions": '00',
             "patent_info": "none",
             "has_patent_pending": False,
-            "licensing": "royalty",
+            "licensing": "royalty-free",
             "submitter_name": "Test Holder",
             "submitter_email": "test@holder.com",
             })
@@ -252,7 +254,7 @@ class IprTests(TestCase):
             "draft-0-revisions": '00',
             "patent_info": "none",
             "has_patent_pending": False,
-            "licensing": "royalty",
+            "licensing": "royalty-free",
             "submitter_name": "Test Holder",
             "submitter_email": "test@holder.com",
             })
@@ -290,7 +292,7 @@ class IprTests(TestCase):
             "draft-0-revisions": '00',
             "patent_info": "none",
             "has_patent_pending": False,
-            "licensing": "royalty",
+            "licensing": "royalty-free",
             "submitter_name": "Test Holder",
             "submitter_email": "test@holder.com",
             })
@@ -349,7 +351,7 @@ Hello,
 I would like to revoke this declaration.
 """})
         msg = Message.objects.get(frm='test@acme.com')
-        qs = ipr.iprevent_set.filter(type='msgin',msg=msg)
+        qs = ipr.iprevent_set.filter(type='msgin',message=msg)
         self.assertTrue(qs.count(),1)
         
     def test_admin_pending(self):
@@ -402,4 +404,34 @@ I would like to revoke this declaration.
         self.assertEqual(r.status_code,200)
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         self.assertEqual(ipr.state.slug,'posted')
-    
+
+    def test_process_response_email(self):
+        # first send a mail
+        draft = make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        url = urlreverse("ipr_email",kwargs={ "id": ipr.id })
+        self.client.login(username="secretary", password="secretary+password")
+        yesterday = datetime.date.today() - datetime.timedelta(1)
+        data = dict(
+            to='joe@test.com',
+            frm='ietf-ipr@ietf.org',
+            subject='test',
+            reply_to=get_reply_to(),
+            body='Testing.',
+            response_due=yesterday.isoformat())
+        r = self.client.post(url,data,follow=True)
+        #print r.content
+        self.assertEqual(r.status_code,200)
+        q = Message.objects.filter(reply_to=data['reply_to'])
+        self.assertEqual(q.count(),1)
+        event = q[0].msgevents.first()
+        self.assertEqual(event.response_past_due(),True)
+        
+        # process response
+        message_string = """To: {}
+From: joe@test.com
+Date: {}
+Subject: test
+""".format(data['reply_to'],datetime.datetime.now().ctime())
+        message = process_response_email(message_string)
+        

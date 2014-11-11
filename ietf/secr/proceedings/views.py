@@ -8,6 +8,7 @@ import debug                            # pyflakes:ignore
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Max
@@ -330,6 +331,7 @@ def build(request,meeting_num,acronym):
     url = reverse('proceedings_upload_unified', kwargs={'meeting_num':meeting_num,'acronym':acronym})
     return HttpResponseRedirect(url)
 
+@login_required
 @check_permissions
 def delete_material(request,slide_id):
     '''
@@ -394,6 +396,7 @@ def delete_interim_meeting(request, meeting_num):
     url = reverse('proceedings_interim', kwargs={'acronym':group.acronym})
     return HttpResponseRedirect(url)
 
+@login_required
 @check_permissions
 def edit_slide(request, slide_id):
     '''
@@ -528,6 +531,7 @@ def main(request):
         RequestContext(request,{}),
     )
 
+@login_required
 @check_permissions
 def move_slide(request, slide_id, direction):
     '''
@@ -670,6 +674,7 @@ def recording_edit(request, meeting_num, name):
         RequestContext(request, {}),
     )
     
+@login_required
 @check_permissions
 def replace_slide(request, slide_id):
     '''
@@ -848,6 +853,7 @@ def select_interim(request):
         RequestContext(request,{}),
     )
 
+@login_required
 @check_permissions
 def upload_unified(request, meeting_num, acronym=None, session_id=None):
     '''

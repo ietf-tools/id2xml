@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -163,6 +164,7 @@ def session_conflicts_as_string(group, meeting):
 # -------------------------------------------------
 # View Functions
 # -------------------------------------------------
+@login_required
 @check_permissions
 def approve(request, acronym):
     '''
@@ -183,6 +185,7 @@ def approve(request, acronym):
         messages.error(request, 'Not authorized to approve the third session')
         return redirect('sessions_view', acronym=acronym)
 
+@login_required
 @check_permissions
 def cancel(request, acronym):
     '''
@@ -328,6 +331,7 @@ def session_save(session):
         # send an email to iesg-secretariat to alert to change
         pass
 
+@login_required
 @check_permissions
 def edit_mtg(request, num, acronym):
     '''
@@ -530,6 +534,7 @@ def main(request):
         RequestContext(request, {}),
     )
 
+@login_required
 @check_permissions
 def new(request, acronym):
     '''
@@ -591,6 +596,7 @@ def new(request, acronym):
         RequestContext(request, {}),
     )
 
+@login_required
 @check_permissions
 def no_session(request, acronym):
     '''

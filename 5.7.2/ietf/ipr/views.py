@@ -1,10 +1,7 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-import base64
 import datetime
-import hashlib
 import itertools
-import os
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,7 +9,7 @@ from django.core.urlresolvers import reverse as urlreverse
 from django.db.models import Q
 from django.forms.models import inlineformset_factory
 from django.forms.formsets import formset_factory
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response as render, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -25,19 +22,18 @@ from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
     AddCommentForm, AddEmailForm, NotifyForm, StateForm, NonDocSpecificIprDisclosureForm,
-    GenericIprDisclosureForm, utc_from_string)
+    GenericIprDisclosureForm)
 from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
     HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure,
-    NonDocSpecificIprDisclosure, IprDocRel, IprDocAlias, IprLicenseTypeName,
-    SELECT_CHOICES, LICENSE_CHOICES, RelatedIpr,IprEventTypeName, IprEvent)
-#from ietf.ipr.related import related_docs
+    NonDocSpecificIprDisclosure, IprDocRel,
+    RelatedIpr,IprEvent)
+from ietf.ipr.utils import iprs_from_docs, related_docs
 from ietf.message.models import Message
 from ietf.message.utils import infer_message
-from ietf.name.models import DocRelationshipName
 from ietf.person.models import Person
 from ietf.secr.utils.document import get_rfc_num, is_draft
 from ietf.utils.draft_search import normalize_draftname
-from ietf.utils.mail import send_mail_text, send_mail, send_mail_message
+from ietf.utils.mail import send_mail, send_mail_message
 
 # ----------------------------------------------------------------
 # Globals
@@ -190,8 +186,7 @@ def get_update_submitter_emails(ipr):
             to_name=email_to_name[email],
             iprs=email_to_iprs[email],
             new_ipr=ipr,
-            # TODO: implement reply_to
-            reply_to='ietf-ipr+test@ietf.org')
+            reply_to=get_reply_to())
         text = render_to_string('ipr/update_submitter_email.txt',context)
         messages.append(text)
     return messages
@@ -233,22 +228,7 @@ def get_wg_email_list(group):
         result.append(group.list_email)
 
     return ', '.join(result)
-    
-def related_docs(alias):
-    """Returns list of related documents"""
-    results = list(alias.document.docalias_set.all())
-    
-    rels = alias.document.all_relations_that_doc(['replaces','obs'])
 
-    for rel in rels:
-        rel_aliases = list(rel.target.document.docalias_set.all())
-        
-        for x in rel_aliases:
-            x.related = rel
-            x.relation = rel.relationship.revname
-        results += rel_aliases 
-    return list(set(results))
-    
 def set_disclosure_title(disclosure):
     """Set the title of the disclosure"""
 
@@ -355,7 +335,6 @@ def add_comment(request, id):
 def add_email(request, id):
     """Add email to disclosure history"""
     ipr = get_object_or_404(IprDisclosureBase, id=id)
-    login = request.user.person
     
     if request.method == 'POST':
         button_text = request.POST.get('submit', '')
@@ -374,7 +353,7 @@ def add_email(request, id):
                 type_id = 'msgin'
             else:
                 type_id = 'msgout'
-            event = IprEvent.objects.create(
+            IprEvent.objects.create(
                 type_id = type_id,
                 by = request.user.person,
                 disclosure = ipr,
@@ -527,7 +506,7 @@ def email(request, id):
             )
 
             # create IprEvent
-            event = IprEvent.objects.create(
+            IprEvent.objects.create(
                 type_id = 'msgout',
                 by = request.user.person,
                 disclosure = ipr,
@@ -640,7 +619,6 @@ def new(request, type, updates=None):
             if updates:
                 for ipr in updates:
                     RelatedIpr.objects.create(source=disclosure,target=ipr,relationship_id='updates')
-                # TODO create iprevents on old
                 
             # create IprEvent
             IprEvent.objects.create(
@@ -656,13 +634,9 @@ def new(request, type, updates=None):
                 {"ipr": disclosure,})
             
             return render("ipr/submitted.html", context_instance=RequestContext(request))
-        
-        else:
-            # assert False, form.errors
-            pass
+
     else:
         if updates:
-            obj = IprDisclosureBase.objects.get(pk=updates)
             form = ipr_form_mapping[type](initial={'updates':str(updates)})
         else:
             form = ipr_form_mapping[type]()
@@ -720,16 +694,12 @@ def notify(request, id, type):
 
 @role_required('Secretariat',)
 def post(request, id):
-    """Posts the disclosure"""
+    """Post the disclosure and redirect to notification view"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
     person = request.user.person
     
     ipr.state = IprDisclosureStateName.objects.get(slug='posted')
     ipr.save()
-    
-    # TODO
-    # process updates if any
-    # process_updates(disclosure,updates)
     
     # create event
     IprEvent.objects.create(
@@ -741,6 +711,127 @@ def post(request, id):
     messages.success(request, 'Disclosure Posted')
     return redirect("ipr_notify", id=ipr.id, type='posted')
     
+def search(request):
+    search_type = request.GET.get("submit")
+    if search_type:
+        form = SearchForm(request.GET)
+        docid = request.GET.get("id") or request.GET.get("id_document_tag") or ""
+        docs = doc = None
+        iprs = []
+        
+        # set states
+        states = request.GET.getlist('state',('posted',))
+        if states == ['all']:
+            states = IprDisclosureStateName.objects.values_list('slug',flat=True)
+        
+        # get query field
+        q = ''
+        if request.GET.get(search_type):
+            q = request.GET.get(search_type)
+
+        if q or docid:
+            # Search by RFC number or draft-identifier
+            # Document list with IPRs
+            if search_type in ["draft", "rfc"]:
+                doc = q
+
+                if docid:
+                    start = DocAlias.objects.filter(name=docid)
+                else:
+                    if search_type == "draft":
+                        q = normalize_draftname(q)
+                        start = DocAlias.objects.filter(name__contains=q, name__startswith="draft")
+                    elif search_type == "rfc":
+                        start = DocAlias.objects.filter(name="rfc%s" % q.lstrip("0"))
+                
+                # one match
+                if len(start) == 1:
+                    first = start[0]
+                    doc = str(first)
+                    docs = related_docs(first)
+                    iprs, docs = iprs_from_docs(docs,states)
+                    template = "ipr/search_doc_result.html"
+                # multiple matches, select just one
+                elif start:
+                    docs = start
+                    template = "ipr/search_doc_list.html"
+                # no match
+                else:
+                    template = "ipr/search_doc_result.html"
+
+            # Search by legal name
+            # IPR list with documents
+            elif search_type == "holder":
+                #assert False, (q,search_type,states)
+                iprs = IprDisclosureBase.objects.filter(holder_legal_name__icontains=q, state_id__in=states)
+                template = "ipr/search_holder_result.html"
+                
+            # Search by patents field or content of emails for patent numbers
+            # IPR list with documents
+            elif search_type == "patent":
+                iprs = IprDisclosureBase.objects.filter(state_id__in=states)
+                iprs = iprs.filter(Q(holderiprdisclosure__patent_info__icontains=q) |
+                                   Q(thirdpartyiprdisclosure__patent_info__icontains=q) |
+                                   Q(nondocspecificiprdisclosure__patent_info__icontains=q))
+                template = "ipr/search_patent_result.html"
+
+            # Search by wg acronym
+            # Document list with IPRs
+            elif search_type == "group":
+                docs = list(DocAlias.objects.filter(document__group=q))
+                related = []
+                for doc in docs:
+                    doc.product_of_this_wg = True
+                    related += related_docs(doc)
+                iprs, docs = iprs_from_docs(list(set(docs+related)),states)
+                docs = [ doc for doc in docs if doc.iprs ]
+                docs = sorted(docs, key=lambda x: max([ipr.submitted_date for ipr in x.iprs]), reverse=True)
+                template = "ipr/search_wg_result.html"
+                
+            # Search by rfc and id title
+            # Document list with IPRs
+            elif search_type == "doctitle":
+                docs = list(DocAlias.objects.filter(document__title__icontains=q))
+                related = []
+                for doc in docs:
+                    related += related_docs(doc)
+                iprs, docs = iprs_from_docs(list(set(docs+related)),states)
+                docs = [ doc for doc in docs if doc.iprs ]
+                docs = sorted(docs, key=lambda x: max([ipr.submitted_date for ipr in x.iprs]), reverse=True)
+                template = "ipr/search_doctitle_result.html"
+
+            # Search by title of IPR disclosure
+            # IPR list with documents
+            elif search_type == "iprtitle":
+                iprs = IprDisclosureBase.objects.filter(title__icontains=q, state_id__in=states)
+                template = "ipr/search_iprtitle_result.html"
+
+            else:
+                raise Http404("Unexpected search type in IPR query: %s" % search_type)
+                
+            # sort and render response
+            iprs = [ ipr for ipr in iprs if not ipr.updated_by.all() ]
+            if has_role(request.user, "Secretariat"):
+                iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
+                iprs = sorted(iprs, key=lambda x: x.state.order)
+            else:
+                iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
+            
+            return render(template, {
+                "q": q,
+                "iprs": iprs,
+                "docs": docs,
+                "doc": doc,
+                "form":form},
+                context_instance=RequestContext(request)
+            )
+
+        return HttpResponseRedirect(request.path)
+
+    else:
+        form = SearchForm(initial={'state':['all']})
+        return render("ipr/search.html", {"form":form }, context_instance=RequestContext(request))
+
 def show(request, id):
     """View of individual declaration"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()

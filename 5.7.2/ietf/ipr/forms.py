@@ -1,13 +1,8 @@
 import datetime
-from dateutil.tz import tzoffset
 import email
-import re
-import pytz
 
 from django import forms
-from django.forms.models import BaseInlineFormSet
 
-from ietf.doc.models import DocAlias
 from ietf.group.models import Group
 from ietf.ipr.mail import utc_from_string
 from ietf.ipr.fields import (AutocompletedIprDisclosuresField, AutocompletedDraftField,

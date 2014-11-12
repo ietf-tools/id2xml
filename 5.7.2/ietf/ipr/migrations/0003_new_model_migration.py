@@ -26,7 +26,7 @@ class Migration(DataMigration):
         """Return data decoded according to charset, but do so safely."""
         try:
             return unicode(data,'latin1')
-        except (UnicodeDecodeError, LookupError) as error:
+        except (UnicodeDecodeError, LookupError):
             return unicode(data,'latin1',errors='replace')
         
     def _get_url(self,url):

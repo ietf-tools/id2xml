@@ -187,7 +187,6 @@ class IprDocAlias(models.Model):
 # New Models
 # ===================================
 
-from ietf.doc.models import Document
 from ietf.name.models import DocRelationshipName,IprDisclosureStateName,IprLicenseTypeName,IprEventTypeName
 from ietf.person.models import Person
 from ietf.message.models import Message

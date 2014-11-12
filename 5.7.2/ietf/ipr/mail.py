@@ -4,7 +4,6 @@ import datetime
 from dateutil.tz import tzoffset
 import os
 import pytz
-import re
 from django.conf import settings
 from ietf.ipr.models import IprEvent
 from ietf.message.models import Message

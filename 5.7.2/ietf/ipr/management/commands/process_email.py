@@ -9,14 +9,13 @@ from ietf.ipr.mail import process_response_email
 import debug                            # pyflakes:ignore
 
 class Command(BaseCommand):
-    help = (u"Process incoming email.")
+    help = (u"Process incoming email responses to ipr mail")
     option_list = BaseCommand.option_list + (
          make_option('--email-file', dest='email', help='File containing email (default: stdin)'),)
 
     def handle(self, *args, **options):
         email = options.get('email', None)
         msg = None
-        help_message = 'Usage: receive_email --email-file <email-file>'
 
         if not email:
             msg = sys.stdin.read()

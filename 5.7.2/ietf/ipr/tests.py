@@ -1,16 +1,14 @@
 import datetime
-import os
-import shutil
 import urllib
 
 from pyquery import PyQuery
 
-from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
 
 from ietf.doc.models import DocAlias
 from ietf.ipr.mail import process_response_email, get_reply_to
-from ietf.ipr.models import IprDisclosureBase, IprDisclosureStateName
+from ietf.ipr.models import IprDisclosureBase
+#from ietf.ipr.views import get_genitive, get_ipr_summary, get_pseudo_submitter
 from ietf.message.models import Message
 from ietf.utils.test_utils import TestCase
 from ietf.utils.test_data import make_test_data
@@ -23,6 +21,17 @@ class IprTests(TestCase):
     def tearDown(self):
         pass
     
+    def test_get_genitive(self):
+        #self.assertEqual(get_genitive("Cisco"),"Cisco's")
+        #self.assertEqual(get_genitive("Ross"),"Ross'")
+        pass
+        
+    def test_get_ipr_summary(self):
+        pass
+        
+    def get_pseudo_submitter(self):
+        pass
+        
     def test_showlist(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -60,7 +69,7 @@ class IprTests(TestCase):
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 404)
         
-    def test_show_pending(self):
+    def test_show_removed(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         ipr.set_state('removed')
@@ -308,7 +317,7 @@ class IprTests(TestCase):
         self.assertTrue(ipr.relatedipr_source_set.filter(target=original_ipr))
 
     def test_addcomment(self):
-        draft = make_test_data()
+        make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         url = urlreverse("ipr_add_comment", kwargs={ "id": ipr.id })
         self.client.login(username="secretary", password="secretary+password")
@@ -331,7 +340,7 @@ class IprTests(TestCase):
         self.assertFalse('Private comment' in r.content)
         
     def test_addemail(self):
-        draft = make_test_data()
+        make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         url = urlreverse("ipr_add_email", kwargs={ "id": ipr.id })
         self.client.login(username="secretary", password="secretary+password")
@@ -355,7 +364,7 @@ I would like to revoke this declaration.
         self.assertTrue(qs.count(),1)
         
     def test_admin_pending(self):
-        draft = make_test_data()
+        make_test_data()
         url = urlreverse("ipr_admin",kwargs={'state':'pending'})
         self.client.login(username="secretary", password="secretary+password")
                 
@@ -372,7 +381,7 @@ I would like to revoke this declaration.
         self.assertEqual(num,x)
         
     def test_admin_removed(self):
-        draft = make_test_data()
+        make_test_data()
         url = urlreverse("ipr_admin",kwargs={'state':'removed'})
         self.client.login(username="secretary", password="secretary+password")
         
@@ -392,7 +401,7 @@ I would like to revoke this declaration.
         pass
     
     def test_post(self):
-        draft = make_test_data()
+        make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         url = urlreverse("ipr_post",kwargs={ "id": ipr.id })
         # fail if not logged in
@@ -407,7 +416,7 @@ I would like to revoke this declaration.
 
     def test_process_response_email(self):
         # first send a mail
-        draft = make_test_data()
+        make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         url = urlreverse("ipr_email",kwargs={ "id": ipr.id })
         self.client.login(username="secretary", password="secretary+password")
@@ -433,5 +442,5 @@ From: joe@test.com
 Date: {}
 Subject: test
 """.format(data['reply_to'],datetime.datetime.now().ctime())
-        message = process_response_email(message_string)
+        process_response_email(message_string)
         

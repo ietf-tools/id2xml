@@ -1,7 +1,5 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
-import datetime
-
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse_lazy

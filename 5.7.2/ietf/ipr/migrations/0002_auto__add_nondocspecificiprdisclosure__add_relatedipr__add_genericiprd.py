@@ -59,7 +59,6 @@ class Migration(SchemaMigration):
             ('holder_contact_info', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('licensing', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['name.IprLicenseTypeName'])),
             ('licensing_comments', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('limited_to_std_track', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('submitter_claims_all_terms_disclosed', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal(u'ipr', ['HolderIprDisclosure'])

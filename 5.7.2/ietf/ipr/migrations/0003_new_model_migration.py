@@ -129,13 +129,21 @@ class Migration(DataMigration):
                                      
     def _handle_licensing(self,old,new,orm):
         """Map licensing information into new object.  ThirdParty disclosures
-        do not have any."""
+        do not have any.  The "limited to standards track only" designators are not
+        included in the new models.  Users will need to include this in the notes
+        sections.  Therefore lic_opt_?_sub options are converted to license text"""
+        if old.lic_opt_a_sub or old.lic_opt_b_sub or old.lic_opt_c_sub:
+            extra = "This licensing declaration is limited solely to standards-track IETF documents"
+        else:
+            extra = ''
         if isinstance(new, (orm.GenericIprDisclosure,orm.NonDocSpecificIprDisclosure)):
-            context = {'option':old.licensing_option,'info':old.comments}
+            context = {'option':old.licensing_option,'info':old.comments,'extra':extra}
             new.statement = render_to_string("ipr/migration_licensing.txt",context)
         elif isinstance(new, orm.HolderIprDisclosure):
             new.licensing = self.licensing_mapping[old.licensing_option]
             new.licensing_comments = old.comments
+            if extra:
+                new.licensing_comments = new.licensing_comments + '\n\n' + extra
             new.submitter_claims_all_terms_disclosed = old.lic_checkbox
 
     def _handle_legacy_fields(self,old,new,orm):
@@ -483,7 +491,6 @@ class Migration(DataMigration):
             u'iprdisclosurebase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['ipr.IprDisclosureBase']", 'unique': 'True', 'primary_key': 'True'}),
             'licensing': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['name.IprLicenseTypeName']"}),
             'licensing_comments': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'limited_to_std_track': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'patent_info': ('django.db.models.fields.TextField', [], {}),
             'submitter_claims_all_terms_disclosed': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },

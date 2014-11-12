@@ -301,7 +301,6 @@ class HolderIprDisclosure(IprDisclosureBase):
     holder_contact_info      = models.TextField(blank=True)
     licensing                = models.ForeignKey(IprLicenseTypeName)
     licensing_comments       = models.TextField(blank=True)
-    limited_to_std_track     = models.BooleanField(default=False)
     submitter_claims_all_terms_disclosed = models.BooleanField(default=False)
 
 class ThirdPartyIprDisclosure(IprDisclosureBase):

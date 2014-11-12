@@ -196,12 +196,17 @@ class IprDisclosureFormBase(forms.ModelForm):
         
 class HolderIprDisclosureForm(IprDisclosureFormBase):
     licensing = CustomModelChoiceField(IprLicenseTypeName.objects.all(),
-        widget=forms.RadioSelect,empty_label=None,initial='noselect')
+        widget=forms.RadioSelect,empty_label=None)
 
     class Meta:
         model = HolderIprDisclosure
         exclude = [ 'by','docs','state','rel' ]
         
+    def __init__(self, *args, **kwargs):
+        super(HolderIprDisclosureForm, self).__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['licensing'].queryset = IprLicenseTypeName.objects.exclude(slug='none-selected')
+            
     def clean(self):
         super(HolderIprDisclosureForm, self).clean()
         cleaned_data = self.cleaned_data

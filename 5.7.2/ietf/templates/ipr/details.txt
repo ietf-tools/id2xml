@@ -36,7 +36,7 @@ Section VI: Licensing Declaration
 The Patent Holder states that, upon approval by the IESG for publication as an RFC of the relevant IETF specification, its position with respect to licensing any patent claims contained in the patent(s) or patent application(s) disclosed above that would be necessary to implement the technology required by such IETF specification ("Patent Claims"), for the purpose of implementing the specification, is as follows(select one licensing declaration option only):
 
 Selection:
-    {{ ipr.get_licensing_display|safe }}
+    {{ ipr.licensing.desc|safe }}
 {% if ipr.stdonly_license %}
     {{ ipr.stdonly_license|safe }}
 Above licensing declaration is limited solely to standards-track IETF documents.

@@ -1,16 +1,11 @@
-from ietf.ipr.models import IprDocRel
 
-def iprs_from_docs(docs,states=('posted','removed')):
-    """Returns a tuple of related iprs and original docs list"""
+def iprs_from_docs(aliases,**kwargs):
+    """Returns a list of IPR related to doc aliases"""
     iprs = []
-    for doc in docs:
-        disclosures = [ x.disclosure for x in IprDocRel.objects.filter(document=doc, disclosure__state__in=states) ]
-        doc.iprs = None
-        if disclosures:
-            doc.iprs = disclosures
-            iprs += disclosures
-    iprs = list(set(iprs))
-    return iprs, docs
+    for alias in aliases:
+        if alias.document.ipr(**kwargs):
+            iprs += alias.document.ipr(**kwargs)
+    return list(set(iprs))
     
 def related_docs(alias):
     """Returns list of related documents"""

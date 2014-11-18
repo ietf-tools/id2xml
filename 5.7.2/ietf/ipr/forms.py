@@ -9,7 +9,7 @@ from ietf.ipr.fields import (AutocompletedIprDisclosuresField, AutocompletedDraf
     AutocompletedRfcField)
 from ietf.ipr.models import (IprDocRel, IprDisclosureBase, HolderIprDisclosure,
     GenericIprDisclosure, ThirdPartyIprDisclosure, NonDocSpecificIprDisclosure,
-    LICENSE_MAPPING, IprLicenseTypeName, IprDisclosureStateName)
+    IprLicenseTypeName, IprDisclosureStateName)
 from ietf.message.models import Message
 
 # ----------------------------------------------------------------
@@ -23,7 +23,7 @@ STATE_CHOICES.insert(0,('all','All States'))
 # ----------------------------------------------------------------
 class CustomModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return LICENSE_MAPPING[obj.pk]
+        return obj.desc
 
 class GroupModelChoiceField(forms.ModelChoiceField):
     '''Custom ModelChoiceField that displays group acronyms as choices.'''

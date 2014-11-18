@@ -563,3 +563,6 @@ def wordwrap(parser, token):
     parser.delete_first_token()
     return WordWrapNode(nodelist, len)
 
+@register.filter
+def to_class_name(value):
+    return value.__class__.__name__

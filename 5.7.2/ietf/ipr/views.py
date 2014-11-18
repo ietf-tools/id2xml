@@ -155,7 +155,7 @@ def get_posted_emails(ipr):
         messages.extend(get_document_emails(ipr))
     
     # if Generic disclosure add message for General Area AD
-    if ipr.get_classname() in ('GenericIprDisclosure','NonDocSpecificIprDisclosure'):
+    if isinstance(ipr, (GenericIprDisclosure,NonDocSpecificIprDisclosure)):
         role = Role.objects.filter(group__acronym='gen',name='ad').first()
         context = dict(
             to_email=role.email.address,
@@ -232,12 +232,12 @@ def get_wg_email_list(group):
 def set_disclosure_title(disclosure):
     """Set the title of the disclosure"""
 
-    if disclosure.get_classname() == 'HolderIprDisclosure':
+    if isinstance(disclosure, HolderIprDisclosure):
         ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.holder_legal_name) + ' Statement about IPR related to {}'.format(ipr_summary)
-    elif disclosure.get_classname() in ('GenericIprDisclosure','NonDocSpecificIprDisclosure'):
+    elif isinstance(disclosure, (GenericIprDisclosure,NonDocSpecificIprDisclosure)):
         title = get_genitive(disclosure.holder_legal_name) + ' General License Statement'
-    elif disclosure.get_classname() == 'ThirdPartyIprDisclosure':
+    elif isinstance(disclosure, ThirdPartyIprDisclosure):
         ipr_summary = get_ipr_summary(disclosure)
         title = get_genitive(disclosure.ietfer_name) + ' Statement about IPR related to {} belonging to {}'.format(ipr_summary,disclosure.holder_legal_name)
     
@@ -393,7 +393,7 @@ def admin(request,state):
 def edit(request, id, updates=None):
     """Secretariat only edit disclosure view"""
     ipr = get_object_or_404(IprDisclosureBase, id=id).get_child()
-    type = class_to_type[ipr.get_classname()]
+    type = class_to_type[ipr.__class__.__name__]
     
     # only include extra when initial formset is empty
     if ipr.iprdocrel_set.filter(document__name__startswith='draft'):
@@ -408,7 +408,7 @@ def edit(request, id, updates=None):
     RfcFormset = inlineformset_factory(IprDisclosureBase, IprDocRel, form=RfcForm, can_delete=True, extra=rfc_extra)
 
     if request.method == 'POST':
-        form = ipr_form_mapping[ipr.get_classname()](request.POST,instance=ipr)
+        form = ipr_form_mapping[ipr.__class__.__name__](request.POST,instance=ipr)
         if not type == 'generic':
             draft_formset = DraftFormset(request.POST, instance=ipr, prefix='draft')
             rfc_formset = RfcFormset(request.POST, instance=ipr, prefix='rfc')
@@ -464,9 +464,9 @@ def edit(request, id, updates=None):
             pass
     else:
         if ipr.updates:
-            form = ipr_form_mapping[ipr.get_classname()](instance=ipr,initial={'updates':[ x.target for x in ipr.updates ]})
+            form = ipr_form_mapping[ipr.__class__.__name__](instance=ipr,initial={'updates':[ x.target for x in ipr.updates ]})
         else:
-            form = ipr_form_mapping[ipr.get_classname()](instance=ipr)
+            form = ipr_form_mapping[ipr.__class__.__name__](instance=ipr)
         #disclosure = IprDisclosureBase()    # dummy disclosure for inlineformset
         dqs=IprDocRel.objects.filter(document__name__startswith='draft')
         rqs=IprDocRel.objects.filter(document__name__startswith='rfc')
@@ -749,7 +749,7 @@ def search(request):
                     first = start[0]
                     doc = str(first)
                     docs = related_docs(first)
-                    iprs, docs = iprs_from_docs(docs,states)
+                    iprs = iprs_from_docs(docs,states=states)
                     template = "ipr/search_doc_result.html"
                 # multiple matches, select just one
                 elif start:
@@ -783,9 +783,9 @@ def search(request):
                 for doc in docs:
                     doc.product_of_this_wg = True
                     related += related_docs(doc)
-                iprs, docs = iprs_from_docs(list(set(docs+related)),states)
-                docs = [ doc for doc in docs if doc.iprs ]
-                docs = sorted(docs, key=lambda x: max([ipr.submitted_date for ipr in x.iprs]), reverse=True)
+                iprs = iprs_from_docs(list(set(docs+related)),states=states)
+                docs = [ doc for doc in docs if doc.document.ipr() ]
+                docs = sorted(docs, key=lambda x: max([ipr.disclosure.submitted_date for ipr in x.document.ipr()]), reverse=True)
                 template = "ipr/search_wg_result.html"
                 
             # Search by rfc and id title
@@ -795,9 +795,9 @@ def search(request):
                 related = []
                 for doc in docs:
                     related += related_docs(doc)
-                iprs, docs = iprs_from_docs(list(set(docs+related)),states)
-                docs = [ doc for doc in docs if doc.iprs ]
-                docs = sorted(docs, key=lambda x: max([ipr.submitted_date for ipr in x.iprs]), reverse=True)
+                iprs = iprs_from_docs(list(set(docs+related)),states=states)
+                docs = [ doc for doc in docs if doc.document.ipr() ]
+                docs = sorted(docs, key=lambda x: max([ipr.disclosure.submitted_date for ipr in x.document.ipr()]), reverse=True)
                 template = "ipr/search_doctitle_result.html"
 
             # Search by title of IPR disclosure
@@ -810,6 +810,9 @@ def search(request):
                 raise Http404("Unexpected search type in IPR query: %s" % search_type)
                 
             # sort and render response
+            # convert list of IprDocRel to iprs
+            if iprs and isinstance(iprs[0],IprDocRel):
+                iprs = [ x.disclosure for x in iprs ]
             iprs = [ ipr for ipr in iprs if not ipr.updated_by.all() ]
             if has_role(request.user, "Secretariat"):
                 iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
@@ -915,5 +918,5 @@ def update(request, id):
     # determine disclosure type
     ipr = get_object_or_404(IprDisclosureBase,id=id)
     child = ipr.get_child()
-    type = class_to_type[child.get_classname()]
+    type = class_to_type[child.__class__.__name__]
     return new(request, type, updates=id)

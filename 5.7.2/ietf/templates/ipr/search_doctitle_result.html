@@ -23,18 +23,18 @@
                   </i><!--,</b> which has the string <b>"<i>{{ q }}</i>"</b> within the document title.-->
                </td>
             </tr>
-            {% if alias.iprs %}
-               {% for ipr in alias.iprs %}
+            {% if alias.document.ipr %}
+               {% for ipr in alias.document.ipr %}
                   <tr valign="top">
-                 <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
-                 <td width="90"><li>ID # {{ ipr.id }}</li></td>
+                 <td width="100">{{ ipr.disclosure.submitted_date|date:"Y-m-d" }}</td>
+                 <td width="90"><li>ID # {{ ipr.disclosure.id }}</li></td>
                  <td>
-                    {% for item in ipr.updated_by.all %}
+                    {% for item in ipr.disclosure.updated_by.all %}
                        {% if item.processed == 1 and item.source.state_id != "rejected" %}
                       IPR disclosure ID# {{ item.ipr.ipr_id }} "<a href="{% url "ietf.ipr.views.show" item.source.id %}">{{ item.source.title }}</a>" Updates
                        {% endif %}
                     {% endfor %}
-                    <a href="{% url "ietf.ipr.views.show" ipr.id %}">"{{ ipr.title }}"</a>
+                    <a href="{% url "ietf.ipr.views.show" ipr.id %}">"{{ ipr.disclosure.title }}"</a>
                  </td>
                   </tr>
                {% endfor %}

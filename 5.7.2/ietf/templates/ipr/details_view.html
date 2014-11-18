@@ -71,7 +71,7 @@
      <tr class="{% cycle dark,light as row_parity %}">
         <th colspan="2">
            {% cycle I,II,III,IV,V,VI,VII,VIII as section %}.
-           {% if ipr.get_classname == "ThirdPartyIprDisclosure" %}Possible{% endif %}
+           {% if ipr|to_class_name == "ThirdPartyIprDisclosure" %}Possible{% endif %}
            Patent Holder/Applicant ("Patent Holder")
         </th>
      </tr>
@@ -159,7 +159,7 @@
            </td>
         </tr>
         <tbody class="{% cycle row_parity %}">
-        {% if ipr.get_classname == "GenericIprDisclosure" or ipr.get_classname == "NonDocSpecificIprDisclosure" %}
+        {% if ipr|to_class_name == "GenericIprDisclosure" or ipr|to_class_name == "NonDocSpecificIprDisclosure" %}
           <tr class="{% cycle row_parity %}">
              <td colspan="2">
             C. Does this disclosure apply to all IPR owned by
@@ -247,7 +247,7 @@
           covered IETF specification to obtain a license have been disclosed in this
           IPR disclosure statement.
           </p>
-          {% if ipr.get_classname == "GenericIprDisclosure" %}
+          {% if ipr|to_class_name == "GenericIprDisclosure" %}
           <p>
              Note: According to
              <a href="http://www.ietf.org/rfc/rfc3979.txt?number=3979">RFC 3979</a>,

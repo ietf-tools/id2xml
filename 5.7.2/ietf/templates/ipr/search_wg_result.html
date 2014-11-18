@@ -24,18 +24,18 @@
                   </i></b>{% if alias.product_of_this_wg %} which is a product of Working Group <b><i>{{ q }}</i></b>{% endif %}
                </td>
             </tr>
-            {% if alias.iprs %}
-               {% for ipr in alias.iprs %}
+            {% if alias.document.ipr %}
+               {% for ipr in alias.document.ipr %}
                   <tr valign="top">
-                 <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
-                 <td width="90"><li>ID # {{ ipr.id }}</li></td>
+                 <td width="100">{{ ipr.disclosure.submitted_date|date:"Y-m-d" }}</td>
+                 <td width="90"><li>ID # {{ ipr.disclosure.id }}</li></td>
                  <td>
-                    {% for item in ipr.updates.all %}
+                    {% for item in ipr.disclosure.updates.all %}
                                        {% if item.target.state_id == "posted" %}
                                           IPR disclosure ID# {{ item.target.id }}, "<a href="{% url "ietf.ipr.views.show" item.target.id %}">{{ item.target.title }}</a>" Updated by
                                        {% endif %}
                     {% endfor %}
-                                    <a href="{% url "ietf.ipr.views.show" ipr.id %}">"{{ ipr.title }}"</a>
+                                    <a href="{% url "ietf.ipr.views.show" ipr.id %}">"{{ ipr.disclosure.title }}"</a>
                  </td>
                   </tr>
                {% endfor %}

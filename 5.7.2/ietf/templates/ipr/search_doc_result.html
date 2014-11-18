@@ -21,12 +21,12 @@
                            Search result on {{ doc.name|rfcspace|lstrip:"0"|rfcnospace }}, "{{ doc.document.title }}"{% if not forloop.first %}{% if doc.related %}, that was {{ doc.relation|lower }} {{ doc.related.source|rfcspace|lstrip:"0"|rfcnospace  }}, "{{ doc.related.source.title }}"{% endif %}{% endif %}
             </td>
              </tr>
-             {% if doc.iprs %}
-              {% for ipr in doc.iprs %}
+             {% if doc.document.ipr %}
+              {% for ipr in doc.document.ipr %}
                <tr valign="top">
-                  <td width="100">{{ ipr.submitted_date|date:"Y-m-d" }}</td>
-                  <td width="90"><li>ID # {{ ipr.id }}</li></td>
-                              <td><a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.title }}"</a></td>
+                  <td width="100">{{ ipr.disclosure.submitted_date|date:"Y-m-d" }}</td>
+                  <td width="90"><li>ID # {{ ipr.disclosure.id }}</li></td>
+                              <td><a href="{% url "ietf.ipr.views.show" id=ipr.id %}">"{{ ipr.disclosure.title }}"</a></td>
                </tr>
               {% endfor %}
              {% else %}

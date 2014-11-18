@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
-from south.db import db
 from south.v2 import DataMigration
-from django.db import models
 
-import datetime
+#import datetime
 import email
 import re
 import urllib2
@@ -301,7 +299,6 @@ class Migration(DataMigration):
             else:
                 klass = orm.HolderIprDisclosure
                 kwargs['licensing'] = self.licensing_mapping[rec.licensing_option]
-
             
             new = klass.objects.create(**kwargs)
             new.time = rec.submitted_date
@@ -310,7 +307,7 @@ class Migration(DataMigration):
             self._handle_patent_info(rec,new,orm)
             self._handle_contacts(rec,new,orm)
             self._handle_docs(rec,new,orm)
-                        
+
             # save changes to disclosure object
             new.save()
 
@@ -333,12 +330,10 @@ class Migration(DataMigration):
                 event.time = rec.submitted_date
                 event.save()
             
-            
         # pass two, create relationships
         print 'Creating Relationships'
         for rec in all:
             self._handle_rel(rec,orm)
-        
         
         # migrate IprNotifications
         for rec in orm.IprNotification.objects.all():
@@ -351,7 +346,6 @@ class Migration(DataMigration):
                       orm.GenericIprDisclosure):
             print "{}: {}".format(klass.__name__,klass.objects.count())
         print "Total records: {}".format(orm.IprDisclosureBase.objects.count())
-
 
     def backwards(self, orm):
         "Write your backwards methods here."

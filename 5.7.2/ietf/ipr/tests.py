@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse as urlreverse
 
 from ietf.doc.models import DocAlias
 from ietf.ipr.mail import process_response_email, get_reply_to
-from ietf.ipr.models import IprDisclosureBase
+from ietf.ipr.models import IprDisclosureBase,GenericIprDisclosure,HolderIprDisclosure,ThirdPartyIprDisclosure
 #from ietf.ipr.views import get_genitive, get_ipr_summary, get_pseudo_submitter
 from ietf.message.models import Message
 from ietf.utils.test_utils import TestCase
@@ -202,7 +202,7 @@ class IprTests(TestCase):
         ipr = iprs[0]
         self.assertEqual(ipr.holder_legal_name, "Test Legal")
         self.assertEqual(ipr.state.slug, 'pending')
-        self.assertEqual(ipr.get_child().get_classname(),'GenericIprDisclosure')
+        self.assertTrue(isinstance(ipr.get_child(),GenericIprDisclosure))
 
     def test_new_specific(self):
         """Add a new specific disclosure.  Note: submitter does not need to be logged in.
@@ -240,7 +240,7 @@ class IprTests(TestCase):
         ipr = iprs[0]
         self.assertEqual(ipr.holder_legal_name, "Test Legal")
         self.assertEqual(ipr.state.slug, 'pending')
-        self.assertEqual(ipr.get_child().get_classname(),'HolderIprDisclosure')
+        self.assertTrue(isinstance(ipr.get_child(),HolderIprDisclosure))
 
     def test_new_thirdparty(self):
         """Add a new third-party disclosure.  Note: submitter does not need to be logged in.
@@ -276,7 +276,7 @@ class IprTests(TestCase):
         ipr = iprs[0]
         self.assertEqual(ipr.holder_legal_name, "Test Legal")
         self.assertEqual(ipr.state.slug, "pending")
-        self.assertEqual(ipr.get_child().get_classname(),'ThirdPartyIprDisclosure')
+        self.assertTrue(isinstance(ipr.get_child(),ThirdPartyIprDisclosure))
 
     def test_update(self):
         draft = make_test_data()

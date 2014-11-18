@@ -19,19 +19,6 @@ LICENSE_CHOICES = (
     (6, 'f) See Text Below for Licensing Declaration.'),
 )
 
-LICENSE_MAPPING = {
-    'none-selected':'None Selected',
-    'no-license':'a) No License Required for Implementers.',
-    'royalty-free':'b) Royalty-Free, Reasonable and Non-Discriminatory License to All Implementers.',
-    'reasonable':'c) Reasonable and Non-Discriminatory License to All Implementers with Possible Royalty/Fee.',
-    'provided-later':"""d) Licensing Declaration to be Provided Later (implies a willingness
-to commit to the provisions of a), b), or c) above to all implementers;
-otherwise, the next option "Unwilling to Commit to the Provisions of
- a), b), or c) Above". - must be selected).""",
-    'unwilling-to-commit':'e) Unwilling to Commit to the Provisions of a), b), or c) Above.',
-    'see-below':'f) See Text Below for Licensing Declaration.'
-}
-
 STDONLY_CHOICES = (
     (0, ""),
     (1,  "The licensing declaration is limited solely to standards-track IETF documents."),
@@ -222,20 +209,10 @@ class IprDisclosureBase(models.Model):
             except IprDisclosureBase.DoesNotExist:
                 pass
 
-    def get_classname(self):
-        return self.__class__.__name__
-        
-    def get_latest_query(self):
-        """Returns the latest IprEvent of type msgout"""
+    def get_latest_event_msgout(self):
+        """Returns the latest IprEvent of type msgout.  For use in templates."""
         return self.latest_event(type='msgout')
-        
-    def get_licensing_display(self):
-        """Returns full text licensing option"""
-        if hasattr(self, 'licensing'):
-            return LICENSE_MAPPING[self.licensing.slug]
-        else:
-            return ''
-            
+
     def has_legacy_event(self):
         """Returns True if there is one or more LegacyMigrationIprEvents
         for this disclosure"""

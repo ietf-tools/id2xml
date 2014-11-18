@@ -10,7 +10,7 @@
 
 {% block content %}
 
-{% if form.instance.get_classname == "HolderIprDisclosure" %}
+{% if form.instance|to_class_name == "HolderIprDisclosure" %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Specific IPR Disclosures</h1>
 <p>This document is an IETF IPR Disclosure and Licensing Declaration
 Template and is submitted to inform the IETF of a) patent or patent
@@ -21,7 +21,7 @@ implied by submission of this template. Please complete and submit a
 separate template for each IETF document or contribution to which the
 disclosed patent information relates.</p>
 
-{% elif form.instance.get_classname == "ThirdPartyIprDisclosure" %}
+{% elif form.instance|to_class_name == "ThirdPartyIprDisclosure" %}
 <h1>The Patent Disclosure and Licensing Declaration Template for Third Party IPR Disclosures</h1>
 <p>This form is used to let the IETF know about patent information
 regarding an IETF document or contribution when the person letting the
@@ -102,7 +102,7 @@ will be posted, but will be marked as "non-compliant".</p>
         <tr class="{% cycle dark,light as row_parity %}">
         <th colspan=2>
             {% cycle I,II,III,IV,V,VI,VII,VIII as section %}.
-            {% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}Possible{% endif %}
+            {% if form.instance|to_class_name == "ThirdPartyIprDisclosure" %}Possible{% endif %}
             Patent Holder/Applicant ("Patent Holder")
         </th>
         </tr>
@@ -133,8 +133,8 @@ will be posted, but will be marked as "non-compliant".</p>
         Contact Information for the IETF Participant Whose Personal Belief Triggered this Disclosure:       
         </th>
         </tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
-        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{% if form.instance.get_classname == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_contact_email.errors }}{{ form.ietfer_contact_email }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Name:</td><td class="iprdata">{% if form.instance|to_class_name == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_name.errors }}{{ form.ietfer_name }}</td></tr>
+        <tr class="{% cycle row_parity %}"><td class="iprlabel">Email:</td><td class="iprdata">{% if form.instance|to_class_name == "ThirdPartyIprDisclosure" %}<span class="required">*</span>{% endif %}{{ form.ietfer_contact_email.errors }}{{ form.ietfer_contact_email }}</td></tr>
         <tr class="{% cycle row_parity %}"><td class="iprlabel">Other Info:<br>(address,phone,etc)</td><td class="iprdata">{{ form.ietfer_contact_info.errors }}{{ form.ietfer_contact_info }}</td></tr>
       </table>
    {% endif %}
@@ -191,7 +191,7 @@ will be posted, but will be marked as "non-compliant".</p>
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
            {% cycle section %}.
-           Disclosure of Patent Information{% if form.instance.get_classname == "ThirdPartyIprDicslosure" %}, if known{% endif %} (i.e., patents or
+           Disclosure of Patent Information{% if form.instance|to_class_name == "ThirdPartyIprDicslosure" %}, if known{% endif %} (i.e., patents or
            patent applications required to be disclosed by Section 6 of RFC3979)
            </th>
         </tr>
@@ -303,7 +303,7 @@ will be posted, but will be marked as "non-compliant".</p>
           covered IETF specification to obtain a license have been disclosed in this
           IPR disclosure statement.
           </p>
-          {% if form.instance.get_classname == "GenericIprDisclosure" %}
+          {% if form.instance|to_class_name == "GenericIprDisclosure" %}
           <p>
              Note: According to
              <a href="http://www.ietf.org/rfc/rfc3979.txt?number=3979">RFC 3979</a>,

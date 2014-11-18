@@ -231,11 +231,7 @@ class Migration(DataMigration):
                     orm.RelatedIpr.objects.get(source=source,target=new,relationship=self.UPDATES)
                 except ObjectDoesNotExist:
                     obj = orm.RelatedIpr.objects.create(source=source,target=new,relationship=self.UPDATES)
-                    print "Created legacy_1 relationship: {} {} {}".format(
-                        obj.source.pk,
-                        obj.relationship.name.lower(),
-                        obj.target.pk)
-                    
+
     def _split_revision(self,text):
         if self.DRAFT_HAS_REVISION_PATTERN.match(text):
             return text[:-3],text[-2:]
@@ -331,7 +327,6 @@ class Migration(DataMigration):
                 event.save()
             
         # pass two, create relationships
-        print 'Creating Relationships'
         for rec in all:
             self._handle_rel(rec,orm)
         
@@ -340,6 +335,7 @@ class Migration(DataMigration):
             self._handle_notification(rec,orm)
         
         # print stats
+        print "-------------------------------"
         for klass in (orm.HolderIprDisclosure,
                       orm.ThirdPartyIprDisclosure,
                       orm.NonDocSpecificIprDisclosure,

@@ -134,6 +134,21 @@ LOGGING['filters']['skip_unreadable_posts'] = {
 }
 LOGGING['handlers']['mail_admins']['filters'] += [ 'skip_unreadable_posts' ]
 
+LOGGING['handlers']['disk'] = {
+    'level': 'DEBUG',
+    #'formatter': 'simple',
+    'class': 'logging.FileHandler',
+    'filename': '/tmp/secr.log'
+}
+
+LOGGING['loggers']['ietf.secr.middleware.dbquery'] = {
+    'level': 'DEBUG',
+    'handlers': ['disk'] 
+}
+
+#import logging
+#hdlr = logging.FileHandler('/tmp/secr.log')
+#LOGGING['loggers']['ietf.secr.middleware.dbquery'] = dict(handlers=[hdlr],level='DEBUG')
 
 
 
@@ -224,7 +239,6 @@ INSTALLED_APPS = (
     'ietf.secr.areas',
     'ietf.secr.drafts',
     'ietf.secr.groups',
-    'ietf.secr.ipradmin',
     'ietf.secr.meetings',
     'ietf.secr.proceedings',
     'ietf.secr.roles',
@@ -325,7 +339,7 @@ CACHES = {
     }
 }
 
-IPR_EMAIL_TO = ['ietf-ipr@ietf.org', ]
+IPR_EMAIL_TO = 'ietf-ipr@ietf.org'
 DOC_APPROVAL_EMAIL_CC = ["RFC Editor <rfc-editor@rfc-editor.org>", ]
 
 IANA_EVAL_EMAIL = "drafts-eval@icann.org"
@@ -477,3 +491,7 @@ if SERVER_MODE != 'production':
         SECRET_KEY = 'PDwXboUq!=hPjnrtG2=ge#N$Dwy+wn@uivrugwpic8mxyPfHka'
     ALLOWED_HOSTS = ['*',]
 
+X_FRAME_OPTIONS = "ALLOW-FROM tools.ietf.org"
+
+# Crispy Forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

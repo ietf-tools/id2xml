@@ -30,7 +30,7 @@
                  <td width="90"><li>ID # {{ ipr.disclosure.id }}</li></td>
                  <td>
                     {% for item in ipr.disclosure.updated_by.all %}
-                       {% if item.processed == 1 and item.source.state_id != "rejected" %}
+                       {% if item.source.state_id == "posted" %}
                       IPR disclosure ID# {{ item.ipr.ipr_id }} "<a href="{% url "ietf.ipr.views.show" item.source.id %}">{{ item.source.title }}</a>" Updates
                        {% endif %}
                     {% endfor %}

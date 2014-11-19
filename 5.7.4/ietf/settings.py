@@ -214,7 +214,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.messages',
     'south',
-    'tastypie',
+    #'tastypie',
     'ietf.person',
     'ietf.name',
     'ietf.group',

@@ -914,7 +914,7 @@ def state(request, id):
 
 # use for link to update specific IPR
 def update(request, id):
-    """Calls the 'new' view with updates parameter"""
+    """Calls the 'new' view with updates parameter = ipd.id"""
     # determine disclosure type
     ipr = get_object_or_404(IprDisclosureBase,id=id)
     child = ipr.get_child()

@@ -178,17 +178,7 @@ class IprDisclosureFormBase(forms.ModelForm):
                 raise forms.ValidationError('Submitter information must be provided in section VII')
         
         return cleaned_data
-    
-    def save(self, *args, **kwargs):
-        obj = super(IprDisclosureFormBase, self).save(*args,commit=False)
-        if self.cleaned_data.get('same_as_ii_above') == True:
-            obj.submitter_name = obj.holder_contact_name
-            obj.submitter_email = obj.holder_contact_email
-        if kwargs.get('commit',True):
-            obj.save()
-        
-        return obj
-        
+
 class HolderIprDisclosureForm(IprDisclosureFormBase):
     licensing = CustomModelChoiceField(IprLicenseTypeName.objects.all(),
         widget=forms.RadioSelect,empty_label=None)
@@ -209,6 +199,15 @@ class HolderIprDisclosureForm(IprDisclosureFormBase):
             raise forms.ValidationError('You need to specify a contribution in Section IV')
         return cleaned_data
 
+    def save(self, *args, **kwargs):
+        obj = super(IprDisclosureFormBase, self).save(*args,commit=False)
+        if self.cleaned_data.get('same_as_ii_above') == True:
+            obj.submitter_name = obj.holder_contact_name
+            obj.submitter_email = obj.holder_contact_email
+        if kwargs.get('commit',True):
+            obj.save()
+        return obj
+        
 class GenericIprDisclosureForm(IprDisclosureFormBase):
     """Use for editing a GenericIprDisclosure"""
     class Meta:

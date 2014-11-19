@@ -5,7 +5,7 @@ function setupTokenizedField(field) {
     var pre = [];
     if (field.attr("data-pre"))
         pre = JSON.parse((field.attr("data-pre") || "").replace(/&quot;/g, '"'));
-
+        //pre = JSON.parse((field.attr("data-pre") || ""));
     field.tokenInput(field.attr("data-ajax-url"), {
         preventDuplicates: true,
         prePopulate: pre,

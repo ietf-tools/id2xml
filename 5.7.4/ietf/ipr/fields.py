@@ -1,6 +1,7 @@
 import json
 
 from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django import forms
 from django.core.urlresolvers import reverse as urlreverse
 
@@ -10,8 +11,12 @@ from ietf.doc.models import DocAlias
 from ietf.ipr.models import IprDisclosureBase
 
 def tokeninput_id_name_json(objs):
+    """Returns objects as JSON string.
+    NOTE: double quotes in the object name are replaced with single quotes to avoid
+    problems with representation of the JSON string in the HTML widget attribute"""
     def format_ipr(x):
-        return escape(u"%s <%s>" % (x.title, x.time.date().isoformat()))
+        text = x.title.replace('"',"'")
+        return escape(u"%s <%s>" % (text, x.time.date().isoformat()))
     def format_doc(x):
         return escape(x.name)
 

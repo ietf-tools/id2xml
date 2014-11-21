@@ -16,8 +16,8 @@ The Patent Holder states that its position with respect to licensing any patent 
   None selected.
 {% endif %}
 
-{{ extra }}
+{{ extra|safe }}
 
 Licensing information, comments, notes or URL for further information:
-{{ info }}
+{{ info|safe }}
 

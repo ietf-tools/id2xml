@@ -15,7 +15,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from ietf.doc.models import DocAlias
-from ietf.group.models import Role
+from ietf.group.models import Role, Group
 from ietf.ietfauth.utils import role_required, has_role
 from ietf.ipr.mail import message_from_message, get_reply_to
 from ietf.ipr.fields import tokeninput_id_name_json
@@ -262,7 +262,7 @@ def ajax_search(request):
         objs = IprDisclosureBase.objects.filter(query)
 
     objs = objs.distinct()[:10]
-
+    
     return HttpResponse(tokeninput_id_name_json(objs), content_type='application/json')
     
 def ajax_draft_search(request):
@@ -787,7 +787,8 @@ def search(request):
                 docs = [ doc for doc in docs if doc.document.ipr() ]
                 docs = sorted(docs, key=lambda x: max([ipr.disclosure.submitted_date for ipr in x.document.ipr()]), reverse=True)
                 template = "ipr/search_wg_result.html"
-                
+                q = Group.objects.get(id=q).acronym     # make acronym for use in template
+
             # Search by rfc and id title
             # Document list with IPRs
             elif search_type == "doctitle":
@@ -859,10 +860,10 @@ def show(request, id):
 
 def showlist(request):
     """List all disclosures by type, posted only"""
-    generic = GenericIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    specific = HolderIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    thirdpty = ThirdPartyIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
-    nondocspecific = NonDocSpecificIprDisclosure.objects.filter(state='posted').prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    generic = GenericIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    specific = HolderIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    thirdpty = ThirdPartyIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
+    nondocspecific = NonDocSpecificIprDisclosure.objects.filter(state__in=('posted','removed')).prefetch_related('relatedipr_source_set__target','relatedipr_target_set__source').order_by('-time')
     
     # combine nondocspecific with generic and re-sort
     generic = itertools.chain(generic,nondocspecific)

@@ -177,7 +177,7 @@ will be posted, but will be marked as "non-compliant".</p>
         {% for draft in draft_formset %}
         <tr class="{% cycle row_parity %} draft_row">
           <td class="iprlabel">I-D Filename:{% if forloop.last %}<div><a id="draft_add_link" href="javascript:void(0)">Add More</a></div>{% endif %}</td>
-          <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td class="mini">{{ draft.revisions.errors }}{{ draft.revisions }}<span class="required">*</span><div>Revisions</div></td><td class="mini">{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
+          <td class="iprdata">{{ draft.id }}{{ draft.document.errors }}{{ draft.document }}</td><td class="mini">{{ draft.revisions.errors }}{{ draft.revisions }}<div>Revisions</div></td><td class="mini">{{ draft.sections.errors }}{{ draft.sections }}<div>Sections</div></td>
         </tr>
         {% endfor %}
         
@@ -221,25 +221,6 @@ will be posted, but will be marked as "non-compliant".</p>
              <div class="iprdata">{{ form.applies_to_all.errors }} {{ form.applies_to_all }}</div>
              </td>
              </tr>
-           {% else %}
-             {% comment %}
-             <tr class="{% cycle row_parity %}">
-               <td colspan="2">
-                  C. If an Internet-Draft or RFC includes multiple parts and it is not
-                  reasonably apparent which part of such Internet-Draft or RFC is alleged
-                  to be covered by the patent information disclosed in Section
-                  V(A) or V(B), it is helpful if the discloser identifies here the sections of
-                  the Internet-Draft or RFC that are alleged to be so
-                  covered:
-               </td>
-             </tr>
-            
-             {% if form.document_sections %}
-               <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td><b>{{ form.document_sections.errors }} {{ form.document_sections }}</b></td></tr>
-             {% else %}
-               <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td></span><i>No information submitted</i></td></tr>
-             {% endif %}
-             {% endcomment %}
            {% endif %} <!-- form.applies_to_all -->
          </tbody>
         
@@ -331,13 +312,13 @@ will be posted, but will be marked as "non-compliant".</p>
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
            {% cycle section %}.
-           Licensing Statement
+           Statement
            </th>
         </tr>
         <tbody class="{% cycle row_parity %}">
         <tr>
            <td colspan="2">
-           Include any licensing statement here.
+           The statement should include any licensing information.
            </td>
         </tr>
         <tr>

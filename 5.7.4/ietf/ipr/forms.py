@@ -252,7 +252,7 @@ class ThirdPartyIprDisclosureForm(IprDisclosureFormBase):
         super(ThirdPartyIprDisclosureForm, self).clean()
         cleaned_data = self.cleaned_data
         if not self.data.get('draft-0-document') and not self.data.get('rfc-0-document') and not cleaned_data.get('other_designations'):
-            raise forms.ValidationError('You need to specify a contribution in Section IV')
+            raise forms.ValidationError('You need to specify a contribution in Section III')
         return cleaned_data
     
     def save(self, *args, **kwargs):

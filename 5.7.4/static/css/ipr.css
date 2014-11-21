@@ -152,3 +152,13 @@ form.add-comment .actions {
 #search-form { clear:both; margin-top:1em;}
 
 #search-form label { float:left; width: 200px; }
+
+#search-form input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#search-form input[type=number] {
+    -moz-appearance:textfield;
+}

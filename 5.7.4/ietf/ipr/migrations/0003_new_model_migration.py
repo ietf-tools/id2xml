@@ -193,7 +193,7 @@ class Migration(DataMigration):
     
     def _handle_patent_info(self,old,new,orm):
         """Map patent info.  patent_info and applies_to_all are mutually exclusive"""
-        if old.applies_to_all and hasattr(new, 'applies_to_all'):
+        if old.applies_to_all == 1 and hasattr(new, 'applies_to_all'):
             new.applies_to_all = True
             return None
         if not hasattr(new, 'patent_info'):
@@ -254,7 +254,7 @@ class Migration(DataMigration):
         self.URL_PATTERN = re.compile(r'https?://datatracker.ietf.org/ipr/(\d{1,4})/')
         self.UPDATES = orm['name.DocRelationshipName'].objects.get(slug='updates')
         self.legacy_event = orm['name.IprEventTypeName'].objects.get(slug='legacy')
-        self.field_mapping = {'telephone':'T','fax':'F','notes':'\nNotes'}
+        self.field_mapping = {'telephone':'T','fax':'F','date_applied':'Date','country':'Country','notes':'\nNotes'}
         self.contact_type_name_mapping = { 1:'holder',2:'ietfer',3:'submitter' }
         self.licensing_mapping = { 0:orm['name.IprLicenseTypeName'].objects.get(slug='none-selected'),
             1:orm['name.IprLicenseTypeName'].objects.get(slug='no-license'),

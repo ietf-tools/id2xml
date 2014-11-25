@@ -270,7 +270,7 @@
      </table>
 
     {% elif ipr.statement %}
-      <table  class="ipr">
+      <table  class="ipr data">
         <tr class="{% cycle dark,light as row_parity %}">
            <th colspan="2" >
            {% cycle section %}.
@@ -279,9 +279,7 @@
         </tr>
         <tbody class="{% cycle row_parity %}">
         <tr>
-           <td colspan="2">
-             {{ ipr.statement|linebreaks }}
-           </td>
+           <td class="iprdata" colspan="2">{{ ipr.statement }}</td>
         </tr>
       </table>
     {% endif %}

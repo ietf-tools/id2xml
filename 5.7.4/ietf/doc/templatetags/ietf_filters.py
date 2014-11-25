@@ -566,3 +566,19 @@ def wordwrap(parser, token):
 @register.filter
 def to_class_name(value):
     return value.__class__.__name__
+
+@register.filter(name='indent')
+@stringfilter
+def indent(value, arg=4):
+    """
+    from: https://djangosnippets.org/snippets/1702/
+    Template filter to add the given number of spaces to the beginning of 
+    each line. Useful for keeping markup pretty, plays well with Markdown.
+    
+    Usage: 
+    {{ content|indent:"2" }}
+    {{ content|markdown|indent:"2" }}
+    """
+    import re
+    regex = re.compile("^", re.M)
+    return re.sub(regex, " "*int(arg), value)

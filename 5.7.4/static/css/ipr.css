@@ -138,6 +138,7 @@ form.add-comment .actions {
    
 .iprdata li { list-style:none;}
 .iprdata input[type=text],input[type=email],textarea { width:80%; }
+.data td { white-space: pre; }
 
 #id_contribution { table-layout:fixed; }
 .mini input { width:60px; }

@@ -213,17 +213,6 @@ will be posted, but will be marked as "non-compliant".</p>
              This disclosure relates to an unpublished pending patent application.
            </td>
         </tr>
-        <tbody class="{% cycle row_parity %}">
-           {% if form.applies_to_all %}
-             <tr class="{% cycle row_parity %}">
-             <td colspan="2">
-                C. Does this disclosure apply to all IPR owned by
-                the submitter?:
-             <div class="iprdata">{{ form.applies_to_all.errors }} {{ form.applies_to_all }}</div>
-             </td>
-             </tr>
-           {% endif %} <!-- form.applies_to_all -->
-         </tbody>
         
         {% else %}
           <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td><b>This disclosure relates to an unpublished pending patent application.</b></td></tr>

@@ -142,6 +142,7 @@
            applications required to be disclosed by Section 6 of RFC 3979)
            </th>
         </tr>
+        
         {% if ipr.patent_info %}
         <tbody class="{% cycle row_parity %}">
            <tr>
@@ -158,40 +159,10 @@
           <span class="iprdata">{{ ipr.has_patent_pending|yesno }}</span>
            </td>
         </tr>
-        <tbody class="{% cycle row_parity %}">
-        {% if ipr|to_class_name == "GenericIprDisclosure" or ipr|to_class_name == "NonDocSpecificIprDisclosure" %}
-          <tr class="{% cycle row_parity %}">
-             <td colspan="2">
-            C. Does this disclosure apply to all IPR owned by
-            the submitter?:
-            <span class="iprdata">{{ ipr.applies_to_all|yesno }}</span>
-             </td>
-          </tr>
-        {% else %}
-          {% comment %}
-          <tr class="{% cycle row_parity %}">
-             <td colspan="2">
-            C. If an Internet-Draft or RFC includes multiple parts and it is not
-            reasonably apparent which part of such Internet-Draft or RFC is alleged
-            to be covered by the patent information disclosed in Section
-            V(A) or V(B), it is helpful if the discloser identifies here the sections of
-            the Internet-Draft or RFC that are alleged to be so
-            covered:
-             </td>
-          </tr>
 
-          {% for iprdocrel in ipr.iprdocrel_set.all %}
-            {% if iprdocrel.sections %}
-              <tr class="{% cycle row_parity %}"><td class="iprlabel">{{ iprdocrel.doc_type }}:</td><td class="iprdata">{{ iprdocrel.formatted_name }}<br />{{ iprdocrel.sections }}</td></tr>
-            {% endif %}
-          {% endfor %}
-          {% endcomment %}
+        {% else %}
+          <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td class="iprdata">This disclosure relates to an unpublished pending patent application.</td></tr>
         {% endif %}
-        
-        </tbody>
-    {% else %}
-        <tr class="{% cycle row_parity %}"><td class="iprlabel"></td><td class="iprdata">This disclosure relates to an unpublished pending patent application.</td></tr>
-    {% endif %}
 
      </table>
    {% endif %}

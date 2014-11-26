@@ -193,9 +193,7 @@ class Migration(DataMigration):
     
     def _handle_patent_info(self,old,new,orm):
         """Map patent info.  patent_info and applies_to_all are mutually exclusive"""
-        if old.applies_to_all == 1 and hasattr(new, 'applies_to_all'):
-            new.applies_to_all = True
-            return None
+        # TODO: do anything with old.applies_to_all?
         if not hasattr(new, 'patent_info'):
             return None
         data = self._combine_fields(old,['patents','date_applied','country','notes'])
@@ -462,7 +460,6 @@ class Migration(DataMigration):
         },
         u'ipr.genericiprdisclosure': {
             'Meta': {'object_name': 'GenericIprDisclosure', '_ormbases': [u'ipr.IprDisclosureBase']},
-            'applies_to_all': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'holder_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
             'holder_contact_info': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'holder_contact_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),

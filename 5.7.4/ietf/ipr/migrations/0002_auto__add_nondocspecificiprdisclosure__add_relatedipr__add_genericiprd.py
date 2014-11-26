@@ -29,7 +29,6 @@ class Migration(SchemaMigration):
         # Adding model 'GenericIprDisclosure'
         db.create_table(u'ipr_genericiprdisclosure', (
             (u'iprdisclosurebase_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['ipr.IprDisclosureBase'], unique=True, primary_key=True)),
-            ('applies_to_all', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('holder_contact_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('holder_contact_email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
             ('holder_contact_info', self.gf('django.db.models.fields.TextField')(blank=True)),
@@ -253,7 +252,6 @@ class Migration(SchemaMigration):
         },
         u'ipr.genericiprdisclosure': {
             'Meta': {'object_name': 'GenericIprDisclosure', '_ormbases': [u'ipr.IprDisclosureBase']},
-            'applies_to_all': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'holder_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
             'holder_contact_info': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'holder_contact_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),

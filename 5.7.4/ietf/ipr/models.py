@@ -296,7 +296,6 @@ class NonDocSpecificIprDisclosure(IprDisclosureBase):
     statement                = models.TextField() # includes licensing info
 
 class GenericIprDisclosure(IprDisclosureBase):
-    applies_to_all           = models.BooleanField(default=False)
     holder_contact_name      = models.CharField(max_length=255)
     holder_contact_email     = models.EmailField()
     holder_contact_info      = models.TextField(blank=True)

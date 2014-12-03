@@ -1,11 +1,11 @@
 
 def iprs_from_docs(aliases,**kwargs):
-    """Returns a list of IPR related to doc aliases"""
-    iprs = []
+    """Returns a list of IPRs related to doc aliases"""
+    iprdocrels = []
     for alias in aliases:
         if alias.document.ipr(**kwargs):
-            iprs += alias.document.ipr(**kwargs)
-    return list(set(iprs))
+            iprdocrels += alias.document.ipr(**kwargs)
+    return list(set([i.disclosure for i in iprdocrels]))
     
 def related_docs(alias):
     """Returns list of related documents"""

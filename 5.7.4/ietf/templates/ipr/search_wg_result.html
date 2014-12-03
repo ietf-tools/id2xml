@@ -4,16 +4,16 @@
         {% block search_result %}
         <table cellpadding="1" cellspacing="0" border="0">
            <tr><td colspan="3"><b>{% block search_header %}Working Group Search Result{% endblock %}</b></td></tr>
-           {% if not docs %}
+           {% if not iprs %}
           <tr>
              <td></td>
              <td colspan="2">
             <b>No IPR disclosures related to the <i>{{ q }}</i> working group have been submitted.</b>
              </td>
           </tr>
-          <tr><td colspan="3">Total number of IPR disclosures found: {{ docs|length }} </td></tr>
+          <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
            {% else %}
-          <tr><td colspan="3">Total number of IPR disclosures found: {{ docs|length }} </td></tr>
+          <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
 
           {% block iprlist %}
              {% for alias in docs %}

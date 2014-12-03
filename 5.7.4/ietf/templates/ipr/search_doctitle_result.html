@@ -12,7 +12,7 @@
              </td>
           </tr>
            {% else %}
-          <tr><td colspan="3">Total number of IPR disclosures found: {{ docs|length }} </td></tr>
+          <tr><td colspan="3">Total number of IPR disclosures found: {{ iprs|length }} </td></tr>
 
           {% block iprlist %}
              {% for alias in docs %}

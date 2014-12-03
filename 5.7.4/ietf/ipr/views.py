@@ -720,7 +720,7 @@ def search(request):
         iprs = []
         
         # set states
-        states = request.GET.getlist('state',('posted',))
+        states = request.GET.getlist('state',('posted','removed'))
         if states == ['all']:
             states = IprDisclosureStateName.objects.values_list('slug',flat=True)
         
@@ -813,7 +813,8 @@ def search(request):
             # convert list of IprDocRel to iprs
             if iprs and isinstance(iprs[0],IprDocRel):
                 iprs = [ x.disclosure for x in iprs ]
-            iprs = [ ipr for ipr in iprs if not ipr.updated_by.all() ]
+            # don't remove updated, per Robert
+            # iprs = [ ipr for ipr in iprs if not ipr.updated_by.all() ]
             if has_role(request.user, "Secretariat"):
                 iprs = sorted(iprs, key=lambda x: (x.submitted_date,x.id), reverse=True)
                 iprs = sorted(iprs, key=lambda x: x.state.order)

@@ -762,7 +762,6 @@ def search(request):
             # Search by legal name
             # IPR list with documents
             elif search_type == "holder":
-                #assert False, (q,search_type,states)
                 iprs = IprDisclosureBase.objects.filter(holder_legal_name__icontains=q, state_id__in=states)
                 template = "ipr/search_holder_result.html"
                 

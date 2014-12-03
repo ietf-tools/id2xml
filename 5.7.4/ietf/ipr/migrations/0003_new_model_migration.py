@@ -4,10 +4,12 @@ from south.v2 import DataMigration
 
 #import datetime
 import email
+import os
 import re
 import urllib2
 from collections import namedtuple
 from time import mktime, strptime
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 
@@ -36,6 +38,25 @@ class Migration(DataMigration):
         except Exception:
             return ''
         return self._decode_safely(data)
+    
+    def _get_legacy_submitter(self,ipr):
+        """Returns tuple of submitter_name, submitter_email if submitter info
+        is found in the legacy text file"""
+        match = self.LEGACY_URL_PATTERN.match(ipr.legacy_url_0)
+        if not match:
+            return (None,None)
+        filename = match.groups()[0]
+        path = os.path.join(settings.IPR_DOCUMENT_PATH,filename)
+        try:
+            with open(path) as file:
+                for line in file:
+                    if re.search('^Submitter:',line):
+                        text = line[10:]
+                        return email.utils.parseaddr(text)
+        except:
+            pass
+
+        return (None,None)
     
     def _create_comment(self,old, new, url_field, orm, title_field=None):
         """Create an IprEvent Comment given the legacy info.
@@ -149,6 +170,11 @@ class Migration(DataMigration):
         # legacy_url_0
         if old.legacy_url_0:
             self._create_comment(old,new,'legacy_url_0',orm)
+            if not new.submitter_email:
+                name,email = self._get_legacy_submitter(old)
+                if name or email:
+                    new.submitter_name = name
+                    new.submitter_email = email
 
         # legacy_url_1
         # Titles that start with "update" will be converted to RelatedIpr later
@@ -250,6 +276,7 @@ class Migration(DataMigration):
         self.DRAFT_PATTERN = re.compile(r'draft-[a-zA-Z0-9\-]+')
         self.DRAFT_HAS_REVISION_PATTERN = re.compile(r'.*-[0-9]{2}')
         self.URL_PATTERN = re.compile(r'https?://datatracker.ietf.org/ipr/(\d{1,4})/')
+        self.LEGACY_URL_PATTERN = re.compile(r'https?://www.ietf.org/ietf-ftp/IPR/(.*)$')
         self.UPDATES = orm['name.DocRelationshipName'].objects.get(slug='updates')
         self.legacy_event = orm['name.IprEventTypeName'].objects.get(slug='legacy')
         self.field_mapping = {'telephone':'T','fax':'F','date_applied':'Date','country':'Country','notes':'\nNotes'}
@@ -297,9 +324,9 @@ class Migration(DataMigration):
             new = klass.objects.create(**kwargs)
             new.time = rec.submitted_date
             self._handle_licensing(rec,new,orm)
-            self._handle_legacy_fields(rec,new,orm)
             self._handle_patent_info(rec,new,orm)
             self._handle_contacts(rec,new,orm)
+            self._handle_legacy_fields(rec,new,orm)
             self._handle_docs(rec,new,orm)
 
             # save changes to disclosure object

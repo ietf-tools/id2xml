@@ -353,7 +353,7 @@ class IprEvent(models.Model):
         return u"%s %s by %s at %s" % (self.disclosure.title, self.type.name.lower(), self.by.plain_name(), self.time)
 
     def response_past_due(self):
-        """Returns true if it's beyond the response_due date and not response has been
+        """Returns true if it's beyond the response_due date and no response has been
         received"""
         qs = IprEvent.objects.filter(disclosure=self.disclosure,in_reply_to=self.message)
         if not qs and datetime.datetime.now().date() > self.response_due.date():

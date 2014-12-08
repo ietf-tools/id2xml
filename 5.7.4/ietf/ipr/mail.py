@@ -4,7 +4,10 @@ import datetime
 from dateutil.tz import tzoffset
 import os
 import pytz
+import re
 from django.conf import settings
+from django.template.loader import render_to_string
+
 from ietf.ipr.models import IprEvent
 from ietf.message.models import Message
 from ietf.person.models import Person
@@ -59,9 +62,33 @@ def utc_from_string(s):
 # ----------------------------------------------------------------
 # Email Functions
 # ----------------------------------------------------------------
+def get_holders(ipr):
+    """Recursive function to follow chain of disclosure updates and return holder emails"""
+    items = []
+    for x in [ y.target.get_child() for y in ipr.updates]:
+        items.extend(get_holders(x))
+    return ([ipr.holder_contact_email] if hasattr(ipr,'holder_contact_email') else []) + items
+    
+def get_pseudo_submitter(ipr):
+    """Returns a tuple (name, email) contact for this disclosure.  Order of preference
+    is submitter, ietfer, holder (per legacy app)"""
+    name = 'UNKNOWN NAME - NEED ASSISTANCE HERE'
+    email = 'UNKNOWN EMAIL - NEED ASSISTANCE HERE'
+    if ipr.submitter_email:
+        name = ipr.submitter_name
+        email = ipr.submitter_email
+    elif hasattr(ipr, 'ietfer_contact_email') and ipr.ietfer_contact_email:
+        name = ipr.ietfer_name
+        email = ipr.ietfer_contact_email
+    elif hasattr(ipr, 'holder_contact_email') and ipr.holder_contact_email:
+        name = ipr.holder_contact_name
+        email = ipr.holder_contact_email
+    
+    return (name,email)
+
 def get_reply_to():
     """Returns a new reply-to address for use with an outgoing message.  This is an
-    address with "plus addressing" using a random string."""
+    address with "plus addressing" using a random string.  Guaranteed to be unique"""
     local,domain = settings.IPR_EMAIL_TO.split('@')
     while True:
         rand = base64.urlsafe_b64encode(os.urandom(12))
@@ -70,6 +97,48 @@ def get_reply_to():
         if not q:
             break
     return address
+
+def get_update_cc_addrs(ipr):
+    """Returns list (as a string) of email addresses to use in CC: for an IPR update.
+    Logic is from legacy tool.  Append submitter or ietfer email of first-order updated
+    IPR, append holder of updated IPR, follow chain of updates, appending holder emails
+    """
+    emails = []
+    if not ipr.updates:
+        return ''
+    for rel in ipr.updates:
+        if rel.target.submitter_email:
+            emails.append(rel.target.submitter_email)
+        elif hasattr(rel.target,'ietfer_email') and rel.target.ietfer_email:
+            emails.append(rel.target.ietfer_email)
+    emails = emails + get_holders(ipr)
+    
+    return ','.join(list(set(emails)))
+    
+def get_update_submitter_emails(ipr):
+    """Returns list of messages, as flat strings, to submitters of IPR(s) being
+    updated"""
+    messages = []
+    email_to_iprs = {}
+    email_to_name = {}
+    for related in ipr.updates:
+        name, email = get_pseudo_submitter(related.target)
+        email_to_name[email] = name
+        if email in email_to_iprs:
+            email_to_iprs[email].append(related.target)
+        else:
+            email_to_iprs[email] = [related.target]
+        
+    for email in email_to_iprs:
+        context = dict(
+            to_email=email,
+            to_name=email_to_name[email],
+            iprs=email_to_iprs[email],
+            new_ipr=ipr,
+            reply_to=get_reply_to())
+        text = render_to_string('ipr/update_submitter_email.txt',context)
+        messages.append(text)
+    return messages
     
 def message_from_message(message,by=None):
     """Returns a ietf.message.models.Message.  msg=email.Message"""
@@ -96,18 +165,23 @@ def process_response_email(msg):
     the original message via new IprEvent"""
     message = email.message_from_string(msg)
     to = message.get('To')
-
+    
+    # exit if this isn't a response we're interested in (with plus addressing)
+    local,domain = settings.IPR_EMAIL_TO.split('@')
+    if not re.match(r'^{}\+[a-zA-Z0-9_\-]{}@{}'.format(local,'{16}',domain),to):
+        return None
+    
     try:
         to_message = Message.objects.get(reply_to=to)
-    except IprEvent.DoesNotExist:
+    except Message.DoesNotExist:
         log('Error finding matching message ({})'.format(to))
-        return
+        return None
 
     try:
         disclosure = to_message.msgevents.first().disclosure
     except:
         log('Error processing message ({})'.format(to))
-        return
+        return None
 
     ietf_message = message_from_message(message)
     IprEvent.objects.create(

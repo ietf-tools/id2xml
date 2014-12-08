@@ -277,6 +277,7 @@ class Migration(DataMigration):
         self.DRAFT_HAS_REVISION_PATTERN = re.compile(r'.*-[0-9]{2}')
         self.URL_PATTERN = re.compile(r'https?://datatracker.ietf.org/ipr/(\d{1,4})/')
         self.LEGACY_URL_PATTERN = re.compile(r'https?://www.ietf.org/ietf-ftp/IPR/(.*)$')
+        self.SEQUENCE_PATTERN = re.compile(r'.+ \(\d\)$')
         self.UPDATES = orm['name.DocRelationshipName'].objects.get(slug='updates')
         self.legacy_event = orm['name.IprEventTypeName'].objects.get(slug='legacy')
         self.field_mapping = {'telephone':'T','fax':'F','date_applied':'Date','country':'Country','notes':'\nNotes'}
@@ -328,6 +329,10 @@ class Migration(DataMigration):
             self._handle_contacts(rec,new,orm)
             self._handle_legacy_fields(rec,new,orm)
             self._handle_docs(rec,new,orm)
+
+            # strip sequence from title
+            if self.SEQUENCE_PATTERN.match(new.title):
+                new.title = new.title[:-4]
 
             # save changes to disclosure object
             new.save()

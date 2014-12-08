@@ -3,12 +3,15 @@ import urllib
 
 from pyquery import PyQuery
 
+from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
 
 from ietf.doc.models import DocAlias
-from ietf.ipr.mail import process_response_email, get_reply_to
-from ietf.ipr.models import IprDisclosureBase,GenericIprDisclosure,HolderIprDisclosure,ThirdPartyIprDisclosure
-#from ietf.ipr.views import get_genitive, get_ipr_summary, get_pseudo_submitter
+from ietf.ipr.mail import (process_response_email, get_reply_to, get_update_submitter_emails,
+    get_pseudo_submitter, get_holders, get_update_cc_addrs)
+from ietf.ipr.models import (IprDisclosureBase,GenericIprDisclosure,HolderIprDisclosure,
+    ThirdPartyIprDisclosure,RelatedIpr)
+from ietf.ipr.utils import get_genitive, get_ipr_summary
 from ietf.message.models import Message
 from ietf.utils.test_utils import TestCase
 from ietf.utils.test_data import make_test_data
@@ -22,20 +25,86 @@ class IprTests(TestCase):
         pass
     
     def test_get_genitive(self):
-        #self.assertEqual(get_genitive("Cisco"),"Cisco's")
-        #self.assertEqual(get_genitive("Ross"),"Ross'")
-        pass
+        self.assertEqual(get_genitive("Cisco"),"Cisco's")
+        self.assertEqual(get_genitive("Ross"),"Ross'")
+        
+    def test_get_holders(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        update = HolderIprDisclosure.objects.create(
+            by_id=1,
+            title="Statement regarding rights Update",
+            holder_legal_name="Native Martians United",
+            state_id='pending',
+            patent_info='US12345',
+            holder_contact_name='Update Holder',
+            holder_contact_email='update_holder@acme.com',
+            licensing_id='royalty-free',
+            submitter_name='George',
+            submitter_email='george@acme.com',
+        )
+        RelatedIpr.objects.create(target=ipr,source=update,relationship_id='updates')
+        result = get_holders(update)
+        self.assertEqual(result,['update_holder@acme.com','george@acme.com'])
         
     def test_get_ipr_summary(self):
-        pass
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        self.assertEqual(get_ipr_summary(ipr),'draft-ietf-mars-test')
         
-    def get_pseudo_submitter(self):
-        pass
+    def test_get_pseudo_submitter(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights').get_child()
+        self.assertEqual(get_pseudo_submitter(ipr),(ipr.submitter_name,ipr.submitter_email))
+        ipr.submitter_name=''
+        ipr.submitter_email=''
+        self.assertEqual(get_pseudo_submitter(ipr),(ipr.holder_contact_name,ipr.holder_contact_email))
+        ipr.holder_contact_name=''
+        ipr.holder_contact_email=''
+        self.assertEqual(get_pseudo_submitter(ipr),('UNKNOWN NAME - NEED ASSISTANCE HERE','UNKNOWN EMAIL - NEED ASSISTANCE HERE'))
+
+    def test_get_update_cc_addrs(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        update = HolderIprDisclosure.objects.create(
+            by_id=1,
+            title="Statement regarding rights Update",
+            holder_legal_name="Native Martians United",
+            state_id='pending',
+            patent_info='US12345',
+            holder_contact_name='Update Holder',
+            holder_contact_email='update_holder@acme.com',
+            licensing_id='royalty-free',
+            submitter_name='George',
+            submitter_email='george@acme.com',
+        )
+        RelatedIpr.objects.create(target=ipr,source=update,relationship_id='updates')
+        result = get_update_cc_addrs(update)
+        self.assertEqual(result,'update_holder@acme.com,george@acme.com')
+        
+    def test_get_update_submitter_emails(self):
+        make_test_data()
+        ipr = IprDisclosureBase.objects.get(title='Statement regarding rights').get_child()
+        update = HolderIprDisclosure.objects.create(
+            by_id=1,
+            title="Statement regarding rights Update",
+            holder_legal_name="Native Martians United",
+            state_id='pending',
+            patent_info='US12345',
+            holder_contact_name='George',
+            holder_contact_email='george@acme.com',
+            licensing_id='royalty-free',
+            submitter_name='George',
+            submitter_email='george@acme.com',
+        )
+        RelatedIpr.objects.create(target=ipr,source=update,relationship_id='updates')
+        messages = get_update_submitter_emails(update)
+        self.assertEqual(len(messages),1)
+        self.assertTrue(messages[0].startswith('To: george@acme.com'))
         
     def test_showlist(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
-        
         r = self.client.get(urlreverse("ipr_showlist"))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
@@ -43,7 +112,6 @@ class IprTests(TestCase):
     def test_show_posted(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
-
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
@@ -80,7 +148,6 @@ class IprTests(TestCase):
     def test_iprs_for_drafts(self):
         draft = make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
-
         r = self.client.get(urlreverse("ietf.ipr.views.iprs_for_drafts_txt"))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(draft.name in r.content)
@@ -157,7 +224,6 @@ class IprTests(TestCase):
     def test_feed(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
-
         r = self.client.get("/feed/ipr/")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
@@ -165,7 +231,6 @@ class IprTests(TestCase):
     def test_sitemap(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
-
         r = self.client.get("/sitemap-ipr.xml")
         self.assertEqual(r.status_code, 200)
         self.assertTrue("/ipr/%s/" % ipr.pk in r.content)
@@ -434,13 +499,23 @@ I would like to revoke this declaration.
         q = Message.objects.filter(reply_to=data['reply_to'])
         self.assertEqual(q.count(),1)
         event = q[0].msgevents.first()
-        self.assertEqual(event.response_past_due(),True)
+        self.assertTrue(event.response_past_due())
         
-        # process response
+        # test process response uninteresting message
+        message_string = """To: {}
+From: joe@test.com
+Date: {}
+Subject: test
+""".format(settings.IPR_EMAIL_TO,datetime.datetime.now().ctime())
+        result = process_response_email(message_string)
+        self.assertIsNone(result)
+        
+        # test process response
         message_string = """To: {}
 From: joe@test.com
 Date: {}
 Subject: test
 """.format(data['reply_to'],datetime.datetime.now().ctime())
-        process_response_email(message_string)
-        
+        result = process_response_email(message_string)
+        self.assertIsInstance(result,Message)
+        self.assertFalse(event.response_past_due())

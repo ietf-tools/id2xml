@@ -17,7 +17,8 @@ from django.template.loader import render_to_string
 from ietf.doc.models import DocAlias
 from ietf.group.models import Role, Group
 from ietf.ietfauth.utils import role_required, has_role
-from ietf.ipr.mail import message_from_message, get_reply_to
+from ietf.ipr.mail import (message_from_message, get_reply_to, get_update_submitter_emails,
+    get_update_cc_addrs)
 from ietf.ipr.fields import tokeninput_id_name_json
 from ietf.ipr.forms import (HolderIprDisclosureForm, GenericDisclosureForm,
     ThirdPartyIprDisclosureForm, DraftForm, RfcForm, SearchForm, MessageModelForm,
@@ -27,7 +28,8 @@ from ietf.ipr.models import (IprDisclosureStateName, IprDisclosureBase,
     HolderIprDisclosure, GenericIprDisclosure, ThirdPartyIprDisclosure,
     NonDocSpecificIprDisclosure, IprDocRel,
     RelatedIpr,IprEvent)
-from ietf.ipr.utils import iprs_from_docs, related_docs
+from ietf.ipr.utils import (get_genitive, get_ipr_summary,
+    iprs_from_docs, related_docs)
 from ietf.message.models import Message
 from ietf.message.utils import infer_message
 from ietf.person.models import Person
@@ -54,48 +56,6 @@ class_to_type = { 'HolderIprDisclosure':'specific',
 # ----------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------
-def get_genitive(name):
-    """Return the genitive form of name"""
-    return name + "'" if name.endswith('s') else name + "'s"
-
-def get_ipr_summary(disclosure):
-    """Return IPR related document names as a string"""
-    ipr = []
-    for doc in disclosure.docs.all():
-        if doc.name.startswith('rfc'):
-            ipr.append('RFC {}'.format(doc.name[3:]))
-        else:
-            ipr.append(doc.name)
-    
-    if disclosure.other_designations:
-        ipr.append(disclosure.other_designations)
-
-    if len(ipr) == 1:
-        ipr = ipr[0]
-    elif len(ipr) == 2:
-        ipr = " and ".join(ipr)
-    elif len(ipr) > 2:
-        ipr = ", ".join(ipr[:-1]) + ", and " + ipr[-1]
-
-    return ipr
-
-def get_pseudo_submitter(ipr):
-    """Returns a tuple (name, email) contact for this disclosure.  Order of preference
-    is submitter, ietfer, holder (per legacy app)"""
-    name = 'UNKNOWN NAME - NEED ASSISTANCE HERE'
-    email = 'UNKNOWN EMAIL - NEED ASSISTANCE HERE'
-    if ipr.submitter_email:
-        name = ipr.submitter_name
-        email = ipr.submitter_email
-    elif hasattr(ipr, 'ietfer_contact_email') and ipr.ietfer_contact_email:
-        name = ipr.ietfer_name
-        email = ipr.ietfer_contact_email
-    elif hasattr(ipr, 'holder_contact_email') and ipr.holder_contact_email:
-        name = ipr.holder_contact_name
-        email = ipr.holder_contact_email
-    
-    return (name,email)
-
 def get_document_emails(ipr):
     """Returns a list of messages to inform document authors that a new IPR disclosure
     has been posted"""
@@ -165,55 +125,6 @@ def get_posted_emails(ipr):
         messages.append(text)
         
     return messages
-
-def get_update_submitter_emails(ipr):
-    """Returns list of messages, as flat strings, to submitters of IPR(s) being
-    updated"""
-    messages = []
-    email_to_iprs = {}
-    email_to_name = {}
-    for related in ipr.updates:
-        name, email = get_pseudo_submitter(related.target)
-        email_to_name[email] = name
-        if email in email_to_iprs:
-            email_to_iprs[email].append(related.target)
-        else:
-            email_to_iprs[email] = [related.target]
-        
-    for email in email_to_iprs:
-        context = dict(
-            to_email=email,
-            to_name=email_to_name[email],
-            iprs=email_to_iprs[email],
-            new_ipr=ipr,
-            reply_to=get_reply_to())
-        text = render_to_string('ipr/update_submitter_email.txt',context)
-        messages.append(text)
-    return messages
-    
-def get_holders(ipr):
-    """Recursive function to follow chain of disclosure updates and return holder emails"""
-    items = []
-    for x in [ y.target.get_child() for y in ipr.updates]:
-        items.extend(get_holders(x))
-    return [ipr.holder_contact_email] + items
-
-def get_update_cc_addrs(ipr):
-    """Returns list (as a string) of email addresses to use in CC: for an IPR update.
-    Logic is from legacy tool.  Append submitter or ietfer email of first-order updated
-    IPR, append holder of updated IPR, follow chain of updates, appending holder emails
-    """
-    emails = []
-    if not ipr.updates:
-        return ''
-    for rel in ipr.updates:
-        if rel.target.submitter_email:
-            emails.append(rel.target.submitter_email)
-        elif hasattr(rel.target,'ietfer_email') and rel.target.ietfer_email:
-            emails.append(rel.target.ietfer_email)
-    emails = emails + get_holders(ipr)
-    
-    return ','.join(list(set(emails)))
 
 def get_wg_email_list(group):
     """Returns a string of comman separated email addresses for the Area Directors and WG Chairs

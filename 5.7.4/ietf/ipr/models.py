@@ -320,8 +320,8 @@ class IprDocRel(models.Model):
         name = self.document.name
         if name.startswith("rfc"):
             return name.upper()
-        elif self.revisions:
-            return "%s-%s" % (name, self.revisions)
+        #elif self.revisions:
+        #    return "%s-%s" % (name, self.revisions)
         else:
             return name
 

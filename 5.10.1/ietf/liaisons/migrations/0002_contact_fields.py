@@ -6,7 +6,7 @@ from south.v2 import SchemaMigration
 class Migration(SchemaMigration):
 
     depends_on = (
-        ("name", "0024_populate_liaison_names"),
+        ("name", "0032_populate_liaison_names"),
     )
 
     def forwards(self, orm):

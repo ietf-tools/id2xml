@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 
-from ietf.liaisons.models import LiaisonStatement
+from ietf.liaisons.models import LiaisonStatement, LiaisonStatementState, LiaisonStatementEvent
 from ietf.liaisons.accounts import (get_person_for_user, can_add_outgoing_liaison,
                                     can_add_incoming_liaison, 
                                     is_ietfchair, is_iabchair, is_iab_executive_director,
@@ -18,6 +18,58 @@ from ietf.liaisons.utils import IETFHM, can_submit_liaison_required, approvable_
 from ietf.liaisons.mails import notify_pending_by_email, send_liaison_by_email
 
 
+# -------------------------------------------------
+# Helper Functions
+# -------------------------------------------------
+def _can_take_care(liaison, user):
+    if not liaison.deadline or liaison.action_taken:
+        return False
+
+    if user.is_authenticated():
+        if is_secretariat(user):
+            return True
+        else:
+            return _find_person_in_emails(liaison, get_person_for_user(user))
+    return False
+
+def _find_person_in_emails(liaison, person):
+    if not person:
+        return False
+
+    emails = ','.join(e for e in [liaison.cc, liaison.to_contact, liaison.to_name,
+                                  liaison.reply_to, liaison.response_contact,
+                                  liaison.technical_contact] if e)
+    for email in emails.split(','):
+        name, addr = parseaddr(email)
+        try:
+            validate_email(addr)
+        except ValidationError:
+            continue
+
+        if person.email_set.filter(address=addr):
+            return True
+        elif addr in ('chair@ietf.org', 'iesg@ietf.org') and is_ietfchair(person):
+            return True
+        elif addr in ('iab@iab.org', 'iab-chair@iab.org') and is_iabchair(person):
+            return True
+        elif addr in ('execd@iab.org', ) and is_iab_executive_director(person):
+            return True
+
+    return False
+
+def normalize_sort(request):
+    sort = request.GET.get('sort', "")
+    if sort not in ('submitted', 'deadline', 'title', 'to_name', 'from_name'):
+        sort = "id"
+
+    # reverse dates
+    order_by = "-" + sort if sort in ("submitted", "deadline") else sort
+
+    return sort, order_by
+    
+# -------------------------------------------------
+# View Functions
+# -------------------------------------------------
 
 @can_submit_liaison_required
 def add_liaison(request, liaison=None):
@@ -25,9 +77,9 @@ def add_liaison(request, liaison=None):
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files = request.FILES, liaison=liaison)
         if form.is_valid():
-            liaison = form.save()
+            liaison = form.save(request=request)
             if request.POST.get('send', False):
-                if not liaison.approved:
+                if not liaison.state.slug == 'approved':
                     notify_pending_by_email(request, liaison)
                 else:
                     send_liaison_by_email(request, liaison)
@@ -41,7 +93,6 @@ def add_liaison(request, liaison=None):
          'liaison': liaison},
         context_instance=RequestContext(request),
     )
-
 
 @can_submit_liaison_required
 def get_info(request):
@@ -82,24 +133,16 @@ def get_info(request):
     json_result = json.dumps(result)
     return HttpResponse(json_result, content_type='text/javascript')
 
-def normalize_sort(request):
-    sort = request.GET.get('sort', "")
-    if sort not in ('submitted', 'deadline', 'title', 'to_name', 'from_name'):
-        sort = "id"
-
-    # reverse dates
-    order_by = "-" + sort if sort in ("submitted", "deadline") else sort
-
-    return sort, order_by
-
 def liaison_list(request):
     if request.GET.get('search', None):
         form = SearchLiaisonForm(data=request.GET)
         if form.is_valid():
             result = form.get_results()
     else:
-        form = SearchLiaisonForm()
-        result = form.get_results()
+        #form = SearchLiaisonForm()
+        #result = form.get_results()
+        sort, order_by = normalize_sort(request)
+        result = LiaisonStatement.objects.filter(state='approved').order_by(order_by)
 
     liaisons = result
 
@@ -115,7 +158,7 @@ def liaison_list(request):
         "can_send_incoming": can_send_incoming,
         "can_send_outgoing": can_send_outgoing,
         "with_search": True,
-        "form": form,
+        #"form": form,
     }, context_instance=RequestContext(request))
 
 def ajax_liaison_list(request):
@@ -139,8 +182,16 @@ def liaison_approval_detail(request, object_id):
     liaison = get_object_or_404(approvable_liaison_statements(request.user), pk=object_id)
 
     if request.method == 'POST' and request.POST.get('do_approval', False):
-        liaison.approved = datetime.datetime.now()
+        liaison.state = LiaisonStatementState.objects.get(slug='approved')
         liaison.save()
+        
+        # create event
+        LiaisonStatementEvent.objects.create(
+            type_id = 'approved',
+            by = request.user.person,
+            statement = liaison,
+            desc = 'Statement Approved',
+        )
 
         send_liaison_by_email(request, liaison)
         return redirect('liaison_list')
@@ -155,53 +206,14 @@ def liaison_approval_detail(request, object_id):
         "is_approving": True,
     }, context_instance=RequestContext(request))
 
-
-def _can_take_care(liaison, user):
-    if not liaison.deadline or liaison.action_taken:
-        return False
-
-    if user.is_authenticated():
-        if is_secretariat(user):
-            return True
-        else:
-            return _find_person_in_emails(liaison, get_person_for_user(user))
-    return False
-            
-
-def _find_person_in_emails(liaison, person):
-    if not person:
-        return False
-
-    emails = ','.join(e for e in [liaison.cc, liaison.to_contact, liaison.to_name,
-                                  liaison.reply_to, liaison.response_contact,
-                                  liaison.technical_contact] if e)
-    for email in emails.split(','):
-        name, addr = parseaddr(email)
-        try:
-            validate_email(addr)
-        except ValidationError:
-            continue
-
-        if person.email_set.filter(address=addr):
-            return True
-        elif addr in ('chair@ietf.org', 'iesg@ietf.org') and is_ietfchair(person):
-            return True
-        elif addr in ('iab@iab.org', 'iab-chair@iab.org') and is_iabchair(person):
-            return True
-        elif addr in ('execd@iab.org', ) and is_iab_executive_director(person):
-            return True
-
-    return False
-
-
 def liaison_detail(request, object_id):
     liaison = get_object_or_404(LiaisonStatement.objects.filter(state__slug='approved'), pk=object_id)
     can_edit = request.user.is_authenticated() and can_edit_liaison(request.user, liaison)
     can_take_care = _can_take_care(liaison, request.user)
 
     if request.method == 'POST' and request.POST.get('do_action_taken', None) and can_take_care:
-        liaison.action_taken = True
-        liaison.save()
+        liaison.tags.remove('required')
+        liaison.tags.add('taken')
         can_take_care = False
 
     relations_by = [i.target for i in liaison.source_of_set.filter(target__state__slug='approved')]

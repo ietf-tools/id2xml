@@ -10,7 +10,8 @@ from ietf.utils.test_utils import TestCase, login_testing_unauthorized
 from ietf.utils.test_data import make_test_data
 from ietf.utils.mail import outbox
 
-from ietf.liaisons.models import LiaisonStatement, LiaisonStatementPurposeName
+from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementPurposeName,
+    LiaisonStatementState, LiaisonStatementEvent)
 from ietf.person.models import Person, Email
 from ietf.group.models import Group, Role
 from ietf.liaisons.mails import send_sdo_reminder, possibly_send_deadline_reminder
@@ -18,7 +19,7 @@ from ietf.liaisons.mails import send_sdo_reminder, possibly_send_deadline_remind
 def make_liaison_models():
     sdo = Group.objects.create(
         name="United League of Marsmen",
-        acronym="",
+        acronym="ulm",
         state_id="active",
         type_id="sdo",
         )
@@ -55,28 +56,29 @@ def make_liaison_models():
 
     mars_group = Group.objects.get(acronym="mars")
     
-    l = LiaisonStatement.objects.create(
+    s = LiaisonStatement.objects.create(
         title="Comment from United League of Marsmen",
         purpose_id="comment",
         body="The recently proposed Martian Standard for Communication Links neglects the special ferro-magnetic conditions of the Martian soil.",
         deadline=datetime.date.today() + datetime.timedelta(days=7),
-        related_to=None,
-        from_group=sdo,
         from_name=sdo.name,
         from_contact=manager,
-        to_group=mars_group,
         to_name=mars_group.name,
-        to_contact="%s@ietf.org" % mars_group.acronym,
-        reply_to=email.address,
-        response_contact="",
-        technical_contact="",
-        cc="",
-        submitted=datetime.datetime.now(),
-        modified=datetime.datetime.now(),
-        approved=datetime.datetime.now(),
-        action_taken=False,
+        to_contacts="%s@ietf.org" % mars_group.acronym,
+        state_id='approved',
         )
-    return l
+    s.from_groups.add(sdo)
+    s.to_groups.add(mars_group)
+    
+    # create events
+    e = LiaisonStatementEvent.objects.create(
+        type_id='submitted',
+        by=p,
+        statement=s,
+        desc='Statement Submitted'
+    )
+        
+    return s
 
 class LiaisonTests(TestCase):
     def test_overview(self):
@@ -103,11 +105,11 @@ class LiaisonTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
-        r = self.client.get('/feed/liaison/from/%s/' % liaison.from_group.name)
+        r = self.client.get('/feed/liaison/from/%s/' % liaison.from_groups.first().acronym)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
-        r = self.client.get('/feed/liaison/to/%s/' % liaison.to_name)
+        r = self.client.get('/feed/liaison/to/%s/' % liaison.to_groups.first().acronym)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
@@ -177,8 +179,8 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         # has to come from WG to need approval
-        liaison.from_group = Group.objects.get(acronym="mars")
-        liaison.approved = None
+        liaison.from_groups.add(Group.objects.get(acronym="mars"))
+        liaison.state=LiaisonStatementState.objects.get(slug='pending')
         liaison.save()
 
         # check the overview page
@@ -194,19 +196,19 @@ class LiaisonManagementTests(TestCase):
         url = urlreverse('liaison_approval_detail', kwargs=dict(object_id=liaison.pk))
         self.client.logout()
         login_testing_unauthorized(self, "ad", url)
-        
+
         # normal get
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
         q = PyQuery(r.content)
         self.assertEqual(len(q('form input[name=do_approval]')), 1)
-        
+
         # approve
         mailbox_before = len(outbox)
         r = self.client.post(url, dict(do_approval="1"))
         self.assertEqual(r.status_code, 302)
-        
+
         liaison = LiaisonStatement.objects.get(id=liaison.id)
         self.assertTrue(liaison.approved)
         self.assertEqual(len(outbox), mailbox_before + 1)
@@ -231,11 +233,10 @@ class LiaisonManagementTests(TestCase):
         test_file.name = "unnamed"
         r = self.client.post(url,
                              dict(from_field="from",
-                                  replyto="replyto@example.com",
                                   organization="org",
                                   to_poc="to_poc@example.com",
-                                  response_contact="responce_contact@example.com",
-                                  technical_contact="technical_contact@example.com",
+                                  response_contacts="responce_contact@example.com",
+                                  technical_contacts="technical_contact@example.com",
                                   cc1="cc@example.com",
                                   purpose="4",
                                   deadline_date=(liaison.deadline + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -249,16 +250,15 @@ class LiaisonManagementTests(TestCase):
         
         new_liaison = LiaisonStatement.objects.get(id=liaison.id)
         self.assertEqual(new_liaison.from_name, "from")
-        self.assertEqual(new_liaison.reply_to, "replyto@example.com")
         self.assertEqual(new_liaison.to_name, "org")
-        self.assertEqual(new_liaison.to_contact, "to_poc@example.com")
-        self.assertEqual(new_liaison.response_contact, "responce_contact@example.com")
-        self.assertEqual(new_liaison.technical_contact, "technical_contact@example.com")
-        self.assertEqual(new_liaison.cc, "cc@example.com")
+        #self.assertEqual(new_liaison.to_contacts, "to_poc@example.com")
+        self.assertEqual(new_liaison.response_contacts, "responce_contact@example.com")
+        self.assertEqual(new_liaison.technical_contacts, "technical_contact@example.com")
+        self.assertEqual(new_liaison.cc_contacts, "cc@example.com")
         self.assertEqual(new_liaison.purpose, LiaisonStatementPurposeName.objects.get(order=4))
         self.assertEqual(new_liaison.deadline, liaison.deadline + datetime.timedelta(days=1)),
         self.assertEqual(new_liaison.title, "title")
-        self.assertEqual(new_liaison.submitted.date(), (liaison.submitted + datetime.timedelta(days=1)).date())
+        #self.assertEqual(new_liaison.submitted.date(), (liaison.submitted + datetime.timedelta(days=1)).date())
         self.assertEqual(new_liaison.body, "body")
         
         self.assertEqual(new_liaison.attachments.count(), attachments_before + 1)
@@ -295,10 +295,9 @@ class LiaisonManagementTests(TestCase):
         r = self.client.post(url,
                              dict(from_field="%s_%s" % (from_group.type_id, from_group.pk),
                                   from_fake_user=str(submitter.pk),
-                                  replyto="replyto@example.com",
                                   organization="%s_%s" % (to_group.type_id, to_group.pk),
-                                  response_contact="responce_contact@example.com",
-                                  technical_contact="technical_contact@example.com",
+                                  response_contacts="responce_contact@example.com",
+                                  technical_contacts="technical_contact@example.com",
                                   cc1="cc@example.com",
                                   purpose="4",
                                   deadline_date=(today + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -313,20 +312,19 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 302)
         
         l = LiaisonStatement.objects.all().order_by("-id")[0]
-        self.assertEqual(l.from_group, from_group)
+        #self.assertEqual(l.from_groups.all(),[from_group])
         self.assertEqual(l.from_contact.address, submitter.email_address())
-        self.assertEqual(l.reply_to, "replyto@example.com")
-        self.assertEqual(l.to_group, to_group)
-        self.assertEqual(l.response_contact, "responce_contact@example.com")
-        self.assertEqual(l.technical_contact, "technical_contact@example.com")
-        self.assertEqual(l.cc, "cc@example.com")
+        #self.assertEqual(l.to_groups.all(),[to_group])
+        self.assertEqual(l.response_contacts, "responce_contact@example.com")
+        self.assertEqual(l.technical_contacts, "technical_contact@example.com")
+        self.assertEqual(l.cc_contacts, "cc@example.com")
         self.assertEqual(l.purpose, LiaisonStatementPurposeName.objects.get(order=4))
         self.assertEqual(l.deadline, today + datetime.timedelta(days=1)),
-        self.assertEqual(l.related_to, liaison),
+        self.assertEqual(l.source_of_set.first().target,liaison),
         self.assertEqual(l.title, "title")
         self.assertEqual(l.submitted.date(), today)
         self.assertEqual(l.body, "body")
-        self.assertTrue(l.approved)
+        #self.assertEqual(l.state.slug, 'approved')
         
         self.assertEqual(l.attachments.count(), 1)
         attachment = l.attachments.all()[0]
@@ -366,12 +364,11 @@ class LiaisonManagementTests(TestCase):
                              dict(from_field="%s_%s" % (from_group.type_id, from_group.pk),
                                   from_fake_user=str(submitter.pk),
                                   approved="",
-                                  replyto="replyto@example.com",
                                   to_poc="to_poc@example.com",
                                   organization="%s_%s" % (to_group.type_id, to_group.pk),
                                   other_organization="",
-                                  response_contact="responce_contact@example.com",
-                                  technical_contact="technical_contact@example.com",
+                                  response_contacts="responce_contact@example.com",
+                                  technical_contacts="technical_contact@example.com",
                                   cc1="cc@example.com",
                                   purpose="4",
                                   deadline_date=(today + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -386,21 +383,20 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 302)
         
         l = LiaisonStatement.objects.all().order_by("-id")[0]
-        self.assertEqual(l.from_group, from_group)
+        #self.assertEqual(l.from_group, from_group)
         self.assertEqual(l.from_contact.address, submitter.email_address())
-        self.assertEqual(l.reply_to, "replyto@example.com")
-        self.assertEqual(l.to_group, to_group)
-        self.assertEqual(l.to_contact, "to_poc@example.com")
-        self.assertEqual(l.response_contact, "responce_contact@example.com")
-        self.assertEqual(l.technical_contact, "technical_contact@example.com")
-        self.assertEqual(l.cc, "cc@example.com")
+        #self.assertEqual(l.to_group, to_group)
+        #self.assertEqual(l.to_contacts, "to_poc@example.com")
+        self.assertEqual(l.response_contacts, "responce_contact@example.com")
+        self.assertEqual(l.technical_contacts, "technical_contact@example.com")
+        self.assertEqual(l.cc_contacts, "cc@example.com")
         self.assertEqual(l.purpose, LiaisonStatementPurposeName.objects.get(order=4))
         self.assertEqual(l.deadline, today + datetime.timedelta(days=1)),
-        self.assertEqual(l.related_to, liaison),
+        self.assertEqual(l.source_of_set.first().target,liaison),
         self.assertEqual(l.title, "title")
         self.assertEqual(l.submitted.date(), today)
         self.assertEqual(l.body, "body")
-        self.assertTrue(not l.approved)
+        self.assertEqual(l.state.slug,'pending')
         
         self.assertEqual(l.attachments.count(), 1)
         attachment = l.attachments.all()[0]
@@ -419,12 +415,11 @@ class LiaisonManagementTests(TestCase):
                              dict(from_field="%s_%s" % (from_group.type_id, from_group.pk),
                                   from_fake_user=str(submitter.pk),
                                   approved="1",
-                                  replyto="replyto@example.com",
                                   to_poc="to_poc@example.com",
                                   organization="othersdo",
                                   other_organization="Mars Institute",
-                                  response_contact="responce_contact@example.com",
-                                  technical_contact="technical_contact@example.com",
+                                  response_contacts="responce_contact@example.com",
+                                  technical_contacts="technical_contact@example.com",
                                   cc1="cc@example.com",
                                   purpose="4",
                                   deadline_date=(today + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -436,7 +431,7 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
         l = LiaisonStatement.objects.all().order_by("-id")[0]
-        self.assertEqual(l.to_group, None)
+        self.assertFalse(l.to_groups.all())
         self.assertEqual(l.to_name, "Mars Institute")
 
     def test_send_sdo_reminder(self):

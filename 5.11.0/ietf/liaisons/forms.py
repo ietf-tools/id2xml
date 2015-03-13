@@ -15,17 +15,36 @@ from django.utils.safestring import mark_safe
 import debug                            # pyflakes:ignore
 
 from ietf.name.models import DocRelationshipName
-from ietf.liaisons.accounts import (can_add_outgoing_liaison, can_add_incoming_liaison,
-                                    get_person_for_user, is_secretariat, is_sdo_liaison_manager)
+from ietf.liaisons.accounts import (can_add_outgoing_liaison,can_add_incoming_liaison,
+    get_person_for_user,is_secretariat,is_sdo_liaison_manager)
 from ietf.liaisons.utils import IETFHM
-from ietf.liaisons.widgets import (FromWidget, ReadOnlyWidget, ButtonWidget,
-                                   ShowAttachmentsWidget, RelatedLiaisonWidget)
-from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementPurposeName,  LiaisonStatementEvent,
-                                  RelatedLiaisonStatement)
+from ietf.liaisons.widgets import (FromWidget,ReadOnlyWidget,ButtonWidget,
+    ShowAttachmentsWidget, RelatedLiaisonWidget)
+from ietf.liaisons.models import (LiaisonStatement,LiaisonStatementPurposeName, 
+    LiaisonStatementEvent,RelatedLiaisonStatement,LiaisonStatementAttachment)
 from ietf.group.models import Group, Role
 from ietf.person.models import Person, Email
 from ietf.doc.models import Document
 
+# -------------------------------------------------
+# Helper Functions
+# -------------------------------------------------
+
+def liaison_form_factory(request, **kwargs):
+    user = request.user
+    force_incoming = 'incoming' in request.GET.keys()
+    liaison = kwargs.pop('liaison', None)
+    if liaison:
+        return EditLiaisonForm(user, instance=liaison, **kwargs)
+    if not force_incoming and can_add_outgoing_liaison(user):
+        return OutgoingLiaisonForm(user, **kwargs)
+    elif can_add_incoming_liaison(user):
+        return IncomingLiaisonForm(user, **kwargs)
+    return None
+
+# -------------------------------------------------
+# Form Classes
+# -------------------------------------------------
 
 class LiaisonForm(forms.Form):
     person = forms.ModelChoiceField(Person.objects.all())
@@ -219,6 +238,9 @@ class LiaisonForm(forms.Form):
         l = self.instance
         if not l:
             l = LiaisonStatement()
+            event_type = 'submitted'
+        else:
+            event_type = 'modified'
 
         l.title = self.cleaned_data["title"]
         l.purpose = LiaisonStatementPurposeName.objects.get(order=self.cleaned_data["purpose"])
@@ -232,6 +254,13 @@ class LiaisonForm(forms.Form):
         self.save_extra_fields(l)
         
         l.save() # we have to save here to make sure we get an id for the attachments
+        # create event
+        event = LiaisonStatementEvent.objects.create(
+            type_id=event_type,
+            by=get_person_for_user(kwargs['request'].user),
+            statement=l,
+            desc='Statement {}'.format(event_type.capitalize())
+        )
         self.save_attachments(l)
         self.save_related_liaisons(l)
         
@@ -273,7 +302,7 @@ class LiaisonForm(forms.Form):
                     external_url = name + extension, # strictly speaking not necessary, but just for the time being ...
                     )
                 )
-            instance.attachments.add(attach)
+            LiaisonStatementAttachment.objects.create(statement=instance,document=attach)
             attach_file = open(os.path.join(settings.LIAISON_ATTACH_PATH, attach.name + extension), 'w')
             attach_file.write(attached_file.read())
             attach_file.close()
@@ -453,19 +482,6 @@ class EditLiaisonForm(LiaisonForm):
         liaison.to_name = self.cleaned_data.get('organization')
         liaison.cc_contacts = self.cleaned_data['cc1']
 
-def liaison_form_factory(request, **kwargs):
-    user = request.user
-    force_incoming = 'incoming' in request.GET.keys()
-    liaison = kwargs.pop('liaison', None)
-    if liaison:
-        return EditLiaisonForm(user, instance=liaison, **kwargs)
-    if not force_incoming and can_add_outgoing_liaison(user):
-        return OutgoingLiaisonForm(user, **kwargs)
-    elif can_add_incoming_liaison(user):
-        return IncomingLiaisonForm(user, **kwargs)
-    return None
-
-
 class RadioRenderer(RadioFieldRenderer):
 
     def render(self):
@@ -487,7 +503,7 @@ class SearchLiaisonForm(forms.Form):
     def get_results(self):
         results = LiaisonStatement.objects.filter(state__slug='approved').extra(
             select={
-                '_submitted': 'SELECT time FROM liaisons_liaisonstatementevent WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatementevent.statement_id AND liaisons_liaisonstatementevent.type_id = "submit"',
+                '_submitted': 'SELECT time FROM liaisons_liaisonstatementevent WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatementevent.statement_id AND liaisons_liaisonstatementevent.type_id = "submitted"',
                 '_awaiting_action': 'SELECT count(*) FROM liaisons_liaisonstatement_tags WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_tags.liaisonstatement_id AND liaisons_liaisonstatement_tags.liaisonstatementtagname_id = "required"',
                 'from_concat': 'SELECT GROUP_CONCAT(name SEPARATOR ", ") FROM group_group JOIN liaisons_liaisonstatement_from_groups WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_from_groups.liaisonstatement_id AND liaisons_liaisonstatement_from_groups.group_id = group_group.id',
                 'to_concat': 'SELECT GROUP_CONCAT(name SEPARATOR ", ") FROM group_group JOIN liaisons_liaisonstatement_to_groups WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_to_groups.liaisonstatement_id AND liaisons_liaisonstatement_to_groups.group_id = group_group.id',
@@ -512,11 +528,11 @@ class SearchLiaisonForm(forms.Form):
             end_date = self.cleaned_data.get('end_date')
             events = None
             if start_date:
-                events = LiaisonStatementEvent.objects.filter(type='submit', time__gte=start_date)
+                events = LiaisonStatementEvent.objects.filter(type='submitted', time__gte=start_date)
                 if end_date:
                     events = events.filter(time__lte=end_date)
             elif end_date:
-                events = LiaisonStatementEvent.objects.filter(type='submit', time__lte=end_date)
+                events = LiaisonStatementEvent.objects.filter(type='submitted', time__lte=end_date)
             if events:
                 results = results.filter(liaisonstatementevent__in=events)
 

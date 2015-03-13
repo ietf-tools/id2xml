@@ -24,8 +24,8 @@ class LiaisonStatementsFeed(Feed):
 
         if kind == 'recent':
             obj['title'] = 'Recent Liaison Statements'
-	    obj['limit'] = 15
-	    return obj
+            obj['limit'] = 15
+            return obj
 
         if kind == 'from':
             if not search:
@@ -33,7 +33,7 @@ class LiaisonStatementsFeed(Feed):
 
             try:
                 group = Group.objects.get(acronym=search)
-                obj['filter'] = { 'from_group': group }
+                obj['filter'] = { 'from_groups': group }
                 obj['title'] = u'Liaison Statements from %s' % group.name
                 return obj
             except Group.DoesNotExist:
@@ -53,36 +53,41 @@ class LiaisonStatementsFeed(Feed):
         if kind == 'to':
             if not search:
                 raise FeedDoesNotExist
-
-            obj['filter'] = dict(to_name__icontains=search)
-            obj['title'] = 'Liaison Statements where to matches %s' % search
+                
+            group = Group.objects.get(acronym=search)
+            obj['filter'] = { 'to_groups': group }
+            obj['title'] = u'Liaison Statements from %s' % group.name
+                
+            #obj['filter'] = dict(to_name__icontains=search)
+            #obj['title'] = 'Liaison Statements where to matches %s' % search
+            
             return obj
 
-	if kind == 'subject':
+        if kind == 'subject':
             if not search:
-		raise FeedDoesNotExist
+                raise FeedDoesNotExist
 
             obj['q'] = [ Q(title__icontains=search) | Q(attachments__title__icontains=search) ]
             obj['title'] = 'Liaison Statements where subject matches %s' % search
             return obj
 
-	raise FeedDoesNotExist
+        raise FeedDoesNotExist
 
     def items(self, obj):
-        qs = LiaisonStatement.objects.all().order_by("-submitted")
-	if obj.has_key('q'):
-	    qs = qs.filter(*obj['q'])
-	if obj.has_key('filter'):
-	    qs = qs.filter(**obj['filter'])
-	if obj.has_key('limit'):
-	    qs = qs[:obj['limit']]
-	return qs
+        qs = LiaisonStatement.objects.all().order_by("-id")
+        if obj.has_key('q'):
+            qs = qs.filter(*obj['q'])
+        if obj.has_key('filter'):
+            qs = qs.filter(**obj['filter'])
+        if obj.has_key('limit'):
+            qs = qs[:obj['limit']]
+        return qs
 
     def title(self, obj):
-	return obj['title']
+        return obj['title']
 
     def description(self, obj):
-	return self.title(obj)
+        return self.title(obj)
 
     def item_title(self, item):
         return render_to_string("liaisons/liaison_title.html", { 'liaison': item }).strip()

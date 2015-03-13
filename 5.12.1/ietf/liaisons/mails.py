@@ -11,18 +11,14 @@ from ietf.group.models import Role
 def send_liaison_by_email(request, liaison):
     subject = u'New Liaison Statement, "%s"' % (liaison.title)
     from_email = settings.LIAISON_UNIVERSAL_FROM
-    to_email = liaison.to_contact.split(',')
-    cc = liaison.cc.split(',')
-    if liaison.technical_contact:
-        cc += liaison.technical_contact.split(',')
-    if liaison.response_contact:
-        cc += liaison.response_contact.split(',')
+    to_email = liaison.to_contacts.split(',')
+    cc = liaison.cc_contacts.split(',')
+    if liaison.technical_contacts:
+        cc += liaison.technical_contacts.split(',')
+    if liaison.response_contacts:
+        cc += liaison.response_contacts.split(',')
     bcc = ['statements@ietf.org']
-    body = render_to_string('liaisons/liaison_mail.txt', dict(
-            liaison=liaison,
-            url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=liaison.pk)),
-            referenced_url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=liaison.related_to.pk)) if liaison.related_to else None,
-            ))
+    body = render_to_string('liaisons/liaison_mail.txt', dict(liaison=liaison))
 
     send_mail_text(request, to_email, from_email, subject, body, cc=", ".join(cc), bcc=", ".join(bcc))
 
@@ -42,12 +38,7 @@ def notify_pending_by_email(request, liaison):
     #     to_email.append('%s <%s>' % person.email())
     subject = u'New Liaison Statement, "%s" needs your approval' % (liaison.title)
     from_email = settings.LIAISON_UNIVERSAL_FROM
-    body = render_to_string('liaisons/pending_liaison_mail.txt', dict(
-            liaison=liaison,
-            url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_approval_detail", kwargs=dict(object_id=liaison.pk)),
-            referenced_url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=liaison.related_to.pk)) if liaison.related_to else None,
-            ))
-    # send_mail_text(request, to_email, from_email, subject, body)
+    body = render_to_string('liaisons/pending_liaison_mail.txt', dict(liaison=liaison))
     send_mail_text(request, ['statements@ietf.org'], from_email, subject, body)
 
 def send_sdo_reminder(sdo):
@@ -95,19 +86,15 @@ def possibly_send_deadline_reminder(liaison):
         days_msg = 'expires %s' % PREVIOUS_DAYS[days_to_go]
 
     from_email = settings.LIAISON_UNIVERSAL_FROM
-    to_email = liaison.to_contact.split(',')
-    cc = liaison.cc.split(',')
-    if liaison.technical_contact:
-        cc += liaison.technical_contact.split(',')
-    if liaison.response_contact:
-        cc += liaison.response_contact.split(',')
+    to_email = liaison.to_contacts.split(',')
+    cc = liaison.cc_contacts.split(',')
+    if liaison.technical_contacts:
+        cc += liaison.technical_contacts.split(',')
+    if liaison.response_contacts:
+        cc += liaison.response_contacts.split(',')
     bcc = 'statements@ietf.org'
     body = render_to_string('liaisons/liaison_deadline_mail.txt',
-                            dict(liaison=liaison,
-                                 days_msg=days_msg,
-                                 url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_approval_detail", kwargs=dict(object_id=liaison.pk)),
-                                 referenced_url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=liaison.related_to.pk)) if liaison.related_to else None,
-                                 ))
+        dict(liaison=liaison,days_msg=days_msg,))
     
     send_mail_text(None, to_email, from_email, subject, body, cc=cc, bcc=bcc)
 

@@ -12,3 +12,5 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         },
     }
+
+MIGRATION_MODULES = {"liaisons": "liaisons.migrations_not_used_in_tests"}

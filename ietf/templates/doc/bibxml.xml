@@ -1,15 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<reference anchor='{{doc_bibtype}}.{{doc.name|slice:"6:"}}'>
-   <front>
-      <title>{{doc.title}}</title>
-      {% for entry in doc.authors.all %}{% with entry.address as email %}{% with entry.person as author %}
-      <author initials='{{author.initials}}' surname='{{author.last_name}}' fullname='{{author.name}}'>
-	 <organization>{{author.affiliation}}</organization>
-      </author>
-      {% endwith %}{% endwith %}{% endfor %}
-      <date month='{{doc.time|date:"F"}}' day='{{doc.time.day}}' year='{{doc.time.year}}' />
-      <abstract><t>{{doc.abstract}}</t></abstract>
-   </front>
-   <seriesInfo name='Internet-Draft' value='{{doc.name}}-{{doc.rev}}' />
-   <format type='TXT' target='http://www.ietf.org/internet-drafts/{{doc.name}}-{{doc.rev}}.txt' />
+
+<reference anchor='RFC{{num4}}'>
+
+<front>
+<title>{{doc.title}}</title>
+{% for entry in doc.authors.all %}{% with entry.address as email %}{% with entry.person as author %}<author initials='{{author.initials}}' surname='{{author.last_name}}' fullname='{{author.name}}'>
+{% if author.affiliation %}<organization>{{author.affiliation}}</organization>{% else %}<organization/>{% endif %}</author>{% endwith %}{% endwith %}{% endfor %}
+<date year='{{doc.time.year}}' month='{{doc.time|date:"F"}}'{% if isApril1 %} day='{{doc.time.day}}'{% endif %} />
+<abstract>
+<t>{{doc.abstract}}</t></abstract></front>
+
+<seriesInfo name='RFC' value='{{num}}' />{% if rfcsizetxt %}
+<format type='TXT' octets='{{rfcsizetxt}}' target='http://www.rfc-editor.org/rfc/rfc{{num}}.txt' />{% endif %}{% if rfcsizepdf %}
+<format type='PDF' octets='{{rfcsizepdf}}' target='http://www.rfc-editor.org/rfc/rfc{{num}}.pdf' />{% endif %}{% if rfcsizeps %}
+<format type='PS' octets='{{rfcsizeps}}' target='http://www.rfc-editor.org/rfc/rfc{{num}}.ps' />{% endif %}
 </reference>

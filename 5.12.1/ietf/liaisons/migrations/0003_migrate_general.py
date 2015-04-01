@@ -60,6 +60,7 @@ def migrate_relations(apps, schema_editor):
 def merge_reply_to(apps, schema_editor):
     """Merge contents of reply_to field into response_contact and create comment Event"""
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
+    LiaisonStatementEvent = apps.get_model("liaisons", "LiaisonStatementEvent")
     Person = apps.get_model("person","Person")
     system = Person.objects.get(name="(system)")
     for liaison in LiaisonStatement.objects.exclude(reply_to=''):
@@ -69,7 +70,7 @@ def merge_reply_to(apps, schema_editor):
             type_id='comment',
             statement=liaison,
             desc='Merged reply_to field into response_contacts\nOriginal reply_to: %s\nOriginal response_contacts: %s' % (liaison.reply_to, liaison.response_contacts),
-            by=system_user
+            by=system
         )
         liaison.response_contacts += ',%s' % liaison.reply_to
         liaison.save()

@@ -30,7 +30,7 @@ def populate_names(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('name', '0003_liaisonstatementeventtypename_liaisonstatementstate_liaisonstatementtagname'),
+        ('name', '0003_add_liaison_names'),
     ]
 
     operations = [

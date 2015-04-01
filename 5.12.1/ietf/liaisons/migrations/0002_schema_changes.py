@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('group', '0003_auto_20150218_1801'),
+        ('group', '0003_auto_20150304_0743'),
         ('person', '0001_initial'),
         ('doc', '0002_auto_20141222_1749'),
         ('name', '0004_populate_liaison_names'),

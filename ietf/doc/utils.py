@@ -30,7 +30,7 @@ def email_update_telechat(request, doc, text):
 
     if not to:
         return
-    
+
     text = strip_tags(text)
     send_mail(request, list(to), None,
               "Telechat update notice: %s" % doc.file_tag(),
@@ -43,7 +43,7 @@ def get_state_types(doc):
 
     if not doc:
         return res
-    
+
     res.append(doc.type_id)
 
     if doc.type_id == "draft":
@@ -54,7 +54,7 @@ def get_state_types(doc):
         res.append("draft-iana-review")
         res.append("draft-iana-action")
         res.append("draft-rfceditor")
-        
+
     return res
 
 def get_tags_for_stream_id(stream_id):
@@ -146,7 +146,7 @@ def needed_ballot_positions(doc, active_positions):
             answer.append("Has enough positions to pass.")
 
     return " ".join(answer)
-    
+
 def create_ballot_if_not_open(doc, by, ballot_slug, time=None):
     if not doc.ballot_open(ballot_slug):
         if time:
@@ -239,7 +239,7 @@ def add_links_in_new_revision_events(doc, events, diff_revisions):
         full_url = diff_url = diff_urls[(e.doc.name, e.rev)]
 
         if doc.type_id in "draft": # work around special diff url for drafts
-            full_url = "http://tools.ietf.org/id/" + diff_url + ".txt"
+            full_url = "https://tools.ietf.org/id/" + diff_url + ".txt"
 
         # build links
         links = r'<a href="%s">\1</a>' % full_url
@@ -247,7 +247,7 @@ def add_links_in_new_revision_events(doc, events, diff_revisions):
             links += ""
 
         if prev != None:
-            links += ' (<a href="http:%s?url1=%s&url2=%s">diff from previous</a>)' % (settings.RFCDIFF_PREFIX, urllib.quote(prev, safe="~"), urllib.quote(diff_url, safe="~"))
+            links += ' (<a href="https:%s?url1=%s&url2=%s">diff from previous</a>)' % (settings.RFCDIFF_PREFIX, urllib.quote(prev, safe="~"), urllib.quote(diff_url, safe="~"))
 
         # replace the bold filename part
         e.desc = re.sub(r"<b>(.+-[0-9][0-9].txt)</b>", links, e.desc)
@@ -361,7 +361,7 @@ def make_notify_changed_event(request, doc, by, new_notify, time=None):
 
 def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None):
     from ietf.doc.models import TelechatDocEvent
-    
+
     on_agenda = bool(new_telechat_date)
 
     prev = doc.latest_event(TelechatDocEvent, type="scheduled_for_telechat")
@@ -380,7 +380,7 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
 
     # auto-set returning item _ONLY_ if the caller did not provide a value
     if (     new_returning_item != None
-         and on_agenda 
+         and on_agenda
          and prev_agenda
          and new_telechat_date != prev_telechat
          and prev_telechat < datetime.date.today()
@@ -394,7 +394,7 @@ def update_telechat(request, doc, by, new_telechat_date, new_returning_item=None
     e.doc = doc
     e.returning_item = returning
     e.telechat_date = new_telechat_date
-    
+
     if on_agenda != prev_agenda:
         if on_agenda:
             e.desc = "Placed on agenda for telechat - %s" % (new_telechat_date)
@@ -428,7 +428,7 @@ def rebuild_reference_relations(doc,filename=None):
        refs = draft.Draft(draft._gettext(filename), filename).get_refs()
     except IOError as e:
        return { 'errors': ["%s :%s" %  (e.strerror, filename)] }
-    
+
     doc.relateddocument_set.filter(relationship__slug__in=['refnorm','refinfo','refold','refunk']).delete()
 
     warnings = []
@@ -451,11 +451,11 @@ def rebuild_reference_relations(doc,filename=None):
 
     ret = {}
     if errors:
-        ret['errors']=errors 
+        ret['errors']=errors
     if warnings:
-        ret['warnings']=warnings 
+        ret['warnings']=warnings
     if unfound:
-        ret['unfound']=list(unfound) 
+        ret['unfound']=list(unfound)
 
     return ret
 

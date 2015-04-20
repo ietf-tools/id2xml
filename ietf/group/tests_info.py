@@ -72,7 +72,7 @@ class GroupPagesTests(TestCase):
         self.assertTrue(group.acronym in r.content)
         self.assertTrue(group.name in r.content)
         self.assertTrue(chair.address in r.content)
-        
+
         url = urlreverse('ietf.group.info.wg_charters', kwargs=dict(group_type="wg"))
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -125,7 +125,7 @@ class GroupPagesTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('#content a:contains("%s")' % group.acronym)), 1)
-        
+
     def test_group_documents(self):
         draft = make_test_data()
         group = draft.group
@@ -404,7 +404,7 @@ class GroupEditTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertTrue(len(q('form .has-error')) > 0)
-        
+
         # edit info
         with open(os.path.join(self.charter_dir, "%s-%s.txt" % (group.charter.canonical_name(), group.charter.rev)), "w") as f:
             f.write("This is a charter.")
@@ -424,7 +424,7 @@ class GroupEditTests(TestCase):
                                   list_email="mars@mail",
                                   list_subscribe="subscribe.mars",
                                   list_archive="archive.mars",
-                                  urls="http://mars.mars (MARS site)"
+                                  urls="https://mars.mars (MARS site)"
                                   ))
         self.assertEqual(r.status_code, 302)
 
@@ -438,7 +438,7 @@ class GroupEditTests(TestCase):
         self.assertEqual(group.list_email, "mars@mail")
         self.assertEqual(group.list_subscribe, "subscribe.mars")
         self.assertEqual(group.list_archive, "archive.mars")
-        self.assertEqual(group.groupurl_set.all()[0].url, "http://mars.mars")
+        self.assertEqual(group.groupurl_set.all()[0].url, "https://mars.mars")
         self.assertEqual(group.groupurl_set.all()[0].name, "MARS site")
         self.assertTrue(os.path.exists(os.path.join(self.charter_dir, "%s-%s.txt" % (group.charter.canonical_name(), group.charter.rev))))
 
@@ -455,7 +455,7 @@ class GroupEditTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('form textarea[name=instructions]')), 1)
-        
+
         # faulty post
         r = self.client.post(url, dict(instructions="")) # No instructions
         self.assertEqual(r.status_code, 200)
@@ -635,7 +635,7 @@ class MilestoneTests(TestCase):
         self.assertEqual(m.state_id, "active")
         self.assertEqual(group.groupevent_set.count(), events_before + 1)
         self.assertTrue("to active from review" in m.milestonegroupevent_set.all()[0].desc)
-        
+
     def test_delete_milestone(self):
         m1, m2, group = self.create_test_milestones()
 
@@ -862,7 +862,7 @@ class MilestoneTests(TestCase):
 
         m2.due = self.last_day_of_month(datetime.date.today() - datetime.timedelta(days=300))
         m2.save()
-        
+
         # send
         mailbox_before = len(outbox)
         for g in groups_needing_milestones_overdue_reminder(grace_period=30):

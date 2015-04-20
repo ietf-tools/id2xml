@@ -15,15 +15,15 @@ from ietf.person.models import Person
 from ietf.utils.timezone import local_timezone_to_utc, email_time_to_local_timezone, utc_to_local_timezone
 
 
-#PROTOCOLS_URL = "http://www.iana.org/protocols/"
-#CHANGES_URL = "http://datatracker.dev.icann.org:8080/data-tracker/changes"
+#PROTOCOLS_URL = "https://www.iana.org/protocols/"
+#CHANGES_URL = "https://datatracker.dev.icann.org:8080/data-tracker/changes"
 
 def fetch_protocol_page(url):
     f = urllib2.urlopen(settings.IANA_SYNC_PROTOCOLS_URL)
     text = f.read()
     f.close()
     return text
-    
+
 def parse_protocol_page(text):
     """Parse IANA protocols page to extract referenced RFCs (as
     rfcXXXX document names)."""
@@ -57,8 +57,8 @@ def update_rfc_log_from_protocol_page(rfc_names, rfc_must_published_later_than):
         updated.append(d)
 
     return updated
-        
-    
+
+
 
 def fetch_changes_json(url, start, end):
     url += "?start=%s&end=%s" % (urlquote(local_timezone_to_utc(start).strftime("%Y-%m-%d %H:%M:%S")),
@@ -89,8 +89,8 @@ def parse_changes_json(text):
 
         # a little bit of cleaning
         i["doc"] = i["doc"].strip()
-        if i["doc"].startswith("http://www.ietf.org/internet-drafts/"):
-            i["doc"] = i["doc"][len("http://www.ietf.org/internet-drafts/"):]
+        if i["doc"].startswith("https://www.ietf.org/internet-drafts/"):
+            i["doc"] = i["doc"][len("https://www.ietf.org/internet-drafts/"):]
 
     # make sure we process oldest entries first
     changes.sort(key=lambda c: c["time"])

@@ -110,7 +110,7 @@ class IANASyncTests(TestCase):
             })
 
         self.assertRaises(Exception, iana.parse_changes_json, data)
-        
+
         # missing document from database
         data = json.dumps({
                 "changes": [
@@ -157,7 +157,7 @@ ICANN
         msg = msg % dict(person=Person.objects.get(user__username="iana").name,
                          draft=draft.name,
                          rev=draft.rev)
- 
+
         doc_name, review_time, by, comment = iana.parse_review_email(msg.encode('utf-8'))
 
         self.assertEqual(doc_name, draft.name)
@@ -185,7 +185,7 @@ ICANN
         self.assertTrue("new changes at" in r.content)
 
         # we don't actually try posting as that would trigger a real run
-        
+
 
 class RFCSyncTests(TestCase):
     def setUp(self):
@@ -221,9 +221,9 @@ class RFCSyncTests(TestCase):
 
         t = '''<?xml version="1.0" encoding="UTF-8"?>
 <rfc-index xmlns="http://www.rfc-editor.org/rfc-index"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-           xsi:schemaLocation="http://www.rfc-editor.org/rfc-index 
-                               http://www.rfc-editor.org/rfc-index.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://www.rfc-editor.org/rfc-index
+                               https://www.rfc-editor.org/rfc-index.xsd">
     <bcp-entry>
         <doc-id>BCP0001</doc-id>
         <is-also>
@@ -275,7 +275,7 @@ class RFCSyncTests(TestCase):
         <stream>IETF</stream>
         <area>%(area)s</area>
         <wg_acronym>%(group)s</wg_acronym>
-        <errata-url>http://www.rfc-editor.org/errata_search.php?rfc=1234</errata-url>
+        <errata-url>https://www.rfc-editor.org/errata_search.php?rfc=1234</errata-url>
     </rfc-entry>
 </rfc-index>''' % dict(year=today.strftime("%Y"),
                        month=today.strftime("%B"),
@@ -345,7 +345,7 @@ class RFCSyncTests(TestCase):
 <draft>%(name)s-%(rev)s.txt</draft>
 <date-received>2010-09-08</date-received>
 <state>EDIT*R*A(1G)</state>
-<auth48-url>http://www.rfc-editor.org/auth48/rfc1234</auth48-url>
+<auth48-url>https://www.rfc-editor.org/auth48/rfc1234</auth48-url>
 <normRef>
 <ref-name>%(ref)s</ref-name>
 <ref-state>IN-QUEUE</ref-state>
@@ -374,7 +374,7 @@ class RFCSyncTests(TestCase):
         self.assertEqual(draft_name, draft.name)
         self.assertEqual(state, "EDIT")
         self.assertEqual(set(tags), set(["iana", "ref"]))
-        self.assertEqual(auth48, "http://www.rfc-editor.org/auth48/rfc1234")
+        self.assertEqual(auth48, "https://www.rfc-editor.org/auth48/rfc1234")
 
 
         mailbox_before = len(outbox)
@@ -448,7 +448,7 @@ class RFCEditorUndoTests(TestCase):
                                    State.objects.get(used=True, type="draft-rfceditor", slug="edit"))
         e2.desc = "Second"
         e2.save()
-        
+
         url = urlreverse('ietf.sync.views.rfceditor_undo')
         login_testing_unauthorized(self, "rfc", url)
 

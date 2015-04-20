@@ -114,7 +114,7 @@
       "state": "active",
       "time": "2011-12-09 12:00:00",
       "unused_tags": [],
-      "list_archive": "http://www.ietf.org/mail-archive/web/core/",
+      "list_archive": "https://www.ietf.org/mail-archive/web/core/",
       "type": "wg",
       "name": "Constrained RESTful Environments"
     }
@@ -134,7 +134,7 @@
       "state": "active",
       "time": "2011-12-09 12:00:00",
       "unused_tags": [],
-      "list_archive": "http://www.ietf.org/mail-archive/web/paws/",
+      "list_archive": "https://www.ietf.org/mail-archive/web/paws/",
       "type": "wg",
       "name": "Protocol to Access WS database"
     }
@@ -154,7 +154,7 @@
       "state": "active",
       "time": "2011-12-09 12:00:00",
       "unused_tags": [],
-      "list_archive": "http://www.ietf.org/mail-archive/web/ancp/",
+      "list_archive": "https://www.ietf.org/mail-archive/web/ancp/",
       "type": "wg",
       "name": "Access Node Control Protocol"
     }
@@ -174,7 +174,7 @@
       "state": "active",
       "time": "2011-12-09 12:00:00",
       "unused_tags": [],
-      "list_archive": "http://www.ietf.org/mail-archive/web/ipv6",
+      "list_archive": "https://www.ietf.org/mail-archive/web/ipv6",
       "type": "wg",
       "name": "IPv6 Maintenance"
     }

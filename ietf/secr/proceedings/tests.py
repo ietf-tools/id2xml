@@ -41,36 +41,36 @@ class RecordingTestCase(TestCase):
         group = Group.objects.get(acronym='mars')
         session = Session.objects.filter(meeting=meeting,group=group,status__in=('sched','schedw')).first()
         url = reverse('proceedings_recording', kwargs={'meeting_num':meeting.number})
-        data = dict(group=group.acronym,external_url='http://youtube.com/xyz',session=session.pk)
+        data = dict(group=group.acronym,external_url='https://youtube.com/xyz',session=session.pk)
         self.client.login(username="secretary", password="secretary+password")
         response = self.client.post(url,data,follow=True)
         self.assertEqual(response.status_code, 200)
         self.failUnless(group.acronym in response.content)
-        
+
         # now test edit
         doc = session.materials.filter(type='recording').first()
-        external_url = 'http://youtube.com/aaa'
+        external_url = 'https://youtube.com/aaa'
         url = reverse('proceedings_recording_edit', kwargs={'meeting_num':meeting.number,'name':doc.name})
         response = self.client.post(url,dict(external_url=external_url),follow=True)
         self.assertEqual(response.status_code, 200)
         self.failUnless(external_url in response.content)
-        
+
 class BluesheetTestCase(TestCase):
     def setUp(self):
         self.proceedings_dir = os.path.abspath("tmp-proceedings-dir")
         if not os.path.exists(self.proceedings_dir):
             os.mkdir(self.proceedings_dir)
         settings.AGENDA_PATH = self.proceedings_dir
-        
+
         self.interim_listing_dir = os.path.abspath("tmp-interim-listing-dir")
         if not os.path.exists(self.interim_listing_dir):
             os.mkdir(self.interim_listing_dir)
         settings.SECR_INTERIM_LISTING_DIR = self.interim_listing_dir
-        
+
     def tearDown(self):
         shutil.rmtree(self.proceedings_dir)
         shutil.rmtree(self.interim_listing_dir)
-        
+
     def test_upload(self):
         make_test_data()
         meeting = Meeting.objects.filter(type='interim').first()
@@ -92,4 +92,4 @@ class BluesheetTestCase(TestCase):
         with open(path) as f:
             data = f.read()
         self.failUnless(doc.external_url in data)
-        
+

@@ -99,7 +99,7 @@ def document_main(request, name, rev=None):
 
     if doc.type_id == 'conflrev':
         conflictdoc = doc.related_that_doc('conflrev')[0].document
-    
+
     revisions = []
     for h in doc.history_set.order_by("time", "id"):
         if h.rev and not h.rev in revisions:
@@ -179,7 +179,7 @@ def document_main(request, name, rev=None):
             possible_types = ["txt", "pdf", "ps"]
             found_types = [t for t in possible_types if os.path.exists(base_path + t)]
 
-            base = "http://www.rfc-editor.org/rfc/"
+            base = "https://www.rfc-editor.org/rfc/"
 
             file_urls = []
             for t in found_types:
@@ -190,7 +190,7 @@ def document_main(request, name, rev=None):
                 file_urls.append(("pdf", base + "pdfrfc/" + name + ".txt.pdf"))
 
             if "txt" in found_types:
-                file_urls.append(("html", "http://tools.ietf.org/html/" + name))
+                file_urls.append(("html", "https://tools.ietf.org/html/" + name))
 
             if not found_types:
                 content = "This RFC is not currently available online."
@@ -209,10 +209,10 @@ def document_main(request, name, rev=None):
             possible_types = ["pdf", "xml", "ps"]
             found_types = ["txt"] + [t for t in possible_types if os.path.exists(base_path + t)]
 
-            tools_base = "http://tools.ietf.org/"
+            tools_base = "https://tools.ietf.org/"
 
             if doc.get_state_slug() == "active":
-                base = "http://www.ietf.org/id/"
+                base = "https://www.ietf.org/id/"
             else:
                 base = tools_base + "id/"
 
@@ -276,7 +276,7 @@ def document_main(request, name, rev=None):
         if doc.stream_id == "ietf" and iesg_state:
             show_in_states = set(IESG_BALLOT_ACTIVE_STATES)
             show_in_states.update(('approved','ann','rfcqueue','pub'))
-            if iesg_state.slug in show_in_states: 
+            if iesg_state.slug in show_in_states:
                 can_edit_consensus = can_edit
                 e = doc.latest_event(ConsensusDocEvent, type="changed_consensus")
                 consensus = nice_consensus(e and e.consensus)
@@ -474,7 +474,7 @@ def document_main(request, name, rev=None):
         if doc.rev == "00" and not os.path.isfile(pathname):
             # This could move to a template
             content = "A conflict review response has not yet been proposed."
-        else:     
+        else:
             content = get_document_content(filename, pathname, split=False, markup=True)
 
         ballot_summary = None
@@ -506,13 +506,13 @@ def document_main(request, name, rev=None):
         if doc.rev == "00" and not os.path.isfile(pathname):
             # This could move to a template
             content = "Status change text has not yet been proposed."
-        else:     
+        else:
             content = get_document_content(filename, pathname, split=False)
 
         ballot_summary = None
         if doc.get_state_slug() in ("iesgeval"):
             ballot_summary = needed_ballot_positions(doc, doc.active_ballot().active_ad_positions().values())
-     
+
         if isinstance(doc,Document):
             sorted_relations=doc.relateddocument_set.all().order_by('relationship__name')
         elif isinstance(doc,DocHistory):
@@ -890,7 +890,7 @@ def add_comment(request, name):
         form = AddCommentForm(request.POST)
         if form.is_valid():
             c = form.cleaned_data['comment']
-            
+
             e = DocEvent(doc=doc, by=login)
             e.type = "added_comment"
             e.desc = c
@@ -902,7 +902,7 @@ def add_comment(request, name):
             return redirect("doc_history", name=doc.name)
     else:
         form = AddCommentForm()
-  
+
     return render_to_response('doc/add_comment.html',
                               dict(doc=doc,
                                    form=form),

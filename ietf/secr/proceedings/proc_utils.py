@@ -32,9 +32,9 @@ def check_audio_files(group,meeting):
     '''
     Checks for audio files and creates corresponding materials (docs) for the Session
     Expects audio files in the format ietf[meeting num]-[room]-YYYMMDD-HHMM-*,
-    
+
     Example: ietf90-salonb-20140721-1710-pm3.mp3
-    
+
     '''
     for session in Session.objects.filter(group=group,meeting=meeting,status__in=('sched','schedw')):
         try:
@@ -50,7 +50,7 @@ def check_audio_files(group,meeting):
         filename = 'ietf{}-{}-{}-*'.format(meeting.number,room,time)
         path = os.path.join(settings.MEETING_RECORDINGS_DIR,'ietf{}'.format(meeting.number),filename)
         for file in glob.glob(path):
-            url = 'http://www.ietf.org/audio/ietf{}/{}'.format(meeting.number,os.path.basename(file))
+            url = 'https://www.ietf.org/audio/ietf{}/{}'.format(meeting.number,os.path.basename(file))
             doc = Document.objects.filter(external_url=url).first()
             if not doc:
                 create_recording(session,meeting,group,url)
@@ -68,7 +68,7 @@ def create_recording(session,meeting,group,url):
         title = 'Audio recording for {}'.format(time)
     else:
         title = 'Video recording for {}'.format(time)
-        
+
     doc = Document.objects.create(name=name,
                                   title=title,
                                   external_url=url,
@@ -76,7 +76,7 @@ def create_recording(session,meeting,group,url):
                                   rev='00',
                                   type_id='recording')
     doc.set_state(State.objects.get(type='recording', slug='active'))
-    
+
     # create DocEvent
     NewRevisionDocEvent.objects.create(type='new_revision',
                                        by=Person.objects.get(name='(System)'),
@@ -269,7 +269,7 @@ def create_proceedings(meeting, group, is_final=False):
             settings.MEDIA_URL,
             meeting.date.strftime('%Y/%m/%d'),
             group.acronym)
-    
+
     # Only do these tasks if we are running official proceedings generation,
     # otherwise skip them for expediency.  This procedure is called any time meeting
     # materials are uploaded/deleted, and we don't want to do all this work each time.

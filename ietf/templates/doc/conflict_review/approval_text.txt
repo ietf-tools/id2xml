@@ -1,6 +1,6 @@
 {% load mail_filters %}{% autoescape off %}From: The IESG <iesg-secretary@ietf.org>
 To: {{ review.notify }}
-Cc: The IESG <iesg@ietf.org>, <iana@iana.org>, <ietf-announce@ietf.org> 
+Cc: The IESG <iesg@ietf.org>, <iana@iana.org>, <ietf-announce@ietf.org>
 Subject: Results of IETF-conflict review for {{conflictdoc.canonical_name}}-{{conflictdoc.rev}}
 
 {% filter wordwrap:73 %}The IESG has completed a review of {{conflictdoc.canonical_name}}-{{conflictdoc.rev}} consistent with RFC5742.
@@ -21,7 +21,7 @@ The IESG review is documented at:
 A URL of the reviewed Internet Draft is:
 {{conflictdoc_url}}
 
-The process for such documents is described {% if conflictdoc.stream_id == 'ise' %}at http://www.rfc-editor.org/indsubs.html {% else %}{% if conflictdoc.stream_id == 'irtf' %}in RFC 5743 {% endif %} {% endif %}
+The process for such documents is described {% if conflictdoc.stream_id == 'ise' %}at https://www.rfc-editor.org/indsubs.html {% else %}{% if conflictdoc.stream_id == 'irtf' %}in RFC 5743 {% endif %} {% endif %}
 
 Thank you,
 

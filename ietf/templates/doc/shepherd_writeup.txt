@@ -1,4 +1,4 @@
-{% if doc.stream %}{% if doc.stream.slug == 'ietf' %}{% if doc.group.type.slug == 'individ' %}As required by RFC 4858, this is the current template for the Document 
+{% if doc.stream %}{% if doc.stream.slug == 'ietf' %}{% if doc.group.type.slug == 'individ' %}As required by RFC 4858, this is the current template for the Document
 Shepherd Write-Up.
 
 Changes are expected over time. This version is dated 24 February 2012.
@@ -15,9 +15,9 @@ documents. The approval announcement contains the following sections:
 
  Technical Summary
 
-  Relevant content can frequently be found in the abstract 
-  and/or introduction of the document. If not, this may be 
-  an indication that there are deficiencies in the abstract 
+  Relevant content can frequently be found in the abstract
+  and/or introduction of the document. If not, this may be
+  an indication that there are deficiencies in the abstract
   or introduction.
 
  Working Group Summary
@@ -29,14 +29,14 @@ documents. The approval announcement contains the following sections:
 
  Document Quality
 
-  Are there existing implementations of the protocol? Have a 
-  significant number of vendors indicated their plan to 
-  implement the specification? Are there any reviewers that 
-  merit special mention as having done a thorough review, 
-  e.g., one that resulted in important changes or a 
-  conclusion that the document had no substantive issues? If 
-  there was a MIB Doctor, Media Type or other expert review, 
-  what was its course (briefly)? In the case of a Media Type 
+  Are there existing implementations of the protocol? Have a
+  significant number of vendors indicated their plan to
+  implement the specification? Are there any reviewers that
+  merit special mention as having done a thorough review,
+  e.g., one that resulted in important changes or a
+  conclusion that the document had no substantive issues? If
+  there was a MIB Doctor, Media Type or other expert review,
+  what was its course (briefly)? In the case of a Media Type
   review, on what date was the request posted?
 
  Personnel
@@ -50,7 +50,7 @@ for publication, please explain why the document is being forwarded to
 the IESG.
 
 (4) Does the document Shepherd have any concerns about the depth or
-breadth of the reviews that have been performed? 
+breadth of the reviews that have been performed?
 
 (5) Do portions of the document need review from a particular or from
 broader perspective, e.g., security, operational complexity, AAA, DNS,
@@ -76,15 +76,15 @@ disclosures.
 (9) How solid is the consensus of the interested community behind this
 document? Does it represent the strong concurrence of a few individuals,
 with others being silent, or does the interested community as a whole
-understand and agree with it? 
+understand and agree with it?
 
-(10) Has anyone threatened an appeal or otherwise indicated extreme 
+(10) Has anyone threatened an appeal or otherwise indicated extreme
 discontent? If so, please summarise the areas of conflict in separate
 email messages to the Responsible Area Director. (It should be in a
-separate email because this questionnaire is publicly available.) 
+separate email because this questionnaire is publicly available.)
 
 (11) Identify any ID nits the Document Shepherd has found in this
-document. (See http://www.ietf.org/tools/idnits/ and the Internet-Drafts
+document. (See https://www.ietf.org/tools/idnits/ and the Internet-Drafts
 Checklist). Boilerplate checks are not enough; this check needs to be
 thorough.
 
@@ -100,7 +100,7 @@ references exist, what is the plan for their completion?
 
 (15) Are there downward normative references references (see RFC 3967)?
 If so, list these downward references to support the Area Director in
-the Last Call procedure. 
+the Last Call procedure.
 
 (16) Will publication of this document change the status of any existing
 RFCs? Are those RFCs listed on the title page header, listed in the
@@ -127,7 +127,7 @@ useful in selecting the IANA Experts for these new registries.
 (19) Describe reviews and automated checks performed by to validate
 sections of the document written in a formal language, such as XML code,
 BNF rules, MIB definitions, etc.
-{% else %}As required by RFC 4858, this is the current template for the Document 
+{% else %}As required by RFC 4858, this is the current template for the Document
 Shepherd Write-Up.
 
 Changes are expected over time. This version is dated 24 February 2012.
@@ -144,28 +144,28 @@ documents. The approval announcement contains the following sections:
 
 Technical Summary
 
-  Relevant content can frequently be found in the abstract 
-  and/or introduction of the document. If not, this may be 
-  an indication that there are deficiencies in the abstract 
+  Relevant content can frequently be found in the abstract
+  and/or introduction of the document. If not, this may be
+  an indication that there are deficiencies in the abstract
   or introduction.
 
 Working Group Summary
 
-  Was there anything in WG process that is worth noting? For 
-  example, was there controversy about particular points or 
-  were there decisions where the consensus was particularly 
+  Was there anything in WG process that is worth noting? For
+  example, was there controversy about particular points or
+  were there decisions where the consensus was particularly
   rough?
 
 Document Quality
 
-  Are there existing implementations of the protocol? Have a 
-  significant number of vendors indicated their plan to 
-  implement the specification? Are there any reviewers that 
-  merit special mention as having done a thorough review, 
-  e.g., one that resulted in important changes or a 
-  conclusion that the document had no substantive issues? If 
-  there was a MIB Doctor, Media Type or other expert review, 
-  what was its course (briefly)? In the case of a Media Type 
+  Are there existing implementations of the protocol? Have a
+  significant number of vendors indicated their plan to
+  implement the specification? Are there any reviewers that
+  merit special mention as having done a thorough review,
+  e.g., one that resulted in important changes or a
+  conclusion that the document had no substantive issues? If
+  there was a MIB Doctor, Media Type or other expert review,
+  what was its course (briefly)? In the case of a Media Type
   review, on what date was the request posted?
 
 Personnel
@@ -179,7 +179,7 @@ for publication, please explain why the document is being forwarded to
 the IESG.
 
 (4) Does the document Shepherd have any concerns about the depth or
-breadth of the reviews that have been performed?  
+breadth of the reviews that have been performed?
 
 
 
@@ -204,17 +204,17 @@ and BCP 79 have already been filed. If not, explain why.
 If so, summarize any WG discussion and conclusion regarding the IPR
 disclosures.
 
-(9) How solid is the WG consensus behind this document? Does it 
+(9) How solid is the WG consensus behind this document? Does it
 represent the strong concurrence of a few individuals, with others
-being silent, or does the WG as a whole understand and agree with it?   
+being silent, or does the WG as a whole understand and agree with it?
 
-(10) Has anyone threatened an appeal or otherwise indicated extreme 
+(10) Has anyone threatened an appeal or otherwise indicated extreme
 discontent? If so, please summarise the areas of conflict in separate
 email messages to the Responsible Area Director. (It should be in a
-separate email because this questionnaire is publicly available.) 
+separate email because this questionnaire is publicly available.)
 
 (11) Identify any ID nits the Document Shepherd has found in this
-document. (See http://www.ietf.org/tools/idnits/ and the Internet-Drafts
+document. (See https://www.ietf.org/tools/idnits/ and the Internet-Drafts
 Checklist). Boilerplate checks are not enough; this check needs to be
 thorough.
 
@@ -229,8 +229,8 @@ advancement or are otherwise in an unclear state? If such normative
 references exist, what is the plan for their completion?
 
 (15) Are there downward normative references references (see RFC 3967)?
-If so, list these downward references to support the Area Director in 
-the Last Call procedure. 
+If so, list these downward references to support the Area Director in
+the Last Call procedure.
 
 (16) Will publication of this document change the status of any
 existing RFCs? Are those RFCs listed on the title page header, listed

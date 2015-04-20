@@ -2,24 +2,24 @@
 
 # Portion Copyright (C) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
-# 
+#
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions 
+# modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
-# 
+#
 #  * Redistributions in binary form must reproduce the above
 #    copyright notice, this list of conditions and the following
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
-# 
+#
 #  * Neither the name of the Nokia Corporation and/or its
 #    subsidiary(-ies) nor the names of its contributors may be used
 #    to endorse or promote products derived from this software
 #    without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,7 +36,7 @@ from django.conf.urls import patterns
 from django.views.generic import RedirectView
 
 urlpatterns = patterns('',
-    (r'^telechat/.*$', RedirectView.as_view(url='http://www.ietf.org/iesg/minutes.html')),
+    (r'^telechat/.*$', RedirectView.as_view(url='https://www.ietf.org/iesg/minutes.html')),
     (r'^ann/(?:ind|new|prev)/$', RedirectView.as_view(url="/iesg/decisions/", permanent=True )),
     (r'^telechatdates/$', RedirectView.as_view(url='/admin/iesg/telechatdate/')),
 

@@ -3,7 +3,7 @@
   <br><a href="{% url "doc_view" name=doc.canonical_name %}">{{ doc.canonical_name }}</a>
   {% with doc.rfc_number as rfc_number %}
     {% if rfc_number %}
-      <a href="http://www.rfc-editor.org/rfc/rfc{{ rfc_number }}/">[txt]</a>
+      <a href="https://www.rfc-editor.org/rfc/rfc{{ rfc_number }}/">[txt]</a>
     {% else %}
       <a href="{{doc.href}}">[txt]</a>
     {% endif %}

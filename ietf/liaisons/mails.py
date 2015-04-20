@@ -30,7 +30,7 @@ def notify_pending_by_email(request, liaison):
 
     # Broken: this does not find the list of approvers for the sending body
     # For now, we are sending to statements@ietf.org so the Secretariat can nudge
-    # Bug 880: http://trac.tools.ietf.org/tools/ietfdb/ticket/880
+    # Bug 880: https://trac.tools.ietf.org/tools/ietfdb/ticket/880
     #
     # from ietf.liaisons.utils import IETFHM
     #
@@ -56,7 +56,7 @@ def send_sdo_reminder(sdo):
         return None
 
     manager_role = roles[0]
-    
+
     subject = 'Request for update of list of authorized individuals'
     to_email = manager_role.email.address
     name = manager_role.person.plain_name()
@@ -67,7 +67,7 @@ def send_sdo_reminder(sdo):
             sdo_name=sdo.name,
             individuals=authorized_list,
             ))
-    
+
     send_mail_text(None, to_email, settings.LIAISON_UNIVERSAL_FROM, subject, body)
 
     return body
@@ -82,11 +82,11 @@ def possibly_send_deadline_reminder(liaison):
         1: 'tomorrow',
         0: 'today'
         }
-    
+
     days_to_go = (liaison.deadline - datetime.date.today()).days
     if not (days_to_go < 0 or days_to_go in PREVIOUS_DAYS.keys()):
         return None # no reminder
-            
+
     if days_to_go < 0:
         subject = '[Liaison OUT OF DATE] %s' % liaison.title
         days_msg = 'is out of date for %s days' % (-days_to_go)
@@ -108,7 +108,7 @@ def possibly_send_deadline_reminder(liaison):
                                  url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_approval_detail", kwargs=dict(object_id=liaison.pk)),
                                  referenced_url=settings.IDTRACKER_BASE_URL + urlreverse("liaison_detail", kwargs=dict(object_id=liaison.related_to.pk)) if liaison.related_to else None,
                                  ))
-    
+
     send_mail_text(None, to_email, from_email, subject, body, cc=cc, bcc=bcc)
 
     return body

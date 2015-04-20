@@ -11,6 +11,7 @@ class LatestMeetingMaterialFeed(Feed):
     feed_type = Atom1Feed
     link = "/meeting/"
     language = "en"
+    # XXX I don't think these URLs work anymore? -- Lars (and sholud use https)
     base_url = "http://www3.ietf.org/proceedings/"
 
     def items(self):

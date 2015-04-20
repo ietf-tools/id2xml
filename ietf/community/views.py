@@ -77,7 +77,7 @@ def manage_group_list(request, acronym):
 
 def add_track_document(request, document_name):
     """supports the "Track this document" functionality
-    
+
     This is exposed in the document view and in document search results."""
     if not request.user.is_authenticated():
         path = urlquote(request.get_full_path())
@@ -90,7 +90,7 @@ def add_track_document(request, document_name):
 
 def remove_track_document(request, document_name):
     """supports the "Untrack this document" functionality
-    
+
     This is exposed in the document view and in document search results."""
     clist = CommunityList.objects.get_or_create(user=request.user)[0]
     if not clist.check_manager(request.user):
@@ -164,7 +164,7 @@ def _atom_view(request, clist, significant=False):
         notifications = notifications.filter(listnotification__significant=True)
 
     host = request.get_host()
-    feed_url = 'http://%s%s' % (host, request.get_full_path())
+    feed_url = 'https://%s%s' % (host, request.get_full_path())
     feed_id = uuid.uuid5(uuid.NAMESPACE_URL, feed_url.encode('utf-8'))
     title = '%s RSS Feed' % clist.long_name()
     if significant:

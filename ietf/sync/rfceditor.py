@@ -18,8 +18,8 @@ from ietf.person.models import Person
 from ietf.utils.log import log
 from ietf.utils.mail import send_mail_text
 
-#QUEUE_URL = "http://www.rfc-editor.org/queue2.xml"
-#INDEX_URL = "http://www.rfc-editor.org/rfc/rfc-index.xml"
+#QUEUE_URL = "https://www.rfc-editor.org/queue2.xml"
+#INDEX_URL = "https://www.rfc-editor.org/rfc/rfc-index.xml"
 #POST_APPROVED_DRAFT_URL = "https://www.rfc-editor.org/sdev/jsonexp/jsonparser.php"
 
 MIN_QUEUE_RESULTS = 10
@@ -49,7 +49,7 @@ def parse_queue(response):
             draft_name = get_child_text(node, "draft").strip()
             draft_name = re.sub("(-\d\d)?(.txt){1,2}$", "", draft_name)
             date_received = get_child_text(node, "date-received")
-            
+
             state = ""
             tags = []
             missref_generation = ""
@@ -90,7 +90,7 @@ def parse_queue(response):
                     refs.append((ref_name, ref_state, in_queue))
 
             drafts.append((draft_name, date_received, state, tags, missref_generation, stream, auth48, cluster, refs))
-        
+
         elif event == pulldom.START_ELEMENT and node.tagName == "section":
             name = node.getAttribute('name')
             if name.startswith("IETF"):
@@ -250,15 +250,15 @@ def parse_index(response):
 
             current_status = get_child_text(node, "current-status").title()
 
-            updates = extract_doc_list(node, "updates") 
+            updates = extract_doc_list(node, "updates")
             updated_by = extract_doc_list(node, "updated-by")
-            obsoletes = extract_doc_list(node, "obsoletes") 
+            obsoletes = extract_doc_list(node, "obsoletes")
             obsoleted_by = extract_doc_list(node, "obsoleted-by")
             stream = get_child_text(node, "stream")
             wg = get_child_text(node, "wg_acronym")
             if wg and ((wg == "NON WORKING GROUP") or len(wg) > 15):
                 wg = None
-           
+
             l = []
             pages = ""
             for fmt in node.getElementsByTagName("format"):

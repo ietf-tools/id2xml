@@ -136,6 +136,13 @@ $(document).ready(function () {
         var submission_date = form.find('#id_submitted_date');
         var other_organization = form.find('#id_other_organization');
         var approval = form.find('#id_approved');
+        var cancel = form.find('#id_cancel');
+        var cancel_dialog = form.find('#cancel-dialog');
+        var config = {};
+        var related_trigger = form.find('.id_related_to');
+        var related_url = form.find('#id_related_to').parent().find('.listURL').text();
+        var related_dialog = form.find('#related-dialog');
+        var unrelate_trigger = form.find('.id_no_related_to');
 
         var render_mails_into = function(container, person_list, as_html) {
             var html='';
@@ -264,6 +271,58 @@ $(document).ready(function () {
                 other_organization.closest('.form-group').hide();
                 other_organization.prop("required", false);
             }
+        };
+
+        var cancelForm = function() {
+            cancel_dialog.dialog("open");
+        };
+
+        var getRelatedLink = function() {
+            var link = jQuery(this).text();;
+            var pk = jQuery(this).nextAll('.liaisonPK').text();
+            var widget = related_trigger.parent();
+            var newwidget = widget.clone()
+            related_dialog.dialog('close');
+            newwidget.find('.id_related_to').click(selectRelated);
+            newwidget.find('.id_no_related_to').click(selectNoRelated);
+            newwidget.find('.relatedLiaisonWidgetTitle').text(link);
+            newwidget.find('.relatedLiaisonWidgetValue').val(pk);
+            newwidget.find('.noRelated').hide();
+            newwidget.find('.id_related_to').hide();
+            newwidget.find('.id_no_related_to').show();
+            widget.before(newwidget);
+            return false;
+        };
+
+        var selectNoRelated = function() {
+            var widget = jQuery(this).parent();
+            widget.remove();
+            return false;
+        };
+
+        var selectRelated = function() {
+            var trigger = jQuery(this);
+            var widget = jQuery(this).parent();
+            var url = widget.find('.listURL').text();
+            var title = widget.find('.relatedLiaisonWidgetTitle');
+            related_dialog.html('<img src="/images/ajax-loader.gif" />');
+            related_dialog.dialog('open');
+            jQuery.ajax({
+                url: url,
+                type: 'GET',
+                cache: false,
+                async: true,
+                dataType: 'html',
+                success: function(response){
+                    related_dialog.html(response);
+                    related_dialog.find("#LiaisonListTable").tablesorter({
+                        sortList: [[0, 1]],
+                        widgets: ["ietf"]
+                    });
+                    related_dialog.find('td a').click(getRelatedLink);
+                }
+            });
+            return false;
         };
 
         var checkFrom = function(first_time) {

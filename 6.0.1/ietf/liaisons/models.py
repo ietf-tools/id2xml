@@ -1,52 +1,117 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 
+from django.conf import settings
+from django.core.urlresolvers import reverse as urlreverse
 from django.db import models
 from django.utils.text import slugify
 
-from ietf.name.models import LiaisonStatementPurposeName
+from ietf.person.models import Email, Person
+from ietf.name.models import (LiaisonStatementPurposeName, LiaisonStatementState,
+                              LiaisonStatementEventTypeName, LiaisonStatementTagName,
+                              DocRelationshipName)
 from ietf.doc.models import Document
-from ietf.person.models import Email
 from ietf.group.models import Group
-    
+
+
 class LiaisonStatement(models.Model):
     title = models.CharField(blank=True, max_length=255)
+    other_identifiers = models.TextField(blank=True, null=True) # Identifiers from other bodies
     purpose = models.ForeignKey(LiaisonStatementPurposeName)
     body = models.TextField(blank=True)
     deadline = models.DateField(null=True, blank=True)
 
-    related_to = models.ForeignKey('LiaisonStatement', blank=True, null=True)
+    from_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_from_set')
+    from_name = models.CharField(max_length=255, help_text="Name of the sender body")
+    to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_to_set') 
+    to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
 
-    from_group = models.ForeignKey(Group, related_name="liaisonstatement_from_set", null=True, blank=True, help_text="Sender group, if it exists.")
-    from_name = models.CharField(max_length=255, help_text="Name of the sender body.")
+    tags = models.ManyToManyField(LiaisonStatementTagName, blank=True, null=True)
+
     from_contact = models.ForeignKey(Email, blank=True, null=True)
-    to_group = models.ForeignKey(Group, related_name="liaisonstatement_to_set", null=True, blank=True, help_text="Recipient group, if it exists.")
-    to_name = models.CharField(max_length=255, help_text="Name of the recipient body.")
-    to_contact = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body.")
+    to_contacts = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body") 
+    response_contacts = models.CharField(blank=True, max_length=255, help_text="Where to send a response") # RFC4053 
+    technical_contacts = models.CharField(blank=True, max_length=255, help_text="Who to contact for clarification") # RFC4053
+    action_holder_contacts = models.CharField(blank=True, max_length=255, help_text="Who makes sure action is completed")  # incoming only?
+    cc_contacts = models.TextField(blank=True)
 
-    reply_to = models.CharField(blank=True, max_length=255)
+    attachments = models.ManyToManyField(Document, through='LiaisonStatementAttachment', blank=True)
 
-    response_contact = models.CharField(blank=True, max_length=255)
-    technical_contact = models.CharField(blank=True, max_length=255)
-    cc = models.TextField(blank=True)
+    state = models.ForeignKey(LiaisonStatementState, default='pending')
 
-    submitted = models.DateTimeField(null=True, blank=True)
-    modified = models.DateTimeField(null=True, blank=True)
-    approved = models.DateTimeField(null=True, blank=True)
+    def __unicode__(self):
+        return self.title or u"<no title>"
 
-    action_taken = models.BooleanField(default=False)
-
-    attachments = models.ManyToManyField(Document, blank=True)
+    def get_absolute_url(self):
+        return settings.IDTRACKER_BASE_URL + urlreverse('liaison_detail',kwargs={'object_id':self.id})
 
     def name(self):
-        if self.from_group:
-            frm = self.from_group.acronym or self.from_group.name
+        if self.from_groups.count():
+            frm = ', '.join([i.acronym or i.name for i in self.from_groups.all()])
         else:
             frm = self.from_name
-        if self.to_group:
-            to = self.to_group.acronym or self.to_group.name
+        if self.to_groups.count():
+            to = ', '.join([i.acronym or i.name for i in self.to_groups.all()])
         else:
             to = self.to_name
         return slugify("liaison" + " " + self.submitted.strftime("%Y-%m-%d") + " " + frm[:50] + " " + to[:50] + " " + self.title[:115])
 
+    @property
+    def submitted(self):
+        if getattr(self, '_submitted', None):
+            return self._submitted
+        event = self.liaisonstatementevent_set.filter(type__slug='submitted')
+        if event.count():
+            return event[0].time
+        return None
+    
+    @property
+    def modified(self):
+        event = self.liaisonstatementevent_set.all().order_by('-time').first()
+        if event:
+            return event.time
+        return None
+
+    @property
+    def approved(self):
+        return self.state_id == 'approved'
+
+    @property
+    def action_taken(self):
+        return bool(self.tags.filter(slug='taken').count())
+
+    @property
+    def awaiting_action(self):
+        if getattr(self, '_awaiting_action', None) != None:
+            return bool(self._awaiting_action)
+        return bool(self.tags.filter(slug='awaiting').count())
+
+
+class LiaisonStatementAttachment(models.Model):
+    statement = models.ForeignKey(LiaisonStatement)
+    document = models.ForeignKey(Document)
+    removed = models.BooleanField(default=False)
+
+
+class RelatedLiaisonStatement(models.Model):
+    source = models.ForeignKey(LiaisonStatement, related_name='source_of_set')
+    target = models.ForeignKey(LiaisonStatement, related_name='target_of_set')
+    relationship = models.ForeignKey(DocRelationshipName)
+
+
+class LiaisonStatementGroupContacts(models.Model):
+    group = models.ForeignKey(Group, unique=True) 
+    default_reply_to = models.CharField(max_length=255)
+
+
+class LiaisonStatementEvent(models.Model):
+    time = models.DateTimeField(auto_now_add=True)
+    type = models.ForeignKey(LiaisonStatementEventTypeName)
+    by = models.ForeignKey(Person)
+    statement = models.ForeignKey(LiaisonStatement)
+    desc = models.TextField()
+    
     def __unicode__(self):
-        return self.title
+        return u"%s %s by %s at %s" % (self.statement.title, self.type.slug, self.by.plain_name(), self.time)
+
+    class Meta:
+        ordering = ['-time', '-id']

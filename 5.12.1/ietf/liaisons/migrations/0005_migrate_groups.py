@@ -8,7 +8,7 @@ def create_new_groups(apps, schema_editor):
     Group = apps.get_model("group","Group")
     for group in NEW_GROUPS:
         if group[2]:
-            print "Get parent: {}".format(group[2])
+            #print "Get parent: {}".format(group[2])
             parent = Group.objects.get(acronym=group[2])
         else:
             parent = None
@@ -31,7 +31,7 @@ def set_parents(apps, schema_editor):
     '''Modify some existing groups'''
     Group = apps.get_model("group","Group")
     for child_acronym,parent_acronym in SET_PARENT:
-        print "Setting parent {}:{}".format(child_acronym,parent_acronym)
+        #print "Setting parent {}:{}".format(child_acronym,parent_acronym)
         child = Group.objects.get(acronym=child_acronym)
         parent = Group.objects.get(acronym=parent_acronym)
         child.parent = parent
@@ -60,53 +60,52 @@ def copy_to_group(apps, schema_editor):
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
-        if s.to_group:
+        if s.to_name and s.to_name in TO_NAME_MAPPING:
+            if TO_NAME_MAPPING[s.to_name]:
+                got_exception = False
+                for acronym in TO_NAME_MAPPING[s.to_name]:
+                    try:
+                        s.to_groups.add(Group.objects.get(acronym=acronym))
+                    except Group.DoesNotExist:
+                        print "Group Does Not Exist: {},{},{}".format(s.pk,s.to_name,acronym)
+                        got_exception = True
+                if not got_exception:
+                    s.to_name = ''
+                    s.save()
+            else:
+                print "{}:{} empty to_group mapping".format(s.pk,s.to_name)
+
+        elif s.to_group:
             s.to_groups.add(s.to_group)
             s.to_name = ''
             s.save()
-        elif s.to_name:
-            if s.to_name in TO_NAME_MAPPING:
-                if TO_NAME_MAPPING[s.to_name]:
-                    got_exception = False
-                    for acronym in TO_NAME_MAPPING[s.to_name]:
-                        try:
-                            s.to_groups.add(Group.objects.get(acronym=acronym))
-                        except Group.DoesNotExist:
-                            print "Group Does Not Exist: {}".format(acronym)
-                            got_exception = True
-                    if not got_exception:
-                        s.to_name = ''
-                        s.save()
-                else:
-                    print "{} empty to_group mapping"
-            else:
-                print "{} not in mapping".format(s.to_name)
+        else:
+            print "to_name not mapped and no to_group {}".format(s.pk)
 
 def copy_from_group(apps, schema_editor):
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
-        if s.from_group:
+        if s.from_name and s.from_name in FROM_NAME_MAPPING:
+            if FROM_NAME_MAPPING[s.from_name]:
+                got_exception = False
+                for acronym in FROM_NAME_MAPPING[s.from_name]:
+                    try:
+                        s.from_groups.add(Group.objects.get(acronym=acronym))
+                    except Group.DoesNotExist:
+                        print "Group Does Not Exist: {}".format(acronym)
+                        got_exception = True
+                if not got_exception:
+                    s.from_name = ''
+                    s.save()
+            else:
+                print "{}:{} empty from_group mapping".format(s.pk,s.from_name)
+        elif s.from_group:
             s.from_groups.add(s.from_group)
             s.from_name = ''
             s.save()
-        elif s.from_name:
-            if s.from_name in FROM_NAME_MAPPING:
-                if FROM_NAME_MAPPING[s.from_name]:
-                    got_exception = False
-                    for acronym in FROM_NAME_MAPPING[s.from_name]:
-                        try:
-                            s.from_groups.add(Group.objects.get(acronym=acronym))
-                        except Group.DoesNotExist:
-                            print "Group Does Not Exist: {}".format(acronym)
-                            got_exception = True
-                    if not got_exception:
-                        s.from_name = ''
-                        s.save()
-                else:
-                    print "{} empty from_group mapping"
-            else:
-                print "{} not in mapping".format(s.to_name)
+        else:
+            print "from_name not mapped and no from_group {}".format(s.pk)
 
 def explicit_mappings(apps, schema_editor):
     """In some cases the to_name cannot be mapped one-to-one with a group.  The
@@ -126,7 +125,7 @@ def explicit_mappings(apps, schema_editor):
                 s.from_name = ''
             s.save()
     
-    _setgroup(to=['ietf'],pks=[835,836,837,840])
+    _setgroup(to=['ietf'],pks=[116,782,796,797,823,835,836,837,840])
     _setgroup(to=['sipping'],pks=[809])
     _setgroup(to=['ieprep'],pks=[810])
     _setgroup(to=['atm-forum'],frm=['megaco'],pks=[816])
@@ -137,6 +136,8 @@ def explicit_mappings(apps, schema_editor):
     _setgroup(to=['rmt'],pks=[838,839])
     _setgroup(to=['ietf','iana'],pks=[841])
     _setgroup(to=['isoc','iana'],pks=[842])
+    _setgroup(to=['ietf','avt'],pks=[811,812])
+    _setgroup(to=['avt'],pks=[822])
     # 821 / 824
     
 class Migration(migrations.Migration):
@@ -160,10 +161,14 @@ class Migration(migrations.Migration):
 # x_name to group mappings
 # -----------------------------------------------------------
 NEW_GROUPS = [
-    ('3gpp-tsg-sa2','3GPP-TSG-SA2','3gpp','active'),
-    ('3gpp-tsg-sa3','3GPP-TSG-SA3','3gpp','active'),
-    ('3gpp-tsg-ct4','3GPP-TSG-CT4','3gpp','active'),
-    ('3gpp-tsg-ran2','3GPP-TSG-RAN2','3gpp','active'),
+    ('3gpp-tsgsa','SGPP TSG SA','3gpp','active'),
+    ('3gpp-tsgsa-sa2','3GPP TSG SA WG2','3gpp-tsgsa','active'),
+    ('3gpp-tsgsa-sa3','3GPP TSG SA WG3','3gpp-tsgsa','active'),
+    ('3gpp-tsgct','SGPP TSG CT','3gpp','active'),
+    ('3gpp-tsgct-ct1','3GPP TSG CT WG1','3gpp-tsgct','active'),
+    ('3gpp-tsgct-ct4','3GPP TSG CT WG4','3gpp-tsgct','active'),
+    ('3gpp-tsgran','SGPP TSG RAN','3gpp','active'),
+    ('3gpp-tsgran-ran2','3GPP TSG RAN WG2','3gpp-tsgran','active'),
     ('3gpp-tsgt-wg2','3GPP-TSGT-WG2','3gpp','active'),
     ('acif','Australian Communications Industry Forum',None,'active'),
     ('arib','Association of Radio Industries and Business',None,'active'),
@@ -235,12 +240,14 @@ NEW_GROUPS = [
     ('itu-t-sg-16-q8','ITU-T-SG-16-Q8','itu-t-sg-16','active'),
     ('itu-t-sg-16-q9','ITU-T-SG-16-Q9','itu-t-sg-16','active'),
     ('itu-t-sg-16-q10','ITU-T-SG-16-Q10','itu-t-sg-16','active'),
+    ('itu-t-sg-17-tsb','ITU-T-SG-17-TSB','itu-t-sg-17','active'),
     ('itu-t-sg-17-q2','ITU-T-SG-17-Q2','itu-t-sg-17','active'),
     ('itu-t-sg-17-q4','ITU-T-SG-17-Q4','itu-t-sg-17','active'),
     ('ieee','IEEE',None,'active'),
     ('ieee-802','IEEE 802','ieee','active'),
     ('ieee-802-ec','IEEE 802 Executive Committee','ieee','active'),
     ('ieee-802-21','IEEE 802.21','ieee-802','active'),
+    ('ieee-sa-ngson','IEEE SA NGSON','ieee-sa','active'),
     ('iso-iec-jtc1','ISO/IEC JTC1',None,'active'),
     ('iso-iec-jtc1-sc29-wg1','ISO/IEC JTC1 SC29 WG1','iso-iec-jtc1-sc29','active'),
     ('iso-iec-jtc1-sc31','ISO/IEC JTC1 SC31','iso-iec-jtc1','active'),
@@ -251,8 +258,9 @@ NEW_GROUPS = [
     ('mfa-forum','MFA Forum',None,'active'),
     ('mpeg','MPEG',None,'active'),
     ('mpls-forum','MPLS Forum',None,'active'),
-    ('mpls-fr-alliance','MPLS and Frame Relay Alliance',None,'active'),
+    ('mfa','MPLS and Frame Relay Alliance',None,'active'),
     ('nanc-lnpa-wg','NANC LNPA WG',None,'active'),
+    ('nmnro','National, Multi-National or Regional Organizations',None,'active'),
     ('oma','OMA',None,'active'),
     ('oma-bcast','OMA BCAST','oma','active'),
     ('oma-com-cab','OMA COM CAB','oma','active'),
@@ -285,6 +293,7 @@ CHANGE_ACRONYM = [
     ('isoiec-jtc-1sc-29wg-11','iso-iec-jtc1-sc29-wg11'),
     ('itu-t-fgd','itu-t-fg-dist'),
     ('3GPP-TSG-SA-WG4','3gpp-tsg-sa4'),
+    ('IEEE-802-OmniRAN','ieee-802-ec-omniran'),
 ]
     
 SET_PARENT = [
@@ -309,6 +318,7 @@ SET_PARENT = [
     ('ieee-802-11','ieee-802'),
     ('ieee-802-16','ieee-802'),
     ('ieee-802-23','ieee-802'),
+    ('ieee-802-ec-omniran','ieee-802-ec'),
     ('iso-iec-jtc1-sc2','iso-iec-jtc1'),
     ('iso-iec-jtc1-sc6','iso-iec-jtc1'),
     ('iso-iec-jtc1-sc7','iso-iec-jtc1'),
@@ -323,18 +333,17 @@ MULTI_TO_GROUPS = [
 ]
 
 TO_NAME_MAPPING = {
-    u'': None,
     u'(bwijnen@lucent.com) Bert Wijnen': [u'sming'],
     u'(lyong@ciena.com)Lyndon Ong': [u'itu-t-sg-15'],
     #u'(sob@harvard.edu) Scott Bradner': None,   # this is a bunch (explicit)
     u'(sob@harvard.edu)Scott Bradner': ['irtf'],    # this is 833
     u'3GPP SA WG4': [u'3gpp-tsg-sa4'],
-    u'3GPP SA2': [u'3gpp-tsg-sa2'],
-    u'3GPP TSG CT WG4': [u'3gpp-tsg-ct4'],
-    u'3GPP TSG RAN WG2': [u'3gpp-tsg-ran2'],
+    u'3GPP SA2': [u'3gpp-tsgsa-sa2'],
+    u'3GPP TSG CT WG4': [u'3gpp-tsgct-ct4'],
+    u'3GPP TSG RAN WG2': [u'3gpp-tsgran-ran2'],
     u'3GPP TSG SA WG4': [u'3gpp-tsg-sa4'],
-    u'3GPP, 3GPP2, ARIB, ATIS, CCSA, ETSI, ETSI-DECT, ETSI-BRAN, IEEE, IETF,': [u'3gpp',u'3gpp2',u'arib',u'atis',u'ccsa',u'etsi',u'etsi-dect',u'etsi-bran',u'ieee',u'ietf'],
-    u'3GPP/IETF and 3GPP/ITU-T Co-ordinator': None,
+    u'3GPP, 3GPP2, ARIB, ATIS, CCSA, ETSI, ETSI-DECT, ETSI-BRAN, IEEE, IETF,': [u'ietf'],
+    u'3GPP/IETF and 3GPP/ITU-T Co-ordinator': ['3gpp-tsgct-ct1'],
     u'ACIF, ARIB, ATIS, CCSA, ETSI, IEEE, IETF, ISACC, TIA, TTA, TTC': ['ietf'],
     u'ASON-related Work': ['ccamp'],
     u'ATIS': ['atis'],
@@ -357,16 +366,17 @@ TO_NAME_MAPPING = {
     u'ETSI TC HF': ['etsi-tc-hf'],
     u'ETSI TISPAN': ['etsi-tispan'],
     u'G.7712 Editor, ITU-T SG15Q14 Rapporteur, ITU-T SG15': ['itu-t-sg-15'],
-    u'Generic EAP Encapsulation': None,
+    u'Generic EAP Encapsulation': ['int'],
     u'Harald Alvestrand': ['avt'],      # placeholder for explicit (2)
     u'IAB and IETF Routing Area Directors': [u'iab', 'rtg'],
     u'IAB, IESG': [u'iab', 'iesg'],
     u'IANA': [u'iana'],
     u'ICANN, IETF/IAB, NRO and ACSIS': ['ietf','iab'],
     u'IEEE 802': [u'ieee-802'],
-    u'IEEE NGSON Study Group': None,
+    u'IEEE NGSON Study Group': ['ieee-sa-ngson'],
     u'IEEE802.1': [u'ieee-802-1'],
     u'IESG members, IAB members': [u'iesg', u'iab'],
+    u'IESG, IAB, IETF MPLS WG': ['iesg','iab','mpls'],
     u'IESG, IETF-RAI': [u'iesg', u'rai'],
     u'IESG/IAB Chair': [u'iesg', u'iab'],
     u'IETF  PWE3 and TICTOC': [u'pwe3', u'tictoc'],
@@ -378,6 +388,10 @@ TO_NAME_MAPPING = {
     u'IETF (ccamp, pce and mpls WGs)': [u'ccamp', u'pce', u'mpls'],
     u'IETF 6MAN WG, IETF Internet Area': [u'6man', u'int'],
     u'IETF AVT WG, ITU-T SG11': [u'avt', u'itu-t-sg-11'],
+    #u'IETF CCAMP WG and Routing Area Directors': [u'ccamp', u'rtg'],
+    #u'IETF CCAMP WG and Sub IP Directors': [u'ccamp','sub'],
+    #u'IETF CCAMP WG and Sub-IP Area Directors': [u'ccamp','sub'],
+    u'IETF CCAMP WG, CC: IETF OSPF WG': [u'ospf','ccamp'],
     u'IETF CCAMP WG, Routing Area Directors': [u'ccamp', u'rtg'],
     u'IETF CCAMP and MPLS WGs': [u'ccamp', u'mpls'],
     u'IETF CCAMP and MPLS WGs and the Routing Area Directors of the IETF': [u'ccamp', u'mpls', u'rtg'],
@@ -388,6 +402,8 @@ TO_NAME_MAPPING = {
     u'IETF DNSOP WG, SAAG, IAB': [u'dnsop', u'saag', u'iab'],
     u'IETF IAB, IETF IESG': [u'iab', u'ietf', u'iesg'],
     u'IETF IESG, IAB, PWE3 WG, MPLS WG, routing and internet Area Directors': [u'iesg', u'iab', u'pwe3', u'mpls', u'rtg', u'int'],
+    u'IETF IESG, IETF MPLS WG': [u'mpls','iesg'],
+    #u'IETF ISIS WG and Routing Area Directors': [u'isis','rtg'],
     u'IETF IPPM, IETF AVT': [u'ippm', u'avt'],
     u'IETF Internet Area; IETF MIF WG; IETF v6ops WG; IETF 6man WG; IETF softwire WG;  IETF Operations and Management Area': [u'int', u'mif', u'v6ops', u'6man', u'softwire', u'ops'],
     u'IETF Liaison to the ITU on MPLS and PWE3 WG Co-Chair': [u'itu-t-mpls', u'pwe3'],
@@ -395,13 +411,19 @@ TO_NAME_MAPPING = {
     u'IETF MEAD team': [u'mead'],
     u'IETF MEXT WG': ['mext'],
     u'IETF MIPSHOP-WG': [u'mipshop'],
+    u'IETF MMUSIC WG,IETF SIPPING WG': [u'sipping','mmusic'],
     u'IETF MPLS & PWE3': [u'mpls', u'pwe3'],
     u'IETF MPLS WG, CC: IETF CCAMP and PWE3  WGs': [u'mpls', u'ccamp', u'pwe3'],
     u'IETF MPLS WG, CC: MFA Forum': ['mpls','mfa-forum'],
     u'IETF MPLS WG, IAB, IESG': [u'mpls', u'iab', u'iesg'],
     u'IETF MPLS WG, IETF IAB and IESG': [u'mpls', u'iab', u'iesg'],
     u'IETF MPLS WG, IETF PWE3 WG, Broadband Forum': [u'mpls', u'pwe3', u'broadband-forum'],
-    u'IETF MPLS and GMPLS': ['mpls'], # and maybe ccamp
+    u'IETF MPLS WG Co Chairs (Info: CCAMP WG Co Chairs, MEAD team)': [u'mpls','ccamp','mead'],
+    u'IETF MPLS WG Co-Chairs, CC: IETF MEAD team': [u'mpls','mead'],
+    u'IETF MPLS WG and OPSA WG': [u'mpls','opsawg'],
+    u'IETF MPLS WG and PEW3 WG': [u'mpls','pwe3'],
+    u'IETF MPLS WG, PWE3 WG': [u'pwe3','mpls'],
+    u'IETF MPLS and GMPLS': ['mpls'],
     u'IETF MPLS and PWE3 WG, MFA Forum, ITU-T Q7/13': ['mpls','pwe3','mfa-forum','itu-t-sg-13-q7'],
     u'IETF MPLS liaison representative': [u'mpls'],
     u'IETF MPLS, CCAMP and PWE3  WGs': [u'mpls', u'ccamp', u'pwe3'],
@@ -411,22 +433,37 @@ TO_NAME_MAPPING = {
     u'IETF NSIS WG Chairs, IETF TSV Area Directors, IESG members, IAB members': [u'nsis', u'tsv', u'iesg', u'iab'],
     u'IETF PWE3 and L2VPN': [u'pwe3', u'l2vpn'],
     u'IETF PWE3 and L2VPN Working Groups': [u'pwe3', u'l2vpn'],
+    u'IETF PWE3 and MPLS WG': [u'mpls',u'pwe3'],
     u'IETF PWE3 and MPLS WGs': [u'pwe3', u'mpls'],
     u'IETF PWE3 and MPLS Working Groups': [u'pwe3', u'mpls'],
+    u'IETF PWE3, IETF L2VPN WG': ['pwe3',u'l2vpn'],
     u'IETF PWE3, MPLS working groups': [u'pwe3', u'mpls'],
     u'IETF RAI and IESG': [u'rai', 'iesg'],
     u'IETF Real-time Applications and Infrastructure Area Director': [u'rai'],
     u'IETF Routing Area, the MPLS and CCAMP working groups': [u'rtg', u'mpls', u'ccamp'],
+    u'IETF Routing Area (CCAMP WG) and Internet Area (L2VPN WG and L3VPN WG)': ['ccamp','l2vpn','l3vpn'],
+    u'IETF Routing Area Directors and IAB  (CC: CCAMP WG)': ['ccamp',u'rtg','iab'],
+    u'IETF Routing Area Directors and IS-IS WG': ['isis'],
     u'IETF Routing and Transport areas': [u'rtg', u'tsv'],
+    u'IETF Security Area Directors, CC: IETF CCAMP WG': [u'sec','ccamp'],
     u'IETF SIP related Working Groups and IESG': ['iesg','rai'],
     u'IETF Transport and Internat Areas': [u'tsv', u'int'],
+    u'IETF Transport Area Directors, PCN Working Group Chairs': [u'pcn'],
     u'IETF WG MPLS': [u'mpls'],
     u'IETF Working Groups IEPREP, TSV, NSIS': [u'ieprep', u'tsv', u'nsis'],
     u'IETF and Harald Alvestrand': ['ietf'],
     u'IETF and IAB': [u'ietf', u'iab'],
+    u'IETF avt and mmusic WG': [u'mmusic','avt'],
+    u'IETF ccamp and pce WG': ['ccamp',u'pce'],
+    u'IETF mobileip WG and mpls WG': [u'mobileip','mpls'],
+    u'IETF mpls WG, CC: IETF pwe3 WG': ['mpls',u'pwe3'],
+    u'IETF mpls and ccamp WG': ['mpls',u'ccamp'],
+    u'IETF pwe3 WG, CC: mpls WG': [u'mpls','pwe3'],
     u'IETF pwe3, mpls WGs': [u'pwe3', u'mpls'],
+    u'IETF pwe3 and mpls WG': [u'mpls','pwe3'],
     u'IETF re RoHC': [u'rohc'],
     u'IETF \u2013 Internet Area Directors, Internet Area Working Groups': [u'int'],
+    u'IETF: Transport Area Directors, PCN Working Group Chairs': [u'pcn'],
     u'IETF, IAB': [u'ietf', u'iab'],
     u'IETF/IAB': [u'ietf', u'iab'],
     u'IETF/IAB, NRO, ICANN and ACSIS': ['ietf','iab'],
@@ -476,7 +513,7 @@ TO_NAME_MAPPING = {
     u'ITU-T SG-15': [u'itu-t-sg-15'],
     u'ITU-T SG-2': [u'itu-t-sg-2'],
     u'ITU-T SG11': [u'itu-t-sg-11'],
-    u'ITU-T SG12, SG13, ATIS, TIA, IEC, IETF ccamp WG, IEEE 802.1, 802.3, OIF, Metro Ethernet Forum, ATM Forum': ['itu-t-sg-12','itu-t-sg-13','atis','tia',None,'ccamp','ieee-802-1','ieee-802-3',None,None,'atm-forum'],
+    u'ITU-T SG12, SG13, ATIS, TIA, IEC, IETF ccamp WG, IEEE 802.1, 802.3, OIF, Metro Ethernet Forum, ATM Forum': ['ccamp'],
     u'ITU-T SG13': [u'itu-t-sg-13'],
     u'ITU-T SG13 and SG15': [u'itu-t-sg-13', u'itu-t-sg-15'],
     u'ITU-T SG15': [u'itu-t-sg-15'],
@@ -500,11 +537,12 @@ TO_NAME_MAPPING = {
     u'ITU-T SG15, Q9, Q11, Q12 and Q14': [u'itu-t-sg-15-q9',u'itu-t-sg-15-q11',u'itu-t-sg-15-q12',u'itu-t-sg-15-q14'],
     u'ITU-T SG16': [u'itu-t-sg-16'],
     u'ITU-T SG17': [u'itu-t-sg-17'],
+    u'ITU-T SG17 TSB': [u'itu-t-sg-17-tsb'],
     u'ITU-T SG2': [u'itu-t-sg-2'],
     u'ITU-T SG2 <tsbsg2@itu.int>': [u'itu-t-sg-2'],
     u'ITU-T SG2 Q 1/2': [u'itu-t-sg-2-q1'],
     u'ITU-T SG4': [u'itu-t-sg-4'],
-    u'ITU-T SG4, ITU-T SG15, ITU-T NGNM Focus group, 3GPP SA5, 3GPP2, ATIS/TMOC, TMF, IETF Management, ETSI BRAN': ['itu-t-sg-4','itu-t-sg-15',None,None,'3gpp2',None,None,'iesg','etsi-bran'],
+    u'ITU-T SG4, ITU-T SG15, ITU-T NGNM Focus group, 3GPP SA5, 3GPP2, ATIS/TMOC, TMF, IETF Management, ETSI BRAN': ['iesg'],
     u'ITU-T SGs, ITU-R WGs, ITU-D SG2 and the IETF': ['ietf'],
     u'ITU-T SGs: 2 (info), 4, 9, 11, 12, 13, 17, 19; ITU-R SGs: 1, 4, 5, 6; ITU-D SG 2; Focus Group on \u2018From/In/To Cars II\u2019 (ITU-T SG 12); ISO TC 22 SC3 and TC 204 ; IEEE 802, 802.11 (WiFi), 802.15.1 (Bluetooth); AUTOSAR WPII-1.1, OSGi VEG, IrDA and JSR298 Tele': ['ietf'],
     u'ITU-T SQ15 Question 14': [u'itu-t-sg-15-q14'],
@@ -529,9 +567,9 @@ TO_NAME_MAPPING = {
     u'Kam Lam, Rapporteur for Question 14 of ITU-T Study Group 15': [u'itu-t-sg-15-q14'],
     u'Lyndon Ong (lyong@ciena.com)': [u'sigtran'],
     u'MFA Forum': ['mfa-forum'],
-    u'MPLS and Frame Relay Alliance': ['mpls-fr-alliance'],
+    u'MPLS and Frame Relay Alliance': ['mfa'],
     u'Mr. Kam Lam, Rapporteur for Question 14 of ITU-T Study Group 15': [u'itu-t-sg-15-q14'],
-    u'National, Multi-National or Regional Organizations': None,
+    u'National, Multi-National or Regional Organizations': ['nmnro'],
     u'OMA': [u'oma'],
     u'OMA MEM': [u'oma-mwg-mem'],
     u'OMA MWG': [u'oma-mwg'],
@@ -546,9 +584,9 @@ TO_NAME_MAPPING = {
     u'PWE WG': ['pwe3'],
     u'Phase 1 report to SG 4': ['ops'],
     u'Q7/13': [u'itu-t-sg-13-q7'],
-    u'Rao Cherukuri, Chair MPLS and Frame Relay Alliance Technical Committee': None,
-    u'Rao Cherukuri, Chairman, MPLS and Frame Relay Alliance Technical Committee': None,
-    u'SA2, T2, OMA TP, S3': ['3gpp-tsg-sa2','3gpp-tsgt-wg2',u'oma-tp','3gpp-tsg-sa3'],
+    u'Rao Cherukuri, Chair MPLS and Frame Relay Alliance Technical Committee': ['mfa'],
+    u'Rao Cherukuri, Chairman, MPLS and Frame Relay Alliance Technical Committee': ['mfa'],
+    u'SA2, T2, OMA TP, S3': ['3gpp-tsgsa-sa2','3gpp-tsgt-wg2',u'oma-tp','3gpp-tsgsa-sa3'],
     u'SAVI WG, V6OPS WG, OPS AREA,  INT AREA': [u'savi', u'v6ops', u'ops', u'int'],
     u'SC 29/WG11': [u'iso-iec-jtc1-sc29-wg11'],
     u'SC29/WG11': [u'iso-iec-jtc1-sc29-wg11'],
@@ -572,7 +610,7 @@ TO_NAME_MAPPING = {
     u'TEWG, MPLS, CCAMP WGs': [u'tewg', u'mpls', u'ccamp'],
     u'TRILL WG co-chairs and IEEE-IETF liaisons': ['trill'],
     u'TRILL WG co-chairs, ADs, and IEEE-IETF liaisons': ['trill'],
-    u'TSG-X Corr to IETF re MIP6 Bootstrapping': None,
+    u'TSG-X Corr to IETF re MIP6 Bootstrapping': ['int'],
     u'The IAB': [u'iab'],
     u'The IESG': [u'iesg'],
     u'The IESG and the IAB': [u'iesg', u'iab'],
@@ -593,8 +631,8 @@ TO_NAME_MAPPING = {
 }
 
 FROM_NAME_MAPPING = {
-    u'3GPP TSG RAN WG2': None,
-    u'<unknown body 0>': None,
+    u'3GPP TSG RAN WG2': ['3gpp-tsgran-ran2'],
+    u'<unknown body 0>': ['itu-t-sg-13'],
     u'ATIS': ['atis'],
     u'ATM Forum': [u'atm-forum'],
     u'ATM Forum AIC WG': [u'afic'],
@@ -603,7 +641,7 @@ FROM_NAME_MAPPING = {
     u'EPCGlobal': [u'epcglobal'],
     u'ETSI': ['etsi'],
     u'ETSI EMTEL': ['etsi-emtel'],
-    u'ETSI TC HF': ['itsi-tc-hf'],
+    u'ETSI TC HF': ['etsi-tc-hf'],
     u'ETSI TISPAN': ['etsi-tispan'],
     u'ETSI TISPAN WG5': ['etsi-tispan-wg5'],
     u'Femto Forum': ['femto-forum'],
@@ -617,9 +655,9 @@ FROM_NAME_MAPPING = {
     u'IETF liaison on MPLS': [u'mpls'],
     u'INCITS T11.5': ['incits-t11-5'],
     u'ISO/IEC JTC 1 SC 29/WG 11': [u'iso-iec-jtc1-sc29-wg11'],
-    u'ISO/IEC JTC 1 SGSN': None,
-    u'ISO/IEC JTC 1/SC31/WG 4/SG 1': None,
-    u'ISO/IEC JTC 1/WG 7': None,
+    u'ISO/IEC JTC 1 SGSN': ['iso-iec-jtc1-sgsn'],
+    u'ISO/IEC JTC 1/SC31/WG 4/SG 1': ['iso-iec-jtc1-sc31-wg4'],
+    u'ISO/IEC JTC 1/WG 7': [u'iso-iec-jtc1-wg7'],
     u'ISO/IEC JTC SC 29/WG1': [u'iso-iec-jtc1-sc29-wg1'],
     u'ISO/IEC JTC SC 29/WG11': [u'iso-iec-jtc1-sc29-wg11'],
     u'ISO/IEC JTC1/SC29/WG11': [u'iso-iec-jtc1-sc29-wg11'],
@@ -631,7 +669,7 @@ FROM_NAME_MAPPING = {
     u'ITU-R WP 5D': [u'itu-r-wp5d'],
     u'ITU-R WP8A': [u'itu-r-wp8a'],
     u'ITU-R WP8F': [u'itu-r-wp8f'],
-    u'ITU-SC29': None,
+    u'ITU-SC29': ['iso-iec-jtc1-sc29-wg1'],
     u'ITU-SG 15': [u'itu-t-sg-15'],
     u'ITU-SG 7': [u'itu-t-sg-7'],
     u'ITU-SG 8': [u'itu-t-sg-8'],
@@ -651,8 +689,8 @@ FROM_NAME_MAPPING = {
     u'MFA Forum': ['mfa-forum'],
     u'MPEG': ['mpeg'],
     u'MPLS Forum': ['mpls-forum'],
-    u'MPLS and FR Alliance': ['mpls-fr-alliance'],
-    u'MPLS and Frame Relay Alliance': ['mpls-fr-alliance'],
+    u'MPLS and FR Alliance': ['mfa'],
+    u'MPLS and Frame Relay Alliance': ['mfa'],
     u'NANP LNPA WG': ['nanc-lnpa-wg'],
     u'NGN Management Focus Group': ['itu-t-ngnmfg'],
     u'OMA': [u'oma'],

@@ -27,7 +27,6 @@ from django.forms import ModelForm
 from ietf.doc.models import Document, State
 from ietf.group.models import Group
 from ietf.ietfauth.utils import role_required, has_role
-from ietf.name.models import TimeSlotTypeName
 from ietf.meeting.models import Meeting, TimeSlot, Session, Schedule, Room
 from ietf.meeting.helpers import get_areas, get_person_by_email, get_schedule_by_name
 from ietf.meeting.helpers import build_all_agenda_slices, get_wg_name_list
@@ -612,14 +611,6 @@ def week_view(request, num=None):
     template = "meeting/week-view.html"
     return render_to_response(template,
             {"timeslots":timeslots,"render_types":["Session","Other","Break","Plenary"]}, context_instance=RequestContext(request))
-
-def room_view(request, num=None):
-    meeting = get_meeting(num)
-    timeslots = TimeSlot.objects.filter(meeting=meeting)
-
-    types = TimeSlotTypeName.objects.filter(used=True).values_list('name',flat=True)
-    template = "meeting/room-view.html"
-    return render(request, template,{"meeting":meeting,"timeslots":timeslots,"render_types":types})
 
 def ical_agenda(request, num=None, name=None, ext=None):
     meeting = get_meeting(num)

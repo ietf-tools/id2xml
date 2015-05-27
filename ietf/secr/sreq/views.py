@@ -622,8 +622,7 @@ def no_session(request, acronym):
                       requested=datetime.datetime.now(),
                       requested_by=login,
                       requested_duration=0,
-                      status=SessionStatusName.objects.get(slug='notmeet'),
-                      type_id='session',)
+                      status=SessionStatusName.objects.get(slug='notmeet'))
     session_save(session)
 
     # send notification

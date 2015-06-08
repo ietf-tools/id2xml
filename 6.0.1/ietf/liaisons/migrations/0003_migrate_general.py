@@ -57,6 +57,8 @@ def migrate_relations(apps, schema_editor):
             target=liaison.related_to,
             relationship_id='reference')
 
+'''
+Now done in migrate_groups
 def merge_reply_to(apps, schema_editor):
     """Merge contents of reply_to field into response_contact and create comment Event"""
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
@@ -74,6 +76,7 @@ def merge_reply_to(apps, schema_editor):
         )
         liaison.response_contacts += ',%s' % liaison.reply_to
         liaison.save()
+'''
 
 class Migration(migrations.Migration):
 
@@ -86,5 +89,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(migrate_state),
         migrations.RunPython(create_events),
         migrations.RunPython(migrate_relations),
-        migrations.RunPython(merge_reply_to),
+        #migrations.RunPython(merge_reply_to),
     ]

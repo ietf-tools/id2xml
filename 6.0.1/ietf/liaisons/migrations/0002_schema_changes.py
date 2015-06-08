@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         ('group', '0003_auto_20150304_0743'),
         ('person', '0001_initial'),
         ('doc', '0002_auto_20141222_1749'),
-        ('name', '0004_populate_liaison_names'),
+        ('name', '0005_populate_liaison_names'),
         ('liaisons', '0001_initial'),
     ]
 
@@ -51,6 +51,30 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
+        migrations.CreateModel(
+            name='LiaisonStatementFromGroup',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('contact', models.ForeignKey(blank=True, to='person.Email', null=True)),
+                ('group', models.ForeignKey(to='group.Group')),
+                ('statement', models.ForeignKey(to='liaisons.LiaisonStatement')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='LiaisonStatementToGroup',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('contact', models.ForeignKey(blank=True, to='person.Email', null=True)),
+                ('group', models.ForeignKey(to='group.Group')),
+                ('statement', models.ForeignKey(to='liaisons.LiaisonStatement')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
         migrations.RenameField(
             model_name='liaisonstatement',
             old_name='cc',
@@ -80,7 +104,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='liaisonstatement',
             name='from_groups',
-            field=models.ManyToManyField(related_name='liaisonsatement_from_set', to='group.Group', blank=True),
+            field=models.ManyToManyField(related_name='liaisonsatement_from_set', through='liaisons.LiaisonStatementFromGroup', to='group.Group', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -104,7 +128,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='liaisonstatement',
             name='to_groups',
-            field=models.ManyToManyField(related_name='liaisonsatement_to_set', to='group.Group', blank=True),
+            field=models.ManyToManyField(related_name='liaisonsatement_to_set', through='liaisons.LiaisonStatementToGroup', to='group.Group', blank=True),
             preserve_default=True,
         ),
         migrations.AlterField(

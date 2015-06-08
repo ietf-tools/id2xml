@@ -5,6 +5,7 @@
 
   <form role="form" method="post">
     {% csrf_token %}
-    <input class="btn btn-primary" type="submit" value="Approve" name='do_approval' />
+    <input class="btn btn-primary" type="submit" value="Approve" name='approved' />
+    <input class="btn btn-primary" type="submit" value="Mark as Dead" name='dead' />
   </form>
 {% endblock %}

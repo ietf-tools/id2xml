@@ -30,26 +30,28 @@
 </div>
 {% endif %}
 
+{% comment %}
 {% include "liaisons/liaison_table.html" %}
+{% endcomment %}
 
   {% load ietf_filters %}
   <table class="table table-condensed table-striped">
     <thead>
       <tr>
         <th>
-	  <a href="?sort=submitted">Date {% if sort == "submitted" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
+            <a href="?sort=submitted">Date {% if sort == "submitted" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
         </th>
         <th>
-	  <a href="?sort=from_name">From {% if sort == "from_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
+            <a href="?sort=from_name">From {% if sort == "from_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
         </th>
         <th>
-	  <a href="?sort=to_name">To {% if sort == "to_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
+            <a href="?sort=to_name">To {% if sort == "to_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
         </th>
         <th>
-	  <a href="?sort=deadline">Deadline {% if sort == "deadline" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
+            <a href="?sort=deadline">Deadline {% if sort == "deadline" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
         </th>
         <th>
-	  <a href="?sort=title">Title {% if sort == "title" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
+            <a href="?sort=title">Title {% if sort == "title" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
         </th>
       </tr>
     </thead>
@@ -58,14 +60,8 @@
       {% for liaison in liaisons %}
         <tr>
           <td class="text-nowrap">{{ liaison.submitted|date:"Y-m-d" }}</td>
-          <td>{{ liaison.from_name }}</td>
-          <td>
-	    {% if liaison.from_contact_id %}
-	      {{ liaison.to_name }}
-	    {% else %}
-	      {{ liaison.to_name|strip_email }}
-	    {% endif %}
-          </td>
+          <td>{{ liaison.from_groups_display }}</td>
+          <td>{{ liaison.to_groups_display }}</td>
           <td class="text-nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}</td>
           <td>
 	    {% if not liaison.from_contact_id %}

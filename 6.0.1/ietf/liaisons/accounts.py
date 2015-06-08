@@ -13,7 +13,7 @@ LIAISON_EDIT_GROUPS = ['Secretariat'] # this is not working anymore, refers to o
 
 def get_ietf_chair():
     try:
-        return proxy_personify_role(Role.objects.get(name="chair", group__acronym="ietf"))
+        return Role.objects.get(name="chair", group__acronym="ietf")
     except Role.DoesNotExist:
         return None
 
@@ -24,22 +24,22 @@ def get_iesg_chair():
 
 def get_iab_chair():
     try:
-        return proxy_personify_role(Role.objects.get(name="chair", group__acronym="iab"))
+        return Role.objects.get(name="chair", group__acronym="iab")
     except Role.DoesNotExist:
         return None
 
 
 def get_irtf_chair():
     try:
-        return proxy_personify_role(Role.objects.get(name="chair", group__acronym="irtf"))
+        return Role.objects.get(name="chair", group__acronym="irtf")
     except Role.DoesNotExist:
         return None
 
 
 def get_iab_executive_director():
     try:
-        return proxy_personify_role(Role.objects.get(name="execdir", group__acronym="iab"))
-    except Person.DoesNotExist:
+        return Role.objects.get(name="execdir", group__acronym="iab")
+    except Role.DoesNotExist:
         return None
 
 
@@ -119,10 +119,8 @@ def can_add_incoming_liaison(user):
         return True
     return False
 
-
 def can_add_liaison(user):
     return can_add_incoming_liaison(user) or can_add_outgoing_liaison(user)
-
 
 def is_sdo_manager_for_outgoing_liaison(person, liaison):
     if liaison.from_group and liaison.from_group.type_id == "sdo":
@@ -144,3 +142,10 @@ def can_edit_liaison(user, liaison):
         return (is_sdo_manager_for_outgoing_liaison(person, liaison) or
                 is_sdo_manager_for_incoming_liaison(person, liaison))
     return False
+
+def is_authorized_individual(user, groups):
+    """Returns True if the user has authorized_individual role for each of the groups"""
+    for group in groups:
+        if not Role.objects.filter(person=self.person, group=group, name="auth"):
+            return False
+    return True

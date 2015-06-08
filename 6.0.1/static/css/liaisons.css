@@ -117,3 +117,7 @@ td span.awaiting {
 .noActionTaken, .actionTaken { padding: 2px 5px; }
 .actionTaken { border: 1px solid green; background-color: #ccffbb; }
 .noActionTaken { border: 1px solid red; background-color: #ffccbb; }
+
+input[id$='DELETE'] {
+    display: none;
+}

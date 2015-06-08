@@ -123,10 +123,11 @@ $(document).ready(function () {
         initWidget();
     }
 
-    $('form.liaisons').each(function() {
+    $('form.liaisons-form').each(function() {
         var form = $(this);
         var organization = form.find('#id_organization');
-        var from = form.find('#id_from_field');
+        //var from = form.find('#id_from_field');
+        var from = form.find('.from-group-field');
         var poc = form.find('#id_to_poc');
         var cc = form.find('#id_cc1');
         var reply = form.find('#id_replyto');
@@ -178,45 +179,67 @@ $(document).ready(function () {
             }
         };
 
-        var updateReplyTo = function() {
-            var select = form.find('select[name=from_fake_user]');
-            var option = select.find('option:selected');
-            reply.val(option.attr('title'));
-            updateFrom();
-        };
+        //var updateReplyTo = function() {
+        //    var select = form.find('select[name=from_fake_user]');
+        //    var option = select.find('option:selected');
+        //    reply.val(option.attr('title'));
+        //    updateFrom();
+        //};
 
-        var userSelect = function(user_list) {
+        var getRelatedContact = function(group) {
+            // given a from group field, get the related contact field
+            return group.parents('.from-row').find('.from-contact-field').first();
+        };
+        
+        var userSelect = function(sender,user_list) {
+            // get related contact input
+            var contact = getRelatedContact(sender);
+            
             if (!user_list || !user_list.length) {
+                contact.find('option').remove();
+                contact.append($("<option></option>").attr("value","").html("(no contacts for this group)"));
                 return;
             }
-            var link = form.find('a.from_mailto');
-            var select = form.find('select[name=from_fake_user]');
-            var options = '';
-            link.hide();
-            $.each(user_list, function(index, person) {
-                options += '<option value="' + person[0] + '" title="' + person[1][1] + '">'+ person[1][0] + ' &lt;' + person[1][1] + '&gt;</option>';
+            //var link = form.find('a.from_mailto');
+            //var select = form.find('select[name=from_fake_user]');
+            //var options = '';
+            //link.hide();
+            console.log(" userSelect sender: " + sender.attr('id'));
+            console.log(" userSelect contact:" + contact.attr('id'));
+            contact.find('option').remove();
+            $.each(user_list, function(index, item) {   
+                contact.append($("<option></option>").attr("value",item[0]).html(item[1]));
             });
-            select.remove();
-            link.after('<select name="from_fake_user" class="form-control" style="margin-top: 0.5em;">' + options +'</select>');
-            form.find('select[name=from_fake_user]').change(updateReplyTo);
-            updateReplyTo();
+            //$.each(user_list, function(index, person) {
+            //    options += '<option value="' + person[0] + '" title="' + person[1][1] + '">'+ person[1][0] + ' &lt;' + person[1][1] + '&gt;</option>';
+            //});
+            //select.remove();
+            //link.after('<select name="from_fake_user" class="form-control" style="margin-top: 0.5em;">' + options +'</select>');
+            //form.find('select[name=from_fake_user]').change(updateReplyTo);
+            //updateReplyTo();
         };
 
         var updateInfo = function(first_time, sender) {
             var entity = organization;
             var to_entity = from;
-            if (!entity.is('select') || !to_entity.is('select')) {
-                return false;
-            }
+            //console.log(Object.keys(sender));
+            //console.log(sender.id);
+            //if (!entity.is('select') || !to_entity.is('select')) {
+            //    return false;
+            //}
+            console.log('calling ajax');
             var url = form.data("ajaxInfoUrl");
+            //var to_entities = 
+            //var from_entities = 
             $.ajax({
                 url: url,
                 type: 'GET',
                 cache: false,
                 async: true,
                 dataType: 'json',
-                data: {to_entity_id: organization.val(),
-                       from_entity_id: to_entity.val()},
+                //data: {to_entity_id: to_entities,
+                //      from_entity_id: from_entities},
+                data: $('.from-group-field:visible').serialize(),
                 success: function(response){
                     if (!response.error) {
                         if (!first_time || !cc.text()) {
@@ -225,8 +248,9 @@ $(document).ready(function () {
                         render_mails_into(poc, response.poc, true);
                         toggleApproval(response.needs_approval);
                         checkPostOnly(response.post_only);
-                        if (sender == 'from') {
-                            userSelect(response.full_list);
+                        //if (sender.classList.contains('from_group_field')) {
+                        if (sender.hasClass('from-group-field')) {
+                            userSelect(sender,response.full_list);
                         }
                     }
                 }
@@ -325,10 +349,14 @@ $(document).ready(function () {
             return false;
         };
 
-        var checkFrom = function(first_time) {
+        var checkFrom = function(first_time,target) {
+            // adjust to group options based on selected from group
+            //console.log(Object.getOwnPropertyNames($(this)));
+            //console.log(Object.getOwnPropertyNames(e));
+            //console.log(target.id);
             var reduce_options = form.find('.reducedToOptions');
             if (!reduce_options.length) {
-                updateInfo(first_time, 'from');
+                updateInfo(first_time, target);
                 return;
             }
             var to_select = organization;
@@ -349,7 +377,7 @@ $(document).ready(function () {
                 to_select.find('optgroup').show();
                 to_select.find('option').show();
             }
-            updateInfo(first_time, 'from');
+            updateInfo(first_time, target);
         };
 
         var checkSubmissionDate = function() {
@@ -370,16 +398,24 @@ $(document).ready(function () {
         // init form
         organization.change(function() { updateInfo(false, 'to'); });
         organization.change(checkOtherSDO);
-        from.change(function() { checkFrom(false); });
+        //from.change(function() { alert('changed'); });
+        from.change(function(e) { checkFrom(false,$(e.target)); });
         reply.keyup(updateFrom);
         purpose.change(updatePurpose);
         form.submit(checkSubmissionDate);
 
         updateFrom();
-        checkFrom(true);
+        $('.from-group-field').each(function() {
+            checkFrom(true,$(this));
+        });
+        //checkFrom(true);
         updatePurpose();
         checkOtherSDO();
 
         form.find('.addAttachmentWidget').each(setupAttachmentWidget);
     });
+    
+    // use traditional style URL parameters
+    $.ajaxSetup({ traditional: true });
+    
 });

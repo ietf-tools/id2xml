@@ -20,14 +20,14 @@ class LiaisonStatement(models.Model):
     body = models.TextField(blank=True)
     deadline = models.DateField(null=True, blank=True)
 
-    from_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_from_set')
+    from_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_from_set',through='LiaisonStatementFromGroup')
     from_name = models.CharField(max_length=255, help_text="Name of the sender body")
-    to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_to_set') 
+    to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonsatement_to_set',through='LiaisonStatementToGroup') 
     to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
 
     tags = models.ManyToManyField(LiaisonStatementTagName, blank=True, null=True)
 
-    from_contact = models.ForeignKey(Email, blank=True, null=True)
+    #from_contact = models.ForeignKey(Email, blank=True, null=True)
     to_contacts = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body") 
     response_contacts = models.CharField(blank=True, max_length=255, help_text="Where to send a response") # RFC4053 
     technical_contacts = models.CharField(blank=True, max_length=255, help_text="Who to contact for clarification") # RFC4053
@@ -85,7 +85,33 @@ class LiaisonStatement(models.Model):
             return bool(self._awaiting_action)
         return bool(self.tags.filter(slug='awaiting').count())
 
+    @property
+    def from_groups_display(self):
+        groups = self.from_groups.order_by('name').values_list('name',flat=True)
+        return ', '.join(groups)
 
+    @property
+    def to_groups_display(self):
+        groups = self.to_groups.order_by('name').values_list('name',flat=True)
+        return ', '.join(groups)
+
+
+class LiaisonStatementFromGroup(models.Model):
+    statement = models.ForeignKey(LiaisonStatement)
+    group = models.ForeignKey(Group)
+    contact = models.ForeignKey(Email, blank=True, null=True)
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.group.acronym,self.contact)
+
+class LiaisonStatementToGroup(models.Model):
+    statement = models.ForeignKey(LiaisonStatement)
+    group = models.ForeignKey(Group)
+    contact = models.ForeignKey(Email, blank=True, null=True)
+
+    def __unicode__(self):
+        return u"{} ({})".format(self.group.acronym,self.contact)
+        
 class LiaisonStatementAttachment(models.Model):
     statement = models.ForeignKey(LiaisonStatement)
     document = models.ForeignKey(Document)

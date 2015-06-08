@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('doc', '0002_auto_20141222_1749'),
         ('person', '0001_initial'),
-        ('name', '0004_populate_liaison_names'),
+        ('name', '0005_populate_liaison_names'),
     ]
 
     operations = [

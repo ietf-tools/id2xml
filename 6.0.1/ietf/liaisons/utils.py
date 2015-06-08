@@ -1,3 +1,4 @@
+from itertools import chain
 from django.db.models import Q
 
 from ietf.group.models import Group, Role
@@ -56,7 +57,7 @@ class FakePerson(object):
         return (self.name, self.address)
 
 def all_sdo_managers():
-    return [proxy_personify_role(r) for r in Role.objects.filter(group__type="sdo", name="liaiman").select_related("person").distinct()]
+    return Role.objects.filter(group__type="sdo", name="liaiman").select_related("person").distinct()
 
 def role_persons_with_fixed_email(group, role_name):
     return [proxy_personify_role(r) for r in Role.objects.filter(group=group, name=role_name).select_related("person").distinct()]
@@ -117,9 +118,7 @@ class IETFEntity(Entity):
         return [self.poc]
 
     def full_user_list(self):
-        result = all_sdo_managers()
-        result.append(get_ietf_chair())
-        return result
+        return chain(all_sdo_managers(),get_ietf_chair)
 
 
 class IABEntity(Entity):
@@ -146,10 +145,8 @@ class IABEntity(Entity):
         return [self.chair]
 
     def full_user_list(self):
-        result = all_sdo_managers()
-        result += [get_iab_chair(), get_iab_executive_director()]
-        return result
-
+        return chain(all_sdo_managers(),get_iab_chair(),get_iab_executive_director())
+        
 
 class IRTFEntity(Entity):
     chair = FakePerson(**IRTFCHAIR)
@@ -168,9 +165,8 @@ class IRTFEntity(Entity):
         return [self.chair]
 
     def full_user_list(self):
-        result = [get_irtf_chair()]
-        return result
-
+        return get_irtf_chair()
+        
 
 class IAB_IESG_Entity(Entity):
 
@@ -197,12 +193,13 @@ class IAB_IESG_Entity(Entity):
         return list(set(self.iab.can_approve() + self.iesg.can_approve()))
 
     def full_user_list(self):
-        return [get_ietf_chair(), get_iab_chair(), get_iab_executive_director()]
+        return chain(get_ietf_chair(), get_iab_chair(), get_iab_executive_director())
+        
         
 class AreaEntity(Entity):
 
     def get_poc(self):
-        return role_persons_with_fixed_email(self.obj, "ad")
+        return Role.objects.filter(group=self.obj, name='ad').select_related("person")
 
     def get_cc(self, person=None):
         return [FakePerson(**IETFCHAIR)]
@@ -222,15 +219,14 @@ class AreaEntity(Entity):
         return self.get_poc()
 
     def full_user_list(self):
-        result = all_sdo_managers()
-        result += self.get_poc()
+        return chain(all_sdo_managers(),self.get_poc())
         return result
 
 
 class WGEntity(Entity):
 
     def get_poc(self):
-        return role_persons_with_fixed_email(self.obj, "chair")
+        return Role.objects.filter(group=self.obj, name='chair').select_related("person")
 
     def get_cc(self, person=None):
         if self.obj.parent:
@@ -261,9 +257,7 @@ class WGEntity(Entity):
         return role_persons_with_fixed_email(self.obj.parent, "ad") if self.obj.parent else []
 
     def full_user_list(self):
-        result = all_sdo_managers()
-        result += self.get_poc()
-        return result
+        return chain(all_sdo_managers(),self.get_poc())
 
 
 class SDOEntity(Entity):
@@ -283,9 +277,7 @@ class SDOEntity(Entity):
         return True
 
     def full_user_list(self):
-        result = role_persons_with_fixed_email(self.obj, "liaiman")
-        result += role_persons_with_fixed_email(self.obj, "auth")
-        return result
+        return Role.objects.filter(group=self.obj, name__in=('liaiman','auth')).select_related("person")
 
 
 class EntityManager(object):

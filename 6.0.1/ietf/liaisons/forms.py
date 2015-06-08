@@ -6,6 +6,7 @@ from django.conf import settings
 from django.forms.util import ErrorList
 from django.db.models import Q
 from django.forms.widgets import RadioFieldRenderer
+from django.forms.models import BaseInlineFormSet
 from django.core.validators import validate_email, ValidationError
 from django.template.loader import render_to_string
 from django.utils.html import format_html
@@ -14,15 +15,18 @@ from django.utils.safestring import mark_safe
 
 import debug                            # pyflakes:ignore
 
+from ietf.ietfauth.utils import has_role
 from ietf.name.models import DocRelationshipName
 from ietf.liaisons.accounts import (can_add_outgoing_liaison,can_add_incoming_liaison,
-    get_person_for_user,is_secretariat,is_sdo_liaison_manager)
+    get_person_for_user,is_secretariat,is_sdo_liaison_manager,is_authorized_individual)
 from ietf.liaisons.utils import IETFHM
 from ietf.liaisons.widgets import (FromWidget,ReadOnlyWidget,ButtonWidget,
     ShowAttachmentsWidget, RelatedLiaisonWidget)
 from ietf.liaisons.models import (LiaisonStatement,LiaisonStatementPurposeName, 
-    LiaisonStatementEvent,RelatedLiaisonStatement,LiaisonStatementAttachment)
-from ietf.liaisons.fields import SearchableLiaisonStatementField
+    LiaisonStatementEvent,RelatedLiaisonStatement,LiaisonStatementAttachment,
+    LiaisonStatementFromGroup)
+from ietf.liaisons.fields import (SearchableLiaisonStatementField, SearchableGroupField,
+    SearchableGroupsField)
 from ietf.group.models import Group, Role
 from ietf.person.models import Person, Email
 from ietf.doc.models import Document
@@ -44,15 +48,29 @@ def liaison_form_factory(request, **kwargs):
         return IncomingLiaisonForm(user, **kwargs)
     return None
 
+def liaison_from_form_factory(request, **kwargs):
+    user = request.user
+    is_incoming = 'incoming' in request.GET.keys()
+    liaison = kwargs.pop('liaison', None)
+    if liaison:
+        return EditFromGroupForm
+    if is_incoming:
+        return IncomingFromGroupForm
+    else:
+        return OutgoingFromGroupForm
+
 # -------------------------------------------------
 # Form Classes
 # -------------------------------------------------
 
 class LiaisonForm(forms.Form):
     person = forms.ModelChoiceField(Person.objects.all())
-    from_field = forms.ChoiceField(widget=FromWidget, label=u'From')
-    response_contacts = forms.CharField(label=u'Response contacts')
-    organization = forms.ChoiceField()
+    #from_field = forms.ChoiceField(widget=FromWidget, label=u'From')
+    #from_field = SearchableGroupsField(label=u'From',group_type='external')
+    #response_contacts = forms.CharField(label=u'Response contacts')
+    #organization = forms.ChoiceField()
+    # Searchable field must have required=False, because it has hidden input
+    organization = SearchableGroupsField(label=u'To',group_type='internal',required=False)
     to_poc = forms.CharField(widget=ReadOnlyWidget, label="POC", required=False)
     technical_contacts = forms.CharField(required=False, max_length=255)
     cc1 = forms.CharField(widget=forms.Textarea, label="CC", required=False, help_text='Please insert one email address per line.')
@@ -72,7 +90,7 @@ class LiaisonForm(forms.Form):
                                     required=False)
     related_to = forms.ModelMultipleChoiceField(LiaisonStatement.objects.all(), label=u'Related Liaison', widget=RelatedLiaisonWidget, required=False)
 
-    fieldsets = [('From', ('from_field', 'response_contacts')),
+    fieldsets = [#('From', ('from_field', 'response_contacts')),
                  ('To', ('organization', 'to_poc')),
                  ('Other email addresses', ('technical_contacts', 'cc1')),
                  ('Purpose', ('purpose', 'deadline_date')),
@@ -98,8 +116,8 @@ class LiaisonForm(forms.Form):
         
         # now copy in values from instance, like a ModelForm
         if self.instance:
-            self.initial["person"] = self.instance.from_contact.person_id if self.instance.from_contact else None
-            self.initial["response_contacts"] = self.instance.response_contacts
+            #self.initial["person"] = self.instance.from_contact.person_id if self.instance.from_contact else None
+            #self.initial["response_contacts"] = self.instance.response_contacts
             self.initial["technical_contacts"] = self.instance.technical_contacts
             self.initial["cc1"] = self.instance.cc_contacts
             self.initial["purpose"] = self.instance.purpose.order
@@ -114,9 +132,9 @@ class LiaisonForm(forms.Form):
 
         self.fields["purpose"].choices = [("", "---------")] + [(str(l.order), l.name) for l in LiaisonStatementPurposeName.objects.all()]
         self.hm = IETFHM
-        self.set_from_field()
-        self.set_response_contacts_field()
-        self.set_organization_field()
+        #self.set_from_field()
+        #self.set_response_contacts_field()
+        #self.set_organization_field()
 
     def __unicode__(self):
         return self.as_div()
@@ -208,8 +226,9 @@ class LiaisonForm(forms.Form):
 
     def get_from_entity(self):
         organization_key = self.cleaned_data.get('from_field')
-        return self.hm.get_entity_by_key(organization_key)
-
+        #return self.hm.get_entity_by_key(organization_key)
+        assert False, organization_key
+    
     def get_to_entity(self):
         organization_key = self.cleaned_data.get('organization')
         return self.hm.get_entity_by_key(organization_key)
@@ -249,14 +268,14 @@ class LiaisonForm(forms.Form):
         l.purpose = LiaisonStatementPurposeName.objects.get(order=self.cleaned_data["purpose"])
         l.body = self.cleaned_data["body"].strip()
         l.deadline = self.cleaned_data["deadline_date"]
-        l.response_contacts = self.cleaned_data["response_contacts"]
+        #l.response_contacts = self.cleaned_data["response_contacts"]
         l.technical_contacts = self.cleaned_data["technical_contacts"]
         
         now = datetime.datetime.now()
         
+        l.save() # we have to save here to make sure we get an id for the attachments
         self.save_extra_fields(l)
         
-        l.save() # we have to save here to make sure we get an id for the attachments
         # create event
         event = LiaisonStatementEvent.objects.create(
             type_id=event_type,
@@ -270,19 +289,23 @@ class LiaisonForm(forms.Form):
         return l
 
     def save_extra_fields(self, liaison):
-        from_entity = self.get_from_entity()
-        liaison.from_name = from_entity.name
-        liaison.from_group = from_entity.obj
-        e = self.cleaned_data["person"].email_set.order_by('-active', '-time')
-        if e:
-            liaison.from_contact = e[0]
+        #from_groups = self.cleaned_data.get('from_field')
+        #liaison.from_groups.add(*from_groups)
+        #liaison.from_name = from_entity.name
+        #liaison.from_group = from_entity.obj
+        #e = self.cleaned_data["person"].email_set.order_by('-active', '-time')
+        #if e:
+        #    liaison.from_contact = e[0]
 
-        organization = self.get_to_entity()
-        liaison.to_name = organization.name
-        liaison.to_group = organization.obj
+        to_groups = self.cleaned_data.get('organization')
+        liaison.to_groups.add(*to_groups)
+        #organization = self.get_to_entity()
+        #liaison.to_name = organization.name
+        #liaison.to_group = organization.obj
 
-        liaison.cc_contacts = self.get_cc(from_entity, organization)
-
+        #liaison.cc_contacts = self.get_cc(from_entity, organization)
+        liaison.cc_contacts = self.cleaned_data.get('cc1', '')
+        
     def save_attachments(self, instance):
         written = instance.attachments.all().count()
         for key in self.files.keys():
@@ -343,8 +366,9 @@ class IncomingLiaisonForm(LiaisonForm):
         self.fields['organization'].choices = self.hm.get_all_incoming_entities()
 
     def get_post_only(self):
-        from_entity = self.get_from_entity()
-        if is_secretariat(self.user) or Role.objects.filter(person=self.person, group=from_entity.obj, name="auth"):
+        from_entities = self.cleaned_data.get('from_field')
+        #if is_secretariat(self.user) or Role.objects.filter(person=self.person, group=from_entity.obj, name="auth"):
+        if is_secretariat(self.user) or is_authorized_individual(self.user,from_entities):
             return False
         return True
 
@@ -456,8 +480,8 @@ class OutgoingLiaisonForm(LiaisonForm):
 
 class EditLiaisonForm(LiaisonForm):
 
-    from_field = forms.CharField(widget=forms.TextInput, label=u'From')
-    response_contacts = forms.CharField(label=u'Reply to', widget=forms.TextInput)
+    #from_field = forms.CharField(widget=forms.TextInput, label=u'From')
+    #response_contacts = forms.CharField(label=u'Reply to', widget=forms.TextInput)
     organization = forms.CharField(widget=forms.TextInput)
     to_poc = forms.CharField(widget=forms.TextInput, label="POC", required=False)
     cc1 = forms.CharField(widget=forms.TextInput, label="CC", required=False)
@@ -484,6 +508,73 @@ class EditLiaisonForm(LiaisonForm):
         liaison.from_name = self.cleaned_data.get('from_field')
         liaison.to_name = self.cleaned_data.get('organization')
         liaison.cc_contacts = self.cleaned_data['cc1']
+
+# -------------------------------------------------
+# Formset Classes
+# -------------------------------------------------
+class BaseFromGroupFormSet(BaseInlineFormSet):
+    def clean(self):
+        """Ensures at least one FromGroup specified"""
+        super(BaseFromGroupFormSet, self).clean()
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+        
+        #assert False, (self.forms[0].cleaned_data)
+        if not any([ form.cleaned_data.get('group') for form in self.forms ]):
+            raise forms.ValidationError('You must specify one From Group')
+
+class FromGroupForm(forms.ModelForm):
+    # Searchable field must have required=False, because it has hidden input
+    #group = SearchableGroupField(label=u'From',group_type='external',required=False)
+    group = forms.ModelChoiceField(queryset=Group.objects,empty_label='(Select Group)')
+    
+    class Meta:
+        model = LiaisonStatementFromGroup
+        fields = '__all__'
+        #widgets = {
+        #    #'contact': forms.TextInput(),
+        #}
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.person = self.user.person
+        super(FromGroupForm, self).__init__(*args, **kwargs)
+        self.set_group()
+        self.set_contact()
+        
+class IncomingFromGroupForm(FromGroupForm):
+    def set_group(self):
+        if has_role(self.user, "Secretariat"):
+            sdos = Group.objects.filter(type="sdo", state="active")
+        else:
+            sdos = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name__in=("liaiman", "auth")).distinct()
+        self.fields['group'].choices = [( i.pk, i.name) for i in sdos.order_by("name")]
+        if len(sdos) > 1:
+            self.fields['group'].choices.insert(0,('','-------'))
+        
+        #self.fields['from_field'].choices = [('sdo_%s' % i.pk, i.name) for i in sdos.order_by("name")]
+        #self.fields['from_field'].widget.submitter = unicode(self.person)
+        self.fields['group'].widget.attrs['class'] = 'from-group-field'
+        
+    def set_contact(self):
+        if has_role(self.user, "Secretariat"):
+            # start with empty option set, gets populated when group is chosen
+            self.fields['contact'].choices = Email.objects.none()
+        else:
+            roles = Role.objects.filter(person=self.person,name__in=('liaiman','auth'))
+            self.fields['contact'].choices = [ (i.email.pk, '{} <{}>'.format(i.person.plain_name(),i.email.address)) for i in roles ]
+            #self.fields['contact'].initial = 
+        self.fields['contact'].choices.insert(0,('','(Select Response Contact)'))
+        self.fields['contact'].widget.attrs['class'] = 'from-contact-field'
+        
+
+class OutgoingFromGroupForm(FromGroupForm):
+    def set_group(self):
+        pass
+
+class EditFromGroupForm(FromGroupForm):
+    pass
 
 class RadioRenderer(RadioFieldRenderer):
 

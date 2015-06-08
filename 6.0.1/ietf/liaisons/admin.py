@@ -8,7 +8,8 @@ class LiaisonStatementAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'from_name', 'to_name', 'submitted', 'purpose', 'related_to']
     list_display_links = ['id', 'title']
     ordering = ('title', )
-    raw_id_fields = ('from_contact', 'attachments')
+    raw_id_fields = ('attachments',)
+    #raw_id_fields = ('from_contact', 'attachments')
     #filter_horizontal = ('from_groups', 'to_groups')
 
     def related_to(self, obj):

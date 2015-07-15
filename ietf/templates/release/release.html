@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
+{% load bleach_tags %}
 
 {% block title %}Release information{% endblock %}
 
@@ -37,18 +38,18 @@
 
   <h2>{{ entry.version }} release notes</h2>
 
-  <pre>{{entry.logentry|safe}}
+  <pre>{{entry.logentry|bleach}}
 
  -- {{entry.author}} &lt;{{entry.email}}&gt;  {{entry.date}}</pre>
 
   <h2>Release list:</h2>
   <table style="margin-left: 3em">
   {% for item in releases %}
-      {% ifchanged %}<tr><td><h3>{{ item.date|slice:"7:11" }}</h3></td><tr>{% endifchanged %}    
+      {% ifchanged %}<tr><td><h3>{{ item.date|slice:"7:11" }}</h3></td><td></td><td></td></tr>{% endifchanged %}
       <tr>
 	 <td style="text-align: right; padding: 0.1em 0.5em; min-width: 4em;"><a href="/release/{{item.version}}/">{{ item.version }}</a></td>
 	 <td style="text-align: right; padding: 0.1em 0.5em; min-width: 8em;">{{ item.date|slice:":11" }}</td>
-	 <td style="text-align: left;  padding: 0.1em 0.5em;">{{ item.title }}</td>       
+	 <td style="text-align: left;  padding: 0.1em 0.5em;">{{ item.title }}</td>
 	 <!--
 	 <td style="text-align: right; padding: 0.2em 0.5em;">{{ item.date|slice:"12:20" }}</td>
 	 <td style="text-align: right; padding: 0.2em 0.5em;">{{ item.date|slice:"21:" }}</td>

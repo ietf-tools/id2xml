@@ -202,11 +202,12 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.humanize',
     'django.contrib.messages',
-    # External apps 
+    # External apps
     'bootstrap3',
     'form_utils',
     'tastypie',
     'widget_tweaks',
+    'django_bleach',
     # IETF apps
     'ietf.api',
     'ietf.community',

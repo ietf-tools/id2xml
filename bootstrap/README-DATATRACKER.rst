@@ -4,7 +4,7 @@ _______________________
 Content
 =======
 
-The files in this directory are modified versions of bootstrap v3.3.4.  This is
+The files in this directory are modified versions of bootstrap v3.3.5.  This is
 a cumbersome way to customize bootsrap, but as of the time of writing this
 (03 Apr 2015), there seems to be no provision for including modifications
 within the distributed build environment without either editing files in

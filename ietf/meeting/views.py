@@ -385,7 +385,7 @@ def agenda(request, num=None, name=None, base=None, ext=None):
 
 @role_required('Area Director','Secretariat','IAB')
 def agenda_by_room(request,num=None):
-    meeting = get_meeting(num) 
+    meeting = get_meeting(num)
     schedule = get_schedule(meeting)
     ss_by_day = OrderedDict()
     for day in schedule.scheduledsession_set.dates('timeslot__time','day'):
@@ -397,7 +397,7 @@ def agenda_by_room(request,num=None):
 
 @role_required('Area Director','Secretariat','IAB')
 def agenda_by_type(request,num=None,type=None):
-    meeting = get_meeting(num) 
+    meeting = get_meeting(num)
     schedule = get_schedule(meeting)
     scheduledsessions = schedule.scheduledsession_set.order_by('session__type__slug','timeslot__time')
     if type:
@@ -406,7 +406,7 @@ def agenda_by_type(request,num=None,type=None):
 
 @role_required('Area Director','Secretariat','IAB')
 def agenda_by_type_ics(request,num=None,type=None):
-    meeting = get_meeting(num) 
+    meeting = get_meeting(num)
     schedule = get_schedule(meeting)
     scheduledsessions = schedule.scheduledsession_set.order_by('session__type__slug','timeslot__time')
     if type:
@@ -437,7 +437,7 @@ def session_agenda(request, num, session):
 
     if d:
         agenda = d[0]
-        content = read_agenda_file(num, agenda) or "Could not read agenda file"
+        content = read_agenda_file(num, agenda) or "<!doctype html><html lang=en><head><meta charset=utf-8><title>Error</title></head><body><p>Could not read agenda file</p></body></html>"
         _, ext = os.path.splitext(agenda.external_url)
         ext = ext.lstrip(".").lower()
 
@@ -630,7 +630,7 @@ def room_view(request, num=None):
     if scheduledsessions:
         earliest = scheduledsessions.aggregate(Min('timeslot__time'))['timeslot__time__min']
         latest =  scheduledsessions.aggregate(Max('timeslot__time'))['timeslot__time__max']
-        
+
     if unavailable:
         earliest_unavailable = unavailable.aggregate(Min('time'))['time__min']
         if not earliest or ( earliest_unavailable and earliest_unavailable < earliest ):
@@ -725,7 +725,7 @@ def session_details(request, num, acronym, date=None, week_day=None, seq=None) :
     sessions = Session.objects.filter(meeting=meeting,group__acronym=acronym,type__in=['session','plenary','other'])
 
     if not sessions:
-        sessions = Session.objects.filter(meeting=meeting,short=acronym) 
+        sessions = Session.objects.filter(meeting=meeting,short=acronym)
 
     if date:
         if len(date)==15:
@@ -742,7 +742,7 @@ def session_details(request, num, acronym, date=None, week_day=None, seq=None) :
         except ValueError:
             raise Http404
         sessions = sessions.filter(scheduledsession__schedule=meeting.agenda,scheduledsession__timeslot__time__week_day=dow)
-        
+
 
     def sort_key(session):
         official_sessions = session.scheduledsession_set.filter(schedule=session.meeting.agenda)

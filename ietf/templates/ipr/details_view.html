@@ -62,7 +62,7 @@
       {% endif %}
     </div>
 
-    
+
     {% if ipr.state_id == 'posted' %}
       <p class="help-block">Note: Updates to IPR disclosures must only be made by authorized
         representatives of the original submitters. Updates will automatically
@@ -166,7 +166,7 @@
 
             {% if ipr.other_designations %}
               <dt>Designations for Other Contributions</dt>
-              <dl>{{ ipr.other_designations }}</dl>
+              <dd>{{ ipr.other_designations }}</dd>
             {% endif %}
           </dl>
         {% endif %}
@@ -180,9 +180,9 @@
             <dt>Patent, Serial, Publication, Registration, or Application/File number(s)</dt>
             <dd>{{ ipr.patent_info|linebreaks }}</dd>
           </dl>
-          
+
           <p>B. Does this disclosure relate to an unpublished pending patent application?:</p>
-          
+
           <dl class="dl-horizontal">
             <dt>Has patent pending</dt>
             <dd>{{ ipr.has_patent_pending|yesno:"Yes,No" }}</dd>
@@ -200,7 +200,7 @@
             ("Necessary Patent Claims"), for the purpose of implementing such
             specification, is as follows(select one licensing declaration option only):
           </p>
-          
+
           <dl class="dl-horizontal">
             <dt>Licensing</dt>
             <dd>{% if ipr.licensing.slug == "later" %}{{ ipr.licensing.desc|slice:"2:"|slice:":43" }}{% else %}{{ ipr.licensing.desc|slice:"2:" }}{% endif %}</dd>

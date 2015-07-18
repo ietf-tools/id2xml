@@ -396,3 +396,5 @@ table tbody td.plain, table tbody th.plain { border-top: 0; }
 td.ad div { border-bottom: solid #ccc 1px; }
 
 .milestone { font-style: italic; }
+
+.adname { padding-bottom: .5em; line-height: 1em;}

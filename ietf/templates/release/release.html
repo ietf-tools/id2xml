@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
-{% load bleach_tags %}
 
 {% block title %}Release information{% endblock %}
 
@@ -38,7 +37,7 @@
 
   <h2>{{ entry.version }} release notes</h2>
 
-  <pre>{{entry.logentry|bleach}}
+  <pre>{{entry.logentry|safe}}
 
  -- {{entry.author}} &lt;{{entry.email}}&gt;  {{entry.date}}</pre>
 

@@ -207,7 +207,6 @@ INSTALLED_APPS = (
     'form_utils',
     'tastypie',
     'widget_tweaks',
-    'django_bleach',
     # IETF apps
     'ietf.api',
     'ietf.community',

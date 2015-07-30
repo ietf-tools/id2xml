@@ -4,6 +4,12 @@
 
 {% load ietf_filters %}
 
+{% block js %}
+$(window).on("resize", function (event) {
+    draw_timeline();
+});
+{% endblock %}
+
 {% block title %}{{ doc.title }}{% endblock %}
 
 {% block content %}
@@ -11,6 +17,7 @@
   {{ top|safe }}
 
   {% include "doc/revisions_list.html" %}
+  {% include "doc/timeline.html" %}
 
   <table class="table table-condensed">
     <thead id="message-row">

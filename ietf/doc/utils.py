@@ -3,6 +3,7 @@ import re
 import urllib
 import math
 import datetime
+import operator
 
 from django.conf import settings
 from django.db.models import Q
@@ -590,3 +591,26 @@ def uppercase_std_abbreviated_name(name):
         return name.upper()
     else:
         return name
+
+
+def crawl_history(doc):
+    # return document history data for use in ietf/templates/doc/timeline.html
+    def ancestors(doc):
+        retval = []
+        for rel in doc.relateddocument_set.filter(relationship__slug='replaces'):
+            if not rel.target.document in retval:
+                retval.append(rel.target.document)
+                retval.extend(ancestors(rel.target.document))
+        return retval
+
+    history = ancestors(doc)
+    history.append(doc)
+
+    retval = []
+    for d in history:
+        for e in d.docevent_set.filter(type='new_revision'):
+            retval.append((d.name, e.newrevisiondocevent.rev, e.time.isoformat()))
+    e = doc.latest_event(type='published_rfc')
+    if e:
+        retval.append((doc.name, e.doc.canonical_name, e.time.isoformat()))
+    return sorted(retval, key=operator.itemgetter(2))

@@ -49,7 +49,7 @@ from ietf.doc.models import ( Document, DocAlias, DocHistory, DocEvent, BallotDo
 from ietf.doc.utils import ( add_links_in_new_revision_events, augment_events_with_revision,
     can_adopt_draft, get_chartering_type, get_document_content, get_tags_for_stream_id,
     needed_ballot_positions, nice_consensus, prettify_std_name, update_telechat, has_same_ballot,
-    get_initial_notify, make_notify_changed_event )
+    get_initial_notify, make_notify_changed_event, crawl_history)
 from ietf.community.models import CommunityList
 from ietf.doc.mails import email_ad
 from ietf.group.models import Role
@@ -414,6 +414,7 @@ def document_main(request, name, rev=None):
                                        search_archive=search_archive,
                                        actions=actions,
                                        tracking_document=tracking_document,
+                                       rev_history=crawl_history(doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -453,6 +454,7 @@ def document_main(request, name, rev=None):
                                        group=group,
                                        milestones=milestones,
                                        can_manage=can_manage,
+                                       rev_history=crawl_history(doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -481,6 +483,7 @@ def document_main(request, name, rev=None):
                                        conflictdoc=conflictdoc,
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-reqnopub-pend','appr-reqnopub-sent','appr-noprob-pend','appr-noprob-sent'),
+                                       rev_history=crawl_history(doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -516,6 +519,7 @@ def document_main(request, name, rev=None):
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-pend','appr-sent'),
                                        sorted_relations=sorted_relations,
+                                       rev_history=crawl_history(doc),
                                        ),
                                   context_instance=RequestContext(request))
 

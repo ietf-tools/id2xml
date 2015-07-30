@@ -1,0 +1,46 @@
+<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1','packages':['timeline']}]}"></script>
+
+<script>
+google.setOnLoadCallback(draw_timeline);
+
+function draw_timeline() {
+  var data = [
+    {% for r in rev_history %}
+      [ '{{r.0}}', '{{r.1}}', new Date('{{ r.2 }}') ],
+    {% endfor %}
+  ];
+
+  if (data[0]) {
+    var t = $('#timeline')[0];
+    var c = new google.visualization.Timeline(t);
+    var d = new google.visualization.DataTable();
+
+    d.addColumn({ type: 'string', id: 'Name' });
+    d.addColumn({ type: 'string', id: 'Revision' });
+    d.addColumn({ type: 'date', id: 'Start' });
+    d.addColumn({ type: 'date', id: 'End' });
+
+    for (i = 0; i < data.length-1; i++) { 
+      d.addRow([ data[0][0], data[i][0] + "-" + data[i][1], data[i][2], data[i+1][2] ]);
+    }
+    if (!data[i][1].match(/rfc/)) {
+      d.addRow([ data[0][0], data[i][0] + "-" + data[i][1], data[i][2], new Date() ]);
+    }
+
+    var options = {
+      tooltip: {  isHtml: true, },
+      timeline: { showRowLabels: false,
+          rowLabelStyle: { fontName: "PT Serif", fontSize: 13 },
+                  barLabelStyle: { fontName: "PT Serif", fontSize: 13 }
+          },
+      hAxis: {  
+          textStyle: { fontName: "PT Serif", fontSize: 13 },
+    }
+    };
+    $('#timeline').css('height', '100');
+    c.draw(d, options);
+  }
+}
+</script>
+
+<div id="timeline"></div>

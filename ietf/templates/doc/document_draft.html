@@ -13,6 +13,12 @@
   .inline	{ display: inline; }
 {% endblock %}
 
+{% block js %}
+$(window).on("resize", function (event) {
+    draw_timeline();
+});
+{% endblock %}
+
 {% block title %}
   {% if doc.get_state_slug == "rfc" %}
     RFC {{ rfc_number }}
@@ -26,6 +32,7 @@
   {{ top|safe }}
 
   {% include "doc/revisions_list.html" %}
+  {% include "doc/timeline.html" %}
 
   <table class="table table-condensed">
     <thead id="message-row">

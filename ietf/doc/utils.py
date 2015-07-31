@@ -610,7 +610,11 @@ def crawl_history(doc):
     for d in history:
         for e in d.docevent_set.filter(type='new_revision'):
             retval.append((d.name, e.newrevisiondocevent.rev, e.time.isoformat()))
-    e = doc.latest_event(type='published_rfc')
+
+    if doc.type_id == "draft":
+        e = doc.latest_event(type='published_rfc')
+    else:
+        e = doc.latest_event(type='iesg_approved')
     if e:
         retval.append((doc.name, e.doc.canonical_name, e.time.isoformat()))
     return sorted(retval, key=operator.itemgetter(2))

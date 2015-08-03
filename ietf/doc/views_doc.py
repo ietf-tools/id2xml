@@ -233,6 +233,9 @@ def document_main(request, name, rev=None):
             # latest revision
             latest_revision = doc.latest_event(NewRevisionDocEvent, type="new_revision")
 
+        # bibtex
+        file_urls.append(("bibtex", "bibtex"))
+
         # ballot
         ballot_summary = None
         if iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES:
@@ -630,6 +633,16 @@ def document_history(request, name):
                                    events=events,
                                    ),
                               context_instance=RequestContext(request))
+
+
+def document_bibtex(request, name):
+    doc = get_object_or_404(Document, docalias__name=name)
+
+    return render_to_response("doc/document_bibtex.bib",
+                              dict(doc=doc),
+                              content_type="text/plain; charset=utf-8",
+                              context_instance=RequestContext(request))
+
 
 def document_writeup(request, name):
     doc = get_object_or_404(Document, docalias__name=name)

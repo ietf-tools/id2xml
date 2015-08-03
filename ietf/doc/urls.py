@@ -53,6 +53,7 @@ urlpatterns = patterns('',
     url(r'^select2search/(?P<model_name>(document|docalias))/(?P<doc_type>draft)/$', views_search.ajax_select2_search_docs, name="ajax_select2_search_docs"),
 
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/(?:(?P<rev>[0-9-]+)/)?$', views_doc.document_main, name="doc_view"),
+    url(r'^(?P<name>[A-Za-z0-9._+-]+)/bibtex/$', views_doc.document_bibtex, name="doc_bibtex"),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/history/$', views_doc.document_history, name="doc_history"),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/writeup/$', views_doc.document_writeup, name="doc_writeup"),
     url(r'^(?P<name>[A-Za-z0-9._+-]+)/shepherdwriteup/$', views_doc.document_shepherd_writeup, name="doc_shepherd_writeup"),

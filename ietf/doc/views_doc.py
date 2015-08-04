@@ -443,6 +443,8 @@ def document_main(request, name, rev=None):
 
         can_manage = can_manage_group_type(request.user, doc.group.type_id)
 
+        latest_revision = doc.latest_event(NewRevisionDocEvent, type="new_revision")
+
         return render_to_response("doc/document_charter.html",
                                   dict(doc=doc,
                                        top=top,
@@ -474,6 +476,8 @@ def document_main(request, name, rev=None):
         ballot_summary = None
         if doc.get_state_slug() in ("iesgeval") and doc.active_ballot():
             ballot_summary = needed_ballot_positions(doc, doc.active_ballot().active_ad_positions().values())
+
+        latest_revision = doc.latest_event(NewRevisionDocEvent, type="new_revision")
 
         return render_to_response("doc/document_conflict_review.html",
                                   dict(doc=doc,
@@ -510,6 +514,8 @@ def document_main(request, name, rev=None):
             sorted_relations=doc.relateddochistory_set.all().order_by('relationship__name')
         else:
             sorted_relations=None
+
+        latest_revision = doc.latest_event(NewRevisionDocEvent, type="new_revision")
 
         return render_to_response("doc/document_status_change.html",
                                   dict(doc=doc,

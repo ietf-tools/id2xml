@@ -1,4 +1,8 @@
-<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1','packages':['timeline']}]}"></script>
+{% comment %}
+URL encoded:
+https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization', 'version':'1','packages':['timeline']}]}
+{% endcomment %}
+<script src="https://www.google.com/jsapi?autoload=%7B%27modules%27%3A%5B%7B%27name%27%3A%27visualization%27%2C%20%27version%27%3A%271%27%2C%27packages%27%3A%5B%27timeline%27%5D%7D%5D%7D"></script>
 
 <script>
 google.setOnLoadCallback(draw_timeline);

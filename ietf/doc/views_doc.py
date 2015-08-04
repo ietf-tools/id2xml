@@ -417,7 +417,7 @@ def document_main(request, name, rev=None):
                                        search_archive=search_archive,
                                        actions=actions,
                                        tracking_document=tracking_document,
-                                       rev_history=crawl_history(doc),
+                                       rev_history=crawl_history(latest_revision.doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -457,7 +457,7 @@ def document_main(request, name, rev=None):
                                        group=group,
                                        milestones=milestones,
                                        can_manage=can_manage,
-                                       rev_history=crawl_history(doc),
+                                       rev_history=crawl_history(latest_revision.doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -486,7 +486,7 @@ def document_main(request, name, rev=None):
                                        conflictdoc=conflictdoc,
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-reqnopub-pend','appr-reqnopub-sent','appr-noprob-pend','appr-noprob-sent'),
-                                       rev_history=crawl_history(doc),
+                                       rev_history=crawl_history(latest_revision.doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -522,7 +522,7 @@ def document_main(request, name, rev=None):
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-pend','appr-sent'),
                                        sorted_relations=sorted_relations,
-                                       rev_history=crawl_history(doc),
+                                       rev_history=crawl_history(latest_revision.doc),
                                        ),
                                   context_instance=RequestContext(request))
 

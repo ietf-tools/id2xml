@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+import datetime, os
+import syslog
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ietf.settings")
+
+syslog.openlog(os.path.basename(__file__), syslog.LOG_PID, syslog.LOG_USER)
+
+import django
+django.setup()
+
+from ietf.doc.expire import *
+
+if not in_draft_expire_freeze():
+    for doc in get_expired_drafts():
+        send_expire_notice_for_draft(doc)
+        expire_draft(doc)
+        syslog.syslog("Expired draft %s-%s" % (doc.name, doc.rev))
+
+syslog.syslog("Cleaning up draft files")
+clean_up_draft_files()

@@ -1,0 +1,16 @@
+/.project
+/.pydevproject
+/.settings
+/.coverage
+/unix.tag
+/testresult
+/mergelog
+/mergequeue
+/INSTALL.pdf
+/bin
+/etc
+/local
+/lib
+/share
+/include
+/latest-coverage.json

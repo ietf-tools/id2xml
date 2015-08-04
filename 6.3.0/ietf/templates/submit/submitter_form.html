@@ -1,0 +1,17 @@
+{# Copyright The IETF Trust 2015, All Rights Reserved #}{% load origin %}{% origin %}
+{% load bootstrap3 %}
+
+<p>
+  If you are one of the authors, please click the button below
+  with your name on it to automatically fill in the
+  submitter information. Otherwise,
+  please manually enter your name and email address.
+</p>
+
+{% buttons %}
+  {% for author in submission.authors_parsed %}
+    <input type="button" class="author btn btn-default" data-name="{{ author.name  }}" data-email="{{ author.email }}" value="{{ author.name }}">
+  {% endfor %}
+{% endbuttons %}
+
+{% bootstrap_form submitter_form %}

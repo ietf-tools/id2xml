@@ -10,8 +10,10 @@
 	publisher =	{RFC Editor},
 	doi =		{% templatetag openbrace %}10.17487/rfc{{ doc.rfc_number }}{% templatetag closebrace %},
 	url =		{https://rfc-editor.org/rfc/rfc{{ doc.rfc_number }}.txt},{% else %}
+{% if published %}%% You should probably cite rfc{{ latest_revision.doc.rfc_number }} instead of this I-D.{% else %}{% if replaced_by %}%% You should probably cite {{replaced_by|join:" or "}} instead of this I-D.{% else %}
+{% if doc.rev != latest_revision.rev %}%% You should probably cite {{latest_revision.doc.name}}-{{latest_revision.rev}} instead of this revision.{%endif%}{% endif %}{% endif %}
 @techreport{% templatetag openbrace %}{{doc.name|slice:"6:"}}-{{doc.rev}},
-	number=		{% templatetag openbrace %}draft-ietf-tsvwg-rfc5405bis-05{% templatetag closebrace %},
+	number=		{% templatetag openbrace %}{{doc.name}}-{{doc.rev}}{% templatetag closebrace %},
 	type =		{% templatetag openbrace %}Internet-Draft{% templatetag closebrace %},
 	institution =	{% templatetag openbrace %}Internet Engineering Task Force{% templatetag closebrace %},
 	publisher =	{% templatetag openbrace %}Internet Engineering Task Force{% templatetag closebrace %},

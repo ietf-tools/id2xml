@@ -417,7 +417,7 @@ def document_main(request, name, rev=None):
                                        search_archive=search_archive,
                                        actions=actions,
                                        tracking_document=tracking_document,
-                                       rev_history=crawl_history(latest_revision.doc),
+                                       rev_history=crawl_history(latest_revision.doc if latest_revision else doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -457,7 +457,7 @@ def document_main(request, name, rev=None):
                                        group=group,
                                        milestones=milestones,
                                        can_manage=can_manage,
-                                       rev_history=crawl_history(latest_revision.doc),
+                                       rev_history=crawl_history(latest_revision.doc if latest_revision else doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -486,7 +486,7 @@ def document_main(request, name, rev=None):
                                        conflictdoc=conflictdoc,
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-reqnopub-pend','appr-reqnopub-sent','appr-noprob-pend','appr-noprob-sent'),
-                                       rev_history=crawl_history(latest_revision.doc),
+                                       rev_history=crawl_history(latest_revision.doc if latest_revision else doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -522,7 +522,7 @@ def document_main(request, name, rev=None):
                                        ballot_summary=ballot_summary,
                                        approved_states=('appr-pend','appr-sent'),
                                        sorted_relations=sorted_relations,
-                                       rev_history=crawl_history(latest_revision.doc),
+                                       rev_history=crawl_history(latest_revision.doc if latest_revision else doc),
                                        ),
                                   context_instance=RequestContext(request))
 
@@ -635,11 +635,27 @@ def document_history(request, name):
                               context_instance=RequestContext(request))
 
 
-def document_bibtex(request, name):
+def document_bibtex(request, name, rev=None):
     doc = get_object_or_404(Document, docalias__name=name)
 
+    latest_revision = doc.latest_event(NewRevisionDocEvent, type="new_revision")
+    replaced_by = [d.name for d in doc.related_that("replaces")]
+    published = doc.latest_event(type="published_rfc")
+    rfc = latest_revision.doc if latest_revision.doc.get_state_slug() == "rfc" else None
+
+    if rev != None and rev != doc.rev:
+        # find the entry in the history
+        for h in doc.history_set.order_by("-time"):
+            if rev == h.rev:
+                doc = h
+                break
+
     return render_to_response("doc/document_bibtex.bib",
-                              dict(doc=doc),
+                              dict(doc=doc,
+                                   replaced_by=replaced_by,
+                                   published=published,
+                                   rfc=rfc,
+                                   latest_revision=latest_revision),
                               content_type="text/plain; charset=utf-8",
                               context_instance=RequestContext(request))
 

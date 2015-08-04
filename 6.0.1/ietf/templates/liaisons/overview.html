@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 
 {% block title %}Liaison statements{% endblock %}
 
@@ -24,6 +25,8 @@
     {% endif %}
   {% endblock %}
 
+  {% bootstrap_messages %}
+  
 {% if with_search %}
 <div class="ietf-box search-form-box">
 {% include "liaisons/search_form.html" %}

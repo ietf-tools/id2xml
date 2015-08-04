@@ -4,6 +4,7 @@ import json
 from email.utils import parseaddr
 from functools import partial, wraps
 
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse as urlreverse
 from django.core.validators import validate_email, ValidationError
@@ -13,18 +14,22 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 
+from ietf.ietfauth.utils import role_required, has_role
 from ietf.group.models import Group
-from ietf.liaisons.models import LiaisonStatement, LiaisonStatementState, LiaisonStatementEvent, LiaisonStatementFromGroup
-from ietf.liaisons.accounts import (get_person_for_user, can_add_outgoing_liaison,
-                                    can_add_incoming_liaison, 
-                                    is_ietfchair, is_iabchair, is_iab_executive_director,
-                                    can_edit_liaison, is_secretariat)
-from ietf.liaisons.forms import (liaison_form_factory, liaison_from_form_factory,
-    SearchLiaisonForm, FromGroupForm, IncomingFromGroupForm, BaseFromGroupFormSet)
-from ietf.liaisons.utils import IETFHM, can_submit_liaison_required, approvable_liaison_statements
+from ietf.liaisons.models import LiaisonStatement, LiaisonStatementState, LiaisonStatementEvent
+from ietf.liaisons.utils import (get_person_for_user, can_add_outgoing_liaison,
+    can_add_incoming_liaison, can_edit_liaison,can_submit_liaison_required,
+    approvable_liaison_statements)
+from ietf.liaisons.forms import liaison_form_factory, SearchLiaisonForm, LiaisonModelForm
 from ietf.liaisons.mails import notify_pending_by_email, send_liaison_by_email
 from ietf.liaisons.fields import select2_id_liaison_json, select2_id_group_json
 
+EMAIL_ALIASES = {
+    'IETFCHAIR':'The IETF Chair <chair@ietf.org>',
+    'IESG':'The IESG <iesg@ietf.org>',
+    'IAB':'The IAB <iab@iab.org>',
+    'IABCHAIR':'The IAB Chair <iab-chair@iab.org>',
+    'IABEXECUTIVEDIRECTOR':'The IAB Executive Director <execd@iab.org>'}
 
 # -------------------------------------------------
 # Helper Functions
@@ -34,7 +39,7 @@ def _can_take_care(liaison, user):
         return False
 
     if user.is_authenticated():
-        if is_secretariat(user):
+        if has_role(user, "Secretariat"):
             return True
         else:
             return _find_person_in_emails(liaison, get_person_for_user(user))
@@ -44,9 +49,8 @@ def _find_person_in_emails(liaison, person):
     if not person:
         return False
 
-    emails = ','.join(e for e in [liaison.cc, liaison.to_contact, liaison.to_name,
-                                  liaison.reply_to, liaison.response_contact,
-                                  liaison.technical_contact] if e)
+    emails = ','.join(e for e in [liaison.cc_contacts, liaison.to_contacts,
+                                  liaison.technical_contacts] if e)
     for email in emails.split(','):
         name, addr = parseaddr(email)
         try:
@@ -56,15 +60,92 @@ def _find_person_in_emails(liaison, person):
 
         if person.email_set.filter(address=addr):
             return True
-        elif addr in ('chair@ietf.org', 'iesg@ietf.org') and is_ietfchair(person):
+        elif addr in ('chair@ietf.org', 'iesg@ietf.org') and has_role(person.user, "IETF Chair"):
             return True
-        elif addr in ('iab@iab.org', 'iab-chair@iab.org') and is_iabchair(person):
+        elif addr in ('iab@iab.org', 'iab-chair@iab.org') and has_role(person.user, "IAB Chair"):
             return True
-        elif addr in ('execd@iab.org', ) and is_iab_executive_director(person):
+        elif addr in ('execd@iab.org', ) and has_role(person.user, "IAB Executive Director"):
             return True
 
     return False
 
+def contacts_from_roles(roles):
+    '''Returns contact string for given roles'''
+    emails = [ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in roles ]
+    return ','.join(emails)
+        
+def get_cc(group,person):
+    '''Returns list of emails to use as CC for group. person is the form submitter.
+    '''
+    emails = []
+    if group.acronym in ('ietf','iesg'):
+        emails.append(EMAIL_ALIASES['IESG'])
+    elif group.acronym in ('iab'):
+        emails.append(EMAIL_ALIASES['IAB'])
+    elif group.type_id == 'area':
+        emails.append(EMAIL_ALIASES['IETFCHAIR'])
+    elif group.type_id == 'wg':
+        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
+        if group.list_email:
+            emails.append('{} Discussion List <{}>'.format(group.name,group.list_email))
+    elif group.type_id == 'sdo':
+        liaiman_roles = group.role_set.filter(name='liaiman').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in liaiman_roles ])
+    return emails
+
+def get_from_cc(group,person):
+    emails = []
+    if group.acronym in ('ietf','iesg'):
+        if not has_role(person, 'IETF Chair'):
+            emails.append(EMAIL_ALIASES['IETFCHAIR'])
+        emails.append(EMAIL_ALIASES['IESG'])
+    elif group.acronym == 'iab':
+        if not has_role(person, 'IAB Chair'):
+            emails.append(EMAIL_ALIASES['IABCHAIR'])
+        if not has_role(person, 'IAB Executive Director'):
+            emails.append(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'])
+    elif group.type_id == 'area':
+        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
+        emails.append(EMAIL_ALIASES['IETFCHAIR'])
+    elif group.type_id == 'wg':
+        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
+        chair_roles = group.role_set.filter(name='chair').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in chair_roles ])
+        if group.list_email:
+            emails.append('{} Discussion List <{}>'.format(group.name,group.list_email))
+    elif group.type_id == 'sdo':
+        liaiman_roles = group.role_set.filter(name='liaiman').exclude(person=person)
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in liaiman_roles ])
+    return emails
+    
+def get_contacts_for_group(group):
+    '''Returns default contacts for groups as a comma separated string'''
+    contacts = []
+
+    # use explicit default contacts if defined
+    if group.liaisonstatementgroupcontacts_set.first():
+        contacts.append(group.liaisonstatementgroupcontacts_set.first().contacts)
+    
+    # otherwise construct based on group type
+    elif group.type_id == 'area':
+        roles = group.role_set.filter(name='ad')
+        contacts.append(contacts_from_roles(roles))
+    elif group.type_id == 'wg':
+        roles = group.role_set.filter(name='chair')
+        contacts.append(contacts_from_roles(roles))
+    elif group.acronym == 'ietf':
+        contacts.append(EMAIL_ALIASES['IETFCHAIR'])
+    elif group.acronym == 'iab':
+        contacts.append(EMAIL_ALIASES['IABCHAIR'])
+        contacts.append(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'])
+    elif group.acronym == 'iesg':
+        contacts.append(EMAIL_ALIASES['IESG'])
+
+    return ','.join(contacts)
+        
 def get_details_tabs(stmt, selected):
     return [
         t + (t[0].lower() == selected.lower(),)
@@ -72,6 +153,19 @@ def get_details_tabs(stmt, selected):
         ('Statement', urlreverse('liaison_detail', kwargs={ 'object_id': stmt.pk })),
         ('History', urlreverse('liaison_history', kwargs={ 'object_id': stmt.pk }))
     ]]
+
+def needs_approval(group,person):
+    '''Returns True if the person does not have authority to send a Liaison Statement
+    from group.  For outgoing Liaison Statements only'''
+    if group.acronym in ('ietf','iesg') and has_role(person, 'IETF Chair'):
+        return False
+    if group.acronym == 'iab' and (has_role(person,'IAB Chair') or has_role(person,'IAB Executive Director')):
+        return False
+    if group.type_id == 'area' and group.role_set.filter(name='ad',person=person):
+        return False
+    if group.type_id == 'wg' and group.parent and group.parent.role_set.filter(name='ad',person=person):
+        return False
+    return True
 
 def normalize_sort(request):
     sort = request.GET.get('sort', "")
@@ -83,116 +177,59 @@ def normalize_sort(request):
 
     return sort, order_by
 
+def post_only(group,person):
+    if group.type_id == 'sdo' and not(has_role(person.user,"Secretariat") or group.role_set.filter(name='auth',person=person)):
+        return True
+    else:
+        return False
+
 # -------------------------------------------------
 # Ajax Functions
 # -------------------------------------------------
-'''@can_submit_liaison_required
-def ajax_get_liaison_info(request):
-    person = get_person_for_user(request.user)
-
-    to_entity_id = request.GET.get('to_entity_id', None)
-    from_entity_id = request.GET.get('from_entity_id', None)
-
-    result = {'poc': [], 'cc': [], 'needs_approval': False, 'post_only': False, 'full_list': []}
-
-    to_error = 'Invalid TO entity id'
-    if to_entity_id:
-        to_entity = IETFHM.get_entity_by_key(to_entity_id)
-        if to_entity:
-            to_error = ''
-
-    from_error = 'Invalid FROM entity id'
-    if from_entity_id:
-        from_entity = IETFHM.get_entity_by_key(from_entity_id)
-        if from_entity:
-            from_error = ''
-
-    if to_error or from_error:
-        result.update({'error': '\n'.join([to_error, from_error])})
-    else:
-        result.update({'error': False,
-                       'cc': ([i.email() for i in to_entity.get_cc(person=person)] +
-                              [i.email() for i in from_entity.get_from_cc(person=person)]),
-                       'poc': [i.email() for i in to_entity.get_poc()],
-                       'needs_approval': from_entity.needs_approval(person=person),
-                       'post_only': from_entity.post_only(person=person, user=request.user)})
-        if is_secretariat(request.user):
-            full_list = [(i.pk, i.email()) for i in set(from_entity.full_user_list())]
-            full_list.sort(key=lambda x: x[1])
-            full_list = [(person.pk, person.email())] + full_list
-            result.update({'full_list': full_list})
-
-    json_result = json.dumps(result)
-    return HttpResponse(json_result, content_type='text/javascript')
-'''
-
 @can_submit_liaison_required
 def ajax_get_liaison_info(request):
     person = get_person_for_user(request.user)
 
-    to_entity_id = request.GET.get('to_entity_id', None)
-    from_entity_id = request.GET.get('from_entity_id', None)
-    to_entity = None
-    from_entity = None
+    from_groups = request.GET.getlist('from_groups', None)
+    if not any(from_groups):
+        from_groups = []
+    to_groups = request.GET.getlist('to_groups', None)
+    if not any(to_groups):
+        to_groups = []
+    from_groups = [ Group.objects.get(id=id) for id in from_groups ]
+    to_groups = [ Group.objects.get(id=id) for id in to_groups ]
     
+    cc = []
+    does_need_approval = []
+    can_post_only = []
+    poc = []
     result = {'poc': [], 'cc': [], 'needs_approval': False, 'post_only': False, 'full_list': []}
-
-    def convert_identity(id):
-        '''Convert Group ID to legacy [group type]_[group id]'''
-        if not id:
-            return id
-        try:
-            group = Group.objects.get(pk=id)
-            if group.type_id in ('sdo','wg','area'):
-                return '{}_{}'.format(group.type_id,id)
-        except ObjectDoesNotExist:
-            pass
-        return id
     
-    # convert identities
-    to_entity_id = convert_identity(to_entity_id)
-    from_entity_id = convert_identity(from_entity_id)
-                
-    to_error = 'Invalid TO entity id'
-    if to_entity_id:
-        to_entity = IETFHM.get_entity_by_key(to_entity_id)
-        if to_entity:
-            to_error = ''
-
-    from_error = 'Invalid FROM entity id'
-    if from_entity_id:
-        from_entity = IETFHM.get_entity_by_key(from_entity_id)
-        if from_entity:
-            from_error = ''
-
-    if to_error and from_error:
-        result.update({'error': '\n'.join([to_error, from_error])})
+    for group in from_groups:
+        cc.extend(get_from_cc(group,person))
+        does_need_approval.append(needs_approval(group,person))
+        can_post_only.append(post_only(group,person))
+    
+    for group in to_groups:
+        cc.extend(get_cc(group,person))
+        poc.append(get_contacts_for_group(group))
+    
+    # TODO: set result['error'] if a group id doesn't exist
+    
+    # if there are from_groups and any need approval
+    if does_need_approval:
+        if  any(does_need_approval):
+            does_need_approval = True
+        else:
+            does_need_approval = False
     else:
-        cc = []
-        poc = []
-        needs_approval = True
-        post_only = False
+        does_need_approval = True
         
-        if from_entity:
-            cc.extend([i.email() for i in from_entity.get_from_cc(person=person)])
-            needs_approval = from_entity.needs_approval(person=person)
-            post_only = from_entity.post_only(person=person, user=request.user)
-        if to_entity:
-            cc.extend([i.email() for i in to_entity.get_cc(person=person)])
-            poc.extend([i.email() for i in to_entity.get_poc()])
-            
-        result.update({'error': False,
-                       'cc': cc,
-                       'poc': poc,
-                       'needs_approval': needs_approval,
-                       'post_only': post_only})
-        if is_secretariat(request.user):
-            #full_list = [(r.email.pk, r.email.formatted_email()) for r in set(from_entity.full_user_list())]
-            full_list = [(r.email.pk, '{} &lt;{}&gt;'.format(r.person.plain_name(),r.email.address)) for r in set(from_entity.full_user_list())]
-            full_list.sort(key=lambda x: x[1])
-            #full_list = [(person.pk, person.email())] + full_list
-            result.update({'full_list': full_list})
-
+    result.update({'error': False,
+                   'cc': list(set(cc)),
+                   'poc': list(set(poc)),
+                   'needs_approval': does_need_approval,
+                   'post_only': any(can_post_only)})
 
     json_result = json.dumps(result)
     return HttpResponse(json_result, content_type='text/javascript')
@@ -203,7 +240,7 @@ def ajax_select2_search_liaison_statements(request):
     if not q:
         objs = LiaisonStatement.objects.none()
     else:
-        qs = LiaisonStatement.objects.exclude(approved=None).all()
+        qs = LiaisonStatement.objects.filter(state='approved')
 
         for t in q:
             qs = qs.filter(title__icontains=t)
@@ -212,24 +249,7 @@ def ajax_select2_search_liaison_statements(request):
 
     return HttpResponse(select2_id_liaison_json(objs), content_type='application/json')
 
-def ajax_select2_search_groups(request, group_type):
-    q = [w.strip() for w in request.GET.get('q', '').split() if w.strip()]
 
-    if not q:
-        objs = Group.objects.none()
-    else:
-        if group_type == 'internal':
-            qs = Group.objects.filter(type='wg')
-        elif group_type == 'external':
-            qs = Group.objects.filter(type='sdo')
-
-        for t in q:
-            qs = qs.filter(acronym__icontains=t)
-
-        objs = qs.distinct().order_by("acronym")[:20]
-
-    return HttpResponse(select2_id_group_json(objs), content_type='application/json')
-    
 def ajax_liaison_list(request):
     liaisons = SearchLiaisonForm().get_results()
 
@@ -243,22 +263,12 @@ def ajax_liaison_list(request):
 
 @can_submit_liaison_required
 def add_liaison(request, liaison=None):
-
-    # 1 to show initially plus the template
-    from_group_form = liaison_from_form_factory(request, data=request.POST.copy(),liaison=liaison)
-    FromGroupFormset = inlineformset_factory(LiaisonStatement, LiaisonStatementFromGroup, form=from_group_form, formset=BaseFromGroupFormSet, can_delete=True, extra=1+1)
-    FromGroupFormset.form = wraps(from_group_form)(partial(from_group_form,user=request.user))
-    instance = liaison if liaison else LiaisonStatement()
-    
     if request.method == 'POST':
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files = request.FILES, liaison=liaison)
-        formset = FromGroupFormset(request.POST, instance=instance)
         
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid():
             liaison = form.save(request=request)
-            formset = FromGroupFormset(request.POST, instance=liaison)
-            formset.save()
             
             # notifications
             if request.POST.get('send', False):
@@ -268,19 +278,13 @@ def add_liaison(request, liaison=None):
                     send_liaison_by_email(request, liaison)
             
             return redirect('liaison_list')
-        #else:
-        #    assert False, (form.errors, formset.errors, formset.non_form_errors())
             
     else:
         form = liaison_form_factory(request, liaison=liaison)
-        formset = FromGroupFormset(instance=instance)
-        #assert False, (form.fields['organization'].widget.attrs,
-        #    form.fields['organization'].widget.render('name','value'))
         
     return render_to_response(
         'liaisons/edit.html',
         {'form': form,
-         'formset': formset,
          'liaison': liaison},
         context_instance=RequestContext(request),
     )
@@ -289,8 +293,6 @@ def liaison_history(request, object_id):
     """Show the history for a specific liaison statement"""
     liaison = get_object_or_404(LiaisonStatement, id=object_id)
     events = liaison.liaisonstatementevent_set.all().order_by("-time", "-id").select_related("by")
-    #if not has_role(request.user, "Secretariat"):
-    #    events = events.exclude(type='private_comment')
 
     return render(request, "liaisons/detail_history.html",  {
         'events':events,
@@ -365,7 +367,8 @@ def liaison_approval_detail(request, object_id):
             
         liaison.state = state
         liaison.save()
-        
+        messages.success(request,'Liaison Statement {}'.format(event_type_id.capitalize()))
+         
         # create event
         LiaisonStatementEvent.objects.create(
             type_id = event_type_id,
@@ -389,6 +392,15 @@ def liaison_approval_detail(request, object_id):
         "relations_by": relations_by,
         "is_approving": True,
     }, context_instance=RequestContext(request))
+
+@role_required('Secretariat',)
+def liaison_dead_list(request):
+    liaisons = LiaisonStatement.objects.filter(state='dead').order_by("-id")
+
+    return render_to_response('liaisons/dead_list.html', {
+        "liaisons": liaisons,
+    }, context_instance=RequestContext(request))
+
 
 def liaison_detail(request, object_id):
     liaison = get_object_or_404(LiaisonStatement.objects.filter(state__slug='approved'), pk=object_id)
@@ -417,3 +429,12 @@ def liaison_edit(request, object_id):
     if not (request.user.is_authenticated() and can_edit_liaison(request.user, liaison)):
         return HttpResponseForbidden('You do not have permission to edit this liaison statement')
     return add_liaison(request, liaison=liaison)
+
+@role_required('Secretariat',)
+def liaison_resend(request, object_id):
+    liaison = get_object_or_404(LiaisonStatement, pk=object_id)
+    send_liaison_by_email(request,liaison)
+    
+    messages.success(request,'Liaison Statement resent')
+    return redirect('liaison_list', object_id=liaison.pk)
+    

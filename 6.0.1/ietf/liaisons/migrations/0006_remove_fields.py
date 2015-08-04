@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
             model_name='liaisonstatement',
             name='to_group',
         ),
-        migrations.RemoveField(
-            model_name='liaisonstatement',
-            name='from_contact',
-        ),
+        #migrations.RemoveField(
+        #    model_name='liaisonstatement',
+        #    name='from_contact',
+        #),
     ]

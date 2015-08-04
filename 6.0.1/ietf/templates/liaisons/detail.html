@@ -64,6 +64,12 @@
   </tr>
 {% endif %}
 
+{% if liaison.action_holder_contacts %}
+  <tr>
+    <th class="text-nowrap">Action Holder Contacts</th>
+    <td>{{ liaison.action_holder_contacts|parse_email_list|make_one_per_line|safe|linebreaksbr }}</td>
+  </tr>
+{% endif %}
 
   <tr>
     <th class="text-nowrap">Purpose</th>
@@ -117,6 +123,13 @@
       {% endif %}
     {% endif %}
 
+    {% if liaison.other_identifiers %}
+      <tr>
+        <th class="text-nowrap">Other Identifiers</th>
+        <td>{{ liaison.other_identifiers }}</td>
+      </tr>
+    {% endif %}
+    
     <tr>
       <th class="text-nowrap">Attachments</th>
       <td>
@@ -162,10 +175,9 @@
     
 </table>
 
-  {% if can_edit %}
-    <p>
-      <a class="btn btn-default" href="{% url "liaison_edit" object_id=liaison.pk %}">Edit liaison</a>
-    </p>
-  {% endif %}
+<p>
+  {% if can_edit %}<a class="btn btn-default" href="{% url "liaison_edit" object_id=liaison.pk %}">Edit liaison</a>{% endif %}
+  {% if user|has_role:"Secretariat" %}<a class="btn btn-default" href="{% url "liaison_resend" object_id=liaison.pk %}">Resend statement</a>{% endif %}
+</p>
 
 {% endblock %}

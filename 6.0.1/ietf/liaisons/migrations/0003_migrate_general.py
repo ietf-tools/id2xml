@@ -31,14 +31,6 @@ def create_events(apps, schema_editor):
                 desc='Statement Submitted')
             event.time=s.submitted
             event.save()
-        if s.modified:
-            event = LiaisonStatementEvent.objects.create(
-                type_id='modified',
-                by=system,
-                statement=s,
-                desc='Statement Modified')
-            event.time=s.modified
-            event.save()
         if s.approved:
             event = LiaisonStatementEvent.objects.create(
                 type_id='approved',
@@ -46,6 +38,14 @@ def create_events(apps, schema_editor):
                 statement=s,
                 desc='Statement Approved')
             event.time=s.approved
+            event.save()
+        if s.modified and ( s.modified != s.submitted and s.modified != s.approved ):
+            event = LiaisonStatementEvent.objects.create(
+                type_id='modified',
+                by=system,
+                statement=s,
+                desc='Statement Modified')
+            event.time=s.modified
             event.save()
 
 def migrate_relations(apps, schema_editor):
@@ -57,8 +57,7 @@ def migrate_relations(apps, schema_editor):
             target=liaison.related_to,
             relationship_id='reference')
 
-'''
-Now done in migrate_groups
+# XXX: Now done in migrate_groups
 def merge_reply_to(apps, schema_editor):
     """Merge contents of reply_to field into response_contact and create comment Event"""
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
@@ -76,7 +75,6 @@ def merge_reply_to(apps, schema_editor):
         )
         liaison.response_contacts += ',%s' % liaison.reply_to
         liaison.save()
-'''
 
 class Migration(migrations.Migration):
 

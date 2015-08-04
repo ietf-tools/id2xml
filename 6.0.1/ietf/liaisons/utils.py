@@ -5,19 +5,44 @@ from ietf.group.models import Group, Role
 from ietf.liaisons.models import LiaisonStatement
 from ietf.ietfauth.utils import has_role, passes_test_decorator
 
-from ietf.liaisons.accounts import (is_ietfchair, is_iabchair, is_iab_executive_director, is_irtfchair,
-                                    get_ietf_chair, get_iab_chair, get_iab_executive_director, get_irtf_chair,
-                                    is_secretariat, can_add_liaison, get_person_for_user, proxy_personify_role)
 
 can_submit_liaison_required = passes_test_decorator(
     lambda u, *args, **kwargs: can_add_liaison(u),
     "Restricted to participants who are authorized to submit liaison statements on behalf of the various IETF entities")
 
 def approvable_liaison_statements(user):
+    '''Returns a queryset of Liaison Statements in pending state that user has authority
+    to approve'''
     liaisons = LiaisonStatement.objects.filter(state__slug='pending')
+    person = get_person_for_user(user)
     if has_role(user, "Secretariat"):
         return liaisons
 
+    # get list of groups user can approve
+    # cycle through pending, if all from_groups in list capture id
+    # build new query of ids
+    approvable_groups = []
+    if has_role(user, "IETF Chair"):
+        approvable_groups.append(Group.objects.get(acronym='ietf'))
+    if has_role(user, "IAB Chair"):
+        approvable_groups.append(Group.objects.get(acronym='iab'))
+    #if has_role(user, "IESG Chair"):
+    #    approvable_groups.append(Group.objects.get(acronym='iesg'))
+    if has_role(user, "Area Director"):
+        area_roles = person.role_set.filter(name='ad',group__type='area',group__state='active')
+        for role in area_roles:
+            approvable_groups.append(role.group)    # append the area
+            approvable_groups.extend(role.group.group_set.filter(state='active'))   # append child working groups
+    
+    approvable_liaisons = []
+    for liaison in liaisons:
+        for group in liaison.from_groups.all():
+            if group not in approvable_groups:
+                break
+        else:
+            approvable_liaisons.append(liaison.pk)
+    
+    '''
     # this is a bit complicated because IETFHM encodes the
     # groups, it should just give us a list of ids or acronyms
     group_codes = IETFHM.get_all_can_approve_codes(get_person_for_user(user))
@@ -30,7 +55,45 @@ def approvable_liaison_statements(user):
             group_acronyms.append(x)
 
     return liaisons.filter(Q(from_groups__acronym__in=group_acronyms) | Q(from_groups__pk__in=group_ids))
+    '''
+    return liaisons.filter(id__in=approvable_liaisons)
 
+def can_edit_liaison(user, liaison):
+    '''Return True if user is Secretariat or Liaison Manager of all SDO groups involved'''
+    if has_role(user, "Secretariat"):
+        return True
+    if has_role(user, "Liaison Manager"):
+        person = get_person_for_user(user)
+        for group in chain(liaison.from_groups.filter(type_id='sdo'),liaison.to_groups.filter(type_id='sdo')):
+            if not person.role_set.filter(group=group,name='liaiman'):
+                return False
+        else:
+            return True
+
+    return False
+
+def get_person_for_user(user):
+    try:
+        return user.person
+    except:
+        return None
+
+def can_add_outgoing_liaison(user):
+    return has_role(user, ["Area Director","WG Chair","WG Secretary","IETF Chair","IAB Chair",
+        "IAB Executive Director","Liaison Manager","Secretariat"])
+
+def can_add_incoming_liaison(user):
+    return has_role(user, ["Liaison Manager","Authorized Individual","Secretariat"])
+
+def can_add_liaison(user):
+    return can_add_incoming_liaison(user) or can_add_outgoing_liaison(user)
+
+def is_authorized_individual(user, groups):
+    '''Returns True if the user has authorized_individual role for each of the groups'''
+    for group in groups:
+        if not Role.objects.filter(person=user.person, group=group, name="auth"):
+            return False
+    return True
 
 # the following is a biggish object hierarchy abstracting the entity
 # names and auth rules for posting liaison statements in a sort of
@@ -47,6 +110,7 @@ IRTFCHAIR = {'name': u'The IRTF Chair', 'address': u'irtf-chair@irtf.org'}
 IESGANDIAB = {'name': u'The IESG and IAB', 'address': u'iesg-iab@ietf.org'}
 
 
+"""
 class FakePerson(object):
 
     def __init__(self, name, address):
@@ -118,7 +182,8 @@ class IETFEntity(Entity):
         return [self.poc]
 
     def full_user_list(self):
-        return chain(all_sdo_managers(),get_ietf_chair)
+        pass
+        #return chain(all_sdo_managers(),get_ietf_chair)
 
 
 class IABEntity(Entity):
@@ -193,8 +258,8 @@ class IAB_IESG_Entity(Entity):
         return list(set(self.iab.can_approve() + self.iesg.can_approve()))
 
     def full_user_list(self):
-        return chain(get_ietf_chair(), get_iab_chair(), get_iab_executive_director())
-        
+        #return chain(get_ietf_chair(), get_iab_chair(), get_iab_executive_director())
+        pass
         
 class AreaEntity(Entity):
 
@@ -538,3 +603,4 @@ class IETFHierarchyManager(object):
 
 
 IETFHM = IETFHierarchyManager()
+"""

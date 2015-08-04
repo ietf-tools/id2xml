@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
-
 def create_new_groups(apps, schema_editor):
     Group = apps.get_model("group","Group")
     for group in NEW_GROUPS:
@@ -57,7 +56,7 @@ def copy_to_group(apps, schema_editor):
     '''For this migration we are favoring the value in to_name over to_group.  Based
     on observation there are statements with multiple groups in the to_name but
     restricted to one to_group.'''
-    LiaisonStatementToGroup = apps.get_model("liaisons", "LiaisonStatementToGroup")
+    #LiaisonStatementToGroup = apps.get_model("liaisons", "LiaisonStatementToGroup")
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
@@ -66,8 +65,8 @@ def copy_to_group(apps, schema_editor):
                 got_exception = False
                 for acronym in TO_NAME_MAPPING[s.to_name]:
                     try:
-                        #s.to_groups.add(Group.objects.get(acronym=acronym))
-                        LiaisonStatementToGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
+                        s.to_groups.add(Group.objects.get(acronym=acronym))
+                        #LiaisonStatementToGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
                     except Group.DoesNotExist:
                         print "Group Does Not Exist: {},{},{}".format(s.pk,s.to_name,acronym)
                         got_exception = True
@@ -78,15 +77,15 @@ def copy_to_group(apps, schema_editor):
                 print "{}:{} empty to_group mapping".format(s.pk,s.to_name)
 
         elif s.to_group:
-            #s.to_groups.add(s.to_group)
-            LiaisonStatementToGroup.objects.create(statement=s,group=s.to_group)
+            s.to_groups.add(s.to_group)
+            #LiaisonStatementToGroup.objects.create(statement=s,group=s.to_group)
             s.to_name = ''
             s.save()
         else:
             print "to_name not mapped and no to_group {}".format(s.pk)
 
 def copy_from_group(apps, schema_editor):
-    LiaisonStatementFromGroup = apps.get_model("liaisons", "LiaisonStatementFromGroup")
+    #LiaisonStatementFromGroup = apps.get_model("liaisons", "LiaisonStatementFromGroup")
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
@@ -95,8 +94,8 @@ def copy_from_group(apps, schema_editor):
                 got_exception = False
                 for acronym in FROM_NAME_MAPPING[s.from_name]:
                     try:
-                        #s.from_groups.add(Group.objects.get(acronym=acronym))
-                        LiaisonStatementFromGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
+                        s.from_groups.add(Group.objects.get(acronym=acronym))
+                        #LiaisonStatementFromGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
                     except Group.DoesNotExist:
                         print "Group Does Not Exist: {}".format(acronym)
                         got_exception = True
@@ -106,24 +105,47 @@ def copy_from_group(apps, schema_editor):
             else:
                 print "{}:{} empty from_group mapping".format(s.pk,s.from_name)
         elif s.from_group:
-            #s.from_groups.add(s.from_group)
-            LiaisonStatementFromGroup.objects.create(statement=s,group=s.from_group)
+            s.from_groups.add(s.from_group)
+            #LiaisonStatementFromGroup.objects.create(statement=s,group=s.from_group)
             s.from_name = ''
             s.save()
         else:
             print "from_name not mapped and no from_group {}".format(s.pk)
         
         # set from_contact
-        if s.from_contact:
-            for fg in s.fromgroup_set.all():
-                fg.contact = s.from_contact
-                fg.save()
+        #if s.from_contact:
+        #    for fg in s.fromgroup_set.all():
+        #        fg.contact = s.from_contact
+        #        fg.save()
+
+def set_default_poc(apps, schema_editor):
+    """Set default group POC if there is only one unique value"""
+    LiaisonStatementGroupContacts = apps.get_model("liaisons", "LiaisonStatementGroupContacts")
+    Group = apps.get_model("group", "Group")
+    for group in Group.objects.filter(liaisonstatement_to_set__isnull=False).distinct():
+        contacts = set()
+        for stmt in group.liaisonstatement_to_set.all():
+            if stmt.to_contacts:
+                contacts.add(stmt.to_contacts)
+        if len(contacts) == 1:
+            LiaisonStatementGroupContacts.objects.create(group=group,contacts=contacts.pop())
+    
+    # do explicit mappings
+    for acronym,contacts in DEFAULT_POC.items():
+        group = Group.objects.get(acronym=acronym)
+        try:
+            lsgc = LiaisonStatementGroupContacts.objects.get(group=group)
+            lsgc.contacts = contacts
+            lsgc.save()
+        except LiaisonStatementGroupContacts.DoesNotExist:
+            LiaisonStatementGroupContacts.objects.create(group=group,contacts=contacts)
+
 
 def explicit_mappings(apps, schema_editor):
     """In some cases the to_name cannot be mapped one-to-one with a group.  The
     following liaison statements are modified individually
     """
-    LiaisonStatementFromGroup = apps.get_model("liaisons", "LiaisonStatmentFromGroup")
+    #LiaisonStatementFromGroup = apps.get_model("liaisons", "LiaisonStatmentFromGroup")
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group", "Group")
     
@@ -134,9 +156,9 @@ def explicit_mappings(apps, schema_editor):
                 s.to_groups.add(*Group.objects.filter(acronym__in=to))
                 s.to_name = ''
             if frm:
-                for acronym in frm:
-                    LiaisonStatementFromGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
-                #s.from_groups.add(*Group.objects.filter(acronym__in=frm))
+                #for acronym in frm:
+                #    LiaisonStatementFromGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
+                s.from_groups.add(*Group.objects.filter(acronym__in=frm))
                 s.from_name = ''
             s.save()
     
@@ -168,6 +190,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(reassign_groups),
         migrations.RunPython(copy_to_group),
         migrations.RunPython(copy_from_group),
+        migrations.RunPython(set_default_poc),
         migrations.RunPython(cleanup_groups),
         migrations.RunPython(explicit_mappings),
     ]
@@ -255,9 +278,10 @@ NEW_GROUPS = [
     ('itu-t-sg-16-q8','ITU-T-SG-16-Q8','itu-t-sg-16','active'),
     ('itu-t-sg-16-q9','ITU-T-SG-16-Q9','itu-t-sg-16','active'),
     ('itu-t-sg-16-q10','ITU-T-SG-16-Q10','itu-t-sg-16','active'),
-    ('itu-t-sg-17-tsb','ITU-T-SG-17-TSB','itu-t-sg-17','active'),
+    #('itu-t-sg-17-tsb','ITU-T-SG-17-TSB','itu-t-sg-17','active'),
     ('itu-t-sg-17-q2','ITU-T-SG-17-Q2','itu-t-sg-17','active'),
-    ('itu-t-sg-17-q4','ITU-T-SG-17-Q4','itu-t-sg-17','active'),
+    #('itu-t-sg-17-q4','ITU-T-SG-17-Q4','itu-t-sg-17','active'),
+    ('itu-t-sg-20','ITU-T-SG-20','itu-t','active'),
     ('ieee','IEEE',None,'active'),
     ('ieee-802','IEEE 802','ieee','active'),
     ('ieee-802-ec','IEEE 802 Executive Committee','ieee','active'),
@@ -269,7 +293,7 @@ NEW_GROUPS = [
     ('iso-iec-jtc1-sc31-wg4','ISO/IEC JTC1 SC31 WG4','iso-iec-jtc1-sc31','active'),
     ('iso-iec-jtc1-sgsn','ISO/IEC JTC1 SGSN','iso-iec-jtc1','active'),
     ('iso-iec-jtc1-wg7','ISO/IEC JTC1 WG7','iso-iec-jtc1','active'),
-    ('mead','IETF MEAD Team',None,'active'),
+    ('mead','IETF MEAD Team','rtg','active'),
     ('mfa-forum','MFA Forum',None,'active'),
     ('mpeg','MPEG',None,'active'),
     ('mpls-forum','MPLS Forum',None,'active'),
@@ -307,7 +331,10 @@ CHANGE_ACRONYM = [
     ('isoiec-jtc1-sc29','iso-iec-jtc1-sc29'),
     ('isoiec-jtc-1sc-29wg-11','iso-iec-jtc1-sc29-wg11'),
     ('itu-t-fgd','itu-t-fg-dist'),
-    ('3GPP-TSG-SA-WG4','3gpp-tsg-sa4'),
+    ('itu-t-sg17-q4','itu-t-sg-17-q4'),
+    ('itu-t-sg17-tsb','itu-t-sg-17-tsb'),
+    ('ITU-T-SG5','itu-t-sg-5'),
+    ('3GPP-TSG-SA-WG4','3gpp-tsgsa-sa4'),
     ('IEEE-802-OmniRAN','ieee-802-ec-omniran'),
 ]
     
@@ -352,11 +379,11 @@ TO_NAME_MAPPING = {
     u'(lyong@ciena.com)Lyndon Ong': [u'itu-t-sg-15'],
     #u'(sob@harvard.edu) Scott Bradner': None,   # this is a bunch (explicit)
     u'(sob@harvard.edu)Scott Bradner': ['irtf'],    # this is 833
-    u'3GPP SA WG4': [u'3gpp-tsg-sa4'],
+    u'3GPP SA WG4': [u'3gpp-tsgsa-sa4'],
     u'3GPP SA2': [u'3gpp-tsgsa-sa2'],
     u'3GPP TSG CT WG4': [u'3gpp-tsgct-ct4'],
     u'3GPP TSG RAN WG2': [u'3gpp-tsgran-ran2'],
-    u'3GPP TSG SA WG4': [u'3gpp-tsg-sa4'],
+    u'3GPP TSG SA WG4': [u'3gpp-tsgsa-sa4'],
     u'3GPP, 3GPP2, ARIB, ATIS, CCSA, ETSI, ETSI-DECT, ETSI-BRAN, IEEE, IETF,': [u'ietf'],
     u'3GPP/IETF and 3GPP/ITU-T Co-ordinator': ['3gpp-tsgct-ct1'],
     u'ACIF, ARIB, ATIS, CCSA, ETSI, IEEE, IETF, ISACC, TIA, TTA, TTC': ['ietf'],
@@ -729,3 +756,32 @@ FROM_NAME_MAPPING = {
     u'W3C Geolocation WG': ['w3c-geolocation-wg'],
     u'WIG': ['wig']
 }
+
+DEFAULT_POC = {
+    '3gpp':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgct':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgct-ct1':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgct-ct4':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgran':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgran-ran2':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgsa':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgsa-sa2':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgsa-sa3':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgsa-sa4':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    '3gpp-tsgt-wg2':'georg.mayer.huawei@gmx.com,3GPPLiaison@etsi.org',
+    'ieee-802':'Paul Nikolich <p.nikolich@ieee.org>,Pat Thaler <pthaler@broadcom.com>',
+    'ieee-802-1':'Paul Nikolich <p.nikolich@ieee.org>,Glen Parsons <glenn.parsons@ericsson.com>,John Messenger <jmessenger@advaoptical.com>',
+    'ieee-802-11':'Dorothy Stanley <dstanley@agere.com>, Adrian Stephens <adrian.p.stephens@intel.com>',
+    'cablelabs':'Greg White <g.white@CableLabs.com>',
+    'iso-iec-jtc1-sc29':'Watanabe Shinji <watanabe@itscj.ipsj.or.jp>',
+    'iso-iec-jtc1-sc29-wg1':'Watanabe Shinji <watanabe@itscj.ipsj.or.jp>',
+    'iso-iec-jtc1-sc29-wg11':'Watanabe Shinji <watanabe@itscj.ipsj.or.jp>',
+    'unicode':'Richard McGowan <rick@unicode.org>',
+    'isotc46':'sabine.donnardcusse@afnor.org',
+    'w3c':u'Wendy Seltzer <wseltzer@w3.org>,Philippe Le Hégaret <plh@w3.org>',
+    # change to m3aawg
+    'maawg':'Mike Adkins <madkins@fb.com>,technical-chair@mailman.m3aawg.org',
+    'ecma-tc39':'John Neuman <johnneumann.openstrat@gmail.com>,Istvan Sebestyen <istvan@ecma-interational.org>',
+}
+    
+    

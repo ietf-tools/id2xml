@@ -121,3 +121,11 @@ td span.awaiting {
 input[id$='DELETE'] {
     display: none;
 }
+
+#id_from_groups + span {
+    display: none;
+}
+
+#id_to_groups + span {
+    display: none;
+}

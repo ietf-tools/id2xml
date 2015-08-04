@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             name='LiaisonStatementGroupContacts',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('default_reply_to', models.CharField(max_length=255)),
+                ('contacts', models.CharField(max_length=255)),
                 ('group', models.ForeignKey(to='group.Group', unique=True)),
             ],
             options={
@@ -46,30 +46,6 @@ class Migration(migrations.Migration):
                 ('relationship', models.ForeignKey(to='name.DocRelationshipName')),
                 ('source', models.ForeignKey(related_name='source_of_set', to='liaisons.LiaisonStatement')),
                 ('target', models.ForeignKey(related_name='target_of_set', to='liaisons.LiaisonStatement')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='LiaisonStatementFromGroup',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('contact', models.ForeignKey(blank=True, to='person.Email', null=True)),
-                ('group', models.ForeignKey(to='group.Group')),
-                ('statement', models.ForeignKey(to='liaisons.LiaisonStatement')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='LiaisonStatementToGroup',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('contact', models.ForeignKey(blank=True, to='person.Email', null=True)),
-                ('group', models.ForeignKey(to='group.Group')),
-                ('statement', models.ForeignKey(to='liaisons.LiaisonStatement')),
             ],
             options={
             },
@@ -104,7 +80,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='liaisonstatement',
             name='from_groups',
-            field=models.ManyToManyField(related_name='liaisonsatement_from_set', through='liaisons.LiaisonStatementFromGroup', to='group.Group', blank=True),
+            field=models.ManyToManyField(related_name='liaisonsatement_from_set', to='group.Group', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -128,7 +104,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='liaisonstatement',
             name='to_groups',
-            field=models.ManyToManyField(related_name='liaisonsatement_to_set', through='liaisons.LiaisonStatementToGroup', to='group.Group', blank=True),
+            field=models.ManyToManyField(related_name='liaisonsatement_to_set', to='group.Group', blank=True),
             preserve_default=True,
         ),
         migrations.AlterField(

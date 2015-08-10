@@ -332,6 +332,10 @@ ampersand you get is dependent on which fonts are available in the browser.  Hac
   display: none;
 }
 
+.liaisons-form .from-row.template {
+  display: none;
+}
+
 form.send-notification textarea {
   height: 24em;
 }

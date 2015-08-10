@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
+{% load bootstrap3 %}
 
 {% block title %}Liaison statements{% endblock %}
 
@@ -27,56 +28,44 @@
     {% endif %}
   {% endblock %}
 
+  {% bootstrap_messages %}
+  
+{% if with_search %}
+<div class="ietf-box search-form-box">
+{% include "liaisons/search_form.html" %}
+</div>
+{% endif %}
 
-  {% load ietf_filters %}
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr>
-        <th>
-	  <a href="?sort=submitted">Date {% if sort == "submitted" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
-        </th>
-        <th>
-	  <a href="?sort=from_name">From {% if sort == "from_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
-        </th>
-        <th>
-	  <a href="?sort=to_name">To {% if sort == "to_name" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
-        </th>
-        <th>
-	  <a href="?sort=deadline">Deadline {% if sort == "deadline" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
-        </th>
-        <th>
-	  <a href="?sort=title">Title {% if sort == "title" %}<span class="fa fa-caret-down"></span>{% endif %}</a>
-        </th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {% for liaison in liaisons %}
-        <tr>
-          <td class="text-nowrap">{{ liaison.submitted|date:"Y-m-d" }}</td>
-          <td>{{ liaison.from_name }}</td>
-          <td>
-	    {% if liaison.from_contact_id %}
-	      {{ liaison.to_name }}
-	    {% else %}
-	      {{ liaison.to_name|strip_email }}
-	    {% endif %}
-          </td>
-          <td class="text-nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}</td>
-          <td>
-	    {% if not liaison.from_contact_id %}
-	      {% for doc in liaison.attachments.all %}
-	        <a href="https://datatracker.ietf.org/documents/LIAISON/{{ doc.external_url }}">{{ doc.title }}</a>
-	        <br>
-	      {% endfor %}
-	    {% else %}
-	      <a href="{% if liaison.approved %}{% url "liaison_detail" object_id=liaison.pk %}{% else %}{% url "liaison_approval_detail" object_id=liaison.pk %}{% endif %}">{{ liaison.title }}</a>
-	    {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% include "liaisons/liaison_table.html" %}
 
 {% endblock %}
 
+{% block js %}
+<script type="text/javascript" src="/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() 
+    { 
+        var widgetIETF = {css: ["evenrow", "oddrow"]};
+        $.tablesorter.addWidget({ 
+            id: "ietf",
+            format: function(table) {
+                var $tr, row = -1, odd;
+                $("tr:visible", table.tBodies[0]).each(function (i) {
+                    $tr = $(this);
+                    if (!$tr.hasClass(table.config.cssChildRow)) row++;
+                    odd = (row % 2 == 0);
+                    $tr.removeClass(
+                    widgetIETF.css[odd ? 0 : 1]).addClass(
+                    widgetIETF.css[odd ? 1 : 0])
+                });
+            }
+        });
+
+        $("#LiaisonListTable").tablesorter({
+            sortList: [[0, 1]],
+            widgets: ["ietf"]
+        });
+    } 
+); 
+</script>
+{% endblock %}

@@ -123,21 +123,28 @@ $(document).ready(function () {
         initWidget();
     }
 
-    $('form.liaisons').each(function() {
+    $('form.liaisons-form').each(function() {
         var form = $(this);
-        var organization = form.find('#id_organization');
-        var from = form.find('#id_from_field');
-        var poc = form.find('#id_to_poc');
-        var cc = form.find('#id_cc1');
-        var reply = form.find('#id_replyto');
+        var from_groups = form.find('#id_from_groups');
+        var from_contact = form.find('#id_from_contact');
+        var to_groups = form.find('#id_to_groups');
+        var to_contacts = form.find('#id_to_contacts');
+        var cc = form.find('#id_cc_contacts');
         var purpose = form.find('#id_purpose');
-        var other_purpose = form.find('#id_purpose_text');
-        var deadline = form.find('#id_deadline_date');
+        var deadline = form.find('#id_deadline');
         var submission_date = form.find('#id_submitted_date');
-        var other_organization = form.find('#id_other_organization');
         var approval = form.find('#id_approved');
+        var initial_approval_label = form.find("label[for='id_approved']").text();
+        var cancel = form.find('#id_cancel');
+        var cancel_dialog = form.find('#cancel-dialog');
+        var config = {};
+        var related_trigger = form.find('.id_related_to');
+        var related_url = form.find('#id_related_to').parent().find('.listURL').text();
+        var related_dialog = form.find('#related-dialog');
+        var unrelate_trigger = form.find('.id_no_related_to');
 
         var render_mails_into = function(container, person_list, as_html) {
+            console.log('calling render_mails');
             var html='';
 
             $.each(person_list, function(index, person) {
@@ -151,15 +158,25 @@ $(document).ready(function () {
         };
 
         var toggleApproval = function(needed) {
+            console.log('called toggle' + needed);
             if (!approval.length) {
                 return;
             }
-            if (needed) {
-                approval.removeAttr('disabled');
-                approval.removeAttr('checked');
-            } else {
-                approval.attr('checked','checked');
-                approval.attr('disabled','disabled');
+            if (!needed) {
+                approval.prop('checked',true);
+                approval.hide();
+                //$("label[for='id_approved']").text("Approval not required");
+                var nodes = $("label[for='id_approved']:not(.control-label)")[0].childNodes;
+                nodes[nodes.length-1].nodeValue= 'Approval not required';
+                return;
+            }
+            if ( needed && !$('#id_approved').is(':visible') ) {
+                approval.prop('checked',false);
+                approval.show();
+                //$("label[for='id_approved']").text(initial_approval_label);
+                var nodes = $("label[for='id_approved']:not(.control-label)")[0].childNodes;
+                nodes[nodes.length-1].nodeValue=initial_approval_label;
+                return;
             }
         };
 
@@ -171,36 +188,13 @@ $(document).ready(function () {
             }
         };
 
-        var updateReplyTo = function() {
-            var select = form.find('select[name=from_fake_user]');
-            var option = select.find('option:selected');
-            reply.val(option.attr('title'));
-            updateFrom();
-        };
-
-        var userSelect = function(user_list) {
-            if (!user_list || !user_list.length) {
-                return;
-            }
-            var link = form.find('a.from_mailto');
-            var select = form.find('select[name=from_fake_user]');
-            var options = '';
-            link.hide();
-            $.each(user_list, function(index, person) {
-                options += '<option value="' + person[0] + '" title="' + person[1][1] + '">'+ person[1][0] + ' &lt;' + person[1][1] + '&gt;</option>';
-            });
-            select.remove();
-            link.after('<select name="from_fake_user" class="form-control" style="margin-top: 0.5em;">' + options +'</select>');
-            form.find('select[name=from_fake_user]').change(updateReplyTo);
-            updateReplyTo();
-        };
-
         var updateInfo = function(first_time, sender) {
-            var entity = organization;
-            var to_entity = from;
-            if (!entity.is('select') || !to_entity.is('select')) {
-                return false;
-            }
+            var from_ids = from_groups.val();
+            var to_ids = to_groups.val();
+            console.log(Object.keys(sender));
+            console.log(sender.id);
+            console.log(sender.attr('id'));
+            console.log('calling ajax');
             var url = form.data("ajaxInfoUrl");
             $.ajax({
                 url: url,
@@ -208,37 +202,43 @@ $(document).ready(function () {
                 cache: false,
                 async: true,
                 dataType: 'json',
-                data: {to_entity_id: organization.val(),
-                       from_entity_id: to_entity.val()},
+                data: {from_groups: from_ids,
+                       to_groups: to_ids},
                 success: function(response){
                     if (!response.error) {
                         if (!first_time || !cc.text()) {
                             render_mails_into(cc, response.cc, false);
                         }
-                        render_mails_into(poc, response.poc, true);
-                        toggleApproval(response.needs_approval);
-                        checkPostOnly(response.post_only);
-                        if (sender == 'from') {
-                            userSelect(response.full_list);
+                        //render_mails_into(poc, response.poc, false);
+                        if ( sender.attr('id') == 'id_to_groups' ) {
+                            console.log('inside to_groups');
+                            console.log(response.poc);
+                            to_contacts.val(response.poc);
                         }
+                        if ( sender.attr('id') == 'id_from_groups' ) {
+                            toggleApproval(response.needs_approval);
+                        }
+                        checkPostOnly(response.post_only);
+                        // if (sender.hasClass('from-group-field')) {userSelect(sender,response.full_list);}
                     }
                 }
             });
             return false;
         };
 
-        var updateFrom = function() {
-            var reply_to = reply.val();
-            form.find('a.from_mailto').attr('href', 'mailto:' + reply_to);
-        };
+        //var updateFrom = function() {
+        //   var reply_to = reply.val();
+        //    form.find('a.from_mailto').attr('href', 'mailto:' + reply_to);
+        //};
 
         var updatePurpose = function() {
             var deadlinecontainer = deadline.closest('.form-group');
-            var othercontainer = other_purpose.closest('.form-group');
+            //var othercontainer = other_purpose.closest('.form-group');
 
-            var selected_id = purpose.val();
-
-            if (selected_id == '1' || selected_id == '2') {
+            var value = purpose.val();
+            console.log(value);
+            
+            if (value == 'action' || value == 'comment') {
                 deadline.prop('required',true);
                 deadlinecontainer.show();
             } else {
@@ -248,21 +248,77 @@ $(document).ready(function () {
             }
         };
 
-        var checkOtherSDO = function() {
-            var entity = organization.val();
-            if (entity=='othersdo') {
-                other_organization.closest('.form-group').show();
-                other_organization.prop("required", true);
-            } else {
-                other_organization.closest('.form-group').hide();
-                other_organization.prop("required", false);
-            }
+        //var checkOtherSDO = function() {
+        //    var entity = organization.val();
+        //    if (entity=='othersdo') {
+        //        other_organization.closest('.form-group').show();
+        //        other_organization.prop("required", true);
+        //    } else {
+        //        other_organization.closest('.form-group').hide();
+        //        other_organization.prop("required", false);
+        //    }
+        //};
+
+        var cancelForm = function() {
+            cancel_dialog.dialog("open");
         };
 
-        var checkFrom = function(first_time) {
+        var getRelatedLink = function() {
+            var link = jQuery(this).text();;
+            var pk = jQuery(this).nextAll('.liaisonPK').text();
+            var widget = related_trigger.parent();
+            var newwidget = widget.clone()
+            related_dialog.dialog('close');
+            newwidget.find('.id_related_to').click(selectRelated);
+            newwidget.find('.id_no_related_to').click(selectNoRelated);
+            newwidget.find('.relatedLiaisonWidgetTitle').text(link);
+            newwidget.find('.relatedLiaisonWidgetValue').val(pk);
+            newwidget.find('.noRelated').hide();
+            newwidget.find('.id_related_to').hide();
+            newwidget.find('.id_no_related_to').show();
+            widget.before(newwidget);
+            return false;
+        };
+
+        var selectNoRelated = function() {
+            var widget = jQuery(this).parent();
+            widget.remove();
+            return false;
+        };
+
+        var selectRelated = function() {
+            var trigger = jQuery(this);
+            var widget = jQuery(this).parent();
+            var url = widget.find('.listURL').text();
+            var title = widget.find('.relatedLiaisonWidgetTitle');
+            related_dialog.html('<img src="/images/ajax-loader.gif" />');
+            related_dialog.dialog('open');
+            jQuery.ajax({
+                url: url,
+                type: 'GET',
+                cache: false,
+                async: true,
+                dataType: 'html',
+                success: function(response){
+                    related_dialog.html(response);
+                    related_dialog.find("#LiaisonListTable").tablesorter({
+                        sortList: [[0, 1]],
+                        widgets: ["ietf"]
+                    });
+                    related_dialog.find('td a').click(getRelatedLink);
+                }
+            });
+            return false;
+        };
+
+        var checkFrom = function(first_time,target) {
+            // adjust to group options based on selected from group
+            //console.log(Object.getOwnPropertyNames($(this)));
+            //console.log(Object.getOwnPropertyNames(e));
+            //console.log(target.id);
             var reduce_options = form.find('.reducedToOptions');
             if (!reduce_options.length) {
-                updateInfo(first_time, 'from');
+                updateInfo(first_time, target);
                 return;
             }
             var to_select = organization;
@@ -283,7 +339,7 @@ $(document).ready(function () {
                 to_select.find('optgroup').show();
                 to_select.find('option').show();
             }
-            updateInfo(first_time, 'from');
+            updateInfo(first_time, target);
         };
 
         var checkSubmissionDate = function() {
@@ -302,18 +358,30 @@ $(document).ready(function () {
 
 
         // init form
-        organization.change(function() { updateInfo(false, 'to'); });
-        organization.change(checkOtherSDO);
-        from.change(function() { checkFrom(false); });
-        reply.keyup(updateFrom);
+        $('#id_from_groups').select2();
+        $('#id_to_groups').select2();
+        to_groups.change(function() { updateInfo(false,$(this)); });
+        from_groups.change(function() { updateInfo(false,$(this)); });
+        //to_groups.change(checkOtherSDO);
+        //from_groups.change(function(e) { checkFrom(false,$(e.target)); });
+        //reply.keyup(updateFrom);
         purpose.change(updatePurpose);
+        //related_trigger.click(selectRelated);
+        //unrelate_trigger.click(selectNoRelated);
         form.submit(checkSubmissionDate);
 
-        updateFrom();
-        checkFrom(true);
+        //updateFrom();
+        $('.from-group-field').each(function() {
+            checkFrom(true,$(this));
+        });
+        //checkFrom(true);
         updatePurpose();
-        checkOtherSDO();
+        //checkOtherSDO();
 
         form.find('.addAttachmentWidget').each(setupAttachmentWidget);
     });
+    
+    // use traditional style URL parameters
+    $.ajaxSetup({ traditional: true });
+    
 });

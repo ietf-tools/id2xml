@@ -2,7 +2,7 @@
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
 
-{% load bootstrap3 %}
+{% load bootstrap3 widget_tweaks %}
 
 {% block title %}{% if liaison %}Edit liaison: {{ liaison }}{% else %}Send Liaison Statement{% endif %}{% endblock %}
 
@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/lib/datepicker3.css">
   <link rel="stylesheet" href="/css/lib/select2.css">
   <link rel="stylesheet" href="/css/lib/select2-bootstrap.css">
+  <link rel="stylesheet" href="/css/liaisons.css">
 {% endblock %}
 
 {% block morecss %}
@@ -41,12 +42,12 @@
     <p class="help-block">Fields marked with <label class="required"></label> are required. For detailed descriptions of the fields see the <a href="{% url "liaisons_field_help" %}">field help</a>.</p>
   {% endif %}
 
-  <form class="liaisons form-horizontal show-required" method="post" enctype="multipart/form-data" data-ajax-info-url="{% url "ietf.liaisons.views.ajax_get_liaison_info" %}">{% csrf_token %}
+  <form role="form" class="liaisons-form form-horizontal show-required" method="post" enctype="multipart/form-data" data-ajax-info-url="{% url "ietf.liaisons.views.ajax_get_liaison_info" %}">{% csrf_token %}
 
-    {% for fieldset in form.get_fieldsets %}
+    {% for fieldset in form.fieldsets %}
       <h2>{{ fieldset.name }}</h2>
 
-      {% for field in fieldset.fields %}
+      {% for field in fieldset %}
         {% bootstrap_field field layout="horizontal" %}
       {% endfor %}
     {% endfor %}
@@ -66,8 +67,32 @@
 {% endblock %}
 
 {% block js %}
+  <script type="text/javascript" src="/js/jquery.tablesorter.min.js"></script>
   <script src="/js/lib/bootstrap-datepicker.js"></script>
   <script src="/js/lib/select2-3.5.2.min.js"></script>
   <script src="/js/select2-field.js"></script>
   <script src="/js/liaisons.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() 
+    { 
+        var widgetIETF = {css: ["evenrow", "oddrow"]};
+        $.tablesorter.addWidget({ 
+            id: "ietf",
+            format: function(table) {
+                var $tr, row = -1, odd;
+                $("tr:visible", table.tBodies[0]).each(function (i) {
+                    $tr = $(this);
+                    if (!$tr.hasClass(table.config.cssChildRow)) row++;
+                    odd = (row % 2 == 0);
+                    $tr.removeClass(
+                    widgetIETF.css[odd ? 0 : 1]).addClass(
+                    widgetIETF.css[odd ? 1 : 0])
+                });
+            }
+        });
+    } 
+); 
+</script>
+
 {% endblock %}

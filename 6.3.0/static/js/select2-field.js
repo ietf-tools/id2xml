@@ -50,6 +50,6 @@ $(document).ready(function () {
         if ($(this).closest(".template").length > 0)
             return;
 
-        setupSelect2Field($(this));
+       setupSelect2Field($(this));
     });
 });

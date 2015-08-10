@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin %}
+
+{% load ietf_filters %}
+
+{% block title %}Liaison Statements - {{ selected_menu_entry|capfirst }}{% endblock %}
+
+{% block content %}
+  {% origin %}
+
+  <h1>Liaison Statements</h1>
+
+  <ul class="nav nav-tabs" role="tablist">
+    {% for name, url in menu_entries %}
+      <li {% if selected_menu_entry == name.lower %}class="active"{% endif %}>
+        <a href="{{ url }}">{{ name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if menu_actions %}
+    <div class="buttonlist">
+      {% for name, url in menu_actions %}
+        <a class="btn btn-default" href="{{ url }}">{{ name }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block group_content %}
+    
+    {% include "liaisons/liaison_table.html" %}
+    
+  {% endblock group_content %}
+
+{% endblock content %}

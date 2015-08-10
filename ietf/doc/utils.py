@@ -597,19 +597,21 @@ def crawl_history(doc):
     # return document history data for use in ietf/templates/doc/timeline.html
     def ancestors(doc):
         retval = []
-        for rel in doc.relateddocument_set.filter(relationship__slug='replaces'):
-            if not rel.target.document in retval:
-                retval.append(rel.target.document)
-                retval.extend(ancestors(rel.target.document))
-        return retval
-
-    history = ancestors(doc)
-    history.append(doc)
+        if hasattr(doc, 'relateddocument_set'):
+            for rel in doc.relateddocument_set.filter(relationship__slug='replaces'):
+                if rel.target.document not in retval:
+                    retval.append(rel.target.document)
+                    retval.extend(ancestors(rel.target.document))
+            return retval
 
     retval = []
-    for d in history:
-        for e in d.docevent_set.filter(type='new_revision'):
-            retval.append((d.name, e.newrevisiondocevent.rev, e.time.isoformat()))
+    history = ancestors(doc)
+    if history is not None:
+        history.append(doc)
+        for d in history:
+            for e in d.docevent_set.filter(type='new_revision'):
+                if hasattr(e, 'newrevisiondocevent'):
+                    retval.append((d.name, e.newrevisiondocevent.rev, e.time.isoformat()))
 
     if doc.type_id == "draft":
         e = doc.latest_event(type='published_rfc')

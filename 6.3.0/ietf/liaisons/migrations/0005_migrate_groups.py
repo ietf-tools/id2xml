@@ -56,7 +56,6 @@ def copy_to_group(apps, schema_editor):
     '''For this migration we are favoring the value in to_name over to_group.  Based
     on observation there are statements with multiple groups in the to_name but
     restricted to one to_group.'''
-    #LiaisonStatementToGroup = apps.get_model("liaisons", "LiaisonStatementToGroup")
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
@@ -66,7 +65,6 @@ def copy_to_group(apps, schema_editor):
                 for acronym in TO_NAME_MAPPING[s.to_name]:
                     try:
                         s.to_groups.add(Group.objects.get(acronym=acronym))
-                        #LiaisonStatementToGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
                     except Group.DoesNotExist:
                         print "Group Does Not Exist: {},{},{}".format(s.pk,s.to_name,acronym)
                         got_exception = True
@@ -78,14 +76,12 @@ def copy_to_group(apps, schema_editor):
 
         elif s.to_group:
             s.to_groups.add(s.to_group)
-            #LiaisonStatementToGroup.objects.create(statement=s,group=s.to_group)
             s.to_name = ''
             s.save()
         else:
             print "to_name not mapped and no to_group {}".format(s.pk)
 
 def copy_from_group(apps, schema_editor):
-    #LiaisonStatementFromGroup = apps.get_model("liaisons", "LiaisonStatementFromGroup")
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")
     Group = apps.get_model("group","Group")
     for s in LiaisonStatement.objects.all():
@@ -95,7 +91,6 @@ def copy_from_group(apps, schema_editor):
                 for acronym in FROM_NAME_MAPPING[s.from_name]:
                     try:
                         s.from_groups.add(Group.objects.get(acronym=acronym))
-                        #LiaisonStatementFromGroup.objects.create(statement=s,group=Group.objects.get(acronym=acronym))
                     except Group.DoesNotExist:
                         print "Group Does Not Exist: {}".format(acronym)
                         got_exception = True
@@ -106,7 +101,6 @@ def copy_from_group(apps, schema_editor):
                 print "{}:{} empty from_group mapping".format(s.pk,s.from_name)
         elif s.from_group:
             s.from_groups.add(s.from_group)
-            #LiaisonStatementFromGroup.objects.create(statement=s,group=s.from_group)
             s.from_name = ''
             s.save()
         else:

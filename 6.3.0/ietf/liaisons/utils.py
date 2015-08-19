@@ -4,11 +4,31 @@ from ietf.group.models import Group, Role
 from ietf.liaisons.models import LiaisonStatement
 from ietf.ietfauth.utils import has_role, passes_test_decorator
 
+# a list of tuples, group query kwargs, role query kwargs
+GROUP_APPROVAL_MAPPING = [
+    ({'acronym':'ietf'},{'name':'chair'}),
+    ({'acronym':'iab'},{'name':'chair'}),
+    ({'type':'area'},{'name':'ad'}),
+    ({'type':'wg'},{'name':'ad'})]
 
 can_submit_liaison_required = passes_test_decorator(
     lambda u, *args, **kwargs: can_add_liaison(u),
     "Restricted to participants who are authorized to submit liaison statements on behalf of the various IETF entities")
 
+def approval_roles(group):
+    '''Returns roles that have approval authority for group'''
+    for group_kwargs,role_kwargs in GROUP_APPROVAL_MAPPING:
+        if group in Group.objects.filter(**group_kwargs):
+            # TODO is there a cleaner way?
+            if group.type == 'wg':
+                return Role.objects.filter(group=group.parent,**role_kwargs)
+            else:
+                return Role.objects.filter(group=group,**role_kwargs)
+
+def approvable_groups(user):
+    '''Returns groups that user has approval authority for'''
+    pass
+    
 def approvable_liaison_statements(user):
     '''Returns a queryset of Liaison Statements in pending state that user has authority
     to approve'''
@@ -17,6 +37,7 @@ def approvable_liaison_statements(user):
     if has_role(user, "Secretariat"):
         return liaisons
 
+    """
     # get list of groups user can approve
     # cycle through pending, if all from_groups in list capture id
     # build new query of ids
@@ -32,11 +53,12 @@ def approvable_liaison_statements(user):
         for role in area_roles:
             approvable_groups.append(role.group)    # append the area
             approvable_groups.extend(role.group.group_set.filter(state='active'))   # append child working groups
+    """
     
     approvable_liaisons = []
     for liaison in liaisons:
         for group in liaison.from_groups.all():
-            if group not in approvable_groups:
+            if person not in [ r.person for r in approval_roles(group) ]:
                 break
         else:
             approvable_liaisons.append(liaison.pk)

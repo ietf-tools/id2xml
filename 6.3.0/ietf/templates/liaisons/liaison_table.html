@@ -29,7 +29,7 @@
           <td class="text-nowrap">{{ liaison.sort_date|date:"Y-m-d" }}</td>
           <td>{{ liaison.from_groups_display }}</td>
           <td>{{ liaison.to_groups_display }}</td>
-          <td class="text-nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}</td>
+          <td class="text-nowrap">{{ liaison.deadline|default:"-"|date:"Y-m-d" }}{% if liaison.deadline and not liaison.action_taken %}<br><span class="label label-warning">Action Needed</span>{% endif %}</td>
           <td>
             {% if not liaison.from_contact_id %}
                 {% for doc in liaison.attachments.all %}

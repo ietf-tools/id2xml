@@ -151,7 +151,8 @@ $(document).ready(function () {
                 if (as_html) {
                     html += person[0] + ' &lt;<a href="mailto:'+person[1]+'">'+person[1]+'</a>&gt;<br />';
                 } else {
-                    html += person[0] + ' &lt;'+person[1]+'&gt;\n';
+                    //html += person[0] + ' &lt;'+person[1]+'&gt;\n';
+                    html += person + '\n';
                 }
             });
             container.html(html);
@@ -383,5 +384,33 @@ $(document).ready(function () {
     
     // use traditional style URL parameters
     $.ajaxSetup({ traditional: true });
+
+
+    // search form, based on doc search feature
+    var form = $("#search_form");
+
+    function anyAdvancedActive() {
+        var advanced = false;
+        var by = form.find("input[name=by]:checked");
+
+        if (by.length > 0) {
+            by.closest(".search_field").find("input,select").not("input[name=by]").each(function () {
+                if ($.trim(this.value)) {
+                    advanced = true;
+                }
+            });
+        }
+        return advanced;
+    }
+    
+    function toggleSubmit() {
+        var textSearch = $.trim($("#id_text").val());
+        form.find("button[type=submit]").get(0).disabled = !textSearch && !anyAdvancedActive();
+    }
+    
+    if (form.length > 0) {
+        // form.find(".search_field input[name=by]").closest(".search_field").find("label,input").click(updateAdvanced);
+        form.find(".search_field input,select").change(toggleSubmit).click(toggleSubmit).keyup(toggleSubmit);
+    }
     
 });

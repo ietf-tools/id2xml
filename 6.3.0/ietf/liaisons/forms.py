@@ -6,6 +6,7 @@ from form_utils.forms import BetterModelForm
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.query import QuerySet
 from django.forms.util import ErrorList
 from django.db.models import Q
 from django.forms.widgets import RadioFieldRenderer
@@ -36,15 +37,19 @@ from ietf.utils.fields import DatepickerDateField
 # -------------------------------------------------
 
 def liaison_form_factory(request, **kwargs):
+    """Returns appropriate Liaison entry form.
+    NOTE: URL argument "?incoming=1" supported for backwards compatibility
+    """
     user = request.user
     force_incoming = 'incoming' in request.GET.keys()
     liaison = kwargs.pop('liaison', None)
+    type = kwargs.pop('type', None)
     if liaison:
         return EditLiaisonForm(user, instance=liaison, **kwargs)
-    if not force_incoming and can_add_outgoing_liaison(user):
-        return OutgoingLiaisonForm(user, **kwargs)
-    elif can_add_incoming_liaison(user):
+    if (force_incoming or type == 'incoming') and can_add_incoming_liaison(user):
         return IncomingLiaisonForm(user, **kwargs)
+    elif can_add_outgoing_liaison(user):
+        return OutgoingLiaisonForm(user, **kwargs)
     return None
 
 def validate_emails(value):
@@ -119,49 +124,54 @@ class SearchLiaisonForm(forms.Form):
     scope = forms.ChoiceField(choices=(("all", "All text fields"), ("title", "Title field")), required=False, initial='title', widget=forms.RadioSelect(renderer=RadioRenderer))
     source = forms.CharField(required=False)
     destination = forms.CharField(required=False)
-    start_date = forms.DateField(required=False, help_text="Format: YYYY-MM-DD")
-    end_date = forms.DateField(required=False, help_text="Format: YYYY-MM-DD")
-
+    start_date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='Start date', required=False)
+    end_date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='End date', required=False)
+    
     def get_results(self):
-        results = LiaisonStatement.objects.filter(state__slug='approved').extra(
-            select={
+        results = LiaisonStatement.objects.filter(state__slug='posted')
+        '''    select={
                 '_submitted': 'SELECT time FROM liaisons_liaisonstatementevent WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatementevent.statement_id AND liaisons_liaisonstatementevent.type_id = "submitted"',
                 '_awaiting_action': 'SELECT count(*) FROM liaisons_liaisonstatement_tags WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_tags.liaisonstatement_id AND liaisons_liaisonstatement_tags.liaisonstatementtagname_id = "required"',
                 'from_concat': 'SELECT GROUP_CONCAT(name SEPARATOR ", ") FROM group_group JOIN liaisons_liaisonstatement_from_groups WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_from_groups.liaisonstatement_id AND liaisons_liaisonstatement_from_groups.group_id = group_group.id',
                 'to_concat': 'SELECT GROUP_CONCAT(name SEPARATOR ", ") FROM group_group JOIN liaisons_liaisonstatement_to_groups WHERE liaisons_liaisonstatement.id = liaisons_liaisonstatement_to_groups.liaisonstatement_id AND liaisons_liaisonstatement_to_groups.group_id = group_group.id',
             })
+        '''
         if self.is_bound:
             query = self.cleaned_data.get('text')
             if query:
+                '''
                 if self.cleaned_data.get('scope') == 'title':
                     q = Q(title__icontains=query)
                 else:
                     q = (Q(title__icontains=query) | Q(other_identifiers__icontains=query) | Q(body__icontains=query) | Q(attachments__title__icontains=query) |
                          Q(response_contacts__icontains=query) | Q(technical_contacts__icontains=query) | Q(action_holder_contacts__icontains=query) |
                          Q(cc_contacts=query))
+                '''
+                q = (Q(title__icontains=query) | Q(other_identifiers__icontains=query) | Q(body__icontains=query) | Q(attachments__title__icontains=query) |
+                         Q(technical_contacts__icontains=query) | Q(action_holder_contacts__icontains=query) |
+                         Q(cc_contacts=query))
                 results = results.filter(q)
+            
             source = self.cleaned_data.get('source')
             if source:
-                results = results.filter(Q(from_groups__name__icontains=source) | Q(from_groups__acronym__iexact=source) | Q(from_name__icontains=source))
+                results = results.filter(Q(from_groups__name__icontains=source) | Q(from_groups__acronym__iexact=source))
+            
             destination = self.cleaned_data.get('destination')
             if destination:
-                results = results.filter(Q(to_groups__name__icontains=destination) | Q(to_groups__acronym__iexact=destination) | Q(to_name__icontains=destination))
+                results = results.filter(Q(to_groups__name__icontains=destination) | Q(to_groups__acronym__iexact=destination))
+            
             start_date = self.cleaned_data.get('start_date')
             end_date = self.cleaned_data.get('end_date')
             events = None
             if start_date:
-                events = LiaisonStatementEvent.objects.filter(type='submitted', time__gte=start_date)
+                events = LiaisonStatementEvent.objects.filter(type='posted', time__gte=start_date)
                 if end_date:
                     events = events.filter(time__lte=end_date)
             elif end_date:
-                events = LiaisonStatementEvent.objects.filter(type='submitted', time__lte=end_date)
+                events = LiaisonStatementEvent.objects.filter(type='posted', time__lte=end_date)
             if events:
                 results = results.filter(liaisonstatementevent__in=events)
 
-                
-            destination = self.cleaned_data.get('destination')
-            if destination:
-                results = results.filter(Q(to_groups__name__icontains=destination) | Q(to_groups__acronym__iexact=destination) | Q(to_name__icontains=destination))
         results = results.distinct().order_by('title')
         return results
 
@@ -169,6 +179,17 @@ class SearchLiaisonForm(forms.Form):
 # New Classes
 # -------------------------------------------------
 
+class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    '''If value is a QuerySet, return it as is (for use in widget.render)'''
+    def prepare_value(self, value):
+        if isinstance(value, QuerySet):
+            return value
+        if (hasattr(value, '__iter__') and
+                not isinstance(value, six.text_type) and
+                not hasattr(value, '_meta')):
+            return [super(forms.ModelMultipleChoiceField, self).prepare_value(v) for v in value]
+        return super(forms.ModelMultipleChoiceField, self).prepare_value(value)
+        
 class LiaisonModelForm(BetterModelForm):
     '''Specify fields which require a custom widget or that are not part of the model'''
     from_groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(),label=u'Groups')
@@ -177,7 +198,8 @@ class LiaisonModelForm(BetterModelForm):
     deadline = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='Deadline', required=True)
     related_to = SearchableLiaisonStatementsField(label=u'Related Liaison Statement', required=False)
     submitted_date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='Submission date', required=True, initial=datetime.date.today())
-    attachments = forms.CharField(label='Attachments', widget=ShowAttachmentsWidget, required=False)
+    #attachments = forms.CharField(label='Attachments', widget=ShowAttachmentsWidget, required=False)
+    attachments = CustomModelMultipleChoiceField(queryset=Document.objects,label='Attachments', widget=ShowAttachmentsWidget, required=False)
     attach_title = forms.CharField(label='Title', required=False)
     attach_file = forms.FileField(label='File', required=False)
     attach_button = forms.CharField(label='',
@@ -276,6 +298,7 @@ class LiaisonModelForm(BetterModelForm):
     def save_attachments(self):
         # TODO: handle deletes, create event on delete
         written = self.instance.attachments.all().count()
+        #assert False, (self.files.keys(),self.files)
         for key in self.files.keys():
             title_key = key.replace('file', 'title')
             if not key.startswith('attach_file_') or not title_key in self.data.keys():
@@ -367,7 +390,7 @@ class IncomingLiaisonForm(LiaisonModelForm):
 
 
 class OutgoingLiaisonForm(LiaisonModelForm):
-    from_contact = SearchableEmailField(label="Contact", required=False, only_users=True)
+    from_contact = SearchableEmailField(label="Response Contact", required=False, only_users=True)
     approved = forms.BooleanField(label="Obtained prior approval", required=False)
     
     class Meta:
@@ -412,7 +435,13 @@ class OutgoingLiaisonForm(LiaisonModelForm):
             self.fields['to_groups'].initial = queryset
             
 class EditLiaisonForm(LiaisonModelForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super(EditLiaisonForm, self).__init__(*args, **kwargs)
+        self.edit = True
+        self.fields['attachments'].initial = self.instance.liaisonstatementattachment_set.all()
+
+class EditAttachmentForm(forms.Form):
+    title = forms.CharField(max_length=255)
 
 def get_internal_choices(user):
     '''Returns the set of internal IETF groups the user has permissions for, as a list

@@ -67,7 +67,7 @@ def migrate_relations(apps, schema_editor):
         RelatedLiaisonStatement.objects.create(
             source=liaison,
             target=liaison.related_to,
-            relationship_id='reference')
+            relationship_id='refold')
 
 # XXX: Now done in migrate_groups
 def merge_reply_to(apps, schema_editor):

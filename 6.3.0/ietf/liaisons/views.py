@@ -9,13 +9,15 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 
+from ietf.doc.models import Document
 from ietf.ietfauth.utils import role_required, has_role
 from ietf.group.models import Group
-from ietf.liaisons.models import LiaisonStatement, LiaisonStatementState, LiaisonStatementEvent
+from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementState, 
+    LiaisonStatementEvent,LiaisonStatementAttachment)
 from ietf.liaisons.utils import (get_person_for_user, can_add_outgoing_liaison,
     can_add_incoming_liaison, can_edit_liaison,can_submit_liaison_required,
-    approvable_liaison_statements)
-from ietf.liaisons.forms import liaison_form_factory, SearchLiaisonForm
+    approvable_liaison_statements, can_add_liaison)
+from ietf.liaisons.forms import liaison_form_factory, SearchLiaisonForm, EditAttachmentForm
 from ietf.liaisons.mails import notify_pending_by_email, send_liaison_by_email
 from ietf.liaisons.fields import select2_id_liaison_json
 
@@ -96,12 +98,13 @@ def get_from_cc(group,person):
             emails.append(EMAIL_ALIASES['IETFCHAIR'])
         emails.append(EMAIL_ALIASES['IESG'])
     elif group.acronym == 'iab':
+        emails.append(EMAIL_ALIASES['IAB'])
         if not has_role(person, 'IAB Chair'):
             emails.append(EMAIL_ALIASES['IABCHAIR'])
         if not has_role(person, 'IAB Executive Director'):
             emails.append(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'])
     elif group.type_id == 'area':
-        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
+        ad_roles = group.role_set.filter(name='ad').exclude(person=person)
         emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
         emails.append(EMAIL_ALIASES['IETFCHAIR'])
     elif group.type_id == 'wg':
@@ -260,25 +263,24 @@ def ajax_liaison_list(request):
 def add_liaison(request, liaison=None, type=None):
     if 'incoming' in request.GET.keys() and not can_add_incoming_liaison(request.user):
         return HttpResponseForbidden("Restricted to users who are authorized to submit incoming liaison statements")
-
+    
     if request.method == 'POST':
         form = liaison_form_factory(request, data=request.POST.copy(),
-                                    files = request.FILES, liaison=liaison)
+                                    files=request.FILES, liaison=liaison, type=type)
         
         if form.is_valid():
             liaison = form.save(request=request)
             
             # notifications
-            if request.POST.get('send', False):
-                if liaison.state.slug == 'pending':
-                    notify_pending_by_email(request, liaison)
-                else:
-                    send_liaison_by_email(request, liaison)
+            if 'send' in request.POST and liaison.state.slug == 'posted':
+                send_liaison_by_email(request, liaison)
+            elif 'send' in request.POST or 'post_only' in request.POST:
+                notify_pending_by_email(request, liaison)
             
-            return redirect('liaison_list')
+            return redirect('liaison_detail', object_id=liaison.pk)
             
     else:
-        form = liaison_form_factory(request, liaison=liaison)
+        form = liaison_form_factory(request, liaison=liaison,type=type)
         
     return render_to_response(
         'liaisons/edit.html',
@@ -299,47 +301,8 @@ def liaison_history(request, object_id):
         'selected_tab_entry':'history'
     })
 
-def list(request, state='posted'):
-    """A generic list view with tabs for different states: posted, pending, dead"""
-    liaisons = LiaisonStatement.objects.filter(state=state)
-    
-    # check authorization for pending and dead tabs
-    # TODO
-    
-    # perform sort
-    sort, order_by = normalize_sort(request)
-    if sort == 'date':
-        liaisons = sorted(liaisons, key=lambda a: a.sort_date, reverse=True)
-    if sort == 'from_groups':
-        liaisons = sorted(liaisons, key=lambda a: a.from_groups_display)
-    if sort == 'to_groups':
-        liaisons = sorted(liaisons, key=lambda a: a.to_groups_display)
-    if sort == 'deadline':
-        liaisons = liaisons.order_by('-deadline')
-    if sort == 'title':
-        liaisons = liaisons.order_by('title')
-            
-    # add menu entries
-    entries = []
-    entries.append(("Posted", urlreverse("ietf.liaisons.views.list", kwargs={'state':'posted'})))
-    entries.append(("Pending", urlreverse("ietf.liaisons.views.list", kwargs={'state':'pending'})))
-    entries.append(("Dead", urlreverse("ietf.liaisons.views.list", kwargs={'state':'dead'})))
 
-    # add menu actions
-    actions = []
-    if can_add_incoming_liaison(request.user):
-        actions.append(("New incoming liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'incoming'})))
-    if can_add_outgoing_liaison(request.user):
-        actions.append(("New outgoing liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'outgoing'})))
-        
-    return render(request, 'liaisons/liaison_base.html',  {
-        'liaisons':liaisons,
-        'selected_menu_entry':state,
-        'menu_entries':entries,
-        'menu_actions':actions,
-        'sort':sort,
-    })
-
+"""
 def liaison_list(request):
     if request.GET.get('search', None):
         form = SearchLiaisonForm(data=request.GET)
@@ -425,7 +388,25 @@ def liaison_dead_list(request):
     return render_to_response('liaisons/dead_list.html', {
         "liaisons": liaisons,
     }, context_instance=RequestContext(request))
+"""
 
+@role_required('Secretariat','Liaison Manager')
+def liaison_delete_attachment(request, object_id, attach_id):
+    liaison = get_object_or_404(LiaisonStatement, pk=object_id)
+    attach = get_object_or_404(LiaisonStatementAttachment, pk=attach_id)
+    
+    attach.removed = True
+    attach.save()
+    
+    # create event
+    LiaisonStatementEvent.objects.create(
+        type_id='modified',
+        by=get_person_for_user(request.user),
+        statement=liaison,
+        desc='Attachment Removed: {}'.format(attach.document.title)
+    )
+    messages.success(request, 'Attachment Deleted')
+    return redirect('liaison_detail', object_id=liaison.pk)
 
 def liaison_detail(request, object_id):
     liaison = get_object_or_404(LiaisonStatement, pk=object_id)
@@ -450,7 +431,7 @@ def liaison_detail(request, object_id):
             can_take_care = False
             messages.success(request,'Action handled')
             
-        return redirect('liaison_list')
+        #return redirect('liaison_list')
         
     relations_by = [i.target for i in liaison.source_of_set.filter(target__state__slug='posted')]
     relations_to = [i.source for i in liaison.target_of_set.filter(source__state__slug='posted')]
@@ -469,6 +450,93 @@ def liaison_edit(request, object_id):
     if not (request.user.is_authenticated() and can_edit_liaison(request.user, liaison)):
         return HttpResponseForbidden('You do not have permission to edit this liaison statement')
     return add_liaison(request, liaison=liaison)
+
+@role_required('Secretariat','Liaison Manager')
+def liaison_edit_attachment(request, object_id, doc_id):
+    liaison = get_object_or_404(LiaisonStatement, pk=object_id)
+    doc = get_object_or_404(Document, pk=doc_id)
+    
+    if request.method == 'POST':
+        form = EditAttachmentForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data.get('title')
+            doc.title = title
+            doc.save()
+            
+            # create event
+            LiaisonStatementEvent.objects.create(
+                type_id='modified',
+                by=get_person_for_user(request.user),
+                statement=liaison,
+                desc='Attachment Title changed to {}'.format(title)
+            )
+            messages.success(request,'Attachment title changed')
+            return redirect('liaison_detail', object_id=liaison.pk)
+            
+    else:
+        form = EditAttachmentForm(initial={'title':doc.title})
+    
+    return render_to_response(
+        'liaisons/edit_attachment.html',
+        {'form': form,
+         'liaison': liaison},
+        context_instance=RequestContext(request),
+    )
+    
+def liaison_list(request, state='posted'):
+    """A generic list view with tabs for different states: posted, pending, dead"""
+    liaisons = LiaisonStatement.objects.filter(state=state)
+    
+    # check authorization for pending and dead tabs
+    if state in ('pending','dead') and not can_add_liaison(request.user):
+        msg = "Restricted to participants who are authorized to submit liaison statements on behalf of the various IETF entities"
+        return HttpResponseForbidden(msg)
+    
+    # perform search / filter
+    if 'text' in request.GET:
+        form = SearchLiaisonForm(data=request.GET)
+        if form.is_valid():
+            results = form.get_results()
+            liaisons = results
+    else:
+        form = SearchLiaisonForm()
+    
+    # perform sort
+    sort, order_by = normalize_sort(request)
+    if sort == 'date':
+        liaisons = sorted(liaisons, key=lambda a: a.sort_date, reverse=True)
+    if sort == 'from_groups':
+        liaisons = sorted(liaisons, key=lambda a: a.from_groups_display)
+    if sort == 'to_groups':
+        liaisons = sorted(liaisons, key=lambda a: a.to_groups_display)
+    if sort == 'deadline':
+        liaisons = liaisons.order_by('-deadline')
+    if sort == 'title':
+        liaisons = liaisons.order_by('title')
+            
+    # add menu entries
+    entries = []
+    entries.append(("Posted", urlreverse("ietf.liaisons.views.liaison_list", kwargs={'state':'posted'})))
+    if can_add_liaison(request.user):
+        entries.append(("Pending", urlreverse("ietf.liaisons.views.liaison_list", kwargs={'state':'pending'})))
+        entries.append(("Dead", urlreverse("ietf.liaisons.views.liaison_list", kwargs={'state':'dead'})))
+
+    # add menu actions
+    actions = []
+    if can_add_incoming_liaison(request.user):
+        actions.append(("New incoming liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'incoming'})))
+    if can_add_outgoing_liaison(request.user):
+        actions.append(("New outgoing liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'outgoing'})))
+        
+    return render(request, 'liaisons/liaison_base.html',  {
+        'liaisons':liaisons,
+        'selected_menu_entry':state,
+        'menu_entries':entries,
+        'menu_actions':actions,
+        'sort':sort,
+        'form':form,
+        'with_search':True,
+    })
 
 @role_required('Secretariat',)
 def liaison_resend(request, object_id):

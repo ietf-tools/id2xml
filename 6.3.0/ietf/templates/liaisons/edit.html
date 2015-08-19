@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
-
+{% load ietf_filters %}
 {% load bootstrap3 widget_tweaks %}
 
 {% block title %}{% if liaison %}Edit liaison: {{ liaison }}{% else %}Send Liaison Statement{% endif %}{% endblock %}
@@ -45,8 +45,12 @@
   <form role="form" class="liaisons-form form-horizontal show-required" method="post" enctype="multipart/form-data" data-ajax-info-url="{% url "ietf.liaisons.views.ajax_get_liaison_info" %}">{% csrf_token %}
 
     {% for fieldset in form.fieldsets %}
-      <h2>{{ fieldset.name }}</h2>
-
+      {% if forloop.first and user|has_role:"Secretariat" %}
+        <h2><div class="col-md-2">{{ fieldset.name }}</div><div class="col-md-10"><a class="small" target="_blank" href="{% url "groups_add" %}">Add new group &gt&gt</a></div></h2>
+      {% else %}
+        <h2>{{ fieldset.name }}</h2>
+      {% endif %}
+      
       {% for field in fieldset %}
         {% bootstrap_field field layout="horizontal" %}
       {% endfor %}

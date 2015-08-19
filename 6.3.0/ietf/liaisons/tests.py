@@ -2,6 +2,7 @@ import datetime, os, shutil
 import json
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse as urlreverse
 from django.db.models import Q
 from StringIO import StringIO
@@ -34,21 +35,17 @@ def make_liaison_models():
         state_id="active",
         type_id="sdo",
         )
-    #Group.objects.create(
-    #    name="Second Standards Development Organization",
-    #    acronym="ssdo",
-    #    state_id="active",
-    #    type_id="sdo",
-    #    )
-        
+
     # liaison manager
     create_person(sdo, 'liaiman')
     create_person(sdo, 'auth')
-
+    by = Person.objects.get(name='Ulm Liaiman')
+    
     mars_group = Group.objects.get(acronym="mars")
     create_person(mars_group, 'secr')
     create_person(Group.objects.get(acronym='iab'), "execdir")
     
+    # add an incoming liaison
     s = LiaisonStatement.objects.create(
         title="Comment from United League of Marsmen",
         purpose_id="comment",
@@ -61,14 +58,24 @@ def make_liaison_models():
     s.from_groups.add(sdo)
     s.to_groups.add(mars_group)
     
-    # create events
-    LiaisonStatementEvent.objects.create(
-        type_id='submitted',
-        by=Person.objects.get(name='Ulm Liaiman'),
-        statement=s,
-        desc='Statement Submitted'
-    )
-        
+    LiaisonStatementEvent.objects.create(type_id='submitted',by=by,statement=s,desc='Statement Submitted')
+    LiaisonStatementEvent.objects.create(type_id='posted',by=by,statement=s,desc='Statement Posted')
+    
+    # add an outgoing liaison 
+    s2 = LiaisonStatement.objects.create(
+        title="Comment from Mars Group on video codec",
+        purpose_id="comment",
+        body="Hello, this is an interesting statement.",
+        from_contact=Email.objects.last(),
+        to_contacts="%s@ietf.org" % mars_group.acronym,
+        state_id='posted',
+        )
+    s2.from_groups.add(mars_group)
+    s2.to_groups.add(sdo)
+    LiaisonStatementEvent.objects.create(type_id='submitted',by=by,statement=s2,desc='Statement Submitted')
+    LiaisonStatementEvent.objects.create(type_id='posted',by=by,statement=s2,desc='Statement Posted')
+    s2.liaisonstatementevent_set.update(time=datetime.datetime(2010,1,1))
+    
     return s
     
 def get_liaison_post_data(type='incoming'):
@@ -238,35 +245,43 @@ class LiaisonManagementTests(TestCase):
         liaison = make_liaison_models()
         # must be outgoing liaison to need approval
         liaison.from_groups.clear()
+        liaison.to_groups.clear()
         liaison.from_groups.add(Group.objects.get(acronym="mars"))
+        liaison.to_groups.add(Group.objects.get(acronym='ulm'))
         liaison.state=LiaisonStatementState.objects.get(slug='pending')
         liaison.save()
 
         # check the overview page
-        url = urlreverse('liaison_approval_list')
-        # this liaison is for a WG so we need the AD for the area
+        url = urlreverse('liaison_list', kwargs=dict(state='pending'))
         login_testing_unauthorized(self, "ad", url)
-        
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
-        # check detail page
-        url = urlreverse('liaison_approval_detail', kwargs=dict(object_id=liaison.pk))
+        # check the detail page / unauthorized
+        url = urlreverse('liaison_detail', kwargs=dict(object_id=liaison.pk))
         self.client.logout()
-        login_testing_unauthorized(self, "ad", url)
-
-        # normal get
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
         q = PyQuery(r.content)
+        self.assertEqual(len(q('form input[name=approved]')), 0)
+
+        # check the detail page / authorized
+        self.client.login(username="ulm-liaiman", password="ulm-liaiman+password")
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(liaison.title in r.content)
+        q = PyQuery(r.content)
+        from ietf.liaisons.utils import can_edit_liaison
+        user = User.objects.get(username='ulm-liaiman')
+        self.assertTrue(can_edit_liaison(user, liaison))
         self.assertEqual(len(q('form input[name=approved]')), 1)
 
         # approve
         mailbox_before = len(outbox)
         r = self.client.post(url, dict(approved="1"))
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
 
         liaison = LiaisonStatement.objects.get(id=liaison.id)
         self.assertTrue(liaison.approved)
@@ -305,7 +320,7 @@ class LiaisonManagementTests(TestCase):
                                   purpose="action",
                                   deadline=(liaison.deadline + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
                                   title="title",
-                                  submitted_date=(liaison.submitted + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+                                  submitted_date=(liaison.posted + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
                                   body="body",
                                   attach_file_1=test_file,
                                   attach_title_1="attachment",
@@ -674,6 +689,36 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(len(outbox), mailbox_before + 1)
         self.assertTrue("Liaison Statement" in outbox[-1]["Subject"])
 
+    def test_add_outgoing_liaison_post_only(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        
+        url = urlreverse('add_liaison')
+        login_testing_unauthorized(self, "secretary", url)
+
+        # add new
+        mailbox_before = len(outbox)
+        from_group = Group.objects.get(acronym="mars")
+        to_group = Group.objects.filter(type="sdo")[0]
+        submitter = Person.objects.get(user__username="marschairman")
+        today = datetime.date.today()
+        r = self.client.post(url,
+                             dict(from_groups=str(from_group.pk),
+                                  from_contact=submitter.email_address(),
+                                  to_groups=str(to_group.pk),
+                                  to_contacts='to_contacts@example.com',
+                                  approved="",
+                                  purpose="info",
+                                  title="title",
+                                  submitted_date=today.strftime("%Y-%m-%d"),
+                                  body="body",
+                                  post_only="1",
+                                  ))
+        self.assertEqual(r.status_code, 302)
+        l = LiaisonStatement.objects.all().order_by("-id")[0]
+        self.assertEqual(l.state.slug,'pending')
+        self.assertEqual(len(outbox), mailbox_before + 1)
+
     def test_liaison_history(self):
         make_test_data()
         liaison = make_liaison_models()
@@ -707,10 +752,10 @@ class LiaisonManagementTests(TestCase):
         liaison.from_groups.add(Group.objects.get(acronym="mars"))
         liaison.set_state('pending')
 
-        url = urlreverse('liaison_approval_detail', kwargs=dict(object_id=liaison.pk))
-        login_testing_unauthorized(self, "secretary", url)
+        url = urlreverse('liaison_detail', kwargs=dict(object_id=liaison.pk))
+        self.client.login(username="secretary", password="secretary+password")
         r = self.client.post(url, dict(dead="1"))
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
 
         # need to reacquire object to check current state
         liaison = LiaisonStatement.objects.get(pk=liaison.pk)
@@ -722,13 +767,53 @@ class LiaisonManagementTests(TestCase):
         liaison = make_liaison_models()
         liaison.set_state('dead')
         
-        url = urlreverse('liaison_dead_list')
+        url = urlreverse('liaison_list', kwargs=dict(state='dead'))
         login_testing_unauthorized(self, "secretary", url)
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
         dead_liaison_count = LiaisonStatement.objects.filter(state='dead').count()
         self.assertEqual(len(q('tr')),dead_liaison_count + 1)  # +1 for header row
+        
+    def test_search(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        
+        # test list only, no search filters
+        url = urlreverse('liaison_list')
+        r = self.client.get(url)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        count = LiaisonStatement.objects.filter(state='posted').count()
+        self.assertEqual(len(q('tr')),3)        # two results
+        
+        # test 0 results
+        url = urlreverse('liaison_list') + "?text=gobbledygook&source=&destination=&start_date=&end_date="
+        r = self.client.get(url)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(q('tr')),1)        # no results, only the header row
+        
+        # test body text
+        url = urlreverse('liaison_list') + "?text=recently&source=&destination=&start_date=&end_date="
+        r = self.client.get(url)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(q('tr')),2)        # one result
+        
+        # test from group
+        url = urlreverse('liaison_list') + "?text=&source=ulm&destination=&start_date=&end_date="
+        r = self.client.get(url)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(q('tr')),2)        # one result
+        
+        # test start date
+        url = urlreverse('liaison_list') + "?text=&source=&destination=&start_date=2015-01-01&end_date="
+        r = self.client.get(url)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(q('tr')),2)        # one result
         
     # -------------------------------------------------
     # Form validations

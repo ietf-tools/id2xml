@@ -7,6 +7,7 @@ from django.utils.html import conditional_escape
 
 from ietf.liaisons.models import LiaisonStatement
 
+"""
 class FromWidget(Select):
 
     def __init__(self, *args, **kwargs):
@@ -43,6 +44,7 @@ class ReadOnlyWidget(Widget):
         html = u'<div id="id_%s" class="form-control widget">%s</div>' % (conditional_escape(name), conditional_escape(value or ''))
         return mark_safe(html)
 
+"""
 
 class ButtonWidget(Widget):
 
@@ -68,17 +70,23 @@ class ButtonWidget(Widget):
 class ShowAttachmentsWidget(Widget):
 
     def render(self, name, value, attrs=None):
+        #assert False, (name,type(value),value)
         html = u'<div id="id_%s">' % name
         html += u'<span style="display: none" class="showAttachmentsEmpty form-control widget">No files attached</span>'
         html += u'<div class="attachedFiles form-control widget">'
         if value and isinstance(value, QuerySet):
             for attachment in value:
-                html += u'<a class="initialAttach" href="%s%s">%s</a><br />' % (settings.LIAISON_ATTACH_URL, conditional_escape(attachment.external_url), conditional_escape(attachment.title))
+                #html += u'<a class="initialAttach" href="%s%s">%s</a><br />' % (settings.LIAISON_ATTACH_URL, conditional_escape(attachment.external_url), conditional_escape(attachment.title))
+                html += u'{}\n' .format(attachment.document.title)
+                html += u'<a class="btn btn-default btn-xs" href="{}">Edit</a>\n'.format(urlreverse("ietf.liaisons.views.liaison_edit_attachment", kwargs={'object_id':attachment.statement.pk,'doc_id':attachment.document.pk}))
+                html += u'<a class="btn btn-default btn-xs" href="{}">Delete</a>\n'.format(urlreverse("ietf.liaisons.views.liaison_delete_attachment", kwargs={'object_id':attachment.statement.pk,'attach_id':attachment.pk}))
+                html += u'<br>'
         else:
             html += u'No files attached'
         html += u'</div></div>'
         return mark_safe(html)
 
+"""
 class RelatedLiaisonWidget(TextInput):
 
     def value_from_datadict(self, data, files, name):
@@ -115,3 +123,4 @@ class RelatedLiaisonWidget(TextInput):
         html += '<input type="button" style="display: none;" class="id_no_%s" id="id_no_%s" value="Deselect liaison statement" />' % (conditional_escape(name), conditional_escape(name))
         html += u'</div>'
         return mark_safe(html)
+"""

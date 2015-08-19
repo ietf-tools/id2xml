@@ -197,6 +197,8 @@ class RelatedLiaisonStatement(models.Model):
     target = models.ForeignKey(LiaisonStatement, related_name='target_of_set')
     relationship = models.ForeignKey(DocRelationshipName)
 
+    def __unicode__(self):
+        return u"%s %s %s" % (self.source.title, self.relationship.name.lower(), self.target.title)
 
 class LiaisonStatementGroupContacts(models.Model):
     group = models.ForeignKey(Group, unique=True) 

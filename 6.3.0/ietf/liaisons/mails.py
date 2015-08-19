@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from ietf.utils.mail import send_mail_text
-#from ietf.liaisons.utils import role_persons_with_fixed_email
+from ietf.liaisons.utils import approval_roles
 from ietf.group.models import Role
 
 def send_liaison_by_email(request, liaison):
@@ -22,23 +22,19 @@ def send_liaison_by_email(request, liaison):
     send_mail_text(request, to_email, from_email, subject, body, cc=", ".join(cc), bcc=", ".join(bcc))
 
 def notify_pending_by_email(request, liaison):
-
-    # Broken: this does not find the list of approvers for the sending body
-    # For now, we are sending to statements@ietf.org so the Secretariat can nudge
-    # Bug 880: https://trac.tools.ietf.org/tools/ietfdb/ticket/880
-    #
-    # from ietf.liaisons.utils import IETFHM
-    #
-    # from_entity = IETFHM.get_entity_by_key(liaison.from_raw_code)
-    # if not from_entity:
-    #    return None
-    # to_email = []
-    # for person in from_entity.can_approve():
-    #     to_email.append('%s <%s>' % person.email())
+    '''Send mail requesting approval of pending liaison statement.  Send mail to
+    the intersection of approvers for all from_groups
+    '''
+    approval_set = set(approval_roles(liaison.from_groups.first()))
+    if liaison.from_groups.count() > 1:
+        for group in liaison.from_groups.all():
+            approval_set.intersection_update(approval_roles(group))
+    to_emails = [ r.email.address for r in approval_set ]
+    
     subject = u'New Liaison Statement, "%s" needs your approval' % (liaison.title)
     from_email = settings.LIAISON_UNIVERSAL_FROM
     body = render_to_string('liaisons/pending_liaison_mail.txt', dict(liaison=liaison))
-    send_mail_text(request, ['statements@ietf.org'], from_email, subject, body)
+    send_mail_text(request, to_emails, from_email, subject, body)
 
 def send_sdo_reminder(sdo):
     roles = Role.objects.filter(name="liaiman", group=sdo)

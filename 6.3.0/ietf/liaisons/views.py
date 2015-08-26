@@ -71,54 +71,34 @@ def contacts_from_roles(roles):
     emails = [ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in roles ]
     return ','.join(emails)
         
-def get_cc(group,person):
-    '''Returns list of emails to use as CC for group. person is the form submitter.
+def get_cc(group):
+    '''Returns list of emails to use as CC for group.  Simplified refactor of IETFHierarchy
+    get_cc() and get_from_cc()
     '''
     emails = []
     if group.acronym in ('ietf','iesg'):
         emails.append(EMAIL_ALIASES['IESG'])
+        emails.append(EMAIL_ALIASES['IETFCHAIR'])
     elif group.acronym in ('iab'):
         emails.append(EMAIL_ALIASES['IAB'])
+        emails.append(EMAIL_ALIASES['IABCHAIR'])
+        emails.append(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'])
     elif group.type_id == 'area':
         emails.append(EMAIL_ALIASES['IETFCHAIR'])
+        ad_roles = group.role_set.filter(name='ad')
+        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
     elif group.type_id == 'wg':
-        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
+        ad_roles = group.parent.role_set.filter(name='ad')
         emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
-        if group.list_email:
-            emails.append('{} Discussion List <{}>'.format(group.name,group.list_email))
-    elif group.type_id == 'sdo':
-        liaiman_roles = group.role_set.filter(name='liaiman').exclude(person=person)
-        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in liaiman_roles ])
-    return emails
-
-def get_from_cc(group,person):
-    emails = []
-    if group.acronym in ('ietf','iesg'):
-        if not has_role(person, 'IETF Chair'):
-            emails.append(EMAIL_ALIASES['IETFCHAIR'])
-        emails.append(EMAIL_ALIASES['IESG'])
-    elif group.acronym == 'iab':
-        emails.append(EMAIL_ALIASES['IAB'])
-        if not has_role(person, 'IAB Chair'):
-            emails.append(EMAIL_ALIASES['IABCHAIR'])
-        if not has_role(person, 'IAB Executive Director'):
-            emails.append(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'])
-    elif group.type_id == 'area':
-        ad_roles = group.role_set.filter(name='ad').exclude(person=person)
-        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
-        emails.append(EMAIL_ALIASES['IETFCHAIR'])
-    elif group.type_id == 'wg':
-        ad_roles = group.parent.role_set.filter(name='ad').exclude(person=person)
-        emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in ad_roles ])
-        chair_roles = group.role_set.filter(name='chair').exclude(person=person)
+        chair_roles = group.role_set.filter(name='chair')
         emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in chair_roles ])
         if group.list_email:
             emails.append('{} Discussion List <{}>'.format(group.name,group.list_email))
     elif group.type_id == 'sdo':
-        liaiman_roles = group.role_set.filter(name='liaiman').exclude(person=person)
+        liaiman_roles = group.role_set.filter(name='liaiman')
         emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in liaiman_roles ])
     return emails
-    
+
 def get_contacts_for_group(group):
     '''Returns default contacts for groups as a comma separated string'''
     contacts = []
@@ -186,6 +166,9 @@ def post_only(group,person):
 # -------------------------------------------------
 @can_submit_liaison_required
 def ajax_get_liaison_info(request):
+    '''Returns dictionary of info to update entry form given the groups
+    that have been selected
+    '''
     person = get_person_for_user(request.user)
 
     from_groups = request.GET.getlist('from_groups', None)
@@ -200,17 +183,19 @@ def ajax_get_liaison_info(request):
     cc = []
     does_need_approval = []
     can_post_only = []
-    poc = []
-    result = {'poc': [], 'cc': [], 'needs_approval': False, 'post_only': False, 'full_list': []}
+    to_contacts = []
+    response_contacts = []
+    result = {'response_contacts':[],'to_contacts': [], 'cc': [], 'needs_approval': False, 'post_only': False, 'full_list': []}
     
     for group in from_groups:
-        cc.extend(get_from_cc(group,person))
+        cc.extend(get_cc(group))
         does_need_approval.append(needs_approval(group,person))
         can_post_only.append(post_only(group,person))
-    
+        response_contacts.append(get_contacts_for_group(group))
+        
     for group in to_groups:
-        cc.extend(get_cc(group,person))
-        poc.append(get_contacts_for_group(group))
+        cc.extend(get_cc(group))
+        to_contacts.append(get_contacts_for_group(group))
     
     # TODO: set result['error'] if a group id doesn't exist
     
@@ -225,7 +210,8 @@ def ajax_get_liaison_info(request):
         
     result.update({'error': False,
                    'cc': list(set(cc)),
-                   'poc': list(set(poc)),
+                   'response_contacts':list(set(response_contacts)),
+                   'to_contacts': list(set(to_contacts)),
                    'needs_approval': does_need_approval,
                    'post_only': any(can_post_only)})
 
@@ -256,6 +242,24 @@ def ajax_liaison_list(request):
     }, context_instance=RequestContext(request))
 
 # -------------------------------------------------
+# Redirects for backwards compatibility
+# -------------------------------------------------
+
+def redirect_add(request):
+    """Redirects old add urls"""
+    if 'incoming' in request.GET.keys():
+        return redirect('ietf.liaisons.views.add_liaison', type='incoming')
+    else:
+        return redirect('ietf.liaisons.views.add_liaison', type='outgoing')
+        
+def redirect_for_approval(request, object_id=None):
+    """Redirects old approval urls"""
+    if object_id:
+        return redirect('ietf.liaisons.views.liaison_detail', object_id=object_id)
+    else:
+        return redirect('ietf.liaisons.views.liaison_list', state='pending')
+        
+# -------------------------------------------------
 # View Functions
 # -------------------------------------------------
 
@@ -265,16 +269,17 @@ def add_liaison(request, liaison=None, type=None):
         return HttpResponseForbidden("Restricted to users who are authorized to submit incoming liaison statements")
     
     if request.method == 'POST':
+        #assert False, (request.POST,request.FILES)
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files=request.FILES, liaison=liaison, type=type)
         
         if form.is_valid():
-            liaison = form.save(request=request)
+            liaison = form.save()
             
             # notifications
             if 'send' in request.POST and liaison.state.slug == 'posted':
                 send_liaison_by_email(request, liaison)
-            elif 'send' in request.POST or 'post_only' in request.POST:
+            elif liaison.state.slug == 'pending':
                 notify_pending_by_email(request, liaison)
             
             return redirect('liaison_detail', object_id=liaison.pk)
@@ -300,95 +305,6 @@ def liaison_history(request, object_id):
         'tabs': get_details_tabs(liaison, 'History'),
         'selected_tab_entry':'history'
     })
-
-
-"""
-def liaison_list(request):
-    if request.GET.get('search', None):
-        form = SearchLiaisonForm(data=request.GET)
-        if form.is_valid():
-            result = form.get_results()
-    else:
-        #form = SearchLiaisonForm()
-        #result = form.get_results()
-        sort, order_by = normalize_sort(request)
-        # TODO fix order by
-        #result = LiaisonStatement.objects.filter(state='approved').order_by(order_by)
-        result = LiaisonStatement.objects.filter(state='posted')
-
-        # perform sort
-        if sort == 'date':
-            result = sorted(result, key=lambda a: a.sort_date, reverse=True)
-        if sort == 'from_groups':
-            result = sorted(result, key=lambda a: a.from_groups_display)
-        if sort == 'to_groups':
-            result = sorted(result, key=lambda a: a.to_groups_display)
-        if sort == 'deadline':
-            result = result.order_by('-deadline')
-        if sort == 'title':
-            result = result.order_by('title')
-            
-    liaisons = result
-
-    can_send_outgoing = can_add_outgoing_liaison(request.user)
-    can_send_incoming = can_add_incoming_liaison(request.user)
-
-    approvable = approvable_liaison_statements(request.user).count()
-
-    return render_to_response('liaisons/overview.html', {
-        "liaisons": liaisons,
-        "can_manage": approvable or can_send_incoming or can_send_outgoing,
-        "approvable": approvable,
-        "can_send_incoming": can_send_incoming,
-        "can_send_outgoing": can_send_outgoing,
-        "with_search": False,
-        "sort": sort,
-        #"form": form,
-    }, context_instance=RequestContext(request))
-
-@can_submit_liaison_required
-def liaison_approval_list(request):
-    liaisons = approvable_liaison_statements(request.user).order_by("-id")
-
-    return render_to_response('liaisons/approval_list.html', {
-        "liaisons": liaisons,
-    }, context_instance=RequestContext(request))
-
-
-@can_submit_liaison_required
-def liaison_approval_detail(request, object_id):
-    liaison = get_object_or_404(approvable_liaison_statements(request.user), pk=object_id)
-
-    if request.method == 'POST' and (request.POST.get('approved') or request.POST.get('dead')):
-        if request.POST.get('approved'):
-            liaison.do_approve(get_person_for_user(request.user))
-            liaison.do_post(get_person_for_user(request.user))
-            send_liaison_by_email(request, liaison)
-            messages.success(request,'Liaison Statement Approved and Posted')
-        elif request.POST.get('dead'):
-            liaison.do_kill(get_person_for_user(request.user))
-            messages.success(request,'Liaison Statement Killed')
-        
-        return redirect('liaison_list')
-
-    relations_by = [i.target for i in liaison.source_of_set.filter(target__state__slug='posted')]
-    relations_to = [i.source for i in liaison.target_of_set.filter(source__state__slug='posted')]
-
-    return render_to_response('liaisons/approval_detail.html', {
-        "liaison": liaison,
-        "relations_to": relations_to,
-        "relations_by": relations_by,
-        "is_approving": True,
-    }, context_instance=RequestContext(request))
-
-@role_required('Secretariat',)
-def liaison_dead_list(request):
-    liaisons = LiaisonStatement.objects.filter(state='dead').order_by("-id")
-
-    return render_to_response('liaisons/dead_list.html', {
-        "liaisons": liaisons,
-    }, context_instance=RequestContext(request))
-"""
 
 @role_required('Secretariat','Liaison Manager')
 def liaison_delete_attachment(request, object_id, attach_id):

@@ -47,7 +47,6 @@ def send_sdo_reminder(sdo):
     to_email = manager_role.email.address
     name = manager_role.person.plain_name()
 
-    #authorized_list = role_persons_with_fixed_email(sdo, "auth")
     authorized_list = Role.objects.filter(group=sdo, name='auth').select_related("person").distinct()
     body = render_to_string('liaisons/sdo_reminder.txt', dict(
             manager_name=name,

@@ -59,7 +59,8 @@ $(document).ready(function () {
                 html += '</span>';
                 container.hide();
             });
-            html += ' <a href="" class="removeAttach glyphicon glyphicon-remove text-danger"></a>';
+            //html += ' <a href="" class="removeAttach glyphicon glyphicon-remove text-danger"></a>';
+            html += ' <a href="" class="removeAttach btn btn-default btn-xs">Delete</a>';
             html += '</div>';
             config.showOnDisplay.html(html);
             count += 1;
@@ -67,7 +68,7 @@ $(document).ready(function () {
         };
 
         var doAttach = function() {
-            cloneFields();    
+            cloneFields();
             setState();
         };
 
@@ -127,6 +128,7 @@ $(document).ready(function () {
         var form = $(this);
         var from_groups = form.find('#id_from_groups');
         var from_contact = form.find('#id_from_contact');
+        var response_contacts = form.find('#id_response_contacts');
         var to_groups = form.find('#id_to_groups');
         var to_contacts = form.find('#id_to_contacts');
         var cc = form.find('#id_cc_contacts');
@@ -213,11 +215,12 @@ $(document).ready(function () {
                         //render_mails_into(poc, response.poc, false);
                         if ( sender.attr('id') == 'id_to_groups' ) {
                             console.log('inside to_groups');
-                            console.log(response.poc);
-                            to_contacts.val(response.poc);
+                            console.log(response.to_contacts);
+                            to_contacts.val(response.to_contacts);
                         }
                         if ( sender.attr('id') == 'id_from_groups' ) {
                             toggleApproval(response.needs_approval);
+                            response_contacts.val(response.response_contacts);
                         }
                         checkPostOnly(response.post_only);
                         // if (sender.hasClass('from-group-field')) {userSelect(sender,response.full_list);}
@@ -227,10 +230,6 @@ $(document).ready(function () {
             return false;
         };
 
-        //var updateFrom = function() {
-        //   var reply_to = reply.val();
-        //    form.find('a.from_mailto').attr('href', 'mailto:' + reply_to);
-        //};
 
         var updatePurpose = function() {
             var deadlinecontainer = deadline.closest('.form-group');
@@ -249,16 +248,6 @@ $(document).ready(function () {
             }
         };
 
-        //var checkOtherSDO = function() {
-        //    var entity = organization.val();
-        //    if (entity=='othersdo') {
-        //        other_organization.closest('.form-group').show();
-        //        other_organization.prop("required", true);
-        //    } else {
-        //        other_organization.closest('.form-group').hide();
-        //        other_organization.prop("required", false);
-        //    }
-        //};
 
         var cancelForm = function() {
             cancel_dialog.dialog("open");

@@ -12,32 +12,31 @@ from ietf.name.models import (LiaisonStatementPurposeName, LiaisonStatementState
 from ietf.doc.models import Document
 from ietf.group.models import Group
 
-
 class LiaisonStatement(models.Model):
     title = models.CharField(blank=True, max_length=255)
-    other_identifiers = models.TextField(blank=True, null=True) # Identifiers from other bodies
-    purpose = models.ForeignKey(LiaisonStatementPurposeName)
-    body = models.TextField(blank=True)
-    deadline = models.DateField(null=True, blank=True)
-
     from_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonstatement_from_set')
-    from_name = models.CharField(max_length=255, help_text="Name of the sender body")
-    to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonstatement_to_set') 
-    to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
-
-    tags = models.ManyToManyField(LiaisonStatementTagName, blank=True, null=True)
-
     from_contact = models.ForeignKey(Email, blank=True, null=True)
-    to_contacts = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body") 
+    to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonstatement_to_set')
+    to_contacts = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body")
+    
     response_contacts = models.CharField(blank=True, max_length=255, help_text="Where to send a response") # RFC4053 
     technical_contacts = models.CharField(blank=True, max_length=255, help_text="Who to contact for clarification") # RFC4053
     action_holder_contacts = models.CharField(blank=True, max_length=255, help_text="Who makes sure action is completed")  # incoming only?
     cc_contacts = models.TextField(blank=True)
-
+    
+    purpose = models.ForeignKey(LiaisonStatementPurposeName)
+    deadline = models.DateField(null=True, blank=True)
+    other_identifiers = models.TextField(blank=True, null=True) # Identifiers from other bodies
+    body = models.TextField(blank=True)
+    
+    tags = models.ManyToManyField(LiaisonStatementTagName, blank=True, null=True)
     attachments = models.ManyToManyField(Document, through='LiaisonStatementAttachment', blank=True)
-
     state = models.ForeignKey(LiaisonStatementState, default='pending')
 
+    # remove these fields post upgrade
+    from_name = models.CharField(max_length=255, help_text="Name of the sender body")
+    to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
+    
     def __unicode__(self):
         return self.title or u"<no title>"
 
@@ -153,21 +152,27 @@ class LiaisonStatement(models.Model):
 
     @property
     def action_taken(self):
-        return bool(self.tags.filter(slug='taken').count())
+        return self.tags.filter(slug='taken').exists()
+
+    def active_attachments(self):
+        '''Returns attachments with removed ones filtered out'''
+        return self.attachments.exclude(liaisonstatementattachment__removed=True)
 
     @property
     def awaiting_action(self):
         if getattr(self, '_awaiting_action', None) != None:
             return bool(self._awaiting_action)
-        return bool(self.tags.filter(slug='awaiting').count())
+        return self.tags.filter(slug='awaiting').exists()
 
     @property
     def from_groups_display(self):
+        '''Returns comma separated list of from_group names'''
         groups = self.from_groups.order_by('name').values_list('name',flat=True)
         return ', '.join(groups)
 
     @property
     def to_groups_display(self):
+        '''Returns comma separated list of to_group names'''
         groups = self.to_groups.order_by('name').values_list('name',flat=True)
         return ', '.join(groups)
 
@@ -199,6 +204,7 @@ class RelatedLiaisonStatement(models.Model):
 
     def __unicode__(self):
         return u"%s %s %s" % (self.source.title, self.relationship.name.lower(), self.target.title)
+
 
 class LiaisonStatementGroupContacts(models.Model):
     group = models.ForeignKey(Group, unique=True) 

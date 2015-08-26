@@ -61,7 +61,7 @@ def make_liaison_models():
     LiaisonStatementEvent.objects.create(type_id='submitted',by=by,statement=s,desc='Statement Submitted')
     LiaisonStatementEvent.objects.create(type_id='posted',by=by,statement=s,desc='Statement Posted')
     
-    # add an outgoing liaison 
+    # add an outgoing liaison (dated 2010)
     s2 = LiaisonStatement.objects.create(
         title="Comment from Mars Group on video codec",
         purpose_id="comment",
@@ -88,7 +88,7 @@ def get_liaison_post_data(type='incoming'):
         from_group = Group.objects.get(acronym="mars")
 
     return dict(from_groups=str(from_group.pk),
-                from_contact='from_contact@example.com',
+                from_contact='ulm-liaiman@ietf.org',
                 to_groups=str(to_group.pk),
                 to_contacts='to_contacts@example.com',
                 purpose="info",
@@ -176,9 +176,10 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(data["post_only"], False)
         self.assertTrue('cc' in data)
         self.assertTrue('needs_approval' in data)
-        self.assertTrue('poc' in data)
+        self.assertTrue('to_contacts' in data)
+        self.assertTrue('response_contacts' in data)
         
-    def test_ajax_poc(self):
+    def test_ajax_to_contacts(self):
         make_test_data()
         liaison = make_liaison_models()
         group = liaison.to_groups.first()
@@ -189,14 +190,14 @@ class LiaisonManagementTests(TestCase):
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         data = json.loads(r.content)
-        self.assertEqual(data["poc"],[u'test@example.com'])
+        self.assertEqual(data["to_contacts"],[u'test@example.com'])
         
     def test_add_restrictions(self):
         make_test_data()
         make_liaison_models()
         
         # incoming restrictions
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -230,16 +231,6 @@ class LiaisonManagementTests(TestCase):
         liaison = LiaisonStatement.objects.get(id=liaison.id)
         self.assertTrue(liaison.action_taken)
 
-    def test_obtained_approval(self):
-        make_test_data()
-        make_liaison_models()
-        
-        url = urlreverse('add_liaison')
-        login_testing_unauthorized(self, "ad", url)
-        r = self.client.get(url)
-        self.assertEqual(r.status_code, 200)
-        self.assertTrue('id_approved' in r.content)
-        
     def test_approval_process(self):
         make_test_data()
         liaison = make_liaison_models()
@@ -471,7 +462,7 @@ class LiaisonManagementTests(TestCase):
         '''Check from_groups, to_groups options for different user classes'''
         make_test_data()
         make_liaison_models()
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         
         # get count of all IETF entities for to_group options
         top = Q(acronym__in=('ietf','iesg','iab'))
@@ -503,7 +494,7 @@ class LiaisonManagementTests(TestCase):
     def test_outgoing_options(self):
         make_test_data()
         make_liaison_models()
-        url = urlreverse('add_liaison')
+        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
         
         # get count of all IETF entities for to_group options
         top = Q(acronym__in=('ietf','iesg','iab'))
@@ -544,7 +535,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
 
         # get
@@ -619,7 +610,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('add_liaison')
+        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
         login_testing_unauthorized(self, "secretary", url)
 
         # get
@@ -689,11 +680,11 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(len(outbox), mailbox_before + 1)
         self.assertTrue("Liaison Statement" in outbox[-1]["Subject"])
 
-    def test_add_outgoing_liaison_post_only(self):
+    def test_add_outgoing_liaison_unapproved_post_only(self):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('add_liaison')
+        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
         login_testing_unauthorized(self, "secretary", url)
 
         # add new
@@ -718,6 +709,21 @@ class LiaisonManagementTests(TestCase):
         l = LiaisonStatement.objects.all().order_by("-id")[0]
         self.assertEqual(l.state.slug,'pending')
         self.assertEqual(len(outbox), mailbox_before + 1)
+
+    def test_in_response(self):
+        '''A statement with purpose=in_response must have related statement specified'''
+        make_test_data()
+        liaison = make_liaison_models()
+        
+        url = urlreverse('liaison_add',kwargs=dict(type='incoming'))
+        login_testing_unauthorized(self, "secretary", url)
+        data = get_liaison_post_data()
+        data['purpose'] = 'response'
+        r = self.client.post(url,data)
+        q = PyQuery(r.content)
+        self.assertEqual(r.status_code, 200)
+        #print r.content
+        self.assertTrue(q("form .has-error"))
 
     def test_liaison_history(self):
         make_test_data()
@@ -822,7 +828,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "ulm-liaiman", url)
         
         r = self.client.post(url,get_liaison_post_data(),follow=True)
@@ -838,7 +844,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
         
         post_data = get_liaison_post_data()
@@ -860,7 +866,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('add_liaison') + "?incoming=1"
+        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
         
         post_data = get_liaison_post_data()

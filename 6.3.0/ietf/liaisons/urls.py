@@ -21,17 +21,17 @@ urlpatterns += patterns('ietf.liaisons.views',
 
 urlpatterns += patterns('ietf.liaisons.views',
     url(r'^$', 'liaison_list', name='liaison_list'),
-    url(r'^(?P<state>(|posted|pending|dead))/$', 'liaison_list', name='liaison_list'),
+    url(r'^(?P<state>(posted|pending|dead))/$', 'liaison_list', name='liaison_list'),
     url(r'^(?P<object_id>\d+)/$', 'liaison_detail', name='liaison_detail'),
     url(r'^(?P<object_id>\d+)/edit/$', 'liaison_edit', name='liaison_edit'),
     url(r'^(?P<object_id>\d+)/edit-attachment/(?P<doc_id>[A-Za-z0-9._+-]+)$', 'liaison_edit_attachment', name='liaison_edit_attachment'),
     url(r'^(?P<object_id>\d+)/delete-attachment/(?P<attach_id>[A-Za-z0-9._+-]+)$', 'liaison_delete_attachment', name='liaison_delete_attachment'),
     url(r'^(?P<object_id>\d+)/history/$', 'liaison_history', name='liaison_history'),
     url(r'^(?P<object_id>\d+)/resend/$', 'liaison_resend', name='liaison_resend'),
-    #url(r'^dead/$', 'liaison_dead_list', name='liaison_dead_list'),
-    url(r'^add/$', 'add_liaison', name='add_liaison'),
     url(r'^add/(?P<type>(incoming|outgoing))/$', 'add_liaison', name='liaison_add'),
-    #url(r'^for_approval/$', 'liaison_approval_list', name='liaison_approval_list'),
-    #url(r'^for_approval/(?P<object_id>\d+)/$', 'liaison_approval_detail', name='liaison_approval_detail'),
-    #url(r'^search/$', 'liaison_search', name='liaison_search'),
+
+    # Redirects for backwards compatibility
+    (r'^add/$', 'redirect_add'),
+    (r'^for_approval/$', 'redirect_for_approval'),
+    (r'^for_approval/(?P<object_id>\d+)/$', 'redirect_for_approval'),
 )

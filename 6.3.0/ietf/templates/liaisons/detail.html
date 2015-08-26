@@ -23,35 +23,27 @@
 <tr>
   <th class="text-nowrap">Submission Date</th>
   <td>{{ liaison.submitted|date:"Y-m-d" }}</td></tr>
-{% if liaison.from_contact %}<tr>
+
+{% if liaison.from_contact %}
+<tr>
   <th class="text-nowrap">Sender</th>
   <td>
     <a href="mailto:{{ liaison.from_contact.address }}">{{ liaison.from_contact.person }}</a>
   </td>
-</tr>{% endif %}
+</tr>
+{% endif %}
+
 <tr>
   <th class="text-nowrap">From</th>
-  <td>
-    {% for group in liaison.from_groups.all %}
-      {{ group.name }}
-    {% empty %}
-      {{ liaison.from_name }}
-    {% endfor %}
-  </td>
+  <td>{{ liaison.from_groups_display }}</td>
 </tr>
 
 <tr>
   <th class="text-nowrap">To</th>
-  <td>
-    {% for group in liaison.to_groups.all %}
-      {{ group.name }}
-    {% empty %}
-      {{ liaison.to_name }}
-    {% endfor %}
-  </td>
+  <td>{{ liaison.to_groups_display }}</td>
 </tr>
 
-{% if liaison.from_contact %}
+{% if liaison.cc_contacts %}
   <tr>
     <th class="text-nowrap">Cc</th><td>{{ liaison.cc_contacts|parse_email_list|make_one_per_line|safe|linebreaksbr }}</td>
   </tr>
@@ -140,7 +132,7 @@
     <tr>
       <th class="text-nowrap">Attachments</th>
       <td>
-        {% for doc in liaison.attachments.all %}
+        {% for doc in liaison.active_attachments.all %}
           <a href="https://datatracker.ietf.org/documents/LIAISON/{{ doc.external_url }}">{{ doc.title }}</a>
           {% if not forloop.last %}<br>{% endif %}
         {% empty %}

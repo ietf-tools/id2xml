@@ -2,6 +2,7 @@ import datetime, os
 import operator
 from email.utils import parseaddr
 from form_utils.forms import BetterModelForm
+from itertools import chain
 
 from django import forms
 from django.conf import settings
@@ -24,7 +25,7 @@ from ietf.liaisons.utils import (can_add_outgoing_liaison,can_add_incoming_liais
 #from ietf.liaisons.utils import IETFHM
 from ietf.liaisons.widgets import ButtonWidget,ShowAttachmentsWidget
 from ietf.liaisons.models import (LiaisonStatement, 
-    LiaisonStatementEvent,LiaisonStatementAttachment)
+    LiaisonStatementEvent,LiaisonStatementAttachment,LiaisonStatementPurposeName)
 from ietf.liaisons.fields import SearchableLiaisonStatementsField
 from ietf.group.models import Group
 from ietf.person.models import Email
@@ -35,6 +36,40 @@ from ietf.utils.fields import DatepickerDateField
 # -------------------------------------------------
 # Helper Functions
 # -------------------------------------------------
+def liaison_manager_sdos(person):
+    return Group.objects.filter(type="sdo", state="active", role__person=person, role__name="liaiman").distinct()
+    
+def get_internal_choices(user):
+    '''Returns the set of internal IETF groups the user has permissions for, as a list
+    of choices suitable for use in a select widget.  If user == None, all active internal
+    groups are included.'''
+    choices = []
+    groups = get_groups_for_person(user.person if user else None)
+    main = [ (g.pk, 'The {}'.format(g.acronym.upper())) for g in groups.filter(acronym__in=('ietf','iesg','iab')) ]
+    areas = [ (g.pk, '{} - {}'.format(g.acronym,g.name)) for g in groups.filter(type='area') ]
+    wgs = [ (g.pk, '{} - {}'.format(g.acronym,g.name)) for g in groups.filter(type='wg') ]
+    choices.append(('Main IETF Entities', main))
+    choices.append(('IETF Areas', areas))
+    choices.append(('IETF Working Groups', wgs ))
+    return choices
+
+def get_groups_for_person(person):
+    '''Returns queryset of internal Groups the person has interesting roles in.
+    This is a refactor of IETFHierarchyManager.get_entities_for_person().  If Person
+    is None or Secretariat or Liaison Manager all internal IETF groups are returned.
+    '''
+    if person == None or has_role(person.user, "Secretariat") or has_role(person.user, "Liaison Manager"):
+        # collect all internal IETF groups
+        queries = [Q(acronym__in=('ietf','iesg','iab')),
+                   Q(type='area',state='active'),
+                   Q(type='wg',state='active')]
+    else:
+        # Interesting roles, as Group queries
+        queries = [Q(role__person=person,role__name='chair',acronym='ietf'),
+                   Q(role__person=person,role__name__in=('chair','execdir'),acronym='iab'),
+                   Q(role__person=person,role__name='ad',type='area',state='active'),
+                   Q(role__person=person,role__name__in=('chair','secretary'),type='wg',state='active')]
+    return Group.objects.filter(reduce(operator.or_,queries)).order_by('acronym').distinct()
 
 def liaison_form_factory(request, **kwargs):
     """Returns appropriate Liaison entry form.
@@ -72,42 +107,6 @@ def validate_emails(value):
 # -------------------------------------------------
 # Form Classes
 # -------------------------------------------------
-def liaison_manager_sdos(person):
-    return Group.objects.filter(type="sdo", state="active", role__person=person, role__name="liaiman").distinct()
-
-
-"""
-class EditLiaisonForm(LiaisonForm):
-
-    #from_field = forms.CharField(widget=forms.TextInput, label=u'From')
-    #response_contacts = forms.CharField(label=u'Reply to', widget=forms.TextInput)
-    organization = forms.CharField(widget=forms.TextInput)
-    to_poc = forms.CharField(widget=forms.TextInput, label="POC", required=False)
-    cc1 = forms.CharField(widget=forms.TextInput, label="CC", required=False)
-
-    class Meta:
-        fields = ('from_raw_body', 'to_body', 'to_poc', 'cc1', 'last_modified_date', 'title',
-                  'technical_contacts', 'body',
-                  'deadline_date', 'purpose', 'response_contacts', 'related_to')
-
-    def __init__(self, *args, **kwargs):
-        super(EditLiaisonForm, self).__init__(*args, **kwargs)
-        self.edit = True
-
-    def set_from_field(self):
-        self.fields['from_field'].initial = self.instance.from_name
-
-    def set_response_contacts_field(self):
-        self.fields['response_contacts'].initial = self.instance.response_contacts
-
-    def set_organization_field(self):
-        self.fields['organization'].initial = self.instance.to_name
-
-    def save_extra_fields(self, liaison):
-        liaison.from_name = self.cleaned_data.get('from_field')
-        liaison.to_name = self.cleaned_data.get('organization')
-        liaison.cc_contacts = self.cleaned_data['cc1']
-"""
 
 class RadioRenderer(RadioFieldRenderer):
 
@@ -147,7 +146,8 @@ class SearchLiaisonForm(forms.Form):
                          Q(response_contacts__icontains=query) | Q(technical_contacts__icontains=query) | Q(action_holder_contacts__icontains=query) |
                          Q(cc_contacts=query))
                 '''
-                q = (Q(title__icontains=query) | Q(other_identifiers__icontains=query) | Q(body__icontains=query) | Q(attachments__title__icontains=query) |
+                q = (Q(title__icontains=query) | Q(other_identifiers__icontains=query) | Q(body__icontains=query) |
+                         Q(attachments__title__icontains=query,liaisonstatementattachment__removed=False) |
                          Q(technical_contacts__icontains=query) | Q(action_holder_contacts__icontains=query) |
                          Q(cc_contacts=query))
                 results = results.filter(q)
@@ -175,9 +175,6 @@ class SearchLiaisonForm(forms.Form):
         results = results.distinct().order_by('title')
         return results
 
-# -------------------------------------------------
-# New Classes
-# -------------------------------------------------
 
 class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     '''If value is a QuerySet, return it as is (for use in widget.render)'''
@@ -189,16 +186,16 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
                 not hasattr(value, '_meta')):
             return [super(forms.ModelMultipleChoiceField, self).prepare_value(v) for v in value]
         return super(forms.ModelMultipleChoiceField, self).prepare_value(value)
-        
+
+
 class LiaisonModelForm(BetterModelForm):
     '''Specify fields which require a custom widget or that are not part of the model'''
     from_groups = forms.ModelMultipleChoiceField(queryset=Group.objects.all(),label=u'Groups')
-    from_contact = forms.EmailField(label=u'Response Contact')
+    from_contact = forms.EmailField()
     to_groups = forms.ModelMultipleChoiceField(queryset=Group.objects,label=u'Groups')
     deadline = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='Deadline', required=True)
     related_to = SearchableLiaisonStatementsField(label=u'Related Liaison Statement', required=False)
     submitted_date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1" }, label='Submission date', required=True, initial=datetime.date.today())
-    #attachments = forms.CharField(label='Attachments', widget=ShowAttachmentsWidget, required=False)
     attachments = CustomModelMultipleChoiceField(queryset=Document.objects,label='Attachments', widget=ShowAttachmentsWidget, required=False)
     attach_title = forms.CharField(label='Title', required=False)
     attach_file = forms.FileField(label='File', required=False)
@@ -210,7 +207,7 @@ class LiaisonModelForm(BetterModelForm):
     class Meta:
         model = LiaisonStatement
         exclude = ('attachments','state','from_name','to_name')
-        fieldsets = [('From', {'fields': ['from_groups','from_contact'], 'legend': ''}),
+        fieldsets = [('From', {'fields': ['from_groups','from_contact', 'response_contacts'], 'legend': ''}),
                      ('To', {'fields': ['to_groups','to_contacts'], 'legend': ''}),
                      ('Other email addresses', {'fields': ['technical_contacts','action_holder_contacts','cc_contacts'], 'legend': ''}),
                      ('Purpose', {'fields':['purpose', 'deadline'], 'legend': ''}),
@@ -219,14 +216,11 @@ class LiaisonModelForm(BetterModelForm):
                      ('Add attachment', {'fields': ['attach_title', 'attach_file', 'attach_button'], 'legend': ''})]
     
     def __init__(self, user, *args, **kwargs):
+        super(LiaisonModelForm, self).__init__(*args, **kwargs)
         self.user = user
         self.person = get_person_for_user(user)
+        self.is_new = not self.instance.pk
         
-        super(LiaisonModelForm, self).__init__(*args, **kwargs)
-        if self.instance.pk:
-            self.event_type = 'modified'
-        else:
-            self.event_type = 'submitted'
         self.fields["from_groups"].widget.attrs["placeholder"] = "Type in name to search for group"
         self.fields["to_groups"].widget.attrs["placeholder"] = "Type in name to search for group"
         self.fields["to_contacts"].label = 'Contacts'
@@ -246,11 +240,21 @@ class LiaisonModelForm(BetterModelForm):
         except ObjectDoesNotExist:
             raise forms.ValidationError('Email address does not exist')
         return email
-        
+
+    def clean_cc_contacts(self):
+        '''Return a comma separated list of addresses'''
+        cc_contacts = self.cleaned_data.get('cc_contacts')
+        return cc_contacts.replace('\r\n',',')
+
     def clean(self):
         if not self.cleaned_data.get('body', None) and not self.has_attachments():
             self._errors['body'] = ErrorList([u'You must provide a body or attachment files'])
             self._errors['attachments'] = ErrorList([u'You must provide a body or attachment files'])
+        
+        # if purpose=response there must be a related statement
+        purpose = LiaisonStatementPurposeName.objects.get(slug='response')
+        if self.cleaned_data.get('purpose') == purpose and not self.cleaned_data.get('related_to'):
+            self._errors['related_to'] = ErrorList([u'You must provide a related statement when purpose is In Response'])
         return self.cleaned_data
         
     def full_clean(self):
@@ -268,39 +272,39 @@ class LiaisonModelForm(BetterModelForm):
         assert NotImplemented
         
     def save(self, *args, **kwargs):
-        if 'request' in kwargs:
-            self.request = kwargs.pop('request')
-        
-        self.is_new = not self.instance.pk
         super(LiaisonModelForm, self).save(*args,**kwargs)
         
         # set state for new statements
         if self.is_new:
-            self.instance.do_submit(get_person_for_user(self.request.user))
+            self.instance.do_submit(self.person)
             if self.is_approved():
-                self.instance.do_post(get_person_for_user(self.request.user))
-
+                self.instance.do_post(self.person)
         else:
             # create modified event
             LiaisonStatementEvent.objects.create(
                 type_id='modified',
-                by=get_person_for_user(self.request.user),
+                by=self.person,
                 statement=self.instance,
                 desc='Statement Modified'
             )
-            
-        self.instance.save()
+
+        #self.instance.save()
         self.save_related_liaisons()
         self.save_attachments()
 
         return self.instance
-    
+
     def save_attachments(self):
-        # TODO: handle deletes, create event on delete
+        '''Saves new attachments.
+        Files come in with keys like "attach_file_N" where N is index of attachments
+        displayed in the form.  The attachment title is in the corresponding
+        request.POST[attach_title_N]
+        '''
         written = self.instance.attachments.all().count()
         #assert False, (self.files.keys(),self.files)
         for key in self.files.keys():
             title_key = key.replace('file', 'title')
+            attachment_title = self.data.get(title_key)
             if not key.startswith('attach_file_') or not title_key in self.data.keys():
                 continue
             attached_file = self.files.get(key)
@@ -314,7 +318,7 @@ class LiaisonModelForm(BetterModelForm):
             attach, _ = Document.objects.get_or_create(
                 name = name,
                 defaults=dict(
-                    title = self.data.get(title_key),
+                    title = attachment_title,
                     type_id = "liai-att",
                     external_url = name + extension, # strictly speaking not necessary, but just for the time being ...
                     )
@@ -324,6 +328,15 @@ class LiaisonModelForm(BetterModelForm):
             attach_file.write(attached_file.read())
             attach_file.close()
             
+            if not self.is_new:
+                # create modified event
+                LiaisonStatementEvent.objects.create(
+                    type_id='modified',
+                    by=self.person,
+                    statement=self.instance,
+                    desc='Added attachment: {}'.format(attachment_title)
+                )
+
     def save_related_liaisons(self):
         rel = DocRelationshipName.objects.get(slug='refold')
         new_related = self.cleaned_data.get('related_to', [])
@@ -376,6 +389,7 @@ class IncomingLiaisonForm(LiaisonModelForm):
         else:
             queryset = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name__in=("liaiman", "auth")).distinct().order_by('name')
             self.fields['from_contact'].initial = self.person.role_set.filter(group=queryset[0]).first().email.address
+            self.fields['from_contact'].widget.attrs['readonly'] = True
         self.fields['from_groups'].queryset = queryset
         self.fields['from_groups'].widget.submitter = unicode(self.person)
         
@@ -385,19 +399,20 @@ class IncomingLiaisonForm(LiaisonModelForm):
 
     def set_to_fields(self):
         '''Set to_groups and to_contacts options and initial value based on user
-        accessing the form'''
+        accessing the form.  For incoming Liaisons, to_groups choices is the full set.
+        '''
         self.fields['to_groups'].choices = get_internal_choices(None)
 
 
 class OutgoingLiaisonForm(LiaisonModelForm):
-    from_contact = SearchableEmailField(label="Response Contact", required=False, only_users=True)
+    from_contact = SearchableEmailField(only_users=True)
     approved = forms.BooleanField(label="Obtained prior approval", required=False)
     
     class Meta:
         model = LiaisonStatement
         exclude = ('attachments','state','from_name','to_name','action_holder_contacts')
         # add approved field, no action_holder_contacts
-        fieldsets = [('From', {'fields': ['from_groups','from_contact','approved'], 'legend': ''}),
+        fieldsets = [('From', {'fields': ['from_groups','from_contact','response_contacts','approved'], 'legend': ''}),
                      ('To', {'fields': ['to_groups','to_contacts'], 'legend': ''}),
                      ('Other email addresses', {'fields': ['technical_contacts','cc_contacts'], 'legend': ''}),
                      ('Purpose', {'fields':['purpose', 'deadline'], 'legend': ''}),
@@ -412,18 +427,23 @@ class OutgoingLiaisonForm(LiaisonModelForm):
         '''Set from_groups and from_contact options and initial value based on user
         accessing the form'''
         self.fields['from_groups'].choices = get_internal_choices(self.user)
-        roles = self.person.role_set.filter(name__in=('ad','chair'),group__state='active')
-        if roles:
-            email = roles.first().email.address
+        if has_role(self.user, "Secretariat"):
+            return
+        
+        if self.person.role_set.filter(name='liaiman',group__state='active'):
+            email = self.person.role_set.filter(name='liaiman',group__state='active').first().email.address
+        elif self.person.role_set.filter(name__in=('ad','chair'),group__state='active'):
+            email = self.person.role_set.filter(name__in=('ad','chair'),group__state='active').first().email.address
         else:
             email = self.person.email_address()
         self.fields['from_contact'].initial = email
-    
+        self.fields['from_contact'].widget.attrs['readonly'] = True
+
     def set_to_fields(self):
         '''Set to_groups and to_contacts options and initial value based on user
         accessing the form'''
         # if the user is a Liaison Manager and nothing more, reduce to set to his SDOs
-        if has_role(self.user, "Liaison Manager") and not get_groups_for_person(self.user.person):
+        if has_role(self.user, "Liaison Manager") and not self.person.role_set.filter(name__in=('ad','chair'),group__state='active'):
             queryset = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name="liaiman").distinct().order_by('name')
         else:
             # get all outgoing entities
@@ -438,41 +458,51 @@ class EditLiaisonForm(LiaisonModelForm):
     def __init__(self, *args, **kwargs):
         super(EditLiaisonForm, self).__init__(*args, **kwargs)
         self.edit = True
-        self.fields['attachments'].initial = self.instance.liaisonstatementattachment_set.all()
+        self.fields['attachments'].initial = self.instance.liaisonstatementattachment_set.exclude(removed=True)
+        related = [ str(x.pk) for x in self.instance.source_of_set.all() ]
+        self.fields['related_to'].initial = ','.join(related)
+        self.fields['submitted_date'].initial = self.instance.submitted
+
+    def save(self, *args, **kwargs):
+        super(EditLiaisonForm, self).save(*args,**kwargs)
+        if self.has_changed() and 'submitted_date' in self.changed_data:
+            event = self.instance.liaisonstatementevent_set.filter(type='submitted').first()
+            event.time = self.cleaned_data.get('submitted_date')
+            event.save()
+        
+        return self.instance
+
+    def set_from_fields(self):
+        '''Set from_groups and from_contact options and initial value based on user
+        accessing the form.'''
+        
+        if self.instance.is_outgoing():
+            self.fields['from_groups'].choices = get_internal_choices(self.user)
+        else:
+            if has_role(self.user, "Secretariat"):
+                queryset = Group.objects.filter(type="sdo", state="active").order_by('name')
+            else:
+                queryset = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name__in=("liaiman", "auth")).distinct().order_by('name')
+                self.fields['from_contact'].widget.attrs['readonly'] = True
+            self.fields['from_groups'].queryset = queryset
+        
+    def set_to_fields(self):
+        '''Set to_groups and to_contacts options and initial value based on user
+        accessing the form.  For incoming Liaisons, to_groups choices is the full set.
+        '''
+        if self.instance.is_outgoing():
+            # if the user is a Liaison Manager and nothing more, reduce to set to his SDOs
+            if has_role(self.user, "Liaison Manager") and not self.person.role_set.filter(name__in=('ad','chair'),group__state='active'):
+                queryset = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name="liaiman").distinct().order_by('name')
+            else:
+                # get all outgoing entities
+                queryset = Group.objects.filter(type="sdo", state="active").order_by('name')
+            self.fields['to_groups'].queryset = queryset
+        else:
+            self.fields['to_groups'].choices = get_internal_choices(None)
+
 
 class EditAttachmentForm(forms.Form):
     title = forms.CharField(max_length=255)
 
-def get_internal_choices(user):
-    '''Returns the set of internal IETF groups the user has permissions for, as a list
-    of choices suitable for use in a select widget.  If user == None, all active internal
-    groups are included.'''
-    choices = []
-    groups = get_groups_for_person(user.person if user else None)
-    main = [ (g.pk, 'The {}'.format(g.acronym.upper())) for g in groups.filter(acronym__in=('ietf','iesg','iab')) ]
-    areas = [ (g.pk, '{} - {}'.format(g.acronym,g.name)) for g in groups.filter(type='area') ]
-    wgs = [ (g.pk, '{} - {}'.format(g.acronym,g.name)) for g in groups.filter(type='wg') ]
-    choices.append(('Main IETF Entities', main))
-    choices.append(('IETF Areas', areas))
-    choices.append(('IETF Working Groups', wgs ))
-    return choices
-
-
-def get_groups_for_person(person):
-    '''Returns queryset of Groups the person has interesting roles in.
-    This is a refactor of IETFHierarchyManager.get_entities_for_person().  If Person
-    is None or Secretariat or Liaison Manager all internal IETF groups are returned.
-    '''
-    if person == None or has_role(person.user, "Secretariat") or has_role(person.user, "Liaison Manager"):
-        # collect all internal IETF groups
-        queries = [Q(acronym__in=('ietf','iesg','iab')),
-                   Q(type='area',state='active'),
-                   Q(type='wg',state='active')]
-    else:
-        # Interesting roles, as Group queries
-        queries = [Q(role__person=person,role__name='chair',acronym='ietf'),
-                   Q(role__person=person,role__name__in=('chair','execdir'),acronym='iab'),
-                   Q(role__person=person,role__name='ad',type='area',state='active'),
-                   Q(role__person=person,role__name__in=('chair','secretary'),type='wg',state='active')]
-    return Group.objects.filter(reduce(operator.or_,queries)).order_by('acronym').distinct()
     

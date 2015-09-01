@@ -76,14 +76,13 @@ def liaison_form_factory(request, **kwargs):
     NOTE: URL argument "?incoming=1" supported for backwards compatibility
     """
     user = request.user
-    force_incoming = 'incoming' in request.GET.keys()
     liaison = kwargs.pop('liaison', None)
     type = kwargs.pop('type', None)
     if liaison:
         return EditLiaisonForm(user, instance=liaison, **kwargs)
-    if (force_incoming or type == 'incoming') and can_add_incoming_liaison(user):
+    if type == 'incoming' and can_add_incoming_liaison(user):
         return IncomingLiaisonForm(user, **kwargs)
-    elif can_add_outgoing_liaison(user):
+    if type == 'outgoing' and can_add_outgoing_liaison(user):
         return OutgoingLiaisonForm(user, **kwargs)
     return None
 
@@ -276,9 +275,10 @@ class LiaisonModelForm(BetterModelForm):
         
         # set state for new statements
         if self.is_new:
-            self.instance.do_submit(self.person)
+            #assert False, (self.instance.state_id, self.instance.state)
+            self.instance.change_state(state_id='pending',person=self.person)
             if self.is_approved():
-                self.instance.do_post(self.person)
+                self.instance.change_state(state_id='posted',person=self.person)
         else:
             # create modified event
             LiaisonStatementEvent.objects.create(
@@ -442,7 +442,7 @@ class OutgoingLiaisonForm(LiaisonModelForm):
     def set_to_fields(self):
         '''Set to_groups and to_contacts options and initial value based on user
         accessing the form'''
-        # if the user is a Liaison Manager and nothing more, reduce to set to his SDOs
+        # set options. if the user is a Liaison Manager and nothing more, reduce set to his SDOs
         if has_role(self.user, "Liaison Manager") and not self.person.role_set.filter(name__in=('ad','chair'),group__state='active'):
             queryset = Group.objects.filter(type="sdo", state="active", role__person=self.person, role__name="liaiman").distinct().order_by('name')
         else:
@@ -451,9 +451,10 @@ class OutgoingLiaisonForm(LiaisonModelForm):
         
         self.fields['to_groups'].queryset = queryset
         
-        if len(queryset) == 1:
-            self.fields['to_groups'].initial = queryset
-            
+        # set initial
+        if has_role(self.user, "Liaison Manager"):
+            self.fields['to_groups'].initial = [queryset.first()]
+
 class EditLiaisonForm(LiaisonModelForm):
     def __init__(self, *args, **kwargs):
         super(EditLiaisonForm, self).__init__(*args, **kwargs)

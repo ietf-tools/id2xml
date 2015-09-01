@@ -51,7 +51,7 @@ class SearchableLiaisonStatementsField(forms.CharField):
         
         # doing this in the constructor is difficult because the URL
         # patterns may not have been fully constructed there yet
-        self.widget.attrs["data-ajax-url"] = urlreverse("ajax_select2_search_liaison_statements")
+        self.widget.attrs["data-ajax-url"] = urlreverse("ietf.liaisons.views.ajax_select2_search_liaison_statements")
 
         return u",".join(unicode(o.pk) for o in value)
         #return value

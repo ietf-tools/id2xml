@@ -100,7 +100,7 @@
         <th class="text-nowrap">Liaisons referring to this</th>
         <td>
           {% for rel in relations %}
-            <a href="{% url "liaison_detail" rel.pk %}">
+            <a href="{% url "ietf.liaisons.views.liaison_detail" rel.pk %}">
 	      {% if rel.title %}{{ rel.title }}{% else %}Liaison #{{ rel.pk }}{% endif %}
             </a>
             <br>
@@ -114,7 +114,7 @@
         <tr>
           <th class="text-nowrap">Referenced liaison</th>
           <td>
-            <a href="{% url "liaison_detail" liaison.related_to.pk %}">
+            <a href="{% url "ietf.liaisons.views.liaison_detail" liaison.related_to.pk %}">
 	      {% if liaison.related_to.title %}{{ liaison.related_to.title }}{% else %}Liaison #{{ liaison.related_to.pk }}{% endif %}
             </a>
           </td>
@@ -146,7 +146,7 @@
   <th class="text-nowrap">Liaisons referred by this one</th>
   <td>
     {% for rel in relations_by %}
-      <a href="{% url "liaison_detail" rel.pk %}">{% if rel.title %}{{ rel.title }}{% else %}Liaison #{{ rel.pk }}{% endif %}</a><br />
+      <a href="{% url "ietf.liaisons.views.liaison_detail" rel.pk %}">{% if rel.title %}{{ rel.title }}{% else %}Liaison #{{ rel.pk }}{% endif %}</a><br />
     {% endfor %}
   </td>
 </tr>
@@ -157,7 +157,7 @@
   <th class="text-nowrap">Liaisons referring to this one</th>
   <td>
     {% for rel in relations_to %}
-      <a href="{% url "liaison_detail" rel.pk %}">{% if rel.title %}{{ rel.title }}{% else %}Liaison #{{ rel.pk }}{% endif %}</a><br />
+      <a href="{% url "ietf.liaisons.views.liaison_detail" rel.pk %}">{% if rel.title %}{{ rel.title }}{% else %}Liaison #{{ rel.pk }}{% endif %}</a><br />
     {% endfor %}
   </td>
 </tr>
@@ -177,13 +177,13 @@
 <p>
   <form method="post">
   {% csrf_token %}
-  {% if liaison.state.slug != 'dead' and can_edit %}<a class="btn btn-default" href="{% url "liaison_edit" object_id=liaison.pk %}">Edit liaison</a>{% endif %}
+  {% if liaison.state.slug != 'dead' and can_edit %}<a class="btn btn-default" href="{% url "ietf.liaisons.views.liaison_edit" object_id=liaison.pk %}">Edit liaison</a>{% endif %}
   {% if liaison.state.slug == 'pending' and can_edit %}
     <input class="btn btn-default" type="submit" value="Approve" name='approved' />
     <input class="btn btn-default" type="submit" value="Mark as Dead" name='dead' />
   {% endif %}
   {% if liaison.state.slug == 'posted' and  user|has_role:"Secretariat" %}
-    <a class="btn btn-default" href="{% url "liaison_resend" object_id=liaison.pk %}">Resend statement</a>
+    <a class="btn btn-default" href="{% url "ietf.liaisons.views.liaison_resend" object_id=liaison.pk %}">Resend statement</a>
   {% endif %}
   {% if liaison.state.slug == 'dead' and can_edit %}
     <input class="btn btn-default" type="submit" value="Resurrect" name='resurrect' />

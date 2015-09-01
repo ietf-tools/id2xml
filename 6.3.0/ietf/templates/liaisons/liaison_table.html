@@ -37,7 +37,7 @@
                     <br>
                 {% endfor %}
             {% else %}
-                <a href="{% url "liaison_detail" object_id=liaison.pk %}">{{ liaison.title }}</a>
+                <a href="{% url "ietf.liaisons.views.liaison_detail" object_id=liaison.pk %}">{{ liaison.title }}</a>
             {% endif %}
           </td>
         </tr>

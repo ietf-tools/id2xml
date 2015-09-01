@@ -12,6 +12,17 @@ from ietf.name.models import (LiaisonStatementPurposeName, LiaisonStatementState
 from ietf.doc.models import Document
 from ietf.group.models import Group
 
+# maps (previous state id, new state id) to event type id
+STATE_EVENT_MAPPING = {
+    (u'pending','approved'):'approved',
+    (u'pending','dead'):'killed',
+    (u'pending','posted'):'posted',
+    (u'approved','posted'):'posted',
+    (u'dead','pending'):'resurrected',
+    (u'pending','pending'):'submitted'
+}
+
+
 class LiaisonStatement(models.Model):
     title = models.CharField(blank=True, max_length=255)
     from_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonstatement_from_set')
@@ -40,58 +51,21 @@ class LiaisonStatement(models.Model):
     def __unicode__(self):
         return self.title or u"<no title>"
 
-    def do_approve(self, person):
-        """Change to approved state, create event"""
-        self.set_state('approved')
+    def change_state(self,state_id=None,person=None):
+        '''Helper function to change state of liaison statement and create appropriate
+        event'''
+        previous_state_id = self.state_id
+        self.set_state(state_id)
+        event_type_id = STATE_EVENT_MAPPING[(previous_state_id,state_id)]
         LiaisonStatementEvent.objects.create(
-            type_id='approved',
+            type_id=event_type_id,
             by=person,
             statement=self,
-            desc='Statement Approved'
-        )
-    
-    def do_kill(self, person):
-        """Change to dead state, create event"""
-        self.set_state('dead')
-        LiaisonStatementEvent.objects.create(
-            type_id='killed',
-            by=person,
-            statement=self,
-            desc='Statement Killed'
-        )
-        
-    def do_post(self, person):
-        """Change to posted state, create event"""
-        self.set_state('posted')
-        LiaisonStatementEvent.objects.create(
-            type_id='posted',
-            by=person,
-            statement=self,
-            desc='Statement Posted'
-        )
-    
-    def do_resurrect(self, person):
-        """Change to pending pending, create event"""
-        self.set_state('pending')
-        LiaisonStatementEvent.objects.create(
-            type_id='resurrected',
-            by=person,
-            statement=self,
-            desc='Statement Resurrected'
-        )
-    
-    def do_submit(self, person):
-        """Change to pending state, create event"""
-        self.set_state('pending')
-        LiaisonStatementEvent.objects.create(
-            type_id='submitted',
-            by=person,
-            statement=self,
-            desc='Statement Submitted'
+            desc='Statement {}'.format(event_type_id.capitalize())
         )
 
     def get_absolute_url(self):
-        return settings.IDTRACKER_BASE_URL + urlreverse('liaison_detail',kwargs={'object_id':self.id})
+        return settings.IDTRACKER_BASE_URL + urlreverse('ietf.liaisons.views.liaison_detail',kwargs={'object_id':self.id})
 
     def is_outgoing(self):
         return self.to_groups.first().type_id == 'sdo'
@@ -190,7 +164,8 @@ class LiaisonStatement(models.Model):
             return
         self.state = state
         self.save()
-        
+
+
 class LiaisonStatementAttachment(models.Model):
     statement = models.ForeignKey(LiaisonStatement)
     document = models.ForeignKey(Document)

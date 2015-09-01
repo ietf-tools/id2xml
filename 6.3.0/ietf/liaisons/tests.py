@@ -106,7 +106,7 @@ class LiaisonTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
 
-        r = self.client.get(urlreverse('liaison_list'))
+        r = self.client.get(urlreverse('ietf.liaisons.views.liaison_list'))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
@@ -114,7 +114,7 @@ class LiaisonTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
 
-        r = self.client.get(urlreverse("liaison_detail", kwargs={ 'object_id': liaison.pk }))
+        r = self.client.get(urlreverse("ietf.liaisons.views.liaison_detail", kwargs={ 'object_id': liaison.pk }))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
@@ -144,7 +144,7 @@ class LiaisonTests(TestCase):
 
         r = self.client.get('/sitemap-liaison.xml')
         self.assertEqual(r.status_code, 200)
-        self.assertTrue(urlreverse("liaison_detail", kwargs={ 'object_id': liaison.pk }) in r.content)
+        self.assertTrue(urlreverse("ietf.liaisons.views.liaison_detail", kwargs={ 'object_id': liaison.pk }) in r.content)
 
     def test_help_pages(self):
         self.assertEqual(self.client.get('/liaison/help/').status_code, 200)
@@ -167,7 +167,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('ajax_get_liaison_info') + "?to_groups=&from_groups="
+        url = urlreverse('ietf.liaisons.views.ajax_get_liaison_info') + "?to_groups=&from_groups="
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -185,7 +185,7 @@ class LiaisonManagementTests(TestCase):
         group = liaison.to_groups.first()
         LiaisonStatementGroupContacts.objects.create(group=group,contacts='test@example.com')
         
-        url = urlreverse('ajax_get_liaison_info') + "?to_groups={}&from_groups=".format(group.pk)
+        url = urlreverse('ietf.liaisons.views.ajax_get_liaison_info') + "?to_groups={}&from_groups=".format(group.pk)
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -197,7 +197,7 @@ class LiaisonManagementTests(TestCase):
         make_liaison_models()
         
         # incoming restrictions
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -208,7 +208,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_detail', kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_detail', kwargs=dict(object_id=liaison.pk))
         # normal get
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -243,14 +243,14 @@ class LiaisonManagementTests(TestCase):
         liaison.save()
 
         # check the overview page
-        url = urlreverse('liaison_list', kwargs=dict(state='pending'))
+        url = urlreverse('ietf.liaisons.views.liaison_list', kwargs=dict(state='pending'))
         login_testing_unauthorized(self, "ad", url)
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(liaison.title in r.content)
 
         # check the detail page / unauthorized
-        url = urlreverse('liaison_detail', kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_detail', kwargs=dict(object_id=liaison.pk))
         self.client.logout()
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -288,7 +288,7 @@ class LiaisonManagementTests(TestCase):
         from_group = liaison.from_groups.first()
         to_group = liaison.to_groups.first()
         
-        url = urlreverse('liaison_edit', kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_edit', kwargs=dict(object_id=liaison.pk))
         login_testing_unauthorized(self, "secretary", url)
 
         # get
@@ -348,7 +348,7 @@ class LiaisonManagementTests(TestCase):
         '''
         make_test_data()
         make_liaison_models()
-        url = urlreverse('liaison_list')
+        url = urlreverse('ietf.liaisons.views.liaison_list')
         
         # public user no access
         r = self.client.get(url)
@@ -387,7 +387,7 @@ class LiaisonManagementTests(TestCase):
     def test_outgoing_access(self):
         make_test_data()
         make_liaison_models()
-        url = urlreverse('liaison_list')
+        url = urlreverse('ietf.liaisons.views.liaison_list')
         
         # public user no access
         r = self.client.get(url)
@@ -462,7 +462,7 @@ class LiaisonManagementTests(TestCase):
         '''Check from_groups, to_groups options for different user classes'''
         make_test_data()
         make_liaison_models()
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         
         # get count of all IETF entities for to_group options
         top = Q(acronym__in=('ietf','iesg','iab'))
@@ -494,7 +494,7 @@ class LiaisonManagementTests(TestCase):
     def test_outgoing_options(self):
         make_test_data()
         make_liaison_models()
-        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'outgoing'})
         
         # get count of all IETF entities for to_group options
         top = Q(acronym__in=('ietf','iesg','iab'))
@@ -535,7 +535,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
 
         # get
@@ -610,7 +610,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'outgoing'})
         login_testing_unauthorized(self, "secretary", url)
 
         # get
@@ -684,7 +684,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'outgoing'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'outgoing'})
         login_testing_unauthorized(self, "secretary", url)
 
         # add new
@@ -715,7 +715,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_add',kwargs=dict(type='incoming'))
+        url = urlreverse('ietf.liaisons.views.liaison_add',kwargs=dict(type='incoming'))
         login_testing_unauthorized(self, "secretary", url)
         data = get_liaison_post_data()
         data['purpose'] = 'response'
@@ -729,7 +729,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_history',kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_history',kwargs=dict(object_id=liaison.pk))
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
@@ -740,7 +740,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         liaison = make_liaison_models()
         
-        url = urlreverse('liaison_resend',kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_resend',kwargs=dict(object_id=liaison.pk))
         login_testing_unauthorized(self, "secretary", url)
 
         mailbox_before = len(outbox)
@@ -758,7 +758,7 @@ class LiaisonManagementTests(TestCase):
         liaison.from_groups.add(Group.objects.get(acronym="mars"))
         liaison.set_state('pending')
 
-        url = urlreverse('liaison_detail', kwargs=dict(object_id=liaison.pk))
+        url = urlreverse('ietf.liaisons.views.liaison_detail', kwargs=dict(object_id=liaison.pk))
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.post(url, dict(dead="1"))
         self.assertEqual(r.status_code, 200)
@@ -773,7 +773,7 @@ class LiaisonManagementTests(TestCase):
         liaison = make_liaison_models()
         liaison.set_state('dead')
         
-        url = urlreverse('liaison_list', kwargs=dict(state='dead'))
+        url = urlreverse('ietf.liaisons.views.liaison_list', kwargs=dict(state='dead'))
         login_testing_unauthorized(self, "secretary", url)
         r = self.client.get(url)
         q = PyQuery(r.content)
@@ -786,7 +786,7 @@ class LiaisonManagementTests(TestCase):
         liaison = make_liaison_models()
         
         # test list only, no search filters
-        url = urlreverse('liaison_list')
+        url = urlreverse('ietf.liaisons.views.liaison_list')
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
@@ -794,28 +794,28 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(len(q('tr')),3)        # two results
         
         # test 0 results
-        url = urlreverse('liaison_list') + "?text=gobbledygook&source=&destination=&start_date=&end_date="
+        url = urlreverse('ietf.liaisons.views.liaison_list') + "?text=gobbledygook&source=&destination=&start_date=&end_date="
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(q('tr')),1)        # no results, only the header row
         
         # test body text
-        url = urlreverse('liaison_list') + "?text=recently&source=&destination=&start_date=&end_date="
+        url = urlreverse('ietf.liaisons.views.liaison_list') + "?text=recently&source=&destination=&start_date=&end_date="
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(q('tr')),2)        # one result
         
         # test from group
-        url = urlreverse('liaison_list') + "?text=&source=ulm&destination=&start_date=&end_date="
+        url = urlreverse('ietf.liaisons.views.liaison_list') + "?text=&source=ulm&destination=&start_date=&end_date="
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(q('tr')),2)        # one result
         
         # test start date
-        url = urlreverse('liaison_list') + "?text=&source=&destination=&start_date=2015-01-01&end_date="
+        url = urlreverse('ietf.liaisons.views.liaison_list') + "?text=&source=&destination=&start_date=2015-01-01&end_date="
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
@@ -828,7 +828,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "ulm-liaiman", url)
         
         r = self.client.post(url,get_liaison_post_data(),follow=True)
@@ -844,7 +844,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
         
         post_data = get_liaison_post_data()
@@ -866,7 +866,7 @@ class LiaisonManagementTests(TestCase):
         make_test_data()
         make_liaison_models()
         
-        url = urlreverse('liaison_add', kwargs={'type':'incoming'})
+        url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
         login_testing_unauthorized(self, "secretary", url)
         
         post_data = get_liaison_post_data()

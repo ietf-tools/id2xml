@@ -128,8 +128,8 @@ def get_details_tabs(stmt, selected):
     return [
         t + (t[0].lower() == selected.lower(),)
         for t in [
-        ('Statement', urlreverse('liaison_detail', kwargs={ 'object_id': stmt.pk })),
-        ('History', urlreverse('liaison_history', kwargs={ 'object_id': stmt.pk }))
+        ('Statement', urlreverse('ietf.liaisons.views.liaison_detail', kwargs={ 'object_id': stmt.pk })),
+        ('History', urlreverse('ietf.liaisons.views.liaison_history', kwargs={ 'object_id': stmt.pk }))
     ]]
 
 def needs_approval(group,person):
@@ -234,13 +234,6 @@ def ajax_select2_search_liaison_statements(request):
     return HttpResponse(select2_id_liaison_json(objs), content_type='application/json')
 
 
-def ajax_liaison_list(request):
-    liaisons = SearchLiaisonForm().get_results()
-
-    return render_to_response('liaisons/liaison_table.html', {
-        "liaisons": liaisons,
-    }, context_instance=RequestContext(request))
-
 # -------------------------------------------------
 # Redirects for backwards compatibility
 # -------------------------------------------------
@@ -248,9 +241,9 @@ def ajax_liaison_list(request):
 def redirect_add(request):
     """Redirects old add urls"""
     if 'incoming' in request.GET.keys():
-        return redirect('ietf.liaisons.views.add_liaison', type='incoming')
+        return redirect('ietf.liaisons.views.liaison_add', type='incoming')
     else:
-        return redirect('ietf.liaisons.views.add_liaison', type='outgoing')
+        return redirect('ietf.liaisons.views.liaison_add', type='outgoing')
         
 def redirect_for_approval(request, object_id=None):
     """Redirects old approval urls"""
@@ -264,12 +257,11 @@ def redirect_for_approval(request, object_id=None):
 # -------------------------------------------------
 
 @can_submit_liaison_required
-def add_liaison(request, liaison=None, type=None):
+def liaison_add(request, liaison=None, type=None):
     if 'incoming' in request.GET.keys() and not can_add_incoming_liaison(request.user):
         return HttpResponseForbidden("Restricted to users who are authorized to submit incoming liaison statements")
     
     if request.method == 'POST':
-        #assert False, (request.POST,request.FILES)
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files=request.FILES, liaison=liaison, type=type)
         
@@ -282,7 +274,7 @@ def add_liaison(request, liaison=None, type=None):
             elif liaison.state.slug == 'pending':
                 notify_pending_by_email(request, liaison)
             
-            return redirect('liaison_detail', object_id=liaison.pk)
+            return redirect('ietf.liaisons.views.liaison_detail', object_id=liaison.pk)
             
     else:
         form = liaison_form_factory(request, liaison=liaison,type=type)
@@ -322,24 +314,25 @@ def liaison_delete_attachment(request, object_id, attach_id):
         desc='Attachment Removed: {}'.format(attach.document.title)
     )
     messages.success(request, 'Attachment Deleted')
-    return redirect('liaison_detail', object_id=liaison.pk)
+    return redirect('ietf.liaisons.views.liaison_detail', object_id=liaison.pk)
 
 def liaison_detail(request, object_id):
     liaison = get_object_or_404(LiaisonStatement, pk=object_id)
     can_edit = request.user.is_authenticated() and can_edit_liaison(request.user, liaison)
     can_take_care = _can_take_care(liaison, request.user)
-
+    person = get_person_for_user(request.user)
+    
     if request.method == 'POST':
         if request.POST.get('approved'):
-            liaison.do_approve(get_person_for_user(request.user))
-            liaison.do_post(get_person_for_user(request.user))
+            liaison.change_state(state_id='approved',person=person)
+            liaison.change_state(state_id='posted',person=person)
             send_liaison_by_email(request, liaison)
             messages.success(request,'Liaison Statement Approved and Posted')
         elif request.POST.get('dead'):
-            liaison.do_kill(get_person_for_user(request.user))
+            liaison.change_state(state_id='dead',person=person)
             messages.success(request,'Liaison Statement Killed')
         elif request.POST.get('resurrect'):
-            liaison.do_resurrect(get_person_for_user(request.user))
+            liaison.change_state(state_id='pending',person=person)
             messages.success(request,'Liaison Statement Resurrected')
         elif request.POST.get('do_action_taken') and can_take_care:
             liaison.tags.remove('required')
@@ -347,7 +340,7 @@ def liaison_detail(request, object_id):
             can_take_care = False
             messages.success(request,'Action handled')
             
-        #return redirect('liaison_list')
+        #return redirect('ietf.liaisons.views.liaison_list')
         
     relations_by = [i.target for i in liaison.source_of_set.filter(target__state__slug='posted')]
     relations_to = [i.source for i in liaison.target_of_set.filter(source__state__slug='posted')]
@@ -365,7 +358,7 @@ def liaison_edit(request, object_id):
     liaison = get_object_or_404(LiaisonStatement, pk=object_id)
     if not (request.user.is_authenticated() and can_edit_liaison(request.user, liaison)):
         return HttpResponseForbidden('You do not have permission to edit this liaison statement')
-    return add_liaison(request, liaison=liaison)
+    return liaison_add(request, liaison=liaison)
 
 @role_required('Secretariat','Liaison Manager')
 def liaison_edit_attachment(request, object_id, doc_id):
@@ -387,7 +380,7 @@ def liaison_edit_attachment(request, object_id, doc_id):
                 desc='Attachment Title changed to {}'.format(title)
             )
             messages.success(request,'Attachment title changed')
-            return redirect('liaison_detail', object_id=liaison.pk)
+            return redirect('ietf.liaisons.views.liaison_detail', object_id=liaison.pk)
             
     else:
         form = EditAttachmentForm(initial={'title':doc.title})
@@ -440,9 +433,9 @@ def liaison_list(request, state='posted'):
     # add menu actions
     actions = []
     if can_add_incoming_liaison(request.user):
-        actions.append(("New incoming liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'incoming'})))
+        actions.append(("New incoming liaison", urlreverse("ietf.liaisons.views.liaison_add", kwargs={'type':'incoming'})))
     if can_add_outgoing_liaison(request.user):
-        actions.append(("New outgoing liaison", urlreverse("ietf.liaisons.views.add_liaison", kwargs={'type':'outgoing'})))
+        actions.append(("New outgoing liaison", urlreverse("ietf.liaisons.views.liaison_add", kwargs={'type':'outgoing'})))
         
     return render(request, 'liaisons/liaison_base.html',  {
         'liaisons':liaisons,
@@ -461,5 +454,5 @@ def liaison_resend(request, object_id):
     send_liaison_by_email(request,liaison)
     LiaisonStatementEvent.objects.create(type_id='resent',by=person,statement=liaison,desc='Statement Resent')
     messages.success(request,'Liaison Statement resent')
-    return redirect('liaison_list')
+    return redirect('ietf.liaisons.views.liaison_list')
     

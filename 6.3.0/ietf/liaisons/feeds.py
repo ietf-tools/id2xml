@@ -16,7 +16,7 @@ from ietf.liaisons.models import LiaisonStatement
 # to construct a queryset.
 class LiaisonStatementsFeed(Feed):
     feed_type = Atom1Feed
-    link = reverse_lazy("liaison_list")
+    link = reverse_lazy("ietf.liaisons.views.liaison_list")
     description_template = "liaisons/feed_item_description.html"
 
     def get_object(self, request, kind, search=None):
@@ -93,7 +93,7 @@ class LiaisonStatementsFeed(Feed):
         return render_to_string("liaisons/liaison_title.html", { 'liaison': item }).strip()
 
     def item_link(self, item):
-        return urlreverse("liaison_detail", kwargs={ "object_id": item.pk })
+        return urlreverse("ietf.liaisons.views.liaison_detail", kwargs={ "object_id": item.pk })
 
     def item_pubdate(self, item):
         # this method needs to return a datetime instance, even

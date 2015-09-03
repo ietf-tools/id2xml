@@ -33,7 +33,7 @@
           <td>
             {% if not liaison.from_contact_id %}
                 {% for doc in liaison.attachments.all %}
-                    <a href="https://datatracker.ietf.org/documents/LIAISON/{{ doc.external_url }}">{{ doc.title }}</a>
+                    <a href="{{ doc.href }}">{{ doc.title }}</a>
                     <br>
                 {% endfor %}
             {% else %}

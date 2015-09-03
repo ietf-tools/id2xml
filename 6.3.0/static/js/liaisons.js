@@ -182,9 +182,9 @@ var liaisonForm = {
 
     checkPostOnly : function(post_only) {
         if (post_only) {
-            $("input[name=send]").hide();
+            $("button[name=send]").hide();
         } else {
-            $("input[name=send]").show();
+            $("button[name=send]").show();
         }
     },
 
@@ -214,7 +214,6 @@ var liaisonForm = {
                         liaisonForm.response_contacts.val(response.response_contacts);
                     }
                     liaisonForm.checkPostOnly(response.post_only);
-                    // if (sender.hasClass('from-group-field')) {userSelect(sender,response.full_list);}
                 }
             }
         });

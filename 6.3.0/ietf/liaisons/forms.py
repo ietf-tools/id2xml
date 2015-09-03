@@ -1,8 +1,8 @@
 import datetime, os
 import operator
+import six
 from email.utils import parseaddr
 from form_utils.forms import BetterModelForm
-from itertools import chain
 
 from django import forms
 from django.conf import settings
@@ -20,9 +20,7 @@ import debug                            # pyflakes:ignore
 
 from ietf.ietfauth.utils import has_role
 from ietf.name.models import DocRelationshipName
-from ietf.liaisons.utils import (can_add_outgoing_liaison,can_add_incoming_liaison,
-    get_person_for_user,is_authorized_individual)
-#from ietf.liaisons.utils import IETFHM
+from ietf.liaisons.utils import get_person_for_user,is_authorized_individual
 from ietf.liaisons.widgets import ButtonWidget,ShowAttachmentsWidget
 from ietf.liaisons.models import (LiaisonStatement, 
     LiaisonStatementEvent,LiaisonStatementAttachment,LiaisonStatementPurposeName)
@@ -72,17 +70,15 @@ def get_groups_for_person(person):
     return Group.objects.filter(reduce(operator.or_,queries)).order_by('acronym').distinct()
 
 def liaison_form_factory(request, **kwargs):
-    """Returns appropriate Liaison entry form.
-    NOTE: URL argument "?incoming=1" supported for backwards compatibility
-    """
+    """Returns appropriate Liaison entry form"""
     user = request.user
     liaison = kwargs.pop('liaison', None)
     type = kwargs.pop('type', None)
     if liaison:
         return EditLiaisonForm(user, instance=liaison, **kwargs)
-    if type == 'incoming' and can_add_incoming_liaison(user):
+    if type == 'incoming':
         return IncomingLiaisonForm(user, **kwargs)
-    if type == 'outgoing' and can_add_outgoing_liaison(user):
+    if type == 'outgoing':
         return OutgoingLiaisonForm(user, **kwargs)
     return None
 

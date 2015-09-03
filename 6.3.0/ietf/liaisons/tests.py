@@ -12,8 +12,10 @@ from ietf.utils.test_utils import TestCase, login_testing_unauthorized
 from ietf.utils.test_data import make_test_data, create_person
 from ietf.utils.mail import outbox
 
+from ietf.doc.models import Document
 from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementPurposeName,
-    LiaisonStatementState, LiaisonStatementEvent, LiaisonStatementGroupContacts)
+    LiaisonStatementState, LiaisonStatementEvent, LiaisonStatementGroupContacts,
+    LiaisonStatementAttachment)
 from ietf.person.models import Person, Email
 from ietf.group.models import Group
 from ietf.liaisons.mails import send_sdo_reminder, possibly_send_deadline_reminder
@@ -60,6 +62,8 @@ def make_liaison_models():
     
     LiaisonStatementEvent.objects.create(type_id='submitted',by=by,statement=s,desc='Statement Submitted')
     LiaisonStatementEvent.objects.create(type_id='posted',by=by,statement=s,desc='Statement Posted')
+    doc = Document.objects.first()
+    LiaisonStatementAttachment.objects.create(statement=s,document=doc)
     
     # add an outgoing liaison (dated 2010)
     s2 = LiaisonStatement.objects.create(
@@ -682,7 +686,7 @@ class LiaisonManagementTests(TestCase):
 
     def test_add_outgoing_liaison_unapproved_post_only(self):
         make_test_data()
-        liaison = make_liaison_models()
+        make_liaison_models()
         
         url = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'outgoing'})
         login_testing_unauthorized(self, "secretary", url)
@@ -710,10 +714,66 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(l.state.slug,'pending')
         self.assertEqual(len(outbox), mailbox_before + 1)
 
+    def test_liaison_add_attachment(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        
+        # get minimum edit post data
+        file = StringIO('dummy file')
+        file.name = "upload.txt"
+        post_data = dict(
+            from_groups = ','.join([ str(x.pk) for x in liaison.from_groups.all() ]),
+            from_contact = liaison.from_contact.address,
+            to_groups = ','.join([ str(x.pk) for x in liaison.to_groups.all() ]),
+            purpose = liaison.purpose.slug,
+            deadline = liaison.deadline,
+            title = liaison.title,
+            submitted_date = liaison.submitted.strftime('%Y-%m-%d'),
+            body = liaison.body,
+            attach_title_1 = 'Test Attachment',
+            attach_file_1 = file,
+        )
+
+        url = urlreverse('ietf.liaisons.views.liaison_edit', kwargs=dict(object_id=liaison.pk))
+        login_testing_unauthorized(self, "secretary", url)
+        r = self.client.post(url,post_data)
+        if r.status_code != 302:
+            q = PyQuery(r.content)
+            print(q('div.has-error span.help-block div').text())
+            print r.content
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(liaison.attachments.count(),2)
+        event = liaison.liaisonstatementevent_set.order_by('id').last()
+        self.assertTrue(event.desc.startswith('Added attachment'))
+        
+    def test_liaison_edit_attachment(self):
+        make_test_data()
+        make_liaison_models()
+        
+        attachment = LiaisonStatementAttachment.objects.first()
+        url = urlreverse('ietf.liaisons.views.liaison_edit_attachment', kwargs=dict(object_id=attachment.statement_id,doc_id=attachment.document_id))
+        login_testing_unauthorized(self, "secretary", url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        post_data = dict(title='New Title')
+        r = self.client.post(url,post_data)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(attachment.document.title,'New Title')
+        
+    def test_liaison_delete_attachment(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        attachment = LiaisonStatementAttachment.objects.get(statement=liaison)
+        url = urlreverse('ietf.liaisons.views.liaison_delete_attachment', kwargs=dict(object_id=liaison.pk,attach_id=attachment.pk))
+        login_testing_unauthorized(self, "secretary", url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(liaison.liaisonstatementattachment_set.filter(removed=False).count(),0)
+
     def test_in_response(self):
         '''A statement with purpose=in_response must have related statement specified'''
         make_test_data()
-        liaison = make_liaison_models()
+        make_liaison_models()
         
         url = urlreverse('ietf.liaisons.views.liaison_add',kwargs=dict(type='incoming'))
         login_testing_unauthorized(self, "secretary", url)
@@ -783,14 +843,13 @@ class LiaisonManagementTests(TestCase):
         
     def test_search(self):
         make_test_data()
-        liaison = make_liaison_models()
+        make_liaison_models()
         
         # test list only, no search filters
         url = urlreverse('ietf.liaisons.views.liaison_list')
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
-        count = LiaisonStatement.objects.filter(state='posted').count()
         self.assertEqual(len(q('tr')),3)        # two results
         
         # test 0 results
@@ -798,7 +857,7 @@ class LiaisonManagementTests(TestCase):
         r = self.client.get(url)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(q('tr')),1)        # no results, only the header row
+        self.assertEqual(len(q('tr')),0)        # no results
         
         # test body text
         url = urlreverse('ietf.liaisons.views.liaison_list') + "?text=recently&source=&destination=&start_date=&end_date="
@@ -820,6 +879,28 @@ class LiaisonManagementTests(TestCase):
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(len(q('tr')),2)        # one result
+        
+    # -------------------------------------------------
+    # Test Redirects
+    # -------------------------------------------------
+    def test_redirect_add(self):
+        self.client.login(username="secretary", password="secretary+password")
+        url = urlreverse('ietf.liaisons.views.redirect_add')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+        
+    def test_redirect_for_approval(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        liaison.set_state('pending')
+        
+        self.client.login(username="secretary", password="secretary+password")
+        url = urlreverse('ietf.liaisons.views.redirect_for_approval')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+        url = urlreverse('ietf.liaisons.views.redirect_for_approval', kwargs={'object_id':liaison.pk})
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
         
     # -------------------------------------------------
     # Form validations

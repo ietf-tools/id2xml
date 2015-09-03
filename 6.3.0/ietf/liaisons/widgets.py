@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
 from django.db.models.query import QuerySet
-from django.forms.widgets import Select, Widget, TextInput
+from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 from django.utils.html import conditional_escape
 
-from ietf.liaisons.models import LiaisonStatement
 
 """
 class ReadOnlyWidget(Widget):

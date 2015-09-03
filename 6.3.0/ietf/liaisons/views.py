@@ -12,11 +12,11 @@ from django.template import RequestContext
 from ietf.doc.models import Document
 from ietf.ietfauth.utils import role_required, has_role
 from ietf.group.models import Group
-from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementState, 
-    LiaisonStatementEvent,LiaisonStatementAttachment)
+from ietf.liaisons.models import (LiaisonStatement,LiaisonStatementEvent,
+    LiaisonStatementAttachment)
 from ietf.liaisons.utils import (get_person_for_user, can_add_outgoing_liaison,
     can_add_incoming_liaison, can_edit_liaison,can_submit_liaison_required,
-    approvable_liaison_statements, can_add_liaison)
+    can_add_liaison)
 from ietf.liaisons.forms import liaison_form_factory, SearchLiaisonForm, EditAttachmentForm
 from ietf.liaisons.mails import notify_pending_by_email, send_liaison_by_email
 from ietf.liaisons.fields import select2_id_liaison_json
@@ -32,6 +32,7 @@ EMAIL_ALIASES = {
 # Helper Functions
 # -------------------------------------------------
 def _can_take_care(liaison, user):
+    '''Returns True if user can take care of awaiting actions associated with this liaison'''
     if not liaison.deadline or liaison.action_taken:
         return False
 
@@ -43,11 +44,13 @@ def _can_take_care(liaison, user):
     return False
 
 def _find_person_in_emails(liaison, person):
+    '''Returns true if person corresponds with any of the email addresses associated
+    with this liaison statement'''
     if not person:
         return False
 
-    emails = ','.join(e for e in [liaison.cc_contacts, liaison.to_contacts,
-                                  liaison.technical_contacts] if e)
+    emails = ','.join(e for e in [liaison.response_contacts, liaison.cc_contacts, 
+                                  liaison.to_contacts,liaison.technical_contacts] if e)
     for email in emails.split(','):
         name, addr = parseaddr(email)
         try:
@@ -156,7 +159,13 @@ def normalize_sort(request):
     return sort, order_by
 
 def post_only(group,person):
-    if group.type_id == 'sdo' and not(has_role(person.user,"Secretariat") or group.role_set.filter(name='auth',person=person)):
+    '''Returns true if the user is restricted to post_only (vs. post_and_send) for this
+    group.  This is for incoming liaison statements.
+    Secretariat have full access.
+    Authorized Individuals have full access for the group they are associated with
+    Liaison Managers can post only
+    '''
+    if group.type_id == 'sdo' and ( not(has_role(person.user,"Secretariat") or group.role_set.filter(name='auth',person=person)) ):
         return True
     else:
         return False
@@ -258,10 +267,13 @@ def redirect_for_approval(request, object_id=None):
 
 @can_submit_liaison_required
 def liaison_add(request, liaison=None, type=None):
-    if 'incoming' in request.GET.keys() and not can_add_incoming_liaison(request.user):
+    if type == 'incoming' and not can_add_incoming_liaison(request.user):
         return HttpResponseForbidden("Restricted to users who are authorized to submit incoming liaison statements")
-    
+    if type == 'outgoing' and not can_add_outgoing_liaison(request.user):
+        return HttpResponseForbidden("Restricted to users who are authorized to submit outgoing liaison statements")
+        
     if request.method == 'POST':
+        #assert False, (request.POST, request.FILES)
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files=request.FILES, liaison=liaison, type=type)
         
@@ -298,10 +310,11 @@ def liaison_history(request, object_id):
         'selected_tab_entry':'history'
     })
 
-@role_required('Secretariat','Liaison Manager')
 def liaison_delete_attachment(request, object_id, attach_id):
     liaison = get_object_or_404(LiaisonStatement, pk=object_id)
     attach = get_object_or_404(LiaisonStatementAttachment, pk=attach_id)
+    if not ( request.user.is_authenticated() and can_edit_liaison(request.user, liaison) ):
+        return HttpResponseForbidden("You are not authorized for this action")
     
     attach.removed = True
     attach.save()
@@ -360,10 +373,11 @@ def liaison_edit(request, object_id):
         return HttpResponseForbidden('You do not have permission to edit this liaison statement')
     return liaison_add(request, liaison=liaison)
 
-@role_required('Secretariat','Liaison Manager')
 def liaison_edit_attachment(request, object_id, doc_id):
     liaison = get_object_or_404(LiaisonStatement, pk=object_id)
     doc = get_object_or_404(Document, pk=doc_id)
+    if not ( request.user.is_authenticated() and can_edit_liaison(request.user, liaison) ):
+        return HttpResponseForbidden("You are not authorized for this action")
     
     if request.method == 'POST':
         form = EditAttachmentForm(request.POST)
@@ -404,11 +418,13 @@ def liaison_list(request, state='posted'):
     # perform search / filter
     if 'text' in request.GET:
         form = SearchLiaisonForm(data=request.GET)
+        search_conducted = True
         if form.is_valid():
             results = form.get_results()
             liaisons = results
     else:
         form = SearchLiaisonForm()
+        search_conducted = False
     
     # perform sort
     sort, order_by = normalize_sort(request)
@@ -445,6 +461,8 @@ def liaison_list(request, state='posted'):
         'sort':sort,
         'form':form,
         'with_search':True,
+        'search_conducted':search_conducted,
+        'state':state,
     })
 
 @role_required('Secretariat',)

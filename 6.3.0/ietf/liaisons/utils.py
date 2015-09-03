@@ -25,10 +25,6 @@ def approval_roles(group):
             else:
                 return Role.objects.filter(group=group,**role_kwargs)
 
-def approvable_groups(user):
-    '''Returns groups that user has approval authority for'''
-    pass
-    
 def approvable_liaison_statements(user):
     '''Returns a queryset of Liaison Statements in pending state that user has authority
     to approve'''
@@ -37,24 +33,6 @@ def approvable_liaison_statements(user):
     if has_role(user, "Secretariat"):
         return liaisons
 
-    """
-    # get list of groups user can approve
-    # cycle through pending, if all from_groups in list capture id
-    # build new query of ids
-    approvable_groups = []
-    if has_role(user, "IETF Chair"):
-        approvable_groups.append(Group.objects.get(acronym='ietf'))
-    if has_role(user, "IAB Chair"):
-        approvable_groups.append(Group.objects.get(acronym='iab'))
-    #if has_role(user, "IESG Chair"):
-    #    approvable_groups.append(Group.objects.get(acronym='iesg'))
-    if has_role(user, "Area Director"):
-        area_roles = person.role_set.filter(name='ad',group__type='area',group__state='active')
-        for role in area_roles:
-            approvable_groups.append(role.group)    # append the area
-            approvable_groups.extend(role.group.group_set.filter(state='active'))   # append child working groups
-    """
-    
     approvable_liaisons = []
     for liaison in liaisons:
         for group in liaison.from_groups.all():

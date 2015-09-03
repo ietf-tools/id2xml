@@ -3,7 +3,7 @@
 {% load ietf_filters %}
 {% load bootstrap3 %}
 
-<form id="search_form" class="form-horizontal" action="{% url "ietf.liaisons.views.liaison_list" %}" method="get">
+<form id="search_form" class="form-horizontal" action="{% url "ietf.liaisons.views.liaison_list" state=state %}" method="get">
 
   <div class="input-group search_field">
     {{ form.text|add_class:"form-control"|attr:"placeholder:Title, body, identifiers, etc." }}

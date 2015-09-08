@@ -31,6 +31,15 @@ from ietf.person.fields import SearchableEmailField
 from ietf.doc.models import Document
 from ietf.utils.fields import DatepickerDateField
 
+'''
+NOTES:
+Authorized individuals are people (in our Person table) who are authorized to send
+messages on behalf of some other group - they have a formal role in the other group,
+whereas the liasion manager has a formal role with the IETF (or more correctly,
+with the IAB).
+'''
+
+
 # -------------------------------------------------
 # Helper Functions
 # -------------------------------------------------

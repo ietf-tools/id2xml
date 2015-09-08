@@ -32,7 +32,8 @@ class Migration(migrations.Migration):
             name='LiaisonStatementGroupContacts',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('contacts', models.CharField(max_length=255)),
+                ('contacts', models.CharField(max_length=255,blank=True)),
+                ('cc_contacts', models.CharField(max_length=255,blank=True)),
                 ('group', models.ForeignKey(to='group.Group', unique=True)),
             ],
             options={

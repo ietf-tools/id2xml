@@ -183,10 +183,11 @@ class RelatedLiaisonStatement(models.Model):
 
 class LiaisonStatementGroupContacts(models.Model):
     group = models.ForeignKey(Group, unique=True) 
-    contacts = models.CharField(max_length=255)
+    contacts = models.CharField(max_length=255,blank=True)
+    cc_contacts = models.CharField(max_length=255,blank=True)
 
     def __unicode__(self):
-        return u"{}:{}".format(self.group.name,self.contacts)
+        return u"%s" % self.group.name
 
 
 class LiaisonStatementEvent(models.Model):

@@ -135,6 +135,19 @@ def set_default_poc(apps, schema_editor):
             LiaisonStatementGroupContacts.objects.create(group=group,contacts=contacts)
 
 
+def set_cc_contacts(apps, schema_editor):
+    """Set initial LiaisonStatementGroupContacts.cc_contacts"""
+    LiaisonStatementGroupContacts = apps.get_model("liaisons", "LiaisonStatementGroupContacts")
+    Group = apps.get_model("group", "Group")
+    cc_contacts = 'itu-t-liaison@iab.org'
+    for group in Group.objects.filter(acronym__startswith='itu'):
+        lsgc = group.liaisonstatementgroupcontacts_set.first()
+        if lsgc:
+            lsgc.cc_contacts = cc_contacts
+            lsgc.save()
+        else:
+            LiaisonStatementGroupContacts.objects.create(group=group,cc_contacts=cc_contacts)
+
 def explicit_mappings(apps, schema_editor):
     """In some cases the to_name cannot be mapped one-to-one with a group.  The
     following liaison statements are modified individually
@@ -185,6 +198,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(copy_to_group),
         migrations.RunPython(copy_from_group),
         migrations.RunPython(set_default_poc),
+        migrations.RunPython(set_cc_contacts),
         migrations.RunPython(cleanup_groups),
         migrations.RunPython(explicit_mappings),
     ]
@@ -777,5 +791,4 @@ DEFAULT_POC = {
     'maawg':'Mike Adkins <madkins@fb.com>,technical-chair@mailman.m3aawg.org',
     'ecma-tc39':'John Neuman <johnneumann.openstrat@gmail.com>,Istvan Sebestyen <istvan@ecma-interational.org>',
 }
-    
     

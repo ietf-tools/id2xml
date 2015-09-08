@@ -79,6 +79,8 @@ def get_cc(group):
     get_cc() and get_from_cc()
     '''
     emails = []
+    
+    # role based CCs
     if group.acronym in ('ietf','iesg'):
         emails.append(EMAIL_ALIASES['IESG'])
         emails.append(EMAIL_ALIASES['IETFCHAIR'])
@@ -100,6 +102,11 @@ def get_cc(group):
     elif group.type_id == 'sdo':
         liaiman_roles = group.role_set.filter(name='liaiman')
         emails.extend([ '{} <{}>'.format(r.person.plain_name(),r.email.address) for r in liaiman_roles ])
+    
+    # explicit CCs
+    if group.liaisonstatementgroupcontacts_set.exists() and group.liaisonstatementgroupcontacts_set.first().cc_contacts:
+        emails = emails + group.liaisonstatementgroupcontacts_set.first().cc_contacts.split(',')
+
     return emails
 
 def get_contacts_for_group(group):
@@ -138,9 +145,10 @@ def get_details_tabs(stmt, selected):
 def needs_approval(group,person):
     '''Returns True if the person does not have authority to send a Liaison Statement
     from group.  For outgoing Liaison Statements only'''
-    if group.acronym in ('ietf','iesg') and has_role(person, 'IETF Chair'):
+    user = person.user
+    if group.acronym in ('ietf','iesg') and has_role(user, 'IETF Chair'):
         return False
-    if group.acronym == 'iab' and (has_role(person,'IAB Chair') or has_role(person,'IAB Executive Director')):
+    if group.acronym == 'iab' and (has_role(user,'IAB Chair') or has_role(user,'IAB Executive Director')):
         return False
     if group.type_id == 'area' and group.role_set.filter(name='ad',person=person):
         return False
@@ -273,7 +281,6 @@ def liaison_add(request, liaison=None, type=None):
         return HttpResponseForbidden("Restricted to users who are authorized to submit outgoing liaison statements")
         
     if request.method == 'POST':
-        #assert False, (request.POST, request.FILES)
         form = liaison_form_factory(request, data=request.POST.copy(),
                                     files=request.FILES, liaison=liaison, type=type)
         
@@ -283,8 +290,10 @@ def liaison_add(request, liaison=None, type=None):
             # notifications
             if 'send' in request.POST and liaison.state.slug == 'posted':
                 send_liaison_by_email(request, liaison)
+                messages.success(request, 'The statement has been sent and posted')
             elif liaison.state.slug == 'pending':
                 notify_pending_by_email(request, liaison)
+                messages.success(request, 'The statement has been submitted and is awaiting approval')
             
             return redirect('ietf.liaisons.views.liaison_detail', object_id=liaison.pk)
             

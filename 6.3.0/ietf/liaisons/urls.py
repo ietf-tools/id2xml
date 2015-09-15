@@ -26,6 +26,7 @@ urlpatterns += patterns('ietf.liaisons.views',
     (r'^(?P<object_id>\d+)/edit-attachment/(?P<doc_id>[A-Za-z0-9._+-]+)$', 'liaison_edit_attachment'),
     (r'^(?P<object_id>\d+)/delete-attachment/(?P<attach_id>[A-Za-z0-9._+-]+)$', 'liaison_delete_attachment'),
     (r'^(?P<object_id>\d+)/history/$', 'liaison_history'),
+    (r'^(?P<object_id>\d+)/reply/$', 'liaison_reply'),
     (r'^(?P<object_id>\d+)/resend/$', 'liaison_resend'),
     (r'^add/(?P<type>(incoming|outgoing))/$', 'liaison_add'),
 

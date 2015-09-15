@@ -29,17 +29,17 @@ class LiaisonStatement(models.Model):
     from_contact = models.ForeignKey(Email, blank=True, null=True)
     to_groups = models.ManyToManyField(Group, blank=True, related_name='liaisonstatement_to_set')
     to_contacts = models.CharField(blank=True, max_length=255, help_text="Contacts at recipient body")
-    
-    response_contacts = models.CharField(blank=True, max_length=255, help_text="Where to send a response") # RFC4053 
+
+    response_contacts = models.CharField(blank=True, max_length=255, help_text="Where to send a response") # RFC4053
     technical_contacts = models.CharField(blank=True, max_length=255, help_text="Who to contact for clarification") # RFC4053
     action_holder_contacts = models.CharField(blank=True, max_length=255, help_text="Who makes sure action is completed")  # incoming only?
     cc_contacts = models.TextField(blank=True)
-    
+
     purpose = models.ForeignKey(LiaisonStatementPurposeName)
     deadline = models.DateField(null=True, blank=True)
     other_identifiers = models.TextField(blank=True, null=True) # Identifiers from other bodies
     body = models.TextField(blank=True)
-    
+
     tags = models.ManyToManyField(LiaisonStatementTagName, blank=True, null=True)
     attachments = models.ManyToManyField(Document, through='LiaisonStatementAttachment', blank=True)
     state = models.ForeignKey(LiaisonStatementState, default='pending')
@@ -47,7 +47,7 @@ class LiaisonStatement(models.Model):
     # remove these fields post upgrade
     from_name = models.CharField(max_length=255, help_text="Name of the sender body")
     to_name = models.CharField(max_length=255, help_text="Name of the recipient body")
-    
+
     def __unicode__(self):
         return self.title or u"<no title>"
 
@@ -78,7 +78,7 @@ class LiaisonStatement(models.Model):
         model = args[0] if args else LiaisonStatementEvent
         e = model.objects.filter(statement=self).filter(**filter_args).order_by('-time', '-id')[:1]
         return e[0] if e else None
-        
+
     def name(self):
         if self.from_groups.count():
             frm = ', '.join([i.acronym or i.name for i in self.from_groups.all()])
@@ -96,7 +96,7 @@ class LiaisonStatement(models.Model):
         if event:
             return event.time
         return None
-    
+
     @property
     def submitted(self):
         event = self.latest_event(type='submitted')
@@ -171,6 +171,9 @@ class LiaisonStatementAttachment(models.Model):
     document = models.ForeignKey(Document)
     removed = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return document.name
+
 
 class RelatedLiaisonStatement(models.Model):
     source = models.ForeignKey(LiaisonStatement, related_name='source_of_set')
@@ -182,7 +185,7 @@ class RelatedLiaisonStatement(models.Model):
 
 
 class LiaisonStatementGroupContacts(models.Model):
-    group = models.ForeignKey(Group, unique=True) 
+    group = models.ForeignKey(Group, unique=True)
     contacts = models.CharField(max_length=255,blank=True)
     cc_contacts = models.CharField(max_length=255,blank=True)
 
@@ -196,7 +199,7 @@ class LiaisonStatementEvent(models.Model):
     by = models.ForeignKey(Person)
     statement = models.ForeignKey(LiaisonStatement)
     desc = models.TextField()
-    
+
     def __unicode__(self):
         return u"%s %s by %s at %s" % (self.statement.title, self.type.slug, self.by.plain_name(), self.time)
 

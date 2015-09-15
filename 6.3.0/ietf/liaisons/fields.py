@@ -7,16 +7,16 @@ from django.core.urlresolvers import reverse as urlreverse
 from ietf.liaisons.models import LiaisonStatement
 
 def select2_id_liaison_json(objs):
-    return json.dumps([{ "id": o.pk, "text": escape(o.title) } for o in objs])
+    return json.dumps([{ "id": o.pk, "text":u"[{}] {}".format(o.pk, escape(o.title)) } for o in objs])
 
 def select2_id_group_json(objs):
     return json.dumps([{ "id": o.pk, "text": escape(o.acronym) } for o in objs])
-    
+
 class SearchableLiaisonStatementsField(forms.CharField):
     """Server-based multi-select field for choosing liaison statements using
     select2.js."""
 
-    def __init__(self, 
+    def __init__(self,
                  max_entries = None,
                  hint_text="Type in title to search for document",
                  model = LiaisonStatement,
@@ -24,7 +24,7 @@ class SearchableLiaisonStatementsField(forms.CharField):
         kwargs["max_length"] = 10000
         self.model = model
         self.max_entries = max_entries
-        
+
         super(SearchableLiaisonStatementsField, self).__init__(*args, **kwargs)
 
         self.widget.attrs["class"] = "select2-field form-control"
@@ -34,7 +34,7 @@ class SearchableLiaisonStatementsField(forms.CharField):
 
     def parse_select2_value(self, value):
         return [x.strip() for x in value.split(",") if x.strip()]
-        
+
     def prepare_value(self, value):
         if not value:
             value = ""
@@ -46,15 +46,13 @@ class SearchableLiaisonStatementsField(forms.CharField):
         if isinstance(value, LiaisonStatement):
             value = [value]
 
-        #self.widget.attrs["data-pre"] = select2_id_liaison_json([value] if value else [])
         self.widget.attrs["data-pre"] = select2_id_liaison_json(value)
-        
+
         # doing this in the constructor is difficult because the URL
         # patterns may not have been fully constructed there yet
         self.widget.attrs["data-ajax-url"] = urlreverse("ietf.liaisons.views.ajax_select2_search_liaison_statements")
 
         return u",".join(unicode(o.pk) for o in value)
-        #return value
 
     def clean(self, value):
         value = super(SearchableLiaisonStatementsField, self).clean(value)
@@ -71,15 +69,3 @@ class SearchableLiaisonStatementsField(forms.CharField):
             raise forms.ValidationError(u"You can select at most %s entries only." % self.max_entries)
 
         return objs
-
-        """
-        if value == None:
-            return None
-
-        obj = LiaisonStatement.objects.filter(pk=value).first()
-        if not obj and self.required:
-            raise forms.ValidationError(u"You must select a value.")
-
-        return obj
-        """
-

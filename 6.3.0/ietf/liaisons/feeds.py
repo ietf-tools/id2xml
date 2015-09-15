@@ -53,14 +53,10 @@ class LiaisonStatementsFeed(Feed):
         if kind == 'to':
             if not search:
                 raise FeedDoesNotExist
-                
+
             group = Group.objects.get(acronym=search)
             obj['filter'] = { 'to_groups': group }
-            obj['title'] = u'Liaison Statements from %s' % group.name
-                
-            #obj['filter'] = dict(to_name__icontains=search)
-            #obj['title'] = 'Liaison Statements where to matches %s' % search
-            
+            obj['title'] = u'Liaison Statements to %s' % group.name
             return obj
 
         if kind == 'subject':
@@ -97,8 +93,8 @@ class LiaisonStatementsFeed(Feed):
 
     def item_pubdate(self, item):
         # this method needs to return a datetime instance, even
-        # though the database has only date, not time 
+        # though the database has only date, not time
         return item.submitted
- 
+
     def item_author_name(self, item):
         return item.from_name

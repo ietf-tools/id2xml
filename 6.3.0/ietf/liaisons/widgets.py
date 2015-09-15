@@ -6,15 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import conditional_escape
 
 
-"""
-class ReadOnlyWidget(Widget):
-    def render(self, name, value, attrs=None):
-        html = u'<div id="id_%s" class="form-control widget">%s</div>' % (conditional_escape(name), conditional_escape(value or ''))
-        return mark_safe(html)
-"""
-
 class ButtonWidget(Widget):
-
     def __init__(self, *args, **kwargs):
         self.label = kwargs.pop('label', None)
         self.show_on = kwargs.pop('show_on', None)
@@ -35,7 +27,6 @@ class ButtonWidget(Widget):
 
 
 class ShowAttachmentsWidget(Widget):
-
     def render(self, name, value, attrs=None):
         html = u'<div id="id_%s">' % name
         html += u'<span style="display: none" class="showAttachmentsEmpty form-control widget">No files attached</span>'
@@ -50,5 +41,3 @@ class ShowAttachmentsWidget(Widget):
             html += u'No files attached'
         html += u'</div></div>'
         return mark_safe(html)
-
-

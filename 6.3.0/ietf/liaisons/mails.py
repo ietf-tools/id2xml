@@ -30,7 +30,7 @@ def notify_pending_by_email(request, liaison):
         for group in liaison.from_groups.all():
             approval_set.intersection_update(approval_roles(group))
     to_emails = [ r.email.address for r in approval_set ]
-    
+
     subject = u'New Liaison Statement, "%s" needs your approval' % (liaison.title)
     from_email = settings.LIAISON_UNIVERSAL_FROM
     body = render_to_string('liaisons/pending_liaison_mail.txt', dict(liaison=liaison))
@@ -40,20 +40,18 @@ def send_sdo_reminder(sdo):
     roles = Role.objects.filter(name="liaiman", group=sdo)
     if not roles: # no manager to contact
         return None
-
     manager_role = roles[0]
-    
+
     subject = 'Request for update of list of authorized individuals'
     to_email = manager_role.email.address
     name = manager_role.person.plain_name()
-
     authorized_list = Role.objects.filter(group=sdo, name='auth').select_related("person").distinct()
     body = render_to_string('liaisons/sdo_reminder.txt', dict(
             manager_name=name,
             sdo_name=sdo.name,
             individuals=authorized_list,
             ))
-    
+
     send_mail_text(None, to_email, settings.LIAISON_UNIVERSAL_FROM, subject, body)
 
     return body
@@ -68,11 +66,11 @@ def possibly_send_deadline_reminder(liaison):
         1: 'tomorrow',
         0: 'today'
         }
-    
+
     days_to_go = (liaison.deadline - datetime.date.today()).days
     if not (days_to_go < 0 or days_to_go in PREVIOUS_DAYS.keys()):
         return None # no reminder
-            
+
     if days_to_go < 0:
         subject = '[Liaison OUT OF DATE] %s' % liaison.title
         days_msg = 'is out of date for %s days' % (-days_to_go)
@@ -90,7 +88,7 @@ def possibly_send_deadline_reminder(liaison):
     bcc = 'statements@ietf.org'
     body = render_to_string('liaisons/liaison_deadline_mail.txt',
         dict(liaison=liaison,days_msg=days_msg,))
-    
+
     send_mail_text(None, to_email, from_email, subject, body, cc=cc, bcc=bcc)
 
     return body

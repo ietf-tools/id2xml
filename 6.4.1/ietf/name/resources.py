@@ -262,7 +262,7 @@ api.name.register(DocRelationshipNameResource())
 class RoomResourceNameResource(ModelResource):
     class Meta:
         queryset = RoomResourceName.objects.all()
-        #resource_name = 'roomresourcename'
+        resource_name = 'roomresourcename' # Needed because tastypie otherwise removes 'resource' from the name
         filtering = { 
             "slug": ALL,
             "name": ALL,

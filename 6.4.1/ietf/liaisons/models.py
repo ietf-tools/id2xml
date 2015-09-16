@@ -172,7 +172,7 @@ class LiaisonStatementAttachment(models.Model):
     removed = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return document.name
+        return self.document.name
 
 
 class RelatedLiaisonStatement(models.Model):

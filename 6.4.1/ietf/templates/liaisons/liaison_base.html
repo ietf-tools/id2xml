@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin %}
-
 {% load ietf_filters %}
+{% load staticfiles %}
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'bootstrap-datepicker/css/datepicker3.css' %}">
@@ -38,13 +38,13 @@
   {% endif %}
 
   {% block group_content %}
-    
+
     {% if search_conducted and not liaisons %}
         <div class="alert alert-info">No statements match your query.</div>
     {% else %}
         {% include "liaisons/liaison_table.html" %}
     {% endif %}
-    
+
   {% endblock group_content %}
 
 {% endblock content %}

@@ -1,0 +1,80 @@
+{% extends "ietf.html" %}
+
+{% load ietf_filters %}
+
+{% block morecss %}{% endblock %}
+{% block doctype %}{% endblock %}
+{% block title %}IPR disclosures{% endblock %}
+
+{% block content %}
+<h1>IPR disclosures</h1>
+
+<h2>{% block search_header %}Patent owner/applicant search result{% endblock %}</h2>
+
+{% block search_result %}
+{% if not iprs %}
+	<p class="alert alert-info">
+		{% block search_failed %}No IPR disclosures have been submitted by <i>{{ q }}</i>.{% endblock %}
+	</p>
+{% else %}
+	<p class="alert alert-info">
+		Total number of IPR disclosures found: <b>{{ count }}</b>.
+	</p>
+
+	<table class="table table-condensed table-striped">
+		<thead><th>Date</th><th>ID</th><th>Statement</th></thead>
+
+		{% block iprlist %}
+			{% for ipr in iprs %}
+				<tbody>
+					<tr>
+						<th class="warning" colspan="3">
+							{% block intro_prefix %}IPR that was submitted by <i>{{ q }}</i> and{% endblock %}
+
+							{% block related %}
+								{% with ipr.docs as iprdocaliases %}
+									{% if not iprdocaliases %}
+										is not related to a specific IETF contribution.
+									{% else %}
+										is related to
+										{% for item in iprdocaliases %}
+											{% if forloop.last and forloop.counter > 1 %}and{% endif %}
+												<i>{{ item.formatted_name|rfcspace }} ("{{ item.doc_alias.document.title }}")</i>{% if not forloop.last and forloop.counter > 1 %},{% endif %}
+										{% endfor %}
+									{% endif %}
+								{% endwith %}
+							{% endblock %}
+							{% block intro_suffix %}{% endblock %}
+						</th>
+					</tr>
+
+					<tr>
+						<td class="text-nowrap">{{ ipr.submitted_date }}</td>
+						<td class="text-right">{{ ipr.ipr_id }}</td>
+						<td><a href="{% url "ietf.ipr.views.show" ipr_id=ipr.ipr_id %}">{{ ipr.title }}</a></td>
+					</tr>
+
+					{% for item in ipr.updates.all %}
+						{% if item != ipr %}
+							<tr>
+								<td class="text-nowrap">{{ item.updated.submitted_date }}</td>
+								<td class="text-nowrap">#{{ item.updated.ipr_id }}</td>
+								<td>
+									IPR disclosure #{{ ipr.ipr_id }}: <a href="{% url "ietf.ipr.views.show" ipr_id=ipr.ipr_id %}">{{ ipr.title }}</a>
+									<br>Updates: <a href="{% url "ietf.ipr.views.show" ipr_id=item.ipr_id %}">{{ item.updated.title }}</a>
+								</td>
+							</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+			{% endfor %}
+		{% endblock %}
+	</table>
+{% endif %}
+{% endblock %}
+
+<p class="buttonlist">
+	<a class="btn btn-default" href="{% url "ietf.ipr.search.search" %}">IPR search page</a>
+	<a class="btn btn-default" href="{% url "ietf.ipr.views.showlist" %}">IPR disclosure page</a>
+</p>
+{% endblock %}

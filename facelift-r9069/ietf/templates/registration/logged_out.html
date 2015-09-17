@@ -1,0 +1,19 @@
+{% extends "ietf.html" %}
+
+{% block title %}Signed out{% endblock %}
+
+{% block content %}
+<h1>You have been signed out</h1>
+<a type="a" class="btn btn-primary" href="/accounts/login/" rel="nofollow">Sign in</a>
+{% endblock %}
+
+{% if request.META.HTTP_REFERER %}
+{% block scripts %}
+$(document).ready( function() {
+    $("#login-back a").text('You will be returned to the previous page in 5 seconds');
+    setTimeout(function() {
+        window.location.replace("{{request.META.HTTP_REFERER}}") ;
+    }, 5000);
+});
+{% endblock %}
+{% endif %}

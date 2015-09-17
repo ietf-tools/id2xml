@@ -20,7 +20,6 @@ class Command(BaseCommand):
         msg_list = send_reminders_to_sdos(sdo_pk=sdo_pk)
         return msg_list if return_output else None
 
-
 def send_reminders_to_sdos(sdo_pk=None):
     sdos = Group.objects.filter(type="sdo").order_by('pk')
     if sdo_pk:
@@ -28,7 +27,7 @@ def send_reminders_to_sdos(sdo_pk=None):
 
     if not sdos:
         print "No SDOs found!"
-        
+
     msgs = []
     for sdo in sdos:
         body = send_sdo_reminder(sdo)
@@ -37,10 +36,6 @@ def send_reminders_to_sdos(sdo_pk=None):
             msg = u'%05s#: %s has no liaison manager' % (sdo.pk, sdo.name)
         else:
             msg = u'%05s#: %s mail sent!' % (sdo.pk, sdo.name)
-
-        print msg
         msgs.append(msg)
 
     return msgs
-        
-

@@ -19,6 +19,7 @@ from ietf.liaisons.models import (LiaisonStatement, LiaisonStatementPurposeName,
 from ietf.person.models import Person, Email
 from ietf.group.models import Group
 from ietf.liaisons.mails import send_sdo_reminder, possibly_send_deadline_reminder
+from ietf.liaisons.views import contacts_from_roles
 
 # -------------------------------------------------
 # Helper Functions
@@ -157,16 +158,93 @@ class LiaisonTests(TestCase):
         self.assertEqual(self.client.get('/liaison/help/to_ietf/').status_code, 200)
 
 
-class LiaisonManagementTests(TestCase):
-    def setUp(self):
-        self.liaison_dir = os.path.abspath("tmp-liaison-dir")
-        if not os.path.exists(self.liaison_dir):
-            os.mkdir(self.liaison_dir)
-        settings.LIAISON_ATTACH_PATH = self.liaison_dir
+class UnitTests(TestCase):
+    def test_get_cc(self):
+        make_test_data()
+        make_liaison_models()
+        from ietf.liaisons.views import get_cc,EMAIL_ALIASES
 
-    def tearDown(self):
-        shutil.rmtree(self.liaison_dir)
+        # test IETF
+        cc = get_cc(Group.objects.get(acronym='ietf'))
+        self.assertTrue(EMAIL_ALIASES['IESG'] in cc)
+        self.assertTrue(EMAIL_ALIASES['IETFCHAIR'] in cc)
+        # test IAB
+        cc = get_cc(Group.objects.get(acronym='iab'))
+        self.assertTrue(EMAIL_ALIASES['IAB'] in cc)
+        self.assertTrue(EMAIL_ALIASES['IABCHAIR'] in cc)
+        self.assertTrue(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'] in cc)
+        # test an Area
+        area = Group.objects.filter(type='area').first()
+        cc = get_cc(area)
+        self.assertTrue(EMAIL_ALIASES['IETFCHAIR'] in cc)
+        self.assertTrue(contacts_from_roles([area.ad_role()]) in cc)
+        # test a Working Group
+        wg = Group.objects.filter(type='wg').first()
+        cc = get_cc(wg)
+        self.assertTrue(contacts_from_roles([wg.parent.ad_role()]) in cc)
+        self.assertTrue(contacts_from_roles([wg.get_chair()]) in cc)
+        # test an SDO
+        sdo = Group.objects.filter(type='sdo').first()
+        cc = get_cc(sdo)
+        self.assertTrue(contacts_from_roles([sdo.role_set.filter(name='liaiman').first()]) in cc)
 
+    def test_get_contacts_for_group(self):
+        make_test_data()
+        make_liaison_models()
+        from ietf.liaisons.views import get_contacts_for_group, EMAIL_ALIASES
+
+        # test explicit
+        sdo = Group.objects.filter(type='sdo').first()
+        LiaisonStatementGroupContacts.objects.create(group=sdo,contacts='bob@world.com')
+        contacts = get_contacts_for_group(sdo)
+        self.assertTrue('bob@world.com' in contacts)
+        # test area
+        area = Group.objects.filter(type='area').first()
+        contacts = get_contacts_for_group(area)
+        self.assertTrue(area.ad_role().email.address in contacts)
+        # test wg
+        wg = Group.objects.filter(type='wg').first()
+        contacts = get_contacts_for_group(wg)
+        self.assertTrue(wg.get_chair().email.address in contacts)
+        # test ietf
+        contacts = get_contacts_for_group(Group.objects.get(acronym='ietf'))
+        self.assertTrue(EMAIL_ALIASES['IETFCHAIR'] in contacts)
+        # test iab
+        contacts = get_contacts_for_group(Group.objects.get(acronym='iab'))
+        self.assertTrue(EMAIL_ALIASES['IABCHAIR'] in contacts)
+        self.assertTrue(EMAIL_ALIASES['IABEXECUTIVEDIRECTOR'] in contacts)
+        # test iesg
+        contacts = get_contacts_for_group(Group.objects.get(acronym='iesg'))
+        self.assertTrue(EMAIL_ALIASES['IESG'] in contacts)
+
+    def test_needs_approval(self):
+        make_test_data()
+        make_liaison_models()
+        from ietf.liaisons.views import needs_approval
+
+        group = Group.objects.get(acronym='ietf')
+        self.assertFalse(needs_approval(group,group.get_chair().person))
+        group = Group.objects.get(acronym='iab')
+        self.assertFalse(needs_approval(group,group.get_chair().person))
+        area = Group.objects.filter(type='area').first()
+        self.assertFalse(needs_approval(area,area.ad_role().person))
+        wg = Group.objects.filter(type='wg').first()
+        self.assertFalse(needs_approval(wg,wg.parent.ad_role().person))
+
+    def test_approvable_liaison_statements(self):
+        make_test_data()
+        make_liaison_models()
+        from ietf.liaisons.utils import approvable_liaison_statements
+
+        outgoing = LiaisonStatement.objects.filter(to_groups__type='sdo').first()
+        outgoing.set_state('pending')
+        user = outgoing.from_groups.first().ad_role().person.user
+        qs = approvable_liaison_statements(user)
+        self.assertEqual(len(qs),1)
+        self.assertEqual(qs[0].pk,outgoing.pk)
+
+
+class AjaxTests(TestCase):
     def test_ajax(self):
         make_test_data()
         make_liaison_models()
@@ -196,6 +274,60 @@ class LiaisonManagementTests(TestCase):
         data = json.loads(r.content)
         self.assertEqual(data["to_contacts"],[u'test@example.com'])
 
+    def test_ajax_select2_search_liaison_statements(self):
+        make_test_data()
+        liaison = make_liaison_models()
+
+        # test text search
+        url = urlreverse('ietf.liaisons.views.ajax_select2_search_liaison_statements') + "?q=%s" % liaison.title[:5]
+        self.client.login(username="secretary", password="secretary+password")
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.content)
+        self.assertTrue(liaison.pk in [ x['id'] for x in data ])
+
+        # test id search
+        url = urlreverse('ietf.liaisons.views.ajax_select2_search_liaison_statements') + "?q=%s" % liaison.pk
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.content)
+        self.assertTrue(liaison.pk in [ x['id'] for x in data ])
+
+
+class ManagementCommandTests(TestCase):
+    def test_check_liaison_deadlines(self):
+        make_test_data()
+        liaison = make_liaison_models()
+        from django.core.management import call_command
+
+        out = StringIO()
+        liaison.deadline = datetime.datetime.today() + datetime.timedelta(1)
+        liaison.save()
+        mailbox_before = len(outbox)
+        call_command('check_liaison_deadlines',stdout=out)
+        self.assertEqual(len(outbox), mailbox_before + 1)
+
+    def test_remind_update_sdo_list(self):
+        make_test_data()
+        make_liaison_models()
+        from django.core.management import call_command
+
+        out = StringIO()
+        mailbox_before = len(outbox)
+        call_command('remind_update_sdo_list',stdout=out)
+        self.assertTrue(len(outbox) > mailbox_before)
+
+
+class LiaisonManagementTests(TestCase):
+    def setUp(self):
+        self.liaison_dir = os.path.abspath("tmp-liaison-dir")
+        if not os.path.exists(self.liaison_dir):
+            os.mkdir(self.liaison_dir)
+        settings.LIAISON_ATTACH_PATH = self.liaison_dir
+
+    def tearDown(self):
+        shutil.rmtree(self.liaison_dir)
+
     def test_add_restrictions(self):
         make_test_data()
         make_liaison_models()
@@ -205,8 +337,6 @@ class LiaisonManagementTests(TestCase):
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
-        #q = PyQuery(r.content)
-        #self.assertEqual(len(q('form textarea[name=body]')), 1)
 
     def test_taken_care_of(self):
         make_test_data()
@@ -576,7 +706,6 @@ class LiaisonManagementTests(TestCase):
                                   attach_title_1="attachment",
                                   send="1",
                                   ))
-        #print r.content
         self.assertEqual(r.status_code, 302)
 
         l = LiaisonStatement.objects.all().order_by("-id")[0]
@@ -782,7 +911,6 @@ class LiaisonManagementTests(TestCase):
         r = self.client.post(url,data)
         q = PyQuery(r.content)
         self.assertEqual(r.status_code, 200)
-        #print r.content
         self.assertTrue(q("form .has-error"))
 
     def test_liaison_history(self):

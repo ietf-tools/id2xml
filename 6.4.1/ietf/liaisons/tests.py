@@ -478,17 +478,19 @@ class LiaisonManagementTests(TestCase):
     def test_incoming_access(self):
         '''Ensure only Secretariat, Liaison Managers, and Authorized Individuals
         have access to incoming liaisons.
-        TODO: is it better to test the underlying function, and not look for button?
         '''
         make_test_data()
         make_liaison_models()
         url = urlreverse('ietf.liaisons.views.liaison_list')
+        addurl = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'incoming'})
 
         # public user no access
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New incoming liaison')")), 0)
+        r = self.client.get(addurl)
+        self.assertRedirects(r,settings.LOGIN_URL + '?next=/liaison/add/incoming/')
 
         # regular Chair no access
         self.client.login(username="marschairman", password="marschairman+password")
@@ -496,6 +498,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New incoming liaison')")), 0)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 403)
 
         # Liaison Manager has access
         self.client.login(username="ulm-liaiman", password="ulm-liaiman+password")
@@ -503,6 +507,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('a.btn:contains("New incoming liaison")')), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # Authorized Individual has access
         self.client.login(username="ulm-auth", password="ulm-auth+password")
@@ -510,6 +516,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New incoming liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # Secretariat has access
         self.client.login(username="secretary", password="secretary+password")
@@ -517,17 +525,22 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New incoming liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
     def test_outgoing_access(self):
         make_test_data()
         make_liaison_models()
         url = urlreverse('ietf.liaisons.views.liaison_list')
+        addurl = urlreverse('ietf.liaisons.views.liaison_add', kwargs={'type':'outgoing'})
 
         # public user no access
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 0)
+        r = self.client.get(addurl)
+        self.assertRedirects(r,settings.LOGIN_URL + '?next=/liaison/add/outgoing/')
 
         # AD has access
         self.client.login(username="ad", password="ad+password")
@@ -535,6 +548,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # WG Chair has access
         self.client.login(username="marschairman", password="marschairman+password")
@@ -542,6 +557,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # WG Secretary has access
         self.client.login(username="mars-secr", password="mars-secr+password")
@@ -549,6 +566,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # IETF Chair has access
         self.client.login(username="ietf-chair", password="ietf-chair+password")
@@ -556,6 +575,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # IAB Chair has access
         self.client.login(username="iab-chair", password="iab-chair+password")
@@ -563,6 +584,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # IAB Executive Director
         self.client.login(username="iab-execdir", password="iab-execdir+password")
@@ -570,6 +593,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # Liaison Manager has access
         self.client.login(username="ulm-liaiman", password="ulm-liaiman+password")
@@ -577,6 +602,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('a.btn:contains("New outgoing liaison")')), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
         # Authorized Individual has no access
         self.client.login(username="ulm-auth", password="ulm-auth+password")
@@ -584,6 +611,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 0)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 403)
 
         # Secretariat has access
         self.client.login(username="secretary", password="secretary+password")
@@ -591,6 +620,8 @@ class LiaisonManagementTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q("a.btn:contains('New outgoing liaison')")), 1)
+        r = self.client.get(addurl)
+        self.assertEqual(r.status_code, 200)
 
     def test_incoming_options(self):
         '''Check from_groups, to_groups options for different user classes'''

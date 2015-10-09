@@ -78,8 +78,6 @@ def copy_to_group(apps, schema_editor):
             s.to_groups.add(s.to_group)
             s.to_name = ''
             s.save()
-        else:
-            print "to_name not mapped and no to_group {}".format(s.pk)
 
 def copy_from_group(apps, schema_editor):
     LiaisonStatement = apps.get_model("liaisons", "LiaisonStatement")

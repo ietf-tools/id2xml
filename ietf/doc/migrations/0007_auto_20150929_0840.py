@@ -2,12 +2,15 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import django.db
 
 def fill_in_docalias_relationship_names(apps, schema_editor):
-    with django.db.connection.cursor() as cursor:
-        cursor.execute("update doc_relateddocument join doc_docalias on doc_docalias.id = doc_relateddocument.target_id set doc_relateddocument.target_name = doc_docalias.name;")
-        cursor.execute("update doc_relateddochistory join doc_docalias on doc_docalias.id = doc_relateddochistory.target_id set doc_relateddochistory.target_name = doc_docalias.name;")
+    RelatedDocument = apps.get_model("doc", "RelatedDocument")
+    for rel in RelatedDocument.objects.select_related("target").iterator():
+        RelatedDocument.objects.filter(pk=rel.pk).update(target_name=rel.target.name)
+
+    RelatedDocHistory = apps.get_model("doc", "RelatedDocHistory")
+    for rel in RelatedDocHistory.objects.select_related("target").iterator():
+        RelatedDocHistory.objects.filter(pk=rel.pk).update(target_name=rel.target.name)
 
 def noop(apps, schema_editor):
     pass

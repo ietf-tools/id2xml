@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import django.db
 
 def fill_in_docalias_relationship_names(apps, schema_editor):
-    with django.db.connection.cursor() as cursor:
-        cursor.execute("update ipr_iprdocrel join doc_docalias on doc_docalias.id = ipr_iprdocrel.document_id set ipr_iprdocrel.document_name = doc_docalias.name;")
+    IprDocRel = apps.get_model("ipr", "IprDocRel")
+    for rel in IprDocRel.objects.select_related("document").iterator():
+        IprDocRel.objects.filter(pk=rel.pk).update(document_name=rel.document.name)
 
 def noop(apps, schema_editor):
     pass

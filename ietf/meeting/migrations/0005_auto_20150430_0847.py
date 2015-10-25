@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='scheduledsession',
             name='extendedfrom',
-            field=models.ForeignKey(default=None, to='meeting.ScheduledSession', help_text='Timeslot this session is an extension of.', null=True),
+            field=models.ForeignKey(default=None, to='meeting.SchedTimeSessAssignment', help_text='Timeslot this session is an extension of.', null=True),
             preserve_default=True,
         ),
         migrations.AlterField(

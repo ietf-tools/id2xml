@@ -21,10 +21,12 @@ from ietf.nomcom.utils import (initialize_templates_for_group,
                                initialize_requirements_for_position,
                                delete_nomcom_templates)
 
-
 def upload_path_handler(instance, filename):
     return os.path.join(instance.group.acronym, 'public.cert')
 
+
+def storage_factory():
+    return(FileSystemStorage(location=settings.NOMCOM_PUBLIC_KEYS_DIR))    
 
 class ReminderDates(models.Model):
     date = models.DateField()

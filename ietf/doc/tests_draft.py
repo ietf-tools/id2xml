@@ -418,6 +418,38 @@ class EditInfoTests(TestCase):
 
         self.assertEqual(draft.latest_event(ConsensusDocEvent, type="changed_consensus").consensus, None)
 
+    def test_add_comment_to_history(self):
+        draft = make_test_data()
+        for u in ["ad", "secretary", "chair", "marschairman", "iana", "rfc"]:
+            self.client.login(username=u, password=u+"+password")
+            url = urlreverse('ietf.doc.views_doc.document_history', kwargs=dict(name=draft.name))
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            self.assertIn('Add comment', r.content)
+        for u in ["ameschairman", "plain"]:
+            self.client.login(username=u, password=u+"+password")
+            url = urlreverse('ietf.doc.views_doc.document_history', kwargs=dict(name=draft.name))
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            self.assertNotIn('Add comment', r.content)
+        for u in ["ad", "secretary", "chair", "marschairman", "iana", "rfc"]:
+            self.client.login(username=u, password=u+"+password")
+            url = urlreverse('ietf.doc.views_doc.add_comment', kwargs=dict(name=draft.name))
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            self.assertIn('The comment will be added to the history trail', r.content)
+        for u in ["plain"]:
+            self.client.login(username=u, password=u+"+password")
+            url = urlreverse('ietf.doc.views_doc.add_comment', kwargs=dict(name=draft.name))
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 403)
+            self.assertIn('Restricted to roles', r.content)
+        for u in ["ameschairman"]:
+            self.client.login(username=u, password=u+"+password")
+            url = urlreverse('ietf.doc.views_doc.add_comment', kwargs=dict(name=draft.name))
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 403)
+            self.assertIn('You need to be a chair or secretary', r.content)
 
 class ResurrectTests(TestCase):
     def test_request_resurrect(self):

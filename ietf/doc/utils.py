@@ -11,7 +11,7 @@ from django.utils.html import strip_tags, escape
 
 from ietf.doc.models import Document, DocHistory, State
 from ietf.doc.models import DocAlias, RelatedDocument, BallotType, DocReminder
-from ietf.doc.models import DocEvent, BallotDocEvent, NewRevisionDocEvent, StateDocEvent
+from ietf.doc.models import DocEvent, ConsensusDocEvent, BallotDocEvent, NewRevisionDocEvent, StateDocEvent
 from ietf.doc.models import save_document_in_history
 from ietf.name.models import DocReminderTypeName, DocRelationshipName
 from ietf.group.models import Role
@@ -317,6 +317,19 @@ def prettify_std_name(n, spacing=" "):
         return n[:3].upper() + spacing + n[3:]
     else:
         return n
+
+def default_consensus(doc):
+    # if someone edits the consensus return that, otherwise
+    # ietf stream => true and irtf stream => false
+    consensus = None
+    e = doc.latest_event(ConsensusDocEvent, type="changed_consensus")
+    if (e):
+        return e.consensus
+    if doc.stream_id == "ietf":
+        consensus = True
+    elif doc.sreadm_id == "irtf":
+        consensus = False
+    return consensus
 
 def nice_consensus(consensus):
     mapping = {

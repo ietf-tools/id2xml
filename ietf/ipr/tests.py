@@ -26,11 +26,11 @@ class IprTests(TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_get_genitive(self):
         self.assertEqual(get_genitive("Cisco"),"Cisco's")
         self.assertEqual(get_genitive("Ross"),"Ross'")
-        
+
     def test_get_holders(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -49,12 +49,12 @@ class IprTests(TestCase):
         RelatedIpr.objects.create(target=ipr,source=update,relationship_id='updates')
         result = get_holders(update)
         self.assertEqual(result,['update_holder@acme.com','george@acme.com'])
-        
+
     def test_get_ipr_summary(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         self.assertEqual(get_ipr_summary(ipr),'draft-ietf-mars-test')
-        
+
     def test_get_pseudo_submitter(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights').get_child()
@@ -84,7 +84,7 @@ class IprTests(TestCase):
         RelatedIpr.objects.create(target=ipr,source=update,relationship_id='updates')
         result = get_update_cc_addrs(update)
         self.assertEqual(result,'update_holder@acme.com,george@acme.com')
-        
+
     def test_get_update_submitter_emails(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights').get_child()
@@ -104,7 +104,7 @@ class IprTests(TestCase):
         messages = get_update_submitter_emails(update)
         self.assertEqual(len(messages),1)
         self.assertTrue(messages[0].startswith('To: george@acme.com'))
-        
+
     def test_showlist(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -118,7 +118,7 @@ class IprTests(TestCase):
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
-        
+
     def test_show_parked(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -132,14 +132,14 @@ class IprTests(TestCase):
         ipr.set_state('pending')
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 404)
-        
+
     def test_show_rejected(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
         ipr.set_state('rejected')
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 404)
-        
+
     def test_show_removed(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -147,7 +147,7 @@ class IprTests(TestCase):
         r = self.client.get(urlreverse("ipr_show", kwargs=dict(id=ipr.pk)))
         self.assertEqual(r.status_code, 200)
         self.assertTrue('This IPR disclosure was removed' in r.content)
-        
+
     def test_iprs_for_drafts(self):
         draft = make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -210,7 +210,7 @@ class IprTests(TestCase):
         r = self.client.get(url + "?submit=holder&holder=%s" % ipr.holder_legal_name)
         self.assertEqual(r.status_code, 200)
         self.assertTrue(ipr.title in r.content)
-        
+
         # find by patent info
         r = self.client.get(url + "?submit=patent&patent=%s" % ipr.patent_info)
         self.assertEqual(r.status_code, 200)
@@ -406,7 +406,7 @@ class IprTests(TestCase):
 
     def test_update_bad_post(self):
         draft = make_test_data()
-        original_ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
+        IprDisclosureBase.objects.get(title='Statement regarding rights')
         url = urlreverse("ietf.ipr.views.new", kwargs={ "type": "specific" })
 
         # successful post
@@ -437,14 +437,14 @@ class IprTests(TestCase):
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
-        
+
         # public comment
         comment = 'Test comment'
         r = self.client.post(url, dict(comment=comment))
         self.assertEqual(r.status_code,302)
         qs = ipr.iprevent_set.filter(type='comment',desc=comment)
         self.assertTrue(qs.count(),1)
-        
+
         # private comment
         r = self.client.post(url, dict(comment='Private comment',private=True),follow=True)
         self.assertEqual(r.status_code,200)
@@ -452,7 +452,7 @@ class IprTests(TestCase):
         self.client.logout()
         r = self.client.get(url)
         self.assertFalse('Private comment' in r.content)
-        
+
     def test_addemail(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -460,7 +460,7 @@ class IprTests(TestCase):
         self.client.login(username="secretary", password="secretary+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
-        
+
         # post
         r = self.client.post(url, {
             "direction": 'incoming',
@@ -476,44 +476,44 @@ I would like to revoke this declaration.
         msg = Message.objects.get(frm='test@acme.com')
         qs = ipr.iprevent_set.filter(type='msgin',message=msg)
         self.assertTrue(qs.count(),1)
-        
+
     def test_admin_pending(self):
         make_test_data()
         url = urlreverse("ipr_admin",kwargs={'state':'pending'})
         self.client.login(username="secretary", password="secretary+password")
-                
+
         # test for presence of pending ipr
         ipr = IprDisclosureBase.objects.first()
         ipr.state_id = 'pending'
         ipr.save()
         num = IprDisclosureBase.objects.filter(state='pending').count()
-        
+
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
         q = PyQuery(r.content)
         x = len(q('table.ipr-table tbody tr'))
         self.assertEqual(num,x)
-        
+
     def test_admin_removed(self):
         make_test_data()
         url = urlreverse("ipr_admin",kwargs={'state':'removed'})
         self.client.login(username="secretary", password="secretary+password")
-        
+
         # test for presence of pending ipr
         ipr = IprDisclosureBase.objects.first()
         ipr.state_id = 'removed'
         ipr.save()
         num = IprDisclosureBase.objects.filter(state__in=('removed','rejected')).count()
-        
+
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
         q = PyQuery(r.content)
         x = len(q('table.ipr-table tbody tr'))
         self.assertEqual(num,x)
-        
+
     def test_admin_parked(self):
         pass
-    
+
     def test_post(self):
         make_test_data()
         ipr = IprDisclosureBase.objects.get(title='Statement regarding rights')
@@ -574,7 +574,7 @@ I would like to revoke this declaration.
         self.assertTrue(event.response_past_due())
         self.assertEqual(len(outbox), 1)
         self.assertTrue('joe@test.com' in outbox[0]['To'])
-        
+
         # test process response uninteresting message
         addrs = gather_address_lists('ipr_disclosure_submitted').as_strings()
         message_string = """To: {}
@@ -585,7 +585,7 @@ Subject: test
 """.format(addrs.to, addrs.cc, datetime.datetime.now().ctime())
         result = process_response_email(message_string)
         self.assertIsNone(result)
-        
+
         # test process response
         message_string = """To: {}
 From: joe@test.com

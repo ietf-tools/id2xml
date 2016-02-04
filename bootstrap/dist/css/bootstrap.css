@@ -1232,7 +1232,7 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 body {
-  font-family: "PT Serif", "Palatino", "Neue Swift", serif;
+  font-family: "Noto Serif", "PT Serif", "Palatino", "Neue Swift", serif;
   font-size: 15px;
   line-height: 1.42857143;
   color: #222;
@@ -1682,7 +1682,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: "PT Mono", Monaco, monospace;
+  font-family: "Noto Sans Mono CJK", "PT Mono", Monaco, monospace;
 }
 code {
   padding: 2px 4px;
@@ -6143,7 +6143,7 @@ button.close {
   position: absolute;
   z-index: 1035;
   display: block;
-  font-family: "PT Serif", "Palatino", "Neue Swift", serif;
+  font-family: "Noto Serif", "PT Serif", "Palatino", "Neue Swift", serif;
   font-size: 12.61344623px;
   font-style: normal;
   font-weight: normal;
@@ -6262,7 +6262,7 @@ button.close {
   display: none;
   max-width: 276px;
   padding: 1px;
-  font-family: "PT Serif", "Palatino", "Neue Swift", serif;
+  font-family: "Noto Serif", "PT Serif", "Palatino", "Neue Swift", serif;
   font-size: 15px;
   font-style: normal;
   font-weight: normal;

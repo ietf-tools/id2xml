@@ -285,7 +285,7 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
+            post_submission(request, submission, "WG approved and posted")
 
             create_submission_event(request, submission, "Approved and posted submission")
 
@@ -296,12 +296,12 @@ def submission_status(request, submission_id, access_token=None):
             if not can_force_post:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
-
             if submission.state_id == "manual":
                 desc = "Posted submission manually"
             else:
                 desc = "Forced post of submission"
+
+            post_submission(request, submission, desc)
 
             create_submission_event(request, submission, desc)
 
@@ -418,7 +418,12 @@ def confirm_submission(request, submission_id, auth_token):
     if not key_matched: key_matched = auth_token == submission.auth_key # backwards-compat
 
     if request.method == 'POST' and submission.state_id in ("auth", "aut-appr") and key_matched:
-        post_submission(request, submission)
+        if submission.state_id == "auth":
+            desc = "Confirmed by submitter and posted"
+        else:
+            desc = "Confirmed by previous version author and posted"
+
+        post_submission(request, submission, desc)
 
         create_submission_event(request, submission, "Confirmed and posted submission")
 

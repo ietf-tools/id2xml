@@ -125,7 +125,7 @@ def create_submission_event(request, submission, desc):
     SubmissionEvent.objects.create(submission=submission, by=by, desc=desc)
 
 
-def post_submission(request, submission):
+def post_submission(request, submission, desc):
     system = Person.objects.get(name="(System)")
 
     try:
@@ -186,7 +186,7 @@ def post_submission(request, submission):
     e = NewRevisionDocEvent(type="new_revision", doc=draft, rev=draft.rev)
     e.time = draft.time #submission.submission_date
     e.by = submitter
-    e.desc = "New version available: <b>%s-%s.txt</b>" % (draft.name, draft.rev)
+    e.desc = "%s: <b>%s-%s.txt</b>" % (desc, draft.name, draft.rev)
     e.save()
 
     if draft.stream_id == "ietf" and draft.group.type_id == "wg" and draft.rev == "00":

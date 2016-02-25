@@ -304,6 +304,12 @@ class SubmitTests(TestCase):
         r = self.client.post(confirm_url)
         self.assertEqual(r.status_code, 302)
 
+        # check we have document events 
+        doc_events = draft.docevent_set.filter(type="new_revision")
+        edescs = '::'.join([x.desc for x in doc_events])
+        self.assertTrue('New version approved by ' in edescs)
+        self.assertTrue('New version submitted' in edescs)
+
         draft = Document.objects.get(docalias__name=name)
         self.assertEqual(draft.rev, rev)
         self.assertEqual(draft.group.acronym, name.split("-")[2])

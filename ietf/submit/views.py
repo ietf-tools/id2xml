@@ -20,6 +20,7 @@ from ietf.submit.mail import send_full_url, send_approval_request_to_group, send
 from ietf.submit.models import Submission, Preapproval, DraftSubmissionStateName
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user
 from ietf.submit.utils import check_idnits, found_idnits, validate_submission, create_submission_event
+from ietf.submit.utils import docevent_from_submission
 from ietf.submit.utils import post_submission, cancel_submission, rename_submission_files
 from ietf.utils.accesstoken import generate_random_key, generate_access_token
 from ietf.utils.draft import Draft
@@ -121,6 +122,7 @@ def upload_submission(request):
                     raise
 
                 create_submission_event(request, submission, desc="Uploaded submission")
+                docevent_from_submission(request, submission, desc="New version submitted")
 
                 return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=submission.access_token())
         except IOError as e:
@@ -285,7 +287,7 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission, "WG approved and posted")
+            post_submission(request, submission)
 
             create_submission_event(request, submission, "Approved and posted submission")
 
@@ -296,12 +298,12 @@ def submission_status(request, submission_id, access_token=None):
             if not can_force_post:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
+            post_submission(request, submission)
+
             if submission.state_id == "manual":
                 desc = "Posted submission manually"
             else:
                 desc = "Forced post of submission"
-
-            post_submission(request, submission, desc)
 
             create_submission_event(request, submission, desc)
 
@@ -419,11 +421,13 @@ def confirm_submission(request, submission_id, auth_token):
 
     if request.method == 'POST' and submission.state_id in ("auth", "aut-appr") and key_matched:
         if submission.state_id == "auth":
-            desc = "Confirmed by submitter and posted"
+            desc = "New version approved by author"
         else:
-            desc = "Confirmed by previous version author and posted"
+            desc = "New version approved by previous author"
 
-        post_submission(request, submission, desc)
+        docevent_from_submission(request, submission, desc)
+        
+        post_submission(request, submission)
 
         create_submission_event(request, submission, "Confirmed and posted submission")
 

@@ -125,7 +125,29 @@ def create_submission_event(request, submission, desc):
     SubmissionEvent.objects.create(submission=submission, by=by, desc=desc)
 
 
-def post_submission(request, submission, desc):
+def docevent_from_submission(request, submission, desc):
+    system = Person.objects.get(name="(System)")
+
+    try:
+        draft = Document.objects.get(name=submission.name)
+    except Document.DoesNotExist:
+        # Assume this is revision 00 - we'll do this later
+        return
+
+    submitter_parsed = submission.submitter_parsed()
+    if submitter_parsed["name"] and submitter_parsed["email"]:
+        submitter = ensure_person_email_info_exists(submitter_parsed["name"], submitter_parsed["email"]).person
+    else:
+        submitter = system
+
+    e = DocEvent(doc=draft)
+    e.by = submitter
+    e.type = "new_revision"
+    e.desc = "%s: <b>%s-%s.txt</b>" % (desc, submission.name, submission.rev)
+    e.save()
+
+
+def post_submission(request, submission):
     system = Person.objects.get(name="(System)")
 
     try:
@@ -186,7 +208,7 @@ def post_submission(request, submission, desc):
     e = NewRevisionDocEvent(type="new_revision", doc=draft, rev=draft.rev)
     e.time = draft.time #submission.submission_date
     e.by = submitter
-    e.desc = "%s: <b>%s-%s.txt</b>" % (desc, draft.name, draft.rev)
+    e.desc = "New version available: <b>%s-%s.txt</b>" % (draft.name, draft.rev)
     e.save()
 
     if draft.stream_id == "ietf" and draft.group.type_id == "wg" and draft.rev == "00":

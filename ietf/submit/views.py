@@ -122,7 +122,7 @@ def upload_submission(request):
                     raise
 
                 create_submission_event(request, submission, desc="Uploaded submission")
-                docevent_from_submission(request, submission, desc="New version submitted")
+                docevent_from_submission(request, submission, desc="Uploaded submission")
 
                 return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=submission.access_token())
         except IOError as e:
@@ -287,7 +287,8 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
+            approvalDesc = "WG aprroved by %s" % request.user.person.short()
+            post_submission(request, submission, approvalDesc)
 
             create_submission_event(request, submission, "Approved and posted submission")
 
@@ -298,12 +299,12 @@ def submission_status(request, submission_id, access_token=None):
             if not can_force_post:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
-
             if submission.state_id == "manual":
                 desc = "Posted submission manually"
             else:
                 desc = "Forced post of submission"
+
+            post_submission(request, submission, desc)
 
             create_submission_event(request, submission, desc)
 
@@ -425,9 +426,7 @@ def confirm_submission(request, submission_id, auth_token):
         else:
             desc = "New version approved by previous author"
 
-        docevent_from_submission(request, submission, desc)
-        
-        post_submission(request, submission)
+        post_submission(request, submission, desc)
 
         create_submission_event(request, submission, "Confirmed and posted submission")
 

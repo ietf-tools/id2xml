@@ -142,12 +142,12 @@ def docevent_from_submission(request, submission, desc):
 
     e = DocEvent(doc=draft)
     e.by = submitter
-    e.type = "new_revision"
+    e.type = "added_comment"
     e.desc = "%s: <b>%s-%s.txt</b>" % (desc, submission.name, submission.rev)
     e.save()
 
 
-def post_submission(request, submission):
+def post_submission(request, submission, approvedDesc):
     system = Person.objects.get(name="(System)")
 
     try:
@@ -203,7 +203,23 @@ def post_submission(request, submission):
     trouble = rebuild_reference_relations(draft, filename=os.path.join(settings.IDSUBMIT_STAGING_PATH, '%s-%s.txt' % (submission.name, submission.rev)))
     if trouble:
         log('Rebuild_reference_relations trouble: %s'%trouble)
+    
+    if draft.rev == '00':
+        # Add all the previous submission events as docevents
+        for subevent in submission.submissionevent_set.all():
+            e = DocEvent(type="added_comment", doc=draft)
+            e.time = subevent.time #submission.submission_date
+            e.by = submitter
+            e.desc = "%s: <b>%s-%s.txt</b>" % (subevent.desc, draft.name, draft.rev)
+            e.save()
 
+    # Add an approval docevent
+    e = DocEvent(type="added_comment", doc=draft)
+    e.time = draft.time #submission.submission_date
+    e.by = submitter
+    e.desc = "%s: <b>%s-%s.txt</b>" % (approvedDesc, draft.name, draft.rev)
+    e.save()
+    
     # new revision event
     e = NewRevisionDocEvent(type="new_revision", doc=draft, rev=draft.rev)
     e.time = draft.time #submission.submission_date

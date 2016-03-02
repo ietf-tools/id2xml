@@ -291,8 +291,7 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            approvalDesc = "WG" # Flag WG approved
-            post_submission(request, submission, approvalDesc)
+            post_submission(request, submission, "WG -00 approved")
 
             create_submission_event(request, submission, "Approved and posted submission")
 

@@ -238,10 +238,7 @@ def post_submission(request, submission, approvedDesc):
     e = DocEvent(type="added_comment", doc=draft)
     e.time = draft.time #submission.submission_date
     e.by = submitter
-    if approvedDesc == "WG":
-        e.desc = "WG -%s approved" % draft.rev
-    else:
-        e.desc = approvedDesc
+    e.desc = approvedDesc
     e.save()
     
     # new revision event

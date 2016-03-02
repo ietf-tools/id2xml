@@ -307,8 +307,8 @@ class SubmitTests(TestCase):
         # check we have document events 
         doc_events = draft.docevent_set.filter(type="added_comment")
         edescs = '::'.join([x.desc for x in doc_events])
-        self.assertTrue('New version approved by ' in edescs)
-        self.assertTrue('Uploaded submission' in edescs)
+        self.assertTrue('New version approved' in edescs)
+        self.assertTrue('Uploaded new revision' in edescs)
 
         draft = Document.objects.get(docalias__name=name)
         self.assertEqual(draft.rev, rev)

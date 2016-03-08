@@ -610,5 +610,3 @@ if SERVER_MODE != 'production':
         SECRET_KEY = 'PDwXboUq!=hPjnrtG2=ge#N$Dwy+wn@uivrugwpic8mxyPfHka'
     ALLOWED_HOSTS = ['*',]
     
-    import coverage
-    TEST_CODE_COVERAGE_CHECKER = coverage.Coverage(source=[ BASE_DIR ], cover_pylib=False, omit=TEST_CODE_COVERAGE_EXCLUDE)

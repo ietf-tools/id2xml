@@ -500,3 +500,19 @@ def cancel_preapproval(request, preapproval_id):
     return render(request, 'submit/cancel_preapproval.html',
                               {'selected': 'approvals',
                                'preapproval': preapproval })
+
+
+@role_required('Secretariat')
+def manualpost (request):
+    '''
+    Main view for manual post requests
+    '''
+
+    manual = Submission.objects.filter(state_id = "manual").distinct()
+    
+    for s in manual:
+        s.passes_idnits = found_idnits(s.idnits_message)
+        s.errors = validate_submission(s)
+
+    return render(request, 'submit/manual_post.html',
+                  {'manual': manual})

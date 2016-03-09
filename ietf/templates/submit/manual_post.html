@@ -1,0 +1,57 @@
+{% extends "submit/submit_base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin staticfiles %}
+
+{% block pagehead %}
+<link rel="stylesheet" href="{% static "jquery.tablesorter/css/theme.bootstrap.min.css" %}">
+{% endblock %}
+
+{% block title %}Draft submissions awaiting manual posting{% endblock %}
+
+{% load ietf_filters %}
+
+{% block submit_content %}
+  {% origin %}
+  {% if user.is_authenticated %}
+    <h2 class="anchor-target" id="approvals">Submissions needing manual posting</h2>
+
+    {% if not manual %}
+      <p>There are no submissions needing manual posting.</p>
+    {% else %}
+      <table class="submissions table table-condensed table-striped tablesorter">
+        <thead>
+          <tr>
+            <th>Draft</th>
+            <th>Submitted</th>
+            <th>I-D nits</th>
+            <th>Metadata</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in manual %}
+            <tr>
+              <td><a href="{% url "submit_submission_status_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}-{{ s.rev }}</a></td>
+              <td>{{ s.submission_date }}</td>
+              <td>{% if s.passes_idnits %}Ok{% else %}Fails{% endif %}</td>
+              <td>{% if s.errors %}Errors{% else %}Ok{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+  {% else %}
+    <h2>Submission of approvals</h2>
+    <p>
+      This is where chairs and the secretariat can list and process document
+      submissions which require manual posting, such as WG -00 drafts.
+    </p>
+    <p>
+      You need to <a href="https://{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">sign in</a> in order to handle manual posts.
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block js %}
+<script src="{% static "jquery.tablesorter/js/jquery.tablesorter.combined.min.js" %}"></script>
+{% endblock %}

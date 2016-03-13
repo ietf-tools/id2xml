@@ -15,4 +15,6 @@ urlpatterns = patterns('ietf.submit.views',
     url(r'^approvals/$', 'approvals', name='submit_approvals'),
     url(r'^approvals/addpreapproval/$', 'add_preapproval', name='submit_add_preapproval'),
     url(r'^approvals/cancelpreapproval/(?P<preapproval_id>[a-f\d]+)/$', 'cancel_preapproval', name='submit_cancel_preapproval'),
+
+    url(r'^manualpost/$', 'manualpost', name='submit_manualpost'),
 )

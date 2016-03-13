@@ -21,6 +21,7 @@ from ietf.submit.mail import send_full_url, send_approval_request_to_group, send
 from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user
 from ietf.submit.utils import validate_submission, create_submission_event
+from ietf.submit.utils import docevent_from_submission
 from ietf.submit.utils import post_submission, cancel_submission, rename_submission_files
 from ietf.utils.accesstoken import generate_random_key, generate_access_token
 from ietf.utils.draft import Draft
@@ -135,6 +136,7 @@ def upload_submission(request):
                             break
 
                 create_submission_event(request, submission, desc="Uploaded submission")
+                docevent_from_submission(request, submission, desc="Uploaded new revision")
 
                 return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=submission.access_token())
         except IOError as e:
@@ -244,6 +246,7 @@ def submission_status(request, submission_id, access_token=None):
                     sent_to = send_approval_request_to_group(request, submission)
 
                     desc = "sent approval email to group chairs: %s" % u", ".join(sent_to)
+                    docDesc = u"Request for posting approval emailed to group chairs: %s" % u", ".join(sent_to)
 
                 else:
                     submission.auth_key = generate_random_key()
@@ -257,14 +260,17 @@ def submission_status(request, submission_id, access_token=None):
 
                     if submission.state_id == "aut-appr":
                         desc = u"sent confirmation email to previous authors: %s" % u", ".join(sent_to)
+                        docDesc = "Request for posting confirmation emailed to previous authors: %s" % u", ".join(sent_to)
                     else:
                         desc = u"sent confirmation email to submitter and authors: %s" % u", ".join(sent_to)
+                        docDesc = "Request for posting confirmation emailed to submitter and authors: %s" % u", ".join(sent_to)
 
                 msg = u"Set submitter to \"%s\", replaces to %s and %s" % (
                     submission.submitter,
                     ", ".join(prettify_std_name(r.name) for r in replaces) if replaces else "(none)",
                     desc)
                 create_submission_event(request, submission, msg)
+                docevent_from_submission(request, submission, docDesc)
 
                 if access_token:
                     return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=access_token)
@@ -299,7 +305,7 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
+            post_submission(request, submission, "WG -00 approved")
 
             create_submission_event(request, submission, "Approved and posted submission")
 
@@ -310,12 +316,12 @@ def submission_status(request, submission_id, access_token=None):
             if not can_force_post:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
-
             if submission.state_id == "manual":
                 desc = "Posted submission manually"
             else:
                 desc = "Forced post of submission"
+
+            post_submission(request, submission, desc)
 
             create_submission_event(request, submission, desc)
 
@@ -432,7 +438,16 @@ def confirm_submission(request, submission_id, auth_token):
     if not key_matched: key_matched = auth_token == submission.auth_key # backwards-compat
 
     if request.method == 'POST' and submission.state_id in ("auth", "aut-appr") and key_matched:
-        post_submission(request, submission)
+        submitter_parsed = submission.submitter_parsed()
+        if submitter_parsed["name"] and submitter_parsed["email"]:
+            # We know who approved it
+            desc = "New version approved"
+        elif submission.state_id == "auth":
+            desc = "New version approved by author"
+        else:
+            desc = "New version approved by previous author"
+
+        post_submission(request, submission, desc)
 
         create_submission_event(request, submission, "Confirmed and posted submission")
 
@@ -499,3 +514,19 @@ def cancel_preapproval(request, preapproval_id):
     return render(request, 'submit/cancel_preapproval.html',
                               {'selected': 'approvals',
                                'preapproval': preapproval })
+
+
+@role_required('Secretariat')
+def manualpost (request):
+    '''
+    Main view for manual post requests
+    '''
+
+    manual = Submission.objects.filter(state_id = "manual").distinct()
+    
+    for s in manual:
+        s.passes_checks = all([ c.passed!=False for c in s.checks.all() ])
+        s.errors = validate_submission(s)
+
+    return render(request, 'submit/manual_post.html',
+                  {'manual': manual})

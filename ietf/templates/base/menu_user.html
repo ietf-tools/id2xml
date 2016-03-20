@@ -42,6 +42,8 @@
     <li><a href="{% url "ietf.iesg.views.milestones_needing_review" %}">Milestones</a></li>
     <li><a href="{% url "ietf.sync.views.discrepancies" %}">Sync discrepancies</a>
     <li><a href="{% url "ietf.submit.views.manualpost" %}">Manual posts</a>
+    <li><a href="{% url "ietf.submit.views.add_manualpost_email" %}">Add Manual post email</a>
+    <li><a href="{% url "ietf.submit.views.manual_post_email_submissions" %}">List manual post emails</a>
   {% endif %}
 
   {% if user|has_role:"IANA" %}

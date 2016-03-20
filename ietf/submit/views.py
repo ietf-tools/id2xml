@@ -1,9 +1,12 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
+import email
+
 import datetime
 import os
 import xml2rfc
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse as urlreverse
 from django.core.validators import validate_email, ValidationError
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
@@ -16,9 +19,15 @@ from ietf.doc.models import Document, DocAlias
 from ietf.doc.utils import prettify_std_name
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
-from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm
-from ietf.submit.mail import send_full_url, send_approval_request_to_group, send_submission_confirmation, send_manual_post_request
-from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName
+from ietf.mailtrigger.utils import gather_address_lists
+from ietf.message.models import Message
+from ietf.person.models import Person
+from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm, \
+    SubmissionEmailForm
+from ietf.submit.mail import send_full_url, send_approval_request_to_group, \
+    send_submission_confirmation, send_manual_post_request, get_mail_contents, decode_text
+from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName, \
+    SubmissionEmail, SubmissionEmailAttachment
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user
 from ietf.submit.utils import validate_submission, create_submission_event
 from ietf.submit.utils import docevent_from_submission
@@ -26,7 +35,7 @@ from ietf.submit.utils import post_submission, cancel_submission, rename_submiss
 from ietf.utils.accesstoken import generate_random_key, generate_access_token
 from ietf.utils.draft import Draft
 from ietf.utils.log import log
-from ietf.mailtrigger.utils import gather_address_lists
+from ipr.mail import message_from_message, utc_from_string
 
 
 def upload_submission(request):
@@ -517,7 +526,7 @@ def cancel_preapproval(request, preapproval_id):
 
 
 @role_required('Secretariat')
-def manualpost (request):
+def manualpost(request):
     '''
     Main view for manual post requests
     '''
@@ -530,3 +539,124 @@ def manualpost (request):
 
     return render(request, 'submit/manual_post.html',
                   {'manual': manual})
+
+@role_required('Secretariat',)
+def add_manualpost_email(request):
+    """Add email to submission history"""
+
+    if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect("submit/manual_post.html")
+
+        form = SubmissionEmailForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            message = form.cleaned_data['message']
+            #in_reply_to = form.cleaned_data['in_reply_to']
+            # create Message
+            attachments = get_mail_contents(message)
+            body=''
+            for attach in attachments:
+                if attach.is_body == 'text/plain' and attach.disposition == None:
+                    payload, used_charset=decode_text(attach.payload, attach.charset, 'auto')
+                    body = body + payload + '\n'
+
+            msg = submit_message_from_message(message, body, request.user.person)
+
+            try:
+                submission = Submission.objects.get(name=name)
+            except Submission.DoesNotExist:
+                # create Submission using the name
+                try:
+                    submission = Submission.objects.create(
+                            state=DraftSubmissionStateName.objects.get(slug="secr-submit"),
+                            remote_ip=request.META.get('REMOTE_ADDR', None),
+                            name=name,
+                            title=name,
+                            note="",
+                            submission_date=datetime.date.today(),
+                            replaces="",
+                    )
+                except Exception as e:
+                    log("Exception: %s\n" % e)
+                    raise
+
+            if form.cleaned_data['direction'] == 'incoming':
+                msgtype = 'msgin'
+            else:
+                msgtype = 'msgout'
+                
+            submission_email_event = SubmissionEmail.objects.create(
+                    submission = submission,
+                    msgtype = msgtype,
+                    by = request.user.person,
+                    message = msg
+            )
+            #in_reply_to = in_reply_to
+            
+            save_submission_email_attachments(submission_email_event, attachments)
+            
+            messages.success(request, 'Email added.')
+            return redirect("submit_manualpost_list")
+    else:
+        form = SubmissionEmailForm()
+
+    return render(request, 'submit/add_submit_email.html',dict(form=form))
+
+def manual_post_email_submissions(request):
+    """ Provide a list of the submission objects for which we have 
+        an email history
+    """
+
+    manual = Submission.objects.filter(state_id = "secr-submit").distinct()
+
+    return render(request, 'submit/submit_emails.html',
+                  {'manual': manual})
+    
+    
+def submit_message_from_message(message,body,by=None):
+    """Returns a ietf.message.models.Message.  msg=email.Message
+        A copy of mail.message_from_message with different body handling
+    """
+    if not by:
+        by = Person.objects.get(name="(System)")
+    msg = Message.objects.create(
+            by = by,
+            subject = message.get('subject',''),
+            frm = message.get('from',''),
+            to = message.get('to',''),
+            cc = message.get('cc',''),
+            bcc = message.get('bcc',''),
+            reply_to = message.get('reply_to',''),
+            body = body,
+            time = utc_from_string(message['date'])
+    )
+    return msg
+
+def save_submission_email_attachments(submission_email_event, attachments):
+    for attach in attachments:
+        if attach.disposition != 'attachment':
+            continue
+
+        payload, used_charset=decode_text(attach.payload, attach.charset, 'auto')
+
+        name = submission_email_event.submission.name
+        doc, created = Document.objects.get_or_create(
+                name = attach.filename,
+                defaults=dict(
+                        title = name,
+                        type_id = "mansub-att",
+                        external_url = name, # strictly speaking not necessary, but just for the time being ...
+                )
+        )
+        
+        SubmissionEmailAttachment.objects.create(submission_email = submission_email_event,
+                                                 document = doc)
+        path = os.path.join(settings.IDSUBMIT_ATTACH_PATH, name)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        attach_file = open(os.path.join(path, attach.filename), 'w')
+        attach_file.write(payload)
+        attach_file.close()
+    

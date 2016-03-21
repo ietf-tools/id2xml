@@ -1,5 +1,6 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
 import email
+from rexec import FileWrapper
 
 import datetime
 import os
@@ -9,7 +10,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse as urlreverse
 from django.core.validators import validate_email, ValidationError
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, \
+    HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.module_loading import import_string
 
@@ -611,10 +613,63 @@ def manual_post_email_submissions(request):
 
     manual = Submission.objects.filter(state_id = "secr-submit").distinct()
 
-    return render(request, 'submit/submit_emails.html',
+    return render(request, 'submit/premanual_post_list.html',
                   {'manual': manual})
     
+
+def submission_emails(request, submission_id, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    is_secretariat = has_role(request.user, "Secretariat")
+    is_chair = submission.group and submission.group.has_role(request.user, "chair")
+
+    messages = SubmissionEmail.objects.filter(submission=submission)
+
+    return render(request, 'submit/premanual_post_emails.html',
+                  {'submission': submission,
+                   'messages': messages})
+
+def submission_email(request, submission_id, message_id, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    message = get_object_or_404(SubmissionEmail, pk=message_id)    
+    attachments = message.submissionemailattachment_set.all()
     
+    return render(request, 'submit/premanual_post_email.html',
+                  {'submission': submission,
+                   'message': message,
+                   'attachments': attachments})
+
+def submission_email_attachment(request, submission_id, message_id, filename, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    message = get_object_or_404(SubmissionEmail, pk=message_id)
+
+    attach = get_object_or_404(SubmissionEmailAttachment, 
+                               submission_email=message, 
+                               filename=filename)
+    
+    dirpath = os.path.join(settings.IDSUBMIT_ATTACH_PATH, submission.name)
+    filepath = os.path.join(dirpath, attach.filename)
+
+    wrapper = FileWrapper(file(filepath))
+    response = HttpResponse(wrapper, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % attach.filename
+    response['Content-Length'] = os.path.getsize(filepath)
+    return response
+    
+
+def get_submission_or_404(submission_id, access_token=None):
+    submission = get_object_or_404(Submission, pk=submission_id)
+
+    key_matched = access_token and submission.access_token() == access_token
+    if not key_matched: key_matched = submission.access_key == access_token # backwards-compat
+    if access_token and not key_matched:
+        raise Http404
+
+    return submission
+
+
 def submit_message_from_message(message,body,by=None):
     """Returns a ietf.message.models.Message.  msg=email.Message
         A copy of mail.message_from_message with different body handling
@@ -642,21 +697,13 @@ def save_submission_email_attachments(submission_email_event, attachments):
         payload, used_charset=decode_text(attach.payload, attach.charset, 'auto')
 
         name = submission_email_event.submission.name
-        doc, created = Document.objects.get_or_create(
-                name = attach.filename,
-                defaults=dict(
-                        title = name,
-                        type_id = "mansub-att",
-                        external_url = name, # strictly speaking not necessary, but just for the time being ...
-                )
-        )
+        dirpath = os.path.join(settings.IDSUBMIT_ATTACH_PATH, name)
+        filepath = os.path.join(dirpath, attach.filename)
         
         SubmissionEmailAttachment.objects.create(submission_email = submission_email_event,
-                                                 document = doc)
-        path = os.path.join(settings.IDSUBMIT_ATTACH_PATH, name)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        attach_file = open(os.path.join(path, attach.filename), 'w')
+                                                 filename=attach.filename)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+        attach_file = open(filepath, 'w')
         attach_file.write(payload)
         attach_file.close()
-    

@@ -110,7 +110,6 @@ class Preapproval(models.Model):
 class SubmissionEmail(SubmissionEvent):
     message     = models.ForeignKey(Message, null=True, blank=True,related_name='manualevents')
     msgtype     = models.CharField(max_length=25)
-    attachments = models.ManyToManyField(Document, through='SubmissionEmailAttachment', blank=True)
     in_reply_to = models.ForeignKey(Message, null=True, blank=True,related_name='irtomanual')
 
     def __unicode__(self):
@@ -121,7 +120,7 @@ class SubmissionEmail(SubmissionEvent):
 
 class SubmissionEmailAttachment(models.Model):
     submission_email = models.ForeignKey(SubmissionEmail)
-    document = models.ForeignKey(Document)
+    filename = models.CharField(max_length=255, db_index=True, blank=True)
     removed = models.BooleanField(default=False)
 
     def __unicode__(self):

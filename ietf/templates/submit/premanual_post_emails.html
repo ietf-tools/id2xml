@@ -6,30 +6,32 @@
 <link rel="stylesheet" href="{% static "jquery.tablesorter/css/theme.bootstrap.min.css" %}">
 {% endblock %}
 
-{% block title %}Pre-submissions with emails{% endblock %}
+{% block title %}Pre-submission emails{% endblock %}
 
 {% load ietf_filters %}
 
 {% block submit_content %}
   {% origin %}
   {% if user.is_authenticated %}
-    <h2 class="anchor-target" id="approvals">Submission email posting</h2>
+    <h2 class="anchor-target" id="approvals">Emails for {{ submission.name }}</h2>
 
-    {% if not manual %}
-      <p>There are no submission email.</p>
+    {% if not messages %}
+      <p>There are no submission emails.</p>
     {% else %}
-      <table class="submissions table table-condensed table-striped tablesorter">
+      <table class="emails table table-condensed table-striped tablesorter">
         <thead>
           <tr>
-            <th>Ttitle</th>
-            <th>Submitted</th>
+            <th>Date</th>
+            <th>From</th>
+            <th>Subject</th>
           </tr>
         </thead>
         <tbody>
-          {% for s in manual %}
+          {% for m in messages %}
             <tr>
-              <td><a href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
-              <td>{{ s.submission_date }}</td>
+              <td>{{ m.message.time }}</td>
+              <td>{{ m.message.frm }}</td>
+              <td><a href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=m.pk access_token=submission.access_token %}">{{ m.message.subject }}</a></td>
             </tr>
           {% endfor %}
         </tbody>
@@ -40,7 +42,7 @@
     <h2>Processing email submissions</h2>
     <p>
       This is where chairs and the secretariat can list and process emails
-      for submissions which will require manual posting.
+      for a submission which will require manual posting.
     </p>
     <p>
       You need to <a href="https://{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">sign in</a> in order to handle email submissions.

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
 from django.db import migrations, models
 
 def port_rules_to_typed_system(apps, schema_editor):
@@ -196,7 +198,7 @@ def fill_in_notify_on(apps, schema_editor):
 
 def add_group_community_lists(apps, schema_editor):
     Group = apps.get_model("group", "Group")
-    Document = apps.get_model("doc", "Document")
+    DocAlias = apps.get_model("doc", "DocAlias")
     State = apps.get_model("doc", "State")
     CommunityList = apps.get_model("community", "CommunityList")
     SearchRule = apps.get_model("community", "SearchRule")
@@ -204,20 +206,31 @@ def add_group_community_lists(apps, schema_editor):
     active_state = State.objects.get(slug="active", type="draft")
     rfc_state = State.objects.get(slug="rfc", type="draft")
 
+    regexp_rules = []
+
     for g in Group.objects.filter(type__in=("rg", "wg")):
         clist = CommunityList.objects.filter(group=g).first()
         if clist:
             SearchRule.objects.get_or_create(community_list=clist, rule_type="group", group=g, state=active_state)
             SearchRule.objects.get_or_create(community_list=clist, rule_type="group_rfc", group=g, state=rfc_state)
             r, _ = SearchRule.objects.get_or_create(community_list=clist, rule_type="name_contains", text=r"^draft-[^-]+-%s-" % g.acronym, state=active_state)
-            r.name_contains_index = Document.objects.filter(docalias__name__regex=r.text)
+            regexp_rules.append(r)
 
         else:
             clist = CommunityList.objects.create(group=g)
             SearchRule.objects.create(community_list=clist, rule_type="group", group=g, state=active_state)
             SearchRule.objects.create(community_list=clist, rule_type="group_rfc", group=g, state=rfc_state)
             r = SearchRule.objects.create(community_list=clist, rule_type="name_contains", text=r"^draft-[^-]+-%s-" % g.acronym, state=active_state)
-            r.name_contains_index = Document.objects.filter(docalias__name__regex=r.text)
+
+            regexp_rules.append(r)
+
+    for r in regexp_rules:
+        r.compiled_re = re.compile(r.text)
+
+    for a in DocAlias.objects.filter(document__type="draft").iterator():
+        for r in regexp_rules:
+            if r.compiled_re.search(a.name):
+                r.name_contains_index.add(a.document_id)
 
 def noop(apps, schema_editor):
     pass

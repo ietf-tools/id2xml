@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.conf import settings
 
 from ietf.community.models import CommunityList, EmailSubscription, SearchRule
-from ietf.doc.models import Document, State
+from ietf.doc.models import Document, DocAlias, State
 from ietf.group.models import Role, Group
 from ietf.person.models import Person
 from ietf.ietfauth.utils import has_role
@@ -78,16 +78,19 @@ def reset_name_contains_index_for_rule(rule):
     if not rule.rule_type == "name_contains":
         return
 
-    rule.name_contains_index = Document.objects.filter(docalias__name__regex=rule.text)
+    rule.name_contains_index = Document.objects.filter(docalias__name__regex=rule.text, type="draft")
 
 def update_name_contains_indexes_with_new_doc(doc):
-    for r in SearchRule.objects.filter(rule_type="name_contains"):
-        # in theory we could use the database to do this query, but
-        # Django doesn't support a reversed regex operator, and regexp
-        # support needs backend-specific code so custom SQL is a bit
-        # cumbersome too
-        if re.search(r.text, doc.name):
-            r.name_contains_index.add(doc)
+    if doc.type_id == "draft":
+        aliases = DocAlias.objects.filter(document=doc)
+        for r in SearchRule.objects.filter(rule_type="name_contains"):
+            # in theory we could use the database to do this query, but
+            # Django doesn't support a reversed regex operator, and regexp
+            # support needs backend-specific code so custom SQL is a bit
+            # cumbersome too
+            for a in aliases:
+                if re.search(r.text, a.name):
+                    r.name_contains_index.add(doc)
 
 def docs_matching_community_list_rule(rule):
     docs = Document.objects.all()

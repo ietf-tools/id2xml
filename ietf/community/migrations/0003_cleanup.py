@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('person', '0004_auto_20150308_0440'),
         ('doc', '0010_auto_20150930_0251'),
-        ('group', '0006_auto_20150718_0509'),
+        ('group', '0007_concluded_group_cleanup'),
         ('community', '0002_auto_20141222_1749'),
     ]
 

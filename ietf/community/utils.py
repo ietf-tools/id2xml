@@ -56,15 +56,23 @@ def augment_docs_with_tracking_info(docs, user):
     """Add attribute to each document with whether the document is tracked
     by the user or not."""
 
-    tracked = set()
+    tracked = {}
 
     if user and user.is_authenticated():
         clist = CommunityList.objects.filter(user=user).first()
         if clist:
-            tracked.update(docs_tracked_by_community_list(clist).filter(pk__in=docs).values_list("pk", flat=True))
+            # in theory we could do this in one go with a database OR,
+            # but the query planner has often problems with OR and
+            # JOINs so match one rule by at the time
+            for rule in clist.searchrule_set.all():
+                for d in docs_matching_community_list_rule(rule).values_list("pk", flat=True):
+                    tracked[d] = "searchrule"
+
+            for d in clist.added_docs.values_list("pk", flat=True):
+                tracked[d] = "individual"
 
     for d in docs:
-        d.tracked_in_personal_community_list = d.pk in tracked
+        d.tracked_in_personal_community_list = tracked.get(d.pk)
 
 def reset_name_contains_index_for_rule(rule):
     if not rule.rule_type == "name_contains":
@@ -84,17 +92,17 @@ def update_name_contains_indexes_with_new_doc(doc):
 def docs_matching_community_list_rule(rule):
     docs = Document.objects.all()
     if rule.rule_type in ['group', 'area', 'group_rfc', 'area_rfc']:
-        return docs.filter(Q(group=rule.group_id) | Q(group__parent=rule.group_id), states=rule.state)
+        return docs.filter(Q(group=rule.group_id) | Q(group__parent=rule.group_id), states=rule.state_id)
     elif rule.rule_type.startswith("state_"):
-        return docs.filter(states=rule.state)
+        return docs.filter(states=rule.state_id)
     elif rule.rule_type in ["author", "author_rfc"]:
-        return docs.filter(states=rule.state, documentauthor__author__person=rule.person)
+        return docs.filter(states=rule.state_id, documentauthor__author__person=rule.person)
     elif rule.rule_type == "ad":
-        return docs.filter(states=rule.state, ad=rule.person)
+        return docs.filter(states=rule.state_id, ad=rule.person)
     elif rule.rule_type == "shepherd":
-        return docs.filter(states=rule.state, shepherd__person=rule.person)
+        return docs.filter(states=rule.state_id, shepherd__person=rule.person)
     elif rule.rule_type == "name_contains":
-        return docs.filter(states=rule.state, searchrule=rule)
+        return docs.filter(states=rule.state_id, searchrule=rule)
 
     raise NotImplementedError
 

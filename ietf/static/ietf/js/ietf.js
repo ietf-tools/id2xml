@@ -100,11 +100,15 @@ $(document).ready(function () {
     }
 
     // search results
-    $('.track-untrack-doc').click(function(e) {
+    $('.track-doc,.untrack-doc').click(function(e) {
 	e.preventDefault();
         var trigger = $(this);
+        var url = trigger.attr('href');
+        if (!url)
+            return;
+
         $.ajax({
-	    url: trigger.attr('href'),
+            url: url,
             type: 'POST',
 	    cache: false,
 	    dataType: 'json',
@@ -112,7 +116,7 @@ $(document).ready(function () {
 		if (response.success) {
                     trigger.parent().find(".tooltip").remove();
                     trigger.addClass("hide");
-                    trigger.parent().find(".track-untrack-doc").not(trigger).removeClass("hide");
+                    trigger.parent().find(".track-doc,.untrack-doc").not(trigger).removeClass("hide");
                 }
 	    }
 	});

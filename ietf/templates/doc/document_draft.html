@@ -489,9 +489,16 @@
         {% endif %}
       </ul>
     </div>
+
     {% if user.is_authenticated %}
-      <a class="btn btn-default btn-xs track-untrack-doc {% if not doc.tracked_in_personal_community_list %}hide{% endif %}" href="{% url "community_personal_untrack_document" user.username doc.name %}" title="Remove from your personal ID list"><span class="fa fa-bookmark"></span> Untrack</a>
-      <a class="btn btn-default btn-xs track-untrack-doc {% if doc.tracked_in_personal_community_list %}hide{% endif %}" href="{% url "community_personal_track_document" user.username doc.name %}" title="Add to your personal ID list"><span class="fa fa-bookmark-o"></span> Track</a>
+      {% with tracked=doc.tracked_in_personal_community_list %}
+        <a {% if tracked != "searchrule" %}href="{% url "community_personal_untrack_document" request.user.username doc.name %}"{% endif %} class="btn btn-default btn-xs untrack-doc {% if not tracked %}hide{% endif %}" title="{% if tracked == "searchrule" %}Tracked by search rule in your personal document list{% else %}Individually tracked in your personal document list - click to remove{% endif %}">
+          <span class="fa fa-bookmark"></span> Untrack
+        </a>
+        <a href="{% url "community_personal_track_document" request.user.username doc.name %}" class="btn btn-default btn-xs track-doc {% if tracked %}hide{% endif %}" title="Track in your personal document list">
+          <span class="fa fa-bookmark-o"></span> Track
+        </a>
+      {% endwith %}
     {% endif %}
 
     {% if can_edit and iesg_state %}

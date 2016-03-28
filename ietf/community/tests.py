@@ -7,9 +7,9 @@ from django.contrib.auth.models import User
 
 from ietf.community.models import CommunityList, SearchRule, EmailSubscription
 from ietf.community.utils import docs_matching_community_list_rule, community_list_rules_matching_doc
-from ietf.community.utils import reset_name_contains_index_for_rule
+from ietf.community.utils import reset_name_contains_index_for_rule, augment_docs_with_tracking_info
 from ietf.group.utils import setup_default_community_list_for_group
-from ietf.doc.models import State
+from ietf.doc.models import Document, State
 from ietf.doc.utils import add_state_change_event
 from ietf.person.models import Person, Email
 from ietf.utils.test_data import make_test_data
@@ -217,9 +217,9 @@ class CommunityListTests(TestCase):
         clist.added_docs.add(draft)
         SearchRule.objects.create(
             community_list=clist,
-            rule_type="name_contains",
+            rule_type="group",
             state=State.objects.get(type="draft", slug="active"),
-            text="test",
+            group=draft.group,
         )
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -251,9 +251,9 @@ class CommunityListTests(TestCase):
         clist.added_docs.add(draft)
         SearchRule.objects.create(
             community_list=clist,
-            rule_type="name_contains",
+            rule_type="group",
             state=State.objects.get(type="draft", slug="active"),
-            text="test",
+            group=draft.group,
         )
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -291,9 +291,9 @@ class CommunityListTests(TestCase):
         clist.added_docs.add(draft)
         SearchRule.objects.create(
             community_list=clist,
-            rule_type="name_contains",
+            rule_type="group",
             state=State.objects.get(type="draft", slug="active"),
-            text="test",
+            group=draft.group,
         )
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -332,9 +332,9 @@ class CommunityListTests(TestCase):
         clist.added_docs.add(draft)
         SearchRule.objects.create(
             community_list=clist,
-            rule_type="name_contains",
+            rule_type="group",
             state=State.objects.get(type="draft", slug="active"),
-            text="test",
+            group=draft.group,
         )
 
         EmailSubscription.objects.create(community_list=clist, email=Email.objects.filter(person__user__username="plain").first(), notify_on="significant")
@@ -351,4 +351,33 @@ class CommunityListTests(TestCase):
         self.assertEqual(len(outbox), mailbox_before + 1)
         self.assertTrue(draft.name in outbox[-1]["Subject"])
         
-        
+    def test_augment_docs_with_tracking_info(self):
+        draft = make_test_data()
+
+        user = User.objects.get(username="plain")
+
+        clist = CommunityList.objects.create(user=user)
+
+        # no match
+        augment_docs_with_tracking_info([draft], user)
+        self.assertTrue(not draft.tracked_in_personal_community_list)
+
+        # rule match
+        SearchRule.objects.create(
+            community_list=clist,
+            rule_type="group",
+            state=State.objects.get(type="draft", slug="active"),
+            group=draft.group,
+        )
+        draft = Document.objects.get(pk=draft.pk)
+        augment_docs_with_tracking_info([draft], user)
+        self.assertEqual(draft.tracked_in_personal_community_list, "searchrule")
+
+        # rule and individual match
+        clist.added_docs.add(draft)
+
+        draft = Document.objects.get(pk=draft.pk)
+        augment_docs_with_tracking_info([draft], user)
+        self.assertEqual(draft.tracked_in_personal_community_list, "individual")
+
+

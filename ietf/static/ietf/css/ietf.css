@@ -459,3 +459,8 @@ label#list-feeds {
 .email-subscription button[type=submit] {
   margin-left: 3em;
 }
+
+a.untrack-doc:not([href]) {
+  opacity: 0.6;
+  cursor: default;
+}

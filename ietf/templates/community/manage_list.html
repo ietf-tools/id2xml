@@ -55,7 +55,7 @@
     <p>You can also add documents here:</p>
   {% endif %}
 
-  <form class="form add-document" method="post">
+  <form class="add-document form-inline" method="post">
     {% csrf_token %}
     {% bootstrap_field add_doc_form.documents show_label=False %}
     <button class="btn btn-primary" name="action" value="add_documents">Add documents</button>
@@ -105,7 +105,7 @@
 
   {% endif %}
 
-  <div><a class="btn btn-primary" data-toggle="collapse" data-target="#add-new-rule">Add a new rule</a></div>
+  <div><a class="btn btn-default" data-toggle="collapse" data-target="#add-new-rule"><span class="glyphicon glyphicon-collapse-down"></span> Add a new rule</a></div>
 
   <div id="add-new-rule" {% if not rule_type_form.errors and not rule_form %}class="collapse"{% endif %}>
     <h3>Add a new rule</h3>

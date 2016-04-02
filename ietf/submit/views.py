@@ -21,13 +21,14 @@ from ietf.doc.models import Document, DocAlias
 from ietf.doc.utils import prettify_std_name
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
+from ietf.ipr.mail import get_reply_to
 from ietf.mailtrigger.utils import gather_address_lists
 from ietf.message.models import Message
-from ietf.person.models import Person
 from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm, \
-    SubmissionEmailForm
+    SubmissionEmailForm, MessageModelForm
 from ietf.submit.mail import send_full_url, send_approval_request_to_group, \
-    send_submission_confirmation, send_manual_post_request, get_mail_contents, decode_text
+    send_submission_confirmation, send_manual_post_request, get_mail_contents, decode_text, \
+    add_submission_email
 from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName, \
     SubmissionEmail, SubmissionEmailAttachment
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user
@@ -37,7 +38,7 @@ from ietf.submit.utils import post_submission, cancel_submission, rename_submiss
 from ietf.utils.accesstoken import generate_random_key, generate_access_token
 from ietf.utils.draft import Draft
 from ietf.utils.log import log
-from ipr.mail import message_from_message, utc_from_string
+from ietf.utils.mail import send_mail_message
 
 
 def upload_submission(request):
@@ -557,54 +558,114 @@ def add_manualpost_email(request):
             message = form.cleaned_data['message']
             #in_reply_to = form.cleaned_data['in_reply_to']
             # create Message
-            attachments = get_mail_contents(message)
-            body=''
-            for attach in attachments:
-                if attach.is_body == 'text/plain' and attach.disposition == None:
-                    payload, used_charset=decode_text(attach.payload, attach.charset, 'auto')
-                    body = body + payload + '\n'
-
-            msg = submit_message_from_message(message, body, request.user.person)
-
-            try:
-                submission = Submission.objects.get(name=name)
-            except Submission.DoesNotExist:
-                # create Submission using the name
-                try:
-                    submission = Submission.objects.create(
-                            state=DraftSubmissionStateName.objects.get(slug="secr-submit"),
-                            remote_ip=request.META.get('REMOTE_ADDR', None),
-                            name=name,
-                            title=name,
-                            note="",
-                            submission_date=datetime.date.today(),
-                            replaces="",
-                    )
-                except Exception as e:
-                    log("Exception: %s\n" % e)
-                    raise
 
             if form.cleaned_data['direction'] == 'incoming':
                 msgtype = 'msgin'
             else:
                 msgtype = 'msgout'
-                
-            submission_email_event = SubmissionEmail.objects.create(
-                    submission = submission,
-                    msgtype = msgtype,
-                    by = request.user.person,
-                    message = msg
-            )
-            #in_reply_to = in_reply_to
-            
-            save_submission_email_attachments(submission_email_event, attachments)
-            
+
+            add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
+                                 name = name,
+                                 message = message,
+                                 by = request.user.person,
+                                 msgtype = msgtype)
+                                         
             messages.success(request, 'Email added.')
             return redirect("submit_manualpost_list")
     else:
         form = SubmissionEmailForm()
 
     return render(request, 'submit/add_submit_email.html',dict(form=form))
+
+
+@role_required('Secretariat',)
+def send_email(request, submission_id, message_id=None):
+    """Send an email related to a submission"""
+    submission = get_submission_or_404(submission_id, access_token = None)
+
+    if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect('submit_submission_emails_by_hash',
+                            submission_id=submission.id,
+                            access_token=submission.access_token())
+
+        form = MessageModelForm(request.POST)
+        if form.is_valid():
+            # create Message
+            msg = Message.objects.create(
+                    by = request.user.person,
+                    subject = form.cleaned_data['subject'],
+                    frm = form.cleaned_data['frm'],
+                    to = form.cleaned_data['to'],
+                    cc = form.cleaned_data['cc'],
+                    bcc = form.cleaned_data['bcc'],
+                    reply_to = form.cleaned_data['reply_to'],
+                    body = form.cleaned_data['body']
+            )
+            
+            in_reply_to_id = form.cleaned_data['in_reply_to_id']
+            in_reply_to = None
+            
+            if in_reply_to_id:
+                try:
+                    in_reply_to = Message.objects.get(id=in_reply_to_id)
+                except Message.DoesNotExist:
+                    log("Unable to retrieve in_reply_to message: %s" % in_reply_to_id)
+
+            SubmissionEmail.objects.create(
+                    submission = submission,
+                    msgtype = 'msgout',
+                    by = request.user.person,
+                    message = msg,
+                    in_reply_to = in_reply_to)
+
+            # send email
+            send_mail_message(None,msg)
+
+            messages.success(request, 'Email sent.')
+            return redirect('submit_submission_emails_by_hash', 
+                            submission_id=submission.id,
+                            access_token=submission.access_token())
+
+    else:
+        reply_to = get_reply_to()
+        msg = None
+        
+        if not message_id:
+            addrs = gather_address_lists('sub_confirmation_requested',submission=submission).as_strings(compact=False)
+            to_email = addrs.to
+            cc = addrs.cc
+            subject = 'Regarding {}'.format(submission.name)
+        else:
+            try:
+                msg = Message.objects.get(id=message_id)
+                to_email = msg.frm
+                cc = msg.cc
+                subject = 'Re:{}'.format(msg.subject)
+            except Message.DoesNotExist:
+                to_email = None
+                cc = None
+                subject = 'Regarding {}'.format(submission.name)
+
+        initial = {
+            'to': to_email,
+            'cc': cc,
+            'frm': settings.IDSUBMIT_FROM_EMAIL,
+            'subject': subject,
+            'reply_to': reply_to,
+        }
+        
+        if msg:
+            initial['in_reply_to_id'] = msg.id
+        
+        form = MessageModelForm(initial=initial)
+
+    return render(request, "submit/email.html",  {
+        'submission': submission,
+        'access_token': submission.access_token(),
+        'form':form})
+
 
 def manual_post_email_submissions(request):
     """ Provide a list of the submission objects for which we have 
@@ -625,7 +686,7 @@ def submission_emails(request, submission_id, access_token=None):
 
     messages = SubmissionEmail.objects.filter(submission=submission)
 
-    return render(request, 'submit/premanual_post_emails.html',
+    return render(request, 'submit/submission_emails.html',
                   {'submission': submission,
                    'messages': messages})
 
@@ -635,7 +696,7 @@ def submission_email(request, submission_id, message_id, access_token=None):
     message = get_object_or_404(SubmissionEmail, pk=message_id)    
     attachments = message.submissionemailattachment_set.all()
     
-    return render(request, 'submit/premanual_post_email.html',
+    return render(request, 'submit/submission_email.html',
                   {'submission': submission,
                    'message': message,
                    'attachments': attachments})
@@ -649,13 +710,11 @@ def submission_email_attachment(request, submission_id, message_id, filename, ac
                                submission_email=message, 
                                filename=filename)
     
-    dirpath = os.path.join(settings.IDSUBMIT_ATTACH_PATH, submission.name)
-    filepath = os.path.join(dirpath, attach.filename)
-
-    wrapper = FileWrapper(file(filepath))
-    response = HttpResponse(wrapper, content_type='text/plain')
+    body = attach.body.encode('utf-8')
+    
+    response = HttpResponse(body, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % attach.filename
-    response['Content-Length'] = os.path.getsize(filepath)
+    response['Content-Length'] = len(body)
     return response
     
 
@@ -668,42 +727,3 @@ def get_submission_or_404(submission_id, access_token=None):
         raise Http404
 
     return submission
-
-
-def submit_message_from_message(message,body,by=None):
-    """Returns a ietf.message.models.Message.  msg=email.Message
-        A copy of mail.message_from_message with different body handling
-    """
-    if not by:
-        by = Person.objects.get(name="(System)")
-    msg = Message.objects.create(
-            by = by,
-            subject = message.get('subject',''),
-            frm = message.get('from',''),
-            to = message.get('to',''),
-            cc = message.get('cc',''),
-            bcc = message.get('bcc',''),
-            reply_to = message.get('reply_to',''),
-            body = body,
-            time = utc_from_string(message['date'])
-    )
-    return msg
-
-def save_submission_email_attachments(submission_email_event, attachments):
-    for attach in attachments:
-        if attach.disposition != 'attachment':
-            continue
-
-        payload, used_charset=decode_text(attach.payload, attach.charset, 'auto')
-
-        name = submission_email_event.submission.name
-        dirpath = os.path.join(settings.IDSUBMIT_ATTACH_PATH, name)
-        filepath = os.path.join(dirpath, attach.filename)
-        
-        SubmissionEmailAttachment.objects.create(submission_email = submission_email_event,
-                                                 filename=attach.filename)
-        if not os.path.exists(dirpath):
-            os.makedirs(dirpath)
-        attach_file = open(filepath, 'w')
-        attach_file.write(payload)
-        attach_file.close()

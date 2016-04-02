@@ -122,6 +122,7 @@ class SubmissionEmailAttachment(models.Model):
     submission_email = models.ForeignKey(SubmissionEmail)
     filename = models.CharField(max_length=255, db_index=True, blank=True)
     removed = models.BooleanField(default=False)
+    body = models.TextField()
 
     def __unicode__(self):
         return self.document.name

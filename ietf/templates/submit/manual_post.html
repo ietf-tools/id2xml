@@ -40,6 +40,29 @@
       </table>
     {% endif %}
 
+    <h2 class="anchor-target" id="approvals">Submissions awaiting draft upload</h2>
+
+    {% if not awaiting_draft %}
+      <p>There are no submissions awaiting draft upload.</p>
+    {% else %}
+      <table class="awaiting-draft table table-condensed table-striped tablesorter">
+        <thead>
+        <tr>
+          <th>Title</th>
+          <th>Submitted</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in awaiting_draft %}
+          <tr>
+            <td><a href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
+            <td>{{ s.submission_date }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
   {% else %}
     <h2>Processing manual submissions</h2>
     <p>

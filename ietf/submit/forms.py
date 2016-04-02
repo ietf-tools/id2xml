@@ -439,8 +439,8 @@ class SubmissionEmailForm(forms.Form):
 
     def clean_message(self):
         '''Returns a ietf.message.models.Message object'''
-        text = self.cleaned_data['message']
-        message = email.message_from_string(text)
+        self.message_text = self.cleaned_data['message']
+        message = email.message_from_string(self.message_text)
         for field in ('to','from','subject','date'):
             if not message[field]:
                 raise forms.ValidationError('Error parsing email: {} field not found.'.format(field))
@@ -465,3 +465,17 @@ class SubmissionEmailForm(forms.Form):
         #        raise forms.ValidationError('The incoming message must have a date later than the message it is replying to')
 
         return self.cleaned_data
+
+class MessageModelForm(forms.ModelForm):
+    in_reply_to_id = forms.CharField(widget=forms.HiddenInput())
+    
+    class Meta:
+        model = Message
+        fields = ['to','frm','cc','bcc','reply_to','subject','body']
+        exclude = ['time','by','content_type','related_groups','related_docs']
+
+    def __init__(self, *args, **kwargs):
+        super(MessageModelForm, self).__init__(*args, **kwargs)
+        self.fields['frm'].label='From'
+        self.fields['frm'].widget.attrs['readonly'] = True
+        self.fields['reply_to'].widget.attrs['readonly'] = True

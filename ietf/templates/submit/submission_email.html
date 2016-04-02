@@ -42,6 +42,10 @@
           <td><a href="{% url "submit_submission_email_attachment_by_hash" submission_id=submission.pk message_id=message.pk filename=a.filename access_token=submission.access_token %}">{{ a.filename }}</a></td>
         </tr>
       {% endfor %}
+    
+      <tr>
+        <td><a class="btn btn-default" href="{% url "submission_reply_email" submission_id=submission.pk message_id=message.pk %}" title="Reply"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Reply</a></td>
+      </tr>
     </table>
 
   {% else %}

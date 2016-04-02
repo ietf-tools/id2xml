@@ -32,6 +32,7 @@
               <td>{{ m.message.time }}</td>
               <td>{{ m.message.frm }}</td>
               <td><a href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=m.pk access_token=submission.access_token %}">{{ m.message.subject }}</a></td>
+              <td><a class="btn btn-default" href="{% url "submission_reply_email" submission_id=submission.pk message_id=m.message.pk %}" title="Reply"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Reply</a></td>
             </tr>
           {% endfor %}
         </tbody>

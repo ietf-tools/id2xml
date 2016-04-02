@@ -482,8 +482,6 @@ IDSUBMIT_CHECKER_CLASSES = (
 
 IDSUBMIT_MANUAL_STAGING_DIR = '/tmp/'
 
-IDSUBMIT_ATTACH_PATH = '/a/www/ietf-datatracker/documents/manualsub/' # should end in a slash
-
 IDSUBMIT_FILE_TYPES = (
     'txt',
     'xml',

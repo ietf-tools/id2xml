@@ -11,12 +11,14 @@ from ietf.doc.utils import set_replaces_for_document
 from ietf.doc.mails import send_review_possibly_replaces_request
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role
+from ietf.mailtrigger.models import Recipient
 from ietf.name.models import StreamName
 from ietf.person.models import Person, Email
 from ietf.submit.mail import announce_to_lists, announce_new_version, announce_to_authors
 from ietf.submit.models import Submission, SubmissionEvent, Preapproval, DraftSubmissionStateName
 from ietf.utils import unaccent
 from ietf.utils.log import log
+
 
 def validate_submission(submission):
     errors = {}

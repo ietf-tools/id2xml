@@ -1,7 +1,6 @@
 import datetime
 
 from django import forms
-from django.core.validators import validate_email
 
 from ietf.iesg.models import TelechatDate
 from ietf.iesg.utils import telechat_page_count
@@ -42,9 +41,7 @@ class AdForm(forms.Form):
 
 class NotifyForm(forms.Form):
     notify = forms.CharField(max_length=255, help_text="List of email addresses to receive state notifications, separated by comma.", label="Notification list", required=False)
-
+    
     def clean_notify(self):
         addrspecs = [x.strip() for x in self.cleaned_data["notify"].split(',')]
-        for email in addrspecs:
-	    validate_email(email)
         return ', '.join(addrspecs)

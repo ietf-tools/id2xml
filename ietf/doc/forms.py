@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.core.validators import validate_email
 
 from ietf.iesg.models import TelechatDate
 from ietf.iesg.utils import telechat_page_count
@@ -44,4 +45,6 @@ class NotifyForm(forms.Form):
 
     def clean_notify(self):
         addrspecs = [x.strip() for x in self.cleaned_data["notify"].split(',')]
+        for email in addrspecs:
+	    validate_email(email)
         return ', '.join(addrspecs)

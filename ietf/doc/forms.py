@@ -4,6 +4,7 @@ from django import forms
 
 from ietf.iesg.models import TelechatDate
 from ietf.iesg.utils import telechat_page_count
+from django.core.validators import validate_email
 
 class TelechatForm(forms.Form):
     telechat_date = forms.TypedChoiceField(coerce=lambda x: datetime.datetime.strptime(x, '%Y-%m-%d').date(), empty_value=None, required=False, help_text="Page counts are the current page counts for the telechat, before this telechat date edit is made.")
@@ -41,7 +42,9 @@ class AdForm(forms.Form):
 
 class NotifyForm(forms.Form):
     notify = forms.CharField(max_length=255, help_text="List of email addresses to receive state notifications, separated by comma.", label="Notification list", required=False)
-    
+
     def clean_notify(self):
         addrspecs = [x.strip() for x in self.cleaned_data["notify"].split(',')]
+	for email in addrspecs:
+            validate_email(email)
         return ', '.join(addrspecs)

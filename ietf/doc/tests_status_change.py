@@ -138,7 +138,7 @@ class StatusChangeTests(TestCase):
         self.assertEqual(doc.notify,q('form input[name=notify]')[0].value)
 
         # change notice list
-        newlist = '"Foo Bar" <foo@bar.baz.com>'
+        newlist = 'foo@bar.baz.com'
         r = self.client.post(url,dict(notify=newlist,save_addresses="1"))
         self.assertEqual(r.status_code,302)
         doc = Document.objects.get(name='status-change-imaginary-mid-review')

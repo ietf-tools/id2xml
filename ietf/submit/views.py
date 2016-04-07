@@ -540,8 +540,11 @@ def manualpost(request):
         s.passes_checks = all([ c.passed!=False for c in s.checks.all() ])
         s.errors = validate_submission(s)
 
+    awaiting_draft = Submission.objects.filter(state_id = "manual-awaiting-draft").distinct()
+
     return render(request, 'submit/manual_post.html',
-                  {'manual': manual})
+                  {'manual': manual,
+                   'awaiting_draft': awaiting_draft})
 
 @role_required('Secretariat',)
 def add_manualpost_email(request):

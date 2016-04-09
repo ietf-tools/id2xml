@@ -12,7 +12,6 @@
 
 {% block submit_content %}
   {% origin %}
-  {% if user.is_authenticated %}
     <h2 class="anchor-target" id="approvals">Email for {{ submission.name }}</h2>
 
     <table class="emails table table-condensed table-striped tablesorter">
@@ -39,25 +38,16 @@
       {% for a in attachments %}
         <tr>
           <th>Attachment</th>
-          <td><a href="{% url "submit_submission_email_attachment_by_hash" submission_id=submission.pk message_id=message.pk filename=a.filename access_token=submission.access_token %}">{{ a.filename }}</a></td>
+          <td><a href="{% url "submit_submission_email_attachment" submission_id=submission.pk message_id=message.pk filename=a.filename %}">{{ a.filename }}</a></td>
         </tr>
       {% endfor %}
-    
-      <tr>
-        <td><a class="btn btn-default" href="{% url "submission_reply_email" submission_id=submission.pk message_id=message.pk %}" title="Reply"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Reply</a></td>
-      </tr>
-    </table>
 
-  {% else %}
-    <h2>Processing email submissions</h2>
-    <p>
-      This is where chairs and the secretariat can list and process emails
-      for a submission which will require manual posting.
-    </p>
-    <p>
-      You need to <a href="https://{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">sign in</a> in order to handle email submissions.
-    </p>
-  {% endif %}
+      {% if user|has_role:"Secretariat" %}
+        <tr>
+          <td><a class="btn btn-default" href="{% url "submission_reply_email" submission_id=submission.pk message_id=message.pk %}" title="Reply"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Reply</a></td>
+        </tr>
+      {% endif %}
+    </table>
 {% endblock %}
 
 {% block js %}

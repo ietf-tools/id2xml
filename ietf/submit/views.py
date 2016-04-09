@@ -528,7 +528,6 @@ def cancel_preapproval(request, preapproval_id):
                                'preapproval': preapproval })
 
 
-@role_required('Secretariat')
 def manualpost(request):
     '''
     Main view for manual post requests
@@ -687,11 +686,11 @@ def submission_emails(request, submission_id, access_token=None):
     is_secretariat = has_role(request.user, "Secretariat")
     is_chair = submission.group and submission.group.has_role(request.user, "chair")
 
-    messages = SubmissionEmail.objects.filter(submission=submission)
+    subemails = SubmissionEmail.objects.filter(submission=submission)
 
     return render(request, 'submit/submission_emails.html',
                   {'submission': submission,
-                   'messages': messages})
+                   'subemails': subemails})
 
 def submission_email(request, submission_id, message_id, access_token=None):
     submission = get_submission_or_404(submission_id, access_token)

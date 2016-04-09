@@ -12,7 +12,7 @@
 
 {% block submit_content %}
   {% origin %}
-  {% if user.is_authenticated %}
+
     <h2 class="anchor-target" id="approvals">Submissions needing manual posting</h2>
 
     {% if not manual %}
@@ -30,7 +30,11 @@
         <tbody>
           {% for s in manual %}
             <tr>
-              <td><a href="{% url "submit_submission_status_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}-{{ s.rev }}</a></td>
+              {% if user.is_authenticated %}
+                <td><a href="{% url "submit_submission_status_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}-{{ s.rev }}</a></td>
+              {% else %}
+                <td><a href="{% url "submit_submission_status" submission_id=s.pk %}">{{ s.name }}-{{ s.rev }}</a></td>
+              {% endif %}
               <td>{{ s.submission_date }}</td>
               <td>{% if s.passes_checks %}Ok{% else %}Fails{% endif %}</td>
               <td>{% if s.errors %}Errors{% else %}Ok{% endif %}</td>
@@ -55,24 +59,17 @@
         <tbody>
         {% for s in awaiting_draft %}
           <tr>
-            <td><a href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
+            {% if user.is_authenticated %}
+              <td><a href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
+            {% else %}
+              <td><a href="{% url "submit_submission_emails" submission_id=s.pk %}">{{ s.name }}</a></td>
+            {% endif %}
             <td>{{ s.submission_date }}</td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
     {% endif %}
-
-  {% else %}
-    <h2>Processing manual submissions</h2>
-    <p>
-      This is where chairs and the secretariat can list and process document
-      submissions which require manual posting, such as WG -00 drafts.
-    </p>
-    <p>
-      You need to <a href="https://{{ request.get_host }}/accounts/login/?next={{request.get_full_path|urlencode}}" rel="nofollow">sign in</a> in order to handle manual posts.
-    </p>
-  {% endif %}
 {% endblock %}
 
 {% block js %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin %}
+
+{% load bootstrap3 %}
+
+{% block title %}{% if submission == None %}Add new submission request email{% else %}Add submission request email to {{ submission.name }}{% endif %}{% endblock %}
+
+{% block content %}
+  {% origin %}
+    <h1>Add email</h1>
+
+    <p>{% if submission == None %}A new submission request will be created{% else %}The email will be added to the submission history for {{ submission.name }}{% endif %}</p>
+
+    <form class="add-email" method="post">
+        {% csrf_token %}
+
+        {% bootstrap_form form %}
+    
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">Add Email</button>
+            <a class="btn btn-default pull-right" href="{% url "submit_manualpost" %}">Back</a>
+        {% endbuttons %}
+    </form>
+
+{% endblock %}

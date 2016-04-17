@@ -1,3 +1,5 @@
+import email
+
 import datetime
 import os
 import shutil
@@ -20,6 +22,8 @@ from ietf.person.models import Person
 from ietf.group.models import Group
 from ietf.doc.models import Document, DocAlias, DocEvent, State, BallotDocEvent, BallotPositionDocEvent, DocumentAuthor
 from ietf.submit.models import Submission, Preapproval
+from ietf.submit.mail import add_submission_email
+
 
 class SubmitTests(TestCase):
     def setUp(self):
@@ -311,6 +315,12 @@ class SubmitTests(TestCase):
         mailbox_before = len(outbox)
         r = self.client.post(confirm_url)
         self.assertEqual(r.status_code, 302)
+
+        # check we have document events 
+        doc_events = draft.docevent_set.filter(type="added_comment")
+        edescs = '::'.join([x.desc for x in doc_events])
+        self.assertTrue('New version approved' in edescs)
+        self.assertTrue('Uploaded new revision' in edescs)
 
         draft = Document.objects.get(docalias__name=name)
         self.assertEqual(draft.rev, rev)
@@ -870,3 +880,57 @@ class ApprovalsTestCase(TestCase):
         self.assertEqual(r.status_code, 302)
 
         self.assertEqual(len(Preapproval.objects.filter(name=preapproval.name)), 0)
+
+class ManualPostsTestCase(TestCase):
+    def test_manual_posts(self):
+        make_test_data()
+
+        url = urlreverse('submit_manualpost')
+        # Secretariat has access
+        self.client.login(username="secretary", password="secretary+password")
+
+        Submission.objects.create(name="draft-ietf-mars-foo",
+                                  group=Group.objects.get(acronym="mars"),
+                                  submission_date=datetime.date.today(),
+                                  state_id="manual")
+        Submission.objects.create(name="draft-ietf-mars-bar",
+                                  group=Group.objects.get(acronym="mars"),
+                                  submission_date=datetime.date.today(),
+                                  rev="00",
+                                  state_id="grp-appr")
+
+        # get
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+
+        self.assertEqual(len(q('.submissions a:contains("draft-ietf-mars-foo")')), 1)
+        self.assertEqual(len(q('.submissions a:contains("draft-ietf-mars-bar")')), 0)
+
+    def test_awaiting_draft(self):
+        message_string = """To: somebody@ietf.org
+From: joe@test.com
+Date: {}
+Subject: test submission via email
+
+Please submit my draft at http://test.com/mydraft.txt
+
+Thank you
+""".format(datetime.datetime.now().ctime())
+        message = email.message_from_string(message_string)
+        add_submission_email(remote_ip ="192.168.0.1",
+                             name = "draft-my-new-draft",
+                             message = message,
+                             by = Person.objects.get(name="(System)"),
+                             msgtype = "msgin")
+
+        url = urlreverse('submit_manualpost')
+        # Secretariat has access
+        self.client.login(username="secretary", password="secretary+password")
+
+        # get
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+
+        self.assertEqual(len(q('.awaiting-draft a:contains("draft-my-new-draft")')), 1)

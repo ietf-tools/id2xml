@@ -1,12 +1,17 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
+import email
+from rexec import FileWrapper
+
 import datetime
 import os
 import xml2rfc
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse as urlreverse
 from django.core.validators import validate_email, ValidationError
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, \
+    HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.module_loading import import_string
 
@@ -16,16 +21,24 @@ from ietf.doc.models import Document, DocAlias
 from ietf.doc.utils import prettify_std_name
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
-from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm
-from ietf.submit.mail import send_full_url, send_approval_request_to_group, send_submission_confirmation, send_manual_post_request
-from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName
+from ietf.ipr.mail import get_reply_to
+from ietf.mailtrigger.utils import gather_address_lists
+from ietf.message.models import Message, MessageAttachment
+from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm, \
+    SubmissionEmailForm, MessageModelForm
+from ietf.submit.mail import send_full_url, send_approval_request_to_group, \
+    send_submission_confirmation, send_manual_post_request, get_mail_contents, decode_text, \
+    add_submission_email
+from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName, \
+    SubmissionEmail
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user
 from ietf.submit.utils import validate_submission, create_submission_event
+from ietf.submit.utils import docevent_from_submission
 from ietf.submit.utils import post_submission, cancel_submission, rename_submission_files
 from ietf.utils.accesstoken import generate_random_key, generate_access_token
 from ietf.utils.draft import Draft
 from ietf.utils.log import log
-from ietf.mailtrigger.utils import gather_address_lists
+from ietf.utils.mail import send_mail_message
 
 
 def upload_submission(request):
@@ -135,6 +148,7 @@ def upload_submission(request):
                             break
 
                 create_submission_event(request, submission, desc="Uploaded submission")
+                docevent_from_submission(request, submission, desc="Uploaded new revision")
 
                 return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=submission.access_token())
         except IOError as e:
@@ -244,6 +258,7 @@ def submission_status(request, submission_id, access_token=None):
                     sent_to = send_approval_request_to_group(request, submission)
 
                     desc = "sent approval email to group chairs: %s" % u", ".join(sent_to)
+                    docDesc = u"Request for posting approval emailed to group chairs: %s" % u", ".join(sent_to)
 
                 else:
                     submission.auth_key = generate_random_key()
@@ -257,14 +272,17 @@ def submission_status(request, submission_id, access_token=None):
 
                     if submission.state_id == "aut-appr":
                         desc = u"sent confirmation email to previous authors: %s" % u", ".join(sent_to)
+                        docDesc = "Request for posting confirmation emailed to previous authors: %s" % u", ".join(sent_to)
                     else:
                         desc = u"sent confirmation email to submitter and authors: %s" % u", ".join(sent_to)
+                        docDesc = "Request for posting confirmation emailed to submitter and authors: %s" % u", ".join(sent_to)
 
                 msg = u"Set submitter to \"%s\", replaces to %s and %s" % (
                     submission.submitter,
                     ", ".join(prettify_std_name(r.name) for r in replaces) if replaces else "(none)",
                     desc)
                 create_submission_event(request, submission, msg)
+                docevent_from_submission(request, submission, docDesc)
 
                 if access_token:
                     return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=access_token)
@@ -299,7 +317,7 @@ def submission_status(request, submission_id, access_token=None):
             if not can_group_approve:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
+            post_submission(request, submission, "WG -00 approved")
 
             create_submission_event(request, submission, "Approved and posted submission")
 
@@ -310,12 +328,12 @@ def submission_status(request, submission_id, access_token=None):
             if not can_force_post:
                 return HttpResponseForbidden('You do not have permission to perform this action')
 
-            post_submission(request, submission)
-
             if submission.state_id == "manual":
                 desc = "Posted submission manually"
             else:
                 desc = "Forced post of submission"
+
+            post_submission(request, submission, desc)
 
             create_submission_event(request, submission, desc)
 
@@ -432,7 +450,16 @@ def confirm_submission(request, submission_id, auth_token):
     if not key_matched: key_matched = auth_token == submission.auth_key # backwards-compat
 
     if request.method == 'POST' and submission.state_id in ("auth", "aut-appr") and key_matched:
-        post_submission(request, submission)
+        submitter_parsed = submission.submitter_parsed()
+        if submitter_parsed["name"] and submitter_parsed["email"]:
+            # We know who approved it
+            desc = "New version approved"
+        elif submission.state_id == "auth":
+            desc = "New version approved by author"
+        else:
+            desc = "New version approved by previous author"
+
+        post_submission(request, submission, desc)
 
         create_submission_event(request, submission, "Confirmed and posted submission")
 
@@ -499,3 +526,196 @@ def cancel_preapproval(request, preapproval_id):
     return render(request, 'submit/cancel_preapproval.html',
                               {'selected': 'approvals',
                                'preapproval': preapproval })
+
+
+def manualpost(request):
+    '''
+    Main view for manual post requests
+    '''
+
+    manual = Submission.objects.filter(state_id = "manual").distinct()
+    
+    for s in manual:
+        s.passes_checks = all([ c.passed!=False for c in s.checks.all() ])
+        s.errors = validate_submission(s)
+
+    awaiting_draft = Submission.objects.filter(state_id = "manual-awaiting-draft").distinct()
+
+    return render(request, 'submit/manual_post.html',
+                  {'manual': manual,
+                   'selected': 'manual_posts',
+                   'awaiting_draft': awaiting_draft})
+
+@role_required('Secretariat',)
+def add_manualpost_email(request):
+    """Add email to submission history"""
+
+    if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect("submit/manual_post.html")
+
+        form = SubmissionEmailForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            message = form.cleaned_data['message']
+            #in_reply_to = form.cleaned_data['in_reply_to']
+            # create Message
+
+            if form.cleaned_data['direction'] == 'incoming':
+                msgtype = 'msgin'
+            else:
+                msgtype = 'msgout'
+
+            add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
+                                 name = name,
+                                 message = message,
+                                 by = request.user.person,
+                                 msgtype = msgtype)
+                                         
+            messages.success(request, 'Email added.')
+            return redirect("submit_manualpost")
+    else:
+        form = SubmissionEmailForm()
+
+    return render(request, 'submit/add_submit_email.html',dict(form=form))
+
+
+@role_required('Secretariat',)
+def send_email(request, submission_id, message_id=None):
+    """Send an email related to a submission"""
+    submission = get_submission_or_404(submission_id, access_token = None)
+
+    if request.method == 'POST':
+        button_text = request.POST.get('submit', '')
+        if button_text == 'Cancel':
+            return redirect('submit_submission_emails_by_hash',
+                            submission_id=submission.id,
+                            access_token=submission.access_token())
+
+        form = MessageModelForm(request.POST)
+        if form.is_valid():
+            # create Message
+            msg = Message.objects.create(
+                    by = request.user.person,
+                    subject = form.cleaned_data['subject'],
+                    frm = form.cleaned_data['frm'],
+                    to = form.cleaned_data['to'],
+                    cc = form.cleaned_data['cc'],
+                    bcc = form.cleaned_data['bcc'],
+                    reply_to = form.cleaned_data['reply_to'],
+                    body = form.cleaned_data['body']
+            )
+            
+            in_reply_to_id = form.cleaned_data['in_reply_to_id']
+            in_reply_to = None
+            
+            if in_reply_to_id:
+                try:
+                    in_reply_to = Message.objects.get(id=in_reply_to_id)
+                except Message.DoesNotExist:
+                    log("Unable to retrieve in_reply_to message: %s" % in_reply_to_id)
+
+            SubmissionEmail.objects.create(
+                    submission = submission,
+                    msgtype = 'msgout',
+                    by = request.user.person,
+                    message = msg,
+                    in_reply_to = in_reply_to)
+
+            # send email
+            send_mail_message(None,msg)
+
+            messages.success(request, 'Email sent.')
+            return redirect('submit_submission_emails_by_hash', 
+                            submission_id=submission.id,
+                            access_token=submission.access_token())
+
+    else:
+        reply_to = get_reply_to()
+        msg = None
+        
+        if not message_id:
+            addrs = gather_address_lists('sub_confirmation_requested',submission=submission).as_strings(compact=False)
+            to_email = addrs.to
+            cc = addrs.cc
+            subject = 'Regarding {}'.format(submission.name)
+        else:
+            try:
+                msg = Message.objects.get(id=message_id)
+                to_email = msg.frm
+                cc = msg.cc
+                subject = 'Re:{}'.format(msg.subject)
+            except Message.DoesNotExist:
+                to_email = None
+                cc = None
+                subject = 'Regarding {}'.format(submission.name)
+
+        initial = {
+            'to': to_email,
+            'cc': cc,
+            'frm': settings.IDSUBMIT_FROM_EMAIL,
+            'subject': subject,
+            'reply_to': reply_to,
+        }
+        
+        if msg:
+            initial['in_reply_to_id'] = msg.id
+        
+        form = MessageModelForm(initial=initial)
+
+    return render(request, "submit/email.html",  {
+        'submission': submission,
+        'access_token': submission.access_token(),
+        'form':form})
+    
+
+def submission_emails(request, submission_id, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    is_secretariat = has_role(request.user, "Secretariat")
+    is_chair = submission.group and submission.group.has_role(request.user, "chair")
+
+    subemails = SubmissionEmail.objects.filter(submission=submission)
+
+    return render(request, 'submit/submission_emails.html',
+                  {'submission': submission,
+                   'subemails': subemails})
+
+def submission_email(request, submission_id, message_id, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    message = get_object_or_404(SubmissionEmail, pk=message_id)    
+    attachments = message.message.attachment_set.all()
+    
+    return render(request, 'submit/submission_email.html',
+                  {'submission': submission,
+                   'message': message,
+                   'attachments': attachments})
+
+def submission_email_attachment(request, submission_id, message_id, filename, access_token=None):
+    submission = get_submission_or_404(submission_id, access_token)
+
+    message = get_object_or_404(SubmissionEmail, pk=message_id)
+
+    attach = get_object_or_404(MessageAttachment, 
+                               messsage=message, 
+                               filename=filename)
+    
+    body = attach.body.encode('utf-8')
+    
+    response = HttpResponse(body, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % attach.filename
+    response['Content-Length'] = len(body)
+    return response
+    
+
+def get_submission_or_404(submission_id, access_token=None):
+    submission = get_object_or_404(Submission, pk=submission_id)
+
+    key_matched = access_token and submission.access_token() == access_token
+    if not key_matched: key_matched = submission.access_key == access_token # backwards-compat
+    if access_token and not key_matched:
+        raise Http404
+
+    return submission

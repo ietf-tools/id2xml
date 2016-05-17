@@ -304,7 +304,7 @@
       <button class="btn btn-danger" type="submit">Force post of submission</button>
     </form>
 
-    <a class="btn btn-default" href="{% url "submission_send_email" submission_id=submission.pk %}" title="Email submitter"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Email</a>
+    <a class="btn btn-default" href="{% url "submit_manualpost_email_by_hash" submission_id=submission.pk access_token=submission.access_token %}" title="Email submitter"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Email</a>
   {% endif %}
 
   {% if show_send_full_url %}

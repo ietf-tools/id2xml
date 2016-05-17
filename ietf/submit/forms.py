@@ -17,7 +17,6 @@ from ietf.doc.models import Document
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role
 from ietf.doc.fields import SearchableDocAliasesField
-from ietf.ipr.forms import MessageModelChoiceField
 from ietf.ipr.mail import utc_from_string
 from ietf.meeting.models import Meeting
 from ietf.message.models import Message
@@ -428,7 +427,15 @@ class PreapprovalForm(forms.Form):
 
 
 class SubmissionEmailForm(forms.Form):
+    '''
+    Used to add a message to a submission or to create a new submission.
+    This message is NOT a reply to a previous message but has arrived out of band
+    
+    if submission_pk is None we are startign a new submission and name
+    must be unique. Otehrwise the name must match the submission.name.
+    '''
     name = forms.CharField(required=True, max_length=255, label="Draft name")
+    submission_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
     direction = forms.ChoiceField(choices=(("incoming", "Incoming"), ("outgoing", "Outgoing")),
                                   widget=forms.RadioSelect)
     message = forms.CharField(required=True, widget=forms.Textarea)
@@ -477,5 +484,5 @@ class MessageModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MessageModelForm, self).__init__(*args, **kwargs)
         self.fields['frm'].label='From'
-        self.fields['frm'].widget.attrs['readonly'] = True
-        self.fields['reply_to'].widget.attrs['readonly'] = True
+        self.fields['frm'].widget.attrs['readonly'] = 'True'
+        self.fields['reply_to'].widget.attrs['readonly'] = 'True'

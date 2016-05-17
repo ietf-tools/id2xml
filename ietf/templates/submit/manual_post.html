@@ -16,9 +16,9 @@
     <h2 class="anchor-target" id="approvals">Submissions needing manual posting</h2>
 
     {% if not manual %}
-      <p>There are no submissions needing manual posting.</p>
+      <p id="no-manual">There are no submissions needing manual posting.</p>
     {% else %}
-      <table class="submissions table table-condensed table-striped tablesorter">
+      <table id="manual" class="submissions table table-condensed table-striped tablesorter">
         <thead>
           <tr>
             <th>Draft</th>
@@ -47,9 +47,9 @@
     <h2 class="anchor-target" id="approvals">Submissions awaiting draft upload</h2>
 
     {% if not awaiting_draft %}
-      <p>There are no submissions awaiting draft upload.</p>
+      <p id="no-awaiting-draft">There are no submissions awaiting draft upload.</p>
     {% else %}
-      <table class="awaiting-draft table table-condensed table-striped tablesorter">
+      <table id="awaiting-draft" class="awaiting-draft table table-condensed table-striped tablesorter">
         <thead>
         <tr>
           <th>Title</th>
@@ -60,11 +60,15 @@
         {% for s in awaiting_draft %}
           <tr>
             {% if user.is_authenticated %}
-              <td><a href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
+              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
             {% else %}
-              <td><a href="{% url "submit_submission_emails" submission_id=s.pk %}">{{ s.name }}</a></td>
+              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_emails" submission_id=s.pk %}">{{ s.name }}</a></td>
             {% endif %}
             <td>{{ s.submission_date }}</td>
+
+            {% if user|has_role:"Secretariat" %}
+              <td><a id="add-submission-email{{ s.pk }}" class="btn btn-default" href="{% url "submit_manualpost_email_by_hash" submission_id=s.pk access_token=s.access_token %}">Add email</a></td>
+            {% endif %}
           </tr>
         {% endfor %}
         </tbody>
@@ -72,7 +76,7 @@
     {% endif %}
 
     {% if user|has_role:"Secretariat" %}
-      <a href="{% url "ietf.submit.views.add_manualpost_email" %}">Add Manual post email</a>
+      <a id="new-submission-email" class="btn btn-default" href="{% url "submit_manualpost_email" %}">New submission from email</a>
     {% endif %}
 
 {% endblock %}

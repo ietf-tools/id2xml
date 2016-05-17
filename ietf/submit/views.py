@@ -1,7 +1,4 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
-import email
-from rexec import FileWrapper
-
 import datetime
 import os
 import xml2rfc
@@ -27,7 +24,7 @@ from ietf.message.models import Message, MessageAttachment
 from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm, \
     SubmissionEmailForm, MessageModelForm
 from ietf.submit.mail import send_full_url, send_approval_request_to_group, \
-    send_submission_confirmation, send_manual_post_request, get_mail_contents, decode_text, \
+    send_submission_confirmation, send_manual_post_request, \
     add_submission_email
 from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName, \
     SubmissionEmail
@@ -547,7 +544,7 @@ def manualpost(request):
                    'awaiting_draft': awaiting_draft})
 
 @role_required('Secretariat',)
-def add_manualpost_email(request):
+def add_manualpost_email(request, submission_id=None, access_token=None):
     """Add email to submission history"""
 
     if request.method == 'POST':
@@ -558,6 +555,7 @@ def add_manualpost_email(request):
         form = SubmissionEmailForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
+            submission_pk = form.cleaned_data['submission_pk']
             message = form.cleaned_data['message']
             #in_reply_to = form.cleaned_data['in_reply_to']
             # create Message
@@ -569,6 +567,7 @@ def add_manualpost_email(request):
 
             add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
                                  name = name,
+                                 submission_pk = submission_pk,
                                  message = message,
                                  by = request.user.person,
                                  msgtype = msgtype)
@@ -576,7 +575,16 @@ def add_manualpost_email(request):
             messages.success(request, 'Email added.')
             return redirect("submit_manualpost")
     else:
-        form = SubmissionEmailForm()
+        initial = {
+        }
+
+        if (submission_id != None):
+            submission = get_submission_or_404(submission_id, access_token)
+            initial['name'] = submission.name
+            initial['direction'] = 'outgoing'
+            initial['submission_pk'] = submission.pk
+            
+        form = SubmissionEmailForm(initial=initial)
 
     return render(request, 'submit/add_submit_email.html',dict(form=form))
 
@@ -673,8 +681,8 @@ def send_email(request, submission_id, message_id=None):
 def submission_emails(request, submission_id, access_token=None):
     submission = get_submission_or_404(submission_id, access_token)
 
-    is_secretariat = has_role(request.user, "Secretariat")
-    is_chair = submission.group and submission.group.has_role(request.user, "chair")
+    #is_secretariat = has_role(request.user, "Secretariat")
+    #is_chair = submission.group and submission.group.has_role(request.user, "chair")
 
     subemails = SubmissionEmail.objects.filter(submission=submission)
 
@@ -686,7 +694,7 @@ def submission_email(request, submission_id, message_id, access_token=None):
     submission = get_submission_or_404(submission_id, access_token)
 
     message = get_object_or_404(SubmissionEmail, pk=message_id)    
-    attachments = message.message.attachment_set.all()
+    attachments = message.message.messageattachment_set.all()
     
     return render(request, 'submit/submission_email.html',
                   {'submission': submission,
@@ -694,12 +702,12 @@ def submission_email(request, submission_id, message_id, access_token=None):
                    'attachments': attachments})
 
 def submission_email_attachment(request, submission_id, message_id, filename, access_token=None):
-    submission = get_submission_or_404(submission_id, access_token)
+    get_submission_or_404(submission_id, access_token)
 
     message = get_object_or_404(SubmissionEmail, pk=message_id)
 
     attach = get_object_or_404(MessageAttachment, 
-                               messsage=message, 
+                               message=message.message, 
                                filename=filename)
     
     body = attach.body.encode('utf-8')

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin %}
+
+{% load bootstrap3 %}
+
+{% block title %}Complete account creation{% endblock %}
+
+{% block content %}
+  {% origin %}
+
+  {% if success %}
+    <h1>Account creation successful</h1>
+
+    <p>Your account with login {{ email }} has been created, using the password you have selected.</p>
+    <a type="a" class="btn btn-primary" href="{% url "django.contrib.auth.views.login" %}" rel="nofollow">Sign in</a>
+
+  {% else %}
+    <h1>Complete account creation</h1>
+
+    <p>In order to complete the setup of your account with login {{ email }}, please choose a password:</p>
+    <form method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">Set password</button>
+      {% endbuttons %}
+    </form>
+  {% endif %}
+{% endblock %}

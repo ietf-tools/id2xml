@@ -459,3 +459,30 @@ label#list-feeds {
 .email-subscription button[type=submit] {
   margin-left: 3em;
 }
+
+/* Interim Meetings
+   ========================================================================== */
+#meeting-type-options {
+    display: inline-block;
+    margin-left: 4em;
+}
+
+.fieldset {
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12) !important;
+    background-color: #f1f1f1;
+    padding: 16px 16px;
+    margin-bottom: 20px;
+}
+
+#interim-request-form .fieldset.template {
+    display: none;
+}
+
+#interim-request-form .time-field {
+    width: 100px;
+}
+
+ul.errorlist {
+    list-style-type: none;
+    padding-left:0;
+}

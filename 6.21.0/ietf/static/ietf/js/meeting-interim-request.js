@@ -22,10 +22,9 @@ var interimRequest = {
         interimRequest.inPerson.each(interimRequest.toggleLocation);
         interimRequest.checkAddButton();
         interimRequest.checkHelpText();
+        interimRequest.checkTimezone();
         $('input[name$="-time"]').each(interimRequest.calculateEndTime);
         $('input[name$="-time"]').each(interimRequest.updateInfo);
-        //interimRequest.form.submit(interimRequest.onSubmit);
-        //$('input[name$="-time"]').blur(interimRequest.setUTC);
     },
 
     addSession : function() {
@@ -62,15 +61,6 @@ var interimRequest = {
         el.find("input[name$='remote_instructions']").val(first_session.find("input[name$='remote_instructions']").val());
         
         $('.btn-delete').removeClass("hidden");
-    },
-
-    onSubmit : function() {
-        // must remove required attribute from non visible fields
-        var template = $(this).find(".template");
-        //template.find('input,textarea,select').filter('[required]').prop('required',false);
-        var x = template.find('input,textarea,select')
-        alert(x.length);
-        return true;
     },
 
     updateInfo : function() {
@@ -119,7 +109,6 @@ var interimRequest = {
         var d2 = new Date(d1.getTime() + (duration_values[1]*60*1000));
         end_time.val(interimRequest.get_formatted_time(d2));
         end_time.trigger('change');
-        //interimRequest.updateInfo(end_time);
     },
     
     checkAddButton : function() {
@@ -155,6 +144,15 @@ var interimRequest = {
         }
     },
 
+    checkTimezone : function() {
+        if(window.Intl && typeof window.Intl === "object"){
+            var tzname = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if($('#id_time_zone option[value="'+tzname+'"]').length > 0){
+                $('#id_time_zone').val(tzname);
+            }
+        }
+    },
+    
     get_formatted_time : function (d) {
         // returns time from Date object as HH:MM
         var minutes = d.getMinutes().toString();
@@ -193,15 +191,6 @@ var interimRequest = {
             str = "0" + str;
         }
         return str;
-    },
-    
-    setUTC : function() {
-        var fieldset = $(this).parents(".fieldset");
-        var values = $(this).val().split(":");
-        var name = $(this).attr("id") + "_utc";
-        var utc = fieldset.find("#" + name);
-        var d = new Date(2000,1,1,values[0],values[1]);
-        utc.val(interimRequest.get_formatted_utc_time(d) + " UTC");
     },
     
     timezoneChange : function() {

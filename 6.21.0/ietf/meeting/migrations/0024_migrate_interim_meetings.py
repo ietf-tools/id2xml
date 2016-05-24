@@ -39,7 +39,7 @@ def migrate_interim_meetings(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('meeting', '0019_session_remote_instructions'),
+        ('meeting', '0023_session_remote_instructions'),
     ]
 
     operations = [

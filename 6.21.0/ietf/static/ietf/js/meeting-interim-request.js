@@ -25,6 +25,7 @@ var interimRequest = {
         interimRequest.checkTimezone();
         $('input[name$="-time"]').each(interimRequest.calculateEndTime);
         $('input[name$="-time"]').each(interimRequest.updateInfo);
+        $('#id_country').select2({placeholder:"Country"});
     },
 
     addSession : function() {

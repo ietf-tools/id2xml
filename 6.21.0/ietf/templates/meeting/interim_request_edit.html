@@ -38,7 +38,7 @@
         <label for="id_form-{{ forloop.counter0 }}-city" class="col-md-2 control-label">Location</label>
         <div class="col-md-10 form-inline">
             {% render_field form.city class="form-control location" placeholder="City" %}
-            {% render_field form.country class="form-control location" placeholder="Country" %}
+            {% render_field form.country class="form-control location" %}
             {% render_field form.time_zone class="form-control" %}
         </div>
     </div>

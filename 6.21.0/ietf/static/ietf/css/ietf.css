@@ -486,3 +486,8 @@ ul.errorlist {
     list-style-type: none;
     padding-left:0;
 }
+
+#s2id_id_country {
+    display: inline-block;
+}
+

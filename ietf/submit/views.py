@@ -103,29 +103,60 @@ def upload_submission(request):
                 else:
                     abstract = form.parsed_draft.get_abstract()
 
-                # save submission
-                try:
-                    submission = Submission.objects.create(
-                        state=DraftSubmissionStateName.objects.get(slug="uploaded"),
-                        remote_ip=form.remote_ip,
-                        name=form.filename,
-                        group=form.group,
-                        title=form.title,
-                        abstract=abstract,
-                        rev=form.revision,
-                        pages=form.parsed_draft.get_pagecount(),
-                        authors="\n".join(authors),
-                        note="",
-                        first_two_pages=''.join(form.parsed_draft.pages[:2]),
-                        file_size=file_size,
-                        file_types=','.join(form.file_types),
-                        submission_date=datetime.date.today(),
-                        document_date=form.parsed_draft.get_creation_date(),
-                        replaces="",
+                # If this is a rev-00 see if there is a Submission in 
+                # state manual-awaiting-upload
+                # If so - we're going to update it otherwise we create a new object 
+                if form.revision == '00':
+                    submission = Submission.objects.filter(name=form.filename, 
+                                                           state_id = "manual-awaiting-draft").distinct()
+                    if (len(submission) == 0):
+                        submission = None
+                    elif (len(submission) == 1):
+                        submission = submission[0]
+                        
+                        submission.state = DraftSubmissionStateName.objects.get(slug="uploaded")
+                        submission.remote_ip=form.remote_ip
+                        submission.title=form.title
+                        submission.abstract=abstract
+                        submission.rev=form.revision
+                        submission.pages=form.parsed_draft.get_pagecount()
+                        submission.authors="\n".join(authors)
+                        submission.first_two_pages=''.join(form.parsed_draft.pages[:2])
+                        submission.file_size=file_size
+                        submission.file_types=','.join(form.file_types)
+                        submission.submission_date=datetime.date.today()
+                        submission.document_date=form.parsed_draft.get_creation_date()
+                        submission.replaces=""
+                        
+                        submission.save()
+                    else:
+                        raise Exception("Multiple submissions awaiting upload")
+                else:
+                    submission = None
+
+                if (submission == None):
+                    try:
+                        submission = Submission.objects.create(
+                                state=DraftSubmissionStateName.objects.get(slug="uploaded"),
+                                remote_ip=form.remote_ip,
+                                name=form.filename,
+                                group=form.group,
+                                title=form.title,
+                                abstract=abstract,
+                                rev=form.revision,
+                                pages=form.parsed_draft.get_pagecount(),
+                                authors="\n".join(authors),
+                                note="",
+                                first_two_pages=''.join(form.parsed_draft.pages[:2]),
+                                file_size=file_size,
+                                file_types=','.join(form.file_types),
+                                submission_date=datetime.date.today(),
+                                document_date=form.parsed_draft.get_creation_date(),
+                                replaces="",
                         )
-                except Exception as e:
-                    log("Exception: %s\n" % e)
-                    raise
+                    except Exception as e:
+                        log("Exception: %s\n" % e)
+                        raise
 
                 # run submission checkers
                 def apply_check(submission, checker, method, fn):

@@ -35,7 +35,7 @@
       <dd>{{ session.requested_duration|format_timedelta }}
       <dt>Remote Instructions</dt>
       <dd>{{ session.remote_instructions }}
-      <dt>Agenda Note</dt>
+      <dt>Additional Info</dt>
       <dd>{{ session.agenda_note }}</dd>
     {% endfor %}
   </dl>
@@ -56,13 +56,15 @@
   {% endif %}
   {% if can_edit %}
     {% if sessions.0.status.slug == 'apprw' or sessions.0.status.slug == 'scheda' or sessions.0.status.slug == 'sched' %}
-        <a class="btn btn-default" href="{% url 'ietf.meeting.views.interim_request_cancel' number=meeting.number %}">Cancel</a>
+        <a class="btn btn-default" href="{% url 'ietf.meeting.views.interim_request_cancel' number=meeting.number %}">Cancel Meeting</a>
     {% endif %}
   {% endif %}
   {% if sessions.0.status.slug == "apprw" %}
         <a class="btn btn-default" href="{% url 'ietf.meeting.views.interim_pending' %}">Back</a>
   {% elif sessions.0.status.slug == "scheda" %}
         <a class="btn btn-default" href="{% url 'ietf.meeting.views.interim_announce' %}">Back</a>
+  {% elif sessions.0.status.slug == "sched" %}
+        <a class="btn btn-default" href="{% url 'ietf.meeting.views.session_details' num=meeting.number acronym=meeting.session_set.first.group.acronym %}">Back</a>
   {% else %}
         <a class="btn btn-default" href="{% url 'ietf.meeting.views.upcoming' %}">Back</a>
   {% endif %}

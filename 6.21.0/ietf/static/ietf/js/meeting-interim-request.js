@@ -45,6 +45,11 @@ var interimRequest = {
             var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
             $(this).attr('for', newFor);
         });
+        
+        el.find('div.utc-time').each(function() {
+            var newId = $(this).attr('id').replace('-' + (total-1) + '-','-' + total + '-');
+            $(this).attr('id', newId);
+        });
 
         ++total;
 
@@ -76,6 +81,7 @@ var interimRequest = {
         var timezone = interimRequest.timezone.val();
         var name = $(this).attr("id") + "_utc";
         var utc = fieldset.find("#" + name);
+        //console.log(name,utc.attr("id"));
         $.ajax({
             url: url,
             type: 'GET',
@@ -86,8 +92,8 @@ var interimRequest = {
                    time: time,
                    timezone: timezone},
             success: function(response){
-                if (!response.error) {
-                    utc.val(response.utc + " UTC");
+                if (!response.error && response.html) {
+                        utc.html(response.html);
                 }
             }
         });

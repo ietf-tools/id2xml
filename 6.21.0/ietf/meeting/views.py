@@ -1024,7 +1024,8 @@ def ajax_get_utc(request):
     timezone = request.GET.get('timezone')
     date = request.GET.get('date')
     time_re = re.compile(r'^\d{2}:\d{2}')
-    if not time_re.match(time):
+    # validate input
+    if not time_re.match(time) or not date:
         return HttpResponse(json.dumps({'error': True}),
                             content_type='application/json')
     hour, minute = time.split(':')
@@ -1037,7 +1038,17 @@ def ajax_get_utc(request):
     aware_dt = tz.localize(dt, is_dst=None)
     utc_dt = aware_dt.astimezone(pytz.utc)
     utc = utc_dt.strftime('%H:%M')
-    context_data = {'timezone': timezone, 'time': time, 'utc': utc}
+    # calculate utc day offset
+    naive_utc_dt = utc_dt.replace(tzinfo=None)
+    utc_day_offset = (naive_utc_dt.date() - dt.date()).days
+    html = "<span>{utc} UTC</span>".format(utc=utc)
+    if utc_day_offset != 0:
+        html = html + "<span class='day-offset'> {0:+d}</span>".format(utc_day_offset)
+    context_data = {'timezone': timezone, 
+                    'time': time, 
+                    'utc': utc, 
+                    'utc_day_offset': utc_day_offset,
+                    'html': html}
     return HttpResponse(json.dumps(context_data),
                         content_type='application/json')
 
@@ -1358,4 +1369,6 @@ def upcoming_ical(request):
         'assignments': assignments})
     response = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", response)
 
-    return HttpResponse(response, content_type='text/calendar')
+    response = HttpResponse(response, content_type='text/calendar')
+    response['Content-Disposition'] = 'attachment; filename="upcoming.ics"'
+    return response

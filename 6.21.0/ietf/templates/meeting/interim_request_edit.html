@@ -35,11 +35,13 @@
     </div> <!-- form-group form-inline -->
     
     <div class="form-group">
-        <label for="id_form-{{ forloop.counter0 }}-city" class="col-md-2 control-label">Location</label>
+        <label for="id_session_set-{{ forloop.counter0 }}-city" class="col-md-2 control-label">Location</label>
         <div class="col-md-10 form-inline">
             {% render_field form.city class="form-control location" placeholder="City" %}
-            {% render_field form.country class="form-control location" %}
+            {% render_field form.country class="form-control location" style="width: 30%" %}
+            <div id="timezone-field">
             {% render_field form.time_zone class="form-control" %}
+            <span class="help-block">Local Timezone</span></div>
         </div>
     </div>
 
@@ -55,24 +57,21 @@
         {% if form.date.errors %}<span class="help-inline">{{ form.date.errors }}</span>{% endif %}
     </div>
     
-    <div class="form-group {% if form.time.errors %}alert alert-danger{% endif %}">
+    <div class="form-group {% if form.time.errors or form.requested_duration.errors %}alert alert-danger{% endif %}">
         <label for="id_session_set-{{ forloop.counter0 }}-time" class="col-md-2 control-label required">Start Time</label>
         <div class="col-md-3 form-inline">
             {% render_field form.time class="form-control time-field" placeholder="HH:MM" %}
-            {% render_field form.time_utc class="form-control time-field computed" disabled="disabled" placeholder="UTC" %}
+            <div id="id_session_set-{{ forloop.counter0 }}-time_utc" class="utc-time"></div>
+            <span class="help-block">Local Time</span>
             {% if form.time.errors %}<span class="help-inline">{{ form.time.errors }}</span>{% endif %}
         </div>
+        <label for="id_session_set-{{ forloop.counter0 }}-requested_duration" class="col-md-1 control-label required">Duration</label>
+        <div class="col-md-1">{% render_field form.requested_duration class="form-control time-field" placeholder="HH:MM" %}{% if form.requested_duration.errors %}<span class="help-inline">{{ form.requested_duration.errors }}</span>{% endif %}</div>
         <label for="id_session_set-{{ forloop.counter0 }}-end_time" class="col-md-2 control-label">End Time</label>
-        <div class="col-md-4 form-inline">
+        <div class="col-md-3 form-inline">
         {% render_field form.end_time class="form-control time-field computed" placeholder="HH:MM" disabled="disabled" %}
-        {% render_field form.end_time_utc class="form-control time-field computed" disabled="disabled" placeholder="UTC" %}
+        <div id="id_session_set-{{ forloop.counter0 }}-end_time_utc" class="utc-time"></div>
         </div>
-    </div>
-
-    <div class="form-group{% if form.requested_duration.errors %} alert alert-danger{% endif %}">
-        <label for="id_session_set-{{ forloop.counter0 }}-requested_duration" class="col-md-2 control-label required">Duration</label>
-        <div class="col-md-2">{% render_field form.requested_duration class="form-control time-field" placeholder="HH:MM" %}</div>
-        {% if form.requested_duration.errors %}<span class="help-inline">{{ form.requested_duration.errors }}</span>{% endif %}
     </div>
 
     <div class="form-group{% if form.remote_instructions.errors %} alert alert-danger{% endif %}">
@@ -87,8 +86,8 @@
     </div>
         
     <div class="form-group">
-        <label for="id_session_set-{{ forloop.counter0 }}-agenda_note" class="col-md-2 control-label">Agenda Note</label>
-        <div class="col-md-10">{% render_field form.agenda_note class="form-control" placeholder="Note" %}</div>
+        <label for="id_session_set-{{ forloop.counter0 }}-agenda_note" class="col-md-2 control-label">Additional Information</label>
+        <div class="col-md-10">{% render_field form.agenda_note class="form-control" %}</div>
     </div>
     <button name="id_session_set-{{ forloop.counter0 }}-delete-button" type="button" class="btn btn-default hidden btn-delete">Delete</button>
     </div>  <!-- fieldset -->
@@ -103,7 +102,7 @@
     <div class="form-group"
     {% buttons %}
       <button type="submit" class="btn btn-primary">Submit</button>
-      <a class="btn btn-default pull-right" href="{% url 'ietf.meeting.views.upcoming' %}">Back</a>
+      <a class="btn btn-default pull-right" href="{% url 'ietf.meeting.views.interim_request_details' number=meeting.number %}">Back</a>
     {% endbuttons %}
     </div>
     

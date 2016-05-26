@@ -10,4 +10,4 @@
 To join the interim meeting:
 {{ meeting.session_set.first.remote_instructions }}
 
-{{ meeting.session_set.0.agenda_note }}
+{{ meeting.session_set.first.agenda_note }}

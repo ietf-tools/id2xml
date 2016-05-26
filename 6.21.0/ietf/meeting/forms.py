@@ -222,18 +222,16 @@ class InterimMeetingModelForm(forms.ModelForm):
 class InterimSessionModelForm(forms.ModelForm):
     date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1"}, label='Date', required=False)
     time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'), required=True)
-    time_utc = forms.TimeField(required=False)
     requested_duration = DurationField(required=True)
     end_time = forms.TimeField(required=False)
-    end_time_utc = forms.TimeField(required=False)
     remote_instructions = forms.CharField(max_length=1024, required=True)
     agenda = forms.CharField(required=False, widget=forms.Textarea)
     agenda_note = forms.CharField(max_length=255, required=False)
 
     class Meta:
         model = Session
-        fields = ('date', 'time', 'time_utc', 'requested_duration', 'end_time',
-                  'end_time_utc', 'remote_instructions', 'agenda', 'agenda_note')
+        fields = ('date', 'time', 'requested_duration', 'end_time',
+                  'remote_instructions', 'agenda', 'agenda_note')
 
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs:

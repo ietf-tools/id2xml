@@ -491,3 +491,20 @@ ul.errorlist {
     display: inline-block;
 }
 
+#timezone-field {
+    display: inline-block;
+}
+
+.form-inline .form-control.location {
+    vertical-align: top;
+}
+
+.day-offset {
+    color: #d60000;
+}
+
+.utc-time {
+    display: inline-block;
+    vertical-align: middle;
+    color: #555;
+}

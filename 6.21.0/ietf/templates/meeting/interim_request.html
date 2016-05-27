@@ -96,6 +96,7 @@
             {% render_field form.time class="form-control time-field" placeholder="HH:MM" %}
             <div id="id_session_set-{{ forloop.counter0 }}-time_utc" class="utc-time"></div>
             <span class="help-block">Local Time</span>
+            <span class="help-block">Local Time</span>
             {% if form.time.errors %}<span class="help-inline">{{ form.time.errors }}</span>{% endif %}
         </div>
         <label for="id_session_set-{{ forloop.counter0 }}-requested_duration" class="col-md-1 control-label required">Duration</label>

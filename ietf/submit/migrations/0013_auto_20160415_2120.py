@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         We'll remove any submissions awaiting manual post that are older
         than a date provided here.
         
-        These alll showed up when we added the ability to list submissions
+        These all showed up when we added the ability to list submissions
         awaiting manual post and go back many years
         """
 

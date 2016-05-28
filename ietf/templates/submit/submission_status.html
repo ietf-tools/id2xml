@@ -340,7 +340,17 @@
         <tr>
           <td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
           <td>{{ e.by|default:"" }}</td>
-          <td>{{ e.desc }}</td>
+          {%  if e.desc == "Submission email" %}
+            {%  with m=e.submissionemail.message msg=m.message_set.all.0 %}
+              {% if user.is_authenticated %}
+                <td>{{ e.desc }}: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=m.pk access_token=submission.access_token %}">View message{{ msg.subject }}</a></td>
+              {% else %}
+                <td>{{ e.desc }}: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email" submission_id=submission.pk message_id=m.pk %}">View message{{ msg.subject }}</a></td>
+              {% endif %}
+            {% endwith %}
+          {%  else %}
+            <td>{{ e.desc }}</td>
+          {%  endif %}
         </tr>
       {% endfor %}
     </tbody>

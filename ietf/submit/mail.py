@@ -221,6 +221,7 @@ def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
             raise
 
     submission_email_event = SubmissionEmail.objects.create(
+            desc = "Submission email",
             submission = submission,
             msgtype = msgtype,
             by = by,
@@ -246,7 +247,7 @@ def submit_message_from_message(message,body,by=None):
             bcc = message.get('bcc',''),
             reply_to = message.get('reply_to',''),
             body = body,
-            time = utc_from_string(message['date'])
+            time = utc_from_string(message.get('date', ''))
     )
     return msg
 
@@ -255,12 +256,17 @@ def save_submission_email_attachments(submission_email_event, parts):
         if part.disposition != 'attachment':
             continue
 
-        payload, used_charset = pyzmail.decode_text(part.get_payload(), 
-                                                    part.charset, 
-                                                    None)
+        if part.type == 'text/plain':
+            payload, used_charset = pyzmail.decode_text(part.get_payload(), 
+                                                        part.charset, 
+                                                        None)
+        else:
+            # Ignore for the moment -- payload = part.get_payload()
+            continue
 
         #name = submission_email_event.submission.name
 
         MessageAttachment.objects.create(message = submission_email_event.message,
+                                         content_type = part.type,
                                          filename=part.filename,
                                          body=payload)

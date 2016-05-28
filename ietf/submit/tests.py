@@ -25,6 +25,25 @@ from ietf.submit.models import Submission, Preapproval
 from ietf.submit.mail import add_submission_email
 
 
+def submission_file(name, rev, group, format, templatename):
+    # construct appropriate text draft
+    f = open(os.path.join(settings.BASE_DIR, "submit", templatename))
+    template = f.read()
+    f.close()
+
+    submission_text = template % dict(
+            date=datetime.date.today().strftime("%d %B %Y"),
+            expiration=(datetime.date.today() + datetime.timedelta(days=100)).strftime("%d %B, %Y"),
+            year=datetime.date.today().strftime("%Y"),
+            month=datetime.date.today().strftime("%B"),
+            name="%s-%s" % (name, rev),
+            group=group or "",
+    )
+
+    file = StringIO(str(submission_text))
+    file.name = "%s-%s.%s" % (name, rev, format)
+    return file
+
 class SubmitTests(TestCase):
     def setUp(self):
         self.saved_idsubmit_staging_path = settings.IDSUBMIT_STAGING_PATH
@@ -53,25 +72,6 @@ class SubmitTests(TestCase):
         settings.INTERNET_DRAFT_ARCHIVE_DIR = self.saved_archive_dir
 
 
-    def submission_file(self, name, rev, group, format, templatename):
-        # construct appropriate text draft
-        f = open(os.path.join(settings.BASE_DIR, "submit", templatename))
-        template = f.read()
-        f.close()
-
-        submission_text = template % dict(
-            date=datetime.date.today().strftime("%d %B %Y"),
-            expiration=(datetime.date.today() + datetime.timedelta(days=100)).strftime("%d %B, %Y"),
-            year=datetime.date.today().strftime("%Y"),
-            month=datetime.date.today().strftime("%B"),
-            name="%s-%s" % (name, rev),
-            group=group or "",
-            )
-
-        file = StringIO(str(submission_text))
-        file.name = "%s-%s.%s" % (name, rev, format)
-        return file
-
     def do_submission(self, name, rev, group=None, formats=["txt",]):
         # break early in case of missing configuration
         self.assertTrue(os.path.exists(settings.IDSUBMIT_IDNITS_BINARY))
@@ -87,7 +87,7 @@ class SubmitTests(TestCase):
         # submit
         files = {}
         for format in formats:
-            files[format] = self.submission_file(name, rev, group, format, "test_submission.%s" % format)
+            files[format] = submission_file(name, rev, group, format, "test_submission.%s" % format)
 
         r = self.client.post(url, files)
         if r.status_code != 302:
@@ -768,7 +768,7 @@ class SubmitTests(TestCase):
         # submit
         files = {}
         for format in formats:
-            files[format] = self.submission_file(name, rev, group, "bad", "test_submission.bad")
+            files[format] = submission_file(name, rev, group, "bad", "test_submission.bad")
 
         r = self.client.post(url, files)
 
@@ -1120,3 +1120,39 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 
         return PyQuery(link[0]).attr('href')
 
+
+    def do_submission(self, name, rev, group=None, formats=["txt",]):
+        # We're not testing the submission process - just the submission status 
+
+        # get
+        url = urlreverse('submit_upload_submission')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEqual(len(q('input[type=file][name=txt]')), 1)
+        self.assertEqual(len(q('input[type=file][name=xml]')), 1)
+
+        # submit
+        files = {}
+        for format in formats:
+            files[format] = submission_file(name, rev, group, format, "test_submission.%s" % format)
+
+        r = self.client.post(url, files)
+        if r.status_code != 302:
+            q = PyQuery(r.content)
+            print(q('div.has-error span.help-block div').text)
+
+        self.assertEqual(r.status_code, 302)
+
+        status_url = r["Location"]
+        for format in formats:
+            self.assertTrue(os.path.exists(os.path.join(self.staging_dir, u"%s-%s.%s" % (name, rev, format))))
+        self.assertEqual(Submission.objects.filter(name=name).count(), 1)
+        submission = Submission.objects.get(name=name)
+        self.assertTrue(all([ c.passed!=False for c in submission.checks.all() ]))
+        self.assertEqual(len(submission.authors_parsed()), 1)
+        author = submission.authors_parsed()[0]
+        self.assertEqual(author["name"], "Author Name")
+        self.assertEqual(author["email"], "author@example.com")
+
+        return status_url

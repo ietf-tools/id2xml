@@ -32,6 +32,7 @@ class Message(models.Model):
 class MessageAttachment(models.Model):
     message = models.ForeignKey(Message)
     filename = models.CharField(max_length=255, db_index=True, blank=True)
+    content_type = models.CharField(max_length=255, blank=True)
     removed = models.BooleanField(default=False)
     body = models.TextField()
 

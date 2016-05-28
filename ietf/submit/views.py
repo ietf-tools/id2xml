@@ -279,39 +279,50 @@ def submission_status(request, submission_id, access_token=None):
                 replaces = replaces_form.cleaned_data.get("replaces", [])
                 submission.replaces = ",".join(o.name for o in replaces)
 
-                if requires_group_approval:
-                    submission.state = DraftSubmissionStateName.objects.get(slug="grp-appr")
-                    submission.save()
+                approvals_received = submitter_form.cleaned_data['approvals_received']
+                
+                if approvals_received:
+                    if not is_secretariat:
+                        return HttpResponseForbidden('You do not have permission to perform this action')
 
-                    sent_to = send_approval_request_to_group(request, submission)
-
-                    desc = "sent approval email to group chairs: %s" % u", ".join(sent_to)
-                    docDesc = u"Request for posting approval emailed to group chairs: %s" % u", ".join(sent_to)
-
+                    # go directly to posting submission
+                    desc = u"Secretariat manually posting. Approvals already received"
+                    post_submission(request, submission, desc)
+                    create_submission_event(request, submission, desc)
                 else:
-                    submission.auth_key = generate_random_key()
-                    if requires_prev_authors_approval:
-                        submission.state = DraftSubmissionStateName.objects.get(slug="aut-appr")
+                    if requires_group_approval:
+                        submission.state = DraftSubmissionStateName.objects.get(slug="grp-appr")
+                        submission.save()
+    
+                        sent_to = send_approval_request_to_group(request, submission)
+    
+                        desc = "sent approval email to group chairs: %s" % u", ".join(sent_to)
+                        docDesc = u"Request for posting approval emailed to group chairs: %s" % u", ".join(sent_to)
+
                     else:
-                        submission.state = DraftSubmissionStateName.objects.get(slug="auth")
-                    submission.save()
-
-                    sent_to = send_submission_confirmation(request, submission)
-
-                    if submission.state_id == "aut-appr":
-                        desc = u"sent confirmation email to previous authors: %s" % u", ".join(sent_to)
-                        docDesc = "Request for posting confirmation emailed to previous authors: %s" % u", ".join(sent_to)
-                    else:
-                        desc = u"sent confirmation email to submitter and authors: %s" % u", ".join(sent_to)
-                        docDesc = "Request for posting confirmation emailed to submitter and authors: %s" % u", ".join(sent_to)
-
-                msg = u"Set submitter to \"%s\", replaces to %s and %s" % (
-                    submission.submitter,
-                    ", ".join(prettify_std_name(r.name) for r in replaces) if replaces else "(none)",
-                    desc)
-                create_submission_event(request, submission, msg)
-                docevent_from_submission(request, submission, docDesc)
-
+                        submission.auth_key = generate_random_key()
+                        if requires_prev_authors_approval:
+                            submission.state = DraftSubmissionStateName.objects.get(slug="aut-appr")
+                        else:
+                            submission.state = DraftSubmissionStateName.objects.get(slug="auth")
+                        submission.save()
+    
+                        sent_to = send_submission_confirmation(request, submission)
+    
+                        if submission.state_id == "aut-appr":
+                            desc = u"sent confirmation email to previous authors: %s" % u", ".join(sent_to)
+                            docDesc = "Request for posting confirmation emailed to previous authors: %s" % u", ".join(sent_to)
+                        else:
+                            desc = u"sent confirmation email to submitter and authors: %s" % u", ".join(sent_to)
+                            docDesc = "Request for posting confirmation emailed to submitter and authors: %s" % u", ".join(sent_to)
+    
+                    msg = u"Set submitter to \"%s\", replaces to %s and %s" % (
+                        submission.submitter,
+                        ", ".join(prettify_std_name(r.name) for r in replaces) if replaces else "(none)",
+                        desc)
+                    create_submission_event(request, submission, msg)
+                    docevent_from_submission(request, submission, docDesc)
+    
                 if access_token:
                     return redirect("submit_submission_status_by_hash", submission_id=submission.pk, access_token=access_token)
                 else:
@@ -574,6 +585,25 @@ def manualpost(request):
                    'selected': 'manual_posts',
                    'awaiting_draft': awaiting_draft})
 
+
+def cancel_awaiting_draft(request):
+    if request.method == 'POST':
+        can_cancel = has_role(request.user, "Secretariat")
+        
+        if not can_cancel:
+            return HttpResponseForbidden('You do not have permission to perform this action')
+
+        submission_id = request.POST.get('submission_id', '')
+        access_token = request.POST.get('access_token', '')
+
+        submission = get_submission_or_404(submission_id, access_token = access_token)
+        cancel_submission(submission)
+    
+        create_submission_event(request, submission, "Canceled submission")
+    
+    return redirect("submit_manualpost")
+
+
 @role_required('Secretariat',)
 def add_manualpost_email(request, submission_id=None, access_token=None):
     """Add email to submission history"""
@@ -743,7 +773,12 @@ def submission_email_attachment(request, submission_id, message_id, filename, ac
     
     body = attach.body.encode('utf-8')
     
-    response = HttpResponse(body, content_type='text/plain')
+    if attach.content_type is None:
+        content_type='text/plain'
+    else:
+        content_type=attach.content_type
+        
+    response = HttpResponse(body, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=%s' % attach.filename
     response['Content-Length'] = len(body)
     return response

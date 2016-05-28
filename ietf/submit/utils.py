@@ -3,7 +3,8 @@ import datetime
 
 from django.conf import settings
 
-from ietf.doc.models import Document, State, DocAlias, DocEvent, DocumentAuthor
+from ietf.doc.models import Document, State, DocAlias, DocEvent, \
+    DocumentAuthor, AddedMessageEvent
 from ietf.doc.models import NewRevisionDocEvent, save_document_in_history
 from ietf.doc.models import RelatedDocument, DocRelationshipName
 from ietf.doc.utils import add_state_change_event, rebuild_reference_relations
@@ -136,8 +137,10 @@ def post_rev00_submission_events(draft, submission, submitter):
     for subevent in submission.submissionevent_set.all():
         if subevent.desc.startswith("Uploaded submission"):
             desc = "Uploaded new revision"
+            e = DocEvent(type="added_comment", doc=draft)
         elif subevent.desc.startswith("Set submitter to"):
             pos = subevent.desc.find("sent confirmation email")
+            e = DocEvent(type="added_comment", doc=draft)
             if pos > 0:
                 desc = "Request for posting confirmation emailed %s" % (subevent.desc[pos + 23:])
             else:
@@ -146,10 +149,15 @@ def post_rev00_submission_events(draft, submission, submitter):
                     desc = "Request for posting approval emailed %s" % (subevent.desc[pos + 19:])
                 else:
                     desc = subevent.desc
+        elif subevent.desc.startswith("Submission email"):
+            e = AddedMessageEvent(type="added_message", doc=draft)
+            e.message = subevent.submissionemail.message
+            e.msgtype = subevent.submissionemail.msgtype
+            e.in_reply_to = subevent.submissionemail.in_reply_to
+            desc = subevent.desc
         else:
             continue
 
-        e = DocEvent(type="added_comment", doc=draft)
         e.time = subevent.time #submission.submission_date
         e.by = submitter
         e.desc = desc

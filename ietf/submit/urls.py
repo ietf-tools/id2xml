@@ -18,6 +18,7 @@ urlpatterns = patterns('ietf.submit.views',
 
     url(r'^manualpost/addemail$', 'add_manualpost_email', name='submit_manualpost_email'),
     url(r'^manualpost/addemail/(?P<submission_id>\d+)/(?P<access_token>[a-f\d]*)/$', 'add_manualpost_email', name='submit_manualpost_email_by_hash'),
+    url(r'^awaitingdraft/cancel$', 'cancel_awaiting_draft', name='submit_cancel_awaiting_draft_by_hash'),
     url(r'^manualpost/$', 'manualpost', name='submit_manualpost'),
     url(r'^manualpost/status/(?P<submission_id>\d+)/$', 'submission_emails', name='submit_submission_emails'),
     url(r'^manualpost/status/(?P<submission_id>\d+)/(?P<access_token>[a-f\d]*)/$', 'submission_emails', name='submit_submission_emails_by_hash'),

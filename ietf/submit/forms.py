@@ -323,6 +323,9 @@ class NameEmailForm(forms.Form):
     name = forms.CharField(required=True)
     email = forms.EmailField(label=u'Email address')
 
+    #Fields for secretariat only
+    approvals_received = forms.BooleanField(label=u'Approvals received', required=False, initial=False)
+
     def __init__(self, *args, **kwargs):
         email_required = kwargs.pop("email_required", True)
         super(NameEmailForm, self).__init__(*args, **kwargs)

@@ -14,7 +14,7 @@ from django.utils.module_loading import import_string
 
 import debug                            # pyflakes:ignore
 
-from ietf.doc.models import Document, DocAlias
+from ietf.doc.models import Document, DocAlias, AddedMessageEvent
 from ietf.doc.utils import prettify_std_name
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
@@ -626,14 +626,32 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
             else:
                 msgtype = 'msgout'
 
-            add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
-                                 name = name,
-                                 submission_pk = submission_pk,
-                                 message = message,
-                                 by = request.user.person,
-                                 msgtype = msgtype)
-                                         
+            submission, submission_email_event = \
+                add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
+                                     name = name,
+                                     submission_pk = submission_pk,
+                                     message = message,
+                                     by = request.user.person,
+                                     msgtype = msgtype)
+
             messages.success(request, 'Email added.')
+
+            try:
+                draft = Document.objects.get(name=submission.name)
+            except Document.DoesNotExist:
+                # Assume this is revision 00 - we'll do this later
+                draft = None
+    
+            if (draft != None):
+                e = AddedMessageEvent(type="added_message", doc=draft)
+                e.message = submission_email_event.submissionemail.message
+                e.msgtype = submission_email_event.submissionemail.msgtype
+                e.in_reply_to = submission_email_event.submissionemail.in_reply_to
+                e.by = request.user.person
+                e.desc = submission_email_event.desc
+                e.time = submission_email_event.time
+                e.save()
+
             return redirect("submit_manualpost")
     else:
         initial = {

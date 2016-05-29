@@ -918,7 +918,8 @@ Please submit my draft at http://test.com/mydraft.txt
 Thank you
 """.format(datetime.datetime.now().ctime())
         message = email.message_from_string(message_string)
-        add_submission_email(remote_ip ="192.168.0.1",
+        submission, submission_email_event =\
+            add_submission_email(remote_ip ="192.168.0.1",
                              name = "draft-my-new-draft",
                              submission_pk=None,
                              message = message,
@@ -936,6 +937,27 @@ Thank you
 
         self.assertEqual(len(q('.awaiting-draft a:contains("draft-my-new-draft")')), 1)
 
+        # Same name should raise an error
+        with self.assertRaises(Exception):
+            add_submission_email(remote_ip ="192.168.0.1",
+                                 name = "draft-my-new-draft",
+                                 submission_pk=None,
+                                 message = message,
+                                 by = Person.objects.get(name="(System)"),
+                                 msgtype = "msgin")
+
+        # Cancel this one
+        r = self.client.post(urlreverse("submit_cancel_awaiting_draft_by_hash"), {
+            "submission_id": submission.pk,
+            "access_token": submission.access_token(),
+        })
+        self.assertEqual(r.status_code, 302)
+        url = r["Location"]
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEqual(len(q('.awaiting-draft a:contains("draft-my-new-draft")')), 0)
+        
 
     def test_awaiting_draft_with_attachment(self):
         message_string = """To: somebody@ietf.org
@@ -961,12 +983,13 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 --------------090908050800030909090207--
 """.format(datetime.datetime.now().ctime())
         message = email.message_from_string(message_string)
-        submission, submission_email_event = add_submission_email(remote_ip ="192.168.0.1",
-                                                                  name = "draft-my-new-draft",
-                                                                  submission_pk=None,
-                                                                  message = message,
-                                                                  by = Person.objects.get(name="(System)"),
-                                                                  msgtype = "msgin")
+        submission, submission_email_event = \
+            add_submission_email(remote_ip ="192.168.0.1",
+                                 name = "draft-my-new-draft",
+                                 submission_pk=None,
+                                 message = message,
+                                 by = Person.objects.get(name="(System)"),
+                                 msgtype = "msgin")
 
         status_page_url = urlreverse('submit_manualpost')
         # Secretariat has access

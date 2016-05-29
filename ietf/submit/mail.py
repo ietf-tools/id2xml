@@ -205,6 +205,11 @@ def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
         # Must exist
         submission = Submission.objects.get(pk=submission_pk)
     else:
+        # Must not exist
+        submissions = Submission.objects.filter(name=name)
+        if submissions.count() > 0:
+            raise Exception("Submission {} already exists".format(name))
+            
         # create Submission using the name
         try:
             submission = Submission.objects.create(

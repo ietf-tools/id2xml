@@ -1,6 +1,7 @@
 import os
 import re
 import datetime
+import email
 import pytz
 import xml2rfc
 import tempfile
@@ -16,7 +17,9 @@ from ietf.doc.models import Document
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role
 from ietf.doc.fields import SearchableDocAliasesField
+from ietf.ipr.mail import utc_from_string
 from ietf.meeting.models import Meeting
+from ietf.message.models import Message
 from ietf.submit.models import Submission, Preapproval
 from ietf.submit.utils import validate_submission_rev, validate_submission_document_date
 from ietf.submit.parsers.pdf_parser import PDFParser
@@ -320,6 +323,9 @@ class NameEmailForm(forms.Form):
     name = forms.CharField(required=True)
     email = forms.EmailField(label=u'Email address')
 
+    #Fields for secretariat only
+    approvals_received = forms.BooleanField(label=u'Approvals received', required=False, initial=False)
+
     def __init__(self, *args, **kwargs):
         email_required = kwargs.pop("email_required", True)
         super(NameEmailForm, self).__init__(*args, **kwargs)
@@ -421,3 +427,65 @@ class PreapprovalForm(forms.Form):
             raise forms.ValidationError("A draft with this name has already been submitted and accepted. A pre-approval would not make any difference.")
 
         return n
+
+
+class SubmissionEmailForm(forms.Form):
+    '''
+    Used to add a message to a submission or to create a new submission.
+    This message is NOT a reply to a previous message but has arrived out of band
+    
+    if submission_pk is None we are startign a new submission and name
+    must be unique. Otehrwise the name must match the submission.name.
+    '''
+    name = forms.CharField(required=True, max_length=255, label="Draft name")
+    submission_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    direction = forms.ChoiceField(choices=(("incoming", "Incoming"), ("outgoing", "Outgoing")),
+                                  widget=forms.RadioSelect)
+    message = forms.CharField(required=True, widget=forms.Textarea)
+    #in_reply_to = MessageModelChoiceField(queryset=Message.objects,label="In Reply To",required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(SubmissionEmailForm, self).__init__(*args, **kwargs)
+
+    def clean_message(self):
+        '''Returns a ietf.message.models.Message object'''
+        self.message_text = self.cleaned_data['message']
+        message = email.message_from_string(self.message_text)
+        for field in ('to','from','subject','date'):
+            if not message[field]:
+                raise forms.ValidationError('Error parsing email: {} field not found.'.format(field))
+        date = utc_from_string(message['date'])
+        if not isinstance(date,datetime.datetime):
+            raise forms.ValidationError('Error parsing email date field')
+        return message
+
+    def clean(self):
+        if any(self.errors):
+            return self.cleaned_data
+        super(SubmissionEmailForm, self).clean()
+        #in_reply_to = self.cleaned_data['in_reply_to']
+        #message = self.cleaned_data['message']
+        #direction = self.cleaned_data['direction']
+
+        #if in_reply_to:
+        #    if direction != 'incoming':
+        #        raise forms.ValidationError('Only incoming messages can have In Reply To selected')
+        #    date = utc_from_string(message['date'])
+        #    if date < in_reply_to.time:
+        #        raise forms.ValidationError('The incoming message must have a date later than the message it is replying to')
+
+        return self.cleaned_data
+
+class MessageModelForm(forms.ModelForm):
+    in_reply_to_id = forms.CharField(widget=forms.HiddenInput())
+    
+    class Meta:
+        model = Message
+        fields = ['to','frm','cc','bcc','reply_to','subject','body']
+        exclude = ['time','by','content_type','related_groups','related_docs']
+
+    def __init__(self, *args, **kwargs):
+        super(MessageModelForm, self).__init__(*args, **kwargs)
+        self.fields['frm'].label='From'
+        self.fields['frm'].widget.attrs['readonly'] = 'True'
+        self.fields['reply_to'].widget.attrs['readonly'] = 'True'

@@ -1,4 +1,5 @@
 # Copyright The IETF Trust 2007, All Rights Reserved
+import base64
 import datetime
 import os
 import xml2rfc
@@ -789,7 +790,10 @@ def submission_email_attachment(request, submission_id, message_id, filename, ac
                                message=message.message, 
                                filename=filename)
     
-    body = attach.body.encode('utf-8')
+    if attach.encoding == "base64":
+        body = base64.b64decode(attach.body)
+    else:
+        body = attach.body.encode('utf-8')
     
     if attach.content_type is None:
         content_type='text/plain'

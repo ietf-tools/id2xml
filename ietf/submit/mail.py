@@ -1,6 +1,7 @@
 import re
 import email
 import datetime
+import base64
 
 import pyzmail
 
@@ -265,13 +266,17 @@ def save_submission_email_attachments(submission_email_event, parts):
             payload, used_charset = pyzmail.decode_text(part.get_payload(), 
                                                         part.charset, 
                                                         None)
+            encoding = ""
         else:
-            # Ignore for the moment -- payload = part.get_payload()
-            continue
+            # Need a better approach - for the moment we'll just handle these 
+            # and encode as base64
+            payload = base64.b64encode(part.get_payload())
+            encoding = "base64"
 
         #name = submission_email_event.submission.name
 
         MessageAttachment.objects.create(message = submission_email_event.message,
                                          content_type = part.type,
+                                         encoding = encoding,
                                          filename=part.filename,
                                          body=payload)

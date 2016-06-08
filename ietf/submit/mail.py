@@ -207,7 +207,7 @@ def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
         submission = Submission.objects.get(pk=submission_pk)
     else:
         # Must not exist
-        submissions = Submission.objects.filter(name=name)
+        submissions = Submission.objects.filter(name=name).exclude(state_id='cancel')
         if submissions.count() > 0:
             raise Exception("Submission {} already exists".format(name))
             

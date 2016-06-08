@@ -979,7 +979,16 @@ Thank you
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('.awaiting-draft a:contains("draft-my-new-draft")')), 0)
-        
+
+        # Should now be able to add it again
+        submission, submission_email_event = \
+            add_submission_email(remote_ip ="192.168.0.1",
+                                 name = "draft-my-new-draft",
+                                 submission_pk=None,
+                                 message = message,
+                                 by = Person.objects.get(name="(System)"),
+                                 msgtype = "msgin")
+
 
     def test_awaiting_draft_with_attachment(self):
         message_string = """To: somebody@ietf.org

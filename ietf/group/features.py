@@ -21,6 +21,9 @@ class GroupFeatures(object):
         elif group.type_id in ("team",):
             self.has_materials = True
             self.default_tab = "group_about"
+        elif group.type_id in ("program",):
+            self.has_documents = True
+            self.has_milestones = True
 
         if self.has_chartering_process:
             self.about_page = "group_charter"

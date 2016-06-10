@@ -215,11 +215,13 @@ def active_groups(request, group_type=None):
         return active_teams(request)
     elif group_type == "dir":
         return active_dirs(request)
+    elif group_type == "program":
+        return active_programs(request)
     else:
         raise Http404
 
 def active_group_types(request):
-    grouptypes = GroupTypeName.objects.filter(slug__in=['wg','rg','ag','team','dir','area'])
+    grouptypes = GroupTypeName.objects.filter(slug__in=['wg','rg','ag','team','dir','area','program'])
     return render(request, 'group/active_groups.html', {'grouptypes':grouptypes})
 
 def active_dirs(request):
@@ -235,6 +237,12 @@ def active_teams(request):
     for group in teams:
         group.chairs = sorted(roles(group, "chair"), key=extract_last_name)
     return render(request, 'group/active_teams.html', {'teams' : teams })
+
+def active_programs(request):
+    programs = Group.objects.filter(type="program", state="active").order_by("name")
+    for group in programs:
+        group.lead = sorted(roles(group, "lead"), key=extract_last_name)
+    return render(request, 'group/active_programs.html', {'programs' : programs })
 
 def active_areas(request):
 	areas = Group.objects.filter(type="area", state="active").order_by("name")  
@@ -368,11 +376,11 @@ def construct_group_menu_context(request, group, selected, group_type, others):
     # actions
     actions = []
 
-    is_chair = group.has_role(request.user, "chair")
+    is_authority = group.has_role(request.user, "lead" if group.type_id=="program" else "chair" )
     can_manage = can_manage_group(request.user, group)
 
     if group.features.has_milestones:
-        if group.state_id != "proposed" and (is_chair or can_manage):
+        if group.state_id != "proposed" and (is_authority or can_manage):
             actions.append((u"Edit milestones", urlreverse("group_edit_milestones", kwargs=kwargs)))
 
     if group.features.has_documents:
@@ -384,10 +392,10 @@ def construct_group_menu_context(request, group, selected, group_type, others):
     if group.features.has_materials and can_manage_materials(request.user, group):
         actions.append((u"Upload material", urlreverse("ietf.doc.views_material.choose_material_type", kwargs=kwargs)))
 
-    if group.state_id != "conclude" and (is_chair or can_manage):
+    if group.state_id != "conclude" and (is_authority or can_manage):
         actions.append((u"Edit group", urlreverse("group_edit", kwargs=kwargs)))
 
-    if group.features.customize_workflow and (is_chair or can_manage):
+    if group.features.customize_workflow and (is_authority or can_manage):
         actions.append((u"Customize workflow", urlreverse("ietf.group.views_edit.customize_workflow", kwargs=kwargs)))
 
     if group.state_id in ("active", "dormant") and not group.type_id in ["sdo", "rfcedtyp", "isoc", ] and can_manage:

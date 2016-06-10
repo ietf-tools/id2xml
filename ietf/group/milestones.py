@@ -94,11 +94,11 @@ def edit_milestones(request, acronym, group_type=None, milestone_set="current"):
 
     needs_review = False
     if not can_manage_group(request.user, group):
-        if group.has_role(request.user, "chair"):
+        if group.has_role(request.user, "lead" if group.type_id=="program" else "chair"):
             if milestone_set == "current":
                 needs_review = True
         else:
-            return HttpResponseForbidden("You are not chair of this group.")
+            return HttpResponseForbidden("You are not chair or lead of this group.")
 
     if milestone_set == "current":
         title = "Edit milestones for %s %s" % (group.acronym, group.type.name)
@@ -330,9 +330,9 @@ def reset_charter_milestones(request, group_type, acronym):
         raise Http404
     
     can_manage = can_manage_group(request.user, group)
-    is_chair = group.has_role(request.user, "chair")
-    if (not can_manage) and (not is_chair):
-        return HttpResponseForbidden("You are not chair of this group.")
+    is_authority = group.has_role(request.user, "lead" if group.type_id=="program" else "chair")
+    if (not can_manage) and (not is_authority):
+        return HttpResponseForbidden("You are not chair or lead of this group.")
 
     current_milestones = group.groupmilestone_set.filter(state="active")
     charter_milestones = group.groupmilestone_set.filter(state="charter")

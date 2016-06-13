@@ -664,6 +664,8 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
             initial['name'] = submission.name
             initial['direction'] = 'outgoing'
             initial['submission_pk'] = submission.pk
+        else:
+            initial['direction'] = 'incoming'
             
         form = SubmissionEmailForm(initial=initial)
 

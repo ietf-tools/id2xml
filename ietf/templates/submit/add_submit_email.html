@@ -13,6 +13,8 @@
     <p>{% if submission == None %}A new submission request will be created{% else %}The email will be added to the submission history for {{ submission.name }}{% endif %}</p>
 
     <form class="add-email" method="post">
+        {% bootstrap_form_errors form %}
+
         {% csrf_token %}
 
         {% bootstrap_form form %}

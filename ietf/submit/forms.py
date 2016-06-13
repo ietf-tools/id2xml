@@ -450,7 +450,12 @@ class SubmissionEmailForm(forms.Form):
     def clean_message(self):
         '''Returns a ietf.message.models.Message object'''
         self.message_text = self.cleaned_data['message']
-        message = email.message_from_string(self.message_text)
+        try:
+            message = email.message_from_string(self.message_text)
+        except Exception as e:
+            self.add_error('message', e)
+            return None
+            
         for field in ('to','from','subject','date'):
             if not message[field]:
                 raise forms.ValidationError('Error parsing email: {} field not found.'.format(field))

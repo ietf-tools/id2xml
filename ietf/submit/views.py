@@ -654,6 +654,7 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
                 e.save()
 
             return redirect("submit_manualpost")
+
     else:
         initial = {
         }

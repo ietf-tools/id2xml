@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import datetime
 import os
-import shutil
 import subprocess
 
 from django.conf import settings

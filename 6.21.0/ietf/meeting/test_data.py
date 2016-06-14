@@ -15,6 +15,7 @@ def make_interim_meeting(group,date,status='sched'):
     session = Session.objects.create(meeting=meeting, group=group,
         attendees=10, requested_by=system_person,
         requested_duration=20, status_id=status,
+        remote_instructions='http://webex.com',
         scheduled=datetime.datetime.now(),type_id="session")
     slot = TimeSlot.objects.create(
         meeting=meeting,

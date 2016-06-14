@@ -403,8 +403,9 @@ def create_interim_meeting(group, date, city='', country='', timezone='UTC',
     return meeting
 
 
-def get_announcement_initial(meeting):
-    '''Returns a dictionary suitable to initialize an InterimAnnouncementForm (Message ModelForm)'''
+def get_announcement_initial(meeting, is_change=False):
+    '''Returns a dictionary suitable to initialize an InterimAnnouncementForm
+    (Message ModelForm)'''
     group = meeting.session_set.first().group
     in_person = bool(meeting.city)
     initial = {}
@@ -415,7 +416,23 @@ def get_announcement_initial(meeting):
         desc = 'Interim'
     else:
         desc = 'Virtual'
-    initial['subject'] = '%s (%s) WG %s Meeting: %s' % (group.name, group.acronym, desc, meeting.date)
+    if is_change:
+        change = ' CHANGED'
+    else:
+        change = ''
+    if group.type.slug == 'rg':
+        type = 'RG'
+    elif group.type.slug == 'wg' and group.state.slug == 'bof':
+        type = 'BOF'
+    else:
+        type = 'WG'
+    initial['subject'] = '{name} ({acronym}) {type} {desc} Meeting: {date}{change}'.format(
+        name=group.name, 
+        acronym=group.acronym,
+        type=type,
+        desc=desc,
+        date=meeting.date,
+        change=change)
     body = render_to_string('meeting/interim_announcement.txt', locals())
     initial['body'] = body
     return initial
@@ -504,6 +521,7 @@ def get_next_agenda_name(meeting):
         group=group.acronym,
         sequence=str(last_sequence + 1).zfill(2))
 
+
 def send_interim_approval_request(meetings):
     """Sends an email to the secretariat, group chairs, and resposnible area
     director or the IRTF chair noting that approval has been requested for a
@@ -530,6 +548,7 @@ def send_interim_approval_request(meetings):
               template,
               context,
               cc=cc_list)
+
 
 def send_interim_cancellation_notice(meeting):
     """Sends an email that a scheduled interim meeting has been cancelled."""
@@ -595,7 +614,6 @@ def check_interim_minutes():
 def sessions_post_save(forms):
     """Helper function to perform various post save operations on each form of a
     InterimSessionModelForm formset"""
-
     for form in forms:
         if not form.has_changed():
             continue

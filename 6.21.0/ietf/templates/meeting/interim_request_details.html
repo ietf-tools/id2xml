@@ -27,6 +27,7 @@
     <dt>Timezone</dt>
     <dd>{{ meeting.time_zone }}</dd>
     {% for session in sessions %}
+      <br>
       <dt>Date</dt>
       <dd>{{ session.official_timeslotassignment.timeslot.time|date:"Y-m-d" }}
       <dt>Start Time</dt>
@@ -43,9 +44,7 @@
   <form method="post">
   {% csrf_token %}
   {% if can_edit %}
-    {% if sessions.0.status.slug == 'apprw' or sessions.0.status.slug == 'scheda' %}
         <a class="btn btn-default" href="{% url 'ietf.meeting.views.interim_request_edit' number=meeting.number %}">Edit</a>
-    {% endif %}
   {% endif %}
   {% if can_approve and sessions.0.status.slug == 'apprw' %}
     <input class="btn btn-default" type="submit" value="Approve" name='approve' />

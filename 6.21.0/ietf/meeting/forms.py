@@ -136,7 +136,7 @@ class GroupModelChoiceField(forms.ModelChoiceField):
 
 
 class InterimMeetingModelForm(forms.ModelForm):
-    group = GroupModelChoiceField(queryset=Group.objects.filter(type__in=('wg', 'rg'), state__in=('active', 'proposed')).order_by('acronym'), required=False)
+    group = GroupModelChoiceField(queryset=Group.objects.filter(type__in=('wg', 'rg'), state__in=('active', 'proposed', 'bof')).order_by('acronym'), required=False)
     in_person = forms.BooleanField(required=False)
     meeting_type = forms.ChoiceField(choices=(
         ("single", "Single"),
@@ -184,11 +184,11 @@ class InterimMeetingModelForm(forms.ModelForm):
         if has_role(self.user, "Secretariat"):
             return  # don't reduce group options
         if has_role(self.user, "Area Director"):
-            queryset = Group.objects.filter(type="wg", state__in=("active", "proposed")).order_by('acronym')
+            queryset = Group.objects.filter(type="wg", state__in=("active", "proposed", "bof")).order_by('acronym')
         elif has_role(self.user, "IRTF Chair"):
             queryset = Group.objects.filter(type="rg", state__in=("active", "proposed")).order_by('acronym')
         elif has_role(self.user, "WG Chair"):
-            queryset = Group.objects.filter(type="wg", state__in=("active", "proposed"), role__person=self.person, role__name="chair").distinct().order_by('acronym')
+            queryset = Group.objects.filter(type="wg", state__in=("active", "proposed", "bof"), role__person=self.person, role__name="chair").distinct().order_by('acronym')
         elif has_role(self.user, "RG Chair"):
             queryset = Group.objects.filter(type="rg", state__in=("active", "proposed"), role__person=self.person, role__name="chair").distinct().order_by('acronym')
         self.fields['group'].queryset = queryset

@@ -64,6 +64,14 @@ def get_menu_entries(request):
             entries.append(("Announce", reverse("ietf.meeting.views.interim_announce")))
     return entries
 
+def send_interim_change_notice(request, meeting):
+    """Sends an email notifying changes to a previously scheduled / announced meeting"""
+    group = meeting.session_set.first().group
+    form = InterimAnnounceForm(get_announcement_initial(meeting, is_change=True))
+    message = form.save(user=request.user)
+    message.related_groups.add(group)
+    send_mail_message(request, message)
+
 # -------------------------------------------------
 # View Functions
 # -------------------------------------------------
@@ -1019,7 +1027,7 @@ def delete_schedule(request, num, owner, name):
 
 
 def ajax_get_utc(request):
-    '''Ajax view that takes arguments time and timezone and returns UTC'''
+    '''Ajax view that takes arguments time, timezone, date and returns UTC data'''
     time = request.GET.get('time')
     timezone = request.GET.get('timezone')
     date = request.GET.get('date')
@@ -1043,7 +1051,7 @@ def ajax_get_utc(request):
     utc_day_offset = (naive_utc_dt.date() - dt.date()).days
     html = "<span>{utc} UTC</span>".format(utc=utc)
     if utc_day_offset != 0:
-        html = html + "<span class='day-offset'> {0:+d}</span>".format(utc_day_offset)
+        html = html + "<span class='day-offset'> {0:+d} Day</span>".format(utc_day_offset)
     context_data = {'timezone': timezone, 
                     'time': time, 
                     'utc': utc, 
@@ -1056,7 +1064,7 @@ def ajax_get_utc(request):
 @role_required('Secretariat',)
 def interim_announce(request):
     '''View which shows interim meeting requests awaiting announcement'''
-    meetings = Meeting.objects.filter(type='interim', session__status='scheda')
+    meetings = Meeting.objects.filter(type='interim', session__status='scheda').distinct()
     menu_entries = get_menu_entries(request)
     selected_menu_entry = 'announce'
 
@@ -1278,8 +1286,14 @@ def interim_request_edit(request, number):
             formset.save()
             sessions_post_save(formset)
 
-            messages.success(request, 'Interim meeting request saved')
+            message = 'Interim meeting request saved'
+            if form.has_changed() or formset.has_changed():
+                send_interim_change_notice(request, meeting)
+                message = message + ' and change announcement sent'
+            messages.success(request, message)
             return redirect(interim_request_details, number=number)
+        else:
+            assert False, (form.errors, formset.errors)
 
     else:
         form = InterimMeetingModelForm(request=request, instance=meeting)

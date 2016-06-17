@@ -60,9 +60,9 @@
         {% for s in awaiting_draft %}
           <tr>
             {% if user.is_authenticated %}
-              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_emails_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
+              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_status_by_hash" submission_id=s.pk access_token=s.access_token %}">{{ s.name }}</a></td>
             {% else %}
-              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_emails" submission_id=s.pk %}">{{ s.name }}</a></td>
+              <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_status" submission_id=s.pk %}">{{ s.name }}</a></td>
             {% endif %}
             <td>{{ s.submission_date }}</td>
 

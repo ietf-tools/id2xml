@@ -770,7 +770,8 @@ def submission_emails(request, submission_id, access_token=None):
     subemails = SubmissionEmail.objects.filter(submission=submission)
 
     return render(request, 'submit/submission_emails.html',
-                  {'submission': submission,
+                  {'selected': 'status',
+                   'submission': submission,
                    'subemails': subemails})
 
 def submission_email(request, submission_id, message_id, access_token=None):

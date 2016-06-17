@@ -101,28 +101,33 @@
     </div>
   </div>
 
+  {% if submission.state_id == "manual-awaiting-draft" %}
+    <p class="alert alert-warning">
+      This submission is awaiting the first draft upload.
+    </p>
+  {% else %}
+    <h2>Meta-data from the submission</h2>
 
-  <h2>Meta-data from the submission</h2>
+    {% if errors %}
+      <div class="alert alert-danger">
+        <p><b>Meta-Data errors found!</b></p>
+      <p  >Please make sure that your Internet-Draft includes all of the required meta-data in the proper format.</p>
 
-  {% if errors %}
-    <div class="alert alert-danger">
-      <p><b>Meta-Data errors found!</b></p>
-      <p>Please make sure that your Internet-Draft includes all of the required meta-data in the proper format.</p>
+        <p>If your Internet-Draft <b>does</b> include all of the required meta-data in the proper format, and if
+          the error(s) identified below are due to the failure of the tool to extract the meta-data correctly,
+          then please use the "Adjust meta-data" button below, which will take you to the "Adjust screen" where
+          you can correct the improperly extracted meta-data. You will then be able to submit your Internet-Draft
+          to the Secretariat for manual posting.</p>
 
-      <p>If your Internet-Draft <b>does</b> include all of the required meta-data in the proper format, and if
-        the error(s) identified below are due to the failure of the tool to extract the meta-data correctly,
-        then please use the "Adjust meta-data" button below, which will take you to the "Adjust screen" where
-        you can correct the improperly extracted meta-data. You will then be able to submit your Internet-Draft
-        to the Secretariat for manual posting.</p>
+        <p>If your Internet-Draft <b>does not</b> include all of the required meta-data in the proper format, then
+          please cancel this submission, update your Internet-Draft, and resubmit it.</p>
 
-      <p>If your Internet-Draft <b>does not</b> include all of the required meta-data in the proper format, then
-        please cancel this submission, update your Internet-Draft, and resubmit it.</p>
-
-      <p><b>Note:</b> The secretariat will <b>not</b> add any
-        meta-data to your Internet-Draft or edit the meta-data. An
-        Internet-Draft that does not include all of the required meta-data in
-        the proper format <b>will</b> be returned to the submitter.</p>
-    </div>
+        <p><b>Note:</b> The secretariat will <b>not</b> add any
+          meta-data to your Internet-Draft or edit the meta-data. An
+          Internet-Draft that does not include all of the required meta-data in
+          the proper format <b>will</b> be returned to the submitter.</p>
+      </div>
+    {% endif %}
   {% endif %}
 
   <table class="table table-condensed table-striped">
@@ -341,11 +346,11 @@
           <td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
           <td>{{ e.by|default:"" }}</td>
           {%  if e.desc == "Submission email" %}
-            {%  with m=e.submissionemail.message msg=m.message_set.all.0 %}
+            {%  with m=e.submissionemail.message %}
               {% if user.is_authenticated %}
-                <td>{{ e.desc }}: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=m.pk access_token=submission.access_token %}">View message{{ msg.subject }}</a></td>
+                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=e.submissionemail.pk access_token=submission.access_token %}">{{ m.subject }}</a></td>
               {% else %}
-                <td>{{ e.desc }}: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email" submission_id=submission.pk message_id=m.pk %}">View message{{ msg.subject }}</a></td>
+                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email" submission_id=submission.pk message_id=e.submissionemail.pk %}">{{ m.subject }}</a></td>
               {% endif %}
             {% endwith %}
           {%  else %}

@@ -470,7 +470,9 @@ class SubmissionEmailForm(forms.Form):
         super(SubmissionEmailForm, self).clean()
         #in_reply_to = self.cleaned_data['in_reply_to']
         #message = self.cleaned_data['message']
-        #direction = self.cleaned_data['direction']
+        direction = self.cleaned_data['direction']
+        if direction != 'incoming' and direction != 'outgoing':
+            self.add_error('direction', "Must be one of 'outgoing' or 'incoming'")
 
         #if in_reply_to:
         #    if direction != 'incoming':

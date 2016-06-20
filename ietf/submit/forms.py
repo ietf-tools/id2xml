@@ -468,6 +468,18 @@ class SubmissionEmailForm(forms.Form):
         if any(self.errors):
             return self.cleaned_data
         super(SubmissionEmailForm, self).clean()
+        name = self.cleaned_data['name']
+        match = re.search("[^a-z0-9-]", name)
+        if match:
+            self.add_error('name', 
+                           "Submission name {} contains other characters than digits, lowercase letters and dash.".format(name))
+    
+        # Should not end in revision 
+        match = re.search(r"-\d\d$", name)
+        if match:
+            self.add_error('name', 
+                           "Submission name {} ends with revision number.".format(name))
+
         #in_reply_to = self.cleaned_data['in_reply_to']
         #message = self.cleaned_data['message']
         direction = self.cleaned_data['direction']

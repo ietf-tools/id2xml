@@ -26,7 +26,6 @@ from ietf.doc.models import Document, DocAlias, DocEvent, State, NewRevisionDocE
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
 from ietf.meeting.models import Meeting, Session, TimeSlot, SchedTimeSessAssignment
-from ietf.meeting.helpers import make_directories
 from ietf.secr.proceedings.forms import EditSlideForm, RecordingForm, RecordingEditForm, ReplaceSlideForm, UnifiedUploadForm
 from ietf.secr.proceedings.proc_utils import ( gen_acknowledgement, gen_agenda, gen_areas,
     gen_attendees, gen_group_pages, gen_index, gen_irtf, gen_overview, gen_plenaries,
@@ -397,10 +396,10 @@ def main(request):
         meetings = Meeting.objects.filter(type='ietf',date__gt=datetime.datetime.today() - datetime.timedelta(days=settings.MEETING_MATERIALS_SUBMISSION_CORRECTION_DAYS)).order_by('number')
 
     groups = get_my_groups(request.user)
-    interim_meetings = Meeting.objects.filter(type='interim',session__group__in=groups).order_by('-date')
+    interim_meetings = Meeting.objects.filter(type='interim',session__group__in=groups,session__status='sched').order_by('-date')
     # tac on group for use in templates
     for m in interim_meetings:
-        m.group = m.session_set.all()[0].group
+        m.group = m.session_set.first().group
 
     # we today's date to see if we're past the submissio cutoff
     today = datetime.date.today()
@@ -720,7 +719,7 @@ def upload_unified(request, meeting_num, acronym=None, session_id=None):
     '''
     def redirection_back(meeting, group):
         if meeting.type.slug == 'interim':
-            url = reverse('proceedings_interim', kwargs={'acronym':group.acronym})
+            url = reverse('proceedings')
         else:
             url = reverse('proceedings_select', kwargs={'meeting_num':meeting.number})
         return HttpResponseRedirect(url)

@@ -987,7 +987,7 @@ class InterimTests(TestCase):
         self.assertEqual(len(outbox),length_before+1)
         self.assertTrue('CHANGED' in outbox[-1]['Subject'])
         session = meeting.session_set.first()
-        timeslot = session.official_timeslotassignment.timeslot
+        timeslot = session.official_timeslotassignment().timeslot
         self.assertEqual(timeslot.time,new_time)
         
         

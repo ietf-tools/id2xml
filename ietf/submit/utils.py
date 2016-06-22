@@ -139,6 +139,9 @@ def post_rev00_submission_events(draft, submission, submitter):
         if subevent.desc.startswith("Uploaded submission"):
             desc = "Uploaded new revision"
             e = DocEvent(type="added_comment", doc=draft)
+        elif subevent.desc.startswith("Submission created"):
+            desc = subevent.desc
+            e = DocEvent(type="added_comment", doc=draft)
         elif subevent.desc.startswith("Set submitter to"):
             pos = subevent.desc.find("sent confirmation email")
             e = DocEvent(type="added_comment", doc=draft)

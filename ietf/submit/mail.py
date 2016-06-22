@@ -7,6 +7,7 @@ import pyzmail
 
 from django.conf import settings
 from django.core.urlresolvers import reverse as urlreverse
+from django.core.validators import ValidationError
 from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
 
@@ -188,7 +189,7 @@ def process_response_email(msg):
     return msg
 
 
-def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
+def add_submission_email(request, remote_ip, name, rev, submission_pk, message, by, msgtype):
     """Add email to submission history"""
 
     #in_reply_to = form.cleaned_data['in_reply_to']
@@ -203,13 +204,13 @@ def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
     msg = submit_message_from_message(message, body, by)
 
     if (submission_pk != None):
-        # Must exist
+        # Must exist - we're adding a message to an existing submission
         submission = Submission.objects.get(pk=submission_pk)
     else:
         # Must not exist
-        submissions = Submission.objects.filter(name=name).exclude(state_id='cancel')
+        submissions = Submission.objects.filter(name=name,rev=rev).exclude(state_id='cancel')
         if submissions.count() > 0:
-            raise Exception("Submission {} already exists".format(name))
+            raise ValidationError("Submission {} already exists".format(name))
             
         # create Submission using the name
         try:
@@ -217,11 +218,20 @@ def add_submission_email(remote_ip, name, submission_pk, message, by, msgtype):
                     state_id="manual-awaiting-draft",
                     remote_ip=remote_ip,
                     name=name,
+                    rev=rev,
                     title=name,
                     note="",
                     submission_date=datetime.date.today(),
                     replaces="",
             )
+            from ietf.submit.utils import create_submission_event, docevent_from_submission
+            desc = "Submission created for rev {} in response to email".format(rev)
+            create_submission_event(request, 
+                                    submission,
+                                    desc)
+            docevent_from_submission(request,
+                                     submission,
+                                     desc)
         except Exception as e:
             log("Exception: %s\n" % e)
             raise

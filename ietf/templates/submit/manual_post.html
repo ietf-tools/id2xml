@@ -53,6 +53,7 @@
         <thead>
         <tr>
           <th>Name</th>
+          <th>Rev</th>
           <th>Submitted</th>
         </tr>
         </thead>
@@ -64,6 +65,7 @@
             {% else %}
               <td><a id="aw{{ s.pk }}" href="{% url "submit_submission_status" submission_id=s.pk %}">{{ s.name }}</a></td>
             {% endif %}
+            <td>{{ s.rev }}</td>
             <td>{{ s.submission_date }}</td>
 
             {% if user|has_role:"Secretariat" %}

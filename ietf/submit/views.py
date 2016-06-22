@@ -104,36 +104,35 @@ def upload_submission(request):
                 else:
                     abstract = form.parsed_draft.get_abstract()
 
-                # If this is a rev-00 see if there is a Submission in 
-                # state manual-awaiting-upload
+                # See if there is a Submission in state manual-awaiting-upload
+                # for this revision.
                 # If so - we're going to update it otherwise we create a new object 
-                if form.revision == '00':
-                    submission = Submission.objects.filter(name=form.filename, 
-                                                           state_id = "manual-awaiting-draft").distinct()
-                    if (len(submission) == 0):
-                        submission = None
-                    elif (len(submission) == 1):
-                        submission = submission[0]
-                        
-                        submission.state = DraftSubmissionStateName.objects.get(slug="uploaded")
-                        submission.remote_ip=form.remote_ip
-                        submission.title=form.title
-                        submission.abstract=abstract
-                        submission.rev=form.revision
-                        submission.pages=form.parsed_draft.get_pagecount()
-                        submission.authors="\n".join(authors)
-                        submission.first_two_pages=''.join(form.parsed_draft.pages[:2])
-                        submission.file_size=file_size
-                        submission.file_types=','.join(form.file_types)
-                        submission.submission_date=datetime.date.today()
-                        submission.document_date=form.parsed_draft.get_creation_date()
-                        submission.replaces=""
-                        
-                        submission.save()
-                    else:
-                        raise Exception("Multiple submissions awaiting upload")
-                else:
+
+                submission = Submission.objects.filter(name=form.filename, 
+                                                       rev=form.revision,
+                                                       state_id = "manual-awaiting-draft").distinct()
+                if (len(submission) == 0):
                     submission = None
+                elif (len(submission) == 1):
+                    submission = submission[0]
+                    
+                    submission.state = DraftSubmissionStateName.objects.get(slug="uploaded")
+                    submission.remote_ip=form.remote_ip
+                    submission.title=form.title
+                    submission.abstract=abstract
+                    submission.rev=form.revision
+                    submission.pages=form.parsed_draft.get_pagecount()
+                    submission.authors="\n".join(authors)
+                    submission.first_two_pages=''.join(form.parsed_draft.pages[:2])
+                    submission.file_size=file_size
+                    submission.file_types=','.join(form.file_types)
+                    submission.submission_date=datetime.date.today()
+                    submission.document_date=form.parsed_draft.get_creation_date()
+                    submission.replaces=""
+                    
+                    submission.save()
+                else:
+                    raise Exception("Multiple submissions awaiting upload")
 
                 if (submission == None):
                     try:
@@ -610,51 +609,57 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
     """Add email to submission history"""
 
     if request.method == 'POST':
-        button_text = request.POST.get('submit', '')
-        if button_text == 'Cancel':
-            return redirect("submit/manual_post.html")
-
-        form = SubmissionEmailForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            submission_pk = form.cleaned_data['submission_pk']
-            message = form.cleaned_data['message']
-            #in_reply_to = form.cleaned_data['in_reply_to']
-            # create Message
-
-            if form.cleaned_data['direction'] == 'incoming':
-                msgtype = 'msgin'
-            else:
-                msgtype = 'msgout'
-
-            submission, submission_email_event = \
-                add_submission_email(remote_ip=request.META.get('REMOTE_ADDR', None),
-                                     name = name,
-                                     submission_pk = submission_pk,
-                                     message = message,
-                                     by = request.user.person,
-                                     msgtype = msgtype)
-
-            messages.success(request, 'Email added.')
-
-            try:
-                draft = Document.objects.get(name=submission.name)
-            except Document.DoesNotExist:
-                # Assume this is revision 00 - we'll do this later
-                draft = None
+        try:
+            button_text = request.POST.get('submit', '')
+            if button_text == 'Cancel':
+                return redirect("submit/manual_post.html")
     
-            if (draft != None):
-                e = AddedMessageEvent(type="added_message", doc=draft)
-                e.message = submission_email_event.submissionemail.message
-                e.msgtype = submission_email_event.submissionemail.msgtype
-                e.in_reply_to = submission_email_event.submissionemail.in_reply_to
-                e.by = request.user.person
-                e.desc = submission_email_event.desc
-                e.time = submission_email_event.time
-                e.save()
-
-            return redirect("submit_manualpost")
-
+            form = SubmissionEmailForm(request.POST)
+            if form.is_valid():
+                name = form.cleaned_data['name']
+                submission_pk = form.cleaned_data['submission_pk']
+                message = form.cleaned_data['message']
+                #in_reply_to = form.cleaned_data['in_reply_to']
+                # create Message
+    
+                if form.cleaned_data['direction'] == 'incoming':
+                    msgtype = 'msgin'
+                else:
+                    msgtype = 'msgout'
+    
+                submission, submission_email_event = \
+                    add_submission_email(request=request,
+                                         remote_ip=request.META.get('REMOTE_ADDR', None),
+                                         name = form.draft_name,
+                                         rev=form.revision,
+                                         submission_pk = submission_pk,
+                                         message = message,
+                                         by = request.user.person,
+                                         msgtype = msgtype)
+    
+                messages.success(request, 'Email added.')
+    
+                try:
+                    draft = Document.objects.get(name=submission.name)
+                except Document.DoesNotExist:
+                    # Assume this is revision 00 - we'll do this later
+                    draft = None
+        
+                if (draft != None):
+                    e = AddedMessageEvent(type="added_message", doc=draft)
+                    e.message = submission_email_event.submissionemail.message
+                    e.msgtype = submission_email_event.submissionemail.msgtype
+                    e.in_reply_to = submission_email_event.submissionemail.in_reply_to
+                    e.by = request.user.person
+                    e.desc = submission_email_event.desc
+                    e.time = submission_email_event.time
+                    e.save()
+    
+                return redirect("submit_manualpost")
+        except ValidationError as e:
+            form = SubmissionEmailForm(request.POST)
+            form._errors = {}
+            form._errors["__all__"] = form.error_class(["There was a failure uploading your message. (%s)" % e.message])
     else:
         initial = {
         }

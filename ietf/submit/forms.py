@@ -226,7 +226,7 @@ class SubmissionUploadForm(forms.Form):
             self.group = self.deduce_group()
 
             # check existing
-            existing = Submission.objects.filter(name=self.filename, rev=self.revision).exclude(state__in=("posted", "cancel"))
+            existing = Submission.objects.filter(name=self.filename, rev=self.revision).exclude(state__in=("posted", "cancel", "manual-awaiting-draft"))
             if existing:
                 raise forms.ValidationError(mark_safe('A submission with same name and revision is currently being processed. <a href="%s">Check the status here.</a>' % urlreverse("submit_submission_status", kwargs={ 'submission_id': existing[0].pk })))
 
@@ -469,16 +469,17 @@ class SubmissionEmailForm(forms.Form):
             return self.cleaned_data
         super(SubmissionEmailForm, self).clean()
         name = self.cleaned_data['name']
-        match = re.search("[^a-z0-9-]", name)
-        if match:
+        match = re.search(r"(draft-[a-z0-9-]*)-(\d\d)", name)
+        if not match:
             self.add_error('name', 
-                           "Submission name {} contains other characters than digits, lowercase letters and dash.".format(name))
-    
-        # Should not end in revision 
-        match = re.search(r"-\d\d$", name)
-        if match:
-            self.add_error('name', 
-                           "Submission name {} ends with revision number.".format(name))
+                           "Submission name {} must start with 'draft-' and only contain digits, lowercase letters and dash characters and end with revision.".format(name))
+
+        self.draft_name = match.group(1)    
+        self.revision = match.group(2)
+
+        error = validate_submission_rev(self.draft_name, self.revision)
+        if error:
+            raise forms.ValidationError(error)
 
         #in_reply_to = self.cleaned_data['in_reply_to']
         #message = self.cleaned_data['message']

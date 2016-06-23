@@ -473,13 +473,13 @@ class SubmissionEmailForm(forms.Form):
         if not match:
             self.add_error('name', 
                            "Submission name {} must start with 'draft-' and only contain digits, lowercase letters and dash characters and end with revision.".format(name))
+        else:
+            self.draft_name = match.group(1)    
+            self.revision = match.group(2)
 
-        self.draft_name = match.group(1)    
-        self.revision = match.group(2)
-
-        error = validate_submission_rev(self.draft_name, self.revision)
-        if error:
-            raise forms.ValidationError(error)
+            error = validate_submission_rev(self.draft_name, self.revision)
+            if error:
+                raise forms.ValidationError(error)
 
         #in_reply_to = self.cleaned_data['in_reply_to']
         #message = self.cleaned_data['message']

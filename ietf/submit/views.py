@@ -600,6 +600,11 @@ def cancel_awaiting_draft(request):
         cancel_submission(submission)
     
         create_submission_event(request, submission, "Canceled submission")
+        if (submission.rev != "00"):
+            # Add a doc event
+            docevent_from_submission(request, 
+                                     submission,
+                                     "Canceled submission for rev {}".format(submission.rev))
     
     return redirect("submit_manualpost")
 
@@ -666,8 +671,8 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
 
         if (submission_id != None):
             submission = get_submission_or_404(submission_id, access_token)
-            initial['name'] = submission.name
-            initial['direction'] = 'outgoing'
+            initial['name'] = "{}-{}".format(submission.name, submission.rev)
+            initial['direction'] = 'incoming'
             initial['submission_pk'] = submission.pk
         else:
             initial['direction'] = 'incoming'

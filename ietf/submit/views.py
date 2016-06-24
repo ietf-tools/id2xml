@@ -621,7 +621,6 @@ def add_manualpost_email(request, submission_id=None, access_token=None):
     
             form = SubmissionEmailForm(request.POST)
             if form.is_valid():
-                name = form.cleaned_data['name']
                 submission_pk = form.cleaned_data['submission_pk']
                 message = form.cleaned_data['message']
                 #in_reply_to = form.cleaned_data['in_reply_to']
@@ -690,7 +689,7 @@ def send_email(request, submission_id, message_id=None):
     if request.method == 'POST':
         button_text = request.POST.get('submit', '')
         if button_text == 'Cancel':
-            return redirect('submit_submission_emails_by_hash',
+            return redirect('submit_submission_status_by_hash',
                             submission_id=submission.id,
                             access_token=submission.access_token())
 
@@ -728,7 +727,7 @@ def send_email(request, submission_id, message_id=None):
             send_mail_message(None,msg)
 
             messages.success(request, 'Email sent.')
-            return redirect('submit_submission_emails_by_hash', 
+            return redirect('submit_submission_status_by_hash', 
                             submission_id=submission.id,
                             access_token=submission.access_token())
 
@@ -770,19 +769,6 @@ def send_email(request, submission_id, message_id=None):
         'access_token': submission.access_token(),
         'form':form})
     
-
-def submission_emails(request, submission_id, access_token=None):
-    submission = get_submission_or_404(submission_id, access_token)
-
-    #is_secretariat = has_role(request.user, "Secretariat")
-    #is_chair = submission.group and submission.group.has_role(request.user, "chair")
-
-    subemails = SubmissionEmail.objects.filter(submission=submission)
-
-    return render(request, 'submit/submission_emails.html',
-                  {'selected': 'status',
-                   'submission': submission,
-                   'subemails': subemails})
 
 def submission_email(request, submission_id, message_id, access_token=None):
     submission = get_submission_or_404(submission_id, access_token)

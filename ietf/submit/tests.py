@@ -941,12 +941,14 @@ Thank you
 """.format(datetime.datetime.now().ctime())
         message = email.message_from_string(message_string)
         submission, submission_email_event =\
-            add_submission_email(remote_ip ="192.168.0.1",
-                             name = "draft-my-new-draft",
-                             submission_pk=None,
-                             message = message,
-                             by = Person.objects.get(name="(System)"),
-                             msgtype = "msgin")
+            add_submission_email(request=None,
+                                 remote_ip ="192.168.0.1",
+                                 name = "draft-my-new-draft",
+                                 rev='00',
+                                 submission_pk=None,
+                                 message = message,
+                                 by = Person.objects.get(name="(System)"),
+                                 msgtype = "msgin")
 
         url = urlreverse('submit_manualpost')
         # Secretariat has access
@@ -961,8 +963,10 @@ Thank you
 
         # Same name should raise an error
         with self.assertRaises(Exception):
-            add_submission_email(remote_ip ="192.168.0.1",
+            add_submission_email(request=None,
+                                 remote_ip ="192.168.0.1",
                                  name = "draft-my-new-draft",
+                                 rev='00',
                                  submission_pk=None,
                                  message = message,
                                  by = Person.objects.get(name="(System)"),
@@ -982,8 +986,10 @@ Thank you
 
         # Should now be able to add it again
         submission, submission_email_event = \
-            add_submission_email(remote_ip ="192.168.0.1",
+            add_submission_email(request=None,
+                                 remote_ip ="192.168.0.1",
                                  name = "draft-my-new-draft",
+                                 rev='00',
                                  submission_pk=None,
                                  message = message,
                                  by = Person.objects.get(name="(System)"),
@@ -1015,8 +1021,10 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 """.format(datetime.datetime.now().ctime())
         message = email.message_from_string(message_string)
         submission, submission_email_event = \
-            add_submission_email(remote_ip ="192.168.0.1",
+            add_submission_email(request=None,
+                                 remote_ip ="192.168.0.1",
                                  name = "draft-my-new-draft",
+                                 rev='00',
                                  submission_pk=None,
                                  message = message,
                                  by = Person.objects.get(name="(System)"),

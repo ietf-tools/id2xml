@@ -236,8 +236,14 @@ def add_submission_email(request, remote_ip, name, rev, submission_pk, message, 
             log("Exception: %s\n" % e)
             raise
 
+    if msgtype == 'msgin':
+        rs = "Received"
+    else:
+        rs = "Sent"
+
+    desc = "{} message - manual post - {}-{}".format(rs, name, rev)
     submission_email_event = SubmissionEmail.objects.create(
-            desc = "Submission email",
+            desc = desc,
             submission = submission,
             msgtype = msgtype,
             by = by,

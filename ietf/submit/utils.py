@@ -136,13 +136,13 @@ def post_rev00_submission_events(draft, submission, submitter):
     # Add previous submission events as docevents
     # For now we'll filter based on the description
     for subevent in submission.submissionevent_set.all():
-        if subevent.desc.startswith("Uploaded submission"):
+        desc = subevent.desc
+        if desc.startswith("Uploaded submission"):
             desc = "Uploaded new revision"
             e = DocEvent(type="added_comment", doc=draft)
-        elif subevent.desc.startswith("Submission created"):
-            desc = subevent.desc
+        elif desc.startswith("Submission created"):
             e = DocEvent(type="added_comment", doc=draft)
-        elif subevent.desc.startswith("Set submitter to"):
+        elif desc.startswith("Set submitter to"):
             pos = subevent.desc.find("sent confirmation email")
             e = DocEvent(type="added_comment", doc=draft)
             if pos > 0:
@@ -151,14 +151,11 @@ def post_rev00_submission_events(draft, submission, submitter):
                 pos = subevent.desc.find("sent appproval email")
                 if pos > 0:
                     desc = "Request for posting approval emailed %s" % (subevent.desc[pos + 19:])
-                else:
-                    desc = subevent.desc
-        elif subevent.desc.startswith("Submission email"):
+        elif desc.startswith("Received message") or desc.startswith("Sent message"):
             e = AddedMessageEvent(type="added_message", doc=draft)
             e.message = subevent.submissionemail.message
             e.msgtype = subevent.submissionemail.msgtype
             e.in_reply_to = subevent.submissionemail.in_reply_to
-            desc = subevent.desc
         else:
             continue
 

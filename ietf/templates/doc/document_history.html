@@ -105,11 +105,7 @@
           <td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
           <td class="text-center">{{ e.rev }}</td>
           <td>{{ e.by|escape }}</td>
-          {% if e.type == "added_message" %}
-            <td>{{ e.desc|format_history_text|safe }}: {{ e.message.subject|escape }}</td>
-          {% else %}
-            <td>{{ e.desc|format_history_text|safe }}</td>
-          {% endif %}
+          <td>{{ e.desc|format_history_text|safe }}</td>
         </tr>
       {% endfor %}
     </tbody>

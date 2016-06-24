@@ -345,12 +345,12 @@
         <tr>
           <td class="text-nowrap">{{ e.time|date:"Y-m-d" }}</td>
           <td>{{ e.by|default:"" }}</td>
-          {%  if e.desc == "Submission email" %}
+          {%  if e.desc|startswith:"Received message" or e.desc|startswith:"Sent message" %}
             {%  with m=e.submissionemail.message %}
               {% if user.is_authenticated %}
-                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=e.submissionemail.pk access_token=submission.access_token %}">{{ m.subject }}</a></td>
+                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email_by_hash" submission_id=submission.pk message_id=e.submissionemail.pk access_token=submission.access_token %}">{{ e.desc }}</a></td>
               {% else %}
-                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email" submission_id=submission.pk message_id=e.submissionemail.pk %}">{{ m.subject }}</a></td>
+                <td>Email: <a id="aw{{ submission.pk }}-{{ m.pk }}" href="{% url "submit_submission_email" submission_id=submission.pk message_id=e.submissionemail.pk %}">{{ e.desc }}</a></td>
               {% endif %}
             {% endwith %}
           {%  else %}

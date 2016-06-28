@@ -188,7 +188,7 @@
   "order": 0,
   "revname": "Conflict reviewed by",
   "used": true,
-  "name": "Conflict reviews",
+  "name": "conflict reviews",
   "desc": ""
  },
  "model": "name.docrelationshipname",
@@ -871,6 +871,17 @@
  },
  "model": "name.draftsubmissionstatename",
  "pk": "posted"
+},
+{
+ "fields": {
+  "order": 8,
+  "next_states": [],
+  "used": true,
+  "name": "Manual Post Awaiting Draft",
+  "desc": ""
+ },
+ "model": "name.draftsubmissionstatename",
+ "pk": "manual-awaiting-draft"
 },
 {
  "fields": {

@@ -1086,10 +1086,15 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 
         # Post the new message
         r = self.client.post(url, {
-            "name": "draft-my-next-new-draft",
+            "name": "draft-my-next-new-draft-00",
             "direction": "incoming",
             "message": message_string,
         })
+
+        if r.status_code != 302:
+            q = PyQuery(r.content)
+            print q
+
         self.assertEqual(r.status_code, 302)
         
 
@@ -1126,8 +1131,8 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         # Follow the link to the status page for this submission
         r, q = self.request_and_parse(submission_url)
         
-        selector = "#emails a#reply{}-{}:contains('Reply')".\
-            format(submission.pk, submission_email_event.pk)
+        selector = "#history a#reply{}:contains('Reply')".\
+            format(submission.pk)
 
         if is_secretariat:
             # check that reply button is visible and get the form
@@ -1142,10 +1147,14 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
             # No reply button
             self.assertEqual(len(q(selector)), 0)
         
+        # print q
+        # print submission.pk
+        # print submission_email_event.pk
+        
         # Find the link for our message in the list
         url = self.get_href(q, "#aw{}-{}:contains('{}')".format(submission.pk, 
-                                                                submission_email_event.pk,
-                                                                subject_fragment))
+                                                                submission_email_event.message.pk,
+                                                                "Received message - manual post"))
         
         # Page displaying message details
         r, q = self.request_and_parse(url)

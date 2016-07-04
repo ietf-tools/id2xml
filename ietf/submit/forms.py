@@ -497,7 +497,7 @@ class SubmissionEmailForm(forms.Form):
         return self.cleaned_data
 
 class MessageModelForm(forms.ModelForm):
-    in_reply_to_id = forms.CharField(widget=forms.HiddenInput())
+    in_reply_to_id = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
         model = Message

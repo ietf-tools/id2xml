@@ -997,8 +997,10 @@ Thank you
 
 
     def test_awaiting_draft_with_attachment(self):
+        frm = "joe@test.com"
+        
         message_string = """To: somebody@ietf.org
-From: joe@test.com
+From: {}
 Date: {}
 Subject: A very important message with a small attachment
 Content-Type: multipart/mixed; boundary="------------090908050800030909090207"
@@ -1018,7 +1020,7 @@ Content-Disposition: attachment; filename="attach.txt"
 QW4gZXhhbXBsZSBhdHRhY2htZW50IHd0aG91dCB2ZXJ5IG11Y2ggaW4gaXQuCgpBIGNvdXBs
 ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 --------------090908050800030909090207--
-""".format(datetime.datetime.now().ctime())
+""".format(frm, datetime.datetime.now().ctime())
         message = email.message_from_string(message_string)
         submission, submission_email_event = \
             add_submission_email(request=None,
@@ -1034,18 +1036,22 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         # Secretariat has access
         self.client.login(username="secretary", password="secretary+password")
 
-        self.check_status_page(submission, submission_email_event,
-                               status_page_url, 'draft-my-new-draft',
-                               'A very important message',
-                               True)
+        self.check_status_page(submission=submission, 
+                               submission_email_event=submission_email_event,
+                               status_page_url=status_page_url, 
+                               submission_name_fragment='draft-my-new-draft',
+                               frm = frm,
+                               is_secretariat=True)
  
         # Try the status page with no credentials
         self.client.logout()
 
-        self.check_status_page(submission, submission_email_event,
-                               status_page_url, 'draft-my-new-draft',
-                               'A very important message',
-                               False)
+        self.check_status_page(submission=submission, 
+                               submission_email_event=submission_email_event,
+                               status_page_url=status_page_url, 
+                               submission_name_fragment='draft-my-new-draft',
+                               frm=frm,
+                               is_secretariat=False)
         
         # Post another message to this submission using the link
         message_string = """To: somebody@ietf.org
@@ -1105,7 +1111,7 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 
     def check_status_page(self, submission, submission_email_event,
                           status_page_url, submission_name_fragment,
-                          subject_fragment,
+                          frm,
                           is_secretariat):
         # get the status page
         r, q = self.request_and_parse(status_page_url)
@@ -1159,16 +1165,16 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         # Page displaying message details
         r, q = self.request_and_parse(url)
         
-        selector = "#email-details a#reply{}:contains('Reply')".\
-            format(submission.pk)
-
         if is_secretariat:
             # check that reply button is visible
 
-            self.assertEqual(len(q(selector)), 1)
+            reply_href = self.get_href(q, "#email-details a#reply{}:contains('Reply')". \
+                                       format(submission.pk))
+
         else:
             # No reply button
             self.assertEqual(len(q(selector)), 0)
+            reply_href = None
 
         # check that attachment link is visible
 
@@ -1177,6 +1183,14 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         # Fetch the attachment
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
+        
+        # Attempt a reply if we can
+        if reply_href == None:
+            return 
+        
+        self.do_submission_email_reply(reply_url = reply_href,
+                                       to = frm,
+                                       body = "A reply to the message")
 
 
     def request_and_parse(self, url):
@@ -1191,6 +1205,33 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
 
         return PyQuery(link[0]).attr('href')
 
+
+    def do_submission_email_reply(self, reply_url, to, body):
+        # check the page
+        r = self.client.get(reply_url)
+        q = PyQuery(r.content)
+        post_button = q('[type=submit]:contains("Send Email")')
+        self.assertEqual(len(post_button), 1)
+        action = post_button.parents("form").find('input[type=hidden][name="action"]').val()
+        subject = post_button.parents("form").find('input[name="subject"]').val()
+        frm = post_button.parents("form").find('input[name="frm"]').val()
+        cc = post_button.parents("form").find('input[name="cc"]').val()
+        reply_to = post_button.parents("form").find('input[name="reply_to"]').val()
+
+        # post submitter info
+        r = self.client.post(reply_url, {
+            "action": action,
+            "subject": subject,
+            "frm": frm,
+            "to": to,
+            "cc": cc,
+            "reply_to": reply_to,
+            "body": body,
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        return r
 
     def do_submission(self, name, rev, group=None, formats=["txt",]):
         # We're not testing the submission process - just the submission status 

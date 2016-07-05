@@ -709,15 +709,21 @@ def send_email(request, submission_id, message_id=None):
             
             in_reply_to_id = form.cleaned_data['in_reply_to_id']
             in_reply_to = None
+            rp = ""
             
             if in_reply_to_id:
+                rp = " reply"
                 try:
                     in_reply_to = Message.objects.get(id=in_reply_to_id)
                 except Message.DoesNotExist:
                     log("Unable to retrieve in_reply_to message: %s" % in_reply_to_id)
-
+    
+            desc = "Sent message {} - manual post - {}-{}".format(rp,
+                                                                  submission.name, 
+                                                                  submission.rev)
             SubmissionEmail.objects.create(
                     submission = submission,
+                    desc = desc,
                     msgtype = 'msgout',
                     by = request.user.person,
                     message = msg,
@@ -742,10 +748,17 @@ def send_email(request, submission_id, message_id=None):
             subject = 'Regarding {}'.format(submission.name)
         else:
             try:
-                msg = Message.objects.get(id=message_id)
-                to_email = msg.frm
-                cc = msg.cc
-                subject = 'Re:{}'.format(msg.subject)
+                submitEmail = SubmissionEmail.objects.get(id=message_id)
+                msg = submitEmail.message
+                
+                if msg:
+                    to_email = msg.frm
+                    cc = msg.cc
+                    subject = 'Re:{}'.format(msg.subject)
+                else:
+                    to_email = None
+                    cc = None
+                    subject = 'Regarding {}'.format(submission.name)
             except Message.DoesNotExist:
                 to_email = None
                 cc = None
@@ -773,12 +786,12 @@ def send_email(request, submission_id, message_id=None):
 def submission_email(request, submission_id, message_id, access_token=None):
     submission = get_submission_or_404(submission_id, access_token)
 
-    message = get_object_or_404(SubmissionEmail, pk=message_id)    
-    attachments = message.message.messageattachment_set.all()
+    submitEmail = get_object_or_404(SubmissionEmail, pk=message_id)    
+    attachments = submitEmail.message.messageattachment_set.all()
     
     return render(request, 'submit/submission_email.html',
                   {'submission': submission,
-                   'message': message,
+                   'message': submitEmail,
                    'attachments': attachments})
 
 def submission_email_attachment(request, submission_id, message_id, filename, access_token=None):

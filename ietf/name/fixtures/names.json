@@ -875,7 +875,10 @@
 {
  "fields": {
   "order": 8,
-  "next_states": [],
+  "next_states": [
+   "cancel",
+   "posted"
+  ],
   "used": true,
   "name": "Manual Post Awaiting Draft",
   "desc": ""
@@ -4885,6 +4888,14 @@
  },
  "model": "mailtrigger.recipient",
  "pk": "logged_in_person"
+},
+{
+ "fields": {
+  "template": "<ietf-manualpost@ietf.org>",
+  "desc": "The IETF manual post processing system"
+ },
+ "model": "mailtrigger.recipient",
+ "pk": "manualpost_message"
 },
 {
  "fields": {

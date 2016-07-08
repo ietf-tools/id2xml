@@ -2,6 +2,7 @@ import re
 import email
 import datetime
 import base64
+import os
 
 import pyzmail
 
@@ -133,6 +134,18 @@ def announce_to_authors(request, submission):
               {'submission': submission,
                'group': group},
               cc=cc)
+
+
+def get_reply_to():
+    """Returns a new reply-to address for use with an outgoing message.  This is an
+    address with "plus addressing" using a random string.  Guaranteed to be unique"""
+    local,domain = get_base_submission_message_address().split('@')
+    while True:
+        rand = base64.urlsafe_b64encode(os.urandom(12))
+        address = "{}+{}@{}".format(local,rand,domain)
+        q = Message.objects.filter(reply_to=address)
+        if not q:
+            return address
 
 
 def process_response_email(msg):

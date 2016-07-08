@@ -11,18 +11,18 @@ from django.core.urlresolvers import reverse as urlreverse
 
 import debug                            # pyflakes:ignore
 
-from ietf.utils.test_utils import login_testing_unauthorized, unicontent
-from ietf.utils.test_data import make_test_data
-from ietf.utils.mail import outbox
-from ietf.utils.test_utils import TestCase
-from ietf.meeting.models import Meeting
 from ietf.submit.utils import expirable_submissions, expire_submission, ensure_person_email_info_exists
-from ietf.person.models import Person
-from ietf.group.models import Group
 from ietf.doc.models import Document, DocAlias, DocEvent, State, BallotDocEvent, BallotPositionDocEvent, DocumentAuthor
-from ietf.submit.models import Submission, Preapproval
-from ietf.submit.mail import add_submission_email
+from ietf.group.models import Group
 from ietf.group.utils import setup_default_community_list_for_group
+from ietf.meeting.models import Meeting
+from ietf.message.models import Message
+from ietf.person.models import Person
+from ietf.submit.models import Submission, Preapproval
+from ietf.submit.mail import add_submission_email, process_response_email
+from ietf.utils.mail import outbox, empty_outbox
+from ietf.utils.test_data import make_test_data
+from ietf.utils.test_utils import login_testing_unauthorized, unicontent, TestCase
 
 
 def submission_file(name, rev, group, format, templatename):
@@ -1186,8 +1186,8 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         
         # Attempt a reply if we can
         if reply_href == None:
-            return 
-        
+            return
+
         self.do_submission_email_reply(reply_url = reply_href,
                                        to = frm,
                                        body = "A reply to the message")
@@ -1218,6 +1218,8 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         cc = post_button.parents("form").find('input[name="cc"]').val()
         reply_to = post_button.parents("form").find('input[name="reply_to"]').val()
 
+        empty_outbox()
+        
         # post submitter info
         r = self.client.post(reply_url, {
             "action": action,
@@ -1230,6 +1232,24 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         })
 
         self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(len(outbox), 1)
+
+        outmsg = outbox[0]
+        self.assertTrue(to in outmsg['To'])
+        
+        reply_to = outmsg['Reply-to']
+        self.assertIsNotNone(reply_to, "Expected Reply-to")
+        
+        # Build a reply
+
+        message_string = """To: {}
+From: {}
+Date: {}
+Subject: test
+""".format(reply_to, to, datetime.datetime.now().ctime())
+        result = process_response_email(message_string)
+        self.assertIsInstance(result, Message)
 
         return r
 
@@ -1268,3 +1288,4 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         self.assertEqual(author["email"], "author@example.com")
 
         return status_url
+

@@ -19,14 +19,13 @@ from ietf.doc.models import Document, DocAlias, AddedMessageEvent
 from ietf.doc.utils import prettify_std_name
 from ietf.group.models import Group
 from ietf.ietfauth.utils import has_role, role_required
-from ietf.ipr.mail import get_reply_to
 from ietf.mailtrigger.utils import gather_address_lists
 from ietf.message.models import Message, MessageAttachment
 from ietf.submit.forms import SubmissionUploadForm, NameEmailForm, EditSubmissionForm, PreapprovalForm, ReplacesForm, \
     SubmissionEmailForm, MessageModelForm
 from ietf.submit.mail import send_full_url, send_approval_request_to_group, \
     send_submission_confirmation, send_manual_post_request, \
-    add_submission_email
+    add_submission_email, get_reply_to
 from ietf.submit.models import Submission, SubmissionCheck, Preapproval, DraftSubmissionStateName, \
     SubmissionEmail
 from ietf.submit.utils import approvable_submissions_for_user, preapprovals_for_user, recently_approved_by_user

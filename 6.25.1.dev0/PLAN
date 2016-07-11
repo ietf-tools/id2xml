@@ -1,0 +1,73 @@
+================
+Datatracker PLAN
+================
+
+Updated: $Date$
+
+Planned work in rough order
+===========================
+
+* Schema Changes: floorplan.  Add Berlin floorplans manually.
+
+* Glue code for WG issue trackers and wiki:
+  - create new trackers on group creation
+  - update access lists on group chair/secretary changes
+  - update components on new group documents
+
+* Schema Changes: tags, external links for groups.
+
+* Add "Waiting for implementation" and "Held by WG" states, with comment field
+
+* Review tracking project merge
+
+* Refactor to one function instead of having both Document.get_absolute_url()
+  and Document.href(), which should do the same thing, but don't today.  Also
+  change the default draft href to be the datatracker url now that we support
+  revisions.
+
+* Upgrade to Django 1.8 / 1.9
+
+* Add support for internationalised email addresses according to RFC 6531
+  when sending email (this is not supported by smtplib under Python 2.7,
+  so will need support code in the application until we migrate to Python 3.5)
+
+* Add support for IAB Programs
+
+* Meeting materials enhancements
+
+* Transition to PostgreSQL
+
+* Break out the htmlization code used on tools in a library, and use that
+  in the datatracker rendering, replacing the simpler code currently in use.
+
+* Glue code to trigger generation of htmlized documents on www.ietf.org ??
+
+* Performance analysis of database table and index setup
+
+* Code refactoring to avoid code changes for new WG document tags
+
+* When draft XML source is available, take references from that instead
+  of extracting them from the text version.
+
+* Transition to running under Python 3.x (probably 3.5) instead of 2.7
+
+
+* Small nomcom refactoring: associate Feedback records with Person
+  instead of User.
+
+* Consistency fix:  in settings.py, name directory settings consistently with
+  ..._DIR; reserving ..._PATH for settings with PATH semantics (':'-separated lists
+  of directories)
+
+* For documents with Yang modules, add links to the extracted modules (possibly in
+  multiple formats -- pyang can generate a large number of alternative formats)
+
+* When we get to the point where we can produce pdf from xml+media, remove the
+  pdf upload possibility -- it's a definite attack vector.  Possibly start scanning
+  pdf files for /JS and /JavaScript (and workarounds to hide Javascript)
+
+* Add one or more API description pages with examples of common queries
+
+* Add role lists and additional relevant information to the personal profile
+  pages
+

@@ -252,7 +252,7 @@ def submission_status(request, submission_id, access_token=None):
     message = None
 
     if submission.state_id == "cancel":
-        message = ('error', 'This submission has been canceled, modification is no longer possible.')
+        message = ('error', 'This submission has been cancelled, modification is no longer possible.')
     elif submission.state_id == "auth":
         message = ('success', u'The submission is pending email authentication. An email has been sent to: %s' % ", ".join(confirmation_list))
     elif submission.state_id == "grp-appr":
@@ -346,7 +346,7 @@ def submission_status(request, submission_id, access_token=None):
 
             cancel_submission(submission)
 
-            create_submission_event(request, submission, "Canceled submission")
+            create_submission_event(request, submission, "Cancelled submission")
 
             return redirect("submit_submission_status", submission_id=submission_id)
 
@@ -598,12 +598,12 @@ def cancel_awaiting_draft(request):
         submission = get_submission_or_404(submission_id, access_token = access_token)
         cancel_submission(submission)
     
-        create_submission_event(request, submission, "Canceled submission")
+        create_submission_event(request, submission, "Cancelled submission")
         if (submission.rev != "00"):
             # Add a doc event
             docevent_from_submission(request, 
                                      submission,
-                                     "Canceled submission for rev {}".format(submission.rev))
+                                     "Cancelled submission for rev {}".format(submission.rev))
     
     return redirect("submit_manualpost")
 

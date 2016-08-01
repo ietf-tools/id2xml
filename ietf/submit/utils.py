@@ -493,4 +493,4 @@ def expire_submission(submission, by):
     submission.state_id = "cancel"
     submission.save()
 
-    SubmissionEvent.objects.create(submission=submission, by=by, desc="Canceled expired submission")
+    SubmissionEvent.objects.create(submission=submission, by=by, desc="Cancelled expired submission")

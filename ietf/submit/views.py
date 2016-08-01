@@ -238,7 +238,7 @@ def submission_status(request, submission_id, access_token=None):
     can_edit = can_edit_submission(request.user, submission, access_token) and submission.state_id == "uploaded"
     can_cancel = (key_matched or is_secretariat) and submission.state.next_states.filter(slug="cancel")
     can_group_approve = (is_secretariat or is_chair) and submission.state_id == "grp-appr"
-    can_force_post = is_secretariat and submission.state.next_states.filter(slug="posted")
+    can_force_post = is_secretariat and submission.state.next_states.filter(slug="posted") and submission.state_id != "manual-awaiting-draft"
     show_send_full_url = not key_matched and not is_secretariat and submission.state_id not in ("cancel", "posted")
 
     addrs = gather_address_lists('sub_confirmation_requested',submission=submission)

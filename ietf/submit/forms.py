@@ -441,7 +441,8 @@ class SubmissionEmailForm(forms.Form):
     submission_pk = forms.IntegerField(required=False, widget=forms.HiddenInput())
     direction = forms.ChoiceField(choices=(("incoming", "Incoming"), ("outgoing", "Outgoing")),
                                   widget=forms.RadioSelect)
-    message = forms.CharField(required=True, widget=forms.Textarea)
+    message = forms.CharField(required=True, widget=forms.Textarea,
+                              help_text="Copy the entire message including headers. To do so, view the source, select all, copy then paste into the text area above")
     #in_reply_to = MessageModelChoiceField(queryset=Message.objects,label="In Reply To",required=False)
 
     def __init__(self, *args, **kwargs):

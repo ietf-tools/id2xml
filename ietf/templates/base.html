@@ -148,6 +148,11 @@
         {% include "debug.html" %}
       </div>
       <script src="{% static 'jquery/jquery.min.js' %}"></script>
+      {% if server_mode and server_mode == "production" %}
+      <script src="{% static 'jquery-migrate/jquery-migrate.min.js' %}"></script>
+      {% else %}
+      <script src="{% static 'jquery-migrate/jquery-migrate.js' %}"></script>
+      {% endif %}
       {% comment %}
       <!-- Remove the *-nojs attributes if we are running js.  This depends on jQuery's removeClass(): -->
       <!-- Do this as early as possible (after loading the page and jQuery) to avoid rendering changes -->

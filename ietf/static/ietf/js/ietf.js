@@ -26,14 +26,14 @@ if(typeof $.cookie('browsehappy') === 'undefined') {
 // Tweaked here, so it only expands on hover for non-collapsed navbars, and works for submenus
 function hoverin() {
     var navbar = $(this).closest('.navbar');
-    if (navbar.size() === 0 || navbar.find('.navbar-toggle').is(':hidden')) {
+    if (navbar.length === 0 || navbar.find('.navbar-toggle').is(':hidden')) {
 	$(this).addClass('open');
     }
 }
 
 function hoverout() {
     var navbar = $(this).closest('.navbar');
-    if (navbar.size() === 0|| navbar.find('.navbar-toggle').is(':hidden')) {
+    if (navbar.length === 0|| navbar.find('.navbar-toggle').is(':hidden')) {
 	$(this).removeClass('open');
     }
 }

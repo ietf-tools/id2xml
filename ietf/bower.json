@@ -8,29 +8,62 @@
     "d3": "~3",
     "font-awesome": "~4",
     "html5shiv": "~3",
-    "jquery": "~1",
+    "jquery": "~3",
+    "jquery-migrate": "~3",
     "jquery.cookie": "~1",
     "jquery.tablesorter": "~2",
     "respond": "~1",
     "select2": "~3",
     "select2-bootstrap-css": "~1"
   },
-  "devDependencies": {},
   "overrides": {
+    "bootstrap-datepicker": {
+        "main": [
+            "dist/css/bootstrap-datepicker3.min.css",
+            "dist/js/bootstrap-datepicker.min.js"
+        ]
+    },
+    "d3": {
+        "main": "d3.min.js"
+    },
     "font-awesome": {
       "main": [
-        "./css/font-awesome.min.css",
-        "./fonts/*"
+        "css/font-awesome.min.css",
+        "fonts/*"
       ]
+    },
+    "html5shiv": {
+        "main": "dist/html5shiv.min.js"
+    },
+    "jquery": {
+        "main": "dist/jquery.min.*"
     },
     "tablesorter": {
         "main": [
-            "dist/js/jquery.tablesorter.combined.js",
+            "dist/js/jquery.tablesorter.combined.min.js",
             "dist/css/theme.bootstrap.min.css"
         ]
     },
+    "select2": {
+        "main": [
+            "select2.min.js",
+            "select2.css",
+            "select2.png",
+            "select2x2.png",
+            "select2-spinner.gif"
+        ]
+    },
+    "select2-bootstrap-css": {
+        "main": "select2-bootstrap.min.css"
+    },
     "respond": {
       "main": "dest/respond.min.js"
+    },
+    "jquery-migrate": {
+      "main": [
+        "jquery-migrate.js",
+        "jquery-migrate.min.js"
+      ]
     }
   }
 }

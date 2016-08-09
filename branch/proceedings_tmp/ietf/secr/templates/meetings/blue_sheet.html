@@ -1,0 +1,86 @@
+{% extends "base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}Meetings - Blue Sheet{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="{% static 'secr/js/utils.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumbs %}{{ block.super }}
+  &raquo; <a href="../../">Meetings</a>
+  &raquo; <a href="../">{{ meeting.number }}</a>
+  &raquo; Blue Sheets
+{% endblock %}
+
+{% block content %}
+
+<div  class="module">
+  <h2>IETF {{ meeting.number }} - Blue Sheet</h2>
+  
+  <p>Use this to generate blue sheets for meeting sessions.</p>
+  <ul class="none">
+    <li>
+      <button onclick="window.location='{% url "meetings_blue_sheet_generate" meeting_id=meeting.number%}'">Generate Blue Sheets</button>
+      &nbsp;&nbsp;Last run: 
+      {% if last_run %}
+        {{ last_run }}
+      {% else %}
+        Never
+      {% endif %}
+    </li>
+  </ul>
+  <p>Use this to download the blue sheets from the server.</p>
+  <ul class="none">
+    <li>
+      <button onclick="window.location='{{ url }}'">Download Blue Sheets</button>
+    </li>
+  </ul>
+
+  <hr />
+  <p>
+  Use the form below to upload individual scanned blue sheet documents.
+  </p>
+  <form id="rolodex-add-form" enctype="multipart/form-data" action="" method="post">{% csrf_token %}
+    <table class="full-width amstable">
+      <col width="200">
+      {{ form.as_table }}
+    </table>
+  
+    <div class="button-group">
+      <ul>
+        <li><button type="submit" name="submit" value="Submit">Submit</button></li>
+        <li><button type="button" onclick="window.location='../'">Back</button></li>
+      </ul>
+    </div> <!-- button-group -->
+
+    </form>
+</div> <!-- module -->
+
+{% if uploaded_files %}
+  <br>
+  <div class="module interim-container">
+    <h2>Uploaded Files</h2>
+    <div class="inline-related last-related">
+    <table class="full-width">
+      <thead>
+        <tr> 
+          <th>Filename</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in uploaded_files %}
+           <tr class="{% cycle 'row1' 'row2' %}">
+             <td>{{ file }}</td>
+           </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div> <!-- inline-related -->
+  </div> <!-- module -->
+  
+{% endif %}
+
+
+{% endblock %}
+

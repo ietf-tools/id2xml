@@ -15,6 +15,6 @@
 .*.swp
 .DS_store
 # Simulated Subversion default ignores end here
-/.project
-/.pydevproject
-/.settings
+/*.pyc
+/settings_local.py
+/ietfdb.sql.gz

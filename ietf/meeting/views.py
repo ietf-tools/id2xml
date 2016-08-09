@@ -1571,7 +1571,7 @@ def finalize_proceedings(request, num=None):
 
 @role_required('Secretariat')
 def proceedings_acknowledgements(request, num=None):
-
+    '''Display Acknowledgements for given meeting'''
     meeting = get_meeting(num)
     return render(request, "meeting/proceedings_acknowledgements.html", {
         'meeting': meeting,

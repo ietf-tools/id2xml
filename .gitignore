@@ -15,3 +15,27 @@
 .*.swp
 .DS_store
 # Simulated Subversion default ignores end here
+/.coverage
+/.project
+/.pydevproject
+/.Python
+/.settings
+/.tmp
+/bin
+/etc
+/ghostdriver.log
+/include
+/INSTALL.pdf
+/latest-coverage.json
+/lib
+/local
+/mergelog
+/mergequeue
+/minimum-requirements.txt
+/pip-selfcheck.json
+/selenium
+/settings_local.py
+/share
+/static
+/testresult
+/unix.tag

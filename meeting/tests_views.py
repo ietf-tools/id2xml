@@ -3,6 +3,7 @@ import os
 import shutil
 import datetime
 import urlparse
+import random
 
 import debug           # pyflakes:ignore
 
@@ -26,7 +27,7 @@ from ietf.utils.mail import outbox
 from ietf.utils.text import xslugify
 
 from ietf.person.factories import PersonFactory
-from ietf.group.factories import GroupFactory
+from ietf.group.factories import GroupFactory, GroupEventFactory
 from ietf.meeting.factories import ( SessionFactory, SessionPresentationFactory, ScheduleFactory,
     MeetingFactory, FloorPlanFactory )
 from ietf.doc.factories import DocumentFactory
@@ -251,10 +252,20 @@ class MeetingTests(TestCase):
     def test_proceedings(self):
         meeting = make_meeting_test_data()
         session = Session.objects.filter(meeting=meeting, group__acronym="mars").first()
+        GroupEventFactory(group=session.group,type='status_update')
+        SessionPresentationFactory(document__type_id='recording',session=session)
+        SessionPresentationFactory(document__type_id='recording',session=session,document__title="Audio recording for tests")
 
         self.write_materials_files(meeting, session)
 
         url = urlreverse("ietf.meeting.views.proceedings", kwargs=dict(num=meeting.number))
+        login_testing_unauthorized(self,"secretary",url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+    def test_proceedings_acknowledgements(self):
+        meeting = make_meeting_test_data()
+        url = urlreverse('ietf.meeting.views.proceedings_acknowledgements',kwargs={'num':meeting.number})
         login_testing_unauthorized(self,"secretary",url)
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
@@ -1145,4 +1156,45 @@ class FloorPlanTests(TestCase):
         url = urlreverse('ietf.meeting.views.floor_plan', kwargs={'floor': xslugify(floorplan.name)} )
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
-        
+
+class IphoneAppJsonTests(TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_iphone_app_json(self):
+        make_meeting_test_data()
+        meeting = Meeting.objects.filter(type_id='ietf').order_by('id').last()
+        floorplan = FloorPlanFactory.create(meeting=meeting)
+        for room in meeting.room_set.all():
+            room.floorplan = floorplan
+            room.x1 = random.randint(0,100)
+            room.y1 = random.randint(0,100)
+            room.x2 = random.randint(0,100)
+            room.y2 = random.randint(0,100)
+            room.save()
+        url = urlreverse('ietf.meeting.views.json_agenda',kwargs={'num':meeting.number})
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+
+class FinalizeProceedingsTests(TestCase):
+    def test_finalize_proceedings(self):
+        make_meeting_test_data()
+        meeting = Meeting.objects.filter(type_id='ietf').order_by('id').last()
+        meeting.session_set.filter(group__acronym='mars').first().sessionpresentation_set.create(document=Document.objects.filter(type='draft').first(),rev=None)
+
+        url = urlreverse('ietf.meeting.views.finalize_proceedings',kwargs={'num':meeting.number})
+        login_testing_unauthorized(self,"secretary",url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        self.assertEqual(meeting.proceedings_final,False)
+        self.assertEqual(meeting.session_set.filter(group__acronym="mars").first().sessionpresentation_set.filter(document__type="draft").first().rev,None)
+        r = self.client.post(url,{'finalize':1})
+        self.assertEqual(r.status_code, 302)
+        meeting = Meeting.objects.get(pk=meeting.pk)
+        self.assertEqual(meeting.proceedings_final,True)
+        self.assertEqual(meeting.session_set.filter(group__acronym="mars").first().sessionpresentation_set.filter(document__type="draft").first().rev,'00')
+ 

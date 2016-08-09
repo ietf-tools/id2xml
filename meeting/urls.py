@@ -59,6 +59,7 @@ type_ietf_only_patterns_id_optional = [
     url(r'^requests$', views.meeting_requests),
     url(r'^agenda/agenda.ics$', views.ical_agenda),
     url(r'^agenda.ics$', views.ical_agenda),
+    url(r'^agenda.json$', views.json_agenda),
     url(r'^agenda/week-view(?:.html)?/?$', views.week_view),
     url(r'^agenda/room-view(?:.html)?/?$', views.room_view),
     url(r'^floor-plan/?$', views.floor_plan),
@@ -67,6 +68,8 @@ type_ietf_only_patterns_id_optional = [
     url(r'^room-view(?:.html)?/?$', views.room_view),
     url(r'^materials(?:.html)?/?$', views.materials),
     url(r'^proceedings(?:.html)?/?$', views.proceedings),
+    url(r'^proceedings(?:.html)?/finalize/?$', views.finalize_proceedings),
+    url(r'^proceedings/acknowledgements/$', views.proceedings_acknowledgements),
 ]
 
 urlpatterns = [

@@ -11,6 +11,8 @@ import csv
 import json
 import pytz
 from pyquery import PyQuery
+from wsgiref.handlers import format_date_time
+from time import mktime
 
 import debug                            # pyflakes:ignore
 
@@ -28,7 +30,7 @@ from django.utils.functional import curry
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from ietf.doc.fields import SearchableDocumentsField
-from ietf.doc.models import Document, State, DocEvent
+from ietf.doc.models import Document, State, DocEvent, NewRevisionDocEvent
 from ietf.group.models import Group
 from ietf.group.utils import can_manage_materials
 from ietf.ietfauth.utils import role_required, has_role
@@ -48,6 +50,7 @@ from ietf.meeting.helpers import sessions_post_save, is_meeting_approved
 from ietf.meeting.helpers import send_interim_cancellation_notice
 from ietf.meeting.helpers import send_interim_approval_request
 from ietf.meeting.helpers import send_interim_announcement_request
+from ietf.meeting.utils import finalize
 from ietf.utils.mail import send_mail_message
 from ietf.utils.pipe import pipe
 from ietf.utils.pdf import pdf_pages
@@ -892,6 +895,85 @@ def ical_agenda(request, num=None, name=None, ext=None):
         "updated": updated
     }, content_type="text/calendar")
 
+def json_agenda(request, num=None ):
+    meeting = get_meeting(num)
+
+    sessions = []
+    room_names = set()
+    parent_acronyms = set()
+    for asgn in meeting.agenda.assignments.exclude(session__type__in=['lead','offagenda','break','reg']):
+        sessdict = dict()
+        sessdict['objtype'] = 'session'
+        if asgn.session.group.type_id in ['wg','rg']:
+            sessdict['group'] = asgn.session.group.acronym
+            sessdict['parent'] = asgn.session.group.parent.acronym
+            parent_acronyms.add(asgn.session.group.parent.acronym)
+        if asgn.session.name:
+            sessdict['name'] = asgn.session.name
+        elif asgn.session.short:
+            sessdict['name'] = asgn.session.short
+        else:
+            sessdict['name'] = asgn.session.group.name
+        sessdict['start'] = asgn.timeslot.utc_start_time().strftime("%Y-%m-%dT%H:%M:%SZ")
+        sessdict['duration'] = str(asgn.timeslot.duration)
+        sessdict['location'] = asgn.room_name
+        room_names.add(asgn.room_name) 
+        if asgn.session.agenda():
+            sessdict['agenda'] = '/api/v1/doc/document/%s'%asgn.session.agenda().name
+        if asgn.session.slides():
+            sessdict['slides'] = []
+            for slides in asgn.session.slides():
+                sessdict['slides'].append('/api/v1/doc/document/%s'%slides.name)
+        modified = asgn.session.modified
+        for doc in asgn.session.materials.all():
+            rev_docevent = doc.latest_event(NewRevisionDocEvent,'new_revision')
+            modified = max(modified, (rev_docevent and rev_docevent.time) or modified)
+        sessdict['modified'] = modified
+        sessions.append(sessdict)
+
+    rooms = []
+    for room in meeting.room_set.filter(name__in=room_names):
+        roomdict = dict()
+        roomdict['objtype'] = 'location'
+        roomdict['name'] = room.name
+        if room.floorplan:
+            roomdict['level_name'] = room.floorplan.name
+            roomdict['level_sort'] = room.floorplan.order
+        if room.x1 is not None:
+            roomdict['x'] = room.x1+(room.x2/2.0)
+            roomdict['y'] = room.y1+(room.y2/2.0)
+        roomdict['modified'] = room.time
+        if room.floorplan and room.floorplan.image:
+            roomdict['map'] = room.floorplan.image.url
+            roomdict['modified'] = max(room.time,room.floorplan.time)
+        rooms.append(roomdict)
+
+    parents = []
+    for parent in Group.objects.filter(acronym__in=parent_acronyms):
+        parentdict = dict()
+        parentdict['objtype'] = 'parent'
+        parentdict['name'] = parent.acronym
+        parentdict['description'] = parent.name
+        parentdict['modified'] = parent.time
+        parents.append(parentdict)
+
+    meetinfo = []
+    meetinfo.extend(sessions)
+    meetinfo.extend(rooms)
+    meetinfo.extend(parents)
+    meetinfo.sort(key=lambda x: x['modified'],reverse=True)
+    last_modified = meetinfo[0]['modified']
+
+    tz = pytz.timezone(meeting.time_zone)
+    for obj in meetinfo:
+        obj['modified'] = tz.localize(obj['modified']).astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    data = {"%s"%num: meetinfo}
+
+    response = HttpResponse(json.dumps(data, indent=2), content_type='application/json;charset=%s'%settings.DEFAULT_CHARSET)
+    response['Last-Modified'] = format_date_time(mktime(last_modified.timetuple()))
+    return response
+
 def meeting_requests(request, num=None):
     meeting = get_meeting(num)
     sessions = Session.objects.filter(meeting__number=meeting.number, type__slug='session', group__parent__isnull = False).exclude(requested_by=0).order_by("group__parent__acronym","status__slug","group__acronym")
@@ -1446,6 +1528,10 @@ def floor_plan(request, num=None, floor=None, ):
 def proceedings(request, num=None):
 
     meeting = get_meeting(num)
+
+    if meeting.number <= 64 or not meeting.agenda.assignments.exists():
+            return HttpResponseRedirect( 'https://www.ietf.org/proceedings/%s' % num )
+
     begin_date = meeting.get_submission_start_date()
     cut_off_date = meeting.get_submission_cut_off_date()
     cor_cut_off_date = meeting.get_submission_correction_date()
@@ -1461,10 +1547,32 @@ def proceedings(request, num=None):
 
     cache_version = Document.objects.filter(session__meeting__number=meeting.number).aggregate(Max('time'))["time__max"]
     return render(request, "meeting/proceedings.html", {
-        'meeting_num': meeting.number,
+        'meeting': meeting,
         'plenaries': plenaries, 'ietf': ietf, 'training': training, 'irtf': irtf, 'iab': iab,
         'cut_off_date': cut_off_date,
         'cor_cut_off_date': cor_cut_off_date,
         'submission_started': now > begin_date,
         'cache_version': cache_version,
+    })
+
+@role_required('Secretariat')
+def finalize_proceedings(request, num=None):
+
+    meeting = get_meeting(num)
+
+    if meeting.number <= 64 or not meeting.agenda.assignments.exists() or meeting.proceedings_final:
+        raise Http404
+
+    if request.method=='POST':
+        finalize(meeting)
+        return HttpResponseRedirect(reverse('ietf.meeting.views.proceedings',kwargs={'num':meeting.number}))
+    
+    return render(request, "meeting/finalize.html", {'meeting':meeting,})
+
+@role_required('Secretariat')
+def proceedings_acknowledgements(request, num=None):
+
+    meeting = get_meeting(num)
+    return render(request, "meeting/proceedings_acknowledgements.html", {
+        'meeting': meeting,
     })

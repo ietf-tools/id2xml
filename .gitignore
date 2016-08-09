@@ -15,20 +15,3 @@
 .*.swp
 .DS_store
 # Simulated Subversion default ignores end here
-/.project
-/.pydevproject
-/.settings
-/.coverage
-/unix.tag
-/testresult
-/mergelog
-/mergequeue
-/INSTALL.pdf
-/bin
-/etc
-/local
-/lib
-/share
-/include
-/static
-/latest-coverage.json

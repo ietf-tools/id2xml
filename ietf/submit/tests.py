@@ -1116,21 +1116,16 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
                           is_secretariat):
         # get the status page
         r, q = self.request_and_parse(status_page_url)
-        
-        selector = "#awaiting-draft a#add-submission-email{}:contains('Add email')".\
+        selector = "#awaiting-draft a#add-submission-email{}:contains('Add email')". \
             format(submission.pk, submission_name_fragment)
 
         if is_secretariat:
             # Can add an email to the submission
             add_email_url = self.get_href(q, selector)
-            r = self.client.get(add_email_url)
-            self.assertEqual(r.status_code, 200)
-            add_email_q = PyQuery(r.content)
-            self.assertEqual(len(add_email_q('input[name=submission_pk]')), 1)
         else:
-            # No reply button
+            # No add email button button
             self.assertEqual(len(q(selector)), 0)
-            
+
         # Find the link for our submission in those awaiting drafts
         submission_url = self.get_href(q, "#awaiting-draft a#aw{}:contains({})".
                                        format(submission.pk, submission_name_fragment))
@@ -1193,6 +1188,40 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
                                        to = frm,
                                        body = "A reply to the message")
 
+        selector = "#awaiting-draft a#add-submission-email{}:contains('Add email')". \
+            format(submission.pk, submission_name_fragment)
+
+        if is_secretariat:
+            # Can add an email to the submission
+            # add_email_url set previously
+            r = self.client.get(add_email_url)
+            self.assertEqual(r.status_code, 200)
+            add_email_q = PyQuery(r.content)
+            self.assertEqual(len(add_email_q('input[name=submission_pk]')), 1)
+
+            # Add a simple email
+            new_message_string = """To: somebody@ietf.org
+From: joe@test.com
+Date: {}
+Subject: Another message
+
+About my submission
+
+Thank you
+""".format(datetime.datetime.now().ctime())
+
+            r = self.client.post(add_email_url, {
+                "name": "{}-{}".format(submission.name, submission.rev),
+                "direction": "incoming",
+                "submission_pk": submission.pk,
+                "message": new_message_string,
+            })
+
+            if r.status_code != 302:
+                q = PyQuery(r.content)
+                print q
+
+            self.assertEqual(r.status_code, 302)
 
     def request_and_parse(self, url):
         r = self.client.get(url)
@@ -1290,3 +1319,25 @@ Subject: test
 
         return status_url
 
+
+    def supply_extra_metadata(self, name, status_url, submitter_name, submitter_email):
+        # check the page
+        r = self.client.get(status_url)
+        q = PyQuery(r.content)
+        post_button = q('[type=submit]:contains("Post")')
+        self.assertEqual(len(post_button), 1)
+        action = post_button.parents("form").find('input[type=hidden][name="action"]').val()
+
+        # post submitter info
+        r = self.client.post(status_url, {
+            "action": action,
+            "submitter-name": submitter_name,
+            "submitter-email": submitter_email,
+            "approvals_received": True,
+        })
+
+        if r.status_code == 302:
+            submission = Submission.objects.get(name=name)
+            self.assertEqual(submission.submitter, u"%s <%s>" % (submitter_name, submitter_email))
+
+        return r

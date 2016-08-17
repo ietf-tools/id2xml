@@ -22,6 +22,7 @@ urlpatterns = patterns('ietf.submit.views',
     url(r'^manualpost/$', 'manualpost', name='submit_manualpost'),
     url(r'^manualpost/email/(?P<submission_id>\d+)/(?P<message_id>\d+)/$', 'submission_email', name='submit_submission_email'),
     url(r'^manualpost/email/(?P<submission_id>\d+)/(?P<message_id>\d+)/(?P<access_token>[a-f\d]*)/$', 'submission_email', name='submit_submission_email_by_hash'),
+    url(r'^manualpost/sendemail/(?P<submission_id>\d+)/$', 'send_email', name='submission_send_email'),
     url(r'^manualpost/replyemail/(?P<submission_id>\d+)/(?P<message_id>\d+)/$', 'send_email', name='submission_reply_email'),
     url(r'^manualpost/attachment/(?P<submission_id>\d+)/(?P<message_id>\d+)/(?P<filename>.*)$', 'submission_email_attachment', name='submit_submission_email_attachment'),
 )

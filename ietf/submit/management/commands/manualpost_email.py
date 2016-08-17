@@ -8,7 +8,7 @@ from ietf.submit.mail import process_response_email
 import debug                            # pyflakes:ignore
 
 class Command(BaseCommand):
-    help = (u"Process incoming email responses to ipr mail")
+    help = (u"Process incoming manual post email responses")
     option_list = BaseCommand.option_list + (
          make_option('--email-file', dest='email', help='File containing email (default: stdin)'),)
 

@@ -188,8 +188,13 @@ def process_response_email(msg):
     by = Person.objects.get(name="(System)")
     msg = submit_message_from_message(message, body, by)
 
+    desc = "Email: received message - manual post - {}-{}".format(
+            submission.name,
+            submission.rev)
+    
     submission_email_event = SubmissionEmail.objects.create(
             submission = submission,
+            desc = desc,
             msgtype = 'msgin',
             by = by,
             message = msg,

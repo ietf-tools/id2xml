@@ -24,7 +24,7 @@ def reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mailtrigger', '0003_merge_request_trigger'),
+        ('mailtrigger', '0005_interim_trigger'),
     ]
 
     operations = [

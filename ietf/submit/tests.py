@@ -1033,26 +1033,26 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
                                  by = Person.objects.get(name="(System)"),
                                  msgtype = "msgin")
 
-        status_page_url = urlreverse('submit_manualpost')
+        manualpost_page_url = urlreverse('submit_manualpost')
         # Secretariat has access
         self.client.login(username="secretary", password="secretary+password")
 
-        self.check_status_page(submission=submission, 
-                               submission_email_event=submission_email_event,
-                               status_page_url=status_page_url, 
-                               submission_name_fragment='draft-my-new-draft',
-                               frm = frm,
-                               is_secretariat=True)
+        self.check_manualpost_page(submission=submission, 
+                                   submission_email_event=submission_email_event,
+                                   the_url=manualpost_page_url, 
+                                   submission_name_fragment='draft-my-new-draft',
+                                   frm=frm,
+                                   is_secretariat=True)
  
         # Try the status page with no credentials
         self.client.logout()
 
-        self.check_status_page(submission=submission, 
-                               submission_email_event=submission_email_event,
-                               status_page_url=status_page_url, 
-                               submission_name_fragment='draft-my-new-draft',
-                               frm=frm,
-                               is_secretariat=False)
+        self.check_manualpost_page(submission=submission, 
+                                   submission_email_event=submission_email_event,
+                                   the_url=manualpost_page_url, 
+                                   submission_name_fragment='draft-my-new-draft',
+                                   frm=frm,
+                                   is_secretariat=False)
         
         # Post another message to this submission using the link
         message_string = """To: somebody@ietf.org
@@ -1081,7 +1081,7 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         # Back to secretariat
         self.client.login(username="secretary", password="secretary+password")
 
-        r, q = self.request_and_parse(status_page_url)
+        r, q = self.request_and_parse(manualpost_page_url)
 
         url = self.get_href(q, "a#new-submission-email:contains('New submission from email')")
 
@@ -1105,17 +1105,17 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         self.assertEqual(r.status_code, 302)
         
 
-        #self.check_status_page(submission, submission_email_event,
+        #self.check_manualpost_page(submission, submission_email_event,
         #                        url, 'draft-my-next-new-draft'
         #                        'Another very important message',
         #                        true)
 
-    def check_status_page(self, submission, submission_email_event,
-                          status_page_url, submission_name_fragment,
-                          frm,
-                          is_secretariat):
-        # get the status page
-        r, q = self.request_and_parse(status_page_url)
+    def check_manualpost_page(self, submission, submission_email_event,
+                              the_url, submission_name_fragment,
+                              frm,
+                              is_secretariat):
+        # get the page listing manual posts
+        r, q = self.request_and_parse(the_url)
         selector = "#awaiting-draft a#add-submission-email{}:contains('Add email')". \
             format(submission.pk, submission_name_fragment)
 
@@ -1148,7 +1148,18 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         else:
             # No reply button
             self.assertEqual(len(q(selector)), 0)
-        
+
+        if is_secretariat:
+            # Now try to send an email using the send email link
+    
+            selector = "a#send{}:contains('Send Email')". \
+                format(submission.pk)
+            send_url = self.get_href(q, selector)
+
+            self.do_submission_email(the_url = send_url,
+                                     to = frm,
+                                     body = "A new message")
+
         # print q
         # print submission.pk
         # print submission_email_event.pk
@@ -1184,12 +1195,12 @@ ZSBvZiBsaW5lcyAtIGJ1dCBpdCBjb3VsZCBiZSBhIGRyYWZ0Cg==
         if reply_href == None:
             return
 
-        self.do_submission_email_reply(reply_url = reply_href,
-                                       to = frm,
-                                       body = "A reply to the message")
-
-        selector = "#awaiting-draft a#add-submission-email{}:contains('Add email')". \
-            format(submission.pk, submission_name_fragment)
+        self.do_submission_email(the_url = reply_href,
+                                 to = frm,
+                                 body = "A reply to the message")
+        
+        # try adding an email to the submission
+        # Use the add email link from the manual post listing page
 
         if is_secretariat:
             # Can add an email to the submission
@@ -1236,9 +1247,9 @@ Thank you
         return PyQuery(link[0]).attr('href')
 
 
-    def do_submission_email_reply(self, reply_url, to, body):
+    def do_submission_email(self, the_url, to, body):
         # check the page
-        r = self.client.get(reply_url)
+        r = self.client.get(the_url)
         q = PyQuery(r.content)
         post_button = q('[type=submit]:contains("Send Email")')
         self.assertEqual(len(post_button), 1)
@@ -1251,7 +1262,7 @@ Thank you
         empty_outbox()
         
         # post submitter info
-        r = self.client.post(reply_url, {
+        r = self.client.post(the_url, {
             "action": action,
             "subject": subject,
             "frm": frm,

@@ -1639,3 +1639,15 @@ def proceedings_acknowledgements(request, num=None):
     return render(request, "meeting/proceedings_acknowledgements.html", {
         'meeting': meeting,
     })
+
+@role_required('Secretariat')
+def proceedings_overview(request, num=None):
+    '''Display Overview for given meeting'''
+    meeting = get_meeting(num)
+    overview_template = '/meeting/proceedings/overview.rst'
+    template = render_to_string(overview_template, {})
+
+    return render(request, "meeting/proceedings_overview.html", {
+        'meeting': meeting,
+        'template': template,
+    })

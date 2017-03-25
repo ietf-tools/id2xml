@@ -19,12 +19,12 @@
 {% block title %}IETF {{ meeting.number }} Meeting Agenda{% endblock %}
 {% load agenda_custom_tags %}
 {% block pagehead %}
-<link rel='stylesheet' type='text/css' href="{% static 'ietf/css/agenda/jquery-ui-themes/jquery-ui-1.8.11.custom.css' %}" />
-<link rel='stylesheet' type='text/css' href="{% static 'ietf/css/agenda/agenda.css' %}" />
+<link rel='stylesheet' href="{% static 'jqueryui/themes/ui-lightness/jquery-ui.min.css' %}" />
+<link rel='stylesheet' href="{% static 'ietf/css/agenda/agenda.css' %}" />
 {% endblock pagehead %}
 
 {% block js %}
-<script type="text/javascript" src="{% static 'jquery/jquery.min.js' %}"></script>
+<script src="{% static 'jquery/jquery.min.js' %}"></script>
 <script src="{% static 'jquery.cookie/jquery.cookie.js' %}"></script>
 <script>
 jQuery.ajaxSetup({
@@ -36,21 +36,17 @@ jQuery.ajaxSetup({
     }
 });
 </script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery-ui.custom.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery.ui.widget.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery.ui.droppable.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery.ui.sortable.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery.ui.accordion.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/jquery-ui-1.9.0.custom/minified/jquery.ui.draggable.min.js' %}"></script>
 
-<script type='text/javascript' src="{% static 'spin.js/spin.min.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/agenda_edit.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/agenda_helpers.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/agenda_objects.js' %}"></script>
-<script type='text/javascript' src="{% static 'ietf/js/agenda/agenda_listeners.js' %}"></script>
+<script src="{% static 'jqueryui/jquery-ui.min.js' %}"></script>
+
+<script src="{% static 'spin.js/spin.min.js' %}"></script>
+<script src="{% static 'ietf/js/agenda/agenda_edit.js' %}"></script>
+<script src="{% static 'ietf/js/agenda/agenda_helpers.js' %}"></script>
+<script src="{% static 'ietf/js/agenda/agenda_objects.js' %}"></script>
+<script src="{% static 'ietf/js/agenda/agenda_listeners.js' %}"></script>
 
 
-<script type='text/javascript'>
+<script>
 
 
 var meeting_number = "{{ meeting.number }}";

@@ -12,6 +12,9 @@
     "jquery": "~1",
     "jquery.cookie": "~1",
     "jquery.tablesorter": "~2",
+    "jqueryui": "~1",
+    "jqueryui-timepicker-addon": "~1",
+    "moment": "~2",
     "respond": "~1",
     "select2": "~3",
     "select2-bootstrap-css": "~1",
@@ -43,6 +46,22 @@
     },
     "spin.js": {
         "main": "spin.min.js"
+    },
+    "moment": {
+        "main": "min/moment.min.js"
+    },
+    "jquery-ui": {
+        "main": [
+            "jquery-ui.min.js",
+            "themes/ui-lightness/jquery-ui.min.css",
+            "themes/ui-lightness/images/*"
+        ]
+    },
+    "jqueryui-timepicker-addon": {
+        "main": [
+            "dist/jquery-ui-timepicker-addon.min.css",
+            "dist/jquery-ui-timepicker-addon.min.js"
+        ]
     },
     "highcharts": {
 	"main": [

@@ -100,7 +100,7 @@ for doc in docs_qs.prefetch_related("docalias_set", "formal_languages", "documen
                     old_author = old_authors_by_name.get(full)
 
                 if not old_author:
-                    print "UNKNOWN AUTHOR", doc.name, full, email, country, company
+                    print "UNKNOWN AUTHOR", doc.name, full, email, country, company, "EXISTING AUTHORS", len(set(old_authors_by_name.values())), "TIME", doc.time.date()
                     continue
 
                 if old_author.affiliation != company:

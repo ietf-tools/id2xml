@@ -395,7 +395,8 @@ INSTALLED_APPS = (
     'ietf.redirects',
     'ietf.release',
     'ietf.review',
-    'ietf.submit',
+    'ietf.sidemeeting',
+    'ietf.submit',    
     'ietf.sync',
     'ietf.utils',
     # IETF Secretariat apps
@@ -918,3 +919,4 @@ if SERVER_MODE != 'production':
 
     ALLOWED_HOSTS = ['*',]
     
+INSTALLED_APPS = list(INSTALLED_APPS) + ['django_extensions']

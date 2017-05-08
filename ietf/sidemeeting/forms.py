@@ -38,7 +38,15 @@ Comments:
 from django import forms
 from ietf.sidemeeting import models
 
+
+
 class SideMeetingForm(forms.ModelForm):
+    class Meta:
+        model = models.SideMeeting
+        fields = ('name', 'email', 'phone', 'mtg', 'mtgdate', 'altmtgdate', 'days', 'mtgtype', 'addcontact', 'addemail', 'addphone', 'attendance', 'mtgstart', 'mtgend', 'roomconfig', 'speakerphone', 'projector', 'food', 'comments')
+        
+
+class SideMeetingForm0(forms.ModelForm):
     name = forms.CharField(label='Company or Meeting Name: (required)', max_length=256)
     email = forms.EmailField(label='Your Name: (required)')
     phone = forms.CharField(label='Your Phone: (required)', max_length=256)
@@ -58,8 +66,6 @@ class SideMeetingForm(forms.ModelForm):
     projector = forms.BooleanField(label="LCD Projector Requested? ($350 fee) - required with drop down defaulting to no")
     food = forms.BooleanField(label="Food/Beverage Requested? Coordination Fee: $200 per service - required with drop down defaulting to no")
     comments = forms.CharField(label="Comments: (Note: Please do not put links in this form)", widget=forms.Textarea)
-
-    
     
     class Meta:
         model = models.SideMeeting

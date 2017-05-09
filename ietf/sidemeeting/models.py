@@ -8,17 +8,17 @@ from django.utils.timezone import now
 
 class SideMeeting(models.Model):
 
-    name = models.CharField(default='', unique=True, max_length=64)
+    mtgname = models.CharField(default='', unique=True, max_length=64)
+    name = models.CharField(default='', unique=True, max_length=64)    
     email = models.EmailField(default="dummy@amsl.com")
     phone = models.CharField(max_length=256)
-    mtg = models.ForeignKey(Meeting)
+    mtg = models.ForeignKey(Meeting,db_constraint=False)
     mtgdate = models.DateField(default=now)
     altmtgdate = models.DateField(default=now)
     days = models.IntegerField(default=1)
-    mtgtype = models.ForeignKey(MeetingTypeName)
+    mtgtype = models.ForeignKey(MeetingTypeName,db_constraint=False)
     addcontact = models.CharField(default='', max_length=256)
     addemail = models.EmailField(default='')    
-    addphone = models.CharField(default='', max_length=256)
     attendance = models.PositiveIntegerField(default=0)
     mtgstart = models.DateTimeField(default=now)
     mtgend = models.DateTimeField(default=now)

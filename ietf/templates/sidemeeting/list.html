@@ -12,14 +12,24 @@
 {% block content %}
   {% origin %}
 
-  <h1>Request An Additional Meeting<h1>
-<h3>Please use the form below to request use of IETF meeting space if the intended purpose of your meeting is one of the following: corporate, affiliate organization, Bar BOF or a community work group. Your request will be forwarded to the appropriate person for review. For more information, please see the IETF meeting policy.</h3>
+
+
   <div class="panel panel-default">
      <div class="panel-heading">Request a side meeting</div>
      <div class="panel-body">
         <form method="post">
           {% csrf_token %}
-          {% bootstrap_form form %}
+            {% if sidemeetings %}
+              <h1>Side Meetings<h1>          
+            <ul>
+                {% for mtg in sidemeetings %}
+                   <li> <a href="{% url 'side-meeting-detail' mtg.id %}">{{ mtg.name }}</a> </li>
+                {% endfor %}
+            </ul>
+            {#  In case  no mtg exists.  #}
+            {% else %}
+                <h3> No mtg found.</h3>
+            {% endif %}          
           {% buttons %}
             <button class="btn-primary" type="submit">Save</button>
             <a class="btn btn-default" href="#">Cancel</a>

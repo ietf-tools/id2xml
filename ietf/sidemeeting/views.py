@@ -1,6 +1,6 @@
 from ietf.sidemeeting.forms import SideMeetingForm
 from ietf.sidemeeting.models import SideMeeting
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView, ListView
 from django.views.generic.detail import DetailView    
 from django.utils import timezone
@@ -8,14 +8,19 @@ from django.utils import timezone
 class SideMeetingAddView(CreateView):
     template_name = 'sidemeeting/add.html'
     form_class = SideMeetingForm
-    success_url = '/sidemeeting/thanks/'
+    success_url = '/sidemeeting/list/'    
     model = SideMeeting
 
-#     def form_valid(self, form):
-#         # This method is called when valid form data has been POSTed.
-#         # It should return an HttpResponse.
-# #        form.send_email()
-#         return super(SideMeetingAddView, self).form_valid(form)
+class SideMeetingEditView(UpdateView):
+    template_name = 'sidemeeting/add.html'
+    form_class = SideMeetingForm
+    success_url = '/sidemeeting/list/'        
+    model = SideMeeting
+
+class SideMeetingDeleteView(DeleteView):
+    template_name = 'sidemeeting/confirm_delete.html'    
+    success_url = '/sidemeeting/list/'
+    model = SideMeeting
 
 class SideMeetingThanksView(TemplateView):
     template_name = 'sidemeeting/thanks.html'    

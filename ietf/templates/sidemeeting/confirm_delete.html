@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin staticfiles bootstrap3 %}
+
+{% block content %}
+  {% origin %}
+
+    <div id="content-container" class="container p-none">
+        <div class="side-p">
+            <h3>Are you sure?</h3>
+            <p>You're about to delete {{ object }}. Please confirm.</p>
+            <form action="" method="post">
+                {% csrf_token %}
+                <input class="btn btn-link" 
+                       type="button" value="Cancel" 
+                       onclick="window.history.go(-1);"/>
+                <input class="btn btn-danger" type="submit" value="Confirm"/>
+            </form>
+        </div>
+    </div>    
+
+{% endblock %}
+

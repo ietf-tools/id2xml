@@ -2,7 +2,7 @@
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin staticfiles bootstrap3 %}
 
-{% block title %}Add drafts to {{ session.meeting }} : {{ session.group.acronym }}{% endblock %}
+{% block title %}{% endblock %}
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'select2/select2.css' %}">
@@ -12,7 +12,19 @@
 {% block content %}
   {% origin %}
 
-  <h1>Thank You</h1>
+  <div class="panel panel-default">
+     <div class="panel-heading">Add/Edit a side meeting type</div>
+     <div class="panel-body">
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+          {% buttons %}
+            <button class="btn-primary" type="submit">Save</button>
+            <a class="btn btn-default" href="#">Cancel</a>
+          {% endbuttons %}
+        </form>
+     </div>
+   </div>
 
 {% endblock %}
 

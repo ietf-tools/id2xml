@@ -15,22 +15,22 @@
 
   <div class="panel panel-default">
     <div class="panel-heading">
-      <a href="{% url 'side-meeting-add' %}"><span class="glyphicon glyphicon-plus"></span></a>
-      Side Meetings      
+      <a href="{% url 'sidemeeting-type-add' %}"><span class="glyphicon glyphicon-plus"></span></a>
+      Side Meeting Types
     </div>
      <div class="panel-body">
         <form method="post">
             {% if sidemeetings %}
             <ul>
-                {% for mtg in sidemeetings %}
+                {% for typ in sidemeetings %}
                 <li>
-                  <a href="{% url 'side-meeting-detail' mtg.id %}">{{ mtg.meeting.number }}</a>&nbsp;&nbsp;
-                  <a href="{% url 'side-meeting-delete' mtg.id %}"><span class="glyphicon glyphicon-remove"></span></a>
-                  <a href="{% url 'side-meeting-edit' mtg.id %}"><span class="glyphicon glyphicon-pencil"></span></a>                                    
+                  <a href="{% url 'sidemeeting-type-detail' typ.id %}">{{ typ.name }}</a>&nbsp;&nbsp;
+                  <a href="{% url 'sidemeeting-type-delete' typ.id %}"><span class="glyphicon glyphicon-remove"></span></a>
+                  <a href="{% url 'sidemeeting-type-edit' typ.id %}"><span class="glyphicon glyphicon-pencil"></span></a>                                    
                 </li>
                 {% endfor %}
             </ul>
-            {#  In case  no mtg exists.  #}
+            {#  In case  no typ exists.  #}
             {% else %}
                 <h3> No meetings found.</h3>
             {% endif %}          

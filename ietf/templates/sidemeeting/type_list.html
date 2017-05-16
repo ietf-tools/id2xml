@@ -20,9 +20,9 @@
     </div>
      <div class="panel-body">
         <form method="post">
-            {% if sidemeetingsessiontypes %}
+            {% if sidemeetingtypes %}
             <ul>
-                {% for typ in sidemeetingsessiontypes %}
+                {% for typ in sidemeetingtypes %}
                 <li>
                   <a href="{% url 'sidemeeting-type-detail' typ.slug %}">{{ typ.name }}</a>&nbsp;&nbsp;
                   <a href="{% url 'sidemeeting-type-delete' typ.slug %}"><span class="glyphicon glyphicon-remove"></span></a>

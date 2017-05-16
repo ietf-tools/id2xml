@@ -1,12 +1,13 @@
 from ietf.sidemeeting.forms import SideMeetingForm
-from ietf.name.models import TimeSlotTypeName
+from ietf.name.models import TimeSlotTypeName, SessionStatusName
 from ietf.sidemeeting.models import SideMeetingSession
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import TemplateView, ListView
+from django.views.generic import ListView
 from django.views.generic.detail import DetailView    
 from django.utils import timezone
 from ietf.person.models import Person
 from django import http
+from ietf.group.models import Group
 
 class SideMeetingAddView(CreateView):
     template_name = 'sidemeeting/add.html'
@@ -18,6 +19,11 @@ class SideMeetingAddView(CreateView):
         self.object = form.save(commit=False)
         self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
         self.object.requested_by = Person.objects.get(user=self.request.user)
+        if self.object.meeting in ["IETF", "IRTF", "IAB"]:
+            self.object.group = Group.objects.get(name=self.object.meeting)
+        else:
+            self.object.group = Group.objects.get(acronym="secretariat")
+
         self.object.save()
 
         return http.HttpResponseRedirect(self.get_success_url())    
@@ -32,6 +38,12 @@ class SideMeetingEditView(UpdateView):
         self.object = form.save(commit=False)
         self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
         self.object.requested_by = Person.objects.get(user=self.request.user)
+        if self.object.meeting in ["IETF", "IRTF", "IAB"]:
+            self.object.group = Group.objects.get(name=self.object.meeting)
+        else:
+            self.object.group = Group.objects.get(acronym="secretariat")
+
+
         self.object.save()
 
         return http.HttpResponseRedirect(self.get_success_url())    

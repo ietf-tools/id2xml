@@ -20,19 +20,19 @@
     </div>
      <div class="panel-body">
         <form method="post">
-            {% if sidemeetings %}
+            {% if sidemeetingsessiontypes %}
             <ul>
-                {% for typ in sidemeetings %}
+                {% for typ in sidemeetingsessiontypes %}
                 <li>
-                  <a href="{% url 'sidemeeting-type-detail' typ.id %}">{{ typ.name }}</a>&nbsp;&nbsp;
-                  <a href="{% url 'sidemeeting-type-delete' typ.id %}"><span class="glyphicon glyphicon-remove"></span></a>
-                  <a href="{% url 'sidemeeting-type-edit' typ.id %}"><span class="glyphicon glyphicon-pencil"></span></a>                                    
+                  <a href="{% url 'sidemeeting-type-detail' typ.slug %}">{{ typ.name }}</a>&nbsp;&nbsp;
+                  <a href="{% url 'sidemeeting-type-delete' typ.slug %}"><span class="glyphicon glyphicon-remove"></span></a>
+                  <a href="{% url 'sidemeeting-type-edit' typ.slug %}"><span class="glyphicon glyphicon-pencil"></span></a>                                    
                 </li>
                 {% endfor %}
             </ul>
             {#  In case  no typ exists.  #}
             {% else %}
-                <h3> No meetings found.</h3>
+                <h3> No side meeting types found.</h3>
             {% endif %}          
      </div>
    </div>

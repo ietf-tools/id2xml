@@ -1,9 +1,12 @@
 from ietf.sidemeeting.forms import SideMeetingForm
+from ietf.name.models import TimeSlotTypeName
 from ietf.sidemeeting.models import SideMeetingSession
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView, ListView
 from django.views.generic.detail import DetailView    
 from django.utils import timezone
+from ietf.person.models import Person
+from django import http
 
 class SideMeetingAddView(CreateView):
     template_name = 'sidemeeting/add.html'
@@ -11,12 +14,28 @@ class SideMeetingAddView(CreateView):
     success_url = '/sidemeeting/list/'    
     model = SideMeetingSession
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
+        self.object.requested_by = Person.objects.get(user=self.request.user)
+        self.object.save()
+
+        return http.HttpResponseRedirect(self.get_success_url())    
+
 class SideMeetingEditView(UpdateView):
     template_name = 'sidemeeting/add.html'
     form_class = SideMeetingForm
     success_url = '/sidemeeting/list/'        
     model = SideMeetingSession
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
+        self.object.requested_by = Person.objects.get(user=self.request.user)
+        self.object.save()
+
+        return http.HttpResponseRedirect(self.get_success_url())    
+    
 class SideMeetingDeleteView(DeleteView):
     template_name = 'sidemeeting/confirm_delete.html'    
     success_url = '/sidemeeting/list/'

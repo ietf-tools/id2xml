@@ -26,7 +26,8 @@
                 <li>
                   <a href="{% url 'side-meeting-detail' mtg.id %}">{{ mtg.meeting.number }}</a>&nbsp;&nbsp;
                   <a href="{% url 'side-meeting-delete' mtg.id %}"><span class="glyphicon glyphicon-remove"></span></a>
-                  <a href="{% url 'side-meeting-edit' mtg.id %}"><span class="glyphicon glyphicon-pencil"></span></a>                                    
+                  <a href="{% url 'side-meeting-edit' mtg.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+                  <a href="{% url 'side-meeting-approve' mtg.id %}"><span class="glyphicon glyphicon-ok"></span></a>                                                      
                 </li>
                 {% endfor %}
             </ul>

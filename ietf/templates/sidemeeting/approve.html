@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin staticfiles bootstrap3 %}
+{% load sm_detail %}
 
 {% block title %}{% endblock %}
 
@@ -13,13 +14,11 @@
 {% block content %}
   {% origin %}
 
-  <h1>Request An Additional Meeting<h1>
-<h3>Please use the form below to request use of IETF meeting space if the intended purpose of your meeting is one of the following: corporate, affiliate organization, Bar BOF or a community work group. Your request will be forwarded to the appropriate person for review. For more information, please see the IETF meeting policy.</h3>
+  <h1>Approve Side Meeting for Meeting: {{object.meeting.number}} <h1>
   <div class="panel panel-default">
     <div class="panel-heading">
       <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
-      Add/Edit a side meeting
-    </div>
+      Approve side meeting</div>
      <div class="panel-body">
         <form method="post">
           {% csrf_token %}
@@ -30,7 +29,25 @@
           {% endbuttons %}
         </form>
      </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
+      side meeting details
+    </div>
+
+     <div class="panel-body">
+       <table>
+          {% for field,name in field_names.items %}
+              <tr>
+                <th>{{ name }}</th>
+                <td>{% get_field_value object field %}</td>
+              </tr>
+          {% endfor %}
+      </table>
+     </div>
    </div>
+  
 
 {% endblock %}
 

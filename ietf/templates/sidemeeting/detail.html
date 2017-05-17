@@ -21,10 +21,10 @@
 
      <div class="panel-body">
        <table>
-          {% for field_name in field_names %}
+          {% for field,name in field_names.items %}
               <tr>
-                <th>{% get_field_label object field_name %}</th>
-                <td>{% get_field_value object field_name %}</td>
+                <th>{{ name }}</th>
+                <td>{% get_field_value object field %}</td>
               </tr>
           {% endfor %}
       </table>

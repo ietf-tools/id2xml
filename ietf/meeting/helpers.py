@@ -295,11 +295,78 @@ def session_constraint_expire(request,session):
     if key is not None and cache.has_key(key):
         cache.delete(key)
 
+
+# -------------------------------------------------
+# Sidemeeting Meeting Helpers
+# -------------------------------------------------
+
+
+def can_approve_sidemeeting_request(meeting, user):
+    '''Returns True if the user has permissions to approve an sidemeeting meeting request'''
+    if meeting.type.slug != 'sidemeeting':
+        return False
+    if has_role(user, 'Secretariat'):
+        return True
+    person = get_person_for_user(user)
+    session = meeting.session_set.first()
+    if not session:
+        return False
+    group = session.group
+    if group.type.slug == 'wg' and group.parent.role_set.filter(name='ad', person=person):
+        return True
+    if group.type.slug == 'rg' and group.parent.role_set.filter(name='chair', person=person):
+        return True
+    return False
+
+
+def can_edit_sidemeeting_request(meeting, user):
+    '''Returns True if the user can edit the sidemeeting meeting request'''
+    if meeting.type.slug != 'sidemeeting':
+        return False
+    if has_role(user, 'Secretariat'):
+        return True
+    person = get_person_for_user(user)
+    session = meeting.session_set.first()
+    if not session:
+        return False
+    group = session.group
+    if group.role_set.filter(name='chair', person=person):
+        return True
+    elif can_approve_sidemeeting_request(meeting, user):
+        return True
+    else:
+        return False
+
+
+def can_request_sidemeeting_meeting(user):
+    if has_role(user, ('Secretariat', 'Area Director', 'WG Chair', 'IRTF Chair', 'RG Chair')):
+        return True
+    return False
+
+
+def can_view_sidemeeting_request(meeting, user):
+    '''Returns True if the user can see the pending sidemeeting request in the pending sidemeeting view'''
+    if meeting.type.slug != 'sidemeeting':
+        return False
+    if has_role(user, 'Secretariat'):
+        return True
+    person = get_person_for_user(user)
+    session = meeting.session_set.first()
+    if not session:
+        return False
+    group = session.group
+    if has_role(user, 'Area Director') and group.type.slug == 'wg':
+        return True
+    if has_role(user, 'IRTF Chair') and group.type.slug == 'rg':
+        return True
+    if group.role_set.filter(name='chair', person=person):
+        return True
+    return False
+
+        
 # -------------------------------------------------
 # Interim Meeting Helpers
 # -------------------------------------------------
-
-
 def can_approve_interim_request(meeting, user):
     '''Returns True if the user has permissions to approve an interim meeting request'''
     if meeting.type.slug != 'interim':

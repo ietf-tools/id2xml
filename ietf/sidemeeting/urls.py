@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, handler403
 from ietf.sidemeeting import views
 
 urlpatterns = [

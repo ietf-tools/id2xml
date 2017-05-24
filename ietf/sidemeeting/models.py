@@ -16,8 +16,6 @@ class SideMeetingSession(Session):
     requested_prim_start_time = models.DateTimeField()
     requested_alt_start_time = models.DateTimeField()    
     sidemeeting_type = models.ForeignKey(SideMeetingTypeName)
-    area = models.ForeignKey(Group, blank=True)
-    attendance = models.PositiveIntegerField(default=0)    
     
     def __unicode__(self):
         return u"%s" % self.name

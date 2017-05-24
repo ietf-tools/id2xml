@@ -27,7 +27,7 @@ class SideMeetingAddView(CreateView):
         return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)        
     def get_context_data(self, **kwargs):
         context = super(SideMeetingAddView, self).get_context_data(**kwargs)
-        context['form'].fields['area'].queryset = Group.objects.filter(type='area',state='active')
+        context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
         return context    
 
     def form_valid(self, form):
@@ -70,7 +70,7 @@ class SideMeetingEditView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(SideMeetingEditView, self).get_context_data(**kwargs)
-        context['form'].fields['area'].queryset = Group.objects.filter(type='area',state='active')
+        context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
         return context        
 
     def form_valid(self, form):
@@ -106,7 +106,7 @@ class SideMeetingListView(ListView):
     def dispatch(self, request, *args, **kwargs):
         if not can_request_sidemeeting_meeting(request.user):
             raise PermissionDenied
-        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)    
+        return super(SideMeetingListView, self).dispatch(request, *args, **kwargs)    
  
     def get_queryset(self):
         return SideMeetingSession.objects.all()

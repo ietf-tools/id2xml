@@ -24,7 +24,8 @@ class SideMeetingAddView(CreateView):
     def dispatch(self, request, *args, **kwargs):
         if not can_request_sidemeeting_meeting(request.user):
             raise PermissionDenied
-        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)        
+        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)
+    
     def get_context_data(self, **kwargs):
         context = super(SideMeetingAddView, self).get_context_data(**kwargs)
         context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
@@ -66,7 +67,7 @@ class SideMeetingEditView(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not can_request_sidemeeting_meeting(request.user):
             raise PermissionDenied
-        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)    
+        return super(SideMeetingEditView, self).dispatch(request, *args, **kwargs)    
 
     def get_context_data(self, **kwargs):
         context = super(SideMeetingEditView, self).get_context_data(**kwargs)
@@ -96,7 +97,7 @@ class SideMeetingDeleteView(DeleteView):
     def dispatch(self, request, *args, **kwargs):
         if not can_request_sidemeeting_meeting(request.user):
             raise PermissionDenied
-        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)    
+        return super(SideMeetingDeleteView, self).dispatch(request, *args, **kwargs)    
 
 @method_decorator(login_required, name='dispatch')        
 class SideMeetingListView(ListView):
@@ -119,7 +120,7 @@ class SideMeetingDetailView(DetailView):
     def dispatch(self, request, *args, **kwargs):
         if not can_request_sidemeeting_meeting(request.user):
             raise PermissionDenied
-        return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)    
+        return super(SideMeetingDetailView, self).dispatch(request, *args, **kwargs)    
     
     def get_context_data(self, **kwargs):
         context = super(SideMeetingDetailView, self).get_context_data(**kwargs)

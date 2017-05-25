@@ -8,22 +8,20 @@ TYPES = ["IETF", "IRTF", "IAB", "Corporate", "Non-profit"]
 def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
-    SideMeetingTypeName = apps.get_model("sidemeeting", "SideMeetingTypeName")
+    TimeSlotTypeName = apps.get_model("name", "TimeSlotTypeName")
     db_alias = schema_editor.connection.alias
-    SideMeetingTypeName.objects.using(db_alias).bulk_create(
-        [ SideMeetingTypeName(name=t, slug=t.lower()) for t in TYPES ]
-    )
+    TimeSlotTypeName(name="SideMeeting", slug="sidemeeting").save()
         
 def reverse_func(apps, schema_editor):
-    SideMeetingTypeName = apps.get_model("sidemeeting", "SideMeetingTypeName")
+    TimeSlotTypeName = apps.get_model("name", "TimeSlotTypeName")
     db_alias = schema_editor.connection.alias
-    SideMeetingTypeName.objects.using(db_alias).filter(name__in=TYPES).delete()
+    TimeSlotTypeName.objects.using(db_alias).filter(name="sidemeeting").delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("sidemeeting", "0004_sidemeetingsession_area"),
+        ("name", "0018_iab_programs"),
         ]
 
     operations = [

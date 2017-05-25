@@ -3,18 +3,18 @@
 {% load origin staticfiles bootstrap3 %}
 {% load sm_detail %}
 
-{% block title %}{% endblock %}
+{% block title %}Approve Side Meeting{% endblock %}
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'select2/select2.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap-css/select2-bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">    
+  <link rel="stylesheet" href="{% static 'css/sidemeeting.css' %}">    
 {% endblock %}
 
 {% block content %}
   {% origin %}
 
-  <h1>Approve Side Meeting for Meeting: {{object.meeting.number}} <h1>
+  <h1>Approve Side Meeting for Meeting: {{object.meeting.number}} </h1>
   <div class="panel panel-default">
     <div class="panel-heading">
       <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
@@ -54,15 +54,6 @@
 {% block js %}
   <script src="{% static 'select2/select2.min.js' %}"></script>
   <script src="{% static 'ietf/js/select2-field.js' %}"></script>
-  <script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
-  <script>
-     $(document).ready(function () {    
-        $('.datepicker').datepicker({
-           format: 'mm/dd/yyyy',
-           startDate: '-3d'
-         })
-     });
-  </script>
 });
    
 {% endblock %}

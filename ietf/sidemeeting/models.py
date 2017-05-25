@@ -13,8 +13,9 @@ class SideMeetingTypeName(NameModel):
     
 
 class SideMeetingSession(Session):
-    requested_prim_start_time = models.DateTimeField()
-    requested_alt_start_time = models.DateTimeField()    
+    requested_prim_start_date = models.DateTimeField()
+    requested_alt_start_date = models.DateTimeField()
+    requested_start_time = models.CharField(max_length=5)
     sidemeeting_type = models.ForeignKey(SideMeetingTypeName)
     
     def __unicode__(self):

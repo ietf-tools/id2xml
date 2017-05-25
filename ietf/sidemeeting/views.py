@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from ietf.meeting.helpers import can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting_meeting, can_view_sidemeeting_request
 from django.http import HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
+from ietf.meeting.helpers import get_meeting
+
 
 @method_decorator(login_required, name='dispatch')
 class SideMeetingAddView(CreateView):
@@ -29,18 +31,23 @@ class SideMeetingAddView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(SideMeetingAddView, self).get_context_data(**kwargs)
         context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
+        context['latest_meeting'] = get_meeting()
         return context    
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
+        self.object.status=SessionStatusName(slug="apprw")
         self.object.requested_by = Person.objects.get(user=self.request.user)
-        if self.object.meeting in ["IETF", "IRTF", "IAB"]:
-            self.object.group = Group.objects.get(name=self.object.meeting)
-        else:
+
+        if self.object.meeting.type.name != "IETF":            
             self.object.group = Group.objects.get(acronym="secretariat")
 
         self.object.save()
+        # Saving manytomany fields is tricky.  here is a starting point to see what this is all about
+        # https://stackoverflow.com/questions/38448564/forms-modelform-does-not-save-manytomany-fields
+        # https://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
+        form.save_m2m()                    
 
         return http.HttpResponseRedirect(self.get_success_url())    
 
@@ -78,13 +85,15 @@ class SideMeetingEditView(UpdateView):
         self.object = form.save(commit=False)
         self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
         self.object.requested_by = Person.objects.get(user=self.request.user)
-        if self.object.meeting in ["IETF", "IRTF", "IAB"]:
-            self.object.group = Group.objects.get(name=self.object.meeting)
-        else:
+
+        if self.object.meeting.type.name != "IETF":            
             self.object.group = Group.objects.get(acronym="secretariat")
 
-
         self.object.save()
+        # Saving manytomany fields is tricky.  here is a starting point to see what this is all about
+        # https://stackoverflow.com/questions/38448564/forms-modelform-does-not-save-manytomany-fields
+        # https://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
+        form.save_m2m()                            
 
         return http.HttpResponseRedirect(self.get_success_url())    
 

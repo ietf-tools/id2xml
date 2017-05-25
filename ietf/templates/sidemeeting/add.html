@@ -2,7 +2,7 @@
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin staticfiles bootstrap3 %}
 
-{% block title %}{% endblock %}
+{% block title %}Add/Edit a Side Meeting{% endblock %}
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'select2/select2.css' %}">
@@ -13,15 +13,16 @@
 {% block content %}
   {% origin %}
 
-  <h1>Request An Additional Meeting<h1>
+  <h1>Request An Additional Meeting</h1>
 <h3>Please use the form below to request use of IETF meeting space if the intended purpose of your meeting is one of the following: corporate, affiliate organization, Bar BOF or a community work group. Your request will be forwarded to the appropriate person for review. For more information, please see the IETF meeting policy.</h3>
   <div class="panel panel-default">
     <div class="panel-heading">
       <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
       Add/Edit a side meeting
     </div>
-     <div class="panel-body">
-        <form method="post">
+    <div class="panel-body">
+        {% bootstrap_messages %}      
+        <form method="post" class="form">
           {% csrf_token %}
           {% bootstrap_form form %}
           {% buttons %}
@@ -39,11 +40,28 @@
   <script src="{% static 'ietf/js/select2-field.js' %}"></script>
   <script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
   <script>
-     $(document).ready(function () {    
+     function toggle_group_select() {
+         if ($("#id_sidemeeting_type").val() == "ietf") {
+             $("#id_group").parent().show();
+         } else {
+             $("#id_group").parent().hide();
+         }
+     }
+
+         
+    $(document).ready(function () {
+
         $('.datepicker').datepicker({
            format: 'mm/dd/yyyy',
            startDate: '-3d'
          })
+     {% if latest_meeting %}
+         $("#id_meeting").val("{{latest_meeting.id}}");
+     {% endif %}
+     $("#id_sidemeeting_type").on("change", function() {
+        toggle_group_select();
+     });
+     toggle_group_select();     
      });
   </script>
 });

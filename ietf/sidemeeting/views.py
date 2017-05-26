@@ -63,9 +63,10 @@ class SideMeetingApproveView(UpdateView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_approve_sidemeeting_request(request.user):
+        sidemeeting = self.get_object()                
+        if not can_approve_sidemeeting_request(sidemeeting, request.user):
             raise PermissionDenied
-        return super(SideMeetingEditView, self).dispatch(request, *args, **kwargs)
+        return super(SideMeetingApproveView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SideMeetingApproveView, self).get_context_data(**kwargs)
@@ -81,7 +82,8 @@ class SideMeetingEditView(UpdateView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_edit_sidemeeting_request(request.user):
+        sidemeeting = self.get_object()                
+        if not can_edit_sidemeeting_request(sidemeeting, request.user):
             raise PermissionDenied
         return super(SideMeetingEditView, self).dispatch(request, *args, **kwargs)
 
@@ -113,7 +115,8 @@ class SideMeetingDeleteView(DeleteView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_edit_sidemeeting_request(request.user):
+        sidemeeting = self.get_object()        
+        if not can_edit_sidemeeting_request(sidemeeting, request.user):
             raise PermissionDenied
         return super(SideMeetingDeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -123,6 +126,7 @@ class SideMeetingListView(ListView):
     template_name = 'sidemeeting/list.html'
 
     def dispatch(self, request, *args, **kwargs):
+        
         if not can_request_sidemeeting(request.user):
             raise PermissionDenied
         return super(SideMeetingListView, self).dispatch(request, *args, **kwargs)
@@ -140,10 +144,7 @@ class SideMeetingDetailView(DetailView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            sidemeeting = SideMeeting.objects.get(pk=self.kwargs['pk'])
-        except:
-            raise Http404
+        sidemeeting = self.get_object()
         if not can_view_sidemeeting_request(sidemeeting, request.user):
             raise PermissionDenied
         return super(SideMeetingDetailView, self).dispatch(request, *args, **kwargs)

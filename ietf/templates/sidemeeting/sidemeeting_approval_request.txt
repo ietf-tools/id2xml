@@ -1,0 +1,9 @@
+{% load ams_filters %}{% load ietf_filters %}
+A new side meeting request has just been submitted by {{ requester }}.
+
+This request requires approval by the {{ group.sidemeeting_approval_roles|role_names|comma_separated_list:"or" }}
+
+The meeting can be approved here: 
+    {{ url }}
+
+Meeting: {% include "sidemeeting/sidemeeting_info.txt" %}

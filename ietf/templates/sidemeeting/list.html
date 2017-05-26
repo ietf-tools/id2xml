@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {# Copyright The IETF Trust 2015, All Rights Reserved #}
 {% load origin staticfiles bootstrap3 %}
+{% load sm_auth %}
 
 {% block title %}{% endblock %}
 
@@ -15,19 +16,46 @@
 
   <div class="panel panel-default">
     <div class="panel-heading">
+      {% can_create_sidemeeting user as can_create  %}      
+      {% if can_create %}
       <a href="{% url 'side-meeting-add' %}"><span class="glyphicon glyphicon-plus"></span></a>
+      {% endif %}
       Side Meetings      
     </div>
      <div class="panel-body">
         <form method="post">
             {% if sidemeetings %}
             <ul>
-                {% for mtg in sidemeetings %}
-                <li>
-                  <a href="{% url 'side-meeting-detail' mtg.id %}">{{ mtg.name }}</a>&nbsp;&nbsp;
-                  <a href="{% url 'side-meeting-delete' mtg.id %}"><span class="glyphicon glyphicon-remove"></span></a>
-                  <a href="{% url 'side-meeting-edit' mtg.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
-                  <a href="{% url 'side-meeting-approve' mtg.id %}"><span class="glyphicon glyphicon-ok"></span></a>                                                      
+              {% for mtg in sidemeetings %}
+                <li>              
+                  {% if mtg.status.slug == 'appr' %}
+                  <div class="list-item-approved">
+                  {% else %}
+                  <div class="list-item">
+                  {% endif %}
+                  <div class="list-name">
+                       {% can_view_sidemeeting mtg user as can_view %}
+                       {% if can_view %}                    
+                       <a href="{% url 'side-meeting-detail' mtg.id %}">{{mtg.meeting.number}} - {{ mtg.name }}</a>&nbsp;&nbsp;
+                       {% endif %}
+                      </div>
+                  <div class="list-actions">
+                          {% can_edit_sidemeeting mtg user as can_edit %}                    
+                          {% if can_edit %}
+                          <a href="{% url 'side-meeting-delete' mtg.id %}"><span class="glyphicon glyphicon-remove"></span></a>
+                          <a href="{% url 'side-meeting-edit' mtg.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+                          {% endif %}
+                          {% can_approve_sidemeeting mtg user as can_approve %}
+                          {% if can_approve %}                          
+                          <a href="{% url 'side-meeting-approve' mtg.id %}"><span class="glyphicon glyphicon-ok"></span></a>
+                          {% endif %}
+                      </div>
+                      <div class="list-approval">
+                        {{mtg.status.name}}
+                      </div>
+                      <div style="clear:both;"></div>
+                  </div>
+
                 </li>
                 {% endfor %}
             </ul>

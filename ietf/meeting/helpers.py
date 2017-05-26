@@ -295,41 +295,57 @@ def session_constraint_expire(request,session):
     if key is not None and cache.has_key(key):
         cache.delete(key)
 
-
 # -------------------------------------------------
 # Sidemeeting Meeting Helpers
 # -------------------------------------------------
+def send_sidemeeting_approval_request(sidemeetingsession):
+    """Sends an email to the secretariat, group chairs, and resposnible area
+    director or the IRTF chair noting that approval has been requested for a
+    new side meeting.  Takes a list of one or more meetings."""
+    group = sidemeetingsession.group
+    meeting = sidemeetingsession.meeting
+    requester = sidemeetingsession.requested_by
+#    (to_email, cc_list) = gather_address_lists('session_requested',group=group,person=requester)
+    # tmp
+    to_email = 'seth@healthywatt.com'
+    cc_list = "sbirkholz@amsl.com"
+    # end tmp
+    from_email = ('"IETF Side Meeting Session Request Tool"',settings.SESSION_REQUEST_DEVELOPERS)
+    subject = '{group} - New Side Meeting Request'.format(group=group.acronym)
+    template = 'sidemeeting/sidemeeting_approval_request.txt'
+    url = settings.IDTRACKER_BASE_URL + reverse('side-meeting-approve', kwargs={'pk': meeting.id})
+    context = locals()
+    send_mail(None,
+              to_email,
+              from_email,
+              subject,
+              template,
+              context,
+              cc=cc_list)
 
-
-def can_approve_sidemeeting_request(meeting, user):
+def can_approve_sidemeeting_request(sidemeeting, user):
     '''Returns True if the user has permissions to approve an sidemeeting meeting request'''
-    if meeting.type.slug != 'sidemeeting':
+    if sidemeeting.type.slug != 'sidemeeting':
         return False
     if has_role(user, 'Secretariat'):
         return True
     person = get_person_for_user(user)
-    session = meeting.session_set.first()
-    if not session:
-        return False
-    group = session.group
+    group = sidemeeting.group
     if group.type.slug == 'wg' and group.parent.role_set.filter(name='ad', person=person):
         return True
     if group.type.slug == 'rg' and group.parent.role_set.filter(name='chair', person=person):
         return True
     return False
 
-
-def can_edit_sidemeeting_request(meeting, user):
+def can_edit_sidemeeting_request(sidemeeting, user):
     '''Returns True if the user can edit the sidemeeting meeting request'''
-    if meeting.type.slug != 'sidemeeting':
+    
+    if sidemeeting.type.slug != 'sidemeeting':
         return False
     if has_role(user, 'Secretariat'):
         return True
     person = get_person_for_user(user)
-    session = meeting.session_set.first()
-    if not session:
-        return False
-    group = session.group
+    group = sidemeeting.group
     if group.role_set.filter(name='chair', person=person):
         return True
     elif can_approve_sidemeeting_request(meeting, user):
@@ -337,24 +353,19 @@ def can_edit_sidemeeting_request(meeting, user):
     else:
         return False
 
-
-def can_request_sidemeeting_meeting(user):
+def can_request_sidemeeting(user):
     if has_role(user, ('Secretariat', 'Area Director', 'WG Chair', 'IRTF Chair', 'RG Chair')):
         return True
     return False
 
-
-def can_view_sidemeeting_request(meeting, user):
+def can_view_sidemeeting_request(sidemeeting, user):
     '''Returns True if the user can see the pending sidemeeting request in the pending sidemeeting view'''
-    if meeting.type.slug != 'sidemeeting':
+    if sidemeeting.type.slug != 'sidemeeting':
         return False
     if has_role(user, 'Secretariat'):
         return True
     person = get_person_for_user(user)
-    session = meeting.session_set.first()
-    if not session:
-        return False
-    group = session.group
+    group = sidemeeting.group
     if has_role(user, 'Area Director') and group.type.slug == 'wg':
         return True
     if has_role(user, 'IRTF Chair') and group.type.slug == 'rg':

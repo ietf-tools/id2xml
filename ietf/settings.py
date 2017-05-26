@@ -920,3 +920,4 @@ if SERVER_MODE != 'production':
     ALLOWED_HOSTS = ['*',]
     
 INSTALLED_APPS = list(INSTALLED_APPS) + ['django_extensions']
+SESSION_REQUEST_DEVELOPERS = 'session_request_developers@ietf.org'

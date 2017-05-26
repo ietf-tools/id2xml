@@ -10,10 +10,10 @@ from django import http
 from ietf.group.models import Group
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from ietf.meeting.helpers import can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting_meeting, can_view_sidemeeting_request
-from django.http import HttpResponseForbidden
+from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting, can_view_sidemeeting_request
+from django.http import HttpResponseForbidden, Http404
 from django.core.exceptions import PermissionDenied
-from ietf.meeting.helpers import get_meeting
+
 
 
 @method_decorator(login_required, name='dispatch')
@@ -24,7 +24,7 @@ class SideMeetingAddView(CreateView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_request_sidemeeting_meeting(request.user):
+        if not can_request_sidemeeting(request.user):
             raise PermissionDenied
         return super(SideMeetingAddView, self).dispatch(request, *args, **kwargs)
 
@@ -50,6 +50,9 @@ class SideMeetingAddView(CreateView):
         # https://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
         form.save_m2m()
 
+        # send notification to secretariat (agenda@ietf.org)        
+        send_sidemeeting_approval_request(self.object)
+        
         return http.HttpResponseRedirect(self.get_success_url())
 
 @method_decorator(login_required, name='dispatch')
@@ -58,6 +61,11 @@ class SideMeetingApproveView(UpdateView):
     form_class = SideMeetingApproveForm
     success_url = '/sidemeeting/list/'
     model = SideMeetingSession
+
+    def dispatch(self, request, *args, **kwargs):
+        if not can_approve_sidemeeting_request(request.user):
+            raise PermissionDenied
+        return super(SideMeetingEditView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SideMeetingApproveView, self).get_context_data(**kwargs)
@@ -73,7 +81,7 @@ class SideMeetingEditView(UpdateView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_request_sidemeeting_meeting(request.user):
+        if not can_edit_sidemeeting_request(request.user):
             raise PermissionDenied
         return super(SideMeetingEditView, self).dispatch(request, *args, **kwargs)
 
@@ -105,7 +113,7 @@ class SideMeetingDeleteView(DeleteView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_request_sidemeeting_meeting(request.user):
+        if not can_edit_sidemeeting_request(request.user):
             raise PermissionDenied
         return super(SideMeetingDeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -115,10 +123,14 @@ class SideMeetingListView(ListView):
     template_name = 'sidemeeting/list.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_request_sidemeeting_meeting(request.user):
+        if not can_request_sidemeeting(request.user):
             raise PermissionDenied
         return super(SideMeetingListView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(SideMeetingListView, self).get_context_data(**kwargs)
+        return context
+    
     def get_queryset(self):
         return SideMeetingSession.objects.all()
 
@@ -128,7 +140,11 @@ class SideMeetingDetailView(DetailView):
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_request_sidemeeting_meeting(request.user):
+        try:
+            sidemeeting = SideMeeting.objects.get(pk=self.kwargs['pk'])
+        except:
+            raise Http404
+        if not can_view_sidemeeting_request(sidemeeting, request.user):
             raise PermissionDenied
         return super(SideMeetingDetailView, self).dispatch(request, *args, **kwargs)
 

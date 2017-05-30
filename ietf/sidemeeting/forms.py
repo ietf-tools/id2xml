@@ -7,8 +7,8 @@ from ietf.sidemeeting import models
 FIELD_NAMES = OrderedDict()
 FIELD_NAMES['name'] = _("Company or Meeting Name")
 FIELD_NAMES['meeting'] = _("IETF Meeting Number")
-FIELD_NAMES['requested_prim_start_date'] =  _("Desired Meeting Date: field with (mm/dd/yyyy)")
-FIELD_NAMES['requested_alt_start_date'] =  _("Alternate Meeting Date: field with (mm/dd/yyyy)")
+FIELD_NAMES['requested_prim_start_date'] =  _("Desired Meeting Date")
+FIELD_NAMES['requested_alt_start_date'] =  _("Alternate Meeting Date")
 FIELD_NAMES['requested_start_time'] =  _("Meeting Start Time")
 FIELD_NAMES['requested_duration'] =  _("Duration of Meeting")
 FIELD_NAMES['sidemeeting_type'] = _("Meeting Type: If IETF meeting, select appropriate Area. If external meeting, select corporate or non profit as appropriate (Room Rental Cost for certain types: $750 for 1/2 day, $1,250 for full day)")
@@ -48,8 +48,9 @@ class SideMeetingForm(forms.ModelForm):
         fields = FIELD_NAMES.keys()
         labels = FIELD_NAMES
         widgets = {
-            'requested_prim_start_date': forms.DateInput(attrs={'class':'datepicker'}),
-            'requested_alt_start_date': forms.DateInput(attrs={'class':'datepicker'}),            
+            'requested_prim_start_date': forms.DateInput(attrs={'class':'datepicker','placeholder':'mm/dd/yyyy'}),
+            'requested_alt_start_date': forms.DateInput(attrs={'class':'datepicker','placeholder':'mm/dd/yyyy'}),
+            'requested_start_time': forms.TextInput(attrs={'placeholder': 'HH:MM'}),
         }        
 
 class SideMeetingApproveForm(forms.ModelForm):

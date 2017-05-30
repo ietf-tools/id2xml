@@ -9,7 +9,6 @@ from ietf.group.models import Group
 
 class SideMeetingTypeName(NameModel):
     """ IETF, IRTF, IAB,  "Corporate", "Non-profit" """
-    test = models.CharField(max_length=64)
     
 
 class SideMeetingSession(Session):

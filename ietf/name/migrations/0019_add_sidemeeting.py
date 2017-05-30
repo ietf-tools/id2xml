@@ -3,8 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-TYPES = ["IETF", "IRTF", "IAB", "Corporate", "Non-profit"]
-
 def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version

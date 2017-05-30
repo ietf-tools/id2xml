@@ -1,6 +1,7 @@
 from ietf.sidemeeting.forms import SideMeetingForm, SideMeetingApproveForm, FIELD_NAMES, DETAIL_NAMES
 from ietf.name.models import TimeSlotTypeName, SessionStatusName
 from ietf.sidemeeting.models import SideMeetingSession
+from ietf.meeting.models import Meeting
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
@@ -13,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting, can_view_sidemeeting_request
 from django.http import HttpResponseForbidden, Http404
 from django.core.exceptions import PermissionDenied
+import datetime as dt
 
 
 
@@ -32,6 +34,7 @@ class SideMeetingAddView(CreateView):
         context = super(SideMeetingAddView, self).get_context_data(**kwargs)
         context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
         context['latest_meeting'] = get_meeting()
+        context['form'].fields['meeting'].queryset = Meeting.objects.exclude(number__icontains='interim')
         return context
 
     def form_valid(self, form):

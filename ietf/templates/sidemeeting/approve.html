@@ -17,7 +17,7 @@
   <h1>Approve Side Meeting for Meeting: {{object.meeting.number}} </h1>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
+      <a href="{% url 'side-meeting-list' %}" data-toggle="tooltip" title="Back to side Meeting List"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
       Approve side meeting</div>
      <div class="panel-body">
         <form method="post">
@@ -25,14 +25,13 @@
           {% bootstrap_form form %}
           {% buttons %}
             <button class="btn-primary" type="submit">Save</button>
-            <a class="btn btn-default" href="#">Cancel</a>
           {% endbuttons %}
         </form>
      </div>
   </div>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <a href="{% url 'side-meeting-list' %}"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
+      <a href="{% url 'side-meeting-list' %}" data-toggle="tooltip" title="Back to side Meeting List"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
       side meeting details
     </div>
 

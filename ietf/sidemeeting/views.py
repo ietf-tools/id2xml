@@ -11,7 +11,7 @@ from django import http
 from ietf.group.models import Group
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting, can_view_sidemeeting_request
+from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, can_edit_sidemeeting_request, can_request_sidemeeting, can_view_sidemeeting_request, send_sidemeeting_approval_request
 from django.http import HttpResponseForbidden, Http404
 from django.core.exceptions import PermissionDenied
 import datetime as dt
@@ -42,7 +42,6 @@ class SideMeetingAddView(CreateView):
         self.object.type=TimeSlotTypeName.objects.get(slug="sidemeeting")
         self.object.status=SessionStatusName(slug="apprw")
         self.object.requested_by = Person.objects.get(user=self.request.user)
-
         
         if (not form.cleaned_data['group']) or (self.object.meeting.type.name != "IETF"):
             self.object.group = Group.objects.get(acronym="secretariat")

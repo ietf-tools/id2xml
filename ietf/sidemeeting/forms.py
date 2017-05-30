@@ -42,6 +42,7 @@ class SideMeetingForm(forms.ModelForm):
         super(SideMeetingForm, self).__init__(*args, **kwargs)
         # there's a `fields` property now
         self.fields['group'].required = False
+        self.fields['resources'].required = False        
         
     class Meta:
         model = models.SideMeetingSession

@@ -11,7 +11,6 @@ def get_base(name):
     Takes a draft filename and returns the basename, with file extension
     and revision number stripped
     """
-    #m = re.match(r'(.*)(-\d{2}\.(txt|pdf|ps|xml))$',name)
     m = re.match(r'(.*)(-\d{2})(.*)$',name)
     return m.group(1) 
 

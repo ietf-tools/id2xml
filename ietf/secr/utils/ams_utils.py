@@ -18,7 +18,6 @@ def get_revision(name):
     """
     Takes a draft filename and returns the revision, as a string.
     """
-    #return name[-6:-4]
     base,ext = os.path.splitext(name)
     return base[-2:]
     

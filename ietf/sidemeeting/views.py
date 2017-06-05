@@ -92,6 +92,7 @@ class SideMeetingEditView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(SideMeetingEditView, self).get_context_data(**kwargs)
         context['form'].fields['group'].queryset = Group.objects.filter(type='area',state='active')
+        context['form'].fields['meeting'].queryset = Meeting.objects.exclude(number__icontains='interim')        
         return context
 
     def form_valid(self, form):

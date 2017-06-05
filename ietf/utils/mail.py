@@ -269,6 +269,8 @@ def send_mail_mime(request, to, frm, subject, msg, cc=None, extra=None, toUser=F
     # and EMAIL_PORT=2025 in settings_local.py
     debugging = getattr(settings, "USING_DEBUG_EMAIL_SERVER", False) and settings.EMAIL_HOST == 'localhost' and settings.EMAIL_PORT == 2025
 
+#    import ipdb;ipdb.set_trace()
+    
     if settings.SERVER_MODE == 'development':
         show_that_mail_was_sent(request,'In production, email would have been sent',msg,bcc)
 

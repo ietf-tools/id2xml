@@ -21,7 +21,6 @@
       Add/Edit a side meeting
     </div>
     <div class="panel-body">
-        {% bootstrap_messages %}      
         <form method="post" class="form">
           {% csrf_token %}
           {% bootstrap_form form %}
@@ -51,10 +50,12 @@
          
     $(document).ready(function () {
 
-        $('.datepicker').datepicker({
-           format: 'mm/dd/yyyy',
-           startDate: '-3d'
-         })
+     $('.datepicker').datepicker({
+        format: 'mm/dd/yyyy',
+        startDate: '-3d'
+     }).on('changeDate', function(e){
+        $(this).datepicker('hide');
+     });
      {% if latest_meeting %}
          $("#id_meeting").val("{{latest_meeting.id}}");
      {% endif %}

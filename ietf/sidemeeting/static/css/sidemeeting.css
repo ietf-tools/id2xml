@@ -1,18 +1,12 @@
 li {
     list-style-type:none;
 }
-/* li a { */
-/*     width:100px; */
-/* } */
-
 th {
     padding-right:20px;
 }
-
 .list-item {
     padding:5px;
 }
-
 .list-item-approved {
     background-color:#0f0;
     padding:5px;

@@ -22,7 +22,7 @@ from django.contrib.auth.models import User
 from ietf.group.models import Role, Group
 from ietf.name.models import RoleName
 from ietf.person.models import Person, Email
-from ietf.meeting.forms_sidemeeting import SideMeetingApproveForm, SideMeetingForm
+from ietf.meeting.forms import SideMeetingApproveForm, SideMeetingForm
 from ietf.meeting.test_data import make_meeting_test_data
 from ietf.meeting.models import ResourceAssociation, SideMeetingSession, SideMeetingTypeName
 

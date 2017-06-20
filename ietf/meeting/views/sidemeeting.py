@@ -13,7 +13,7 @@ from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, c
 from ietf.meeting.models import Meeting
 from ietf.name.models import TimeSlotTypeName, SessionStatusName
 from ietf.person.models import Person
-from ietf.meeting.forms_sidemeeting import SideMeetingForm, SideMeetingApproveForm, DETAIL_NAMES
+from ietf.meeting.forms import SideMeetingForm, SideMeetingApproveForm, DETAIL_NAMES
 from ietf.meeting.models import SideMeetingSession
 
 

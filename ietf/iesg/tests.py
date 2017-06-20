@@ -3,11 +3,12 @@ import os
 import shutil
 import json
 import datetime
+from pyquery import PyQuery
 
 from django.conf import settings
 from django.urls import reverse as urlreverse
 
-from pyquery import PyQuery
+import debug                            # pyflakes:ignore
 
 from ietf.doc.models import DocEvent, BallotDocEvent, BallotPositionDocEvent, TelechatDocEvent
 from ietf.doc.models import Document, DocAlias, State, RelatedDocument
@@ -408,6 +409,16 @@ class IESGAgendaTests(TestCase):
         self.assertTrue("Included" in [l for l in lines if d1_filename in l][0])
         self.assertTrue("Not found" in [l for l in lines if d2_filename in l][0])
 
+    def test_admin_change(self):
+        draft = Document.objects.get(name="draft-ietf-mars-test")
+        today = datetime.date.today()
+        telechat_date = TelechatDate.objects.get(date=draft.telechat_date())
+        url = urlreverse('admin:iesg_telechatdate_change', args=(telechat_date.id,))
+        self.client.login(username="secretary", password="secretary+password")
+        r = self.client.post(url, {'date':today.strftime('%Y-%m-%d')})
+        self.assertRedirects(r, urlreverse('admin:iesg_telechatdate_changelist'))
+        self.assertEqual(draft.telechat_date(),today)
+
 class RescheduleOnAgendaTests(TestCase):
     def test_reschedule(self):
         draft = make_test_data()
@@ -449,11 +460,10 @@ class RescheduleOnAgendaTests(TestCase):
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         d_header_pos = r.content.find("IESG telechat %s" % d.isoformat())
-        draft_pos = r.content[d_header_pos:].find(draft.name)
+        draft_pos = unicontent(r)[d_header_pos:].find(draft.name)
         self.assertTrue(draft_pos>0)
 
         self.assertTrue(draft.latest_event(TelechatDocEvent, "scheduled_for_telechat"))
         self.assertEqual(draft.latest_event(TelechatDocEvent, "scheduled_for_telechat").telechat_date, d)
         self.assertTrue(not draft.latest_event(TelechatDocEvent, "scheduled_for_telechat").returning_item)
         self.assertEqual(draft.docevent_set.count(), events_before + 1)
-

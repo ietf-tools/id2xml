@@ -503,7 +503,7 @@ def get_earliest_session_date(formset):
 
 def get_interim_initial(meeting):
     '''Returns a dictionary suitable to initialize a InterimRequestForm'''
-    log.unreachable()                   # 6.46.2
+    log.unreachable("07 Mar 2017")
     initial = {}
     initial['group'] = meeting.session_set.first().group
     if meeting.city:
@@ -523,7 +523,7 @@ def get_interim_initial(meeting):
 
 def get_interim_session_initial(meeting):
     '''Returns a list of dictionaries suitable to initialize a InterimSessionForm'''
-    log.unreachable()                   # 6.46.2
+    log.unreachable("07 Mar 2017")
     initials = []
     for session in meeting.session_set.all():
         initial = {}
@@ -602,7 +602,7 @@ def send_interim_approval_request(meetings):
     group = meetings[0].session_set.first().group
     requester = meetings[0].session_set.first().requested_by
     (to_email, cc_list) = gather_address_lists('session_requested',group=group,person=requester)
-    from_email = ('"IETF Meeting Session Request Tool"','session_request_developers@ietf.org')
+    from_email = (settings.SESSION_REQUEST_FROM_EMAIL)
     subject = '{group} - New Interim Meeting Request'.format(group=group.acronym)
     template = 'meeting/interim_approval_request.txt'
     approval_urls = []
@@ -628,7 +628,7 @@ def send_interim_announcement_request(meeting):
     group = meeting.session_set.first().group
     requester = meeting.session_set.first().requested_by
     (to_email, cc_list) = gather_address_lists('interim_approved')
-    from_email = ('"IETF Meeting Session Request Tool"','session_request_developers@ietf.org')
+    from_email = (settings.SESSION_REQUEST_FROM_EMAIL)
     subject = '{group} - interim meeting ready for announcement'.format(group=group.acronym)
     template = 'meeting/interim_announcement_request.txt'
     announce_url = settings.IDTRACKER_BASE_URL + reverse('ietf.meeting.views.interim_request_details', kwargs={'number': meeting.number})
@@ -694,7 +694,7 @@ def send_interim_minutes_reminder(meeting):
 def check_interim_minutes():
     """Finds interim meetings that occured 10 days ago, if they don't
     have minutes send a reminder."""
-    log.unreachable()                   # 6.46.2
+    log.unreachable("07 Mar 2017")
     date = datetime.datetime.today() - datetime.timedelta(days=10)
     meetings = Meeting.objects.filter(type='interim', session__status='sched', date=date)
     for meeting in meetings:

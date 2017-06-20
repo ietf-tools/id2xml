@@ -1,10 +1,12 @@
 
+from tqdm import tqdm
+
 import django
 django.setup()
 
+from django.apps import apps
 from django.core.management.base import BaseCommand #, CommandError
 from django.core.exceptions import FieldError
-from django.db import models
 from django.db.models.fields.related import ForeignKey, OneToOneField
 
 import debug                            # pyflakes:ignore
@@ -13,11 +15,15 @@ class Command(BaseCommand):
     help = "Check all models for referential integrity."
 
     def handle(self, *args, **options):
-        verbosity = options.get("verbosity", "1")
-        verbosity = int(verbosity) if verbosity.isdigit() else 1
+        verbosity = options.get("verbosity", 1)
+        verbose = verbosity > 1
 
         def check_field(field):
-            foreign_model = field.related.parent_model
+            try:
+                foreign_model = field.related_model
+            except Exception:
+                debug.pprint('dir(field)')
+                raise
             if verbosity > 1:
                 print "    %s -> %s.%s" % (field.name,foreign_model.__module__,foreign_model.__name__),
             used = set(field.model.objects.values_list(field.name,flat=True))
@@ -30,14 +36,18 @@ class Command(BaseCommand):
                     print "  ok"
             else:
                 if used - exists:
-                    print "%s.%s.%s -> %s.%s Bad key values:" % (model.__module__,model.__name__,field.name,foreign_model.__module__,foreign_model.__name__),list(used - exists)
+                    print "\n%s.%s.%s -> %s.%s  ** Bad key values:" % (model.__module__,model.__name__,field.name,foreign_model.__module__,foreign_model.__name__),list(used - exists)
 
         def check_reverse_field(field):
-            foreign_model = field.related.parent_model
+            try:
+                foreign_model = field.related_model
+            except Exception:
+                debug.pprint('dir(field)')
+                raise
             if foreign_model == field.model:
                 return
-            foreign_field_name  = field.related.var_name
-            foreign_accessor_name = field.related.get_accessor_name()
+            foreign_field_name  = field.rel.name
+            foreign_accessor_name = field.rel.get_accessor_name()
             if verbosity > 1:
                 print "    %s <- %s -> %s.%s" % (field.model.__name__, field.rel.through._meta.db_table, foreign_model.__module__, foreign_model.__name__),
             try:
@@ -56,12 +66,12 @@ class Command(BaseCommand):
                     print "  ok"
             else:
                 if used - exists:
-                    print "%s.%s <- %s -> %s.%s  ** Bad key values:\n    " % (field.model.__module__, field.model.__name__, field.rel.through._meta.db_table, foreign_model.__module__, foreign_model.__name__), list(used - exists)
+                    print "\n%s.%s <- %s -> %s.%s  ** Bad key values:\n    " % (field.model.__module__, field.model.__name__, field.rel.through._meta.db_table, foreign_model.__module__, foreign_model.__name__), list(used - exists)
 
-        for app in [a for a in models.get_apps() if a.__name__.startswith('ietf.')]:
+        for conf in tqdm([ c for c in apps.get_app_configs() if c.name.startswith('ietf.')], desc='apps', disable=verbose):
             if verbosity > 1:
-                print "Checking",app.__name__
-            for model in models.get_models(app):
+                print "Checking", conf.name
+            for model in tqdm(list(conf.get_models()), desc='models', disable=verbose):
                 if model._meta.proxy:
                     continue
                 if verbosity > 1:

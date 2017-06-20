@@ -61,6 +61,7 @@ from ietf.group.utils import (get_charter_text, can_manage_group_type,
                               milestone_reviewer_for_group_type, can_provide_status_update,
                               can_manage_materials, get_group_or_404,
                               construct_group_menu_context, get_group_materials)
+from ietf.group.views_edit import roles_for_group_type
 from ietf.community.utils import docs_tracked_by_community_list
 from ietf.community.models import CommunityList, EmailSubscription
 from ietf.utils.pipe import pipe
@@ -304,10 +305,7 @@ def chartering_groups(request):
 
     for t in group_types:
         t.chartering_groups = Group.objects.filter(type=t, charter__states__in=charter_states).select_related("state", "charter").order_by("acronym")
-        if t.chartering_groups.exists():
-            t.can_manage = can_manage_group_type(request.user, t.chartering_groups.first())
-        else:
-            t.can_manage = False
+        t.can_manage = can_manage_group_type(request.user, None, t)
 
         for g in t.chartering_groups:
             g.chartering_type = get_chartering_type(g.charter)
@@ -443,6 +441,7 @@ def group_about(request, acronym, group_type=None):
                       "can_provide_status_update": can_provide_update,
                       "status_update": status_update,
                       "charter_submit_url": charter_submit_url,
+                      "editable_roles": roles_for_group_type(group_type),
                   }))
 
 def all_status(request):

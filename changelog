@@ -1,3 +1,579 @@
+ietfdb (6.55.0) ietf; urgency=medium
+
+  **Improved Yang validation support**
+
+  This release updates and expands the Yang support in the datatracker.  In
+  addition to checking yang modules in submitted drafts using pyang, it now
+  also does a yanglint check.  The yang validation results are available by
+  clicking on the red or green yin/yang symbols which show for drafts that
+  contain yang models.
+
+  For drafts where one or more models were found at submission time, the pyang
+  and yanglint checks are re-run once per day, to catch newly arrived models
+  in the library directories (both rfc and draft models).
+
+  Additional details, from the commit log:
+
+  * Added a new yang checker, 'yanglint', to the existing Yang checker class,
+    in addition to the existing 'pyang' checker.
+
+  * Added modal overlay displays showing the yang check results every place
+    the yin/yang symbol is shown (red or green) to indicate the presencee and
+    result of yang checks.  Added a Yang Validation: line in the document
+    meta-information section on the document's page in the datatracker.
+
+  * Added the result of the xym extaction to the yang check results, to make
+    extration failures visible.
+
+  * Added the version of the used xym, pyang, and yanglint commands to the
+    check results.
+
+  * Added an action to move successfully extracted and validated modules to
+    the module library directories immediately on submission.
+
+  * Added the xym repository as an svn:external component, rather than listing
+    it in requirements.txt, as there has been delays of many months between
+    essential features appearing in the repository, and an actual release of
+    same.  We may get occasional buildbot failures if broken code is pulled in
+    from the repository, but better that than the functionality failure of
+    severely outdated componets.
+
+  * Added a new management command to re-run yang validation for active drafts
+    for which yang modules were found at submission time, in order to pick up
+    imported models which may have arrived in the model libraries after the
+    draft's submission.  Run daily from bin/daily.
+
+  * Added a table to hold version information for external commands.  The yang
+    checker output should include the version information of the used
+    checkers, but seems unnecessary to run each command with its --version
+    switch every time we check a module...
+
+  * Added a new management command to collect version information for external
+    commands on demand.  To be run daily from bin/daily.
+
+  * Added tests to verify that xym, pyang and yanglint information is
+    available on the submission confirmation page, and updated the yang module
+    contained in the test document to validate under both pyang and yanglint.
+
+  * Updated admin.py and resource.py files as needed.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  16 Jun 2017 09:38:25 +0000
+
+
+ietfdb (6.54.1) ietf; urgency=medium
+
+  **Bugfixes, floor indications on the agenda**
+
+  This is a bugfix release, with a number of smaller fixes.  It also
+  introduces floor indications on the IETF meeting agenda page.  From the
+  commit log:
+
+  * Added a guard against trying to get the room ID from a timeslot without 
+    location in the secretariat schedule view.
+
+  * Merged in [13588] from rcross@amsl.com:
+    Initialize Empty-Schedule with special sessions from previous meeting on
+    creation.  Fixes issue #1500.
+
+  * Merged in [13586] from rjsparks@nostrum.com:
+    Workaround for an issue with the schedule editor by ensuring no sessions
+    remain scheduled in a room whose purpose has changed to something other
+    than holding sessions (such as becoming unavailable).  
+
+  * A first go at adding floor labels to the agenda pages.  The placement 
+    of the labels are complicated by available whitespace beeing in different 
+    horizontal positions for different types of lines.  Adding another column 
+    will push the session title out of the screen on small devices.
+
+  * Fixed a bug with missing operations on the /group/chartering/ 'Chartering
+    or re-chartering' page, so that not only operations on groups in a
+    chartering state is shown, but also the options to start chartering.
+    Fixes issue #2312.
+
+  * Merged in [13575] from rcross@amsl.com:
+    Create new script ietf/bin/set_admin_permissions to configure Django Admin
+    group permissions.  Fixes #2008.  
+
+  * Merged in [13567] from rcross@amsl.com:
+    Refactor ietf/bin/merge-person-records to facilitate testing.  Add tests.
+    Fixes #2162.  
+
+  * Merged in [13554] from rcross@amsl.com:
+    Several widgets in session request form require javascript.  Prevent usage
+    of page without javascript. Fixes #1767.  
+
+  * Merged in [13559] from rcross@amsl.com:
+    When changing a TelechatDate in the admin interface, retain all document
+    associations.  Fixes #1349.  
+
+  * Added a test to the test suite which checks if there are interleaved 
+    schema and data migrations that have not been released yet.  Having split 
+    migrations, first all schema and then all data, will permit doing 2 
+    sequential releases; but if the data and schema migrations are interleaved 
+    (beyond this) it is problematic to arrange for release without ending up 
+    with a prolonged period when running code and table structure is out of 
+    sync (while the normally more time-consuming data migrations run).
+
+  * Narrowed a too wide try/except region in order to give more correct error
+    messages on failed conversion of submitted xml drafts .  Changed the the
+    strip() application to happen only on extracted author elements that
+    actually have content.  Fixes an inability to upload xml-only drafts with
+    missing author country information.
+
+  * Fixed another place where None author email needed an extra guard.
+
+  * Added blank lines between milestones, so they don't get run together if 
+    they are long enough to cause line wrapping.  Fixes issue #2311.
+
+  * Fixed a problem with a formset, they don't have self.cleaned_data, so 
+    cannot return it.  Fixes issue #2310.
+
+  * Fixed a place where a missing document author email address could cause 
+    a server 500.  There may be additional places needing attention, now that 
+    we're not inserting dummy addresses.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  13 Jun 2017 10:33:08 +0000
+
+
+ietfdb (6.54.0) ietf; urgency=medium
+
+  **Author and Meeting Statistics**
+
+  This release provides the author and meeting statistics described by
+  RFC7760: "Statement of Work for Extensions to the IETF Datatracker for
+  Author Statistics".
+
+  "The enhancements to the IETF Datatracker shall provide statistics and
+  graphs about documents, document authors, author affiliation, author
+  country, and author continent."
+
+  "The statistics should also include trends relating to IETF meeting
+  attendees, which the current tools do not track."
+
+  The statistics are available from the top menu under Other >> Statistics,
+  or by following links from https://tracker.tools.ietf.org/stats/ .
+
+  As part of the release, there will be a one-time backfill extraction of
+  author information about country, affiliation etc. from drafts; this
+  is expected to take about 1 to 2 hours.  Statistics information will be
+  incomplete until the backfill script has finished running.
+
+  This work has been done under contract by olau@iola.dk, with caching to
+  speed up page load by henrik@levkowetz.com.
+
+  Full commits log are available at:
+  https://trac.tools.ietf.org/tools/ietfdb/log/branch/iola/author-stats-r12628
+  https://trac.tools.ietf.org/tools/ietfdb/log/branch/iola/author-stats-r13145
+  https://trac.tools.ietf.org/tools/ietfdb/log/personal/henrik/6.52.1-authorstats
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  08 Jun 2017 11:16:57 +0000
+
+
+ietfdb (6.53.1) ietf; urgency=medium
+
+  This is a small patch release to clear the board for the upcoming
+  authorstats merge.
+
+  * Fixed a bug in wordwrap() where an URL (or any word) longer than width 
+    could prevent line breaking in following text.
+
+  * Merged in [13532] from rjsparks@nostrum.com:
+    Add an expertise field to reviewer settings. Fixes #2308. , 
+
+  * Added dates to unreachable() calls, to make it easier to decide when to 
+    remove marked code.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  06 Jun 2017 17:40:15 +0000
+
+
+ietfdb (6.53.0) ietf; urgency=medium
+
+  **Nomcom features, YouTube import, Better text wrapping in emails**
+
+  This release provides the ability for NomComs to collect feedback on
+  arbitrary topics, and fixes some warts on the nomcom pages.  It adds
+  automated import of session recording data from YouTube, and a number of
+  other secretariat tool refinements.  Review team pages now show both date of
+  assignment and deadline, and reviews sent in email should not be mangled by
+  unnecesary line wrapping any more.  There are also a some internal
+  improvements.  From the commit log:
+
+  * Merged in [13503] from rjsparks@nostrum.com:
+    Added usernames to the email sent to the secretariat when a possible 
+    duplicate person has been detected. Fixes #2307.  
+
+  * Merged in [13501] from rjsparks@nostrum.com:
+    Used a simpler widget for the public key file when editing a nomcom to
+    remove confusion between clearing keys and clearing the form control.
+    Fixes #2299.  
+
+  * Merged in [13500] from rjsparks@nostrum.com:
+    Provide assigned dates on review team reviewers page. Fixes #2304.
+    Related to #2305.  
+
+  * Changed all instances of the deprecated self.failUnless() unittest method 
+    to self.assertTrue().
+
+  * Merged in [13499] from rcross@amsl.com:
+    Add non WG Area choices to Parent field of secretariat groups edit form.
+    Fixes #1344.  
+
+  * Improved review linebreaking tests, based on [13495] from olau@iola.dk.
+
+  * Merged in [13492] from rcross@amsl.com:
+    Removed old proceedings generation code.  Fixes #2234.   
+
+  * Merged in [13485] from rcross@amsl.com:
+    Added import of YouTube session videos, using the YouTube Data API.
+    Fixes #2249.
+
+  * Added a middleware exception handler for the case of people submitting 
+    unicode outside the Basic Multilingual Plane, which cannot currently be 
+    saved to the database.
+
+  * Added a test for no-agenda templates being used for future meetings 
+    without agenda. Aligned the wording in the txt and html templates.
+
+  * Merged in [13474] from rjsparks@nostrum.com:
+    Allow the nomcom to collect feedback on arbitrary topics. Fixes #2256 
+    and #1846.  
+
+  * Eliminated several variations on word wrapping, keeping only what used to
+    be wrap_text(), but renamed as ietf.utils.text.wordwrap().  This performs
+    better than django.utils.text.wrap() when there are indented text parts.
+    Replaced django's default wordwrap filter with one calling
+    ietf.utils.text.wordwrap in all templates.  Changed to triggered wrapping
+    in some cases, with the maybewordwrap filter, which triggers on lines
+    longer than 100 characters.  This fixes the issue with undesired wrapping
+    of reviews.
+
+  * Fixed a date arithmetic bug.
+
+  * xml2rfc 2.6.0 does not have parser parameters which are compatible with 
+    our usage.  Will be fixed in 2.6.1.  Disallow 2.6.0.
+
+  * Added a guard against trying to list locations which are None in 
+    agenda.json (there are socials with a timeslot but no location)
+
+  * Fixed the DOI information for doc/rfc*/bibtex/ temporarily; for a 
+    better fix we need to import the DOI values in ietf/sync/rfceditor.py
+
+  * Removed the table-list.json file and support for it; there are better 
+    ways of cleaning out extra local tables (see bin/drop-new-tables for a 
+    starting point)
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  05 Jun 2017 13:41:48 +0000
+
+ietfdb (6.52.0) ietf; urgency=medium
+
+  **Nomcom page improvements, and more**	
+
+  This release adds nomcom and secretariat functionality, and improves the
+  machine-readable json export of agenda information for the IETFers app.
+
+  The nomcom chair now has the ability to open and close nominations,
+  feedback, and nomcom processing for a position separately.  It has been made
+  easier to add new positions to be filled out of the regular schedule, and
+  the nomcom chair now can enable display of nominee photos on the feedback
+  pages.  An issue with statistics calculation on the internal nomcom pages
+  has been fixed, as well as some other annoyances.
+
+  The secretariat now has full edit capability also for non-session meetings,
+  chairs can now upload bluesheets for interim meetings, and the json export
+  of agenda information now has better information about session presentation
+  materials.
+
+  As usual, a few bugs have been fixed, too, improving author information
+  extraction from uploaded .xml files, and more:
+
+  * Merged in [13418] from rcross@amsl.com:
+    Add full edit capability for non-sessions.  Fixes #2235.   
+
+  * Merged in [13417] from rjsparks@nostrum.com:
+    Minor tweak to instructions for removing nomcom positions.  
+
+  * Merged in [13413] from rjsparks@nostrum.com:
+    Allow nomcoms to configure the feedback page to show nominee pictures. 
+    Fixes #2252. , 
+
+  * Merged in [13412] from rcross@amsl.com:
+    Allow chairs to upload bluesheets for interim meetings.  Fixes #2165.   
+
+  * Fixed a bug for /meeting/*/agenda.json where multiple entries for a 
+    room name could occur, even if only one of them were referenced by sessions.
+
+  * Added stripping of leading and trailing whitespace from submission data 
+    (including email addresses) gleaned from submitted xml.  Changed email line 
+    parsing to use email.utils.parseaddr() instead of a regex which only would 
+    handle unwuoted names (and possibly not utf-8 names) correctly.
+
+  * Merged in [13409] from rjsparks@nostrum.com:
+    Add some help for the nomcom chair for when new positions are needed 
+    later in a nomcom cycle. Fixes #2253.  
+
+  * Merged in [13400] from rjsparks@nostrum.com:
+    Correctly calculate statistics on the nomcom private index page. Fixes 
+    #2254.  
+
+  * Merged in [13399] from rjsparks@nostrum.com:
+    Make it possible to close nominations without closing feedback. Fixes 
+    #2255.  
+
+  * Merged in [13390] from rjsparks@nostrum.com:
+    Avoid confusing messages saying a key has not been entered when it has. 
+    Fixes #2250.  
+
+  * Merged in [13388] from rjsparks@nostrum.com:
+    Update the feedback count badge when new feedback is provided. Fixes 
+    #2260.  
+
+  * Merged in [13383] from rjsparks@nostrum.com:
+    Don't double-escape when showing feedback. Fixes #2297.  
+
+  * Added more information about session presentations to the agenda.json 
+    output, on request from pusateri@bangj.com.
+
+  * Added raw_id_fields on DocumentAuthorAdmin to speed up form loading, 
+    and added SessionPresentationAdmin to the meeting admin.py
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  29 May 2017 23:21:29 +0000
+
+
+ietfdb (6.51.0) ietf; urgency=medium
+
+  **Improved RFC Author Information**
+
+  This release provides the second part of the RFC Author information work
+  done by rjsparks@nostrum.com, the data migrations.  Based on manual and
+  automated consolidation of author information from the RFC Editor database,
+  the output from the ietf/utils/draft.py parser, the existing datatracker
+  data, and eyeballing the RFCs, this provides a dramatic increase of the
+  quality of the RFC author information data in the datatracker.
+
+  There are also some bugfixes:
+
+  * Merged in [13337] from rcross@amsl.com:
+    When editing interim meeting request show duration as HH:MM instead of
+    HH:MM:SS.  Fixes #2226.  
+
+  * Merged in [13290] from rjsparks@nostrum.com:
+    This provides the utility used to reconcile the RFC Editor database
+    against what the draft parser returns for document authors.
+
+  * Merged in [13336] from rcross@amsl.com:
+    Fix issue where deferring a ballot causes 500 error in Telechat app.  
+    Fixes #1342.   
+
+  * Merged in the data migrations from [13289] from rjsparks@nostrum.com:
+    Mapped a large number of email addresses found from the RFC Editor
+    database and from parsing RFCs to the right Person objects, and creating
+    Person objects as necessary. Updated the documentauthors set for RFCs
+    based on reconciling what the tracker already knew with the RFC Editor
+    database and the parsing the RFCs. Manually inspected the Updates to
+    ensure no author was inappropriately removed from the set.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  16 May 2017 15:34:37 +0000
+
+
+ietfdb (6.50.1) ietf; urgency=medium
+
+  This is a bugfix release, which also introduces some schema changes,
+  in preparation for later data migrations.  From the commit log:
+
+  * Merged in [13336] from rcross@amsl.com:
+    Fixed an issue where deferring a ballot causes 500 error in Telechat app.
+    Fixes #1342.  
+
+  * Merged in [13333] from rcross@amsl.com:
+    Corrected the Management Item Details link in telechat agenda_package.txt.
+    Fixes #2158.  
+
+  * Merged in [13328] from rcross@amsl.com:
+    Set parent of new areas to IESG.  Fixes #2011.
+
+  * Updated the utils.DumpInfo model to match the database.
+
+  * Merged in [13324] from rcross@amsl.com:
+    Disallow multi-day interim meetings with non-consecutive dates.  
+    Fixes #2193.   
+
+  * Merged in [13309] from rcross@amsl.com:
+    Fixed the Edit button of session request view.  Fixes #2285.   
+
+  * Merged in [13308] from rcross@amsl.com: Add ability for secretariat to
+    skip announcement of regular interim meetings.  Fixes #2210.  
+
+  * Merged in [13303] from rcross@amsl.com:
+    Session admin edit fails if no resources selected.  Fixes #2211.
+
+  * Added a guard to prevent problems with legacy drafts without any draft 
+    state.
+
+  * Tweaked the DRAFT_NAMES_WITH_DOT setting for another draft name 
+    exception.
+
+  * Merged in [13293] from rcross@amsl.com:
+    Improve help messages for multi-day and series interim meeting types.  
+    Fixes #2194.   
+
+  * Merged in [13292] from rcross@amsl.com:
+    Fixes #2002.  Trailing comma in Liaison cc_contacts field causes 
+    invalid email address error.   
+
+  * Merged in [13291] from rcross@amsl.com:
+    Change From address of session request notifications from 
+    session_request_developers@ietf.org to session-request@ietf.org.  Fix 
+    requester information in session request cancellation email.  Fixes #1621.  
+
+  * Updated doc resources.py with EditedAuthorsDocEventResource
+
+  * Updated the makeresources command to use the current 
+    AppCommand.handle_app_config() interface.
+
+  * Merged in [13276] from rcross@amsl.com:
+    Add group field to Roles add form validation.  Fixes #2292.   
+
+  * Merged in [13275] from rcross@amsl.com:
+    Refactor to prevent secretariat recordings entry page from timing out.  
+    Fixes #2287.   
+
+  * Merged in [13274] from rcross@amsl.com:
+    Indicate which schedule is the official schedule in Select a Schedule
+    drop-down.  Fixes #1456.  
+
+  * Aligned the availability of roles edit buttons on a group's about page
+    with the roles that the group edit GroupForm will accept.  Avoids
+    presentin edit forms without any fields and some server 500 errors. 
+
+  * Changed the alignment for the RFC 'Errata' label within the document name
+    and title column to consistently put it at the right side of the column,
+    for a tidier appearance.
+
+  * Fixed an issue with the author extraction code.
+
+  * Fixed a place where the LastCallDocEvent expiry value was set as a date 
+    instead of a datetime.
+
+  * Merged in [13246] from rjsparks@nostrum.com:
+    Distinguish group that have session requests from those that do not on 
+    the materials/editable-groups page. Fixes #2284.  
+
+  * Tweaked the test coverage percentage numbers shown in the release test
+    coverage chart to use only 3 decimal digits, not 12 ...
+
+  * Return a person search string instead of bombing out if there are 
+    multiple identical names where one don't have an active email address.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  14 May 2017 10:00:50 +0000
+
+
+ietfdb (6.50.0) ietf; urgency=medium
+
+  This is a small feature release which provides a management command to
+  create / delete a set of related test and development data for a dummy
+  nomcom ('ietf/manage.py create_dummy_nomcom'), and adds statistics charts
+  for release coverage and frequency.  Room resources can now be marked as in
+  use or not, to control which resources are shown on the session request
+  form.  A few bugs have also been addressed, as indicated in the commit log:
+
+  * Merged in [13230] from rjsparks@nostrum.com:
+    Added scripts to create/delete a dummy nomcom to use in development
+    environments.  Fixes #2283. 
+
+  * Added charts for test coverage and release frequency.
+
+  * Fixed an if-statement which incorrectly disabled coverage testing when 
+    the parallel testing count was set to 1.
+
+  * Removed the 'Document' tab introduced in 6.48.0
+
+  * Moved the caching of htmlized documents into Document.htmlized() in 
+    order to avoid caching failed htmliztions (usually because of a missing 
+    .txt file).
+
+  * Added filtering of room resources in the session request form based on 
+    the 'used' flag of the room resource name.  Tweaked admin to show 'used' 
+    for ResourceAssociations.  Added Flipchart and U-shape-layout resources 
+    through a data migration, and added/modified resource icons.
+
+  * Replaced an old unworkable email addesss in the 404 page with the current
+    bugreport address, now configured in settings.py.
+
+  * Tweaked the use of the -p option of bin/mkrelease.  Added
+    sbirkholz@amsl.com to the release email addressees.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  19 Apr 2017 12:11:10 +0000
+
+ietfdb (6.49.1) ietf; urgency=medium
+
+  **IETF 98 code sprint release 2**
+
+  This release collects the remaining sprint contributions, and in particular
+  contains the move of the downref registry to the datatracker which has been
+  requested by the IESG.  This release also reverts some of the changes made in
+  6.48.0 with respect to presentation of htmlized drafts and RFCs.
+
+  Excerpts from the commit log:
+
+  * Merged in [13181] and [13205] from housley@vigilsec.com:
+    This provides the downref registry work requested in ticket #2069. The
+    registry has been imported to the database and can be shown, and entries
+    can be added to the registry.  Dowref registry tests have been added to
+    the last call test case.  Fixes issue #2069.
+
+  * Merged in [13212] from rcross@amsl.com:
+    Fixed an issue in telechat app where ballot positions for WG actions are
+    incorrect.  Fixes #1336.  
+
+  * Merged in [13197] from rcross@amsl.com:
+    Fixed an issue with bin/merge-person-records when User.last_login == None.  
+    Fixes #2274.   
+
+  * Merged in [13183] from rcross@amsl.com:
+    Fixed error when selecting a document on the Telechat agenda that does 
+    not have a writeup.  Fixes #2262.   
+
+  * Changed the signature of ietf.utils.aliases.dump_sublist() to include a 
+    list of the alias domains, in order to be able to generate IRTF group 
+    aliases @irtf.org.  Updated ietf/bin/generate-*-aliases accordingly.
+
+  * Trying to re-apply already run migrations after loading a new databases 
+    dump runs into the problem that new tables created by the migrations 
+    linger, even if the tables loaded from the dump match the non-migrated 
+    state.  Having lists of the tables matching the latest release available 
+    makes it easy to construct an sql command to dump the extra tables, so the 
+    migrations can be run.  Adding generation and saving of a table list to 
+    bin/mkrelease.
+
+  * Reverted the search result rows to the pre-6.48.0 state.
+
+  * Changed some tests to use unicontent(r) instead of r.content, which 
+    decodes non-ascii content according to the response charset.
+
+  * Added some debug functionality which makes it possible to see from 
+    where (python source file and line) an SQL query comes when looking at the 
+    sql query summary available at the bottom of pages in debug mode, on 
+    INTERNAL_IPS.
+
+  * Extended the DRAFT_NAMES_WITH_DOT regexp.
+
+  * Expand the milestone information on the document metainfo tab a bit.
+
+  * Fixed a bug in the json_agenda data, now calculating room midpoints 
+    correctly.
+
+  * Changed a test case to look at the html being verified, rather than the 
+    whole page, to avoid test failures due to for instance new menu entries.
+
+  * Getting to the floorplans for a meeting venue required going via the
+    agenda, which can take time to load.  Escpecially on a handheld device,
+    when you want to see where the room of your next session is, it would be
+    useful to have a menu entry to go directly to the meeting floor-plans.
+    Adding one.
+
+ -- Henrik Levkowetz <henrik@levkowetz.com>  14 Apr 2017 12:50:00 +0000
+
+
 ietfdb (6.49.0) ietf; urgency=medium
 
   **IETF 98 code sprint release 1**

@@ -24,15 +24,15 @@
 
   <td class="doc">
     <div>
-      <a class="symbol-link" href="{{ doc.get_absolute_url }}"><span class="fa fa-info-circle"></span></a>
-      <a href="{% url 'ietf.doc.views_doc.document_html' name=doc.canonical_name %}">{% if doc.get_state_slug == "rfc" %}RFC {{ doc.rfc_number }}{% else %}{{ doc.name }}-{{ doc.rev }}{% endif %}</a>
+      <a href="{{ doc.get_absolute_url }}">{% if doc.get_state_slug == "rfc" %}RFC {{ doc.rfc_number }}{% else %}{{ doc.name }}-{{ doc.rev }}{% endif %}</a>
+
       {% if doc.get_state_slug == "rfc" and "draft" in doc.name %}
         <i>(was {{ doc.name }})</i>
       {% endif %}
       <br>
       <b>{{ doc.title }}</b>
       {% if doc.has_errata %}
-        <a class="label label-danger" href="https://www.rfc-editor.org/errata_search.php?rfc={{ doc.rfc_number }}">Errata</a>
+        <a class="label label-danger pull-right" href="https://www.rfc-editor.org/errata_search.php?rfc={{ doc.rfc_number }}">Errata</a>
       {% endif %}
     </div>
 
@@ -56,13 +56,14 @@
     {% if doc.latest_revision_date|timesince_days|new_enough:request and doc.get_state_slug != "rfc" %}</a>{% endif %}
     </span>
 
-    {% for check in doc.submission.checks.all %}
+    {% for check in doc.submission.latest_checks %}
       {% if check.passed != None and check.symbol.strip %}
 	{% if check.errors or check.warnings %}
-	   <span class="checker-warning pull-right" title="{{check.checker|title}} returned warnings or errors.">{{ check.symbol|safe }}</span>
+	   <span class="checker-warning pull-right" data-toggle="modal" data-target="#check-{{check.pk}}" title="{{check.checker|title}} returned warnings or errors." >{{ check.symbol|safe }}</span>
 	{% else %}
-	   <span class="checker-success pull-right" title="{{check.checker|title}} passed">{{ check.symbol|safe }}</span>
+	   <span class="checker-success pull-right" data-toggle="modal" data-target="#check-{{check.pk}}" title="{{check.checker|title}} passed">{{ check.symbol|safe }}</span>
 	{% endif %}
+	{% include "doc/yang-check-modal-overlay.html" %}
       {% endif %}
     {% endfor %}
 

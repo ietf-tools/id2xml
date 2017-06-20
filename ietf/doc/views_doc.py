@@ -56,7 +56,6 @@ from ietf.group.models import Role
 from ietf.group.utils import can_manage_group_type, can_manage_materials
 from ietf.ietfauth.utils import has_role, is_authorized_in_doc_stream, user_is_person, role_required
 from ietf.name.models import StreamName, BallotPositionName
-from ietf.person.models import Email
 from ietf.utils.history import find_history_active_at
 from ietf.doc.forms import TelechatForm, NotifyForm
 from ietf.doc.mails import email_comment
@@ -71,9 +70,6 @@ from ietf.review.utils import no_review_from_teams_on_doc
 def render_document_top(request, doc, tab, name):
     tabs = []
     tabs.append(("Status", "status", urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=name)), True, None))
-
-    if doc.type_id in ["draft", "charter", ]:
-        tabs.append(("Document", "document", urlreverse("ietf.doc.views_doc.document_html", kwargs=dict(name=name)), True, None))
 
     ballot = doc.latest_event(BallotDocEvent, type="created_ballot")
     if doc.type_id in ("draft","conflrev", "statchg"):
@@ -170,7 +166,7 @@ def document_main(request, name, rev=None):
 
         can_edit_replaces = has_role(request.user, ("Area Director", "Secretariat", "IRTF Chair", "WG Chair", "RG Chair", "WG Secretary", "RG Secretary"))
 
-        is_author = unicode(request.user) in set([email.address for email in doc.authors.all()])
+        is_author = request.user.is_authenticated() and doc.documentauthor_set.filter(person__user=request.user).exists()
         can_view_possibly_replaces = can_edit_replaces or is_author
 
         rfc_number = name[3:] if name.startswith("") else None
@@ -627,7 +623,7 @@ def document_html(request, name, rev=None):
     if not os.path.exists(doc.get_file_name()):
         raise Http404("Document not found: %s" % doc.get_base_name())
 
-    top = render_document_top(request, doc, "document", name)
+    top = render_document_top(request, doc, "status", name)
     if not rev and not name.startswith('rfc'):
         rev = doc.rev
     if rev:
@@ -766,12 +762,22 @@ def document_bibtex(request, name, rev=None):
                 doc = h
                 break
 
+    if doc.is_rfc():
+        # This needs to be replaced with a lookup, as the mapping may change
+        # over time.  Probably by updating ietf/sync/rfceditor.py to add the
+        # as a DocAlias, and use a method on Document to retrieve it.
+        doi = "10.17487/RFC%04d" % int(doc.rfc_number())
+    else:
+        doi = None
+
     return render(request, "doc/document_bibtex.bib",
                               dict(doc=doc,
                                    replaced_by=replaced_by,
                                    published=published,
                                    rfc=rfc,
-                                   latest_revision=latest_revision),
+                                   latest_revision=latest_revision,
+                                   doi=doi,
+                               ),
                               content_type="text/plain; charset=utf-8",
                           )
 
@@ -987,11 +993,11 @@ def document_json(request, name, rev=None):
     data["intended_std_level"] = extract_name(doc.intended_std_level)
     data["std_level"] = extract_name(doc.std_level)
     data["authors"] = [
-        dict(name=e.person.name,
-             email=e.address,
-             affiliation=e.person.affiliation)
-        for e in Email.objects.filter(documentauthor__document=doc).select_related("person").order_by("documentauthor__order")
-        ]
+        dict(name=author.person.name,
+             email=author.email.address if author.email else None,
+             affiliation=author.affiliation)
+        for author in doc.documentauthor_set.all().select_related("person", "email").order_by("order")
+    ]
     data["shepherd"] = doc.shepherd.formatted_email() if doc.shepherd else None
     data["ad"] = doc.ad.role_email("ad").formatted_email() if doc.ad else None
 

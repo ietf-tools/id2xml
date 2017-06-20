@@ -260,10 +260,7 @@ class ReviewTests(TestCase):
 
         # set up some reviewer-suitability factors
         reviewer_email = Email.objects.get(person__user__username="reviewer")
-        DocumentAuthor.objects.create(
-            author=reviewer_email,
-            document=doc,
-        )
+        DocumentAuthor.objects.create(person=reviewer_email.person, email=reviewer_email, document=doc)
         doc.rev = "10"
         doc.save_with_history([DocEvent.objects.create(doc=doc, rev=doc.rev, type="changed_document", by=Person.objects.get(user__username="secretary"), desc="Test")])
 
@@ -572,7 +569,7 @@ class ReviewTests(TestCase):
         self.assertTrue(settings.MAILING_LIST_ARCHIVE_URL in review_req.review.external_url)
 
         # Check that the review has the reviewer as author
-        self.assertEqual(review_req.reviewer, review_req.review.authors.first())
+        self.assertEqual(review_req.reviewer, review_req.review.documentauthor_set.first().email)
 
         # Check that we have a copy of the outgoing message
         msgid = outbox[0]["Message-ID"]
@@ -660,9 +657,11 @@ class ReviewTests(TestCase):
             "state": ReviewRequestStateName.objects.get(slug="part-completed").pk,
             "reviewed_rev": review_req.doc.rev,
             "review_submission": "enter",
-            "review_content": "This is a review\nwith two lines",
+            "review_content": "This is a review with a somewhat long line spanning over 80 characters to test word wrapping\nand another line",
         })
         self.assertEqual(r.status_code, 302)
+
+
 
         review_req = reload_db_objects(review_req)
         self.assertEqual(review_req.state_id, "part-completed")
@@ -675,11 +674,16 @@ class ReviewTests(TestCase):
 
         self.assertTrue(review_req.team.list_email in outbox[1]["To"])
         self.assertTrue("partial review" in outbox[1]["Subject"].lower())
-        self.assertTrue("This is a review" in outbox[1].get_payload(decode=True).decode("utf-8"))
+        body = outbox[1].get_payload(decode=True).decode("utf-8")
+        self.assertTrue("This is a review" in body)
+        # This review has a line longer than 80, but less than 100; it should
+        # not be wrapped.
+
+        self.assertTrue(not any( len(line) > 100 for line in body.splitlines() ))
+        self.assertTrue(any( len(line) > 80 for line in body.splitlines() ))
 
         first_review = review_req.review
         first_reviewer = review_req.reviewer
-
 
         # complete
         review_req = ReviewRequest.objects.get(state="requested", doc=review_req.doc, team=review_req.team)
@@ -694,7 +698,7 @@ class ReviewTests(TestCase):
             "state": ReviewRequestStateName.objects.get(slug="completed").pk,
             "reviewed_rev": review_req.doc.rev,
             "review_submission": "enter",
-            "review_content": "This is another review\nwith\nthree lines",
+            "review_content": "This is another review with a really, really, really, really, really, really, really, really, really, really long line.",
         })
         self.assertEqual(r.status_code, 302)
 
@@ -704,6 +708,13 @@ class ReviewTests(TestCase):
         second_review = review_req.review
         self.assertTrue(first_review.name != second_review.name)
         self.assertTrue(second_review.name.endswith("-2")) # uniquified
+
+        # This review has a line longer than 100; it should be wrapped to less
+        # than 80.
+        body = outbox[2].get_payload(decode=True).decode("utf-8")
+        self.assertIn('really, really, really', body)
+        self.assertTrue(all( len(line) <= 80 for line in body.splitlines() ))
+
 
     def test_revise_review_enter_content(self):
         review_req, url = self.setup_complete_review_test()

@@ -58,7 +58,8 @@ from ietf.meeting.helpers import send_interim_approval_request
 from ietf.meeting.helpers import send_interim_announcement_request
 from ietf.meeting.utils import finalize
 from ietf.secr.proceedings.utils import handle_upload_file
-from ietf.secr.proceedings.proc_utils import get_progress_stats, post_process, import_audio_files
+from ietf.secr.proceedings.proc_utils import (get_progress_stats, post_process, import_audio_files,
+    import_youtube_video_urls)
 from ietf.utils import log
 from ietf.utils.mail import send_mail_message
 from ietf.utils.pipe import pipe
@@ -66,7 +67,7 @@ from ietf.utils.pdf import pdf_pages
 from ietf.utils.text import xslugify
 
 from .forms import (InterimMeetingModelForm, InterimAnnounceForm, InterimSessionModelForm,
-    InterimCancelForm)
+    InterimCancelForm, InterimSessionInlineFormSet)
 
 
 def get_menu_entries(request):
@@ -269,7 +270,7 @@ class RoomForm(ModelForm):
 
 @role_required('Secretariat')
 def edit_roomurl(request, num, roomid):
-    log.unreachable()                   # 6.46.2
+    log.unreachable("07 Mar 2017")
     meeting = get_meeting(num)
 
     try:
@@ -928,7 +929,7 @@ def json_agenda(request, num=None ):
     meeting = get_meeting(num)
 
     sessions = []
-    room_names = set()
+    locations = set()
     parent_acronyms = set()
     assignments = meeting.agenda.assignments.exclude(session__type__in=['lead','offagenda','break','reg'])
     # Update the assignments with historic information, i.e., valid at the
@@ -960,7 +961,8 @@ def json_agenda(request, num=None ):
         sessdict['start'] = asgn.timeslot.utc_start_time().strftime("%Y-%m-%dT%H:%M:%SZ")
         sessdict['duration'] = str(asgn.timeslot.duration)
         sessdict['location'] = asgn.room_name
-        room_names.add(asgn.room_name) 
+        if asgn.timeslot.location:      # Some socials have an assignment but no location
+            locations.add(asgn.timeslot.location)
         if asgn.session.agenda():
             sessdict['agenda'] = asgn.session.agenda().href()
 
@@ -968,9 +970,24 @@ def json_agenda(request, num=None ):
         if asgn.session.minutes():
             sessdict['minutes'] = asgn.session.minutes().href()
         if asgn.session.slides():
+            # Deprecated 19 May 2017, remove after ietf 100;
             sessdict['slides'] = []
             for slides in asgn.session.slides():
                 sessdict['slides'].append('/api/v1/doc/document/%s/'%slides.name)
+            # New alternative
+            sessdict['presentations'] = []
+            presentations = SessionPresentation.objects.filter(session=asgn.session, document__type__slug='slides')
+            for pres in presentations:
+                sessdict['presentations'].append(
+                    {
+                        'name':     pres.document.name,
+                        'title':    pres.document.title,
+                        'order':    pres.order,
+                        'rev':      pres.rev,
+                        'resource_uri': '/api/v1/meeting/sessionpresentation/%s/'%pres.id,
+                    })
+        sessdict['session_res_uri'] = '/api/v1/meeting/session/%s/'%asgn.session.id
+        sessdict['session_id'] = asgn.session.id
         modified = asgn.session.modified
         for doc in asgn.session.materials.all():
             rev_docevent = doc.latest_event(NewRevisionDocEvent,'new_revision')
@@ -979,7 +996,7 @@ def json_agenda(request, num=None ):
         sessions.append(sessdict)
 
     rooms = []
-    for room in meeting.room_set.filter(name__in=room_names):
+    for room in locations:
         roomdict = dict()
         roomdict['id'] = room.pk
         roomdict['objtype'] = 'location'
@@ -988,8 +1005,8 @@ def json_agenda(request, num=None ):
             roomdict['level_name'] = room.floorplan.name
             roomdict['level_sort'] = room.floorplan.order
         if room.x1 is not None:
-            roomdict['x'] = room.x1+(room.x2/2.0)
-            roomdict['y'] = room.y1+(room.y2/2.0)
+            roomdict['x'] = (room.x1+room.x2)/2.0
+            roomdict['y'] = (room.y1+room.y2)/2.0
         roomdict['modified'] = room.time
         if room.floorplan and room.floorplan.image:
             roomdict['map'] = room.floorplan.image.url
@@ -1142,11 +1159,14 @@ def add_session_drafts(request, session_id, num):
 class UploadBlueSheetForm(forms.Form):
     file = forms.FileField(label='Bluesheet scan to upload')
 
-@role_required('Secretariat')
+@role_required('Area Director', 'Secretariat', 'IRTF Chair', 'WG Chair')
 def upload_session_bluesheets(request, session_id, num):
     # num is redundant, but we're dragging it along an artifact of where we are in the current URL structure
     session = get_object_or_404(Session,pk=session_id)
 
+    if session.meeting.type.slug == 'ietf' and not has_role(request.user, 'Secretariat'):
+        return HttpResponseForbidden('Restricted to role Secretariat')
+        
     session_number = None
     sessions = get_sessions(session.meeting.number,session.group.acronym)
     if len(sessions) > 1:
@@ -1743,6 +1763,7 @@ def interim_request(request):
         Meeting,
         Session,
         form=InterimSessionModelForm,
+        formset=InterimSessionInlineFormSet,
         can_delete=False, extra=2)
 
     if request.method == 'POST':
@@ -2169,6 +2190,7 @@ def api_import_recordings(request, number):
     if request.method == 'POST':
         meeting = get_meeting(number)
         import_audio_files(meeting)
+        import_youtube_video_urls(meeting)
         return HttpResponse(status=201)
     else:
         return HttpResponse(status=405)

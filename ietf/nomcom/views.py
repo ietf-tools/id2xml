@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
-from django.db.models import Count
 from django.forms.models import modelformset_factory, inlineformset_factory
 
 
@@ -25,8 +24,9 @@ from ietf.nomcom.forms import (NominateForm, NominateNewPersonForm, FeedbackForm
                                MergeNomineeForm, MergePersonForm, NomComTemplateForm, PositionForm,
                                PrivateKeyForm, EditNomcomForm, EditNomineeForm,
                                PendingFeedbackForm, ReminderDatesForm, FullFeedbackFormSet,
-                               FeedbackEmailForm, NominationResponseCommentForm)
-from ietf.nomcom.models import Position, NomineePosition, Nominee, Feedback, NomCom, ReminderDates, FeedbackLastSeen
+                               FeedbackEmailForm, NominationResponseCommentForm, TopicForm)
+from ietf.nomcom.models import (Position, NomineePosition, Nominee, Feedback, NomCom, ReminderDates,
+                                FeedbackLastSeen, Topic, TopicFeedbackLastSeen, )
 from ietf.nomcom.utils import (get_nomcom_by_year, store_nomcom_private_key,
                                get_hash_nominee_position, send_reminder_to_nominees,
                                HOME_TEMPLATE, NOMINEE_ACCEPT_REMINDER_TEMPLATE,NOMINEE_QUESTIONNAIRE_REMINDER_TEMPLATE)
@@ -108,11 +108,6 @@ def announcements(request):
 def private_key(request, year):
     nomcom = get_nomcom_by_year(year)
     
-    if request.session.get('NOMCOM_PRIVATE_KEY_%s' % year, None):
-        messages.warning(request, 'You already have a private decryption key set for this session.')
-    else:
-        messages.warning(request, "You don't have a private decryption key set for this session yet")
-
     back_url = request.GET.get('back_to', reverse('ietf.nomcom.views.private_index', None, args=(year, )))
     if request.method == 'POST':
         form = PrivateKeyForm(data=request.POST)
@@ -121,6 +116,12 @@ def private_key(request, year):
             return HttpResponseRedirect(back_url)
     else:
         form = PrivateKeyForm()
+
+    if request.session.get('NOMCOM_PRIVATE_KEY_%s' % year, None):
+        messages.warning(request, 'You already have a private decryption key set for this session.')
+    else:
+        messages.warning(request, "You don't have a private decryption key set for this session yet")
+
     return render(request, 'nomcom/private_key.html',
                               {'nomcom': nomcom,
                                'year': year,
@@ -172,7 +173,8 @@ def private_index(request, year):
     if selected_state == questionnaire_state:
         nominee_positions = [np for np in nominee_positions if np.questionnaires]
 
-    stats = all_nominee_positions.values('position__name', 'position__id').annotate(total=Count('position'))
+    positions = Position.objects.get_by_nomcom(nomcom=nomcom)
+    stats = [{'position__name':p.name,'position__id':p.pk} for p in positions]
     states = list(NomineePositionStateName.objects.values('slug', 'name')) + [{'slug': questionnaire_state, 'name': u'Questionnaire'}]
     positions = set([ n.position for n in all_nominee_positions.order_by('position__name') ])
     for s in stats:
@@ -182,6 +184,7 @@ def private_index(request, year):
             else:
                 s[state['slug']] = all_nominee_positions.filter(position__name=s['position__name'],
                                                                 state=state['slug']).count()
+        s['total'] = all_nominee_positions.filter(position__name=s['position__name']).count()
 
     return render(request, 'nomcom/private_index.html',
                               {'nomcom': nomcom,
@@ -413,14 +416,23 @@ def feedback(request, year, public):
     has_publickey = nomcom.public_key and True or False
     nominee = None
     position = None
+    topic = None
     if nomcom.group.state_id != 'conclude':
         selected_nominee = request.GET.get('nominee')
         selected_position = request.GET.get('position')
         if selected_nominee and selected_position:
             nominee = get_object_or_404(Nominee, id=selected_nominee)
             position = get_object_or_404(Position, id=selected_position)
+        selected_topic = request.GET.get('topic')
+        if selected_topic:
+            topic = get_object_or_404(Topic,id=selected_topic)
 
-    positions = Position.objects.get_by_nomcom(nomcom=nomcom).opened()
+    if public:
+        positions = Position.objects.get_by_nomcom(nomcom=nomcom).filter(is_open=True,accepting_feedback=True)
+        topics = Topic.objects.filter(nomcom=nomcom,accepting_feedback=True)
+    else:
+        positions = Position.objects.get_by_nomcom(nomcom=nomcom).filter(is_open=True)
+        topics = Topic.objects.filter(nomcom=nomcom)
 
     user_comments = Feedback.objects.filter(nomcom=nomcom,
                                             type='comment',
@@ -429,6 +441,9 @@ def feedback(request, year, public):
     counts = dict()
     for pos,nom in counter:
         counts.setdefault(pos,dict())[nom] = counter[(pos,nom)]
+
+    topic_counts = Counter(user_comments.values_list('topics',flat=True))
+
     if public:
         base_template = "nomcom/nomcom_public_base.html"
     else:
@@ -444,18 +459,64 @@ def feedback(request, year, public):
                 'base_template': base_template
             })
 
-    if nominee and position and request.method == 'POST':
-        form = FeedbackForm(data=request.POST,
-                            nomcom=nomcom, user=request.user,
-                            public=public, position=position, nominee=nominee)
-        if form.is_valid():
+    if public and position and not (position.is_open and position.accepting_feedback):
+            messages.warning(request, "This Nomcom is not currently accepting feedback for "+position.name)
+            return render(request, 'nomcom/feedback.html', {
+                'form': None,
+                'nomcom': nomcom,
+                'year': year,
+                'selected': 'feedback',
+                'positions': positions,
+                'topics': topics,
+                'counts' : counts,
+                'topic_counts' : topic_counts,
+                'base_template': base_template
+            })
+
+    if public and topic and not topic.accepting_feedback:
+            messages.warning(request, "This Nomcom is not currently accepting feedback for "+topic.subject)
+            return render(request, 'nomcom/feedback.html', {
+                'form': None,
+                'nomcom': nomcom,
+                'year': year,
+                'selected': 'feedback',
+                'positions': positions,
+                'topics': topics,
+                'counts' : counts,
+                'topic_counts' : topic_counts,
+                'base_template': base_template
+            })
+    if request.method == 'POST':
+        if nominee and position:
+            form = FeedbackForm(data=request.POST,
+                                nomcom=nomcom, user=request.user,
+                                public=public, position=position, nominee=nominee)
+        elif topic:
+            form = FeedbackForm(data=request.POST,
+                                nomcom=nomcom, user=request.user,
+                                topic=topic)
+        else:
+            form = None
+        if form and form.is_valid():
             form.save()
             messages.success(request, 'Your feedback has been registered.')
             form = None
+            if position:
+                counts.setdefault(position.pk,dict())
+                counts[position.pk].setdefault(nominee.pk,0)
+                counts[position.pk][nominee.pk] += 1
+            elif topic:
+                topic_counts.setdefault(topic.pk,0)
+                topic_counts[topic.pk] += 1
+            else:
+                pass
     else:
         if nominee and position:
             form = FeedbackForm(nomcom=nomcom, user=request.user, public=public,
                                 position=position, nominee=nominee)
+        elif topic:
+            form = FeedbackForm(nomcom=nomcom, user=request.user, public=public,
+                                topic=topic)
         else:
             form = None
 
@@ -464,8 +525,10 @@ def feedback(request, year, public):
         'nomcom': nomcom,
         'year': year,
         'positions': positions,
+        'topics': topics,
         'selected': 'feedback',
         'counts': counts,
+        'topic_counts': topic_counts,
         'base_template': base_template
     })
 
@@ -613,13 +676,15 @@ def view_feedback(request, year):
     nomcom = get_nomcom_by_year(year)
     nominees = Nominee.objects.get_by_nomcom(nomcom).not_duplicated().distinct()
     independent_feedback_types = []
-    feedback_types = []
+    nominee_feedback_types = []
     for ft in FeedbackTypeName.objects.all():
         if ft.slug in settings.NOMINEE_FEEDBACK_TYPES:
-            feedback_types.append(ft)
+            nominee_feedback_types.append(ft)
         else:
             independent_feedback_types.append(ft)
+    topic_feedback_types=FeedbackTypeName.objects.filter(slug='comment')
     nominees_feedback = []
+    topics_feedback = []
 
     def nominee_staterank(nominee):
         states=nominee.nomineeposition_set.values_list('state_id',flat=True)
@@ -638,7 +703,7 @@ def view_feedback(request, year):
     for nominee in sorted_nominees:
         last_seen = FeedbackLastSeen.objects.filter(reviewer=request.user.person,nominee=nominee).first()
         nominee_feedback = []
-        for ft in feedback_types:
+        for ft in nominee_feedback_types:
             qs = nominee.feedback_set.by_type(ft.slug)
             count = qs.count()
             if not count:
@@ -650,13 +715,29 @@ def view_feedback(request, year):
             nominee_feedback.append( (ft.name,count,newflag) )
         nominees_feedback.append( {'nominee':nominee, 'feedback':nominee_feedback} )
     independent_feedback = [ft.feedback_set.get_by_nomcom(nomcom).count() for ft in independent_feedback_types]
+    for topic in nomcom.topic_set.all():
+        last_seen = TopicFeedbackLastSeen.objects.filter(reviewer=request.user.person,topic=topic).first()
+        topic_feedback = []
+        for ft in topic_feedback_types:
+            qs = topic.feedback_set.by_type(ft.slug)
+            count = qs.count()
+            if not count: 
+                newflag = False
+            elif not last_seen:
+                newflag = True
+            else:
+                newflag = qs.filter(time__gt=last_seen.time).exists()
+            topic_feedback.append( (ft.name,count,newflag) )
+        topics_feedback.append ( {'topic':topic, 'feedback':topic_feedback} )
 
     return render(request, 'nomcom/view_feedback.html',
                               {'year': year,
                                'selected': 'view_feedback',
                                'nominees': nominees,
-                               'feedback_types': feedback_types,
+                               'nominee_feedback_types': nominee_feedback_types,
                                'independent_feedback_types': independent_feedback_types,
+                               'topic_feedback_types': topic_feedback_types,
+                               'topics_feedback': topics_feedback,
                                'independent_feedback': independent_feedback,
                                'nominees_feedback': nominees_feedback,
                                'nomcom': nomcom})
@@ -776,6 +857,27 @@ def view_feedback_unrelated(request, year):
                                'feedback_types': feedback_types,
                                'nomcom': nomcom})
 
+@role_required("Nomcom")
+@nomcom_private_key_required
+def view_feedback_topic(request, year, topic_id):
+    nomcom = get_nomcom_by_year(year)
+    topic = get_object_or_404(Topic, id=topic_id)
+    feedback_types = FeedbackTypeName.objects.filter(slug__in=['comment',])
+
+    last_seen = TopicFeedbackLastSeen.objects.filter(reviewer=request.user.person,topic=topic).first()
+    last_seen_time = (last_seen and last_seen.time) or datetime.datetime(year=1,month=1,day=1)
+    if last_seen:
+        last_seen.save()
+    else:
+        TopicFeedbackLastSeen.objects.create(reviewer=request.user.person,topic=topic)
+
+    return render(request, 'nomcom/view_feedback_topic.html',
+                              {'year': year,
+                               'selected': 'view_feedback',
+                               'topic': topic,
+                               'feedback_types': feedback_types,
+                               'last_seen_time' : last_seen_time,
+                               'nomcom': nomcom})
 
 @role_required("Nomcom")
 @nomcom_private_key_required
@@ -829,11 +931,6 @@ def edit_nominee(request, year, nominee_id):
 def edit_nomcom(request, year):
     nomcom = get_nomcom_by_year(year)
 
-    if nomcom.public_key:
-        messages.warning(request,  'Previous data will remain encrypted with the old key')
-    else:
-        messages.warning(request, 'This Nomcom does not yet have a public key')
-
     ReminderDateInlineFormSet = inlineformset_factory(parent_model=NomCom,
                                                       model=ReminderDates,
                                                       form=ReminderDatesForm)
@@ -869,12 +966,10 @@ def edit_nomcom(request, year):
 @role_required("Nomcom Chair", "Nomcom Advisor")
 def list_templates(request, year):
     nomcom = get_nomcom_by_year(year)
-    positions = nomcom.position_set.all()
-    template_list = DBTemplate.objects.filter(group=nomcom.group).exclude(path__contains='/position/')
+    template_list = DBTemplate.objects.filter(group=nomcom.group).exclude(path__contains='/position/').exclude(path__contains='/topic/')
 
     return render(request, 'nomcom/list_templates.html',
                               {'template_list': template_list,
-                               'positions': positions,
                                'year': year,
                                'selected': 'edit_templates',
                                'nomcom': nomcom,
@@ -967,6 +1062,73 @@ def edit_position(request, year, position_id=None):
     return render(request, 'nomcom/edit_position.html',
                               {'form': form,
                                'position': position,
+                               'year': year,
+                               'nomcom': nomcom,
+                               'is_chair_task' : True,
+                              })
+
+
+@role_required("Nomcom Chair", "Nomcom Advisor")
+def list_topics(request, year):
+    nomcom = get_nomcom_by_year(year)
+    topics = nomcom.topic_set.all()
+
+    return render(request, 'nomcom/list_topics.html',
+                              {'topics': topics,
+                               'year': year,
+                               'selected': 'edit_topics',
+                               'nomcom': nomcom,
+                               'is_chair_task' : True,
+                              })
+
+
+@role_required("Nomcom Chair", "Nomcom Advisor")
+def remove_topic(request, year, topic_id):
+    nomcom = get_nomcom_by_year(year)
+    if nomcom.group.state_id=='conclude':
+        return HttpResponseForbidden('This nomcom is closed.')
+    try:
+        topic = nomcom.topic_set.get(id=topic_id)
+    except Topic.DoesNotExist:
+        raise Http404
+
+    if request.POST.get('remove', None):
+        topic.delete()
+        return redirect('ietf.nomcom.views.list_topics', year=year)
+    return render(request, 'nomcom/remove_topic.html',
+                              {'year': year,
+                               'topic': topic,
+                               'nomcom': nomcom,
+                               'is_chair_task' : True,
+                              })
+
+
+@role_required("Nomcom Chair", "Nomcom Advisor")
+def edit_topic(request, year, topic_id=None):
+    nomcom = get_nomcom_by_year(year)
+
+    if nomcom.group.state_id=='conclude':
+        return HttpResponseForbidden('This nomcom is closed.')
+
+    if topic_id:
+        try:
+            topic = nomcom.topic_set.get(id=topic_id)
+        except Topic.DoesNotExist:
+            raise Http404
+    else:
+        topic = None
+
+    if request.method == 'POST':
+        form = TopicForm(request.POST, instance=topic, nomcom=nomcom)
+        if form.is_valid():
+            form.save()
+            return redirect('ietf.nomcom.views.list_topics', year=year)
+    else:
+        form = TopicForm(instance=topic, nomcom=nomcom,initial={'accepting_feedback':True,'audience':'general'} if not topic else {})
+
+    return render(request, 'nomcom/edit_topic.html',
+                              {'form': form,
+                               'topic': topic,
                                'year': year,
                                'nomcom': nomcom,
                                'is_chair_task' : True,

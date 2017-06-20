@@ -120,9 +120,11 @@ div.anchor-target { z-index: 0; }
 .panel-title { font-size: 14px }
 
 /* A new type of Bootstrap label and panel*/
-.label-blank { color: #555; background-color: #eee; }
+.label-blank { color: #555; background-color: #eee; font-size: 0.9em; line-height: 0.9; padding: 0.2em 0.6em; }
+.label.label-wide { margin-left: 1em; margin-right: 1em; }
 .panel-blank { color: #555; }
 .panel-blank > .panel-heading { background-color: #eee; }
+
 
 /* Required form field labels - 2217 = &lowast;  */
 label.required:after { content: "\2217"; color: #a94442; font-weight: bold; }
@@ -580,6 +582,15 @@ table.simple-table td:last-child {
   width: 7em;
 }
 
+.document-stats .popover .element {
+  padding-left: 1em;
+  text-indent: -1em;
+}
+
+.document-stats #chart {
+  height: 25em;
+}
+
 .stats-time-graph {
   height: 15em;
 }
@@ -823,4 +834,40 @@ blockquote {
   .rfcmarkup .newpage {
     page-break-before: always;
   }
+}
+
+.modal-max {
+  width: 90%;
+}
+
+#debug-query-table .origin {
+  font-family: 'PT Mono', monospace;
+  font-size: 0.8em;
+  word-break: break-all;
+}
+
+#debug-query-table .code {
+  background-color: #eee;
+}
+
+#debug-query-table .code td {  
+  white-space: pre;
+}
+
+#debug-query-table .table {
+  max-width: 100%;
+}
+
+#debug-query-table .sql {
+  border-top: 1px solid #555;
+}
+
+#debug-query-table .code .current {
+  background-color: #ddd;
+}
+
+.checker-warning,
+.checker-success {
+  line-height: 1.0;
+  cursor: pointer;
 }

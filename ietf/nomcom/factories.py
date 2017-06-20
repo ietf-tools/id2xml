@@ -1,7 +1,7 @@
 import factory
 import random
 
-from ietf.nomcom.models import NomCom, Position, Feedback, Nominee, NomineePosition
+from ietf.nomcom.models import NomCom, Position, Feedback, Nominee, NomineePosition, Topic
 from ietf.group.factories import GroupFactory
 from ietf.person.factories import PersonFactory
 
@@ -122,12 +122,25 @@ class NomComFactory(factory.DjangoModelFactory):
                 p = PersonFactory()
                 obj.group.role_set.create(name_id=role,person=p,email=p.email_set.first())
 
+    @factory.post_generation
+    def populate_topics(obj, create, extracted, **kwargs): # pylint: disable=no-self-argument
+        '''
+        Create a set of topics unless the factory is called with populate_topics=False
+        '''
+        if extracted is None:
+            extracted = True
+        if create and extracted:
+            for i in range(3):
+                TopicFactory(nomcom=obj)
+
 class PositionFactory(factory.DjangoModelFactory):
     class Meta:
         model = Position
 
     name = factory.Faker('sentence',nb_words=5)
     is_open = True
+    accepting_nominations = True
+    accepting_feedback = True
 
 class NomineeFactory(factory.DjangoModelFactory):
     class Meta:
@@ -137,6 +150,14 @@ class NomineeFactory(factory.DjangoModelFactory):
     person = factory.SubFactory(PersonFactory)   
     email = factory.LazyAttribute(lambda obj: obj.person.email())
 
+class NomineePositionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = NomineePosition
+
+    position = factory.SubFactory(PositionFactory)
+    nominee = factory.SubFactory(NomineeFactory)
+    state_id = 'accepted'
+
 class FeedbackFactory(factory.DjangoModelFactory):
     class Meta:
         model = Feedback
@@ -145,3 +166,13 @@ class FeedbackFactory(factory.DjangoModelFactory):
     subject = factory.Faker('sentence')
     comments = factory.Faker('paragraph')
     type_id = 'comment'
+
+class TopicFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Topic
+
+    nomcom = factory.SubFactory(NomComFactory)
+    subject = factory.Faker('sentence')
+    accepting_feedback = True
+    audience_id = 'general'
+

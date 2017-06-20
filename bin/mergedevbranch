@@ -193,7 +193,8 @@ G=$(svn st | cut -c 1-7 | grep -oh 'G' | head -n 1)
 ##cd -
 
 echo -e "\nRunning tests"
-time ietf/manage.py test --settings=settings_sqlitetest || die "Tests failed.\nThe commit script is ../cicmd/commit-${rev}-merge.sh"
+time { ietf/manage.py test --settings=settings_sqlitetest	\
+	|| die "Tests failed.\nThe commit script is ../cicmd/commit-${rev}-merge.sh"; } 3>&1 1>&2 2>&3 | bin/count
 echo ""
 
 note "Sending email to changeset author: <$who>"

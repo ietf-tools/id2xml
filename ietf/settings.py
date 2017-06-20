@@ -26,13 +26,13 @@ sys.path.append(os.path.abspath(BASE_DIR + "/.."))
 from ietf import __version__
 import debug
 
-DEBUG = True
+DEBUG = False
 debug.debug = DEBUG
 
 # Valid values:
 # 'production', 'test', 'development'
 # Override this in settings_local.py if it's not the desired setting:
-SERVER_MODE = 'development'
+SERVER_MODE = 'production'
 
 # Domain name of the IETF
 IETF_DOMAIN = 'ietf.org'
@@ -45,6 +45,8 @@ ADMINS = (
     ('Glen Barney', 'glen@amsl.com'),
     ('Matt Larson', 'mlarson@amsl.com'),
 )
+
+BUG_REPORT_EMAIL = "datatracker-project@ietf.org"
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -339,6 +341,7 @@ MIDDLEWARE = (
     'django.middleware.http.ConditionalGetMiddleware',
     'ietf.middleware.sql_log_middleware',
     'ietf.middleware.SMTPExceptionMiddleware',
+    'ietf.middleware.Utf8ExceptionMiddleware',
     'ietf.middleware.redirect_trailing_period_middleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ietf.middleware.unicode_nfkc_normalization_middleware',
@@ -395,8 +398,9 @@ INSTALLED_APPS = (
     'ietf.redirects',
     'ietf.release',
     'ietf.review',
-    'ietf.sidemeeting',
-    'ietf.submit',    
+    'ietf.sidemeeting',    
+    'ietf.stats',
+    'ietf.submit',
     'ietf.sync',
     'ietf.utils',
     # IETF Secretariat apps
@@ -485,8 +489,9 @@ TEST_CODE_COVERAGE_EXCLUDE = [
     "ietf/settings*",
     "ietf/utils/templatetags/debug_filters.py",
     "ietf/utils/test_runner.py",
-    "name/generate_fixtures.py",
-    "review/import_from_review_tool.py",
+    "ietf/name/generate_fixtures.py",
+    "ietf/review/import_from_review_tool.py",
+    "ietf/stats/backfill_data.py",
 ]
 
 # These are filename globs.  They are used by test_parse_templates() and
@@ -501,6 +506,7 @@ TEST_COVERAGE_MASTER_FILE = os.path.join(BASE_DIR, "../release-coverage.json.gz"
 TEST_COVERAGE_LATEST_FILE = os.path.join(BASE_DIR, "../latest-coverage.json")
 
 TEST_CODE_COVERAGE_CHECKER = None
+
 if SERVER_MODE != 'production':
     import coverage
     TEST_CODE_COVERAGE_CHECKER = coverage.Coverage(source=[ BASE_DIR ], cover_pylib=False, omit=TEST_CODE_COVERAGE_EXCLUDE)
@@ -522,7 +528,7 @@ DATE_FORMAT = "Y-m-d"
 DATETIME_FORMAT = "Y-m-d H:i T"
 
 
-DRAFT_NAMES_WITH_DOT = "(draft-[a-z-]+-(ion-sig-uni4\.0|pilc-2\.5g3g|trade-iotp-v1\.0-[a-z]+|msword-template-v2\.0|1240\.his))"
+DRAFT_NAMES_WITH_DOT = "(draft-[a-z0-9-]+-(ion-sig-uni4\.0|pilc-2\.5g3g|trade-iotp-v1\.0-[a-z]+|msword-template-v2\.0|1240\.his|(ieee)?802\.[0-9a-z]+(-[a-z0-9-]+)?))"
 URL_REGEXPS = {
     "acronym": r"(?P<acronym>[-a-z0-9]+)",
     "charter": r"(?P<name>charter-[-a-z0-9]+)",
@@ -554,6 +560,8 @@ INTERNET_DRAFT_ARCHIVE_DIR = '/a/www/www6s/draft-archive'
 # write anything to this directory -- its content is maintained by ghostlinkd:
 INTERNET_ALL_DRAFTS_ARCHIVE_DIR = '/a/www/www6s/archive/id'
 MEETING_RECORDINGS_DIR = '/a/www/audio'
+
+DOCUMENT_FORMAT_WHITELIST = ["txt", "ps", "pdf", "xml", "html", ]
 
 # Mailing list info URL for lists hosted on the IETF servers
 MAILING_LIST_INFO_URL = "https://www.ietf.org/mailman/listinfo/%(list_addr)s"
@@ -609,10 +617,15 @@ CACHES = {
 
 HTMLIZER_VERSION = 1
 HTMLIZER_URL_PREFIX = "/doc/html"
+HTMLIZER_CACHE_TIME = 60*60*24*14       # 14 days
 
+# Email settings
 IPR_EMAIL_FROM = 'ietf-ipr@ietf.org'
 AUDIO_IMPORT_EMAIL = ['agenda@ietf.org','ietf@meetecho.com']
 IANA_EVAL_EMAIL = "drafts-eval@icann.org"
+SESSION_REQUEST_FROM_EMAIL = 'IETF Meeting Session Request Tool <session-request@ietf.org>' 
+
+SECRETARIAT_TICKET_EMAIL = "ietf-action@ietf.org"
 
 # Put real password in settings_local.py
 IANA_SYNC_PASSWORD = "secret"
@@ -649,11 +662,19 @@ IDSUBMIT_DEFAULT_CUTOFF_DAY_OFFSET_01 = 13
 IDSUBMIT_DEFAULT_CUTOFF_TIME_UTC = datetime.timedelta(hours=23, minutes=59, seconds=59)
 IDSUBMIT_DEFAULT_CUTOFF_WARNING_DAYS = datetime.timedelta(days=21)
 
+# 14 Jun 2017: New convention: prefix settings with the app name to which
+# they (mainly) belong.  So here, SUBMIT_, rather than IDSUBMIT_
+SUBMIT_YANG_RFC_MODEL_DIR = '/a/www/ietf-ftp/yang/rfcmod/'
+SUBMIT_YANG_DRAFT_MODEL_DIR = '/a/www/ietf-ftp/yang/draftmod/'
+SUBMIT_YANG_INVAL_MODEL_DIR = '/a/www/ietf-ftp/yang/invalmod/'
+
 IDSUBMIT_REPOSITORY_PATH = INTERNET_DRAFT_PATH
 IDSUBMIT_STAGING_PATH = '/a/www/www6s/staging/'
 IDSUBMIT_STAGING_URL = '//www.ietf.org/staging/'
 IDSUBMIT_IDNITS_BINARY = '/a/www/ietf-datatracker/scripts/idnits'
-IDSUBMIT_PYANG_COMMAND = 'pyang -p %(modpath)s --verbose --ietf  %(model)s'
+SUBMIT_PYANG_COMMAND = 'pyang --verbose --ietf -p {libs} {model}'
+SUBMIT_YANGLINT_COMMAND = 'yanglint --verbose -p {rfclib} -p {draftlib} {model}'
+SUBMIT_YANGLINT_COMMAND = None        # use the value above if you have yanglint installed
 
 IDSUBMIT_CHECKER_CLASSES = (
     "ietf.submit.checkers.DraftIdnitsChecker",
@@ -684,10 +705,6 @@ IDSUBMIT_MAX_DAILY_SAME_GROUP = 150
 IDSUBMIT_MAX_DAILY_SAME_GROUP_SIZE = 450 # in MB
 IDSUBMIT_MAX_DAILY_SUBMISSIONS = 1000
 IDSUBMIT_MAX_DAILY_SUBMISSIONS_SIZE = 2000 # in MB
-
-YANG_RFC_MODEL_DIR = '/a/www/ietf-ftp/yang/rfcmod/'
-YANG_DRAFT_MODEL_DIR = '/a/www/ietf-ftp/yang/draftmod/'
-YANG_INVAL_MODEL_DIR = '/a/www/ietf-ftp/yang/invalmod/'
 
 XML_LIBRARY = "/www/tools.ietf.org/tools/xml2rfc/web/public/rfc/"
 
@@ -728,6 +745,11 @@ SECR_PPT2PDF_COMMAND = ['/usr/bin/soffice','--headless','--convert-to','pdf','--
 REGISTRATION_ATTENDEES_BASE_URL = 'https://ietf.org/registration/attendees/'
 NEW_PROCEEDINGS_START = 95
 USE_ETAGS=True
+YOUTUBE_API_KEY = ''
+YOUTUBE_API_SERVICE_NAME = 'youtube'
+YOUTUBE_API_VERSION = 'v3'
+YOUTUBE_BASE_URL = 'https://www.youtube.com/watch'
+YOUTUBE_IETF_CHANNEL_ID = 'UC8dtK9njBLdFnBahHFp0eZQ'
 
 PRODUCTION_TIMEZONE = "America/Los_Angeles"
 
@@ -872,6 +894,8 @@ ACCOUNT_REQUEST_EMAIL = 'account-request@ietf.org'
 SILENCED_SYSTEM_CHECKS = [
     "fields.W342",  # Setting unique=True on a ForeignKey has the same effect as using a OneToOneField.
 ]
+
+STATS_NAMES_LIMIT = 25
 
 # Put the production SECRET_KEY in settings_local.py, and also any other
 # sensitive or site-specific changes.  DO NOT commit settings_local.py to svn.

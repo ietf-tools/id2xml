@@ -18,11 +18,13 @@ from ietf.group.models import Group
 from ietf.group.utils import setup_default_community_list_for_group
 from ietf.meeting.models import Meeting
 from ietf.message.models import Message
-from ietf.person.models import Person, Email
+from ietf.name.models import FormalLanguageName
+from ietf.person.models import Person
 from ietf.person.factories import UserFactory, PersonFactory
 from ietf.submit.models import Submission, Preapproval
 from ietf.submit.mail import add_submission_email, process_response_email
 from ietf.utils.mail import outbox, empty_outbox
+from ietf.utils.models import VersionInfo
 from ietf.utils.test_data import make_test_data
 from ietf.utils.test_utils import login_testing_unauthorized, unicontent, TestCase
 
@@ -48,7 +50,6 @@ def submission_file(name, rev, group, format, templatename, author=None):
             surname=author.last_name(),
             email=author.email().address.lower(),
     )
-
     file = StringIO(submission_text)
     file.name = "%s-%s.%s" % (name, rev, format)
     return file
@@ -68,17 +69,17 @@ class SubmitTests(TestCase):
         self.archive_dir = self.tempdir('submit-archive')
         settings.INTERNET_DRAFT_ARCHIVE_DIR = self.archive_dir
         
-        self.saved_yang_rfc_model_dir = settings.YANG_RFC_MODEL_DIR
+        self.saved_yang_rfc_model_dir = settings.SUBMIT_YANG_RFC_MODEL_DIR
         self.yang_rfc_model_dir = self.tempdir('yang-rfc-model')
-        settings.YANG_RFC_MODEL_DIR = self.yang_rfc_model_dir
+        settings.SUBMIT_YANG_RFC_MODEL_DIR = self.yang_rfc_model_dir
 
-        self.saved_yang_draft_model_dir = settings.YANG_DRAFT_MODEL_DIR
+        self.saved_yang_draft_model_dir = settings.SUBMIT_YANG_DRAFT_MODEL_DIR
         self.yang_draft_model_dir = self.tempdir('yang-draft-model')
-        settings.YANG_DRAFT_MODEL_DIR = self.yang_draft_model_dir
+        settings.SUBMIT_YANG_DRAFT_MODEL_DIR = self.yang_draft_model_dir
 
-        self.saved_yang_inval_model_dir = settings.YANG_INVAL_MODEL_DIR
+        self.saved_yang_inval_model_dir = settings.SUBMIT_YANG_INVAL_MODEL_DIR
         self.yang_inval_model_dir = self.tempdir('yang-inval-model')
-        settings.YANG_INVAL_MODEL_DIR = self.yang_inval_model_dir
+        settings.SUBMIT_YANG_INVAL_MODEL_DIR = self.yang_inval_model_dir
 
     def tearDown(self):
         shutil.rmtree(self.staging_dir)
@@ -91,9 +92,9 @@ class SubmitTests(TestCase):
         settings.INTERNET_DRAFT_PATH = self.saved_internet_draft_path
         settings.IDSUBMIT_REPOSITORY_PATH = self.saved_idsubmit_repository_path
         settings.INTERNET_DRAFT_ARCHIVE_DIR = self.saved_archive_dir
-        settings.YANG_RFC_MODEL_DIR = self.saved_yang_rfc_model_dir
-        settings.YANG_DRAFT_MODEL_DIR = self.saved_yang_draft_model_dir
-        settings.YANG_INVAL_MODEL_DIR = self.saved_yang_inval_model_dir
+        settings.SUBMIT_YANG_RFC_MODEL_DIR = self.saved_yang_rfc_model_dir
+        settings.SUBMIT_YANG_DRAFT_MODEL_DIR = self.saved_yang_draft_model_dir
+        settings.SUBMIT_YANG_INVAL_MODEL_DIR = self.saved_yang_inval_model_dir
 
 
     def do_submission(self, name, rev, group=None, formats=["txt",]):
@@ -118,7 +119,7 @@ class SubmitTests(TestCase):
             q = PyQuery(r.content)
             print(q('div.has-error div.alert').text())
 
-        self.assertEqual(r.status_code, 302)
+        self.assertNoFormPostErrors(r, ".has-error,.alert-danger")
 
         status_url = r["Location"]
         for format in formats:
@@ -126,10 +127,12 @@ class SubmitTests(TestCase):
         self.assertEqual(Submission.objects.filter(name=name).count(), 1)
         submission = Submission.objects.get(name=name)
         self.assertTrue(all([ c.passed!=False for c in submission.checks.all() ]))
-        self.assertEqual(len(submission.authors_parsed()), 1)
-        author = submission.authors_parsed()[0]
+        self.assertEqual(len(submission.authors), 1)
+        author = submission.authors[0]
         self.assertEqual(author["name"], "Author Name")
         self.assertEqual(author["email"], "author@example.com")
+        self.assertEqual(author["affiliation"], "Test Centre Inc.")
+        self.assertEqual(author["country"], "UK")
 
         return status_url
 
@@ -151,7 +154,7 @@ class SubmitTests(TestCase):
 
         if r.status_code == 302:
             submission = Submission.objects.get(name=name)
-            self.assertEqual(submission.submitter, u"%s <%s>" % (submitter_name, submitter_email))
+            self.assertEqual(submission.submitter, email.utils.formataddr((submitter_name, submitter_email)))
             self.assertEqual(submission.replaces, ",".join(d.name for d in DocAlias.objects.filter(pk__in=replaces.split(",") if replaces else [])))
 
         return r
@@ -184,6 +187,7 @@ class SubmitTests(TestCase):
             abstract="Blahblahblah.",
             rev="01",
             pages=2,
+            words=100,
             intended_std_level_id="ps",
             ad=draft.ad,
             expires=datetime.datetime.now() + datetime.timedelta(days=settings.INTERNET_DRAFT_DAYS_TO_EXPIRE),
@@ -217,6 +221,12 @@ class SubmitTests(TestCase):
 
         r = self.client.get(status_url)
         self.assertEqual(r.status_code, 200)
+
+        self.assertContains(r, 'xym')
+        self.assertContains(r, 'pyang')
+        if settings.SUBMIT_YANGLINT_COMMAND:
+            self.assertContains(r, 'yanglint')
+
         q = PyQuery(r.content)
         approve_button = q('[type=submit]:contains("Approve")')
         self.assertEqual(len(approve_button), 1)
@@ -241,9 +251,11 @@ class SubmitTests(TestCase):
         self.assertEqual(draft.stream_id, "ietf")
         self.assertTrue(draft.expires >= datetime.datetime.now() + datetime.timedelta(days=settings.INTERNET_DRAFT_DAYS_TO_EXPIRE - 1))
         self.assertEqual(draft.get_state("draft-stream-%s" % draft.stream_id).slug, "wg-doc")
-        self.assertEqual(draft.authors.count(), 1)
-        self.assertEqual(draft.authors.all()[0].get_name(), "Author Name")
-        self.assertEqual(draft.authors.all()[0].address, "author@example.com")
+        authors = draft.documentauthor_set.all()
+        self.assertEqual(len(authors), 1)
+        self.assertEqual(authors[0].person.plain_name(), "Author Name")
+        self.assertEqual(authors[0].email.address, "author@example.com")
+        self.assertEqual(set(draft.formal_languages.all()), set(FormalLanguageName.objects.filter(slug="json")))
         self.assertEqual(draft.relations_that_doc("replaces").count(), 1)
         self.assertTrue(draft.relations_that_doc("replaces").first().target, replaced_alias)
         self.assertEqual(draft.relations_that_doc("possibly-replaces").count(), 1)
@@ -260,6 +272,15 @@ class SubmitTests(TestCase):
         self.assertTrue(sug_replaced_alias.name in unicode(outbox[-1]))
         self.assertTrue("ames-chairs@" in outbox[-1]["To"].lower())
         self.assertTrue("mars-chairs@" in outbox[-1]["To"].lower())
+
+        # fetch the document page
+        url = urlreverse('ietf.doc.views_doc.document_main', kwargs={'name':name})
+        r = self.client.get(url)
+        self.assertContains(r, name)
+        self.assertContains(r, 'Active Internet-Draft')
+        self.assertContains(r, 'mars WG')
+        self.assertContains(r, 'Yang Validation')
+        self.assertContains(r, 'WG Document')
 
     def test_submit_new_wg_txt(self):
         self.submit_new_wg(["txt"])
@@ -281,12 +302,12 @@ class SubmitTests(TestCase):
             draft.save_with_history([DocEvent.objects.create(doc=draft, rev=draft.rev, type="added_comment", by=Person.objects.get(user__username="secretary"), desc="Test")])
         if not change_authors:
             draft.documentauthor_set.all().delete()
-            ensure_person_email_info_exists('Author Name','author@example.com')
-            draft.documentauthor_set.create(author=Email.objects.get(address='author@example.com'))
+            author_person, author_email = ensure_person_email_info_exists('Author Name','author@example.com')
+            draft.documentauthor_set.create(person=author_person, email=author_email)
         else:
             # Make it such that one of the previous authors has an invalid email address
-            bogus_email = ensure_person_email_info_exists('Bogus Person',None)  
-            DocumentAuthor.objects.create(document=draft,author=bogus_email,order=draft.documentauthor_set.latest('order').order+1)
+            bogus_person, bogus_email = ensure_person_email_info_exists('Bogus Person',None)
+            DocumentAuthor.objects.create(document=draft, person=bogus_person, email=bogus_email, order=draft.documentauthor_set.latest('order').order+1)
 
         prev_author = draft.documentauthor_set.all()[0]
 
@@ -334,7 +355,7 @@ class SubmitTests(TestCase):
         confirm_email = outbox[-1]
         self.assertTrue("Confirm submission" in confirm_email["Subject"])
         self.assertTrue(name in confirm_email["Subject"])
-        self.assertTrue(prev_author.author.address in confirm_email["To"])
+        self.assertTrue(prev_author.email.address in confirm_email["To"])
         if change_authors:
             self.assertTrue("author@example.com" not in confirm_email["To"])
         self.assertTrue("submitter@example.com" not in confirm_email["To"])
@@ -415,9 +436,10 @@ class SubmitTests(TestCase):
             self.assertEqual(draft.stream_id, "ietf")
             self.assertEqual(draft.get_state_slug("draft-stream-%s" % draft.stream_id), "wg-doc")
         self.assertEqual(draft.get_state_slug("draft-iana-review"), "changed")
-        self.assertEqual(draft.authors.count(), 1)
-        self.assertEqual(draft.authors.all()[0].get_name(), "Author Name")
-        self.assertEqual(draft.authors.all()[0].address, "author@example.com")
+        authors = draft.documentauthor_set.all()
+        self.assertEqual(len(authors), 1)
+        self.assertEqual(authors[0].person.plain_name(), "Author Name")
+        self.assertEqual(authors[0].email.address, "author@example.com")
         self.assertEqual(len(outbox), mailbox_before + 3)
         self.assertTrue((u"I-D Action: %s" % name) in outbox[-3]["Subject"])
         self.assertTrue((u"I-D Action: %s" % name) in draft.message_set.order_by("-time")[0].subject)
@@ -654,7 +676,7 @@ class SubmitTests(TestCase):
 
             "authors-prefix": ["authors-", "authors-0", "authors-1", "authors-2"],
         })
-        self.assertEqual(r.status_code, 302)
+        self.assertNoFormPostErrors(r, ".has-error,.alert-danger")
 
         submission = Submission.objects.get(name=name)
         self.assertEqual(submission.title, "some title")
@@ -666,14 +688,14 @@ class SubmitTests(TestCase):
         self.assertEqual(submission.replaces, draft.docalias_set.all().first().name)
         self.assertEqual(submission.state_id, "manual")
 
-        authors = submission.authors_parsed()
+        authors = submission.authors
         self.assertEqual(len(authors), 3)
         self.assertEqual(authors[0]["name"], "Person 1")
         self.assertEqual(authors[0]["email"], "person1@example.com")
         self.assertEqual(authors[1]["name"], "Person 2")
         self.assertEqual(authors[1]["email"], "person2@example.com")
         self.assertEqual(authors[2]["name"], "Person 3")
-        self.assertEqual(authors[2]["email"], "unknown-email-Person-3")
+        self.assertEqual(authors[2]["email"], "")
 
         self.assertEqual(len(outbox), mailbox_before + 1)
         self.assertTrue("Manual Post Requested" in outbox[-1]["Subject"])
@@ -929,7 +951,6 @@ class SubmitTests(TestCase):
         files = {"txt": submission_file(name, rev, group, "txt", "test_submission.nonascii", author=author) }
 
         r = self.client.post(url, files)
-
         self.assertEqual(r.status_code, 302)
         status_url = r["Location"]
         r = self.client.get(status_url)
@@ -937,6 +958,40 @@ class SubmitTests(TestCase):
         m = q('p.alert-warning').text()
 
         self.assertIn('The idnits check returned 1 error', m)
+
+    def test_submit_invalid_yang(self):
+        make_test_data()
+
+        name = "draft-yang-testing-invalid"
+        rev = "00"
+        group = None
+
+        # get
+        url = urlreverse('ietf.submit.views.upload_submission')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+
+        # submit
+        files = {"txt": submission_file(name, rev, group, "txt", "test_submission_invalid_yang.txt") }
+
+        r = self.client.post(url, files)
+        self.assertEqual(r.status_code, 302)
+        status_url = r["Location"]
+        r = self.client.get(status_url)
+        q = PyQuery(r.content)
+        #
+        self.assertContains(r, u'The yang validation returned 1 error')
+        #
+        m = q('#yang-validation-message').text()
+        for command in ['xym', 'pyang', 'yanglint']:
+            version = VersionInfo.objects.get(command=command).version
+            if command != 'yanglint' or settings.SUBMIT_YANGLINT_COMMAND:
+                self.assertIn(version, m)
+        self.assertIn("draft-yang-testing-invalid-00.txt", m)
+        self.assertIn("error: syntax error: illegal keyword: ;", m)
+        if settings.SUBMIT_YANGLINT_COMMAND:
+            self.assertIn("No validation errors", m)
 
 
 class ApprovalsTestCase(TestCase):
@@ -1433,8 +1488,8 @@ Subject: test
         self.assertEqual(Submission.objects.filter(name=name).count(), 1)
         submission = Submission.objects.get(name=name)
         self.assertTrue(all([ c.passed!=False for c in submission.checks.all() ]))
-        self.assertEqual(len(submission.authors_parsed()), 1)
-        author = submission.authors_parsed()[0]
+        self.assertEqual(len(submission.authors), 1)
+        author = submission.authors[0]
         self.assertEqual(author["name"], "Author Name")
         self.assertEqual(author["email"], "author@example.com")
 
@@ -1459,6 +1514,6 @@ Subject: test
 
         if r.status_code == 302:
             submission = Submission.objects.get(name=name)
-            self.assertEqual(submission.submitter, u"%s <%s>" % (submitter_name, submitter_email))
+            self.assertEqual(submission.submitter, email.utils.formataddr((submitter_name, submitter_email)))
 
         return r

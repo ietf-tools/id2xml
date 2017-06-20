@@ -43,10 +43,14 @@ class SecrMeetingTestCase(TestCase):
 
     def test_main(self):
         "Main Test"
+        meeting = make_meeting_test_data()
         url = reverse('ietf.secr.meetings.views.main')
         self.client.login(username="secretary", password="secretary+password")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, {'meeting':meeting.number})
+        url = reverse('ietf.secr.meetings.views.view', kwargs={'meeting_id':meeting.number})
+        self.assertRedirects(response,url)
 
     def test_view(self):
         "View Test"
@@ -79,6 +83,20 @@ class SecrMeetingTestCase(TestCase):
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Meeting.objects.count(),count + 1)
+        new_meeting = Meeting.objects.get(number=number)
+        
+        # ensure new schedule is populated with specials sessions from previous meeting
+        self.assertTrue(new_meeting.agenda)
+        self.assertTrue(meeting.agenda.assignments.filter(timeslot__type='break').count() > 0)
+        self.assertEqual(
+            meeting.agenda.assignments.filter(timeslot__type='break').count(),
+            new_meeting.agenda.assignments.filter(timeslot__type='break').count()
+        )
+        self.assertTrue(meeting.agenda.assignments.filter(timeslot__type='reg').count() > 0)
+        self.assertEqual(
+            meeting.agenda.assignments.filter(timeslot__type='reg').count(),
+            new_meeting.agenda.assignments.filter(timeslot__type='reg').count()
+        )
 
     def test_edit_meeting(self):
         "Edit Meeting"
@@ -203,7 +221,15 @@ class SecrMeetingTestCase(TestCase):
         self.client.login(username="secretary", password="secretary+password")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        
+        response = self.client.post(url, {
+            'day': 0,
+            'time':'08:00',
+            'duration':'01:00',
+            'name':'Test Morning Session'
+        }, follow=True)
+        self.assertRedirects(response, url)
+        self.assertTrue('Test Morning Session' in response.content)
+
     def test_meetings_times_delete(self):
         meeting = make_meeting_test_data()
         qs = TimeSlot.objects.filter(meeting=meeting,type='session')
@@ -261,6 +287,30 @@ class SecrMeetingTestCase(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertTrue('invalid format' in response.content)
+
+    def test_meetings_nonsession_edit(self):
+        meeting = make_meeting_test_data()
+        session = meeting.session_set.exclude(name='').first()   # get first non-session session
+        timeslot = session.official_timeslotassignment().timeslot
+        url = reverse('ietf.secr.meetings.views.non_session_edit',kwargs={'meeting_id':42,'schedule_name':meeting.agenda.name,'slot_id':timeslot.pk})
+        redirect_url = reverse('ietf.secr.meetings.views.non_session',kwargs={'meeting_id':42,'schedule_name':'test-agenda'})
+        new_time = timeslot.time + datetime.timedelta(days=1)
+        self.client.login(username="secretary", password="secretary+password")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, {
+            'name':'IETF Hackathon',
+            'short':'hackathon',
+            'location':timeslot.location.id,
+            'group':session.group.id,
+            'time':new_time.strftime('%H:%M'),
+            'duration':'01:00',
+            'day':'2',
+            'type':'other',
+        })
+        self.assertRedirects(response, redirect_url)
+        timeslot = session.official_timeslotassignment().timeslot
+        self.assertEqual(timeslot.time,new_time)
 
     def test_meetings_select_group(self):
         make_meeting_test_data()

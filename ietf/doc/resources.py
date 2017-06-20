@@ -12,7 +12,7 @@ from ietf.doc.models import (BallotType, DeletedEvent, StateType, State, Documen
     TelechatDocEvent, DocReminder, LastCallDocEvent, NewRevisionDocEvent, WriteupDocEvent,
     InitialReviewDocEvent, DocHistoryAuthor, BallotDocEvent, RelatedDocument,
     RelatedDocHistory, BallotPositionDocEvent, AddedMessageEvent, SubmissionDocEvent,
-    ReviewRequestDocEvent)
+    ReviewRequestDocEvent, EditedAuthorsDocEvent)
 
 from ietf.name.resources import BallotPositionNameResource, DocTypeNameResource
 class BallotTypeResource(ModelResource):
@@ -99,7 +99,6 @@ class DocumentResource(ModelResource):
     shepherd         = ToOneField(EmailResource, 'shepherd', null=True)
     states           = ToManyField(StateResource, 'states', null=True)
     tags             = ToManyField(DocTagNameResource, 'tags', null=True)
-    authors          = ToManyField(EmailResource, 'authors', null=True)
     rfc              = CharField(attribute='rfc_number', null=True)
     class Meta:
         cache = SimpleCache()
@@ -128,14 +127,14 @@ class DocumentResource(ModelResource):
             "shepherd": ALL_WITH_RELATIONS,
             "states": ALL_WITH_RELATIONS,
             "tags": ALL_WITH_RELATIONS,
-            "authors": ALL_WITH_RELATIONS,
         }
 api.doc.register(DocumentResource())
 
-from ietf.person.resources import EmailResource
+from ietf.person.resources import PersonResource, EmailResource
 class DocumentAuthorResource(ModelResource):
+    person           = ToOneField(PersonResource, 'person')
+    email            = ToOneField(EmailResource, 'email', null=True)
     document         = ToOneField(DocumentResource, 'document')
-    author           = ToOneField(EmailResource, 'author')
     class Meta:
         cache = SimpleCache()
         queryset = DocumentAuthor.objects.all()
@@ -143,9 +142,12 @@ class DocumentAuthorResource(ModelResource):
         #resource_name = 'documentauthor'
         filtering = { 
             "id": ALL,
+            "affiliation": ALL,
+            "country": ALL,
             "order": ALL,
+            "person": ALL_WITH_RELATIONS,
+            "email": ALL_WITH_RELATIONS,
             "document": ALL_WITH_RELATIONS,
-            "author": ALL_WITH_RELATIONS,
         }
 api.doc.register(DocumentAuthorResource())
 
@@ -209,7 +211,6 @@ class DocHistoryResource(ModelResource):
     doc              = ToOneField(DocumentResource, 'doc')
     states           = ToManyField(StateResource, 'states', null=True)
     tags             = ToManyField(DocTagNameResource, 'tags', null=True)
-    authors          = ToManyField(EmailResource, 'authors', null=True)
     class Meta:
         cache = SimpleCache()
         queryset = DocHistory.objects.all()
@@ -239,7 +240,6 @@ class DocHistoryResource(ModelResource):
             "doc": ALL_WITH_RELATIONS,
             "states": ALL_WITH_RELATIONS,
             "tags": ALL_WITH_RELATIONS,
-            "authors": ALL_WITH_RELATIONS,
         }
 api.doc.register(DocHistoryResource())
 
@@ -412,10 +412,11 @@ class InitialReviewDocEventResource(ModelResource):
         }
 api.doc.register(InitialReviewDocEventResource())
 
-from ietf.person.resources import EmailResource
+from ietf.person.resources import PersonResource, EmailResource
 class DocHistoryAuthorResource(ModelResource):
+    person           = ToOneField(PersonResource, 'person')
+    email            = ToOneField(EmailResource, 'email', null=True)
     document         = ToOneField(DocHistoryResource, 'document')
-    author           = ToOneField(EmailResource, 'author')
     class Meta:
         cache = SimpleCache()
         queryset = DocHistoryAuthor.objects.all()
@@ -423,9 +424,12 @@ class DocHistoryAuthorResource(ModelResource):
         #resource_name = 'dochistoryauthor'
         filtering = { 
             "id": ALL,
+            "affiliation": ALL,
+            "country": ALL,
             "order": ALL,
+            "person": ALL_WITH_RELATIONS,
+            "email": ALL_WITH_RELATIONS,
             "document": ALL_WITH_RELATIONS,
-            "author": ALL_WITH_RELATIONS,
         }
 api.doc.register(DocHistoryAuthorResource())
 
@@ -602,3 +606,25 @@ class ReviewRequestDocEventResource(ModelResource):
         }
 api.doc.register(ReviewRequestDocEventResource())
 
+from ietf.person.resources import PersonResource
+class EditedAuthorsDocEventResource(ModelResource):
+    by               = ToOneField(PersonResource, 'by')
+    doc              = ToOneField(DocumentResource, 'doc')
+    docevent_ptr     = ToOneField(DocEventResource, 'docevent_ptr')
+    class Meta:
+        queryset = EditedAuthorsDocEvent.objects.all()
+        serializer = api.Serializer()
+        cache = SimpleCache()
+        #resource_name = 'editedauthorsdocevent'
+        filtering = { 
+            "id": ALL,
+            "time": ALL,
+            "type": ALL,
+            "rev": ALL,
+            "desc": ALL,
+            "basis": ALL,
+            "by": ALL_WITH_RELATIONS,
+            "doc": ALL_WITH_RELATIONS,
+            "docevent_ptr": ALL_WITH_RELATIONS,
+        }
+api.doc.register(EditedAuthorsDocEventResource())

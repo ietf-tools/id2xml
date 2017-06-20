@@ -87,7 +87,7 @@ class SearchTests(TestCase):
         self.assertTrue(draft.title in unicontent(r))
 
         # find by author
-        r = self.client.get(base_url + "?activedrafts=on&by=author&author=%s" % draft.authors.all()[0].person.name_parts()[1])
+        r = self.client.get(base_url + "?activedrafts=on&by=author&author=%s" % draft.documentauthor_set.first().person.name_parts()[1])
         self.assertEqual(r.status_code, 200)
         self.assertTrue(draft.title in unicontent(r))
 
@@ -497,8 +497,8 @@ Man                    Expires September 22, 2015               [Page 3]
         self.assertTrue("Deimos street" in unicontent(r))
         q = PyQuery(r.content)
         self.assertEqual(len(q('.rfcmarkup pre')), 4)
-        self.assertEqual(len(q('span.h1')), 2)
-        self.assertEqual(len(q('a[href]')), 116)
+        self.assertEqual(len(q('.rfcmarkup span.h1')), 2)
+        self.assertEqual(len(q('.rfcmarkup a[href]')), 30)
 
         # expired draft
         draft.set_state(State.objects.get(type="draft", slug="expired"))
@@ -843,7 +843,7 @@ class DocTestCase(TestCase):
         entry = bibtexparser.loads(r.content).get_entry_dict()["rfc6020"]
         self.assertEqual(entry['series'],   u'Request for Comments')
         self.assertEqual(entry['number'],   u'6020')
-        self.assertEqual(entry['doi'],      u'10.17487/rfc6020')
+        self.assertEqual(entry['doi'],      u'10.17487/RFC6020')
         self.assertEqual(entry['year'],     u'2010')
         self.assertEqual(entry['month'],    u'oct')
         #
@@ -863,7 +863,7 @@ class DocTestCase(TestCase):
         entry = bibtexparser.loads(r.content).get_entry_dict()['rfc1149']
         self.assertEqual(entry['series'],   u'Request for Comments')
         self.assertEqual(entry['number'],   u'1149')
-        self.assertEqual(entry['doi'],      u'10.17487/rfc1149')
+        self.assertEqual(entry['doi'],      u'10.17487/RFC1149')
         self.assertEqual(entry['year'],     u'1990')
         self.assertEqual(entry['month'],    u'apr')
         self.assertEqual(entry['day'],      u'1')
@@ -1237,7 +1237,7 @@ class ChartTests(ResourceTestCaseMixin, TestCase):
         person = PersonFactory.create()
         DocumentFactory.create(
             states=[('draft','active')],
-            authors=[person.email(), ],
+            authors=[person, ],
         )
 
         conf_url = urlreverse('ietf.doc.views_stats.chart_conf_person_drafts', kwargs=dict(id=person.id))

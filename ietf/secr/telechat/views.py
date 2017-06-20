@@ -4,8 +4,9 @@ import datetime
 from django.contrib import messages
 from django.forms.formsets import formset_factory
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.functional import curry
 
-from ietf.doc.models import DocEvent, Document, BallotDocEvent, BallotPositionDocEvent, WriteupDocEvent
+from ietf.doc.models import DocEvent, Document, BallotDocEvent, BallotPositionDocEvent, BallotType, WriteupDocEvent
 from ietf.doc.utils import get_document_content, add_state_change_event
 from ietf.person.models import Person
 from ietf.doc.lastcall import request_last_call
@@ -58,11 +59,11 @@ def get_doc_writeup(doc):
     writeup = 'This document has no writeup'
     if doc.type_id == 'draft':
         latest = doc.latest_event(WriteupDocEvent, type='changed_ballot_writeup_text')
-        if latest and doc.has_rfc_editor_note():
-            rfced_note = doc.latest_event(WriteupDocEvent, type="changed_rfc_editor_note_text")
-            writeup = latest.text + "\n\n" + rfced_note.text
-        else:
+        if latest:
             writeup = latest.text
+            if doc.has_rfc_editor_note():
+                rfced_note = doc.latest_event(WriteupDocEvent, type="changed_rfc_editor_note_text")
+                writeup = writeup + "\n\n" + rfced_note.text
     if doc.type_id == 'charter':
         latest = doc.latest_event(WriteupDocEvent, type='changed_ballot_writeup_text')
         if latest:
@@ -123,6 +124,15 @@ def get_first_doc(agenda):
 
     return None
 
+def is_doc_on_telechat(doc,date):
+    '''Returns true if the document is on the Telechat agenda for date=date.
+    Where date is a string in the format YYYY-MM-DD
+    '''
+    if doc.telechat_date() and doc.telechat_date().strftime("%Y-%m-%d") == date:
+        return True
+    else:
+        return False
+
 # -------------------------------------------------
 # View Functions
 # -------------------------------------------------
@@ -161,6 +171,11 @@ def doc_detail(request, date, name):
     changes to ballot positions and document state.
     '''
     doc = get_object_or_404(Document, docalias__name=name)
+    if not is_doc_on_telechat(doc, date):
+        messages.warning(request, 'Dcoument: {name} is not on the Telechat agenda for {date}'.format(
+            name=doc.name,
+            date=date))
+        return redirect('ietf.secr.telechat.views.doc', date=date)
 
     # As of Datatracker v4.32, Conflict Review (conflrev) Document Types can
     # be added to the Telechat agenda.  If Document.type_id == draft use draft-iesg
@@ -194,7 +209,14 @@ def doc_detail(request, date, name):
     initial_state = {'state':doc.get_state(state_type).pk,
                      'substate':tag}
 
+    # need to use curry here to pass custom variable to form init
+    if doc.active_ballot():
+        ballot_type = doc.active_ballot().ballot_type
+    else:
+        ballot_type = BallotType.objects.get(doc_type='draft')
     BallotFormset = formset_factory(BallotForm, extra=0)
+    BallotFormset.form.__init__ = curry(BallotForm.__init__, ballot_type=ballot_type)
+    
     agenda = agenda_data(date=date)
     header = get_section_header(doc, agenda)
 
@@ -281,6 +303,7 @@ def doc_detail(request, date, name):
             conflictdoc = None
 
     return render(request, 'telechat/doc.html', {
+        'ballot_type': ballot_type,
         'date': date,
         'document': doc,
         'conflictdoc': conflictdoc,

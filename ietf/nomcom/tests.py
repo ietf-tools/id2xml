@@ -4,7 +4,6 @@ import datetime
 import shutil
 import urlparse
 from pyquery import PyQuery
-import StringIO
 
 from django.db import IntegrityError
 from django.db.models import Max
@@ -22,22 +21,20 @@ from ietf.person.models import Email, Person
 from ietf.group.models import Group
 from ietf.message.models import Message
 
-from ietf.person.utils import merge_persons
-
 from ietf.nomcom.test_data import nomcom_test_data, generate_cert, check_comments, \
                                   COMMUNITY_USER, CHAIR_USER, \
                                   MEMBER_USER, SECRETARIAT_USER, EMAIL_DOMAIN, NOMCOM_YEAR
 from ietf.nomcom.models import NomineePosition, Position, Nominee, \
                                NomineePositionStateName, Feedback, FeedbackTypeName, \
-                               Nomination, FeedbackLastSeen
+                               Nomination, FeedbackLastSeen, TopicFeedbackLastSeen
 from ietf.nomcom.forms import EditMembersForm, EditMembersFormPreview
 from ietf.nomcom.utils import get_nomcom_by_year, make_nomineeposition, get_hash_nominee_position
 from ietf.nomcom.management.commands.send_reminders import Command, is_time_to_send
 
-from ietf.nomcom.factories import NomComFactory, FeedbackFactory, \
+from ietf.nomcom.factories import NomComFactory, FeedbackFactory, TopicFactory, \
                                   nomcom_kwargs_for_year, provide_private_key_to_test_client, \
                                   key
-from ietf.person.factories import PersonFactory, EmailFactory, UserFactory
+from ietf.person.factories import PersonFactory, EmailFactory
 from ietf.dbtemplate.factories import DBTemplateFactory
 from ietf.dbtemplate.models import DBTemplate
 
@@ -1246,10 +1243,13 @@ class FeedbackLastSeenTests(TestCase):
         self.member = self.nc.group.role_set.filter(name='member').first().person
         self.nominee = self.nc.nominee_set.order_by('pk').first()
         self.position = self.nc.position_set.first()
+        self.topic = self.nc.topic_set.first()
         for type_id in ['comment','nomina','questio']:
             f = FeedbackFactory.create(author=self.author,nomcom=self.nc,type_id=type_id)
             f.positions.add(self.position)
             f.nominees.add(self.nominee)
+        f = FeedbackFactory.create(author=self.author,nomcom=self.nc,type_id='comment')
+        f.topics.add(self.topic)
         now = datetime.datetime.now() 
         self.hour_ago = now - datetime.timedelta(hours=1)
         self.half_hour_ago = now - datetime.timedelta(minutes=30)
@@ -1265,7 +1265,7 @@ class FeedbackLastSeenTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code,200)
         q = PyQuery(response.content)
-        self.assertEqual( len(q('.label-success')), 3 )
+        self.assertEqual( len(q('.label-success')), 4 )
 
         f = self.nc.feedback_set.first()
         f.time = self.hour_ago
@@ -1275,9 +1275,16 @@ class FeedbackLastSeenTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code,200)
         q = PyQuery(response.content)
-        self.assertEqual( len(q('.label-success')), 2 )
+        self.assertEqual( len(q('.label-success')), 3 )
 
         FeedbackLastSeen.objects.update(time=self.second_from_now)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        q = PyQuery(response.content)
+        self.assertEqual( len(q('.label-success')), 1 )
+
+        TopicFeedbackLastSeen.objects.create(reviewer=self.member,topic=self.topic)
+        TopicFeedbackLastSeen.objects.update(time=self.second_from_now)
         response = self.client.get(url)
         self.assertEqual(response.status_code,200)
         q = PyQuery(response.content)
@@ -1303,6 +1310,31 @@ class FeedbackLastSeenTests(TestCase):
         self.assertEqual( len(q('.label-success')), 2 )
 
         FeedbackLastSeen.objects.update(time=self.second_from_now)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        q = PyQuery(response.content)
+        self.assertEqual( len(q('.label-success')), 0 )
+
+    def test_feedback_topic_badges(self):
+        url = reverse('ietf.nomcom.views.view_feedback_topic', kwargs={'year':self.nc.year(), 'topic_id':self.topic.id})
+        login_testing_unauthorized(self, self.member.user.username, url)
+        provide_private_key_to_test_client(self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        q = PyQuery(response.content)
+        self.assertEqual( len(q('.label-success')), 1 )
+
+        f = self.topic.feedback_set.first()
+        f.time = self.hour_ago
+        f.save()
+        TopicFeedbackLastSeen.objects.create(reviewer=self.member,topic=self.topic)
+        TopicFeedbackLastSeen.objects.update(time=self.half_hour_ago)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        q = PyQuery(response.content)
+        self.assertEqual( len(q('.label-success')), 0 )
+
+        TopicFeedbackLastSeen.objects.update(time=self.second_from_now)
         response = self.client.get(url)
         self.assertEqual(response.status_code,200)
         q = PyQuery(response.content)
@@ -1741,35 +1773,222 @@ class NoPublicKeyTests(TestCase):
         self.do_common_work(reverse('ietf.nomcom.views.private_feedback_email',kwargs={'year':self.nc.year()}),False)
         # No questionnaire responses
         self.do_common_work(reverse('ietf.nomcom.views.private_questionnaire',kwargs={'year':self.nc.year()}),False)
-        # Warn on edit nomcom
-        self.do_common_work(reverse('ietf.nomcom.views.edit_nomcom',kwargs={'year':self.nc.year()}),True)
 
-class MergePersonTests(TestCase):
+        
+class AcceptingTests(TestCase):
     def setUp(self):
         build_test_public_keys_dir(self)
         self.nc = NomComFactory(**nomcom_kwargs_for_year())
-        self.author = PersonFactory.create().email_set.first().address
-        self.nominee1, self.nominee2 = self.nc.nominee_set.all()[:2]
-        self.person1, self.person2 = self.nominee1.person, self.nominee2.person
-        self.position = self.nc.position_set.first()
-        for nominee in [self.nominee1, self.nominee2]:
-            f = FeedbackFactory.create(author=self.author,nomcom=self.nc,type_id='nomina')
-            f.positions.add(self.position)
-            f.nominees.add(nominee)
-        UserFactory(is_superuser=True)
+        self.plain_person = PersonFactory.create()
+        self.member = self.nc.group.role_set.filter(name='member').first().person
 
     def tearDown(self):
         clean_test_public_keys_dir(self)
 
-    def test_merge_person(self):
-        person1, person2 = [nominee.person for nominee in self.nc.nominee_set.all()[:2]]
-        stream = StringIO.StringIO() 
+    def test_public_accepting_nominations(self):
+        url = reverse('ietf.nomcom.views.public_nominate',kwargs={'year':self.nc.year()})
+
+        login_testing_unauthorized(self,self.plain_person.user.username,url)
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('#id_position option')) , 4 )
+
+        pos = self.nc.position_set.first()
+        pos.accepting_nominations=False
+        pos.save()
         
-        self.assertEqual(self.nc.nominee_set.count(),4)
-        self.assertEqual(self.nominee1.feedback_set.count(),1) 
-        self.assertEqual(self.nominee2.feedback_set.count(),1) 
-        merge_persons(person1,person2,stream)
-        self.assertEqual(self.nc.nominee_set.count(),3)
-        self.assertEqual(self.nc.nominee_set.get(pk=self.nominee2.pk).feedback_set.count(),2)
-        self.assertFalse(self.nc.nominee_set.filter(pk=self.nominee1.pk).exists())
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('#id_position option')) , 3 )
+
+    def test_private_accepting_nominations(self):
+        url = reverse('ietf.nomcom.views.private_nominate',kwargs={'year':self.nc.year()})
+
+        login_testing_unauthorized(self,self.member.user.username,url)
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('#id_position option')) , 4 )
+
+        pos = self.nc.position_set.first()
+        pos.accepting_nominations=False
+        pos.save()
         
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('#id_position option')) , 4 )
+
+    def test_public_accepting_feedback(self):
+        url = reverse('ietf.nomcom.views.public_feedback',kwargs={'year':self.nc.year()})
+
+        login_testing_unauthorized(self,self.plain_person.user.username,url)
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('.badge')) , 6 )
+
+        pos = self.nc.position_set.first()
+        pos.accepting_feedback=False
+        pos.save()
+    
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('.badge')) , 5 )
+
+        topic = self.nc.topic_set.first()
+        topic.accepting_feedback=False
+        topic.save()
+    
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('.badge')) , 4 )
+
+        posurl = url+ "?nominee=%d&position=%d" % (pos.nominee_set.first().pk, pos.pk)
+        response = self.client.get(posurl)
+        self.assertTrue('not currently accepting feedback' in unicontent(response))
+
+        test_data = {'comments': 'junk',
+                     'position_name': pos.name,
+                     'nominee_name': pos.nominee_set.first().email.person.name,
+                     'nominee_email': pos.nominee_set.first().email.address,
+                     'confirmation': False,
+                     'nominator_email': self.plain_person.email().address,
+                     'nominator_name':  self.plain_person.plain_name(),
+                    }
+        response = self.client.post(posurl, test_data)
+        self.assertTrue('not currently accepting feedback' in unicontent(response))
+
+        topicurl = url+ "?topic=%d" % (topic.pk, )
+        response = self.client.get(topicurl)
+        self.assertTrue('not currently accepting feedback' in unicontent(response))
+
+        test_data = {'comments': 'junk',
+                     'confirmation': False,
+                    }
+        response = self.client.post(topicurl, test_data)
+        self.assertTrue('not currently accepting feedback' in unicontent(response))
+
+    def test_private_accepting_feedback(self):
+        url = reverse('ietf.nomcom.views.private_feedback',kwargs={'year':self.nc.year()})
+
+        login_testing_unauthorized(self,self.member.user.username,url)
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('.badge')) , 6 )
+
+        pos = self.nc.position_set.first()
+        pos.accepting_feedback=False
+        pos.save()
+    
+        response = self.client.get(url)
+        q=PyQuery(response.content)
+        self.assertEqual( len(q('.badge')) , 6 )
+
+
+class FeedbackPictureTests(TestCase):
+    def setUp(self):
+        build_test_public_keys_dir(self)
+        self.nc = NomComFactory(**nomcom_kwargs_for_year())
+        self.plain_person = PersonFactory.create()
+
+    def tearDown(self):
+        clean_test_public_keys_dir(self)
+
+    def test_feedback_pictures(self):
+        url = reverse('ietf.nomcom.views.public_feedback',kwargs={'year':self.nc.year()})
+        login_testing_unauthorized(self,self.plain_person.user.username,url)
+        response = self.client.get(url)
+        q = PyQuery(response.content)
+        self.assertTrue(q('.photo'))
+        self.nc.show_nominee_pictures=False;
+        self.nc.save()
+        response = self.client.get(url)
+        q = PyQuery(response.content)
+        self.assertFalse(q('.photo'))
+
+class TopicTests(TestCase):
+    def setUp(self):
+        build_test_public_keys_dir(self)
+        self.nc = NomComFactory(**nomcom_kwargs_for_year(populate_topics=False))
+        self.plain_person = PersonFactory.create()
+        self.chair = self.nc.group.role_set.filter(name='chair').first().person
+
+    def tearDown(self):
+        clean_test_public_keys_dir(self)
+    
+    def testAddEditListRemoveTopic(self):
+        self.assertFalse(self.nc.topic_set.exists())
+
+        url = reverse('ietf.nomcom.views.edit_topic', kwargs={'year':self.nc.year()})
+        login_testing_unauthorized(self,self.chair.user.username,url)
+
+        response = self.client.post(url,{'subject':'Test Topic', 'accepting_feedback':True, 'audience':'general'})
+        self.assertEqual(response.status_code,302)
+        self.assertEqual(self.nc.topic_set.first().subject,'Test Topic') 
+        self.assertEqual(self.nc.topic_set.first().accepting_feedback, True)
+        self.assertEqual(self.nc.topic_set.first().audience.slug,'general')
+
+        url = reverse('ietf.nomcom.views.edit_topic', kwargs={'year':self.nc.year(),'topic_id':self.nc.topic_set.first().pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        q = PyQuery(response.content)
+        self.assertEqual(q('#id_subject').attr['value'],'Test Topic')
+
+        response = self.client.post(url,{'subject':'Test Topic Modified', 'accepting_feedback':False, 'audience':'nominees'})
+        self.assertEqual(response.status_code,302)
+        self.assertEqual(self.nc.topic_set.first().subject,'Test Topic Modified') 
+        self.assertEqual(self.nc.topic_set.first().accepting_feedback, False)
+        self.assertEqual(self.nc.topic_set.first().audience.slug,'nominees')
+        
+        self.client.logout()
+        url = reverse('ietf.nomcom.views.list_topics',kwargs={'year':self.nc.year()})
+        login_testing_unauthorized(self,self.chair.user.username,url)
+        response=self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        self.assertTrue('Test Topic Modified' in unicontent(response))
+
+        self.client.logout()
+        url = reverse('ietf.nomcom.views.remove_topic', kwargs={'year':self.nc.year(),'topic_id':self.nc.topic_set.first().pk})
+        login_testing_unauthorized(self,self.chair.user.username,url)
+        response=self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        self.assertTrue('Test Topic Modified' in unicontent(response))
+        response=self.client.post(url,{'remove':1})
+        self.assertEqual(response.status_code,302)
+        self.assertFalse(self.nc.topic_set.exists())
+
+    def testClassifyTopicFeedback(self):
+        topic = TopicFactory(nomcom=self.nc)
+        feedback = FeedbackFactory(nomcom=self.nc,type_id=None)
+
+        url = reverse('ietf.nomcom.views.view_feedback_pending',kwargs={'year':self.nc.year() })
+        login_testing_unauthorized(self, self.chair.user.username, url)
+        provide_private_key_to_test_client(self)
+
+        response = self.client.post(url, {'form-TOTAL_FORMS':1,
+                                          'form-INITIAL_FORMS':1,
+                                          'end':'Save feedback',
+                                          'form-0-id': feedback.id,
+                                          'form-0-type': 'comment',
+                                        })
+        self.assertTrue('You must choose at least one Nominee or Topic' in unicontent(response))
+        response = self.client.post(url, {'form-TOTAL_FORMS':1,
+                                          'form-INITIAL_FORMS':1,
+                                          'end':'Save feedback',
+                                          'form-0-id': feedback.id,
+                                          'form-0-type': 'comment',
+                                          'form-0-topic': '%s'%(topic.id,),
+                                        })
+        self.assertEqual(response.status_code,302)
+        feedback = Feedback.objects.get(id=feedback.id)
+        self.assertEqual(feedback.type_id,'comment')
+        self.assertEqual(topic.feedback_set.count(),1)
+
+    def testTopicFeedback(self):
+        topic = TopicFactory(nomcom=self.nc)
+        url = reverse('ietf.nomcom.views.public_feedback',kwargs={'year':self.nc.year() })
+        url += '?topic=%d'%topic.pk
+        login_testing_unauthorized(self, self.plain_person.user.username, url)
+        response=self.client.post(url, {'comments':'junk', 'confirmation':False})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "alert-success")
+        self.assertNotContains(response, "feedbackform")
+        self.assertEqual(topic.feedback_set.count(),1)

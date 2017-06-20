@@ -6,6 +6,7 @@ import os
 
 from django.db import models
 from django.core import checks
+from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.urls import reverse as urlreverse
 from django.core.validators import URLValidator
@@ -17,12 +18,13 @@ import debug                            # pyflakes:ignore
 
 from ietf.group.models import Group
 from ietf.name.models import ( DocTypeName, DocTagName, StreamName, IntendedStdLevelName, StdLevelName,
-    DocRelationshipName, DocReminderTypeName, BallotPositionName, ReviewRequestStateName )
+    DocRelationshipName, DocReminderTypeName, BallotPositionName, ReviewRequestStateName, FormalLanguageName )
 from ietf.person.models import Email, Person
 from ietf.utils import log
 from ietf.utils.admin import admin_link
 from ietf.utils.rfcmarkup import markup
 from ietf.utils.validators import validate_no_control_chars
+from ietf.utils.mail import formataddr
 
 logger = logging.getLogger('django')
 
@@ -81,6 +83,8 @@ class DocumentInfo(models.Model):
     abstract = models.TextField(blank=True)
     rev = models.CharField(verbose_name="revision", max_length=16, blank=True)
     pages = models.IntegerField(blank=True, null=True)
+    words = models.IntegerField(blank=True, null=True)
+    formal_languages = models.ManyToManyField(FormalLanguageName, blank=True, help_text="Formal languages used in document")
     order = models.IntegerField(default=1, blank=True) # This is probably obviated by SessionPresentaion.order
     intended_std_level = models.ForeignKey(IntendedStdLevelName, verbose_name="Intended standardization level", blank=True, null=True)
     std_level = models.ForeignKey(StdLevelName, verbose_name="Standardization level", blank=True, null=True)
@@ -105,7 +109,8 @@ class DocumentInfo(models.Model):
                     if self.get_state_slug() == "rfc":
                         self._cached_file_path = settings.RFC_PATH
                     else:
-                        if self.get_state('draft').slug == 'active':
+                        draft_state = self.get_state('draft')
+                        if draft_state and draft_state.slug == 'active':
                             self._cached_file_path = settings.INTERNET_DRAFT_PATH
                         else:
                             self._cached_file_path = settings.INTERNET_ALL_DRAFTS_ARCHIVE_DIR
@@ -159,11 +164,12 @@ class DocumentInfo(models.Model):
     def revisions(self):
         revisions = []
         doc = self.doc if isinstance(self, DocHistory) else self
-        for e in doc.docevent_set.filter(type='new_revision').distinct().order_by("time", "id"):
+        for e in doc.docevent_set.filter(type='new_revision').distinct():
             if e.rev and not e.rev in revisions:
                 revisions.append(e.rev)
         if not doc.rev in revisions:
             revisions.append(doc.rev)
+        revisions.sort()
         return revisions
 
     def href(self, meeting=None):
@@ -316,7 +322,7 @@ class DocumentInfo(models.Model):
         return self._cached_is_rfc
 
     def author_list(self):
-        return ", ".join(email.address for email in self.authors.all())
+        return u", ".join(author.email_id for author in self.documentauthor_set.all() if author.email_id)
 
     # This, and several other ballot related functions here, assume that there is only one active ballot for a document at any point in time.
     # If that assumption is violated, they will only expose the most recently created ballot
@@ -419,13 +425,11 @@ class DocumentInfo(models.Model):
         try:
             with open(path, 'rb') as file:
                 raw = file.read()
-        except IOError as e:
-            import sys
-            logger.error("IOError for %s: %s", path, e, exc_info=sys.exc_info())
+        except IOError:
             return None
         try:
             text = raw.decode('utf-8')
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             text = raw.decode('latin-1')
         #
         return text
@@ -437,11 +441,17 @@ class DocumentInfo(models.Model):
             return text
         if not name.endswith('.txt'):
             return None
-        html = None
+        html = ""
         if text:
-            # The path here has to match the urlpattern for htmlized documents
-            html = markup(text, path=settings.HTMLIZER_URL_PREFIX)
-            #html = re.sub(r'<hr[^>]*/>','', html)
+            cache = caches['htmlized']
+            key = name.split('.')[0]
+            html = cache.get(key)
+            if not html:
+                # The path here has to match the urlpattern for htmlized
+                # documents in order to produce correct intra-document links
+                html = markup(text, path=settings.HTMLIZER_URL_PREFIX)
+                if html:
+                    cache.set(key, html, settings.HTMLIZER_CACHE_TIME)
         return html
 
     class Meta:
@@ -494,20 +504,41 @@ class RelatedDocument(models.Model):
 
         return None
 
-class DocumentAuthor(models.Model):
-    document = models.ForeignKey('Document')
-    author = models.ForeignKey(Email, help_text="Email address used by author for submission")
+    def is_approved_downref(self):
+
+        if self.target.document.get_state().slug == 'rfc':
+           if RelatedDocument.objects.filter(relationship_id='downref-approval', target=self.target):
+              return "Approved Downref"
+
+        return False
+
+class DocumentAuthorInfo(models.Model):
+    person = models.ForeignKey(Person)
+    # email should only be null for some historic documents
+    email = models.ForeignKey(Email, help_text="Email address used by author for submission", blank=True, null=True)
+    affiliation = models.CharField(max_length=100, blank=True, help_text="Organization/company used by author for submission")
+    country = models.CharField(max_length=255, blank=True, help_text="Country used by author for submission")
     order = models.IntegerField(default=1)
 
-    def __unicode__(self):
-        return u"%s %s (%s)" % (self.document.name, self.author.get_name(), self.order)
+    def formatted_email(self):
+
+        if self.email:
+            return formataddr((self.person.plain_ascii(), self.email.address))
+        else:
+            return ""
 
     class Meta:
+        abstract = True
         ordering = ["document", "order"]
-    
+
+class DocumentAuthor(DocumentAuthorInfo):
+    document = models.ForeignKey('Document')
+
+    def __unicode__(self):
+        return u"%s %s (%s)" % (self.document.name, self.person, self.order)
+
 class Document(DocumentInfo):
     name = models.CharField(max_length=255, primary_key=True)           # immutable
-    authors = models.ManyToManyField(Email, through=DocumentAuthor, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -742,16 +773,13 @@ class RelatedDocHistory(models.Model):
     def __unicode__(self):
         return u"%s %s %s" % (self.source.doc.name, self.relationship.name.lower(), self.target.name)
 
-class DocHistoryAuthor(models.Model):
-    document = models.ForeignKey('DocHistory')
-    author = models.ForeignKey(Email)
-    order = models.IntegerField()
+class DocHistoryAuthor(DocumentAuthorInfo):
+    # use same naming convention as non-history version to make it a bit
+    # easier to write generic code
+    document = models.ForeignKey('DocHistory', related_name="documentauthor_set")
 
     def __unicode__(self):
-        return u"%s %s (%s)" % (self.document.doc.name, self.author.get_name(), self.order)
-
-    class Meta:
-        ordering = ["document", "order"]
+        return u"%s %s (%s)" % (self.document.doc.name, self.person, self.order)
 
 class DocHistory(DocumentInfo):
     doc = models.ForeignKey(Document, related_name="history_set")
@@ -760,7 +788,7 @@ class DocHistory(DocumentInfo):
     # canonical_name and replace the function on Document with a
     # property
     name = models.CharField(max_length=255)
-    authors = models.ManyToManyField(Email, through=DocHistoryAuthor, blank=True)
+
     def __unicode__(self):
         return unicode(self.doc.name)
 
@@ -826,6 +854,7 @@ EVENT_TYPES = [
     ("changed_document", "Changed document metadata"),
     ("added_comment", "Added comment"),
     ("added_message", "Added message"),
+    ("edited_authors", "Edited the documents author list"),
 
     ("deleted", "Deleted document"),
 
@@ -888,6 +917,9 @@ EVENT_TYPES = [
     ("requested_review", "Requested review"),
     ("assigned_review_request", "Assigned review request"),
     ("closed_review_request", "Closed review request"),
+
+    # downref
+    ("downref_approved", "Downref approved"),
     ]
 
 class DocEvent(models.Model):
@@ -1051,3 +1083,10 @@ class DeletedEvent(models.Model):
 
     def __unicode__(self):
         return u"%s by %s %s" % (self.content_type, self.by, self.time)
+
+class EditedAuthorsDocEvent(DocEvent):
+    """ Capture the reasoning or authority for changing a document author list.
+        Allows programs to recognize and not change lists that have been manually verified and corrected.
+        Example 'basis' values might be from ['manually adjusted','recomputed by parsing document', etc.]
+    """
+    basis = models.CharField(help_text="What is the source or reasoning for the changes to the author list",max_length=255)

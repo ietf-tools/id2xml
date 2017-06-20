@@ -76,15 +76,6 @@
 	  {% if latest_revision and latest_revision.time.date != doc.time.date %}
 	    (latest revision {{ latest_revision.time|date:"Y-m-d" }})
 	  {% endif %}
-	  {% for check in doc.submission.checks.all %}
-	     {% if check.passed != None and check.symbol.strip %}
-		 {% if check.errors or check.warnings %}
-		    <span class="checker-warning" title="Submission {{check.checker|title}} returned warnings or errors.">{{ check.symbol|safe }}</span>
-		 {% else %}
-		    <span class="checker-success" title="Submission {{check.checker|title}} passed">{{ check.symbol|safe }}</span>
-		 {% endif %}
-	      {% endif %}
-	  {% endfor %}
 	</td>
       </tr>
 
@@ -192,6 +183,27 @@
 	</td>
       </tr>
 
+      {% for check in doc.submission.latest_checks %}
+	{% if check.passed != None and check.symbol.strip %}
+	  <tr>
+	    <th></th>
+	    <th>{{ check.checker|title }}</th>
+	    <td class="edit"></td>
+	    <td>
+	      {% if check.errors or check.warnings %}
+		 <span class="checker-warning" data-toggle="modal" data-target="#check-{{check.pk}}" title="{{check.checker|title}} returned warnings or errors." >{{ check.symbol|safe }}</span>
+	      {% else %}
+		 <span class="checker-success" data-toggle="modal" data-target="#check-{{check.pk}}" title="{{check.checker|title}} passed">{{ check.symbol|safe }}</span>
+	      {% endif %}
+	      <a href="#" data-toggle="modal" data-target="#check-{{check.pk}}">
+		{{ check.errors }} errors, {{ check.warnings }} warnings.
+	      </a>
+	      {% include "doc/yang-check-modal-overlay.html" %}
+	    </td>
+	  </tr>
+	{% endif %}
+      {% endfor %}
+
       {% if review_requests or can_request_review %}
       <tr>
         <th></th>
@@ -250,9 +262,11 @@
 	  <td>
 	    {{ stream_state|default:"(None)" }}
 
+	    {% if milestones %} (<span class="milestone">wg milestone{{ milestones|pluralize }}:</span>
 	    {% for m in milestones %}
-	      <span title="{{ m.desc }} ({{ m.group.acronym }} milestone)" class="milestone">{{ m.due|date:"M Y" }}</span>
-	    {% endfor %}
+	      <span title="{{ m.desc }} ({{ m.group.acronym }} milestone)" class="milestone">{{ m.due|date:"M Y" }} - {{m}}</span>{% if not forloop.last %},{% endif %}
+	    {% endfor %})
+	    {% endif %}
 
 	    {% if stream_tags %}
 	      <div class="stream-tags">{% for tag in stream_tags %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
@@ -570,13 +584,13 @@
           <h4>Authors</h4>
           <p>
             {% for author in doc.documentauthor_set.all %}
-              {% if not author.author.invalid_address %}
+              {% if author.email %}
                 <span class="fa fa-envelope-o"></span>
-                <a href="mailto:{{ author.author.address }}">
+                <a href="mailto:{{ author.email.address }}">
 	      {% endif %}
-	      {{ author.author.person }}
-	      {% if not author.author.invalid_address %}
-	        ({{ author.author.address }})</a>
+              {{ author.person }}
+              {% if author.email %}
+                ({{ author.email.address }})</a>
               {% endif %}
               {% if not forloop.last %}<br>{% endif %}
             {% endfor %}

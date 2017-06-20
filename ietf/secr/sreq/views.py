@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404
@@ -12,7 +13,7 @@ from ietf.ietfauth.utils import has_role, role_required
 from ietf.meeting.models import Meeting, Session, Constraint, ResourceAssociation
 from ietf.meeting.helpers import get_meeting
 from ietf.name.models import SessionStatusName, ConstraintName
-from ietf.secr.sreq.forms import SessionForm, GroupSelectForm, ToolStatusForm
+from ietf.secr.sreq.forms import SessionForm, ToolStatusForm
 from ietf.secr.utils.decorators import check_permissions
 from ietf.secr.utils.group import groups_by_session
 from ietf.utils.mail import send_mail
@@ -22,8 +23,6 @@ from ietf.mailtrigger.utils import gather_address_lists
 # -------------------------------------------------
 # Globals
 # -------------------------------------------------
-#TODO: DELETE
-SESSION_REQUEST_EMAIL = 'session-request@ietf.org'
 AUTHORIZED_ROLES=('WG Chair','WG Secretary','RG Chair','IAB Group Chair','Area Director','Secretariat','Team Chair','IRTF Chair')
 
 # -------------------------------------------------
@@ -115,7 +114,7 @@ def send_notification(group,meeting,login,session,action):
     action argument is a string [new|update].
     '''
     (to_email, cc_list) = gather_address_lists('session_requested',group=group,person=login)
-    from_email = ('"IETF Meeting Session Request Tool"','session_request_developers@ietf.org')
+    from_email = (settings.SESSION_REQUEST_FROM_EMAIL)
     subject = '%s - New Meeting Session Request for IETF %s' % (group.acronym, meeting.number)
     template = 'sreq/session_request_notification.txt'
 
@@ -209,11 +208,10 @@ def cancel(request, acronym):
 
     # send notifitcation
     (to_email, cc_list) = gather_address_lists('session_request_cancelled',group=group,person=login)
-    from_email = ('"IETF Meeting Session Request Tool"','session_request_developers@ietf.org')
+    from_email = (settings.SESSION_REQUEST_FROM_EMAIL)
     subject = '%s - Cancelling a meeting request for IETF %s' % (group.acronym, meeting.number)
     send_mail(request, to_email, from_email, subject, 'sreq/session_cancel_notification.txt',
-              {'login':login,
-               'group':group,
+              {'requester':get_requester_text(login,group),
                'meeting':meeting}, cc=cc_list)
 
     messages.success(request, 'The %s Session Request has been canceled' % group.acronym)
@@ -487,14 +485,6 @@ def main(request):
         'message': message},
     )
 
-    # TODO this is not currently used in the main template
-    if request.method == 'POST':
-        button_text = request.POST.get('submit', '')
-        if button_text == 'Group will not meet':
-            return redirect('ietf.secr.sreq.views.no_session', acronym=request.POST['group'])
-        else:
-            return redirect('ietf.secr.sreq.views.new', acronym=request.POST['group'])
-
     meeting = get_meeting()
     scheduled_groups,unscheduled_groups = groups_by_session(request.user, meeting, types=['wg','rg','ag'])
 
@@ -502,11 +492,6 @@ def main(request):
     if not scheduled_groups and not unscheduled_groups:
         messages.warning(request, 'The account %s is not associated with any groups.  If you have multiple Datatracker accounts you may try another or report a problem to ietf-action@ietf.org' % request.user)
      
-    # load form select with unscheduled groups
-    choices = zip([ g.pk for g in unscheduled_groups ],
-                  [ str(g) for g in unscheduled_groups ])
-    form = GroupSelectForm(choices=choices)
-
     # add session status messages for use in template
     for group in scheduled_groups:
         sessions = group.session_set.filter(meeting=meeting)
@@ -522,7 +507,6 @@ def main(request):
 
     return render(request, 'sreq/main.html', {
         'is_locked': is_locked,
-        'form': form,
         'meeting': meeting,
         'scheduled_groups': scheduled_groups,
         'unscheduled_groups': unscheduled_groups},
@@ -619,7 +603,7 @@ def no_session(request, acronym):
 
     # send notification
     (to_email, cc_list) = gather_address_lists('session_request_not_meeting',group=group,person=login)
-    from_email = ('"IETF Meeting Session Request Tool"','session_request_developers@ietf.org')
+    from_email = (settings.SESSION_REQUEST_FROM_EMAIL)
     subject = '%s - Not having a session at IETF %s' % (group.acronym, meeting.number)
     send_mail(request, to_email, from_email, subject, 'sreq/not_meeting_notification.txt',
               {'login':login,

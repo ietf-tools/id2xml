@@ -74,8 +74,13 @@ class MeetingTests(TestCase):
         meeting = make_meeting_test_data()
         session = Session.objects.filter(meeting=meeting, group__acronym="mars").first()
         slot = TimeSlot.objects.get(sessionassignments__session=session,sessionassignments__schedule=meeting.agenda)
-
+        #
         self.write_materials_files(meeting, session)
+        #
+        future_year = datetime.date.today().year+1
+        future_num =  (future_year-1984)*3            # valid for the mid-year meeting
+        future_meeting = Meeting.objects.create(date=datetime.date(future_year, 7, 22), number=future_num, type_id='ietf',
+                                city="Panama City", country="PA", time_zone='America/Panama')
 
         # utc
         time_interval = "%s-%s" % (slot.utc_start_time().strftime("%H:%M").lstrip("0"), (slot.utc_start_time() + slot.duration).strftime("%H:%M").lstrip("0"))
@@ -110,6 +115,12 @@ class MeetingTests(TestCase):
         self.assertTrue(any([session.materials.filter(type='slides').exclude(states__type__slug='slides',states__slug='deleted').first().title in x.text for x in q('tr div.modal-body ul a')]))
         self.assertFalse(any([session.materials.filter(type='slides',states__type__slug='slides',states__slug='deleted').first().title in x.text for x in q('tr div.modal-body ul a')]))
 
+        # future meeting, no agenda
+        r = self.client.get(urlreverse("ietf.meeting.views.agenda", kwargs=dict(num=future_meeting.number)))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, u"There is no agenda available yet.")
+        self.assertTemplateUsed(r, 'meeting/no-agenda.html')
+
         # text
         # the rest of the results don't have as nicely formatted times
         time_interval = time_interval.replace(":", "")
@@ -127,6 +138,12 @@ class MeetingTests(TestCase):
         r = self.client.get(urlreverse("ietf.meeting.views.agenda", kwargs=dict(num=meeting.number,name=meeting.unofficial_schedule.name,owner=meeting.unofficial_schedule.owner.email())))
         self.assertEqual(r.status_code, 200)
         self.assertTrue('not the official schedule' in unicontent(r))
+
+        # future meeting, no agenda
+        r = self.client.get(urlreverse("ietf.meeting.views.agenda", kwargs=dict(num=future_meeting.number, ext=".txt")))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "There is no agenda available yet.")
+        self.assertTemplateUsed(r, 'meeting/no-agenda.txt')
 
         # CSV
         r = self.client.get(urlreverse("ietf.meeting.views.agenda", kwargs=dict(num=meeting.number, ext=".csv")))
@@ -280,7 +297,7 @@ class MeetingTests(TestCase):
         r = self.client.get(urlreverse("ietf.meeting.views.materials", kwargs=dict(num=meeting.number)))
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
-        row = q('#content td div:contains("%s")' % str(session.group.acronym)).closest("tr")
+        row = q('#content #%s' % str(session.group.acronym)).closest("tr")
         self.assertTrue(row.find('a:contains("Agenda")'))
         self.assertTrue(row.find('a:contains("Minutes")'))
         self.assertTrue(row.find('a:contains("Slideshow")'))
@@ -297,12 +314,14 @@ class MeetingTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(meeting.number in unicontent(r))
         self.assertTrue("mars" in unicontent(r))
+        self.assertFalse("No session requested" in unicontent(r))
 
         self.client.login(username="ad", password="ad+password")
         r = self.client.get(urlreverse("ietf.meeting.views.materials_editable_groups", kwargs={'num':meeting.number}))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(meeting.number in unicontent(r))
         self.assertTrue("frfarea" in unicontent(r))
+        self.assertTrue("No session requested" in unicontent(r))
 
         self.client.login(username="plain",password="plain+password")
         r = self.client.get(urlreverse("ietf.meeting.views.materials_editable_groups", kwargs={'num':meeting.number}))
@@ -758,7 +777,7 @@ class InterimTests(TestCase):
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.get('Content-Type'), "text/calendar")
-        self.assertEqual(r.content.count('UID'), 5)
+        self.assertEqual(r.content.count('UID'), 7)
         # check filtered output
         url = url + '?filters=mars'
         r = self.client.get(url)
@@ -968,7 +987,7 @@ class InterimTests(TestCase):
                 'session_set-INITIAL_FORMS':0}
 
         r = self.client.post(urlreverse("ietf.meeting.views.interim_request"),data)
-        
+
         self.assertRedirects(r,urlreverse('ietf.meeting.views.upcoming'))
         meeting = Meeting.objects.order_by('id').last()
         self.assertEqual(meeting.type_id,'interim')
@@ -992,6 +1011,43 @@ class InterimTests(TestCase):
         self.assertEqual(timeslot.time,dt2)
         self.assertEqual(timeslot.duration,duration)
         self.assertEqual(session.agenda_note,agenda_note)
+
+    def test_interim_request_multi_day_non_consecutive(self):
+        make_meeting_test_data()
+        date = datetime.date.today() + datetime.timedelta(days=30)
+        date2 = date + datetime.timedelta(days=2)
+        time = datetime.datetime.now().time().replace(microsecond=0,second=0)
+        group = Group.objects.get(acronym='mars')
+        city = 'San Francisco'
+        country = 'US'
+        time_zone = 'US/Pacific'
+        remote_instructions = 'Use webex'
+        agenda = 'Intro. Slides. Discuss.'
+        agenda_note = 'On second level'
+        self.client.login(username="secretary", password="secretary+password")
+        data = {'group':group.pk,
+                'meeting_type':'multi-day',
+                'city':city,
+                'country':country,
+                'time_zone':time_zone,
+                'session_set-0-date':date.strftime("%Y-%m-%d"),
+                'session_set-0-time':time.strftime('%H:%M'),
+                'session_set-0-requested_duration':'03:00:00',
+                'session_set-0-remote_instructions':remote_instructions,
+                'session_set-0-agenda':agenda,
+                'session_set-0-agenda_note':agenda_note,
+                'session_set-1-date':date2.strftime("%Y-%m-%d"),
+                'session_set-1-time':time.strftime('%H:%M'),
+                'session_set-1-requested_duration':'03:00:00',
+                'session_set-1-remote_instructions':remote_instructions,
+                'session_set-1-agenda':agenda,
+                'session_set-1-agenda_note':agenda_note,
+                'session_set-TOTAL_FORMS':2,
+                'session_set-INITIAL_FORMS':0}
+
+        r = self.client.post(urlreverse("ietf.meeting.views.interim_request"),data)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue('days must be consecutive' in r.content)
 
     def test_interim_request_series(self):
         make_meeting_test_data()
@@ -1144,28 +1200,27 @@ class InterimTests(TestCase):
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
 
-    def test_interim_request_details_skip_announcement(self):
+    def test_interim_request_details_announcement(self):
+        '''Test access to Announce / Skip Announce features'''
         make_meeting_test_data()
         date = datetime.date.today() + datetime.timedelta(days=30)
-        self.client.login(username="secretary", password="secretary+password")
-
-        # ensure skip announcement option exists for Research Group
-        group = Group.objects.get(acronym='irg')
-        meeting = make_interim_meeting(group=group, date=date, status='scheda')
-        url = urlreverse('ietf.meeting.views.interim_request_details',kwargs={'number':meeting.number})
-        r = self.client.get(url)
-        self.assertEqual(r.status_code, 200)
-        q = PyQuery(r.content)
-        self.assertEqual(len(q("a.btn:contains('Skip Announcement')")),1)
-
-        # ensure skip announcement option does not exist for IETF Working Group
         group = Group.objects.get(acronym='mars')
         meeting = make_interim_meeting(group=group, date=date, status='scheda')
         url = urlreverse('ietf.meeting.views.interim_request_details',kwargs={'number':meeting.number})
+
+        # Chair, no access
+        self.client.login(username="marschairman", password="marschairman+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEqual(len(q("a.btn:contains('Skip Announcement')")),0)
+        self.assertEqual(len(q("a.btn:contains('Announce')")),0)
+
+        # Secretariat has access
+        self.client.login(username="secretary", password="secretary+password")
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertEqual(len(q("a.btn:contains('Announce')")),2)
 
     def test_interim_request_disapprove(self):
         make_meeting_test_data()
@@ -1471,7 +1526,16 @@ class MaterialsTests(TestCase):
         self.assertEqual(r.status_code, 302)
         bs_doc = Document.objects.get(pk=bs_doc.pk)
         self.assertEqual(bs_doc.rev,'01')
-         
+    
+    def test_upload_bluesheets_chair_access(self):
+        make_meeting_test_data()
+        mars = Group.objects.get(acronym='mars')
+        session=SessionFactory(meeting__type_id='ietf',group=mars)
+        url = urlreverse('ietf.meeting.views.upload_session_bluesheets',kwargs={'num':session.meeting.number,'session_id':session.id})
+        self.client.login(username="marschairman", password="marschairman+password")
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 403)
+
     def test_upload_bluesheets_interim(self):
         session=SessionFactory(meeting__type_id='interim')
         url = urlreverse('ietf.meeting.views.upload_session_bluesheets',kwargs={'num':session.meeting.number,'session_id':session.id})
@@ -1487,6 +1551,18 @@ class MaterialsTests(TestCase):
         self.assertEqual(r.status_code, 302)
         bs_doc = session.sessionpresentation_set.filter(document__type_id='bluesheets').first().document
         self.assertEqual(bs_doc.rev,'00')
+
+    def test_upload_bluesheets_interim_chair_access(self):
+        make_meeting_test_data()
+        mars = Group.objects.get(acronym='mars')
+        session=SessionFactory(meeting__type_id='interim',group=mars)
+        url = urlreverse('ietf.meeting.views.upload_session_bluesheets',kwargs={'num':session.meeting.number,'session_id':session.id})
+        self.client.login(username="marschairman", password="marschairman+password")
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue('Upload' in unicode(q("title")))
+        
 
     def test_upload_minutes_agenda(self):
         for doctype in ('minutes','agenda'):

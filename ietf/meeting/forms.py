@@ -1,8 +1,12 @@
 import os
 import codecs
+import datetime
 
 from django import forms
 from django.db.models import Q
+from django.forms import BaseInlineFormSet
+
+import debug                            # pyflakes:ignore
 
 from ietf.doc.models import Document, DocAlias, State, NewRevisionDocEvent
 from ietf.doc.utils import get_document_content
@@ -32,10 +36,60 @@ class GroupModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.acronym
 
+class CustomDurationField(DurationField):
+    '''Custom DurationField to display as HH:MM (no seconds)'''
+    def prepare_value(self, value):
+        if isinstance(value, datetime.timedelta):
+            return duration_string(value)
+        return value
+
+def duration_string(duration):
+    '''Custom duration_string to return HH:MM (no seconds)'''
+    days = duration.days
+    seconds = duration.seconds
+    microseconds = duration.microseconds
+
+    minutes = seconds // 60
+    seconds = seconds % 60
+
+    hours = minutes // 60
+    minutes = minutes % 60
+
+    string = '{:02d}:{:02d}'.format(hours, minutes)
+    if days:
+        string = '{} '.format(days) + string
+    if microseconds:
+        string += '.{:06d}'.format(microseconds)
+
+    return string
 # -------------------------------------------------
 # Forms
 # -------------------------------------------------
 
+class InterimSessionInlineFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(InterimSessionInlineFormSet, self).__init__(*args, **kwargs)
+        if 'data' in kwargs:
+            self.meeting_type = kwargs['data']['meeting_type']
+
+    def clean(self):
+        '''Custom clean method to verify dates are consecutive for multi-day meetings'''
+        super(InterimSessionInlineFormSet, self).clean()
+        if self.meeting_type == 'multi-day':
+            dates = []
+            for form in self.forms:
+                date = form.cleaned_data.get('date')
+                if date:
+                    dates.append(date)
+            if len(dates) < 2:
+                return
+            dates.sort()
+            last_date = dates[0]
+            for date in dates[1:]:
+                if date - last_date != datetime.timedelta(days=1):
+                    raise forms.ValidationError('For Multi-Day meetings, days must be consecutive')
+                last_date = date
+        return                          # formset doesn't have cleaned_data
 
 class InterimMeetingModelForm(forms.ModelForm):
     group = GroupModelChoiceField(queryset=Group.objects.filter(type__in=('wg', 'rg'), state__in=('active', 'proposed', 'bof')).order_by('acronym'), required=False)
@@ -136,7 +190,7 @@ class InterimMeetingModelForm(forms.ModelForm):
 class InterimSessionModelForm(forms.ModelForm):
     date = DatepickerDateField(date_format="yyyy-mm-dd", picker_settings={"autoclose": "1"}, label='Date', required=False)
     time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'), required=True)
-    requested_duration = DurationField(required=True)
+    requested_duration = CustomDurationField(required=True)
     end_time = forms.TimeField(required=False)
     remote_instructions = forms.CharField(max_length=1024, required=True)
     agenda = forms.CharField(required=False, widget=forms.Textarea, strip=False)

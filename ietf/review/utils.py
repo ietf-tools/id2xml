@@ -162,7 +162,7 @@ def days_needed_to_fulfill_min_interval_for_reviewers(team):
     return res
 
 ReviewRequestData = namedtuple("ReviewRequestData", [
-    "req_pk", "doc", "doc_pages", "req_time", "state", "deadline", "reviewed_rev", "result", "team", "reviewer",
+    "req_pk", "doc", "doc_pages", "req_time", "state", "assigned_time", "deadline", "reviewed_rev", "result", "team", "reviewer",
     "late_days",
     "request_to_assignment_days", "assignment_to_closure_days", "request_to_closure_days"])
 
@@ -225,7 +225,7 @@ def extract_review_request_data(teams=None, reviewers=None, time_from=None, time
         assignment_to_closure_days = positive_days(assigned_time, closed_time)
         request_to_closure_days = positive_days(requested_time, closed_time)
 
-        d = ReviewRequestData(req_pk, doc, doc_pages, req_time, state, deadline, reviewed_rev, result, team, reviewer,
+        d = ReviewRequestData(req_pk, doc, doc_pages, req_time, state, assigned_time, deadline, reviewed_rev, result, team, reviewer,
                               late_days, request_to_assignment_days, assignment_to_closure_days,
                               request_to_closure_days)
 
@@ -241,7 +241,7 @@ def aggregate_raw_review_request_stats(review_request_data, count=None):
     assignment_to_closure_days_list = []
     assignment_to_closure_days_count = 0
 
-    for (req_pk, doc, doc_pages, req_time, state, deadline, reviewed_rev, result, team, reviewer,
+    for (req_pk, doc, doc_pages, req_time, state, assigned_time, deadline, reviewed_rev, result, team, reviewer,
          late_days, request_to_assignment_days, assignment_to_closure_days, request_to_closure_days) in review_request_data:
         if count == "pages":
             c = doc_pages
@@ -554,7 +554,7 @@ def suggested_review_requests_for_team(team):
         )
         last_call_expiry_events = { e.doc_id: e for e in LastCallDocEvent.objects.order_by("time", "id") }
         for doc in last_call_docs:
-            e = last_call_expiry_events[doc.pk] if doc.pk in last_call_expiry_events else LastCallDocEvent(expires=now.date(), time=now)
+            e = last_call_expiry_events[doc.pk] if doc.pk in last_call_expiry_events else LastCallDocEvent(expires=now, time=now)
 
             deadline = e.expires.date()
 
@@ -754,7 +754,7 @@ def make_assignment_choices(email_queryset, review_req):
         connections[r.person_id] = "is group {}".format(r.name)
     if doc.shepherd:
         connections[doc.shepherd.person_id] = "is shepherd of document"
-    for author in DocumentAuthor.objects.filter(document=doc, author__person__in=possible_person_ids).values_list("author__person", flat=True):
+    for author in DocumentAuthor.objects.filter(document=doc, person__in=possible_person_ids).values_list("person", flat=True):
         connections[author] = "is author of document"
 
     # unavailable periods

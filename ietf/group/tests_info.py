@@ -78,7 +78,7 @@ class GroupPagesTests(TestCase):
         self.assertTrue("Directorate" in unicontent(r))
         self.assertTrue("AG" in unicontent(r))
 
-        for slug in GroupTypeName.objects.exclude(slug__in=['wg','rg','ag','area','dir','team']).values_list('slug',flat=True):
+        for slug in GroupTypeName.objects.exclude(slug__in=['wg','rg','ag','area','dir','team', 'program']).values_list('slug',flat=True):
             with self.assertRaises(NoReverseMatch):
                 url=urlreverse('ietf.group.views.active_groups', kwargs=dict(group_type=slug))
 
@@ -151,6 +151,10 @@ class GroupPagesTests(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertEqual(len(q('#content a:contains("%s")' % group.acronym)), 1)
+
+        self.client.login(username="secretary", password="secretary+password")
+        r = self.client.get(url)
+        self.assertContains(r, "Charter new RG")
 
     def test_concluded_groups(self):
         draft = make_test_data()

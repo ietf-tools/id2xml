@@ -52,6 +52,10 @@ from coverage.results import Numbers
 from coverage.misc import NotPython
 
 from django.conf import settings
+from django.db.migrations.loader import MigrationLoader
+from django.db.migrations.operations.fields import FieldOperation
+from django.db.migrations.operations.models import ModelOperation
+from django.db.migrations.operations.base import Operation
 from django.template import TemplateDoesNotExist
 from django.template.loaders.base import Loader as BaseLoader
 from django.test.runner import DiscoverRunner
@@ -265,11 +269,11 @@ class CoverageTest(TestCase):
             if self.runner.run_full_test_suite:
                 # Permit 0.02% variation in results -- otherwise small code changes become a pain
                 fudge_factor = 0.0002
+                self.assertLessEqual(len(test_missing), len(master_missing),
+                    msg = "New %s without test coverage since %s: %s" % (test, latest_coverage_version, list(set(test_missing) - set(master_missing))))
                 self.assertGreaterEqual(test_coverage, master_coverage - fudge_factor,
                     msg = "The %s coverage percentage is now lower (%.2f%%) than for version %s (%.2f%%)" %
                         ( test, test_coverage*100, latest_coverage_version, master_coverage*100, ))
-                self.assertLessEqual(len(test_missing), len(master_missing),
-                    msg = "New %s without test coverage since %s: %s" % (test, latest_coverage_version, list(set(test_missing) - set(master_missing))))
 
     def template_coverage_test(self):
         global loaded_templates
@@ -342,6 +346,81 @@ class CoverageTest(TestCase):
         else:
             self.skipTest("Coverage switched off with --skip-coverage")
 
+    def interleaved_migrations_test(self):
+#        from django.apps import apps
+#         unreleased = {}
+#         for appconf in apps.get_app_configs():
+#             mpath = Path(appconf.path) / 'migrations'
+#             for pyfile in mpath.glob('*.py'):
+#                 if pyfile.name == '__init__.py':
+#                     continue
+#                 mmod = import_module('%s.migrations.%s' % (appconf.name, pyfile.stem))
+#                 for n,v in mmod.__dict__.items():
+#                     if isinstance(v, type) and issubclass(v, migrations.Migration):
+#                         migration = v
+#                         self.runner.coverage_data['migration']['present'][migration.__module__] = {'operations':[]}
+#                         d = self.runner.coverage_data['migration']['present'][migration.__module__]
+#                         for n,v in migration.__dict__.items():
+#                             if n == 'operations':
+#                                 for op in v:
+#                                     cl = op.__class__
+#                                     if issubclass(cl, ModelOperation) or issubclass(cl, FieldOperation):
+#                                         d['operations'].append('schema')
+#                                     elif issubclass(cl, Operation):
+#                                         d['operations'].append('data')
+#                                     else:
+#                                         raise RuntimeError("Found unexpected operation type in migration: %s" % (op))
+
+        # Clear this setting, otherwise we won't see any migrations
+        settings.MIGRATION_MODULES = {}
+        # Save information here, for later write to file
+        info = self.runner.coverage_data['migration']['present']
+        # Get migrations
+        loader = MigrationLoader(None, ignore_no_migrations=True)
+        graph = loader.graph
+        targets = graph.leaf_nodes()
+        seen = set()
+        opslist = []
+        for target in targets:
+            #debug.show('target')
+            for migration in graph.forwards_plan(target):
+                if migration not in seen:
+                    node = graph.node_map[migration]
+                    #debug.show('node')
+                    seen.add(migration)
+                    ops = []
+                    # get the actual migration object
+                    migration = loader.graph.nodes[migration]
+                    for op in migration.operations:
+                        cl = op.__class__
+                        if issubclass(cl, ModelOperation) or issubclass(cl, FieldOperation):
+                            ops.append(('schema', cl.__name__))
+                        elif issubclass(cl, Operation):
+                            ops.append(('data', cl.__name__))
+                        else:
+                            raise RuntimeError("Found unexpected operation type in migration: %s" % (op))
+                    info[migration.__module__] = {'operations': ops}
+                    opslist.append((migration, node, ops))
+        # Compare the migrations we found to those present in the latest
+        # release, to see if we have any unreleased migrations
+        latest_coverage_version = self.runner.coverage_master["version"]
+        if 'migration' in self.runner.coverage_master[latest_coverage_version]:
+            release_data = self.runner.coverage_master[latest_coverage_version]['migration']['present']
+        else:
+            release_data = {}
+        unreleased = []
+        for migration, node, ops in opslist:
+            if not migration.__module__ in release_data:
+                for op, nm in ops:
+                    unreleased.append((node, op, nm))
+        # gather the transitions in operation types.  We'll allow 1
+        # transition, but not 2 or more.
+        mixed = [ unreleased[i] for i in range(1,len(unreleased)) if unreleased[i][1] != unreleased[i-1][1] ]
+        if len(mixed) > 1:
+            raise self.failureException('Found interleaved schema and data operations in unreleased migrations;'
+                ' please see if they can be re-ordered with all schema migrations before the data migrations:\n'
+                +('\n'.join(['    %-6s:  %-12s, %s (%s)'% (op, node.key[0], node.key[1], nm) for (node, op, nm) in unreleased ])))
+
 class IetfTestRunner(DiscoverRunner):
 
     @classmethod
@@ -365,7 +444,7 @@ class IetfTestRunner(DiscoverRunner):
         self.root_dir = os.path.dirname(settings.BASE_DIR)
         self.coverage_file = os.path.join(self.root_dir, settings.TEST_COVERAGE_MASTER_FILE)
         super(IetfTestRunner, self).__init__(**kwargs)
-        if self.parallel:
+        if self.parallel > 1:
             self.check_coverage = False
 
     def setup_test_environment(self, **kwargs):
@@ -403,6 +482,10 @@ class IetfTestRunner(DiscoverRunner):
                     "covered": {},
                     "format": 1,
                 },
+                "migration": {
+                    "present": {},
+                    "format": 3,
+                }
             }
 
             settings.TEMPLATES[0]['OPTIONS']['loaders'] = ('ietf.utils.test_runner.TemplateCoverageLoader',) + settings.TEMPLATES[0]['OPTIONS']['loaders']
@@ -527,6 +610,7 @@ class IetfTestRunner(DiscoverRunner):
         if self.check_coverage:
             template_coverage_collection = True
             extra_tests += [
+                CoverageTest(test_runner=self, methodName='interleaved_migrations_test'),
                 CoverageTest(test_runner=self, methodName='url_coverage_test'),
                 CoverageTest(test_runner=self, methodName='template_coverage_test'),
                 CoverageTest(test_runner=self, methodName='code_coverage_test'),

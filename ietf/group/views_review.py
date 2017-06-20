@@ -168,7 +168,7 @@ def reviewer_overview(request, acronym, group_type=None):
         latest_reqs = []
         for d in req_data:
             if d.state in ["requested", "accepted"] or len(latest_reqs) < MAX_CLOSED_REQS + open_reqs:
-                latest_reqs.append((d.req_pk, d.doc, d.reviewed_rev, d.deadline,
+                latest_reqs.append((d.req_pk, d.doc, d.reviewed_rev, d.assigned_time, d.deadline,
                                     review_state_by_slug.get(d.state),
                                     int(math.ceil(d.assignment_to_closure_days)) if d.assignment_to_closure_days is not None else None))
         person.latest_reqs = latest_reqs
@@ -446,7 +446,7 @@ def email_open_review_assignments(request, acronym, group_type=None):
 class ReviewerSettingsForm(forms.ModelForm):
     class Meta:
         model = ReviewerSettings
-        fields = ['min_interval', 'filter_re', 'skip_next', 'remind_days_before_deadline']
+        fields = ['min_interval', 'filter_re', 'skip_next', 'remind_days_before_deadline','expertise']
 
     def __init__(self, *args, **kwargs):
        exclude_fields = kwargs.pop('exclude_fields', [])

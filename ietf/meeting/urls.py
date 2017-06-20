@@ -4,7 +4,9 @@ from django.conf.urls import include
 from django.views.generic import RedirectView
 from django.conf import settings
 
-from ietf.meeting import views, ajax
+from ietf.meeting import ajax, views
+#import ietf.meeting.views.meeting as views
+#import ietf.meeting.views.sidemeeting as sidemeeting_views
 from ietf.utils.urls import url
 
 safe_for_all_meeting_types = [
@@ -17,7 +19,6 @@ safe_for_all_meeting_types = [
     url(r'^session/(?P<session_id>\d+)/slides/%(name)s/order$' % settings.URL_REGEXPS, views.set_slide_order),
     url(r'^session/(?P<session_id>\d+)/doc/%(name)s/remove$' % settings.URL_REGEXPS, views.remove_sessionpresentation),
 ]
-
 
 type_ietf_only_patterns = [
     url(r'^agenda/%(owner)s/%(schedule_name)s/edit$' % settings.URL_REGEXPS, views.edit_agenda),
@@ -110,5 +111,13 @@ urlpatterns = [
     #
     url(r'^(?P<num>\d+)/', include(safe_for_all_meeting_types)),
     url(r'^(?P<num>interim-[a-z0-9-]+)/', include(safe_for_all_meeting_types)),
+    # SideMeeting Views
+    url(r'^sidemeeting/add/$', views.SideMeetingAddView.as_view(), name='side-meeting-add'),
+    url(r'^sidemeeting/approve/(?P<pk>\d+)/$', views.SideMeetingApproveView.as_view(), name='side-meeting-approve'),    
+    url(r'^sidemeeting/edit/(?P<pk>\d+)/$', views.SideMeetingEditView.as_view(), name='side-meeting-edit'),
+    url(r'^sidemeeting/delete/(?P<pk>\d+)/$', views.SideMeetingDeleteView.as_view(), name='side-meeting-delete'),
+    url(r'^sidemeeting/list/$', views.SideMeetingListView.as_view(), name='side-meeting-list'),
+    url(r'^sidemeeting/detail/(?P<pk>\d+)/$', views.SideMeetingDetailView.as_view(), name='side-meeting-detail'),        
+    
 ]
 

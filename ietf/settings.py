@@ -82,6 +82,7 @@ DATABASES = {
     },
 }
 
+
 DATABASE_TEST_OPTIONS = {
     # Comment this out if your database doesn't support InnoDB
     'init_command': 'SET storage_engine=InnoDB',
@@ -398,7 +399,6 @@ INSTALLED_APPS = (
     'ietf.redirects',
     'ietf.release',
     'ietf.review',
-    'ietf.sidemeeting',    
     'ietf.stats',
     'ietf.submit',
     'ietf.sync',

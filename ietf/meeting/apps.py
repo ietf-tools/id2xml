@@ -3,6 +3,5 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 
-
-class SideMeetingConfig(AppConfig):
-    name = 'sidemeeting'
+class MeetingConfig(AppConfig):
+    name = 'meeting'

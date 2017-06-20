@@ -27,6 +27,7 @@ from ietf.person.models import Person
 from ietf.utils import log
 from ietf.utils.storage import NoLocationMigrationFileSystemStorage
 from ietf.utils.text import xslugify
+from ietf.name.models import NameModel
 
 countries = pytz.country_names.items()
 countries.sort(lambda x,y: cmp(x[1], y[1]))
@@ -1180,3 +1181,24 @@ class Session(models.Model):
             self._agenda_file = "%s/agenda/%s" % (self.meeting.number, filename)
             
         return self._agenda_file
+
+#######################
+# side meeting models #
+#######################
+class SideMeetingTypeName(NameModel):
+    """ IETF, IRTF, IAB,  "Corporate", "Non-profit" (installed by migrations) """
+    
+class SideMeetingSession(Session):
+    """The side meeting is not based off of a Meeting model
+       but a Session model
+    """
+    requested_prim_start_date = models.DateTimeField()
+    requested_alt_start_date = models.DateTimeField()
+    requested_start_time = models.CharField(max_length=5)
+    sidemeeting_type = models.ForeignKey(SideMeetingTypeName)
+    
+    def __unicode__(self):
+        return u"%s" % self.name
+
+    class Meta:
+        ordering = ["name", "id"]

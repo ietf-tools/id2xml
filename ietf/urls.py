@@ -54,7 +54,6 @@ urlpatterns = [
     url(r'^liaison/', include('ietf.liaisons.urls')),
     url(r'^list/', include('ietf.mailinglists.urls')),
     url(r'^meeting/', include('ietf.meeting.urls')),
-    url(r'^sidemeeting/', include('ietf.sidemeeting.urls')),    
     url(r'^nomcom/', include('ietf.nomcom.urls')),
     url(r'^person/', include('ietf.person.urls')),
     url(r'^release/', include('ietf.release.urls')),

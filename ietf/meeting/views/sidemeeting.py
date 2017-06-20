@@ -13,8 +13,8 @@ from ietf.meeting.helpers import get_meeting, can_approve_sidemeeting_request, c
 from ietf.meeting.models import Meeting
 from ietf.name.models import TimeSlotTypeName, SessionStatusName
 from ietf.person.models import Person
-from ietf.sidemeeting.forms import SideMeetingForm, SideMeetingApproveForm, DETAIL_NAMES
-from ietf.sidemeeting.models import SideMeetingSession
+from ietf.meeting.forms_sidemeeting import SideMeetingForm, SideMeetingApproveForm, DETAIL_NAMES
+from ietf.meeting.models import SideMeetingSession
 
 
 @method_decorator(login_required, name='dispatch')
@@ -24,7 +24,7 @@ class SideMeetingAddView(CreateView):
     """
     template_name = 'sidemeeting/add.html'
     form_class = SideMeetingForm
-    success_url = '/sidemeeting/list/'
+    success_url = '/meeting/sidemeeting/list/'
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
@@ -79,7 +79,7 @@ class SideMeetingApproveView(UpdateView):
     """
     template_name = 'sidemeeting/approve.html'
     form_class = SideMeetingApproveForm
-    success_url = '/sidemeeting/list/'
+    success_url = '/meeting/sidemeeting/list/'    
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
@@ -102,7 +102,7 @@ class SideMeetingApproveView(UpdateView):
 class SideMeetingEditView(UpdateView):
     template_name = 'sidemeeting/add.html'
     form_class = SideMeetingForm
-    success_url = '/sidemeeting/list/'
+    success_url = '/meeting/sidemeeting/list/'        
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):
@@ -147,7 +147,7 @@ class SideMeetingEditView(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class SideMeetingDeleteView(DeleteView):
     template_name = 'sidemeeting/confirm_delete.html'
-    success_url = '/sidemeeting/list/'
+    success_url = '/meeting/sidemeeting/list/'        
     model = SideMeetingSession
 
     def dispatch(self, request, *args, **kwargs):

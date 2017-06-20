@@ -66,7 +66,7 @@ from ietf.utils.pipe import pipe
 from ietf.utils.pdf import pdf_pages
 from ietf.utils.text import xslugify
 
-from .forms import (InterimMeetingModelForm, InterimAnnounceForm, InterimSessionModelForm,
+from ietf.meeting.forms import (InterimMeetingModelForm, InterimAnnounceForm, InterimSessionModelForm,
     InterimCancelForm, InterimSessionInlineFormSet)
 
 

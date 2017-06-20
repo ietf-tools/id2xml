@@ -17,15 +17,14 @@ from django.urls import reverse as urlreverse
 from django.test import TestCase
 from ietf.group.factories import GroupFactory, GroupEventFactory
 from ietf.person.factories import PersonFactory
-from ietf.sidemeeting.factories import SideMeetingSessionFactory
+#from ietf.sidemeeting.factories import SideMeetingSessionFactory
 from django.contrib.auth.models import User
 from ietf.group.models import Role, Group
 from ietf.name.models import RoleName
 from ietf.person.models import Person, Email
-from ietf.sidemeeting.forms import SideMeetingApproveForm, SideMeetingForm
-from ietf.sidemeeting.models import SideMeetingSession, SideMeetingTypeName
+from ietf.meeting.forms_sidemeeting import SideMeetingApproveForm, SideMeetingForm
 from ietf.meeting.test_data import make_meeting_test_data
-from ietf.meeting.models import ResourceAssociation
+from ietf.meeting.models import ResourceAssociation, SideMeetingSession, SideMeetingTypeName
 
 import datetime as dt
 

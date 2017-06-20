@@ -8,7 +8,7 @@ from collections import OrderedDict
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from ietf.sidemeeting import models
+from ietf.meeting.models import SideMeetingSession
 
 # for more info on ugettext_lazy translation see:
 #   https://stackoverflow.com/questions/4160770/when-should-i-use-ugettext-lazy#4164683
@@ -127,7 +127,7 @@ class SideMeetingForm(forms.ModelForm):
 
     class Meta:
         # standard modelform structure
-        model = models.SideMeetingSession
+        model = SideMeetingSession
         fields = FIELD_NAMES.keys()
         labels = FIELD_NAMES
         # format the appearance of these fields in the form
@@ -148,7 +148,7 @@ class SideMeetingForm(forms.ModelForm):
 class SideMeetingApproveForm(forms.ModelForm):
     class Meta:
         # standard modelform structure
-        model = models.SideMeetingSession
+        model = SideMeetingSession
         fields = ('status', )
         labels = {
             'status': _("Status"),

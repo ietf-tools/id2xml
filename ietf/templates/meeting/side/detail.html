@@ -3,36 +3,46 @@
 {% load origin staticfiles bootstrap3 %}
 {% load sm_detail %}
 
-{% block title %}Approve Side Meeting{% endblock %}
+{% block title %}{% endblock %}
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'select2/select2.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap-css/select2-bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/sidemeeting.css' %}">    
+  <style>
+    li {
+        list-style-type:none;
+    }
+    th {
+        padding-right:20px;
+    }
+    .list-item {
+        padding:5px;
+    }
+    .list-item-approved {
+        background-color:#0f0;
+        padding:5px;
+    }
+    .list-name {
+        width:150px;
+        float:left;
+    }
+    .list-actions {
+        float:left;
+    }
+    .list-approval {
+        margin-left:10px;
+        float:left;      
+    }
+  </style>
+  
 {% endblock %}
 
 {% block content %}
   {% origin %}
-
-  <h1>Approve Side Meeting for Meeting: {{object.meeting.number}} </h1>
   <div class="panel panel-default">
     <div class="panel-heading">
       <a href="{% url 'side-meeting-list' %}" data-toggle="tooltip" title="Back to side Meeting List"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
-      Approve side meeting</div>
-     <div class="panel-body">
-        <form method="post">
-          {% csrf_token %}
-          {% bootstrap_form form %}
-          {% buttons %}
-            <button class="btn-primary" type="submit">Save</button>
-          {% endbuttons %}
-        </form>
-     </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <a href="{% url 'side-meeting-list' %}" data-toggle="tooltip" title="Back to side Meeting List"><span class="glyphicon glyphicon-circle-arrow-left"></span></a>
-      side meeting details
+      side meeting: {{object.meeting.number}}      
     </div>
 
      <div class="panel-body">
@@ -46,13 +56,10 @@
       </table>
      </div>
    </div>
-  
 
 {% endblock %}
 
 {% block js %}
   <script src="{% static 'select2/select2.min.js' %}"></script>
   <script src="{% static 'ietf/js/select2-field.js' %}"></script>
-});
-   
 {% endblock %}

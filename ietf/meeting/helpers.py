@@ -308,7 +308,7 @@ def send_sidemeeting_approval_request(sidemeetingsession):
     (to_email, cc_list) = gather_address_lists('session_requested',group=group,person=requester)    
     from_email = ('"IETF Side Meeting Session Request Tool"',settings.SESSION_REQUEST_DEVELOPERS)
     subject = '{group} - New Side Meeting Request'.format(group=group.acronym)
-    template = 'sidemeeting/sidemeeting_approval_request.txt'
+    template = 'meeting/side/sidemeeting_approval_request.txt'
     url = settings.IDTRACKER_BASE_URL + reverse('side-meeting-approve', kwargs={'pk': meeting.id})
     context = locals()
     send_mail(None,

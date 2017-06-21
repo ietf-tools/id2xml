@@ -7,8 +7,33 @@
 
 {% block pagehead %}
   <link rel="stylesheet" href="{% static 'select2/select2.css' %}">
-  <link rel="stylesheet" href="{% static 'css/sidemeeting.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap-css/select2-bootstrap.min.css' %}">
+  <style>
+    li {
+        list-style-type:none;
+    }
+    th {
+        padding-right:20px;
+    }
+    .list-item {
+        padding:5px;
+    }
+    .list-item-approved {
+        background-color:#0f0;
+        padding:5px;
+    }
+    .list-name {
+        width:150px;
+        float:left;
+    }
+    .list-actions {
+        float:left;
+    }
+    .list-approval {
+        margin-left:10px;
+        float:left;      
+    }
+  </style>  
 {% endblock %}
 
 {% block content %}
@@ -42,7 +67,6 @@
                   <div class="list-actions">
                           {% can_edit_sidemeeting mtg user as can_edit %}                    
                           {% if can_edit %}
-                          <a href="{% url 'side-meeting-delete' mtg.id %}"  data-toggle="tooltip" title="Delete"><span class="glyphicon glyphicon-remove"></span></a>
                           <a href="{% url 'side-meeting-edit' mtg.id %}"  data-toggle="tooltip" title="Edit"><span class="glyphicon glyphicon-pencil"></span></a>
                           {% endif %}
                           {% can_approve_sidemeeting mtg user as can_approve %}

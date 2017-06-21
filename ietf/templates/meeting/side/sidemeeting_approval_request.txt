@@ -6,4 +6,4 @@ This request requires approval by the {{ group.sidemeeting_approval_roles|role_n
 The meeting can be approved here: 
     {{ url }}
 
-Meeting: {% include "sidemeeting/sidemeeting_info.txt" %}
+Meeting: {% include "meeting/side/sidemeeting_info.txt" %}

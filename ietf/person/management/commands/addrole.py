@@ -25,11 +25,7 @@ class Command(BaseCommand):
             p = Person.objects.get(user__username=username)
             rn = RoleName(slug=rolename)
             g = Group.objects.get(acronym=groupacronym)
-            e = Email(address=p.user.email,person=p)
-            e.save()
-            r = Role(group=g,person=p,name=rn,email=e)
-            r.save()
-
-
+            e = Email.objects.create(address=p.user.email,person=p)
+            r = Role.objects.create(group=g,person=p,name=rn,email=e)
 
 

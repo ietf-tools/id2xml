@@ -6,10 +6,10 @@ import shutil
 import urlparse
 from StringIO import StringIO
 from copy import copy
-from django.test import TestCase
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django.urls import reverse as urlreverse
 from mock import patch
 from pyquery import PyQuery
@@ -17,25 +17,26 @@ from pyquery import PyQuery
 from ietf.doc.factories import DocumentFactory
 from ietf.doc.models import Document
 from ietf.group.factories import GroupEventFactory, GroupFactory
-from ietf.group.models import Group, Role
+from ietf.group.models import Group, Role, RoleName
 from ietf.meeting.factories import (FloorPlanFactory, MeetingFactory,
                                     ScheduleFactory, SessionFactory,
                                     SessionPresentationFactory)
-from ietf.meeting.forms import SideMeetingForm
+from ietf.meeting.forms import SideMeetingForm, SideMeetingApproveForm
 from ietf.meeting.helpers import (
     can_approve_interim_request, can_view_interim_request,
     send_interim_approval_request, send_interim_cancellation_notice,
-    send_interim_minutes_reminder)
+    send_interim_minutes_reminder, can_request_sidemeeting)
 from ietf.meeting.models import (Meeting, ResourceAssociation, Session,
-                                 SideMeetingTypeName, TimeSlot)
+                                 SideMeetingSession, SideMeetingTypeName,
+                                 TimeSlot)
 from ietf.meeting.test_data import (make_interim_meeting,
                                     make_meeting_test_data)
 from ietf.meeting.utils import finalize
-from ietf.name.models import SessionStatusName
+from ietf.name.models import SessionStatusName, TimeSlotTypeName
 from ietf.person.factories import PersonFactory
+from ietf.person.models import Person, Email
 from ietf.utils.mail import outbox
-from ietf.utils.test_utils import (TestCase, login_testing_unauthorized,
-                                   unicontent)
+from ietf.utils.test_utils import login_testing_unauthorized, unicontent
 from ietf.utils.text import xslugify
 
 
@@ -2410,17 +2411,31 @@ class SideMeetingFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
 
-class ApproveSideMeetingTestCase(TestCase):
-    # def test_can_approve_sidemeeting_request(self):
-    #     # PASS
-    #     r = RoleName(slug="secr",name="Secretary")
-    #     # FAIL
-    #     assertFalse(sidemeeting.type.slug, "sidemeeting")
-    #     # PASS
-    #     assertTrue(group.type.slug="wg" and group.parent.role_set.filter(name='ad', person=person))
-    #     # PASS
-    #     assertTrue(group.type.slug == 'rg' and group.parent.role_set.filter(name='chair', person=person))
+class ApproveSideMeetingFormTestCase(TestCase):
+    def setUp(self):
+        self.good = {'status': 'appr'}
+        self.bad = {'status': 'bogus'}
+        self.whatever = {'whatever': 'bogus'}
+        self.nothing = {}
 
+    def test_good_data(self):
+        form = SideMeetingApproveForm(data=self.good)
+        self.assertTrue(form.is_valid())
+
+    def test_bad_data(self):
+        form = SideMeetingApproveForm(data=self.bad)
+        self.assertFalse(form.is_valid())
+
+    def test_whatever_data(self):
+        form = SideMeetingApproveForm(data=self.whatever)
+        self.assertFalse(form.is_valid())
+
+    def test_nothing_data(self):
+        form = SideMeetingApproveForm(data=self.nothing)
+        self.assertFalse(form.is_valid())
+
+
+class ApproveSideMeetingTestCase(TestCase):
     def setUp(self):
         self.url = "/sidemeeting/approve/"
         self.sidemeeting_pk_bad = "999999999999999"
@@ -2429,3 +2444,79 @@ class ApproveSideMeetingTestCase(TestCase):
         # make sure url fails for a bad sidemeeting pk
         r = self.client.get(self.url + self.sidemeeting_pk_bad)
         self.assertNotEqual(r.status_code, 200)
+
+
+class SideMeetingPermissionsTestCase(TestCase):
+    def setUp(self):
+        # definition of core objects required by the form
+        self.meeting = make_meeting_test_data()
+        self.resources = ResourceAssociation.objects.all()[0:2]
+        self.sidemeeting_type = SideMeetingTypeName.objects.create(
+            slug="ietf", name="IETF")
+        self.group = Group.objects.get(acronym="secretariat")
+
+        self.username = "django"
+        self.password = "django"
+        self.user = User.objects.create_user(
+            self.username, password=self.password, email="django@amsl.com")
+        self.roles = ('Secretariat', 'Area Director', 'WG Chair', 'IRTF Chair',
+                      'RG Chair')
+        TimeSlotTypeName.objects.create(slug="sidemeeting", name="SideMeeting")
+
+        # data for the form
+        self.data = {
+            'attendees': '23',
+            'comments': 'test ABC',
+            'group': str(self.group.id),
+            'meeting': str(self.meeting.id),
+            'name': 'ABC',
+            'requested_alt_start_date': '06/28/2017',
+            'requested_duration': '00:00:00',
+            'requested_prim_start_date': '06/13/2017',
+            'requested_start_time': '2',
+            'resources': [r.id for r in self.resources],
+            'sidemeeting_type': str(self.sidemeeting_type.slug)
+        }
+
+    def make_role(self, rolename, group):
+        p = Person.objects.create(user=self.user)
+        rn = RoleName.objects.get(slug=rolename)
+        g = Group.objects.get(acronym=group, person=p)
+        e = Email.objects.create(address=p.user.email, person=p)
+        return Role.objects.create(group=g, person=p, name=rn, email=e)
+
+    def test_can_request_sidemeeting_good(self):
+        self.make_role("secr", "secretariat")
+        r = can_request_sidemeeting(self.user)
+        self.assertTrue(r)
+
+    def test_can_request_sidemeeting_wrong_group(self):
+        self.make_role("secr", "iab")
+        r = can_request_sidemeeting(self.user)
+        self.assertFalse(r)
+
+    def test_sidemeeting_add_view(self):
+        # give the user a role that will be permitted to add a view
+        self.make_role("secr", "secretariat")
+        # log in
+        self.client.login(username=self.username, password=self.password)
+        # post data to the add view
+        resp = self.client.post(urlreverse('side-meeting-add'), self.data)
+        # verify redirection to the list view
+        self.assertEqual(resp.status_code, 302)
+        # verify list view is what is being redirected to
+        self.assertEqual(resp._headers['location'][1],
+                         urlreverse('side-meeting-list'))
+        # verify a sidemeeting has actually been created
+        ss = SideMeetingSession.objects.filter(name=self.data["name"])
+        self.assertTrue(len(ss) == 1)
+
+    def test_can_approve_sidemeeting_request(self):
+        pass
+
+        # # FAIL
+        # assertFalse(sidemeeting.type.slug, "sidemeeting")
+        # # PASS
+        # assertTrue(group.type.slug="wg" and group.parent.role_set.filter(name='ad', person=person))
+        # # PASS
+        # assertTrue(group.type.slug == 'rg' and group.parenot.role_set.filter(name='chair', person=person))

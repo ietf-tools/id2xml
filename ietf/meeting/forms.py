@@ -32,7 +32,6 @@ timezones.insert(0, ('', '-' * 9))
 # Helpers
 # -------------------------------------------------
 
-
 class GroupModelChoiceField(forms.ModelChoiceField):
     '''
     Custom ModelChoiceField, changes the label to a more readable format

@@ -153,7 +153,7 @@ class DraftYangChecker(object):
                 err = sys.stderr.getvalue()
                 sys.stdout = saved_stdout
                 sys.stderr = saved_stderr
-                model_list = extractor.get_extracted_models()
+                model_list = extractor.get_extracted_models(False)
             except Exception as exc:
                 log("Exception when running xym on %s: %s" % (name, exc))
 

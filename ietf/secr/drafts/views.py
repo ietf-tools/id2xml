@@ -624,7 +624,7 @@ def confirm(request, id):
             details = get_action_details(draft, request)
             hidden_form = EmailForm(request.POST, hidden=True)
 
-            return render(request, 'drafts/confirm_.html', {
+            return render(request, 'drafts/confirm.html', {
                 'details': details,
                 'email': email,
                 'action': action,

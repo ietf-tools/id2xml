@@ -98,7 +98,7 @@
       <tbody>
         {% for r in closed_review_requests %}
           <tr>
-            <td><a href="{% url "ietf.doc.views_review.review_request" name=r.doc.name request_id=r.pk %}">{{ r.doc.name }}{% if r.requested_rev %}-{{ r.requested_rev }}{% endif %}</a></td>
+            <td><a href="{% if r.result %} {{ r.review.get_absolute_url }}{% else %}{% url "ietf.doc.views_review.review_request" name=r.doc.name request_id=r.pk %}{% endif %}">{{ r.doc.name }}{% if r.requested_rev %}-{{ r.requested_rev }}{% endif %}</a></td>
             <td>{{ r.type }}</td>
             <td>{{ r.time|date:"Y-m-d" }} by {{ r.requested_by.plain_name }}</td>
             <td>{{ r.deadline|date:"Y-m-d" }}</td>

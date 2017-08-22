@@ -20,23 +20,6 @@ from ietf.doc.models import (
 from ietf.doc.mails import (
     email_pulled_from_rfc_queue, email_resurrect_requested,
     email_resurrection_completed, email_state_changed, email_stream_changed,
-<<<<<<< .working
-    email_stream_state_changed, email_stream_tags_changed, extra_automation_headers,
-    generate_publication_request, email_adopted, email_intended_status_changed,
-    email_iesg_processing_document, email_ad_approved_doc )
-from ietf.doc.utils import ( add_state_change_event, can_adopt_draft,
-    get_tags_for_stream_id, nice_consensus,
-    update_reminder, update_telechat, make_notify_changed_event, get_initial_notify,
-    set_replaces_for_document, default_consensus, tags_suffix, )
-||||||| .merge-left.r13884
-    email_stream_state_changed, email_stream_tags_changed, extra_automation_headers,
-    generate_publication_request, email_adopted, email_intended_status_changed,
-    email_iesg_processing_document, email_ad_approved_doc )
-from ietf.doc.utils import ( add_state_change_event, can_adopt_draft,
-    get_tags_for_stream_id, nice_consensus,
-    update_reminder, update_telechat, make_notify_changed_event, get_initial_notify,
-    set_replaces_for_document, default_consensus )
-=======
     email_edit_shepherd, email_stream_state_changed, email_stream_tags_changed,
     extra_automation_headers, generate_publication_request, email_adopted,
     email_intended_status_changed, email_iesg_processing_document,
@@ -46,7 +29,6 @@ from ietf.doc.utils import (add_state_change_event, can_adopt_draft,
                             update_reminder, update_telechat,
                             make_notify_changed_event, get_initial_notify,
                             set_replaces_for_document, default_consensus)
->>>>>>> .merge-right.r13947
 from ietf.doc.lastcall import request_last_call
 from ietf.doc.fields import SearchableDocAliasesField
 from ietf.group.models import Group, Role
@@ -115,13 +97,7 @@ def change_state(request, name):
             tag = form.cleaned_data['substate']
             comment = form.cleaned_data['comment'].strip()
 
-<<<<<<< .working
             msg = ""
-
-||||||| .merge-left.r13884
-
-=======
->>>>>>> .merge-right.r13947
             # tag handling is a bit awkward since the UI still works
             # as if IESG tags are a substate
             prev_tags = doc.tags.filter(slug__in=IESG_SUBSTATE_TAGS)

@@ -17,7 +17,7 @@ import debug                            # pyflakes:ignore
 from ietf.doc.models import ( Document, DocAlias, RelatedDocument, State,
     StateType, DocEvent, ConsensusDocEvent, TelechatDocEvent, WriteupDocEvent, IESG_SUBSTATE_TAGS)
 from ietf.doc.mails import ( email_pulled_from_rfc_queue, email_resurrect_requested,
-    email_resurrection_completed, email_state_changed, email_stream_changed,
+    email_resurrection_completed, email_state_changed, email_stream_changed,  email_edit_shepherd,
     email_stream_state_changed, email_stream_tags_changed, extra_automation_headers,
     generate_publication_request, email_adopted, email_intended_status_changed,
     email_iesg_processing_document, email_ad_approved_doc )
@@ -936,12 +936,16 @@ class ShepherdForm(forms.Form):
 
 def edit_shepherd(request, name):
     """Change the shepherd for a Document"""
+    # note: test at /doc/draft-ietf-stir-certificates/edit/shepherd/
+    # RT: https://www.ietf.org/rt/Ticket/Display.html?id=139929
     # TODO - this shouldn't be type="draft" specific
     doc = get_object_or_404(Document, type="draft", name=name)
+    old_shepherd_email = doc.shepherd.address
 
     can_edit_stream_info = is_authorized_in_doc_stream(request.user, doc)
     if not can_edit_stream_info:
-        return HttpResponseForbidden("You do not have the necessary permissions to view this page")
+        return HttpResponseForbidden(
+            "You do not have the necessary permissions to view this page")
 
     if request.method == 'POST':
         form = ShepherdForm(request.POST)
@@ -952,8 +956,13 @@ def edit_shepherd(request, name):
 
                 doc.shepherd = form.cleaned_data['shepherd']
 
-                c = DocEvent(type="added_comment", doc=doc, rev=doc.rev, by=request.user.person)
-                c.desc = "Document shepherd changed to "+ (doc.shepherd.person.name if doc.shepherd else "(None)")
+                c = DocEvent(
+                    type="added_comment",
+                    doc=doc,
+                    rev=doc.rev,
+                    by=request.user.person)
+                c.desc = "Document shepherd changed to " + (
+                    doc.shepherd.person.name if doc.shepherd else "(None)")
                 c.save()
                 events.append(c)
     
@@ -964,7 +973,9 @@ def edit_shepherd(request, name):
                     addrs += doc.shepherd.formatted_email()
                     events.append(make_notify_changed_event(request, doc, request.user.person, addrs, c.time))
                     doc.notify = addrs
-    
+
+                email_edit_shepherd(request, doc, old_shepherd_email)
+
                 doc.save_with_history(events)
 
             else:

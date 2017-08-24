@@ -63,6 +63,7 @@ def email_stream_changed(request, doc, old_stream, new_stream, text=""):
                    url=settings.IDTRACKER_BASE_URL + doc.get_absolute_url()),
               cc=cc)
 
+# added per https://trac.tools.ietf.org/tools/ietfdb/ticket/1309    
 def email_edit_shepherd(request, doc, old_shepherd_email, text=""):
     """Email the change text to the notify group and to the stream chairs"""
     (to, cc) = gather_address_lists('email_edit_shepherd', doc=doc)

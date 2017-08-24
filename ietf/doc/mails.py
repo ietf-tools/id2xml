@@ -63,6 +63,30 @@ def email_stream_changed(request, doc, old_stream, new_stream, text=""):
                    url=settings.IDTRACKER_BASE_URL + doc.get_absolute_url()),
               cc=cc)
 
+def email_edit_shepherd(request, doc, old_shepherd_email, text=""):
+    """Email the change text to the notify group and to the stream chairs"""
+    (to, cc) = gather_address_lists('email_edit_shepherd', doc=doc)
+    to.append(old_shepherd_email)
+
+    if not to:
+        return
+
+    if not text:
+        text = u"mailing sheperds"
+
+    text = strip_tags(text)
+
+    send_mail(
+        request,
+        to,
+        None,
+        "Shepherd Edited: %s" % doc.file_tag(),
+        "doc/mail/email_edit_shepherd.txt",
+        dict(
+            text=text,
+            url=settings.IDTRACKER_BASE_URL + doc.get_absolute_url()),
+        cc=cc)
+
 def email_pulled_from_rfc_queue(request, doc, comment, prev_state, next_state):
     extra=extra_automation_headers(doc)
     addrs = gather_address_lists('doc_pulled_from_rfc_queue',doc=doc)

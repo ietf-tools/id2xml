@@ -1,0 +1,2 @@
+Tests/rfc.xml:24: The attribute 'fill' does not allow the value 'red', replaced with 'black'
+Tests/circle.svg:2: The attribute 'fill' does not allow the value 'red', replaced with 'black'

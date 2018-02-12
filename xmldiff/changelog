@@ -1,0 +1,6 @@
+xmldiff (0.0.3) distribution(s); urgency=urgency
+
+	* First drop of code - only does pure xml differences
+
+-- Jim Schaad <ietf@augustcellars.com>  Sun 11 Feb 2018 19:00:00 -0800
+

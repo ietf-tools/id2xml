@@ -48,8 +48,6 @@
       {% load cache %}
       {% cache 300 ietf_meeting_agenda_utc schedule.meeting.number request.path %}
 
-        <h1>Agenda</h1>
-
 	<p class="alert alert-info">
 	  <b>Note:</b> IETF agendas are subject to change, up to and during a meeting.
 	</p>

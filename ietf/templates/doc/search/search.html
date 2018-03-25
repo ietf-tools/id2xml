@@ -10,13 +10,10 @@
 
 {% block content %}
   {% origin %}
+  <div class="pull-right"><a href="/doc/stats/newrevisiondocevent?{{queryargs}}" class="icon-link">&nbsp;<span class="large grey fa fa-bar-chart">&nbsp;</span></a></div>
   <div class="col-sm-11 col-md-11 col-lg-11">
     <h1>Document Search</h1>
   </div>
-  <div class="col-sm-1 col-md-1 col-lg-1 text-right">
-    <h1><a href="/doc/stats/newrevisiondocevent?{{queryargs}}" class="icon-link">&nbsp;<span class="small fa fa-bar-chart">&nbsp;</span></a></h1>
-  </div>
-  
 
   {% include "doc/search/search_form.html" %}
 

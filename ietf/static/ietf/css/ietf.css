@@ -447,15 +447,17 @@ td.area-director div { border-bottom: solid #ccc 1px; }
 
 h1 small .pull-right { margin-top: 10.5px; }
 
-/* from bootstrap: .small {  font-size: 84%; } */
-
-.tiny { font-size: 70%; }
 h1 .regular.pull-right { font-size: 50%; margin-top: 10.5px ; }
 h2 .regular.pull-right { font-size: 57.6%; margin-top: 7.5px; }
 
+.tiny { font-size: 70%; }
+/* from bootstrap: */
+/* .small {  font-size: 84%; } */
 .large {font-size: 120%;}
 .llarge {font-size: 144%;}
 .lllarge {font-size: 172.8%;}
+
+.grey { color: #777; }
 
 /* This should not really be needed, but on iPads the navbar form is
    calculated to be a different width than it should be when we leave this at

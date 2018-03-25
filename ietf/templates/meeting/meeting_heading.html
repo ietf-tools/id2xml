@@ -2,15 +2,16 @@
 {# assumes meeting is in context #}
 {% load origin %}
 {% load ietf_filters %}
-
       {% origin %}
+      {% if meeting.get_number > 71 %}
+      <div class="pull-right"><a href="{% url 'ietf.stats.views.meeting_stats' num=meeting.number stats_type='country' %}" class="icon-link">&nbsp;<span class="large grey fa fa-bar-chart">&nbsp;</span></a></div>
+      {% endif %}
 
       {% if schedule != meeting.agenda %}
       <h3 class="alert alert-danger text-center">
 	 This is schedule {{schedule.owner.email}}/{{ schedule.name }}, not the official schedule.
       </h3>
       {% endif %}
-
       <h1>
 	IETF {{ meeting.number }} Meeting Agenda {{ title_extra }}
 	<br>

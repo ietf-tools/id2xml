@@ -55,6 +55,9 @@ def main():
 
     # Set Auth Group Admin Permissions
     names = ['auth.add_user','auth.change_user','auth.delete_user',
+             'doc.add_document','doc.change_document','doc.delete_document',
+             'doc.add_documentauthor','doc.change_documentauthor','doc.delete_documentauthor',
+             'doc.add_relateddocument','doc.change_relateddocument','doc.delete_relateddocument',
              'group.add_group','group.change_group','group.delete_group',
              'group.add_role','group.change_role','group.delete_role',
              'group.add_groupevent','group.change_groupevent','group.delete_groupevent',

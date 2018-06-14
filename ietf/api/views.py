@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from django.views.generic.detail import DetailView
 
@@ -21,9 +22,12 @@ from tastypie.serializers import Serializer
 
 import debug                            # pyflakes:ignore
 
-from ietf.person.models import Person
+from ietf.person.models import Person, Email
 from ietf.api import _api_list
 from ietf.api.serializer import JsonExportMixin
+from ietf.utils.decorators import require_api_key
+from ietf.ietfauth.utils import role_required
+
 
 def top_level(request):
     available_resources = {}
@@ -72,4 +76,24 @@ class PersonExportView(DetailView, JsonExportMixin):
             'nextreviewerinteam', 'reviewrequest', 'meetingregistration', 'submissionevent', 'preapproval',
             'user', 'user__communitylist', ]
         return self.json_view(request, filter={'id':person.id}, expand=expand)
+
+
+@method_decorator((csrf_exempt, require_api_key, role_required('Secretariat')), name='dispatch')
+class GenericPersonExportView(DetailView, JsonExportMixin):
+    model = Person
+
+    def err(self, code, text):
+        return HttpResponse(text, status=code, content_type='text/plain')
+
+    def post(self, request):
+        if 'email' not in request.POST:
+            return self.err(400, "Missing email parameter")
+        email_address = request.POST.get('email')
+        try:
+            email = Email.objects.get(address=email_address)
+        except Email.DoesNotExist:
+            return self.err(404, "Email not found '%s'" % (email_address, ))
+        person = email.person
+        expand = ['user']
+        return self.json_view(request, filter={'id': person.id}, expand=expand)
 

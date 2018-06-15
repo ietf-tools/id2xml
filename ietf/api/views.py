@@ -63,7 +63,7 @@ def api_help(request):
     
 
 @method_decorator((login_required, gzip_page), name='dispatch')
-class PersonExportView(DetailView, JsonExportMixin):
+class PersonalInformationExportView(DetailView, JsonExportMixin):
     model = Person
 
     def get(self, request):
@@ -79,7 +79,7 @@ class PersonExportView(DetailView, JsonExportMixin):
 
 
 @method_decorator((csrf_exempt, require_api_key, role_required('Secretariat')), name='dispatch')
-class GenericPersonView(DetailView, JsonExportMixin):
+class ApiV2PersonExportView(DetailView, JsonExportMixin):
     model = Person
 
     def err(self, code, text):

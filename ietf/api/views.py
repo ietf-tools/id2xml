@@ -79,21 +79,17 @@ class PersonExportView(DetailView, JsonExportMixin):
 
 
 @method_decorator((csrf_exempt, require_api_key, role_required('Secretariat')), name='dispatch')
-class GenericPersonExportView(DetailView, JsonExportMixin):
+class GenericPersonView(DetailView, JsonExportMixin):
     model = Person
 
     def err(self, code, text):
         return HttpResponse(text, status=code, content_type='text/plain')
 
     def post(self, request):
-        if 'email' not in request.POST:
-            return self.err(400, "Missing email parameter")
-        email_address = request.POST.get('email')
-        try:
-            email = Email.objects.get(address=email_address)
-        except Email.DoesNotExist:
-            return self.err(404, "Email not found '%s'" % (email_address, ))
-        person = email.person
-        expand = ['user']
-        return self.json_view(request, filter={'id': person.id}, expand=expand)
+        querydict = request.POST.copy()
+        querydict.pop('apikey', None)
+        expand = querydict.pop('_expand', [])
+        if not querydict:
+            return self.err(400, "No filters provided")
 
+        return self.json_view(request, filter=querydict.dict(), expand=expand)

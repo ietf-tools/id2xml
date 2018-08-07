@@ -8,7 +8,7 @@ import six
 import re
 from lxml.html import builder as E
 from xmldiff.EditItem import EditItem
-from xmldiff.EditDistance import ComputeEdits
+from xmldiff.EditDistance import ComputeEdits, DoWhiteArray
 # from xmldiff.zzs import EditItem
 
 try:
@@ -395,7 +395,7 @@ class DiffRoot(object):
                 node.text += text
 
     def fixPreserveNL(self, node, text):
-        if self.preserve:
+        if self.preserve or True:
             text = text.splitlines(1)
             n = None
             children = list(node)
@@ -446,36 +446,31 @@ class DiffRoot(object):
 
             for op, i1, i2, j1, j2 in result:
                 if op == 'equal':
+                    if i1 == i2 and j1 == j2:
+                        continue
                     bothNode = E.SPAN()
-                    self.fixPreserveNL(bothNode, ''.join(leftArray[i1:i2]))
+                    self.fixPreserveNL(bothNode, (''.join(leftArray[i1:i2])))
                     node.append(bothNode)
                 elif op == 'remove':
                     leftNode = E.SPAN()
                     leftNode.attrib['class'] = 'left'
-                    self.fixPreserveNL(leftNode, ''.join(leftArray[i1:i2]))
+                    self.fixPreserveNL(leftNode, (''.join(leftArray[i1:i2])+u' '))
                     node.append(leftNode)
                 elif op == 'insert':
                     rightNode = E.SPAN()
                     rightNode.attrib['class'] = 'right'
                     rightNode.text = ''
-                    self.fixPreserveNL(rightNode, ''.join(rightArray[j1:j2]))
+                    self.fixPreserveNL(rightNode, (''.join(rightArray[j1:j2])+u' '))
                     node.append(rightNode)
                 else:
                     n = E.SPAN()
                     n.attrib['class'] = 'error'
-                    self.fixPreserveNL(n, ''.join(leftArray[i1:i2])+"*"+''.join(rightArray[j1:j2]))
+                    self.fixPreserveNL(n, ''.join(leftArray[i1:i2])+u"*" +
+                                       (''.join(rightArray[j1:j2])+u' '))
                     node.append(n)
 
     def doWhiteArray(self, text):
-        result = []
-        #  At some point I want to split whitespace with
-        #  CR in them to multiple lines
-        for right in re.split(r'(\s+)', text):
-            if right.isspace():
-                result.extend(list(right))
-            else:
-                result.append(right)
-        return result
+        return DoWhiteArray(text)
 
 
 class DiffDocument(DiffRoot):
@@ -771,7 +766,7 @@ class DiffComment(DiffRoot):
     def ToHtml(self, parent):
         node = E.LI()
         parent.append(node)
-        myLine = "<-- " + self.xml.text.replace(' ', nbsp) + "-->"
+        myLine = "<--" + self.xml.text.replace(' ', nbsp) + "-->"
         while myLine[0] == '\n':
             myLine = myLine[1:]
         while myLine[-1] == '\n':
@@ -797,11 +792,11 @@ class DiffComment(DiffRoot):
             node.attrib["whereLeft"] = "L{0}_{1}".format(self.xml.sourceline, 0)
             node.attrib["whereRight"] = "R{0}_{1}".format(self.matchNode.xml.sourceline, 0)
             left = myLine
-            right = "<-- " + self.matchNode.xml.text.replace(' ', nbsp) + "-->"
+            right = "<--" + self.matchNode.xml.text.replace(' ', nbsp) + "-->"
             self.diffTextToHtml(left, right, node)
 
     def toText(self):
-        return "\n<-- " + self.xml.text.replace(' ', nbsp) + "-->\n"
+        return "\n<--" + self.xml.text.replace(' ', nbsp) + "-->\n"
 
     def cloneTree(self, parent):
         clone = DiffComment(self.xml, parent)
@@ -820,14 +815,19 @@ class DiffElement(DiffRoot):
     def __init__(self, xmlNode, parent):
         if not isinstance(xmlNode, DiffElement):
             DiffRoot.__init__(self, xmlNode, parent)
-
+            preserve = xmlNode.tag == 'artwork'
             if xmlNode.text is not None and xmlNode.text.rstrip() != '':
-                self.children.append(DiffText(xmlNode.text, xmlNode, self))
+                n = DiffText(xmlNode.text, xmlNode, self)
+                n.preserve = preserve
+                self.children.append(n)
 
             for c in xmlNode.iterchildren():
-                self.children.append(self.createNode(c, self))
+                n = self.createNode(c, self)
+                self.children.append(n)
                 if c.tail is not None and c.tail.rstrip() != '':
-                    self.children.append(DiffText(c.tail, xmlNode, self))
+                    n = DiffText(c.tail, xmlNode, self)
+                    n.preserve = preserve
+                    self.children.append(n)
                     c.tail = None
         else:
             DiffRoot.__init__(self, xmlNode.xml, parent)
@@ -903,21 +903,20 @@ class DiffElement(DiffRoot):
                 anchor.append(node)
             if len(self.xml.attrib):
                 for key in self.xml.attrib.iterkeys():
-                    if key in self.matchNode.xml.attrib and \
-                       self.xml.attrib[key] == self.matchNode.xml.attrib[key]:
-                        node = E.SPAN()
-                        node.text = " " + key + '="' + self.xml.attrib[key] + '"'
-                        anchor.append(node)
+                    if key in self.matchNode.xml.attrib:
+                        if self.xml.attrib[key] == self.matchNode.xml.attrib[key]:
+                            node = E.SPAN()
+                            node.text = " " + key + '="' + self.xml.attrib[key] + '"'
+                            anchor.append(node)
+                        else:
+                            leftText = " " + key + '="' + self.xml.attrib[key] + '"'
+                            rightText = " " + key + '="' + self.matchNode.xml.attrib[key] + '"'
+                            self.diffTextToHtml(leftText, rightText, anchor)
                     else:
                         node = E.SPAN()
                         node.attrib['class'] = 'left'
                         node.text = " " + key + '="' + self.xml.attrib[key] + '"'
                         anchor.append(node)
-                        if key in self.matchNode.xml.attrib:
-                            node = E.SPAN()
-                            node.attrib['class'] = 'right'
-                            node.text = " " + key + '="' + self.matchNode.xml.attrib[key] + '"'
-                            anchor.append(node)
 
             for key in self.matchNode.xml.attrib.iterkeys():
                 if key not in self.xml.attrib:
@@ -1000,6 +999,8 @@ class DiffText(DiffRoot):
         return clone
 
     def toText(self):
+        if not self.preserve:
+            return self.text.replace('\n', ' ')
         return self.text
 
     def ToHtml(self, parent):
@@ -1076,13 +1077,14 @@ class DiffParagraph(DiffRoot):
                 x = "\n" + text + "\n"
             text += x
 
+        if self.preserve:
+            text = text.replace(' ', u'\xa0')
         return text
 
     def ToHtml(self, parent):
 
         node = E.LI()
         parent.append(node)
-        self.preserve = True
         if self.deleted:
             n = E.SPAN()
             n.attrib["class"] = 'left'

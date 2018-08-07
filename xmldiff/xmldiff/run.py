@@ -185,13 +185,20 @@ def main():
     templates_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Templates')
     log.note("   template directory = " + templates_dir)
 
+    if six.PY2:
+        with open(os.path.join(templates_dir, "resize.js"), "rU") as f:
+            allScript = f.read()
+    else:
+        with open(os.path.join(templates_dir, "resize.js"), "rU", encoding="utf8") as f:
+            allScript = f.read()
+
     if options.resource_url is None:
         options.resource_url = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Templates')
         if os.name == 'nt':
             options.resource_url = 'file:///' + options.resource_url.replace('\\', '/')
         else:
             options.resource_url = 'file://' + options.resource_url
-        options.resource_url = 'https://www.augustcellars.com/RfcEditor'
+        # options.resource_url = 'https://www.augustcellars.com/RfcEditor'
 
     log.note("   resource url: " + options.resource_url)
 
@@ -219,7 +226,8 @@ def main():
         'body': ''.join(buffers['body']),
         'leftFile': buffers['leftFile'],
         'rightFile': buffers['rightFile'],
-        'resource_dir': options.resource_url
+        'resource_dir': options.resource_url,
+        'allScript': allScript
         }
     output = html_template.substitute(subs)
 

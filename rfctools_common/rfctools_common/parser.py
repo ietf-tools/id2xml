@@ -458,7 +458,8 @@ class XmlRfcParser:
                      'http://xml2rfc.ietf.org/public/rfc/',
                      'http://xml2rfc.tools.ietf.org/public/rfc/',
                  ],
-                 resolve_entities=True
+                 resolve_entities=True,
+                 preserve_all_white=False
                  ):
         self.verbose = verbose
         self.quiet = quiet
@@ -468,6 +469,7 @@ class XmlRfcParser:
         self.network_locs = network_locs
         self.no_xinclude = no_xinclude
         self.resolve_entities = resolve_entities
+        self.preserve_all_white = preserve_all_white
 
         # Initialize templates directory
         self.templates_path = templates_path or \
@@ -571,7 +573,8 @@ class XmlRfcParser:
                                       no_network=self.no_network,
                                       remove_comments=remove_comments,
                                       remove_pis=remove_pis,
-                                      remove_blank_text=True,
+                                      remove_blank_text=not self.preserve_all_white,
+                                      # remove_blank_text=True,
                                       resolve_entities=self.resolve_entities,
                                       strip_cdata=strip_cdata)
 
@@ -615,7 +618,7 @@ class XmlRfcParser:
             if element.tag is lxml.etree.PI:
                 pidict = xmlrfc.parse_pi(element)
                 pis = xmlrfc.pis.copy()
-                if 'include' in pidict and pidict['include']:
+                if 'include' in pidict and pidict['include'] and not self.no_xinclude:
                     request = pidict['include']
                     path, originalPath = self.cachingResolver.getReferenceRequest(request,
                            # Pass the line number in XML for error bubbling
@@ -633,9 +636,11 @@ class XmlRfcParser:
                         # parser.resolvers.add(self.cachingResolver) --- should this be done?
                         ref_root = lxml.etree.parse(path, parser).getroot()
                         ref_root.pis = pis
+                        ref_root.base = path
                         xmlrfc._elements_cache.append(ref_root)
                         for e in ref_root.iterdescendants():
                             e.pis = pis
+                            e.base = path
                             xmlrfc._elements_cache.append(e)
                         parent = element.getparent()
                         parent.replace(element, ref_root)
@@ -658,7 +663,8 @@ class XmlRfcParser:
             xmlrfc.tree.xinclude()
 
         # Finally, do any extra formatting on the RFC before returning
-        xmlrfc._format_whitespace()
+        if not self.preserve_all_white:
+            xmlrfc._format_whitespace()
 
         return xmlrfc
 

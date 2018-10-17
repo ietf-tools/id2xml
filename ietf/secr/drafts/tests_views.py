@@ -13,8 +13,9 @@ import debug                            # pyflakes:ignore
 from ietf.doc.expire import expire_draft
 from ietf.doc.factories import WgDraftFactory
 from ietf.doc.models import Document
+from ietf.group.factories import RoleFactory
 from ietf.meeting.factories import MeetingFactory
-from ietf.person.factories import PersonFactory
+from ietf.person.factories import PersonFactory, EmailFactory
 from ietf.person.models import Person
 from ietf.submit.models import Preapproval
 from ietf.utils.mail import outbox
@@ -63,7 +64,7 @@ class SecrDraftsTestCase(TestCase):
         self.assertTrue('draft-dummy' in response.content) 
 
     def test_edit(self):
-        draft = WgDraftFactory()
+        draft = WgDraftFactory(states=[('draft','active'),('draft-stream-ietf','wg-doc'),('draft-iesg','ad-eval')], shepherd=EmailFactory())
         url = urlreverse('ietf.secr.drafts.views.edit', kwargs={'id':draft.name})
         self.client.login(username="secretary", password="secretary+password")
         response = self.client.get(url)
@@ -81,7 +82,8 @@ class SecrDraftsTestCase(TestCase):
     def test_get_email_initial(self):
         # Makes sure that a manual posting by the Secretariat of an I-D that is
         # in the RFC Editor Queue will result in notification of the RFC Editor
-        draft = WgDraftFactory()
+        draft = WgDraftFactory(authors=PersonFactory.create_batch(1),shepherd=EmailFactory())
+        RoleFactory(group=draft.group, name_id='chair')
         data = get_email_initial(draft,action='extend',input={'expiration_date': '2050-01-01'})
         self.assertTrue('Extension of Expiration Date' in data['subject'])
         

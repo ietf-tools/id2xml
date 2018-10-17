@@ -63,7 +63,7 @@ class SessionRequestTestCase(TestCase):
         meeting = MeetingFactory(type_id='ietf', date=datetime.date.today())
         ad = Person.objects.get(user__username='ad')
         area = RoleFactory(name_id='ad', person=ad, group__type_id='area').group
-        mars = SessionFactory(meeting=meeting, group__parent=area, group__acronym='mars').group
+        mars = SessionFactory(meeting=meeting, group__parent=area, group__acronym='mars', status_id='sched').group
         url = reverse('ietf.secr.sreq.views.cancel', kwargs={'acronym':'mars'})
         self.client.login(username="ad", password="ad+password")
         r = self.client.get(url)
@@ -74,7 +74,7 @@ class SessionRequestTestCase(TestCase):
     def test_edit(self):
         meeting = MeetingFactory(type_id='ietf', date=datetime.date.today())
         mars = RoleFactory(name_id='chair', person__user__username='marschairman', group__acronym='mars').group
-        SessionFactory(meeting=meeting,group=mars)
+        SessionFactory(meeting=meeting,group=mars,status_id='sched',scheduled=datetime.datetime.now())
 
         url = reverse('ietf.secr.sreq.views.edit', kwargs={'acronym':'mars'})
         self.client.login(username="marschairman", password="marschairman+password")

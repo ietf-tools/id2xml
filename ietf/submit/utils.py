@@ -269,11 +269,7 @@ def post_submission(request, submission, approvedDesc):
     trouble = rebuild_reference_relations(draft, filename=os.path.join(settings.IDSUBMIT_STAGING_PATH, '%s-%s.txt' % (submission.name, submission.rev)))
     if trouble:
         log.log('Rebuild_reference_relations trouble: %s'%trouble)
-    
-    if draft.stream_id == "ietf" and draft.group.type_id == "wg" and draft.rev == "00":
-        # automatically set state "WG Document"
-        draft.set_state(State.objects.get(used=True, type="draft-stream-%s" % draft.stream_id, slug="wg-doc"))
-
+  
     # automatic state changes for IANA review
     if (draft.get_state_slug("draft-iana-review") in ("ok-act", "ok-noact", "not-ok")
         and not draft.get_state_slug("draft-iesg") in ("approved", "ann", "rfcqueue", "pub", "nopubadw", "nopubanw", "dead") ):
@@ -297,7 +293,7 @@ def post_submission(request, submission, approvedDesc):
         events.append(e)
 
         state_change_msg = e.desc
-
+  
     if draft.stream_id == "ietf" and draft.group.type_id == "wg" and draft.rev == "00":
         # automatically set state "WG Document"
         draft.set_state(State.objects.get(used=True, type="draft-stream-%s" % draft.stream_id, slug="wg-doc"))
@@ -330,6 +326,10 @@ def post_submission(request, submission, approvedDesc):
                     url  = settings.SUBMIT_YANG_CATALOG_MODULE_URL.format(module=module)
                     desc = settings.SUBMIT_YANG_CATALOG_MODULE_DESC.format(module=module)
                     draft.documenturl_set.create(url=url, tag_id='yang-module-metadata', desc=desc)
+
+    for state_type in ('draft-iesg', 'draft-stream-ietf', 'draft-stream-irtf', 'draft-stream-ise', 'draft-stream-iab'):
+        if not draft.states.filter(type_id=state_type).exists():
+            draft.states.add(State.objects.get(type_id=state_type, slug='idexists'))
 
     # save history now that we're done with changes to the draft itself
     draft.save_with_history(events)

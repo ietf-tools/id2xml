@@ -5,6 +5,7 @@ from django.conf import settings
 import datetime, os, shutil, glob, re
 from pathlib import Path
 
+from ietf.utils import log
 from ietf.utils.mail import send_mail
 from ietf.doc.models import Document, DocEvent, State, IESG_SUBSTATE_TAGS
 from ietf.person.models import Person 
@@ -75,6 +76,7 @@ def send_expire_warning_for_draft(doc):
     (to,cc) = gather_address_lists('doc_expires_soon',doc=doc)
 
     s = doc.get_state("draft-iesg")
+    log.assertion('s')
     state = s.name if s else "I-D Exists"
 
     frm = None
@@ -94,6 +96,7 @@ def send_expire_notice_for_draft(doc):
         return
 
     s = doc.get_state("draft-iesg")
+    log.assertion('s')
     state = s.name if s else "I-D Exists"
 
     request = None

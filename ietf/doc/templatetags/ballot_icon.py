@@ -160,7 +160,7 @@ def state_age_colored(doc):
         if not iesg_state:
             return ""
 
-        if iesg_state in ["dead", "watching", "pub"]:
+        if iesg_state in ["dead", "watching", "pub", "idexists"]:
             return ""
         try:
             state_date = doc.docevent_set.filter(

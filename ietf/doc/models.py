@@ -323,6 +323,7 @@ class DocumentInfo(models.Model):
                 else:
                     return "Replaced"
             elif state.slug == "active":
+                log.assertion('iesg_state')
                 if iesg_state:
                     if iesg_state.slug == "dead":
                         # Many drafts in the draft-iesg "Dead" state are not dead

@@ -6924,6 +6924,22 @@
 },
 {
  "model": "doc.state",
+ "pk": 161,
+ "fields": {
+  "type": "draft-iesg",
+  "slug": "idexists",
+  "name": "I-D Exists",
+  "used": true,
+  "desc": "The IESG has not started processing this draft, or has stopped processing it without publicastion.",
+  "order": 0,
+  "next_states": [
+   16,
+   11
+  ]
+ }
+},
+{
+ "model": "doc.state",
  "pk": 16,
  "fields": {
   "type": "draft-iesg",
@@ -7436,6 +7452,19 @@
 },
 {
  "model": "doc.state",
+ "pk": 165,
+ "fields": {
+  "type": "draft-stream-iab",
+  "slug": "idexists",
+  "name": "I-D Exists",
+  "used": true,
+  "desc": "The IAB stream has not started processing this draft, or has stopped processing it without requesting publicastion.",
+  "order": 0,
+  "next_states": []
+ }
+},
+{
+ "model": "doc.state",
  "pk": 45,
  "fields": {
   "type": "draft-stream-iab",
@@ -7576,6 +7605,25 @@
   "order": 0,
   "next_states": [
    35
+  ]
+ }
+},
+{
+ "model": "doc.state",
+ "pk": 162,
+ "fields": {
+  "type": "draft-stream-ietf",
+  "slug": "idexists",
+  "name": "I-D Exists",
+  "used": true,
+  "desc": "The IETF stream has not started processing this draft, or has stopped processing it without requesting publicastion.",
+  "order": 0,
+  "next_states": [
+   134,
+   35,
+   36,
+   37,
+   38
   ]
  }
 },
@@ -7775,6 +7823,19 @@
 },
 {
  "model": "doc.state",
+ "pk": 163,
+ "fields": {
+  "type": "draft-stream-irtf",
+  "slug": "idexists",
+  "name": "I-D Exists",
+  "used": true,
+  "desc": "The IRTF stream has not started processing this draft, or has stopped processing it without requesting publicastion.",
+  "order": 0,
+  "next_states": []
+ }
+},
+{
+ "model": "doc.state",
  "pk": 55,
  "fields": {
   "type": "draft-stream-irtf",
@@ -7951,6 +8012,19 @@
   "name": "Replaced",
   "used": true,
   "desc": "Replaced",
+  "order": 0,
+  "next_states": []
+ }
+},
+{
+ "model": "doc.state",
+ "pk": 164,
+ "fields": {
+  "type": "draft-stream-ise",
+  "slug": "idexists",
+  "name": "I-D Exists",
+  "used": true,
+  "desc": "The ISE stream has not started processing this draft, or has stopped processing it without requesting publicastion.",
   "order": 0,
   "next_states": []
  }

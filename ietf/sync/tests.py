@@ -5,6 +5,8 @@ import datetime
 import StringIO
 import shutil
 
+import debug       # pyflakes:ignore
+
 from django.conf import settings
 from django.urls import reverse as urlreverse
 

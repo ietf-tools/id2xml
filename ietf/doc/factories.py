@@ -46,6 +46,10 @@ class BaseDocumentFactory(factory.DjangoModelFactory):
         if create and extracted:
             for (state_type_id,state_slug) in extracted:
                 obj.set_state(State.objects.get(type_id=state_type_id,slug=state_slug))
+            if obj.type_id == 'draft':
+                for state_type in ('draft-iesg', 'draft-stream-ietf', 'draft-stream-irtf', 'draft-stream-ise', 'draft-stream-iab'):
+                    if not obj.states.filter(type_id=state_type).exists():
+                        obj.set_state(State.objects.get(type_id=state_type, slug='idexists'))
 
     @factory.post_generation
     def authors(obj, create, extracted, **kwargs): # pylint: disable=no-self-argument
@@ -90,8 +94,12 @@ class IndividualDraftFactory(BaseDocumentFactory):
         if extracted:
             for (state_type_id,state_slug) in extracted:
                 obj.set_state(State.objects.get(type_id=state_type_id,slug=state_slug))
+            if not obj.get_state('draft-iesg'):
+                obj.set_state(State.objects.get(type_id='draft-iesg', slug='idexists'))
         else:
             obj.set_state(State.objects.get(type_id='draft',slug='active'))
+            obj.set_state(State.objects.get(type_id='draft-iesg', slug='idexists'))
+
 
 class IndividualRfcFactory(IndividualDraftFactory):
 
@@ -120,9 +128,13 @@ class WgDraftFactory(BaseDocumentFactory):
         if extracted:
             for (state_type_id,state_slug) in extracted:
                 obj.set_state(State.objects.get(type_id=state_type_id,slug=state_slug))
+            if not obj.get_state('draft-iesg'):
+                obj.set_state(State.objects.get(type_id='draft-iesg', slug='idexists'))
+
         else:
             obj.set_state(State.objects.get(type_id='draft',slug='active'))
             obj.set_state(State.objects.get(type_id='draft-stream-ietf',slug='wg-doc'))
+            obj.set_state(State.objects.get(type_id='draft-iesg', slug='idexists'))
 
 class WgRfcFactory(WgDraftFactory):
 
@@ -139,6 +151,7 @@ class WgRfcFactory(WgDraftFactory):
                 obj.set_state(State.objects.get(type_id=state_type_id,slug=state_slug))
         else:
             obj.set_state(State.objects.get(type_id='draft',slug='rfc'))
+            obj.set_state(State.objects.get(type_id='draft-iesg',slug='pub'))
 
 class CharterFactory(BaseDocumentFactory):
 

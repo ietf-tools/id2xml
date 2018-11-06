@@ -612,7 +612,7 @@ def edit_info(request, name):
         raise Http404
 
     new_document = False
-    if not doc.get_state("draft-iesg"): # FIXME: should probably receive "new document" as argument to view instead of this
+    if doc.get_state_slug("draft-iesg") == 'idexists': # FIXME: should probably receive "new document" as argument to view instead of this
         new_document = True
         doc.notify = get_initial_notify(doc)
 

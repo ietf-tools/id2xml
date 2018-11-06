@@ -20,6 +20,7 @@ from ietf.name.models import NomineePositionStateName, FeedbackTypeName
 from ietf.group.models import Group, GroupEvent 
 from ietf.message.models import Message
 from ietf.meeting.models import Meeting
+from ietf.utils import log
 
 from ietf.nomcom.decorators import nomcom_private_key_required
 from ietf.nomcom.forms import (NominateForm, NominateNewPersonForm, FeedbackForm, QuestionnaireForm,
@@ -1238,10 +1239,7 @@ def eligible(request, year):
     # the date of the announcement of the Call for Volunteers, instead
     date = datetime.date.today()
     previous_five = Meeting.objects.filter(type='ietf',date__lte=date).order_by('-date')[:5]
-    if not len(previous_five) == 5:
-        debug.show('year')
-        debug.show('date')
-        debug.show('previous_five')
+    log.assertion("len(previous_five) == 5")
     attendees = {}
     potentials = set()
     for m in previous_five:

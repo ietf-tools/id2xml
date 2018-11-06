@@ -419,7 +419,7 @@ class EditInfoTests(TestCase):
         self.assertTrue('draft-ietf-mars-test2@' in outbox[-1]['To']) 
 
         # Redo, starting in publication requested to make sure WG state is also set
-        draft.unset_state('draft-iesg')
+        draft.set_state(State.objects.get(type_id='draft-iesg', slug='idexists'))
         draft.set_state(State.objects.get(type='draft-stream-ietf',slug='writeupw'))
         draft.stream = StreamName.objects.get(slug='ietf')
         draft.save_with_history([DocEvent.objects.create(doc=draft, rev=draft.rev, type="changed_stream", by=Person.objects.get(user__username="secretary"), desc="Test")])
@@ -589,7 +589,7 @@ class ExpireIDsTests(TestCase):
         self.assertEqual(len(list(get_soon_to_expire_drafts(14))), 0)
 
         # hack into expirable state
-        draft.unset_state("draft-iesg")
+        draft.set_state(State.objects.get(type_id="draft-iesg",slug="idexists"))
         draft.expires = datetime.datetime.now() + datetime.timedelta(days=10)
         draft.save_with_history([DocEvent.objects.create(doc=draft, rev=draft.rev, type="changed_document", by=Person.objects.get(user__username="secretary"), desc="Test")])
 
@@ -616,7 +616,7 @@ class ExpireIDsTests(TestCase):
         self.assertEqual(len(list(get_expired_drafts())), 0)
         
         # hack into expirable state
-        draft.unset_state("draft-iesg")
+        draft.set_state(State.objects.get(type_id="draft-iesg",slug='idexists'))
         draft.expires = datetime.datetime.now()
         draft.save_with_history([DocEvent.objects.create(doc=draft, rev=draft.rev, type="changed_document", by=Person.objects.get(user__username="secretary"), desc="Test")])
 
@@ -1114,7 +1114,7 @@ class SubmitToIesgTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
         doc = Document.objects.get(name=self.docname)
-        self.assertTrue(doc.get_state('draft-iesg')==None)
+        self.assertEqual(doc.get_state_slug('draft-iesg'),'idexists')
 
     def test_confirm_submission(self):
         url = urlreverse('ietf.doc.views_draft.to_iesg', kwargs=dict(name=self.docname))

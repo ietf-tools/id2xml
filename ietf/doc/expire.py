@@ -1,5 +1,7 @@
 # expiry of Internet Drafts
 
+import debug        # pyflakes:ignore
+
 from django.conf import settings
 
 import datetime, os, shutil, glob, re
@@ -18,8 +20,11 @@ def expirable_draft(draft):
     """Return whether draft is in an expirable state or not. This is
     the single draft version of the logic in expirable_drafts. These
     two functions need to be kept in sync."""
+    if draft.type_id != 'draft':
+        return False
+    log.assertion('draft.get_state_slug("draft-iesg")')
     return (draft.expires and draft.get_state_slug() == "active"
-            and draft.get_state_slug("draft-iesg") in (None, "watching", "dead")
+            and draft.get_state_slug("draft-iesg") in ('idexists', "watching", "dead")
             and draft.get_state_slug("draft-stream-%s" % draft.stream_id) not in ("rfc-edit", "pub")
             and not draft.tags.filter(slug="rfc-rev"))
 
@@ -30,8 +35,8 @@ def expirable_drafts():
     d = Document.objects.filter(states__type="draft", states__slug="active").exclude(expires=None)
 
     nonexpirable_states = []
-    # all IESG states except AD Watching and Dead block expiry
-    nonexpirable_states += list(State.objects.filter(used=True, type="draft-iesg").exclude(slug__in=("watching", "dead")))
+    # all IESG states except I-D Exists, AD Watching, and Dead block expiry
+    nonexpirable_states += list(State.objects.filter(used=True, type="draft-iesg").exclude(slug__in=("idexists","watching", "dead")))
     # sent to RFC Editor and RFC Published block expiry (the latter
     # shouldn't be possible for an active draft, though)
     nonexpirable_states += list(State.objects.filter(used=True, type__in=("draft-stream-iab", "draft-stream-irtf", "draft-stream-ise"), slug__in=("rfc-edit", "pub")))

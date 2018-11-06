@@ -348,7 +348,7 @@ def document_main(request, name, rev=None):
                 label = "Request Publication"
                 if not doc.intended_std_level:
                     label += " (note that intended status is not set)"
-                if iesg_state and iesg_state.slug != 'dead':
+                if iesg_state and iesg_state.slug not in ('dead', 'idexists'):
                     label += " (Warning: the IESG state indicates ongoing IESG processing)"
                 actions.append((label, urlreverse('ietf.doc.views_draft.request_publication', kwargs=dict(name=doc.name))))
 

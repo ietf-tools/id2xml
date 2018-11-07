@@ -149,7 +149,7 @@ class EditModelForm(forms.ModelForm):
 
         # note we're not sending notices here, is this desired
         if 'iesg_state' in self.changed_data:
-                m.set_state(iesg_state)
+            m.set_state(iesg_state)
 
         if 'review_by_rfc_editor' in self.changed_data:
             if self.cleaned_data.get('review_by_rfc_editor',''):

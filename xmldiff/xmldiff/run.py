@@ -6,7 +6,7 @@ import lxml.etree
 import datetime
 import six
 import sys
-from rfctools_common.parser import XmlRfc, XmlRfcParser, XmlRfcError, CACHES
+from rfctools_common.parser import XmlRfcParser, XmlRfcError, CACHES
 from rfctools_common import log
 from xmldiff.DiffNode import DiffRoot, BuildDiffTree, DecorateSourceFile, AddParagraphs, tagMatching
 from xmldiff.DiffNode import SourceFiles
@@ -100,6 +100,8 @@ def main():
                              help='don\'t use the network to resolve references')
     value_options.add_option('-X', '--no-xinclude', action='store_true', dest='no_xinclude',
                              help='don\'t resolve any xi:include elements')
+    value_options.add_option('-D', '--no-defaults', action='store_false', default=True,
+                             help="don't add default attributes")
 
     optionparser.add_option_group(value_options)
 
@@ -128,7 +130,8 @@ def main():
     parser = XmlRfcParser(leftSource, verbose=log.verbose,
                           quiet=log.quiet, no_network=options.no_network,
                           no_xinclude=options.no_xinclude,
-                          resolve_entities=not options.noEntity)
+                          resolve_entities=not options.noEntity,
+                          attribute_defaults=options.no_defaults)
     try:
         ll = parser.parse(remove_pis=False, strip_cdata=False, remove_comments=False).tree
         leftXml = BuildDiffTree(ll, options)
@@ -147,7 +150,8 @@ def main():
     parser = XmlRfcParser(rightSource, verbose=log.verbose,
                           quiet=log.quiet, no_network=options.no_network,
                           no_xinclude=options.no_xinclude,
-                          resolve_entities=not options.noEntity)
+                          resolve_entities=not options.noEntity,
+                          attribute_defaults=options.no_defaults)
     try:
         rightXml = parser.parse(remove_pis=False, strip_cdata=False, remove_comments=False)
         rightXml = BuildDiffTree(rightXml.tree, options)

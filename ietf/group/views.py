@@ -1365,7 +1365,24 @@ def reviewer_overview(request, acronym, group_type=None):
 
     today = datetime.date.today()
 
-    req_data_for_reviewers = latest_review_requests_for_reviewers(group)
+    max_closed_reqs = 10
+    days_back = 365
+    if can_manage:
+        secretary_settings = (ReviewSecretarySettings.objects.filter(person=
+                                                                     request.user.person,
+                                                                     team=group).first()
+                              or ReviewSecretarySettings(person=request.user.person,
+                                                         team=group))
+        if secretary_settings:
+            max_closed_reqs = secretary_settings.max_items_to_show_in_reviewer_list
+            days_back = secretary_settings.days_to_show_in_reviewer_list
+
+    if max_closed_reqs == None:
+        max_closed_reqs = 10
+
+    if days_back == None:
+        days_back = 365
+    req_data_for_reviewers = latest_review_requests_for_reviewers(group, days_back)
     review_state_by_slug = { n.slug: n for n in ReviewRequestStateName.objects.all() }
 
     days_needed = days_needed_to_fulfill_min_interval_for_reviewers(group)
@@ -1387,12 +1404,13 @@ def reviewer_overview(request, acronym, group_type=None):
             person.busy = person.id in days_needed 
         
 
-        MAX_CLOSED_REQS = 10
         req_data = req_data_for_reviewers.get(person.pk, [])
-        open_reqs = sum(1 for d in req_data if d.state in ["requested", "accepted"])
+        closed_reqs = 0
         latest_reqs = []
         for d in req_data:
-            if d.state in ["requested", "accepted"] or len(latest_reqs) < MAX_CLOSED_REQS + open_reqs:
+            if d.state in ["requested", "accepted"] or closed_reqs < max_closed_reqs:
+                if not d.state in ["requested", "accepted"]:
+                    closed_reqs += 1
                 latest_reqs.append((d.req_pk, d.doc, d.reviewed_rev, d.assigned_time, d.deadline,
                                     review_state_by_slug.get(d.state),
                                     int(math.ceil(d.assignment_to_closure_days)) if d.assignment_to_closure_days is not None else None))

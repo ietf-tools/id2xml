@@ -2,16 +2,14 @@
 
 import optparse
 import os
-import lxml.etree
-import datetime
 import six
 import sys
 from rfctools_common.parser import XmlRfcParser, XmlRfcError, CACHES
+from rfctools_common.parser import CachingResolver
 from rfctools_common import log
-from xmldiff.DiffNode import DiffRoot, BuildDiffTree, DecorateSourceFile, AddParagraphs, tagMatching
+from xmldiff.DiffNode import DiffRoot, BuildDiffTree, AddParagraphs
 from xmldiff.DiffNode import SourceFiles
 import string
-from xmldiff.EditItem import EditItem
 from xmldiff.zzs2 import distance
 # from xmldiff.zzs import distance, EditItem
 from xmldiff.__init__ import __version__
@@ -72,7 +70,7 @@ def main():
     value_options = optparse.OptionGroup(optionparser, 'Other Options')
     value_options.add_option('-o', '--out', dest='output_filename', metavar='FILE',
                              help='specify an explicit output filename',
-                             default="xmldiff.html")
+                             default=None)
     value_options.add_option('--debug', action="store_true",
                              help='Show debugging output')
     value_options.add_option('--raw', action="store_true",
@@ -80,8 +78,6 @@ def main():
     value_options.add_option('-t', '--template', dest='template', metavar='FILE',
                              help='specify the HTML template filename',
                              default='base.html')
-    value_options.add_option('--resource-url', dest='resource_url',
-                             help='Path to resources in the template')
     value_options.add_option('-V', '--version', action='callback', callback=display_version,
                              help='display the version number and exit')
     value_options.add_option('-C', '--clear-cache', action='store_true', dest='clear_cache',
@@ -162,10 +158,9 @@ def main():
         log.exception('Unable to parse the XML document: ' + rightSource, e)
         sys.exit(1)
 
-    if options.raw:
-        tagMatching = None
-
     log.note("Read files for source display")
+    cache = CachingResolver(library_dirs=[])
+
     leftSources = ""
     leftSourceNames = ""
     for i in range(len(SourceFiles.leftFiles)):
@@ -175,6 +170,9 @@ def main():
             file = file[2]
             if file[2] == ':':
                 file = file[1:]
+        else:
+            file = cache.getReferenceRequest(file)[0]
+
         if six.PY2:
             with open(file, "rb") as f:
                 leftLines = f.read()
@@ -193,6 +191,7 @@ def main():
 
     rightSources = ""
     rightSourceNames = ""
+
     for i in range(len(SourceFiles.rightFiles)):
         file = SourceFiles.rightFiles[i]
         if file[:5] == 'file:':
@@ -200,6 +199,8 @@ def main():
             file = file[2]
             if file[2] == ':':
                 file = file[1:]
+        else:
+            file = cache.getReferenceRequest(file)[0]
 
         if six.PY2:
             with open(file, "rb") as f:
@@ -226,6 +227,9 @@ def main():
             print(edit.toString())
 
     log.note("Apply copmuted tree edits")
+    if len(editSet) == 0:
+        log.info("Files are identical")
+
     leftXml.applyEdits(editSet)
 
     log.note("Setup to write html file")
@@ -238,16 +242,6 @@ def main():
     else:
         with open(os.path.join(templates_dir, "resize.js"), "rU", encoding="utf8") as f:
             allScript = f.read()
-
-    if options.resource_url is None:
-        options.resource_url = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Templates')
-        if os.name == 'nt':
-            options.resource_url = 'file:///' + options.resource_url.replace('\\', '/')
-        else:
-            options.resource_url = 'file://' + options.resource_url
-        # options.resource_url = 'https://www.augustcellars.com/RfcEditor'
-
-    log.note("   resource url: " + options.resource_url)
 
     template_file = options.template
     if not os.path.exists(options.template):
@@ -275,15 +269,17 @@ def main():
         'leftSourceNames': leftSourceNames,
         'rightFile': buffers['rightFile'],
         'rightSourceNames': rightSourceNames,
-        'resource_dir': options.resource_url,
         'allScript': allScript
         }
     output = html_template.substitute(subs)
 
-    log.note('Write out html file: ' + options.output_filename)
-    file = open(options.output_filename, "wb")
-    file.write(output.encode('utf8'))
-    file.close()
+    if options.output_filename is None:
+        sys.stdout.write(output)
+    else:
+        log.note('Write out html file: ' + options.output_filename)
+        file = open(options.output_filename, "wb")
+        file.write(output.encode('utf8'))
+        file.close()
 
 
 if __name__ == '__main__':

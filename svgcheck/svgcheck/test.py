@@ -7,7 +7,6 @@ import subprocess
 import six
 import sys
 from rfctools_common.parser import XmlRfcParser
-from rfctools_common.parser import XmlRfcError
 from rfctools_common import log
 import difflib
 from svgcheck.checksvg import checkTree
@@ -32,6 +31,29 @@ def which(program):
     return None
 
 
+class Test_Coding(unittest.TestCase):
+    def test_pycodestyle_conformance(self):
+        """Test that we conform to PEP8."""
+        pep8style = pycodestyle.StyleGuide(quiet=False, config_file="pycode.cfg")
+        result = pep8style.check_files(['run.py', 'checksvg.py', 'test.py', 'word_properties.py'])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warnings).")
+
+    def test_pyflakes_confrmance(self):
+        p = subprocess.Popen(['pyflakes', 'run.py', 'checksvg.py', 'test.py',
+                              'word_properties.py'],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdoutX, stderrX) = p.communicate()
+        ret = p.wait()
+        if ret > 0:
+            if six.PY3:
+                stdoutX = stdoutX.decode('utf-8')
+                stderrX = stderrX.decode('utf-8')
+            print(stdoutX)
+            print(stderrX)
+            self.assertEqual(ret, 0)
+
+
 class TestCommandLineOptions(unittest.TestCase):
     """ Run a set of command line checks to make sure they work """
     def test_get_version(self):
@@ -54,14 +76,6 @@ class TestCommandLineOptions(unittest.TestCase):
 
 
 class TestParserMethods(unittest.TestCase):
-
-    def test_pycodestyle_conformance(self):
-        """Test that we conform to PEP8."""
-        pep8style = pycodestyle.StyleGuide(quiet=False, config_file="pycode.cfg")
-        result = pep8style.check_files(['run.py', 'checksvg.py', 'word_properties.py',
-                                        'test.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
 
     def test_circle(self):
         """ Tests/circle.svg: Test a simple example with a small number of required edits """
@@ -144,12 +158,31 @@ class TestParserMethods(unittest.TestCase):
                       None, None)
 
 
+class TestViewBox(unittest.TestCase):
+    def test_svg_noViewbox(self):
+        """ Tests/viewBox-none.svg """
+        test_svg_file(self, "viewBox-none.svg")
+
+    def test_svg_ViewboxHeight(self):
+        """ Tests/viewBox-height.svg """
+        test_svg_file(self, "viewBox-height.svg")
+
+    def test_svg_ViewboxWidth(self):
+        """ Tests/viewBox-width.svg """
+        test_svg_file(self, "viewBox-width.svg")
+
+    def test_svg_ViewboxBoth(self):
+        """ Tests/viewBox-both.svg """
+        test_svg_file(self, "viewBox-both.svg")
+
+
 def test_rfc_file(tester, fileName):
     """ Run the basic tests for a single input file """
 
     basename = os.path.basename(fileName)
-    parse = XmlRfcParser("Tests/" + fileName, quiet=True, cache_path=None, no_network=True)
-    tree = parse.parse()
+    parse = XmlRfcParser("Tests/" + fileName, quiet=True, cache_path=None, no_network=True,
+                         preserve_all_white=True)
+    tree = parse.parse(remove_comments=False, remove_pis=True, strip_cdata=False)
 
     log.write_out = io.StringIO()
     log.write_err = log.write_out
@@ -170,8 +203,9 @@ def test_svg_file(tester, fileName):
     """ Run the basic tests for a single input file """
 
     basename = os.path.basename(fileName)
-    parse = XmlRfcParser("Tests/" + fileName, quiet=True, cache_path=None, no_network=True)
-    tree = parse.parse()
+    parse = XmlRfcParser("Tests/" + fileName, quiet=True, cache_path=None, no_network=True,
+                         preserve_all_white=True)
+    tree = parse.parse(remove_comments=False, remove_pis=True, strip_cdata=False)
 
     log.write_out = io.StringIO()
     log.write_err = log.write_out

@@ -9,11 +9,11 @@ import six
 import inspect
 import struct
 from rfctools_common.parser import XmlRfcParser
-from rfctools_common.parser import XmlRfcError
 from xmldiff.EditItem import EditItem
 from xmldiff.zzs2 import distance
-from xmldiff.DiffNode import DiffRoot, BuildDiffTree, DecorateSourceFile, diffCount
-from xmldiff.DiffNode import ChangeTagMatching, tagMatching, AddParagraphs, SourceFiles
+from xmldiff.DiffNode import DiffRoot, BuildDiffTree
+from xmldiff.DiffNode import ChangeTagMatching, AddParagraphs, SourceFiles
+from xmldiff.EditDistance import DoWhiteArray, ComputeEdits
 
 xmldiff_program = "rfc-xmldiff"
 
@@ -94,9 +94,25 @@ class TestParserMethods(unittest.TestCase):
         """Test that we conform to PEP8."""
         pep8style = pycodestyle.StyleGuide(quiet=False, config_file="pycode.cfg")
         result = pep8style.check_files(['../xmldiff/run.py', '../xmldiff/zzs2.py',
+                                        '../xmldiff/EditDistance.py', '../xmldiff/EditItem.py',
                                         '../xmldiff/DiffNode.py', 'test.py'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
+
+    def test_pyflakes_confrmance(self):
+        p = subprocess.Popen(['pyflakes', '../xmldiff/run.py', '../xmldiff/zzs2.py',
+                              '../xmldiff/EditDistance.py', '../xmldiff/EditItem.py',
+                              '../xmldiff/DiffNode.py', 'test.py'],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdoutX, stderrX) = p.communicate()
+        ret = p.wait()
+        if ret > 0:
+            if six.PY3:
+                stdoutX = stdoutX.decode('utf-8')
+                stderrX = stderrX.decode('utf-8')
+            print(stdoutX)
+            print(stderrX)
+            self.assertEqual(ret, 0)
 
 
 class TestDistanceMethods(unittest.TestCase):
@@ -213,7 +229,7 @@ class TestDistanceMethods(unittest.TestCase):
 
     def test_Table1(self):
         """ Add a layer to a tree """
-        global tagMatching
+        from xmldiff.DiffNode import tagMatching
 
         hold = tagMatching
         ChangeTagMatching(None)
@@ -268,10 +284,15 @@ class TestOverlappedTrees(unittest.TestCase):
                      "Results/Case2_Backward.txt", "Results/Case2_Backward.xml", True)
 
 
+class TestStringFormatting(unittest.TestCase):
+    def test_case1(self):
+        StringAlignTest(self, "Tests/String1a.txt", "Tests/String1b.txt",
+                        "Results/String1.txt", None)
+
+
 def DistanceTest(tester, leftFile, rightFile, diffFile, htmlFile, markParagraphs):
     """ General distance test function """
     options = OOO()
-    diffCount = 0
     SourceFiles.Clear()
     left = XmlRfcParser(leftFile, quiet=True, cache_path=None, no_network=True). \
         parse(strip_cdata=False, remove_comments=False)
@@ -325,6 +346,50 @@ def DistanceTest(tester, leftFile, rightFile, diffFile, htmlFile, markParagraphs
     if hasError:
         print("\n".join(result))
         tester.assertFalse(hasError, "html differs")
+
+
+def StringAlignTest(tester, leftFile, rightFile, diffFile, htmlFile):
+    """ General string comparison function for text alignments """
+    if six.PY2:
+        with open(leftFile, "rb") as f:
+            leftLines = f.read().decode('utf8').replace("\r\n", "\n")
+        with open(rightFile, "rb") as f:
+            rightLines = f.read().decode('utf8').replace("\r\n", "\n")
+        with open(diffFile, "rb") as f:
+            opsLines = f.read().decode('utf8').splitlines()
+    else:
+        with open(leftFile, "r", encoding="utf8") as f:
+            leftLines = f.read()
+        with open(rightFile, "r", encoding="utf8") as f:
+            rightLines = f.read()
+        with open(diffFile, "r", encoding="utf8") as f:
+            opsLines = f.read().splitlines()
+
+    leftArray = DoWhiteArray(leftLines)
+    rightArray = DoWhiteArray(rightLines)
+
+    ops = ComputeEdits(leftArray, rightArray)
+
+    opLines = [u"{0} {1:2d} {2:2d} {3:2d} {4:2d} '{5}' '{6}'".
+               format(op[0], op[1], op[2], op[3], op[4],
+                      ''.join(leftArray[op[1]:op[2]]).replace('\n', "\\n"),
+                      ''.join(rightArray[op[3]:op[4]]).replace('\n', '\\n'))
+               for op in ops]
+
+    d = difflib.Differ()
+    result = list(d.compare(opLines, opsLines))
+
+    hasError = False
+    for l in result:
+        if l[0:2] == '+ ' or l[0:2] == '- ':
+            hasError = True
+            break
+
+    if hasError:
+        # print(generatedFile)
+        print(u"\n".join(result))
+
+    tester.assertFalse(hasError, "Comparisons failed")
 
 
 def check_process(tester, args, stdoutFile, errFile, generatedFile, compareFile):

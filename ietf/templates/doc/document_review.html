@@ -52,7 +52,7 @@
     </tbody>
   </table>
 
-  <h2>{{ doc.type.name }}<br><small>{{ doc.name }}</small></h2>
+  <h2>{{ doc.type.name }}<br><small>{{ doc.name }} ({{ review_req.team.acronym|upper }} {{ review_req.type.name }} review by {{ review_req.reviewer.person }})</small></h2>
 
   {% if doc.rev and content != None %}
     <pre class="pasted">{{ content|linkify }}</pre>

@@ -15,6 +15,7 @@ from rfclint.config import ConfigFile
 from rfclint.abnf import AbnfChecker, RfcLintError
 from rfclint.spell import Speller, SpellerColors
 from rfclint.dups import Dups
+from svgcheck.checksvg import checkTree
 import rfclint
 
 try:
@@ -37,7 +38,7 @@ def clear_cache(cache_path):
 def check_color(option, opt, value, parser):
     if value not in SpellerColors:
         raise optparse.OptionValueError("color value not supported. Use one of '{0}'".
-                               format(" ".join(SpellerColors.keys())))
+                                        format(" ".join(SpellerColors.keys())))
     setattr(parser.values, option.dest, value)
 
 
@@ -85,6 +86,8 @@ def main():
                              help='Show debugging output')
     plain_options.add_option('--extract', dest='extract',
                              help='Extract all items of the given type')
+    plain_options.add_option('--no-svgcheck', action='store_true', dest='no_svgcheck',
+                             help='Don\'t run svgcheck')
     optionparser.add_option_group(plain_options)
 
     spell_options = optparse.OptionGroup(optionparser, 'Spell Options')
@@ -235,9 +238,15 @@ def main():
 
         needEOL = True
         for item in codeItems:
-            file.write(item.text)
-            if len(item.text) > 0:
-                needEOL = item.text[-1] != '\n'
+            if "name" in item.attrib:
+                with open(item.attrib["name"], 'w') as f:
+                    f.write(item.text)
+                    if len(item.text) > 0 and item.text[-1] != '\n':
+                        f.write('\n')
+            else:
+                file.write(item.text)
+                if len(item.text) > 0:
+                    needEOL = item.text[-1] != '\n'
 
         if needEOL:
             file.write('\n')
@@ -283,6 +292,10 @@ def main():
         except RfcLintError as e:
             log.error("Skipping ABNF checking because")
             log.error(e.message, additional=2)
+
+    # Validate any SVG items
+    if not options.no_svgcheck:
+        checkTree(xmlrfc.tree)
 
     # do the Spelling checking
     if not options.no_spell:

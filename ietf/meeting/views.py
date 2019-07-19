@@ -1590,7 +1590,7 @@ def propose_session_slides(request, session_id, num):
             name = name + '-' + slugify(title).replace('_', '-')[:128]
             rev = '00'
             if Document.objects.filter(name=name).exists():
-                rev ='%02s' % (int(Document.objects.get(name=name).rev) + 1)
+                rev ='%02d' % (int(Document.objects.get(name=name).rev) + 1)
             filename = '%s-%s%s'% (name, rev, ext)
             destination = io.open(os.path.join(settings.SLIDE_STAGING_PATH, filename),'wb+')
             for chunk in file.chunks():

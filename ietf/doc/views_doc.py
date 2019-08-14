@@ -360,6 +360,13 @@ def document_main(request, name, rev=None):
         if doc.get_state_slug() == "expired" and has_role(request.user, ("Secretariat",)) and not snapshot:
             actions.append(("Resurrect", urlreverse('ietf.doc.views_draft.resurrect', kwargs=dict(name=doc.name))))
 
+        #debug.show('doc.stream_id')
+        #debug.show('can_edit_stream_info')
+        #debug.show('snapshot')
+        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot):
+            label = "Issue IRSG Ballot"
+            actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
+
         if (doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("ise", "irtf")
             and can_edit_stream_info and not conflict_reviews and not snapshot):
             label = "Begin IETF Conflict Review"

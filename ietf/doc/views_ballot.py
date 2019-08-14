@@ -20,8 +20,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 import debug                            # pyflakes:ignore
 
-from ietf.doc.models import ( Document, State, DocEvent, BallotDocEvent, BallotPositionDocEvent,
-    LastCallDocEvent, WriteupDocEvent, IESG_SUBSTATE_TAGS, RelatedDocument )
+from ietf.doc.models import ( Document, State, DocEvent, BallotDocEvent,
+    BallotPositionDocEvent, LastCallDocEvent, WriteupDocEvent,
+    IESG_SUBSTATE_TAGS, RelatedDocument, BallotType )
 from ietf.doc.utils import ( add_state_change_event, close_ballot, close_open_ballots,
     create_ballot_if_not_open, update_telechat )
 from ietf.doc.mails import ( email_ballot_deferred, email_ballot_undeferred, 
@@ -45,6 +46,8 @@ BALLOT_CHOICES = (("yes", "Yes"),
                   ("discuss", "Discuss"),
                   ("abstain", "Abstain"),
                   ("recuse", "Recuse"),
+                  ("needmoretime", "Need More Time"),
+                  ("notready", "Not Ready"),
                   ("", "No Record"),
                   )
 
@@ -1051,3 +1054,33 @@ def make_last_call(request, name):
                                    form=form,
                                    announcement=announcement,
                                   ))
+
+@role_required('Secretariat', 'IRTF Chair')
+def issue_irsg_ballot(request, name):
+    doc = get_object_or_404(Document, docalias__name=name)
+    if not doc.get_state("draft-stream-irtf"):
+        raise Http404
+
+    if request.method == 'POST':
+        if 'yes' in request.POST:
+            # Do I want DocEvent or BallotDocEvent here?
+            # Create a BallotDocEvent: time, type, by, doc, rev, desc
+            e = BallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
+            # consider whether you should create a new DocEvent type for an
+            # IRSG ballot
+            e.type = "created_ballot"
+            e.desc = "Created IRSG Ballot"
+            # "approve" should be "irsg-approve", but the migration is broken
+            # so I'm using the wrong ballot type for now
+            ballot_type = BallotType.objects.get(doc_type=doc.type, slug="approve")
+            e.ballot_type = ballot_type
+            e.save()
+            return HttpResponseRedirect(doc.get_absolute_url())
+
+    #return render(request, 'doc/ballot/undefer_ballot.html', dict(doc=doc, telechat_date=telechat_date, back_url=doc.get_absolute_url()))
+
+    templ = 'doc/ballot/irsg_ballot_approve.html'
+
+    question = "Are you sure you really want to issue a ballot for " + name + "?"
+    return render(request, templ, dict(doc=doc,
+                                       question=question))

@@ -533,7 +533,7 @@
 
         {% if iana_action_state or can_edit_iana_state %}
           <tr>
-            <th>{% if not cand_edit_iana_state and not iana_review_state %}IANA{% endif %}</th>
+            <th>{% if not can_edit_iana_state and not iana_review_state %}IANA{% endif %}</th>
             <th><a href="{% url "ietf.help.views.state" doc=doc.type.slug type="iana-action" %}">IANA action state</a></th>
             <td class="edit">
               {% if can_edit_iana_state and not snapshot %}

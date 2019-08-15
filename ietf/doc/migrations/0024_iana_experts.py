@@ -25,10 +25,17 @@ def forward(apps, schema_editor):
                          order=1
                         )
     State.objects.create(type_id='draft-iana-experts',
-                         slug='reviews-complete',
-                         name='Reviews complete',
+                         slug='expert-issues',
+                         name='Issues identified',
                          used=True,
-                         desc='All expert reviews have been completed',
+                         desc='Some expert reviewers have identified issues',
+                         order=2
+                        )
+    State.objects.create(type_id='draft-iana-experts',
+                         slug='reviewers-ok',
+                         name='Expert Reviews OK',
+                         used=True,
+                         desc='All expert reviews have been completed with no blocking issues',
                          order=2
                         )
 

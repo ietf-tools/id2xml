@@ -212,7 +212,7 @@ def irsg_needed_ballot_positions(doc, active_positions):
     need to pass?".  The return value is only useful if the document
     is currently in IRSG evaluation.'''
     yes = [p for p in active_positions if p and p.pos_id == "yes"]
-    needmoretime = [p for p in active_positions if p and p.pos_id == "needmoretime"]
+    needmoretime = [p for p in active_positions if p and p.pos_id == "moretime"]
     notready = [p for p in active_positions if p and p.pos_id == "notready"]
 
     answer = []

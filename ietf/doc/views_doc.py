@@ -363,6 +363,8 @@ def document_main(request, name, rev=None):
         #debug.show('doc.stream_id')
         #debug.show('can_edit_stream_info')
         #debug.show('snapshot')
+        # I think I need another check here to disable the button if the
+        # document is already in ballot
         if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
@@ -950,16 +952,16 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
     position_groups = []
     for n in BallotPositionName.objects.filter(slug__in=[p.pos_id for p in positions]).order_by('order'):
         g = (n, [p for p in positions if p.pos_id == n.slug])
-        g[1].sort(key=lambda p: (p.old_ad, p.ad.plain_name()))
+        g[1].sort(key=lambda p: (p.old_pos_by, p.pos_by.plain_name()))
         if n.blocking:
             position_groups.insert(0, g)
         else:
             position_groups.append(g)
 
-    summary = needed_ballot_positions(doc, [p for p in positions if not p.old_ad])
+    summary = needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
 
     text_positions = [p for p in positions if p.discuss or p.comment]
-    text_positions.sort(key=lambda p: (p.old_ad, p.ad.plain_name()))
+    text_positions.sort(key=lambda p: (p.old_pos_by, p.pos_by.plain_name()))
 
     ballot_open = not BallotDocEvent.objects.filter(doc=doc,
                                                     type__in=("closed_ballot", "created_ballot"),

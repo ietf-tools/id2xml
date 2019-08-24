@@ -164,7 +164,7 @@ class DeletedEventAdmin(admin.ModelAdmin):
 admin.site.register(DeletedEvent, DeletedEventAdmin)
 
 class BallotPositionDocEventAdmin(DocEventAdmin):
-    raw_id_fields = ["doc", "by", "ad", "ballot"]
+    raw_id_fields = ["doc", "by", "pos_by", "ballot"]
 admin.site.register(BallotPositionDocEvent, BallotPositionDocEventAdmin)
     
 class DocumentUrlAdmin(admin.ModelAdmin):

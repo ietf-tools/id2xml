@@ -728,7 +728,7 @@ class DocTestCase(TestCase):
             pos_id="yes",
             comment="Looks fine to me",
             comment_time=datetime.datetime.now(),
-            ad=Person.objects.get(user__username="ad"),
+            pos_by=Person.objects.get(user__username="ad"),
             by=Person.objects.get(name="(System)"))
 
         r = self.client.get(urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=doc.name)))

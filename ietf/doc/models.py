@@ -1084,11 +1084,11 @@ class BallotDocEvent(DocEvent):
         res = {}
     
         active_ads = get_active_ads()
-        positions = BallotPositionDocEvent.objects.filter(type="changed_ballot_position",ad__in=active_ads, ballot=self).select_related('ad', 'pos').order_by("-time", "-id")
+        positions = BallotPositionDocEvent.objects.filter(type="changed_ballot_position",pos_by__in=active_ads, ballot=self).select_related('pos_by', 'pos').order_by("-time", "-id")
 
         for pos in positions:
-            if pos.ad not in res:
-                res[pos.ad] = pos
+            if pos.pos_by not in res:
+                res[pos.pos_by] = pos
 
         for ad in active_ads:
             if ad not in res:
@@ -1101,14 +1101,14 @@ class BallotDocEvent(DocEvent):
         positions = []
         seen = {}
         active_ads = get_active_ads()
-        for e in BallotPositionDocEvent.objects.filter(type="changed_ballot_position", ballot=self).select_related('ad', 'pos').order_by("-time", '-id'):
-            if e.ad not in seen:
-                e.old_ad = e.ad not in active_ads
+        for e in BallotPositionDocEvent.objects.filter(type="changed_ballot_position", ballot=self).select_related('pos_by', 'pos').order_by("-time", '-id'):
+            if e.pos_by not in seen:
+                e.old_pos_by = e.pos_by not in active_ads
                 e.old_positions = []
                 positions.append(e)
-                seen[e.ad] = e
+                seen[e.pos_by] = e
             else:
-                latest = seen[e.ad]
+                latest = seen[e.pos_by]
                 if latest.old_positions:
                     prev = latest.old_positions[-1]
                 else:
@@ -1128,14 +1128,14 @@ class BallotDocEvent(DocEvent):
             norecord = BallotPositionName.objects.get(slug="norecord")
             for ad in active_ads:
                 if ad not in seen:
-                    e = BallotPositionDocEvent(type="changed_ballot_position", doc=self.doc, rev=self.doc.rev, ad=ad)
+                    e = BallotPositionDocEvent(type="changed_ballot_position", doc=self.doc, rev=self.doc.rev, pos_by=ad)
                     e.by = ad
                     e.pos = norecord
-                    e.old_ad = False
+                    e.old_pos_by = False
                     e.old_positions = []
                     positions.append(e)
 
-        positions.sort(key=lambda p: (p.old_ad, p.ad.last_name()))
+        positions.sort(key=lambda p: (p.old_pos_by, p.pos_by.last_name()))
         return positions
 
     @memoize
@@ -1149,7 +1149,7 @@ class BallotDocEvent(DocEvent):
 
 class BallotPositionDocEvent(DocEvent):
     ballot = ForeignKey(BallotDocEvent, null=True, default=None) # default=None is a temporary migration period fix, should be removed when charter branch is live
-    ad = ForeignKey(Person)
+    pos_by = ForeignKey(Person)
     pos = ForeignKey(BallotPositionName, verbose_name="position", default="norecord")
     discuss = models.TextField(help_text="Discuss text if position is discuss", blank=True)
     discuss_time = models.DateTimeField(help_text="Time discuss text was written", blank=True, null=True)

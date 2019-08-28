@@ -15,6 +15,25 @@
   {% origin %}
   <h1>{{ title }}</h1>
 
+  <div class="alert alert-info">
+    <p>
+    <a href="/doc/rfc3967/">RFC 3967</a> (<a href="/doc/bcp97">BCP 97</a>), titled
+    "Clarifying when Standards Track Documents may Refer Normatively to Documents
+    at a Lower Level", specifies the rules for downward references (DOWNREFs):
+    </p>
+
+    <p>
+    "IETF procedures generally require that a standards track RFC may not have
+    a normative reference to another standards track document at a lower
+    maturity level or to a non standards track specification (other than
+    specifications from other standards bodies). For example, a standards
+    track document may not have a normative reference to an informational RFC.
+    Exceptions to this rule are sometimes needed as the IETF uses
+    informational RFCs to describe non-IETF standards or IETF-specific modes
+    of use of such standards."
+    </p>
+  </div>
+
   {% if add_button %}
     {% buttons %}
     <p>

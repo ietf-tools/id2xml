@@ -364,7 +364,7 @@ def document_main(request, name, rev=None):
         #debug.show('can_edit_stream_info')
         #debug.show('snapshot')
         # I think I need another check here to disable the button if the
-        # document is already in ballot
+        # document is already in ballot or perhaps to back out of the ballot
         if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))

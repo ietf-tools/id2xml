@@ -1066,21 +1066,15 @@ def issue_irsg_ballot(request, name):
         raise Http404
 
     if request.method == 'POST':
-        button = request.POST.__getitem__("button")
+        button = request.POST.__getitem__("irsg_button")
         if button == 'Yes':
-            debug.say("YES IRSG button")
             e = BallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
             e.type = "created_ballot"
             e.desc = "Created IRSG Ballot"
             ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
             e.ballot_type = ballot_type
             e.save()
-            return HttpResponseRedirect(doc.get_absolute_url())
-        else:
-            debug.say("NO IRSG button")
-            # Do I need to do anything else here?  I think not, so fold in with
-            # above return
-            return HttpResponseRedirect(doc.get_absolute_url())
+        return HttpResponseRedirect(doc.get_absolute_url())
 
     templ = 'doc/ballot/irsg_ballot_approve.html'
 

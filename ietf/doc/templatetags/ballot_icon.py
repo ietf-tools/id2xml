@@ -1,8 +1,4 @@
 # Copyright The IETF Trust 2012-2019, All Rights Reserved
-# Above line insert by Peter Yee on 8/23/2019 as a stopgap to get
-# svn commit to work temporarily.  It should be removed because it is
-# wrong.
-# --Real first line follows below.
 # Copyright (C) 2009-2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved. Contact: Pasi Eronen <pasi.eronen@nokia.com>
 #
@@ -93,7 +89,7 @@ def ballot_icon(context, doc):
         else:
             return (1, pos.pos.order)
 
-    positions = list(ballot.active_pos_by_positions().items())
+    positions = list(ballot.active_ad_positions().items())
     positions.sort(key=sort_key)
 
     right_click_string = ''

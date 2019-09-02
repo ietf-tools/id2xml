@@ -78,11 +78,15 @@ class IssueIRSGBallotTests(TestCase):
         r = self.client.post(url,dict(irsg_button="Yes"))
         self.assertEqual(r.status_code, 302)
         # Check on whether the ballot is reflected in the BallotDocEvents table
-        ballot_open = BallotDocEvent.objects.filter(doc=rg_draft,
-                                                type__in=("created_ballot"),
-                                                ballot_type_in="irsg-approve")
-        # Temporarily make use of ballot_open to prevent a squawk
-        print(ballot_open)
+        # Can't get ballot_type to work in the filter below, so commented out for now
+        # ballot_type = BallotType.objects.get(doc_type=rg_draft.type,slug='irsg-approve')
+        # debug.show("ballot_type")
+        ballot_created = list(BallotDocEvent.objects.filter(doc=rg_draft,
+                                                type="created_ballot"))
+        self.assertNotEqual(len(ballot_created), 0)
+
+
+
 
 
 

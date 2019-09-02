@@ -191,7 +191,7 @@ def doc_detail(request, date, name):
     login = request.user.person
 
     if doc.active_ballot():
-        ballots = doc.active_ballot().active_ad_positions()  # returns dict of ad:ballotpositiondocevent
+        ballots = doc.active_ballot().active_balloteer_positions()  # returns dict of ad:ballotpositiondocevent
     else:
         ballots = []
 

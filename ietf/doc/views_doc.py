@@ -262,7 +262,7 @@ def document_main(request, name, rev=None):
         if iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES:
             active_ballot = doc.active_ballot()
             if active_ballot:
-                ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_ad_positions().values()))
+                ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
 
         # submission
         submission = ""
@@ -478,7 +478,7 @@ def document_main(request, name, rev=None):
         if doc.get_state_slug() in ("intrev", "iesgrev"):
             active_ballot = doc.active_ballot()
             if active_ballot:
-                ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_ad_positions().values()))
+                ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
             else:
                 ballot_summary = "No active ballot found."
 
@@ -520,7 +520,7 @@ def document_main(request, name, rev=None):
 
         ballot_summary = None
         if doc.get_state_slug() in ("iesgeval") and doc.active_ballot():
-            ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_ad_positions().values()))
+            ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_balloteer_positions().values()))
 
         return render(request, "doc/document_conflict_review.html",
                                   dict(doc=doc,
@@ -547,7 +547,7 @@ def document_main(request, name, rev=None):
 
         ballot_summary = None
         if doc.get_state_slug() in ("iesgeval"):
-            ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_ad_positions().values()))
+            ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_balloteer_positions().values()))
      
         if isinstance(doc,Document):
             sorted_relations=doc.relateddocument_set.all().order_by('relationship__name')

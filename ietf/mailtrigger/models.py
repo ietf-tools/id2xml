@@ -272,7 +272,7 @@ class Recipient(models.Model):
             doc = kwargs['doc']
             active_ballot = doc.active_ballot()
             if active_ballot:
-                for ad, pos in active_ballot.active_ad_positions().items():
+                for ad, pos in active_ballot.active_balloteer_positions().items():
                     if pos and pos.pos_id == "discuss":
                         addrs.append(ad.role_email("ad").address)
         return addrs

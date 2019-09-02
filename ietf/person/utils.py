@@ -191,13 +191,11 @@ def determine_merge_order(source,target):
 
 def get_active_balloteers(ballot_type):
     from ietf.person.models import Person
-    debug.show("ballot_type")
-    debug.show("ballot_type.slug")
-    debug.show("ballot_type.doc_type.name")
     if (ballot_type.slug == "approve" and ballot_type.doc_type.name == "draft"):
         IESG = True
     else:
         IESG = False
+    IESG=IESG
     # PEY: before going further with the above, I need to understand caching first to see if I really want to split caching between ADs and IRSG, or just make it all balloteers
     cache_key = "doc:active_ads"
     active_ads = cache.get(cache_key)

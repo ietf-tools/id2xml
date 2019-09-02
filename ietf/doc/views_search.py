@@ -94,6 +94,7 @@ class SearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
+        # PEY - fix this
         responsible = Document.objects.values_list('ad', flat=True).distinct()
         # Use the next line for now, but it needs to be type dependent (AD/IRSG) going forward
         ballot_type = BallotType.objects.get(doc_type="draft", slug="approve")
@@ -106,7 +107,7 @@ class SearchForm(forms.Form):
         active_balloteers.sort(key=extract_last_name)
         inactive_balloteers.sort(key=extract_last_name)
 
-        self.fields['ad'].choices = [('', 'any AD')] + [(balloteer.pk, balloteer.plain_name()) for balloteer in active_balloteers] + [('', '------------------')] + [(balloteer.pk, balloteer.name) for balloteer in inactive_balloteers]
+        self.fields['balloteer'].choices = [('', 'any AD')] + [(balloteer.pk, balloteer.plain_name()) for balloteer in active_balloteers] + [('', '------------------')] + [(balloteer.pk, balloteer.name) for balloteer in inactive_balloteers]
         # Need to determine what to do with the following line PEY
         self.fields['substate'].choices = [('', 'any substate'), ('0', 'no substate')] + [(n.slug, n.name) for n in DocTagName.objects.filter(slug__in=IESG_SUBSTATE_TAGS)]
 
@@ -118,7 +119,7 @@ class SearchForm(forms.Form):
         q = self.cleaned_data
         # Reset query['by'] if needed
         if 'by' in q:
-            for k in ('author', 'group', 'area', 'ad'):
+            for k in ('author', 'group', 'area', 'balloteer'):
                 if q['by'] == k and not q.get(k):
                     q['by'] = None
             if q['by'] == 'state' and not (q.get('state') or q.get('substate')):
@@ -128,7 +129,7 @@ class SearchForm(forms.Form):
         else:
             q['by'] = None
         # Reset other fields
-        for k in ('author','group', 'area', 'ad'):
+        for k in ('author','group', 'area', 'balloteer'):
             if k != q['by']:
                 q[k] = ""
         if q['by'] != 'state':
@@ -191,8 +192,8 @@ def retrieve_search_results(form, all_types=False):
     elif by == "area":
         docs = docs.filter(Q(group__type="wg", group__parent=query["area"]) |
                            Q(group=query["area"])).distinct()
-    elif by == "ad":
-        docs = docs.filter(ad=query["ad"])
+    elif by == "balloteer":
+        docs = docs.filter(balloteer=query["balloteer"])
     elif by == "state":
         if query["state"]:
             docs = docs.filter(states=query["state"])

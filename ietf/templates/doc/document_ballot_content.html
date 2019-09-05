@@ -82,8 +82,7 @@
               {% endif %}
               <span class="label label-{{ p.pos|pos_to_label }}">{{p.pos}}</span>
               {% if user|has_role:"Secretariat" %}
-                {# PEY: consider whether that should be pos_by=, not ad= #}
-                <a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}?ad={{ p.pos_by.pk }}" title="Click to edit the position of {{ p.pos_by.plain_name }}" class="btn btn-default btn-xs">
+                <a href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}?pos_by={{ p.pos_by.pk }}" title="Click to edit the position of {{ p.pos_by.plain_name }}" class="btn btn-default btn-xs">
 	          Edit</a>
               {% endif %}
             </span>

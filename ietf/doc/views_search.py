@@ -94,9 +94,8 @@ class SearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
-        # PEY - fix this
         responsible = Document.objects.values_list('ad', flat=True).distinct()
-        # Use the next line for now, but it needs to be type dependent (AD/IRSG) going forward
+        # PEY: Use the next line for now, but it needs to be type dependent (AD/IRSG) going forward
         ballot_type = BallotType.objects.get(doc_type="draft", slug="approve")
         active_balloteers = get_active_balloteers(ballot_type)
         inactive_balloteers = list(((Person.objects.filter(pk__in=responsible) | Person.objects.filter(role__name="pre-ad",
@@ -108,7 +107,7 @@ class SearchForm(forms.Form):
         inactive_balloteers.sort(key=extract_last_name)
 
         self.fields['balloteer'].choices = [('', 'any AD')] + [(balloteer.pk, balloteer.plain_name()) for balloteer in active_balloteers] + [('', '------------------')] + [(balloteer.pk, balloteer.name) for balloteer in inactive_balloteers]
-        # Need to determine what to do with the following line PEY
+        # PEY: Need to determine what to do with the following line
         self.fields['substate'].choices = [('', 'any substate'), ('0', 'no substate')] + [(n.slug, n.name) for n in DocTagName.objects.filter(slug__in=IESG_SUBSTATE_TAGS)]
 
     def clean_name(self):

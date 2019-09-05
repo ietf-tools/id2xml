@@ -35,7 +35,7 @@ x consolidate views (get rid of get_group_header,group,group_navigate)
 '''
 active_ballot_positions: takes one argument, doc.  returns a dictionary with a key for each ad Person object
 NOTE: this function has been deprecated as of Datatracker 4.34.  Should now use methods on the Document.
-For example: doc.active_ballot().active_ad_positions()
+For example: doc.active_ballot().active_balloteer_positions()
 
 agenda_data: takes a date string in the format YYYY-MM-DD.
 '''

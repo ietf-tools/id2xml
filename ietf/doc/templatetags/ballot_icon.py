@@ -89,7 +89,7 @@ def ballot_icon(context, doc):
         else:
             return (1, pos.pos.order)
 
-    positions = list(ballot.active_ad_positions().items())
+    positions = list(ballot.active_balloteer_positions().items())
     positions.sort(key=sort_key)
 
     right_click_string = ''

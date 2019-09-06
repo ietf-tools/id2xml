@@ -56,13 +56,14 @@ from django import forms
 import debug                            # pyflakes:ignore
 
 from ietf.doc.models import ( Document, DocAlias, DocHistory, DocEvent, BallotDocEvent,
-    ConsensusDocEvent, NewRevisionDocEvent, TelechatDocEvent, WriteupDocEvent,
-    IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
+    ConsensusDocEvent, NewRevisionDocEvent, TelechatDocEvent, WriteupDocEvent, BallotType,
+    State, IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
 from ietf.doc.utils import ( add_links_in_new_revision_events, augment_events_with_revision,
     can_adopt_draft, can_unadopt_draft, get_chartering_type, get_tags_for_stream_id,
     needed_ballot_positions, nice_consensus, prettify_std_name, update_telechat, has_same_ballot,
     get_initial_notify, make_notify_changed_event, make_rev_history, default_consensus,
-    add_events_message_info, get_unicode_document_content, build_doc_meta_block)
+    add_events_message_info, get_unicode_document_content, build_doc_meta_block,
+    irsg_needed_ballot_positions )
 from ietf.community.utils import augment_docs_with_tracking_info
 from ietf.group.models import Role
 from ietf.group.utils import can_manage_group_type, can_manage_materials, group_features_role_filter
@@ -87,10 +88,16 @@ def render_document_top(request, doc, tab, name):
     tabs.append(("Status", "status", urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=name)), True, None))
 
     ballot = doc.latest_event(BallotDocEvent, type="created_ballot")
-    if doc.type_id in ("draft","conflrev", "statchg"):
-        tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IESG Evaluation Ballot has not been created yet"))
-    elif doc.type_id == "charter" and doc.group.type_id == "wg":
-        tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot, None if ballot else "IESG Review Ballot has not been created yet"))
+
+    irsg_ballot_type = BallotType.objects.get(doc_type="draft", slug="irsg-approve")
+
+    if ballot and ballot.ballot_type != irsg_ballot_type:
+        if doc.type_id in ("draft","conflrev", "statchg"):
+            tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IESG Evaluation Ballot has not been created yet"))
+        elif doc.type_id == "charter" and doc.group.type_id == "wg":
+            tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot, None if ballot else "IESG Review Ballot has not been created yet"))
+    elif doc.type_id == "draft":
+            tabs.append(("IRSG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IRSG Evaluation Ballot has not been created yet"))
 
     if doc.type_id == "draft" or (doc.type_id == "charter" and doc.group.type_id == "wg"):
         tabs.append(("IESG Writeups", "writeup", urlreverse('ietf.doc.views_doc.document_writeup', kwargs=dict(name=name)), True, None))
@@ -170,6 +177,11 @@ def document_main(request, name, rev=None):
 
         iesg_state = doc.get_state("draft-iesg")
         iesg_state_summary = doc.friendly_state()
+        # PEY: I'm not sure this is how I should be getting this state
+        irsg_state = doc.get_state("irsgpoll")
+        allstates=doc.get_state()
+        debug.show("irsg_state")
+        debug.show("allstates")
         can_edit = has_role(request.user, ("Area Director", "Secretariat"))
         stream_slugs = StreamName.objects.values_list("slug", flat=True)
         # For some reason, AnonymousUser has __iter__, but is not iterable,
@@ -259,10 +271,13 @@ def document_main(request, name, rev=None):
 
         # ballot
         ballot_summary = None
-        if iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES:
+        if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
-                ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
+                if irsg_state:
+                    ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
+                else:
+                    ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
 
         # submission
         submission = ""
@@ -360,12 +375,14 @@ def document_main(request, name, rev=None):
         if doc.get_state_slug() == "expired" and has_role(request.user, ("Secretariat",)) and not snapshot:
             actions.append(("Resurrect", urlreverse('ietf.doc.views_draft.resurrect', kwargs=dict(name=doc.name))))
 
-        #debug.show('doc.stream_id')
-        #debug.show('can_edit_stream_info')
-        #debug.show('snapshot')
-        # I think I need another check here to disable the button if the
+        # PEY: I think I need another check here to disable the button if the
         # document is already in ballot or perhaps to back out of the ballot
-        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot):
+        # This next line tries to do that, but is wrong and merely ends up disabling the Issue IRSG Ballot button
+        irsg_ballot_state = State.objects.get(used=True, type="draft-stream-irtf", slug="irsgpoll")
+        docstate = doc.get_state()
+        debug.show("irsg_ballot_state")
+        debug.show("docstate")
+        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and irsg_ballot_state != doc.get_state()):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
 

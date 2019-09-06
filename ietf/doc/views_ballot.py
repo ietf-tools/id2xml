@@ -1065,6 +1065,8 @@ def issue_irsg_ballot(request, name):
     if not doc.get_state("draft-stream-irtf"):
         raise Http404
 
+    by = request.user.person
+
     if request.method == 'POST':
         button = request.POST.__getitem__("irsg_button")
         if button == 'Yes':
@@ -1074,6 +1076,44 @@ def issue_irsg_ballot(request, name):
             ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
             e.ballot_type = ballot_type
             e.save()
+            # PEY: This is probably not enough state setting/cleanup.  I should review the IESG version more to see what happens.
+            # new_state = State.objects.get(used=True, type="draft-stream-irtf", slug="irsgpoll")
+            # debug.show("new_state")
+            # doc.set_state(new_state)
+
+            # PEY: Start of experiment
+            new_state = doc.get_state()
+            prev_tags = []
+            new_tags = []
+
+            if doc.type_id == 'draft':
+                new_state = State.objects.get(used=True, type="draft-stream-irtf", slug='irsgpoll')
+
+            prev_state = doc.get_state(new_state.type_id if new_state else None)
+            debug.show("new_state")
+            debug.show("prev_state")
+
+            doc.set_state(new_state)
+            doc.tags.remove(*prev_tags)
+
+            events = []
+            state_change_event = add_state_change_event(doc, by, prev_state, new_state, prev_tags=prev_tags, new_tags=new_tags)
+            debug.show("state_change_event")
+            if state_change_event:
+                events.append(state_change_event)
+
+            if events:
+                debug.say("saving with history")
+                doc.save_with_history(events)
+            else:
+                debug.say("not saving with history")
+
+            # PEY: End of experiement
+
+
+            # PEY: Why doesn't my set_state() above work?
+            stateinfo = doc.get_state()
+            debug.show("stateinfo")
         return HttpResponseRedirect(doc.get_absolute_url())
 
     templ = 'doc/ballot/irsg_ballot_approve.html'

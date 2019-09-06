@@ -405,6 +405,7 @@ def add_state_change_event(doc, by, prev_state, new_state, prev_tags=[], new_tag
         assert prev_state.type_id == new_state.type_id
 
     if prev_state == new_state and set(prev_tags) == set(new_tags):
+        debug.say("add_state_change_event had common prev/new")
         return None
 
     e = StateDocEvent(doc=doc, rev=doc.rev, by=by)

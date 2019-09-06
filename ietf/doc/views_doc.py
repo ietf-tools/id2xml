@@ -382,6 +382,7 @@ def document_main(request, name, rev=None):
         docstate = doc.get_state()
         debug.show("irsg_ballot_state")
         debug.show("docstate")
+        # PEY: the comparison at the end of the if below is wrong.  The values in the debug.show above don't match, but should for an already issued ballot.
         if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and irsg_ballot_state != doc.get_state()):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))

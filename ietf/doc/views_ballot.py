@@ -35,7 +35,7 @@ from ietf.ietfauth.utils import has_role, role_required, is_authorized_in_doc_st
 from ietf.mailtrigger.utils import gather_address_lists
 from ietf.mailtrigger.forms import CcSelectForm
 from ietf.message.utils import infer_message
-from ietf.name.models import BallotPositionName
+from ietf.name.models import BallotPositionName, DocTypeName
 from ietf.person.models import Person
 from ietf.utils import log
 from ietf.utils.mail import send_mail_text, send_mail_preformatted
@@ -1062,7 +1062,9 @@ def make_last_call(request, name):
 @role_required('Secretariat', 'IRTF Chair')
 def issue_irsg_ballot(request, name):
     doc = get_object_or_404(Document, docalias__name=name)
-    if not doc.get_state("draft-stream-irtf"):
+    irtf_state = doc.get_state("draft-stream-irtf")
+    # PEY: The following line should probably be augmented with a check on the returned slug in irtf_state.  The question is what subset of slugs are acceptable?
+    if not irtf_state or doc.type != DocTypeName.objects.get(slug="draft"):
         raise Http404
 
     by = request.user.person
@@ -1077,10 +1079,6 @@ def issue_irsg_ballot(request, name):
             e.ballot_type = ballot_type
             e.save()
             # PEY: This is probably not enough state setting/cleanup.  I should review the IESG version more to see what happens.
-            # new_state = State.objects.get(used=True, type="draft-stream-irtf", slug="irsgpoll")
-            # debug.show("new_state")
-            # doc.set_state(new_state)
-
             # PEY: Start of experiment
             new_state = doc.get_state()
             prev_tags = []
@@ -1090,30 +1088,20 @@ def issue_irsg_ballot(request, name):
                 new_state = State.objects.get(used=True, type="draft-stream-irtf", slug='irsgpoll')
 
             prev_state = doc.get_state(new_state.type_id if new_state else None)
-            debug.show("new_state")
-            debug.show("prev_state")
 
             doc.set_state(new_state)
             doc.tags.remove(*prev_tags)
 
             events = []
             state_change_event = add_state_change_event(doc, by, prev_state, new_state, prev_tags=prev_tags, new_tags=new_tags)
-            debug.show("state_change_event")
             if state_change_event:
                 events.append(state_change_event)
 
             if events:
-                debug.say("saving with history")
                 doc.save_with_history(events)
-            else:
-                debug.say("not saving with history")
 
             # PEY: End of experiement
 
-
-            # PEY: Why doesn't my set_state() above work?
-            stateinfo = doc.get_state()
-            debug.show("stateinfo")
         return HttpResponseRedirect(doc.get_absolute_url())
 
     templ = 'doc/ballot/irsg_ballot_approve.html'

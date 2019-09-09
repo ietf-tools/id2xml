@@ -52,14 +52,14 @@ from django.utils.cache import _generate_cache_key
 import debug                            # pyflakes:ignore
 
 from ietf.doc.models import ( Document, DocHistory, DocAlias, State,
-    LastCallDocEvent, NewRevisionDocEvent, IESG_SUBSTATE_TAGS, BallotType )
+    LastCallDocEvent, NewRevisionDocEvent, IESG_SUBSTATE_TAGS )
 from ietf.doc.fields import select2_id_doc_name_json
 from ietf.doc.utils import get_search_cache_key
 from ietf.group.models import Group
 from ietf.idindex.index import active_drafts_index_by_group
 from ietf.name.models import DocTagName, DocTypeName, StreamName
 from ietf.person.models import Person
-from ietf.person.utils import get_active_balloteers
+from ietf.person.utils import get_active_ads
 from ietf.utils.draft_search import normalize_draftname
 from ietf.doc.utils_search import prepare_document_table
 
@@ -75,7 +75,7 @@ class SearchForm(forms.Form):
     group = forms.CharField(required=False)
     stream = forms.ModelChoiceField(StreamName.objects.all().order_by('name'), empty_label="any stream", required=False)
     area = forms.ModelChoiceField(Group.objects.filter(type="area", state="active").order_by('name'), empty_label="any area", required=False)
-    balloteer = forms.ChoiceField(choices=(), required=False)
+    ad = forms.ChoiceField(choices=(), required=False)
     state = forms.ModelChoiceField(State.objects.filter(type="draft-iesg"), empty_label="any state", required=False)
     substate = forms.ChoiceField(choices=(), required=False)
     irtfstate = forms.ModelChoiceField(State.objects.filter(type="draft-stream-irtf"), empty_label="any state", required=False)
@@ -95,19 +95,16 @@ class SearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
         responsible = Document.objects.values_list('ad', flat=True).distinct()
-        # PEY: Use the next line for now, but it needs to be type dependent (AD/IRSG) going forward
-        ballot_type = BallotType.objects.get(doc_type="draft", slug="approve")
-        active_balloteers = get_active_balloteers(ballot_type)
-        inactive_balloteers = list(((Person.objects.filter(pk__in=responsible) | Person.objects.filter(role__name="pre-ad",
+        active_ads = get_active_ads()
+        inactive_ads = list(((Person.objects.filter(pk__in=responsible) | Person.objects.filter(role__name="pre-ad",
                                                                                               role__group__type="area",
                                                                                               role__group__state="active")).distinct())
-                            .exclude(pk__in=[x.pk for x in active_balloteers]))
+                            .exclude(pk__in=[x.pk for x in active_ads]))
         extract_last_name = lambda x: x.name_parts()[3]
-        active_balloteers.sort(key=extract_last_name)
-        inactive_balloteers.sort(key=extract_last_name)
+        active_ads.sort(key=extract_last_name)
+        inactive_ads.sort(key=extract_last_name)
 
-        self.fields['balloteer'].choices = [('', 'any AD')] + [(balloteer.pk, balloteer.plain_name()) for balloteer in active_balloteers] + [('', '------------------')] + [(balloteer.pk, balloteer.name) for balloteer in inactive_balloteers]
-        # PEY: Need to determine what to do with the following line
+        self.fields['ad'].choices = [('', 'any AD')] + [(ad.pk, ad.plain_name()) for ad in active_ads] + [('', '------------------')] + [(ad.pk, ad.name) for ad in inactive_ads]
         self.fields['substate'].choices = [('', 'any substate'), ('0', 'no substate')] + [(n.slug, n.name) for n in DocTagName.objects.filter(slug__in=IESG_SUBSTATE_TAGS)]
 
     def clean_name(self):
@@ -118,7 +115,7 @@ class SearchForm(forms.Form):
         q = self.cleaned_data
         # Reset query['by'] if needed
         if 'by' in q:
-            for k in ('author', 'group', 'area', 'balloteer'):
+            for k in ('author', 'group', 'area', 'ad'):
                 if q['by'] == k and not q.get(k):
                     q['by'] = None
             if q['by'] == 'state' and not (q.get('state') or q.get('substate')):
@@ -128,7 +125,7 @@ class SearchForm(forms.Form):
         else:
             q['by'] = None
         # Reset other fields
-        for k in ('author','group', 'area', 'balloteer'):
+        for k in ('author','group', 'area', 'ad'):
             if k != q['by']:
                 q[k] = ""
         if q['by'] != 'state':
@@ -191,8 +188,8 @@ def retrieve_search_results(form, all_types=False):
     elif by == "area":
         docs = docs.filter(Q(group__type="wg", group__parent=query["area"]) |
                            Q(group=query["area"])).distinct()
-    elif by == "balloteer":
-        docs = docs.filter(balloteer=query["balloteer"])
+    elif by == "ad":
+        docs = docs.filter(ad=query["ad"])
     elif by == "state":
         if query["state"]:
             docs = docs.filter(states=query["state"])

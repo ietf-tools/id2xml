@@ -56,8 +56,8 @@ from django import forms
 import debug                            # pyflakes:ignore
 
 from ietf.doc.models import ( Document, DocAlias, DocHistory, DocEvent, BallotDocEvent,
-    ConsensusDocEvent, NewRevisionDocEvent, TelechatDocEvent, WriteupDocEvent, BallotType,
-    State, IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
+    ConsensusDocEvent, NewRevisionDocEvent, TelechatDocEvent, WriteupDocEvent,
+    IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
 from ietf.doc.utils import ( add_links_in_new_revision_events, augment_events_with_revision,
     can_adopt_draft, can_unadopt_draft, get_chartering_type, get_tags_for_stream_id,
     needed_ballot_positions, nice_consensus, prettify_std_name, update_telechat, has_same_ballot,
@@ -89,15 +89,12 @@ def render_document_top(request, doc, tab, name):
 
     ballot = doc.latest_event(BallotDocEvent, type="created_ballot")
 
-    irsg_ballot_type = BallotType.objects.get(doc_type="draft", slug="irsg-approve")
-
-    if ballot and ballot.ballot_type != irsg_ballot_type:
-        if doc.type_id in ("draft","conflrev", "statchg"):
-            tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IESG Evaluation Ballot has not been created yet"))
-        elif doc.type_id == "charter" and doc.group.type_id == "wg":
-            tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot, None if ballot else "IESG Review Ballot has not been created yet"))
-    elif doc.type_id == "draft":
-            tabs.append(("IRSG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IRSG Evaluation Ballot has not been created yet"))
+    if doc.type_id in ("draft","conflrev", "statchg"):
+        tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IESG Evaluation Ballot has not been created yet"))
+    elif doc.type_id == "charter" and doc.group.type_id == "wg":
+        tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot, None if ballot else "IESG Review Ballot has not been created yet"))
+    if doc.type_id == "draft" and doc.get_state("draft-stream-irtf"):
+        tabs.append(("IRSG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IRSG Evaluation Ballot has not been created yet"))
 
     if doc.type_id == "draft" or (doc.type_id == "charter" and doc.group.type_id == "wg"):
         tabs.append(("IESG Writeups", "writeup", urlreverse('ietf.doc.views_doc.document_writeup', kwargs=dict(name=name)), True, None))
@@ -177,11 +174,8 @@ def document_main(request, name, rev=None):
 
         iesg_state = doc.get_state("draft-iesg")
         iesg_state_summary = doc.friendly_state()
-        # PEY: I'm not sure this is how I should be getting this state
-        irsg_state = doc.get_state("irsgpoll")
-        allstates=doc.get_state()
-        debug.show("irsg_state")
-        debug.show("allstates")
+        irsg_state = doc.get_state("draft-stream-irtf")
+
         can_edit = has_role(request.user, ("Area Director", "Secretariat"))
         stream_slugs = StreamName.objects.values_list("slug", flat=True)
         # For some reason, AnonymousUser has __iter__, but is not iterable,
@@ -375,15 +369,7 @@ def document_main(request, name, rev=None):
         if doc.get_state_slug() == "expired" and has_role(request.user, ("Secretariat",)) and not snapshot:
             actions.append(("Resurrect", urlreverse('ietf.doc.views_draft.resurrect', kwargs=dict(name=doc.name))))
 
-        # PEY: I think I need another check here to disable the button if the
-        # document is already in ballot or perhaps to back out of the ballot
-        # This next line tries to do that, but is wrong and merely ends up disabling the Issue IRSG Ballot button
-        irsg_ballot_state = State.objects.get(used=True, type="draft-stream-irtf", slug="irsgpoll")
-        docstate = doc.get_state()
-        debug.show("irsg_ballot_state")
-        debug.show("docstate")
-        # PEY: the comparison at the end of the if below is wrong.  The values in the debug.show above don't match, but should for an already issued ballot.
-        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and irsg_ballot_state != doc.get_state()):
+        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and not doc.ballot_open('irsg-approve')):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
 

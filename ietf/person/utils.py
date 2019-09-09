@@ -207,3 +207,12 @@ def get_active_balloteers(ballot_type):
         active_ads = list(Person.objects.filter(role__name="ad", role__group__state="active", role__group__type="area").distinct())
         cache.set(cache_key, active_ads)
     return active_ads
+
+def get_active_ads():
+    from ietf.person.models import Person
+    cache_key = "doc:active_ads"
+    active_ads = cache.get(cache_key)
+    if not active_ads:
+        active_ads = list(Person.objects.filter(role__name="ad", role__group__state="active", role__group__type="area").distinct())
+        cache.set(cache_key, active_ads)
+    return active_ads

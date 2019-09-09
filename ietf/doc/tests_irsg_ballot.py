@@ -85,14 +85,8 @@ class IssueIRSGBallotTests(TestCase):
                                                 type="created_ballot"))
         self.assertNotEqual(len(ballot_created), 0)
 
-
-
-
-
-
-
-
-
-
-
-
+        # Having issued a ballot, the Issue IRSG ballot button should be gone
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Issue IRSG ballot", unicontent(r))

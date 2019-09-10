@@ -1063,7 +1063,6 @@ def make_last_call(request, name):
 def issue_irsg_ballot(request, name):
     doc = get_object_or_404(Document, docalias__name=name)
     irtf_state = doc.get_state("draft-stream-irtf")
-    # PEY: The following line should probably be augmented with a check on the returned slug in irtf_state.  The question is what subset of slugs are acceptable?
     if not irtf_state or doc.type != DocTypeName.objects.get(slug="draft"):
         raise Http404
 

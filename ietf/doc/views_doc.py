@@ -87,14 +87,17 @@ def render_document_top(request, doc, tab, name):
     tabs = []
     tabs.append(("Status", "status", urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=name)), True, None))
 
-    ballot = doc.latest_event(BallotDocEvent, type="created_ballot")
+    # ballot = doc.latest_event(BallotDocEvent, type="created_ballot")
+    # ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
+    iesg_ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='approve')
+    irsg_ballot = doc.latest_event(BallotDocEvent, type="created_ballot",ballot_type__slug='irsg-approve')
 
     if doc.type_id in ("draft","conflrev", "statchg"):
-        tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IESG Evaluation Ballot has not been created yet"))
+        tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), iesg_ballot,  None if iesg_ballot else "IESG Evaluation Ballot has not been created yet"))
     elif doc.type_id == "charter" and doc.group.type_id == "wg":
-        tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot, None if ballot else "IESG Review Ballot has not been created yet"))
+        tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), iesg_ballot, None if iesg_ballot else "IESG Review Ballot has not been created yet"))
     if doc.type_id == "draft" and doc.get_state("draft-stream-irtf"):
-        tabs.append(("IRSG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), ballot,  None if ballot else "IRSG Evaluation Ballot has not been created yet"))
+        tabs.append(("IRSG Evaluation Record", "irsgballot", urlreverse("ietf.doc.views_doc.document_irsg_ballot", kwargs=dict(name=name)), irsg_ballot,  None if irsg_ballot else "IRSG Evaluation Ballot has not been created yet"))
 
     if doc.type_id == "draft" or (doc.type_id == "charter" and doc.group.type_id == "wg"):
         tabs.append(("IESG Writeups", "writeup", urlreverse('ietf.doc.views_doc.document_writeup', kwargs=dict(name=name)), True, None))
@@ -943,6 +946,8 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
                 ballot = b
                 break
     elif all_ballots:
+        # PEY the following line isn't correct if, for example, there are contemporaneous ballots.  It chooses the last one, but that might not be the one matching the tab.
+        # For now, I'm having document_ballot and document_irsg_ballot look up the right ballot and pass in the ballot_id.  Need to run tests to see if this breaks anything
         ballot = all_ballots[-1]
 
     if not ballot:
@@ -990,6 +995,26 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
 def document_ballot(request, name, ballot_id=None):
     doc = get_object_or_404(Document, docalias__name=name)
     top = render_document_top(request, doc, "ballot", name)
+    if not ballot_id:
+        ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='approve')
+        ballot_id = ballot.id
+
+    c = document_ballot_content(request, doc, ballot_id, editable=True)
+
+    request.session['ballot_edit_return_point'] = request.path_info
+
+    return render(request, "doc/document_ballot.html",
+                              dict(doc=doc,
+                                   top=top,
+                                   ballot_content=c,
+                                   ))
+
+def document_irsg_ballot(request, name, ballot_id=None):
+    doc = get_object_or_404(Document, docalias__name=name)
+    top = render_document_top(request, doc, "irsgballot", name)
+    if not ballot_id:
+        ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='irsg-approve')
+        ballot_id = ballot.id
 
     c = document_ballot_content(request, doc, ballot_id, editable=True)
 

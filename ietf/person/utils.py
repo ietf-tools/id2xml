@@ -192,21 +192,15 @@ def determine_merge_order(source,target):
 def get_active_balloteers(ballot_type):
     from ietf.person.models import Person
     if (ballot_type.slug == "approve" and ballot_type.doc_type.name == "draft"):
-        IESG = True
+        active_balloteers = get_active_ads()
     else:
-        IESG = False
-    # PEY: Temporary line below to keep unused variable error from happening
-    IESG=IESG
-    # PEY: before going further with the above, I need to understand caching first to see if I really want to split caching between ADs and IRSG, or just make it all balloteers
-    # PEY: 8/5 RJS says go ahead with two cache keys AD/IRSG (active_irsg_balloteers).
-    cache_key = "doc:active_ads"
-    active_ads = cache.get(cache_key)
-    # Role group for IRSG is 
-    # Person.objects.filter(role__group__acronym='irsg',role__name__in=['chair','member','atlarge'])
-    if not active_ads:
-        active_ads = list(Person.objects.filter(role__name="ad", role__group__state="active", role__group__type="area").distinct())
-        cache.set(cache_key, active_ads)
-    return active_ads
+        cache_key = "doc:active_irsg_balloteers"
+        active_irsg_balloteers = cache.get(cache_key)
+        if not active_irsg_balloteers:
+            active_irsg_balloteers = list(Person.objects.filter(role__group__acronym='irsg',role__name__in=['chair','member','atlarge']).distinct())
+            cache.set(cache_key, active_irsg_balloteers)
+        active_balloteers = active_irsg_balloteers        
+    return active_balloteers
 
 def get_active_ads():
     from ietf.person.models import Person

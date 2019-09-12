@@ -271,6 +271,7 @@ def document_main(request, name, rev=None):
         if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
+                # PEY: This probably does not work well for simultaneous ballots
                 if irsg_state:
                     ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
                 else:
@@ -483,6 +484,7 @@ def document_main(request, name, rev=None):
 
         ballot_summary = None
         if doc.get_state_slug() in ("intrev", "iesgrev"):
+            # PEY: Need to adjust this so that I check draft-stream-irtf state as well and generate an irsg_ballot_summary as needed...
             active_ballot = doc.active_ballot()
             if active_ballot:
                 ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
@@ -526,6 +528,7 @@ def document_main(request, name, rev=None):
             content = markup_txt.markup(content)
 
         ballot_summary = None
+        # PEY: Need to work in irsg_ballot_summary here as well
         if doc.get_state_slug() in ("iesgeval") and doc.active_ballot():
             ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_balloteer_positions().values()))
 
@@ -553,6 +556,7 @@ def document_main(request, name, rev=None):
             content = doc.text_or_error() # pyflakes:ignore
 
         ballot_summary = None
+        # PEY: work in irsg_ballot_summary here too
         if doc.get_state_slug() in ("iesgeval"):
             ballot_summary = needed_ballot_positions(doc, list(doc.active_ballot().active_balloteer_positions().values()))
      
@@ -967,6 +971,7 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
         else:
             position_groups.append(g)
 
+    # PEY: Need to integrate irsg_needed_ballot_positions here as well.
     summary = needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
 
     text_positions = [p for p in positions if p.discuss or p.comment]
@@ -997,7 +1002,8 @@ def document_ballot(request, name, ballot_id=None):
     top = render_document_top(request, doc, "ballot", name)
     if not ballot_id:
         ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='approve')
-        ballot_id = ballot.id
+        if ballot:
+            ballot_id = ballot.id
 
     c = document_ballot_content(request, doc, ballot_id, editable=True)
 
@@ -1014,7 +1020,8 @@ def document_irsg_ballot(request, name, ballot_id=None):
     top = render_document_top(request, doc, "irsgballot", name)
     if not ballot_id:
         ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='irsg-approve')
-        ballot_id = ballot.id
+        if ballot:
+            ballot_id = ballot.id
 
     c = document_ballot_content(request, doc, ballot_id, editable=True)
 

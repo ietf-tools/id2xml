@@ -191,7 +191,7 @@ def determine_merge_order(source,target):
 
 def get_active_balloteers(ballot_type):
     from ietf.person.models import Person
-    if (ballot_type.slug == "approve" and ballot_type.doc_type.name == "draft"):
+    if (ballot_type.slug != "irsg-approve"):
         active_balloteers = get_active_ads()
     else:
         cache_key = "doc:active_irsg_balloteers"

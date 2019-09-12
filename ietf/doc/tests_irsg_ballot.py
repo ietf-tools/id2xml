@@ -72,12 +72,12 @@ class IssueIRSGBallotTests(TestCase):
         # Press the No button - expect nothing but a redirect back to the draft's main page
         r = self.client.post(url,dict(irsg_button="No"))
         self.assertEqual(r.status_code, 302)
-        # Insert assertion about the redirect URL
+        # PEY: Insert assertion about the redirect URL
 
         # Press the Yes button
         r = self.client.post(url,dict(irsg_button="Yes"))
         self.assertEqual(r.status_code, 302)
-        # Check on whether the ballot is reflected in the BallotDocEvents table
+        # PEY: Check on whether the ballot is reflected in the BallotDocEvents table
         # Can't get ballot_type to work in the filter below, so commented out for now
         # ballot_type = BallotType.objects.get(doc_type=rg_draft.type,slug='irsg-approve')
         # debug.show("ballot_type")

@@ -170,7 +170,9 @@ def docevent_from_submission(request, submission, desc, who=None):
         # Assume this is revision 00 - we'll do this later
         return
 
-    if who:
+    if who and type(who)==Person:
+        by = who
+    elif who:
         by = Person.objects.get(name=who)
     else:
         submitter_parsed = submission.submitter_parsed()

@@ -656,7 +656,7 @@ class Document(DocumentInfo):
     
     def latest_event(self, *args, **filter_args):
         """Get latest event of optional Python type and with filter
-        arguments, e.g. d.latest_event(type="xyz") returns an DocEvent
+        arguments, e.g. d.latest_event(type="xyz") returns a DocEvent
         while d.latest_event(WriteupDocEvent, type="xyz") returns a
         WriteupDocEvent event."""
         model = args[0] if args else DocEvent

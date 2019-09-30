@@ -65,7 +65,7 @@ from ietf.doc.utils import ( add_links_in_new_revision_events, augment_events_wi
     add_events_message_info, get_unicode_document_content, build_doc_meta_block,
     irsg_needed_ballot_positions )
 from ietf.community.utils import augment_docs_with_tracking_info
-from ietf.group.models import Role
+from ietf.group.models import Role, Group
 from ietf.group.utils import can_manage_group_type, can_manage_materials, group_features_role_filter
 from ietf.ietfauth.utils import ( has_role, is_authorized_in_doc_stream, user_is_person,
     role_required, is_individual_draft_author)
@@ -92,13 +92,13 @@ def render_document_top(request, doc, tab, name):
     iesg_ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='approve')
     irsg_ballot = doc.latest_event(BallotDocEvent, type="created_ballot",ballot_type__slug='irsg-approve')
 
+    if doc.type_id == "draft" and doc.get_state("draft-stream-irtf"):
+        tabs.append(("IRSG Evaluation Record", "irsgballot", urlreverse("ietf.doc.views_doc.document_irsg_ballot", kwargs=dict(name=name)), irsg_ballot,  None if irsg_ballot else "IRSG Evaluation Ballot has not been created yet"))
     if doc.type_id in ("draft","conflrev", "statchg"):
         tabs.append(("IESG Evaluation Record", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), iesg_ballot,  None if iesg_ballot else "IESG Evaluation Ballot has not been created yet"))
     elif doc.type_id == "charter" and doc.group.type_id == "wg":
         tabs.append(("IESG Review", "ballot", urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=name)), iesg_ballot, None if iesg_ballot else "IESG Review Ballot has not been created yet"))
-    if doc.type_id == "draft" and doc.get_state("draft-stream-irtf"):
-        tabs.append(("IRSG Evaluation Record", "irsgballot", urlreverse("ietf.doc.views_doc.document_irsg_ballot", kwargs=dict(name=name)), irsg_ballot,  None if irsg_ballot else "IRSG Evaluation Ballot has not been created yet"))
-
+    
     if doc.type_id == "draft" or (doc.type_id == "charter" and doc.group.type_id == "wg"):
         tabs.append(("IESG Writeups", "writeup", urlreverse('ietf.doc.views_doc.document_writeup', kwargs=dict(name=name)), True, None))
 
@@ -267,15 +267,19 @@ def document_main(request, name, rev=None):
         file_urls.append(("bibtex", "bibtex"))
 
         # ballot
-        ballot_summary = None
+        iesg_ballot_summary = None
+        irsg_ballot_summary = None
+        debug.show("iesg_state")
+        debug.show("irsg_state")
         if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
                 # PEY: This probably does not work well for simultaneous ballots
                 if irsg_state:
-                    ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
+                    debug.say("Going in IRSG ballot positions needed")
+                    irsg_ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
                 else:
-                    ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
+                    iesg_ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
 
         # submission
         submission = ""
@@ -394,6 +398,11 @@ def document_main(request, name, rev=None):
                     label += " (Warning: the IESG state indicates ongoing IESG processing)"
                 actions.append((label, urlreverse('ietf.doc.views_draft.request_publication', kwargs=dict(name=doc.name))))
 
+        debug.say("Checking for IESG state")
+        debug.show("iesg_state")
+        debug.show("can_edit")
+        debug.show("doc.stream_id")
+        debug.show("snapshot")
         if doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("ietf",) and not snapshot:
             log.assertion('iesg_state')
             if iesg_state.slug == 'idexists' and can_edit:
@@ -440,7 +449,8 @@ def document_main(request, name, rev=None):
                                        rfc_number=rfc_number,
                                        draft_name=draft_name,
                                        telechat=telechat,
-                                       ballot_summary=ballot_summary,
+                                       iesg_ballot_summary=iesg_ballot_summary,
+                                       irsg_ballot_summary=irsg_ballot_summary,
                                        submission=submission,
                                        resurrected_by=resurrected_by,
 
@@ -972,7 +982,11 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
             position_groups.append(g)
 
     # PEY: Need to integrate irsg_needed_ballot_positions here as well.
-    summary = needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
+    debug.show("ballot.ballot_type.slug")
+    if (ballot.ballot_type.slug == "irsg-approve"):
+        summary = irsg_needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
+    else:
+        summary = needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
 
     text_positions = [p for p in positions if p.discuss or p.comment]
     text_positions.sort(key=lambda p: (p.old_pos_by, p.pos_by.plain_name()))

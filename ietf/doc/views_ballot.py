@@ -1071,6 +1071,7 @@ def issue_irsg_ballot(request, name):
     if request.method == 'POST':
         button = request.POST.__getitem__("irsg_button")
         if button == 'Yes':
+            duedate = request.POST.__getitem__("duedate")
             e = BallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
             e.type = "created_ballot"
             e.desc = "Created IRSG Ballot"

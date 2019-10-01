@@ -3,11 +3,11 @@
 {% load origin %}
 {% load bootstrap3 %}
 
-{% block title %}Change position for {{ ad.plain_name }}{% endblock %}
+{% block title %}Change position for {{ pos_by.plain_name }}{% endblock %}
 
 {% block content %}
   {% origin %}
-  <h1>Change position for {{ ad.plain_name }} regarding <br><small><a href="{% url "ietf.doc.views_doc.document_main" name=doc.canonical_name %}">{{ doc }}</a></small></h1>
+  <h1>Change position for {{ pos_by.plain_name }} regarding <br><small><a href="{% url "ietf.doc.views_doc.document_main" name=doc.canonical_name %}">{{ doc }}</a></small></h1>
 
   <div class="question">{{ ballot.ballot_type.question }}</div>
 

@@ -81,6 +81,7 @@ urlpatterns = [
     url(r'^%(name)s/references/$' % settings.URL_REGEXPS, views_doc.document_references),
     url(r'^%(name)s/referencedby/$' % settings.URL_REGEXPS, views_doc.document_referenced_by),
     url(r'^%(name)s/ballot/$' % settings.URL_REGEXPS, views_doc.document_ballot),
+    url(r'^%(name)s/irsgballot/$' % settings.URL_REGEXPS, views_doc.document_irsg_ballot),
     url(r'^%(name)s/ballot/(?P<ballot_id>[0-9]+)/$' % settings.URL_REGEXPS, views_doc.document_ballot),
     url(r'^%(name)s/ballot/(?P<ballot_id>[0-9]+)/position/$' % settings.URL_REGEXPS, views_ballot.edit_position),
     url(r'^%(name)s/ballot/(?P<ballot_id>[0-9]+)/emailposition/$' % settings.URL_REGEXPS, views_ballot.send_ballot_comment),
@@ -127,6 +128,7 @@ urlpatterns = [
     url(r'^%(name)s/edit/approvedownrefs/$' % settings.URL_REGEXPS, views_ballot.approve_downrefs),
     url(r'^%(name)s/edit/makelastcall/$' % settings.URL_REGEXPS, views_ballot.make_last_call),
     url(r'^%(name)s/edit/urls/$' % settings.URL_REGEXPS, views_draft.edit_document_urls),
+    url(r'^%(name)s/edit/issueirsgballot/$' % settings.URL_REGEXPS, views_ballot.issue_irsg_ballot),
     
     url(r'^help/state/(?P<type>[\w-]+)/$', views_help.state_help),
     url(r'^help/relationships/$', views_help.relationship_help),

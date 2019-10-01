@@ -531,7 +531,7 @@ class BallotPositionDocEventResource(ModelResource):
     doc              = ToOneField(DocumentResource, 'doc')
     docevent_ptr     = ToOneField(DocEventResource, 'docevent_ptr')
     ballot           = ToOneField(BallotDocEventResource, 'ballot', null=True)
-    ad               = ToOneField(PersonResource, 'ad')
+    pos_by           = ToOneField(PersonResource, 'pos_by')
     pos              = ToOneField(BallotPositionNameResource, 'pos')
     class Meta:
         cache = SimpleCache()
@@ -553,7 +553,7 @@ class BallotPositionDocEventResource(ModelResource):
             "doc": ALL_WITH_RELATIONS,
             "docevent_ptr": ALL_WITH_RELATIONS,
             "ballot": ALL_WITH_RELATIONS,
-            "ad": ALL_WITH_RELATIONS,
+            "pos_by": ALL_WITH_RELATIONS,
             "pos": ALL_WITH_RELATIONS,
         }
 api.doc.register(BallotPositionDocEventResource())

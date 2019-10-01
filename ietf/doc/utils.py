@@ -206,6 +206,34 @@ def needed_ballot_positions(doc, active_positions):
 
     return " ".join(answer)
 
+# Not done yet - modified version of above needed_ballot_positions
+def irsg_needed_ballot_positions(doc, active_positions):
+    '''Returns text answering the question "what does this document
+    need to pass?".  The return value is only useful if the document
+    is currently in IRSG evaluation.'''
+    yes = [p for p in active_positions if p and p.pos_id == "yes"]
+    needmoretime = [p for p in active_positions if p and p.pos_id == "moretime"]
+    notready = [p for p in active_positions if p and p.pos_id == "notready"]
+
+    answer = []
+    needed = 2
+
+    have = len(yes)
+    if len(notready) > 0:
+        answer.append("Has a Not Ready position.")
+    if have < needed:
+        more = needed - have
+        if more == 1:
+            answer.append("Needs one more YES position to pass.")
+        else:
+            answer.append("Needs %d more YES positions to pass." % more)
+    else:
+        answer.append("Has enough positions to pass.")
+    if len(needmoretime) > 0:
+        answer.append("Has a Need More Time position.")
+
+    return " ".join(answer)
+
 def create_ballot(request, doc, by, ballot_slug, time=None):
     closed = close_open_ballots(doc, by)
     for e in closed:
@@ -377,6 +405,7 @@ def add_state_change_event(doc, by, prev_state, new_state, prev_tags=[], new_tag
         assert prev_state.type_id == new_state.type_id
 
     if prev_state == new_state and set(prev_tags) == set(new_tags):
+        debug.say("add_state_change_event had common prev/new")
         return None
 
     e = StateDocEvent(doc=doc, rev=doc.rev, by=by)

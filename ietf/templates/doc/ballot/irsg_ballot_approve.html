@@ -4,7 +4,7 @@
 
 {% load bootstrap3 %}
 
-{% block title %}Issued ballot for {{ doc }}?{% endblock %}
+{% block title %}Issue ballot for {{ doc }}?{% endblock %}
 
 {% block content %}
   {% origin %}
@@ -15,6 +15,7 @@
     {# curly percent bootstrap_form approval_text_form curly percent #}
 
     Due date for this ballot:
+    {# PEY: This datepicker will need to be replaced for general use.  Leave in place for testing purposes for now. #}
     <input type="date" name="duedate">
 
     {% buttons %}

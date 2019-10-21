@@ -54,8 +54,6 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Issue IRSG ballot", unicontent(r))
 
-        # PEY Is this needed?  Or will the client be logged out between functions?
-        self.client.logout()
 
     def test_issue_ballot(self):
 

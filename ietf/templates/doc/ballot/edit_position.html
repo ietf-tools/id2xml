@@ -36,9 +36,9 @@
       <input type="submit" class="btn btn-default" value="Save">
 
       {% if doc.type_id == "draft" or doc.type_id == "conflrev" %}
-        {% if ballot_deferred %}
+        {% if ballot_deferred and doc.stream.slug != "irtf" %}
           <input type="submit" class="btn btn-warning" name="Undefer" value="Undefer ballot">
-        {% else %}
+        {% elif doc.stream.slug != "irtf" %}
           <input type="submit" class="btn btn-danger" name="Defer" value="Defer ballot">
         {% endif %}
       {% endif %}

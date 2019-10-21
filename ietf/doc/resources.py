@@ -17,7 +17,7 @@ from ietf.doc.models import (BallotType, DeletedEvent, StateType, State, Documen
     InitialReviewDocEvent, DocHistoryAuthor, BallotDocEvent, RelatedDocument,
     RelatedDocHistory, BallotPositionDocEvent, AddedMessageEvent, SubmissionDocEvent,
     ReviewRequestDocEvent, ReviewAssignmentDocEvent, EditedAuthorsDocEvent, DocumentURL,
-    IanaExpertDocEvent )
+    IanaExpertDocEvent, IRSGBallotDocEvent )
 
 from ietf.name.resources import BallotPositionNameResource, DocTypeNameResource
 class BallotTypeResource(ModelResource):
@@ -738,3 +738,32 @@ class IanaExpertDocEventResource(ModelResource):
             "docevent_ptr": ALL_WITH_RELATIONS,
         }
 api.doc.register(IanaExpertDocEventResource())
+
+
+from ietf.person.resources import PersonResource
+class IRSGBallotDocEventResource(ModelResource):
+    by               = ToOneField(PersonResource, 'by')
+    doc              = ToOneField(DocumentResource, 'doc')
+    docevent_ptr     = ToOneField(DocEventResource, 'docevent_ptr')
+    ballot_type      = ToOneField(BallotTypeResource, 'ballot_type')
+    ballotdocevent_ptr = ToOneField(BallotDocEventResource, 'ballotdocevent_ptr')
+    class Meta:
+        queryset = IRSGBallotDocEvent.objects.all()
+        serializer = api.Serializer()
+        cache = SimpleCache()
+        #resource_name = 'irsgballotdocevent'
+        ordering = ['ballotdocevent_ptr', ]
+        filtering = { 
+            "id": ALL,
+            "time": ALL,
+            "type": ALL,
+            "rev": ALL,
+            "desc": ALL,
+            "duedate": ALL,
+            "by": ALL_WITH_RELATIONS,
+            "doc": ALL_WITH_RELATIONS,
+            "docevent_ptr": ALL_WITH_RELATIONS,
+            "ballot_type": ALL_WITH_RELATIONS,
+            "ballotdocevent_ptr": ALL_WITH_RELATIONS,
+        }
+api.doc.register(IRSGBallotDocEventResource())

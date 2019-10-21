@@ -1141,6 +1141,9 @@ class BallotDocEvent(DocEvent):
         positions.sort(key=lambda p: (p.old_pos_by, p.pos_by.last_name()))
         return positions
 
+class IRSGBallotDocEvent(BallotDocEvent):
+    # PEY: Need to consider if a default date of today plus some number of days/weeks should be used.
+    duedate = models.DateTimeField(blank=True, null=True)
 
 class BallotPositionDocEvent(DocEvent):
     ballot = ForeignKey(BallotDocEvent, null=True, default=None) # default=None is a temporary migration period fix, should be removed when charter branch is live

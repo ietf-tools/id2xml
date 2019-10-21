@@ -21,7 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 import debug                            # pyflakes:ignore
 
 from ietf.doc.models import ( Document, State, DocEvent, BallotDocEvent,
-    BallotPositionDocEvent, LastCallDocEvent, WriteupDocEvent,
+    IRSGBallotDocEvent, BallotPositionDocEvent, LastCallDocEvent, WriteupDocEvent,
     IESG_SUBSTATE_TAGS, RelatedDocument, BallotType )
 from ietf.doc.utils import ( add_state_change_event, close_ballot, close_open_ballots,
     create_ballot_if_not_open, update_telechat )
@@ -223,15 +223,15 @@ def edit_position(request, name, ballot_id):
         if form.is_valid():
             send_mail = True if request.POST.get("send_mail") else False
             save_position(form, doc, ballot, pos_by, login, send_mail)
-                        
+
             if send_mail:
                 qstr=""
                 if request.GET.get('pos_by'):
                     qstr += "?pos_by=%s" % request.GET.get('pos_by')
                 return HttpResponseRedirect(urlreverse('ietf.doc.views_ballot.send_ballot_comment', kwargs=dict(name=doc.name, ballot_id=ballot_id)) + qstr)
-            elif request.POST.get("Defer"):
+            elif request.POST.get("Defer") and doc.stream.slug != "irtf":
                 return redirect('ietf.doc.views_ballot.defer_ballot', name=doc)
-            elif request.POST.get("Undefer"):
+            elif request.POST.get("Undefer") and doc.stream.slug != "irtf":
                 return redirect('ietf.doc.views_ballot.undefer_ballot', name=doc)
             else:
                 return HttpResponseRedirect(return_to_url)
@@ -1062,8 +1062,7 @@ def make_last_call(request, name):
 @role_required('Secretariat', 'IRTF Chair')
 def issue_irsg_ballot(request, name):
     doc = get_object_or_404(Document, docalias__name=name)
-    irtf_state = doc.get_state("draft-stream-irtf")
-    if not irtf_state or doc.type != DocTypeName.objects.get(slug="draft"):
+    if doc.stream.slug != "irtf" or doc.type != DocTypeName.objects.get(slug="draft"):
         raise Http404
 
     by = request.user.person
@@ -1072,13 +1071,15 @@ def issue_irsg_ballot(request, name):
         button = request.POST.__getitem__("irsg_button")
         if button == 'Yes':
             duedate = request.POST.__getitem__("duedate")
+            e = IRSGBallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
             if (duedate == None):
+                # Need to do something here 
                 pass
+            else:
+                e.duedate = datetime.datetime.strptime(duedate, '%Y-%m-%d')
                 # Need to figure out what should go here if no date is supplied in the POST
-            e = BallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
             e.type = "created_ballot"
             e.desc = "Created IRSG Ballot"
-            debug.show("doc.type")
             ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
             e.ballot_type = ballot_type
             e.save()

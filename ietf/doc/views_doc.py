@@ -271,14 +271,11 @@ def document_main(request, name, rev=None):
         # ballot
         iesg_ballot_summary = None
         irsg_ballot_summary = None
-        debug.show("iesg_state")
-        debug.show("irsg_state")
         if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
                 # PEY: This probably does not work well for simultaneous ballots
                 if irsg_state:
-                    debug.say("Going in IRSG ballot positions needed")
                     irsg_ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
                 else:
                     iesg_ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
@@ -378,8 +375,9 @@ def document_main(request, name, rev=None):
 
         if doc.get_state_slug() == "expired" and has_role(request.user, ("Secretariat",)) and not snapshot:
             actions.append(("Resurrect", urlreverse('ietf.doc.views_draft.resurrect', kwargs=dict(name=doc.name))))
-
-        if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and not doc.ballot_open('irsg-approve')):
+        
+        # if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and not doc.ballot_open('irsg-approve') and doc.type_id == 'draft-stream-irtf'):
+        if (doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("irtf",) and not snapshot and not doc.ballot_open('irsg-approve') and can_edit_stream_info):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
 
@@ -400,11 +398,6 @@ def document_main(request, name, rev=None):
                     label += " (Warning: the IESG state indicates ongoing IESG processing)"
                 actions.append((label, urlreverse('ietf.doc.views_draft.request_publication', kwargs=dict(name=doc.name))))
 
-        debug.say("Checking for IESG state")
-        debug.show("iesg_state")
-        debug.show("can_edit")
-        debug.show("doc.stream_id")
-        debug.show("snapshot")
         if doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("ietf",) and not snapshot:
             log.assertion('iesg_state')
             if iesg_state.slug == 'idexists' and can_edit:
@@ -992,7 +985,6 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
             position_groups.append(g)
 
     # PEY: Need to integrate irsg_needed_ballot_positions here as well.
-    debug.show("ballot.ballot_type.slug")
     if (ballot.ballot_type.slug == "irsg-approve"):
         summary = irsg_needed_ballot_positions(doc, [p for p in positions if not p.old_pos_by])
     else:

@@ -300,6 +300,8 @@
             {% if stream_tags %}
               <div class="stream-tags">{% for tag in stream_tags %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
             {% endif %}
+            {# PEY: Move this to the IRSG section when built #}
+            {% if due_date %} [Due date: {{ due_date }}] {% endif %}
           </td>
         {% else %}
           <th>Stream state</th>

@@ -10,7 +10,7 @@ import datetime
 
 from django.conf import settings
 
-from ietf.doc.models import Document, DocEvent, NewRevisionDocEvent, DocAlias, State, DocumentAuthor, StateDocEvent
+from ietf.doc.models import Document, DocEvent, NewRevisionDocEvent, DocAlias, State, DocumentAuthor, StateDocEvent, BallotPositionDocEvent, BallotDocEvent, BallotType
 from ietf.group.models import Group
 
 def draft_name_generator(type_id,group,n):
@@ -164,6 +164,8 @@ class WgRfcFactory(WgDraftFactory):
             obj.set_state(State.objects.get(type_id='draft-iesg', slug='pub'))
 
 
+
+
 class RgDraftFactory(BaseDocumentFactory):
 
     type_id = 'draft'
@@ -183,6 +185,26 @@ class RgDraftFactory(BaseDocumentFactory):
             obj.set_state(State.objects.get(type_id='draft',slug='active'))
             obj.set_state(State.objects.get(type_id='draft-stream-irtf',slug='active'))
             obj.set_state(State.objects.get(type_id='draft-iesg',slug='idexists'))
+
+
+class RgRfcFactory(RgDraftFactory):
+
+    alias2 = factory.RelatedFactory('ietf.doc.factories.DocAliasFactory','document',name=factory.Sequence(lambda n: 'rfc%04d'%(n+1000)))
+
+    std_level_id = 'inf'
+
+    @factory.post_generation
+    def states(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for (state_type_id,state_slug) in extracted:
+                obj.set_state(State.objects.get(type_id=state_type_id,slug=state_slug))
+            if not obj.get_state('draft-stream-irtf'):
+                obj.set_state(State.objects.get(type_id='draft-stream-irtf', slug='pub'))
+        else:
+            obj.set_state(State.objects.get(type_id='draft',slug='rfc'))
+            obj.set_state(State.objects.get(type_id='draft-stream-irtf', slug='pub'))
 
 
 class CharterFactory(BaseDocumentFactory):
@@ -284,3 +306,34 @@ class StateDocEventFactory(DocEventFactory):
         else:
             obj.state = State.objects.get(type_id='draft-iesg',slug='ad-eval')
         obj.save()
+
+# All of these Ballot* factories are extremely skeletal. Flesh them out as needed by tests.
+class BallotTypeFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = BallotType
+
+    doc_type_id = 'draft'
+    slug = 'approve'
+
+
+class BallotDocEventFactory(DocEventFactory):
+    class Meta:
+        model = BallotDocEvent
+
+    ballot_type = factory.SubFactory(BallotTypeFactory)
+    type = 'created_ballot'
+
+class BallotPositionDocEventFactory(DocEventFactory):
+    class Meta:
+        model = BallotPositionDocEvent
+
+    type = 'changed_ballot_position'
+
+    # This isn't right - it needs to build a ballot for the same doc as this position
+    # For now, deal with this in test code by building BallotDocEvent and BallotPositionDocEvent
+    # separately and passing the same doc into thier factories.
+    ballot = factory.SubFactory(BallotDocEventFactory) 
+
+    pos_by = factory.SubFactory('ietf.person.factories.PersonFactory')
+    pos_id = 'discuss'
+

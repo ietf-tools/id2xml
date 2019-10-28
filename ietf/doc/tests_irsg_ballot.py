@@ -10,7 +10,7 @@ import debug                            # pyflakes:ignore
 from django.urls import reverse as urlreverse
 
 from ietf.utils.test_utils import TestCase, login_testing_unauthorized, unicontent
-from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory
+from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory, RgRfcFactory
 from ietf.doc.models import BallotDocEvent
 from ietf.person.utils import get_active_irsg, get_active_ads
 
@@ -22,16 +22,10 @@ class IssueIRSGBallotTests(TestCase):
         individual_draft = IndividualDraftFactory()
         wg_draft = WgDraftFactory()
         rg_draft = RgDraftFactory()
+        rg_rfc = RgRfcFactory()
 
         # login as an IRTF chair
         self.client.login(username='irtf-chair', password='irtf-chair+password')
-
-        # kwargs passes dict as keyword args
-        url = urlreverse('ietf.doc.views_doc.document_main', kwargs=dict(name=individual_draft.name))
-        # r is the response from the GET
-        r = self.client.get(url)
-        # GET successful?
-        self.assertTrue(r.status_code == 200)
 
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=individual_draft.name))
         r = self.client.get(url)
@@ -48,12 +42,67 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertIn("Issue IRSG ballot", unicontent(r))
 
+        debug.say("Issue test rg rfc")
+        debug.show("rg_rfc")
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_rfc.name))
+        r = self.client.get(url)
+        debug.show("r")
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Issue IRSG ballot", unicontent(r))        
+
         self.client.logout()
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Issue IRSG ballot", unicontent(r))
 
+    def test_close_ballot_button(self):
+
+        # creates empty drafts with lots of values filled in
+        individual_draft = IndividualDraftFactory()
+        wg_draft = WgDraftFactory()
+        rg_draft = RgDraftFactory()
+        rg_rfc = RgRfcFactory()
+
+        # login as an IRTF chair
+        self.client.login(username='irtf-chair', password='irtf-chair+password')
+
+        # Get the page with the Issue IRSG Ballot Yes/No buttons
+        url = urlreverse('ietf.doc.views_ballot.issue_irsg_ballot',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Press the Yes button
+        r = self.client.post(url,dict(irsg_button="Yes", duedate="2038-01-19"))
+        self.assertEqual(r.status_code, 302)
+
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=individual_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Close IRSG ballot", unicontent(r))
+
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=wg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Close IRSG ballot", unicontent(r))
+
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertIn("Close IRSG ballot", unicontent(r))
+
+        debug.say("Close IRSG ballot test rfc")
+        debug.show('rg_rfc')
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_rfc.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Close IRSG ballot", unicontent(r))        
+
+        self.client.logout()
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Close IRSG ballot", unicontent(r))
 
     def test_issue_ballot(self):
 
@@ -63,7 +112,7 @@ class IssueIRSGBallotTests(TestCase):
         # login as an IRTF chair (who is a user who can issue an IRSG ballot)
         self.client.login(username='irtf-chair', password='irtf-chair+password')
 
-        # Get the page with the Yes/No buttons
+        # Get the page with the Issue IRSG Ballot Yes/No buttons
         url = urlreverse('ietf.doc.views_ballot.issue_irsg_ballot',kwargs=dict(name=rg_draft.name))
         r = self.client.get(url)
         self.assertEqual(r.status_code, 200)

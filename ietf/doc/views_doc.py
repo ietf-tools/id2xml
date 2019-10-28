@@ -271,12 +271,14 @@ def document_main(request, name, rev=None):
         # ballot
         iesg_ballot_summary = None
         irsg_ballot_summary = None
+        due_date = None
         if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
                 # PEY: This probably does not work well for simultaneous ballots
                 if irsg_state:
                     irsg_ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
+                    due_date=active_ballot.irsgballotdocevent.duedate
                 else:
                     iesg_ballot_summary = needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
 
@@ -376,10 +378,12 @@ def document_main(request, name, rev=None):
         if doc.get_state_slug() == "expired" and has_role(request.user, ("Secretariat",)) and not snapshot:
             actions.append(("Resurrect", urlreverse('ietf.doc.views_draft.resurrect', kwargs=dict(name=doc.name))))
         
-        # if (doc.stream_id == 'irtf' and can_edit_stream_info and not snapshot and not doc.ballot_open('irsg-approve') and doc.type_id == 'draft-stream-irtf'):
         if (doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("irtf",) and not snapshot and not doc.ballot_open('irsg-approve') and can_edit_stream_info):
             label = "Issue IRSG Ballot"
             actions.append((label, urlreverse('ietf.doc.views_ballot.issue_irsg_ballot', kwargs=dict(name=doc.name))))
+        if (doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("irtf",) and not snapshot and doc.ballot_open('irsg-approve') and can_edit_stream_info):
+            label = "Close IRSG Ballot"
+            actions.append((label, urlreverse('ietf.doc.views_ballot.close_irsg_ballot', kwargs=dict(name=doc.name))))
 
         if (doc.get_state_slug() not in ["rfc", "expired"] and doc.stream_id in ("ise", "irtf")
             and can_edit_stream_info and not conflict_reviews and not snapshot):
@@ -448,6 +452,7 @@ def document_main(request, name, rev=None):
                                        draft_name=draft_name,
                                        telechat=telechat,
                                        iesg_ballot_summary=iesg_ballot_summary,
+                                       # PEY: Currently not using irsg_ballot_summary in the template, but it should be.  That will take a new box for IRSG data.
                                        irsg_ballot_summary=irsg_ballot_summary,
                                        submission=submission,
                                        resurrected_by=resurrected_by,
@@ -486,6 +491,7 @@ def document_main(request, name, rev=None):
                                        presentations=presentations,
                                        review_assignments=review_assignments,
                                        no_review_from_teams=no_review_from_teams,
+                                       due_date=due_date,
                                        ))
 
     if doc.type_id == "charter":

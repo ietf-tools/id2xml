@@ -129,7 +129,8 @@ urlpatterns = [
     url(r'^%(name)s/edit/makelastcall/$' % settings.URL_REGEXPS, views_ballot.make_last_call),
     url(r'^%(name)s/edit/urls/$' % settings.URL_REGEXPS, views_draft.edit_document_urls),
     url(r'^%(name)s/edit/issueirsgballot/$' % settings.URL_REGEXPS, views_ballot.issue_irsg_ballot),
-    
+    url(r'^%(name)s/edit/closeirsgballot/$' % settings.URL_REGEXPS, views_ballot.close_irsg_ballot),
+
     url(r'^help/state/(?P<type>[\w-]+)/$', views_help.state_help),
     url(r'^help/relationships/$', views_help.relationship_help),
     url(r'^help/relationships/(?P<subset>\w+)/$', views_help.relationship_help),

@@ -1114,3 +1114,54 @@ def issue_irsg_ballot(request, name):
     question = "Are you sure you really want to issue a ballot for " + name + "?"
     return render(request, templ, dict(doc=doc,
                                        question=question))
+
+# PEY: This is currently a copy of the issue function.  Need to complete the code here.
+@role_required('Secretariat', 'IRTF Chair')
+def close_irsg_ballot(request, name):
+    doc = get_object_or_404(Document, docalias__name=name)
+    if doc.stream.slug != "irtf" or doc.type != DocTypeName.objects.get(slug="draft"):
+        raise Http404
+
+    by = request.user.person
+
+    if request.method == 'POST':
+        button = request.POST.__getitem__("irsg_button")
+        if button == 'Yes':
+            e = BallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
+            e.type = "closed_ballot"
+            e.desc = "Closed IRSG Ballot"
+            ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
+            e.ballot_type = ballot_type
+            e.save()
+            # PEY: This is probably not enough state setting/cleanup.  I should review the IESG version more to see what happens.
+            # PEY: Start of experiment
+            new_state = doc.get_state()
+            prev_tags = []
+            new_tags = []
+
+            # PEY: Need to determine what the correct state to transition to is.
+            if doc.type_id == 'draft':
+                new_state = State.objects.get(used=True, type="draft-stream-irtf", slug='active')
+
+            prev_state = doc.get_state(new_state.type_id if new_state else None)
+
+            doc.set_state(new_state)
+            doc.tags.remove(*prev_tags)
+
+            events = []
+            state_change_event = add_state_change_event(doc, by, prev_state, new_state, prev_tags=prev_tags, new_tags=new_tags)
+            if state_change_event:
+                events.append(state_change_event)
+
+            if events:
+                doc.save_with_history(events)
+
+            # PEY: End of experiement
+
+        return HttpResponseRedirect(doc.get_absolute_url())
+
+    templ = 'doc/ballot/irsg_ballot_close.html'
+
+    question = "Are you sure you really want to close the ballot for " + name + "?"
+    return render(request, templ, dict(doc=doc,
+                                       question=question))

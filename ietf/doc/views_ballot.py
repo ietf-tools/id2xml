@@ -1165,3 +1165,9 @@ def close_irsg_ballot(request, name):
     question = "Are you sure you really want to close the ballot for " + name + "?"
     return render(request, templ, dict(doc=doc,
                                        question=question))
+
+@role_required('Secretariat', 'IRTF Chair')
+def irsg_ballot_status(request):
+    docs = Document.objects.filter(docevent__ballotdocevent__irsgballotdocevent__isnull=False)
+    open_docs = [doc for doc in docs if doc.ballot_open("irsg-approve")]
+    return render(request, 'doc/irsg_ballot_status.html', dict(docs=open_docs,))

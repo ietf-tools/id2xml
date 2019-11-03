@@ -71,6 +71,7 @@ urlpatterns = [
     url(r'^active/?$', views_search.index_active_drafts),
     url(r'^recent/?$', views_search.recent_drafts),
     url(r'^select2search/(?P<model_name>(document|docalias))/(?P<doc_type>draft)/$', views_search.ajax_select2_search_docs),
+    url(r'^irsgballots/?$', views_ballot.irsg_ballot_status),
 
     url(r'^%(name)s(?:/%(rev)s)?/$' % settings.URL_REGEXPS, views_doc.document_main),
     url(r'^%(name)s(?:/%(rev)s)?/bibtex/$' % settings.URL_REGEXPS, views_doc.document_bibtex),

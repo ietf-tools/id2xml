@@ -42,11 +42,8 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertIn("Issue IRSG ballot", unicontent(r))
 
-        debug.say("Issue test rg rfc")
-        debug.show("rg_rfc")
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_rfc.name))
-        r = self.client.get(url)
-        debug.show("r")
+        r = self.client.get(url, follow = True)
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Issue IRSG ballot", unicontent(r))        
 
@@ -91,10 +88,8 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertIn("Close IRSG ballot", unicontent(r))
 
-        debug.say("Close IRSG ballot test rfc")
-        debug.show('rg_rfc')
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_rfc.name))
-        r = self.client.get(url)
+        r = self.client.get(url, follow = True)
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Close IRSG ballot", unicontent(r))        
 
@@ -154,9 +149,10 @@ class IssueIRSGBallotTests(TestCase):
         self.assertNotEqual(len(irsgmembers), 0)
         self.assertIn(irsgmembers[0].name, unicontent(r))
 
-        # Also issue a contemporaneous IESG ballot
-        url = urlreverse('ietf.doc.views_ballot.ballot_writeupnotes', kwargs=dict(name=rg_draft.name))
-        login_testing_unauthorized(self, "ad", url)
+        # PEY: Also issue a contemporaneous IESG ballot
+        # PEY: This shouldn't be done since contemporaneous ballots are not allowed
+        """url = urlreverse('ietf.doc.views_ballot.ballot_writeupnotes', kwargs=dict(name=rg_draft.name))
+        # login_testing_unauthorized(self, "ad", url)
         
         r = self.client.post(url, dict(
                 ballot_writeup="This is a test.",
@@ -170,3 +166,4 @@ class IssueIRSGBallotTests(TestCase):
         iesgmembers = get_active_ads()
         self.assertNotEqual(len(iesgmembers), 0)
         self.assertIn(iesgmembers[0].name, unicontent(r))
+        """

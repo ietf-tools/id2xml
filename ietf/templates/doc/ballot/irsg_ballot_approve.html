@@ -15,8 +15,7 @@
     {# curly percent bootstrap_form approval_text_form curly percent #}
 
     Due date for this ballot:
-    {# PEY: This datepicker will need to be replaced for general use.  Leave in place for testing purposes for now. #}
-    <input type="date" name="duedate">
+    <input type="text" placeholder={{ fillerdate }} name="duedate">
 
     {% buttons %}
       <button type="submit" class="btn btn-primary" name="irsg_button" value="Yes">Yes</button>

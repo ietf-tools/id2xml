@@ -1142,7 +1142,6 @@ class BallotDocEvent(DocEvent):
         return positions
 
 class IRSGBallotDocEvent(BallotDocEvent):
-    # PEY: Need to consider if a default date of today plus some number of days/weeks should be used.
     duedate = models.DateTimeField(blank=True, null=True)
 
 class BallotPositionDocEvent(DocEvent):

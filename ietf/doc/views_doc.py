@@ -275,7 +275,6 @@ def document_main(request, name, rev=None):
         if (iesg_state and iesg_state.slug in IESG_BALLOT_ACTIVE_STATES) or irsg_state:
             active_ballot = doc.active_ballot()
             if active_ballot:
-                # PEY: This probably does not work well for simultaneous ballots
                 if irsg_state:
                     irsg_ballot_summary = irsg_needed_ballot_positions(doc, list(active_ballot.active_balloteer_positions().values()))
                     due_date=active_ballot.irsgballotdocevent.duedate
@@ -969,8 +968,6 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
                 ballot = b
                 break
     elif all_ballots:
-        # PEY the following line isn't correct if, for example, there are contemporaneous ballots.  It chooses the last one, but that might not be the one matching the tab.
-        # For now, I'm having document_ballot and document_irsg_ballot look up the right ballot and pass in the ballot_id.  Need to run tests to see if this breaks anything
         ballot = all_ballots[-1]
 
     if not ballot:

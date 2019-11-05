@@ -25,12 +25,11 @@
 
     <tbody>
       {% for doc in docs %}
-        <tr class="{% if doc.by_me %}byme{% endif %} {% if doc.for_me %}forme{% endif %}">
+        <tr>
           <td>
 	    {{ doc.displayname_with_link }}
           </td>
           {% include "doc/search/status_columns.html" %}
-          </td>
         </tr>
       {% endfor %}
     </tbody>

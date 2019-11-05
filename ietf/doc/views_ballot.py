@@ -1066,25 +1066,23 @@ def issue_irsg_ballot(request, name):
         raise Http404
 
     by = request.user.person
+    fillerdate = datetime.date.today() + datetime.timedelta(weeks=2)
 
     if request.method == 'POST':
         button = request.POST.__getitem__("irsg_button")
         if button == 'Yes':
             duedate = request.POST.__getitem__("duedate")
             e = IRSGBallotDocEvent(doc=doc, rev=doc.rev, by=request.user.person)
-            if (duedate == None):
-                # Need to do something here 
-                pass
-            else:
-                e.duedate = datetime.datetime.strptime(duedate, '%Y-%m-%d')
-                # Need to figure out what should go here if no date is supplied in the POST
+            if (duedate == None or duedate==""):
+                duedate = str(fillerdate)
+            e.duedate = datetime.datetime.strptime(duedate, '%Y-%m-%d')
+            # PEY: What's the best thing to do for "unreasonable" dates?
             e.type = "created_ballot"
             e.desc = "Created IRSG Ballot"
             ballot_type = BallotType.objects.get(doc_type=doc.type, slug="irsg-approve")
             e.ballot_type = ballot_type
             e.save()
             # PEY: This is probably not enough state setting/cleanup.  I should review the IESG version more to see what happens.
-            # PEY: Start of experiment
             new_state = doc.get_state()
             prev_tags = []
             new_tags = []
@@ -1105,17 +1103,14 @@ def issue_irsg_ballot(request, name):
             if events:
                 doc.save_with_history(events)
 
-            # PEY: End of experiement
-
         return HttpResponseRedirect(doc.get_absolute_url())
+    else:
+        templ = 'doc/ballot/irsg_ballot_approve.html'
 
-    templ = 'doc/ballot/irsg_ballot_approve.html'
+        question = "Are you sure you really want to issue a ballot for " + name + "?"
+        return render(request, templ, dict(doc=doc,
+                                           question=question, fillerdate=fillerdate))
 
-    question = "Are you sure you really want to issue a ballot for " + name + "?"
-    return render(request, templ, dict(doc=doc,
-                                       question=question))
-
-# PEY: This is currently a copy of the issue function.  Need to complete the code here.
 @role_required('Secretariat', 'IRTF Chair')
 def close_irsg_ballot(request, name):
     doc = get_object_or_404(Document, docalias__name=name)
@@ -1134,7 +1129,6 @@ def close_irsg_ballot(request, name):
             e.ballot_type = ballot_type
             e.save()
             # PEY: This is probably not enough state setting/cleanup.  I should review the IESG version more to see what happens.
-            # PEY: Start of experiment
             new_state = doc.get_state()
             prev_tags = []
             new_tags = []
@@ -1156,8 +1150,6 @@ def close_irsg_ballot(request, name):
             if events:
                 doc.save_with_history(events)
 
-            # PEY: End of experiement
-
         return HttpResponseRedirect(doc.get_absolute_url())
 
     templ = 'doc/ballot/irsg_ballot_close.html'
@@ -1168,6 +1160,16 @@ def close_irsg_ballot(request, name):
 
 @role_required('Secretariat', 'IRTF Chair')
 def irsg_ballot_status(request):
-    docs = Document.objects.filter(docevent__ballotdocevent__irsgballotdocevent__isnull=False)
-    open_docs = [doc for doc in docs if doc.ballot_open("irsg-approve")]
-    return render(request, 'doc/irsg_ballot_status.html', dict(docs=open_docs,))
+    possible_docs = Document.objects.filter(docevent__ballotdocevent__irsgballotdocevent__isnull=False)
+    docs = []
+    for doc in possible_docs:
+        if doc.ballot_open("irsg-approve"):
+            ballot = doc.active_ballot()
+            if ballot:
+                doc.ballot = ballot
+                debug.show("type(doc)")
+                doc.duedate=ballot.duedate
+
+            docs.append(doc)
+
+    return render(request, 'doc/irsg_ballot_status.html', {'docs':docs})

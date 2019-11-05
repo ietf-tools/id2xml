@@ -3,7 +3,7 @@
   {% if ballot %}
     <br><b>Discusses/comments</b> <a href="https://datatracker.ietf.org/doc/{{doc.canonical_name}}/ballot/">[ballot]</a>:
     <ul>
-      {% for p in ballot.active_ad_positions.values %}
+      {% for p in ballot.active_balloteer_positions.values %}
         {% if p.pos %}
           {% if p.discuss %}
             <li>

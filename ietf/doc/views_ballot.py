@@ -1169,7 +1169,7 @@ def irsg_ballot_status(request):
                 doc.ballot = ballot
                 # PEY: Need to figure how to work the duedate into status_columns.html
                 # PEY: Also, how is it I can add duedate to doc just like that?
-                doc.duedate=ballot.duedate
+                doc.duedate=datetime.datetime.strftime(ballot.irsgballotdocevent.duedate, '%Y-%m-%d')
 
             docs.append(doc)
 

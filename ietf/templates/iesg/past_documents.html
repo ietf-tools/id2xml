@@ -69,7 +69,7 @@
 	      {% if p.old_ad %}
 	        <span class="text-muted">
 	      {% endif %}
-	      {{ p.ad }}
+	      {{ p.pos_by }}
 	      ({% if p.discuss_time %}{{ p.discuss_time|timesince_days }}{% endif %}
 	      days ago{% if doc.get_state_url != "rfc" and p.rev != doc.rev %}
 	        for -{{ p.rev }}{% endif %})<br>

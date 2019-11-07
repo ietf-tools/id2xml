@@ -61,7 +61,7 @@ class IssueIRSGBallotTests(TestCase):
         rg_draft = RgDraftFactory()
         rg_rfc = RgRfcFactory()
 
-        # login as an IRTF chair
+        # Login as the IRTF chair
         self.client.login(username='irtf-chair', password='irtf-chair+password')
 
         # Get the page with the Issue IRSG Ballot Yes/No buttons
@@ -72,7 +72,35 @@ class IssueIRSGBallotTests(TestCase):
         # Press the Yes button
         r = self.client.post(url,dict(irsg_button="Yes", duedate="2038-01-19"))
         self.assertEqual(r.status_code, 302)
+        self.assertTrue(rg_draft.ballot_open('irsg-approve'))
 
+        # Logout - the Close button should not be available
+        self.client.logout()
+        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn("Close IRSG ballot", unicontent(r))
+
+        # Login again as the IRTF chair
+        self.client.login(username='irtf-chair', password='irtf-chair+password')
+
+        # The close button should now be available
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertIn("Close IRSG ballot", unicontent(r))
+
+        # Get the page with the Close IRSG Ballot Yes/No buttons
+        url = urlreverse('ietf.doc.views_ballot.close_irsg_ballot',kwargs=dict(name=rg_draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Press the Yes button
+        r = self.client.post(url,dict(irsg_button="Yes"))
+        self.assertEqual(r.status_code,302)
+        # Expect the draft not to have an open IRSG ballot anymore
+        self.assertFalse(rg_draft.ballot_open('irsg-approve'))
+
+        # Individual, IETF, and RFC docs should not show the Close button
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=individual_draft.name))
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
@@ -83,21 +111,11 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Close IRSG ballot", unicontent(r))
 
-        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
-        r = self.client.get(url)
-        self.assertEqual(r.status_code,200)
-        self.assertIn("Close IRSG ballot", unicontent(r))
-
         url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_rfc.name))
         r = self.client.get(url, follow = True)
         self.assertEqual(r.status_code,200)
         self.assertNotIn("Close IRSG ballot", unicontent(r))        
 
-        self.client.logout()
-        url = urlreverse('ietf.doc.views_doc.document_main',kwargs=dict(name=rg_draft.name))
-        r = self.client.get(url)
-        self.assertEqual(r.status_code,200)
-        self.assertNotIn("Close IRSG ballot", unicontent(r))
 
     def test_issue_ballot(self):
 
@@ -148,3 +166,12 @@ class IssueIRSGBallotTests(TestCase):
         irsgmembers = get_active_irsg()
         self.assertNotEqual(len(irsgmembers), 0)
         self.assertIn(irsgmembers[0].name, unicontent(r))
+
+        # Having issued a ballot, it should appear on the IRSG Ballot Status page
+        url = urlreverse('ietf.doc.views_ballot.irsg_ballot_status')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        # Does the draft name appear on the page?
+        self.assertIn(rg_draft.name, unicontent(r))
+
+

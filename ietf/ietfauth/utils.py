@@ -80,6 +80,7 @@ def has_role(user, role_names, *args, **kwargs):
             "Recording Manager": Q(person=person,name="recman",group__type="ietf",group__state="active", ),
             "Reviewer": Q(person=person, name="reviewer", group__state="active"),
             "Review Team Secretary": Q(person=person, name="secr", group__reviewteamsettings__isnull=False,group__state="active", ),
+            "IRSG Member": Q(person=person, name="member", group__acronym="irsg"),
 
             }
 
@@ -144,7 +145,9 @@ def is_authorized_in_doc_stream(user, doc):
     if doc.stream.slug == "ietf":
         group_req = Q(group=doc.group)
     elif doc.stream.slug == "irtf":
+        debug.say("is_authorized_in_doc_stream in IRTF branch")
         group_req = Q(group__acronym=doc.stream.slug) | Q(group=doc.group)
+        debug.show("group_req")
     elif doc.stream.slug == "iab":
         if doc.group.type.slug == 'individ' or doc.group.acronym == 'iab':
             docman_roles = GroupFeatures.objects.get(type_id="iab").docman_roles

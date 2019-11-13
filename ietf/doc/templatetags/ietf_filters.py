@@ -539,3 +539,19 @@ def charter_major_rev(rev):
 @stringfilter
 def charter_minor_rev(rev):
     return rev[3:5]
+
+@register.filter()
+def can_defer(user,doc):
+    if (doc.type_id == "draft" or doc.type_id == "conflrev") and doc.stream_id == 'ietf' and has_role(user, 'Area Director,Secretariat'):
+        return True
+    else:
+        return False
+
+@register.filter()
+def can_ballot(user,doc):
+    if doc.stream_id == 'ietf' and has_role(user,'Area Director'):
+        return True
+    elif doc.stream_id == 'irtf' and has_role(user,'IRSG Member'):
+        return True
+    else:
+        return False

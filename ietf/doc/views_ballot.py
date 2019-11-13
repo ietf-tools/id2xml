@@ -40,6 +40,7 @@ from ietf.person.models import Person
 from ietf.utils import log
 from ietf.utils.mail import send_mail_text, send_mail_preformatted
 from ietf.utils.decorators import require_api_key
+from ietf.doc.templatetags.ietf_filters import can_ballot
 
 BALLOT_CHOICES = (("yes", "Yes"),
                   ("noobj", "No Objection"),
@@ -189,7 +190,7 @@ def save_position(form, doc, ballot, pos_by, login=None, send_email=False):
 
     return pos
 
-@role_required('Area Director','Secretariat')
+@role_required('Area Director','Secretariat','IRSG Member')
 def edit_position(request, name, ballot_id):
     """Vote and edit discuss and comment on document as Area Director."""
     doc = get_object_or_404(Document, docalias__name=name)
@@ -215,9 +216,10 @@ def edit_position(request, name, ballot_id):
 
     if request.method == 'POST':
         old_pos = None
-        if not has_role(request.user, "Secretariat") and not pos_by.role_set.filter(name="ad", group__type="area", group__state="active"):
+        # PEY: if not has_role(request.user, "Secretariat") and not pos_by.role_set.filter(name="ad", group__type="area", group__state="active"):
+        if not has_role(request.user, "Secretariat") and not can_ballot(request.user, doc):
             # prevent pre-ADs from voting
-            return HttpResponseForbidden("Must be a proper Area Director in an active area to cast ballot")
+            return HttpResponseForbidden("Must be a proper Area Director in an active area or IRSG Member to cast ballot")
         
         form = EditPositionForm(request.POST, ballot_type=ballot.ballot_type)
         if form.is_valid():

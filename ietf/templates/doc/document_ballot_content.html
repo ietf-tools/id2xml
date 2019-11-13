@@ -48,12 +48,12 @@
       <p class="well"><b>Ballot question:</b> "{{ ballot.ballot_type.question }}"</p>
     {% endif %}
 
-    {% if editable and user|has_role:"Area Director,Secretariat" %}
+    {% if editable and user|has_role:"Area Director,Secretariat,IRSG Member" %}
       <a class="btn btn-default"
 	  href="https://mailarchive.ietf.org/arch/search/?q=subject:{{doc.name}}+AND+subject:(discuss+OR+comment+OR+review)">
 	 Search Mailarchive</a>
 
-      {% if user|has_role:"Area Director" %}
+      {% if user|can_ballot:doc %}
         <a class="btn btn-primary" href="{% url "ietf.doc.views_ballot.edit_position" name=doc.name ballot_id=ballot.pk %}">Edit position</a>
       {% endif %}
 

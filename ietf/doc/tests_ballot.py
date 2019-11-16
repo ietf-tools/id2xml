@@ -1,4 +1,4 @@
-# Copyright The IETF Trust 2013-2019, All Rights Reserved
+#ad Copyright The IETF Trust 2013-2019, All Rights Reserved
 # -*- coding: utf-8 -*-
 
 
@@ -28,7 +28,7 @@ from ietf.utils.text import unwrap
 class EditPositionTests(TestCase):
     def test_edit_position(self):
         ad = Person.objects.get(user__username="ad")
-        draft = IndividualDraftFactory(ad=ad)
+        draft = IndividualDraftFactory(ad=ad,stream_id='ietf')
         ballot = create_ballot_if_not_open(None, draft, ad, 'approve')
         url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name,
                                                           ballot_id=ballot.pk))

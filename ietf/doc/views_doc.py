@@ -1030,13 +1030,13 @@ def document_ballot(request, name, ballot_id=None):
             ballot_id = ballot.id
 
     c = document_ballot_content(request, doc, ballot_id, editable=True)
-
     request.session['ballot_edit_return_point'] = request.path_info
 
     return render(request, "doc/document_ballot.html",
                               dict(doc=doc,
                                    top=top,
                                    ballot_content=c,
+                                   # ballot_type_slug=ballot.ballot_type.slug,
                                    ))
 
 def document_irsg_ballot(request, name, ballot_id=None):
@@ -1055,6 +1055,7 @@ def document_irsg_ballot(request, name, ballot_id=None):
                               dict(doc=doc,
                                    top=top,
                                    ballot_content=c,
+                                   # ballot_type_slug=ballot.ballot_type.slug,
                                    ))
 
 def ballot_popup(request, name, ballot_id):

@@ -13,6 +13,7 @@ from ietf.utils.test_utils import TestCase, unicontent
 from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory, RgRfcFactory
 from ietf.doc.models import BallotDocEvent
 from ietf.person.utils import get_active_irsg
+from ietf.person.factories import PersonFactory
 
 class IssueIRSGBallotTests(TestCase):
 
@@ -173,5 +174,12 @@ class IssueIRSGBallotTests(TestCase):
         self.assertEqual(r.status_code, 200)
         # Does the draft name appear on the page?
         self.assertIn(rg_draft.name, unicontent(r))
+
+    def test_edit_ballot(self):
+            #rg_draft = RgDraftFactory()
+            #wg_draft = WgDraftFactory()
+            #ad = PersonFactory()
+            #pre_ad = PersonFactory()
+            #irsgmember = PersonFactory()
 
 

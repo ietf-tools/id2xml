@@ -37,7 +37,7 @@
         <a class="btn btn-warning" href="{% url 'ietf.doc.views_ballot.defer_ballot' name=doc.name %}">Defer ballot</a>
       {% endif %}
 
-      {% if user|has_role:"Secretariat" %}
+      {% if user|has_role:"Secretariat" and ballot_type_slug != "irsg-approve" %}
         <a class="btn btn-danger" href="{% url 'ietf.doc.views_ballot.clear_ballot' name=doc.name ballot_type_slug=ballot_type_slug %}">Clear ballot</a>
       {% endif %}
     {% endif %}

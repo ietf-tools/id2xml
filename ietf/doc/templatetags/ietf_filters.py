@@ -25,7 +25,6 @@ import debug                            # pyflakes:ignore
 from ietf.doc.models import ConsensusDocEvent
 from ietf.utils.text import wordwrap, fill, wrap_text_if_unwrapped
 from ietf.utils.html import sanitize_fragment
-from ietf.group.models import Role
 from ietf.doc.models import BallotDocEvent
 
 register = template.Library()

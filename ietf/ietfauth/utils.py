@@ -145,9 +145,7 @@ def is_authorized_in_doc_stream(user, doc):
     if doc.stream.slug == "ietf":
         group_req = Q(group=doc.group)
     elif doc.stream.slug == "irtf":
-        debug.say("is_authorized_in_doc_stream in IRTF branch")
         group_req = Q(group__acronym=doc.stream.slug) | Q(group=doc.group)
-        debug.show("group_req")
     elif doc.stream.slug == "iab":
         if doc.group.type.slug == 'individ' or doc.group.acronym == 'iab':
             docman_roles = GroupFeatures.objects.get(type_id="iab").docman_roles

@@ -9,11 +9,13 @@ import debug                            # pyflakes:ignore
 
 from django.urls import reverse as urlreverse
 
-from ietf.utils.test_utils import TestCase, unicontent
+from ietf.utils.test_utils import TestCase, unicontent, login_testing_unauthorized
 from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory, RgRfcFactory
 from ietf.doc.models import BallotDocEvent
+from ietf.doc.utils import create_ballot_if_not_open
 from ietf.person.utils import get_active_irsg
 from ietf.person.factories import PersonFactory
+from ietf.group.factories import GroupFactory, RoleFactory
 
 class IssueIRSGBallotTests(TestCase):
 
@@ -176,10 +178,41 @@ class IssueIRSGBallotTests(TestCase):
         self.assertIn(rg_draft.name, unicontent(r))
 
     def test_edit_ballot(self):
-            #rg_draft = RgDraftFactory()
-            #wg_draft = WgDraftFactory()
-            #ad = PersonFactory()
-            #pre_ad = PersonFactory()
-            #irsgmember = PersonFactory()
+            rg_draft = RgDraftFactory()
+            wg_draft = WgDraftFactory()
+            area = GroupFactory.create(type_id='area')
+            irtf = GroupFactory.create(type_id='irtf')
+            wg = GroupFactory.create(type_id='wg',parent=area)
+            # rg = GroupFactory.create(type_id='rg',parent=irtf)
+            # PEY: I have no idea why an ad is created against a WG and not the IESG.  I copied the following setup!
+            ad = RoleFactory(group=wg,name_id='ad',person=PersonFactory())
+            pre_ad = RoleFactory(group=wg,name_id='pre-ad',person=PersonFactory())
+            irsgmember = RoleFactory(group=irtf,name_id='member',person=PersonFactory())
+            secr = RoleFactory(name_id='secr', person=PersonFactory())
+            wg_ballot = create_ballot_if_not_open(None, wg_draft, ad.person, 'approve')
+            url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=wg_draft.name, ballot_id=wg_ballot.pk))
 
+            # Pre-ADs can see
+            login_testing_unauthorized(self, pre_ad.person.user.username, url)
+
+            # But Pre-ADs cannot take a position
+            r = self.client.post(url, dict(position="discuss", discuss="Test discuss text"))
+            self.assertEqual(r.status_code, 403)
+
+            # PEY: is the logout required between logins?
+            self.client.logout()
+
+            # ADs can see and take a position
+            login_testing_unauthorized(self, ad.person.user.username, url)
+            r = self.client.post(url, dict(position="discuss", discuss="Test discuss text"))
+            self.assertEqual(r.status_code, 302)
+            self.client.logout()
+
+            rg_ballot = create_ballot_if_not_open(None, rg_draft, secr.person, 'irsg-approve')
+            url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=rg_draft.name, ballot_id=rg_ballot.pk))
+
+            # IRSG members should be able to enter a position on IRSG ballots
+            login_testing_unauthorized(self, irsgmember.person.user.username, url)
+            r = self.client.post(url, dict(position="approve"))
+            self.assertEqual(r.status_code, 302)
 

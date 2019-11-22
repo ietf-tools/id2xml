@@ -196,9 +196,6 @@ def edit_position(request, name, ballot_id):
     doc = get_object_or_404(Document, docalias__name=name)
     ballot = get_object_or_404(BallotDocEvent, type="created_ballot", pk=ballot_id, doc=doc)
 
-    # Originally:
-    # ad = login = request.user.person
-    # May want to set a variable that tells the role of person in pos_by
     pos_by = login = request.user.person
 
     if 'ballot_edit_return_point' in request.session:

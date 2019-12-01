@@ -84,6 +84,8 @@ from ietf.utils.text import maybe_split
 
 
 def render_document_top(request, doc, tab, name):
+    # PEY: Figuring out what tab value is
+    debug.show("tab")
     tabs = []
     tabs.append(("Status", "status", urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=name)), True, None))
 

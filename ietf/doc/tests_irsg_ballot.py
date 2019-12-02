@@ -318,7 +318,4 @@ class IssueIRSGBallotTests(TestCase):
         r = self.client.post(url, dict(position="discuss", discuss="Test discuss text"))
         self.assertEqual(r.status_code, 403)
 
-        # See if an IRSG member can close the ballot
-        # PEY: I'm not sure how to close an IESG ballot
-
 

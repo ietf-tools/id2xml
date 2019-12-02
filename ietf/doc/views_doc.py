@@ -85,7 +85,6 @@ from ietf.utils.text import maybe_split
 
 def render_document_top(request, doc, tab, name):
     # PEY: Figuring out what tab value is
-    debug.show("tab")
     tabs = []
     tabs.append(("Status", "status", urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=name)), True, None))
 
@@ -1025,11 +1024,33 @@ def document_ballot_content(request, doc, ballot_id, editable=True):
 
 def document_ballot(request, name, ballot_id=None):
     doc = get_object_or_404(Document, docalias__name=name)
-    top = render_document_top(request, doc, "ballot", name)
+    all_ballots = list(BallotDocEvent.objects.filter(doc=doc, type="created_ballot").order_by("time"))
     if not ballot_id:
-        ballot = doc.latest_event(BallotDocEvent, type="created_ballot", ballot_type__slug='approve')
-        if ballot:
-            ballot_id = ballot.id
+        if all_ballots:
+            ballot = all_ballots[-1]
+        else:
+            # PEY: What should I do if I somehow got here without any ballots existing?  Can that happen?  Passing for now.
+            pass
+        ballot_id = ballot.id
+    else:
+        ballot_id = int(ballot_id)
+        for b in all_ballots:
+            if b.id == ballot_id:
+                ballot = b
+                break
+
+    if not ballot_id or not ballot:
+        # PEY: Something bad happened.  How do I gracefully bail out?
+        pass
+
+    if ballot.ballot_type.slug == "approve":
+        ballot_tab = "ballot"
+    elif ballot.ballot_type.slug == "irsg-approve":
+        ballot_tab = "irsgballot"
+    else:
+        ballot_tab = None
+
+    top = render_document_top(request, doc, ballot_tab, name)
 
     c = document_ballot_content(request, doc, ballot_id, editable=True)
     request.session['ballot_edit_return_point'] = request.path_info

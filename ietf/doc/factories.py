@@ -13,7 +13,7 @@ if six.PY3:
 
 from django.conf import settings
 
-from ietf.doc.models import Document, DocEvent, NewRevisionDocEvent, DocAlias, State, DocumentAuthor, StateDocEvent, BallotPositionDocEvent, BallotDocEvent, BallotType
+from ietf.doc.models import Document, DocEvent, NewRevisionDocEvent, DocAlias, State, DocumentAuthor, StateDocEvent, BallotPositionDocEvent, BallotDocEvent, BallotType, IRSGBallotDocEvent
 from ietf.group.models import Group
 
 def draft_name_generator(type_id,group,n):
@@ -312,9 +312,10 @@ class StateDocEventFactory(DocEventFactory):
 class BallotTypeFactory(factory.DjangoModelFactory):
     class Meta:
         model = BallotType
+        django_get_or_create = ('slug','doc_type_id')
 
-    doc_type_id = 'draft'
     slug = 'approve'
+    doc_type_id = 'draft'
 
 
 class BallotDocEventFactory(DocEventFactory):
@@ -323,6 +324,13 @@ class BallotDocEventFactory(DocEventFactory):
 
     ballot_type = factory.SubFactory(BallotTypeFactory)
     type = 'created_ballot'
+
+class IRSGBallotDocEventFactory(BallotDocEventFactory):
+    class Meta:
+        model = IRSGBallotDocEvent
+
+    duedate = datetime.datetime.now() + datetime.timedelta(days=14)
+    ballot_type = factory.SubFactory(BallotTypeFactory, slug='irsg-approve')
 
 class BallotPositionDocEventFactory(DocEventFactory):
     class Meta:

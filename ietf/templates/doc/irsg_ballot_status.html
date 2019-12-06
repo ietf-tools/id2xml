@@ -38,16 +38,5 @@
 
 {% block js %}
   <script src="{% static "jquery.tablesorter/js/jquery.tablesorter.combined.min.js" %}"></script>
-  <script>
-    $(".discuss").click(function () {
-        var x = $(this).find("input").val();
-        if (x === "all") {
-            $("tbody tr").removeClass("hidden");
-        } else {
-            $("tbody tr." + x).removeClass("hidden");
-            $("tbody tr:not(." + x + ")").addClass("hidden");
-        }
-    });
-  </script>
 {% endblock %}
 

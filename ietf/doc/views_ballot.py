@@ -301,7 +301,7 @@ def api_set_position(request):
     return HttpResponse("Done", status=200, content_type='text/plain')
 
 
-def build_position_email(ad, doc, pos):
+def build_position_email(pos_by, doc, pos):
     subj = []
     d = ""
     blocking_name = "DISCUSS"
@@ -314,30 +314,41 @@ def build_position_email(ad, doc, pos):
         c = pos.comment
         subj.append("COMMENT")
 
-    ad_name_genitive = ad.plain_name() + "'" if ad.plain_name().endswith('s') else ad.plain_name() + "'s"
-    subject = "%s %s on %s" % (ad_name_genitive, pos.pos.name if pos.pos else "No Position", doc.name + "-" + doc.rev)
+    pos_by_name_genitive = pos_by.plain_name() + "'" if pos_by.plain_name().endswith('s') else pos_by.plain_name() + "'s"
+    subject = "%s %s on %s" % (pos_by_name_genitive, pos.pos.name if pos.pos else "No Position", doc.name + "-" + doc.rev)
     if subj:
         subject += ": (with %s)" % " and ".join(subj)
 
     body = render_to_string("doc/ballot/ballot_comment_mail.txt",
                             dict(discuss=d,
                                  comment=c,
-                                 ad=ad.plain_name(),
+                                 pos_by=pos_by.plain_name(),
                                  doc=doc,
                                  pos=pos.pos,
                                  blocking_name=blocking_name,
                                  settings=settings))
-    frm = ad.role_email("ad").formatted_email()
-    
-    addrs = gather_address_lists('ballot_saved',doc=doc)
+    # PEY: This doesn't work properly for IRSG members, since they don't have the "ad" role.  It still manages to get an address so it doesn't have to be fixed as a first priority.
+    frm = pos_by.role_email("ad").formatted_email()
+
+    if doc.stream_id == "irtf":
+        addrs = gather_address_lists('irsg_ballot_saved',doc=doc)
+    else:
+        addrs = gather_address_lists('ballot_saved',doc=doc)
+    debug.show("addrs")
 
     return addrs, frm, subject, body
 
-@role_required('Area Director','Secretariat')
+@role_required('Area Director','Secretariat','IRSG Member')
 def send_ballot_comment(request, name, ballot_id):
     """Email document ballot position discuss/comment for Area Director."""
     doc = get_object_or_404(Document, docalias__name=name)
     ballot = get_object_or_404(BallotDocEvent, type="created_ballot", pk=ballot_id, doc=doc)
+
+    if not has_role(request.user, 'Secretariat'):
+        if doc.stream_id == 'irtf' and not has_role(request.user, 'IRSG Member'):
+            raise Http404
+        if doc.stream_id == 'ietf' and not has_role(request.user, 'Area Director'):
+            raise Http404
 
     pos_by = request.user.person
 
@@ -352,7 +363,7 @@ def send_ballot_comment(request, name, ballot_id):
         back_url = urlreverse("ietf.doc.views_doc.document_ballot", kwargs=dict(name=doc.name, ballot_id=ballot_id))
 
     # if we're in the Secretariat, we can select an AD to act as stand-in for
-    if not has_role(request.user, "Area Director"):
+    if has_role(request.user, "Secretariat"):
         pos_by_id = request.GET.get('pos_by')
         if not pos_by_id:
             raise Http404

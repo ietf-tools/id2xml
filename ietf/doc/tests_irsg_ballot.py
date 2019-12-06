@@ -7,15 +7,19 @@
 
 import debug                            # pyflakes:ignore
 
+import datetime
+
 from django.urls import reverse as urlreverse
 
+from ietf.utils.mail import outbox, empty_outbox, get_payload
 from ietf.utils.test_utils import TestCase, unicontent, login_testing_unauthorized
-from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory, RgRfcFactory
-from ietf.doc.models import BallotDocEvent
-from ietf.doc.utils import create_ballot_if_not_open
+from ietf.doc.factories import IndividualDraftFactory, WgDraftFactory, RgDraftFactory, RgRfcFactory, BallotDocEventFactory, IRSGBallotDocEventFactory, BallotPositionDocEventFactory
+from ietf.doc.models import BallotDocEvent, BallotPositionDocEvent
+from ietf.doc.utils import create_ballot_if_not_open, close_ballot
 from ietf.person.utils import get_active_irsg, get_active_ads
 from ietf.group.factories import RoleFactory
 from ietf.person.models import Person
+
 
 class IssueIRSGBallotTests(TestCase):
 
@@ -255,7 +259,8 @@ class IssueIRSGBallotTests(TestCase):
         irsgmember = get_active_irsg()[0]
         secr = RoleFactory(group__acronym='secretariat',name_id='secr')
         wg_ballot = create_ballot_if_not_open(None, wg_draft, ad.person, 'approve')
-        rg_ballot = create_ballot_if_not_open(None, rg_draft, secr.person, 'irsg-approve')
+        due = datetime.date.today()+datetime.timedelta(days=14)
+        rg_ballot = create_ballot_if_not_open(None, rg_draft, secr.person, 'irsg-approve', due)
 
         url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=wg_draft.name, ballot_id=wg_ballot.pk))
 
@@ -318,4 +323,203 @@ class IssueIRSGBallotTests(TestCase):
         r = self.client.post(url, dict(position="discuss", discuss="Test discuss text"))
         self.assertEqual(r.status_code, 403)
 
+class BaseManipulationTests():
 
+    def test_issue_ballot(self):
+        draft = RgDraftFactory()
+        url = urlreverse('ietf.doc.views_ballot.issue_irsg_ballot',kwargs=dict(name=draft.name))
+        due = datetime.date.today()+datetime.timedelta(days=14)
+        empty_outbox()
+
+        login_testing_unauthorized(self, self.username , url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url,{'irsg_button':'No', 'duedate':due })
+        self.assertEqual(r.status_code, 302)
+        self.assertIsNone(draft.ballot_open('irsg-approve'))
+
+        r = self.client.post(url,{'irsg_button':'Yes', 'duedate':due })
+        self.assertEqual(r.status_code,302)
+        self.assertIsNotNone(draft.ballot_open('irsg-approve'))
+        self.assertEqual(len(outbox),0)
+
+    def test_take_and_email_position(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name, ballot_id=ballot.pk)) + self.pos_by
+        empty_outbox()
+
+        login_testing_unauthorized(self, self.username, url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(position='yes', comment='oib239sb', send_mail='Save and send email'))
+        self.assertEqual(r.status_code, 302)
+        e = draft.latest_event(BallotPositionDocEvent)
+        self.assertEqual(e.pos.slug,'yes')
+        self.assertEqual(e.comment, 'oib239sb')
+
+        url = urlreverse('ietf.doc.views_ballot.send_ballot_comment', kwargs=dict(name=draft.name, ballot_id=ballot.pk)) + self.pos_by
+
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(cc_choices=['doc_authors','doc_group_chairs','doc_group_mail_list'], body="Stuff"))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(len(outbox),1)
+        self.assertNotIn('discuss-criteria', get_payload(outbox[0]))
+
+    def test_close_ballot(self):
+        draft = RgDraftFactory()
+        IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.close_irsg_ballot', kwargs=dict(name=draft.name))
+        empty_outbox()
+
+        login_testing_unauthorized(self, self.username, url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url,dict(irsg_button='No'))
+        self.assertEqual(r.status_code, 302)
+        self.assertIsNotNone(draft.ballot_open('irsg-approve'))
+
+        r = self.client.post(url,dict(irsg_button='Yes'))
+        self.assertEqual(r.status_code, 302)
+        self.assertIsNone(draft.ballot_open('irsg-approve'))
+
+        self.assertEqual(len(outbox), 0)
+
+    def test_view_outstanding_ballots(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.irsg_ballot_status')
+
+        login_testing_unauthorized(self, self.username, url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(draft.name, unicontent(r))
+
+        close_ballot(draft, Person.objects.get(user__username=self.username), 'irsg-approve')
+        r = self.client.get(url)
+        self.assertNotIn(draft.name, unicontent(r))
+
+
+class IRTFChairTests(BaseManipulationTests, TestCase):
+
+    def setUp(self):
+        self.username = 'irtf-chair'
+        self.pos_by = ''
+
+class SecretariatTests(BaseManipulationTests, TestCase):
+
+    def setUp(self):
+        self.username = 'secretary'
+        self.pos_by = '?pos_by={}'.format(Person.objects.get(user__username='irtf-chair').pk)
+
+
+class IRSGMemberTests(TestCase):
+
+    def setUp(self):
+        self.username = get_active_irsg()[0].user.username
+
+    def test_cant_issue_irsg_ballot(self):
+        draft = RgDraftFactory()
+        due = datetime.date.today()+datetime.timedelta(days=14)
+        url = urlreverse('ietf.doc.views_ballot.close_irsg_ballot', kwargs=dict(name=draft.name))
+
+        self.client.login(username = self.username, password = self.username+'+password')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 403)
+
+        r = self.client.post(url,{'irsg_button':'Yes', 'duedate':due })
+        self.assertEqual(r.status_code, 403)
+
+    def test_cant_close_irsg_ballot(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.close_irsg_ballot', kwargs=dict(name=draft.name))
+
+        self.client.login(username = self.username, password = self.username+'+password')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 403)
+
+        r = self.client.post(url,dict(irsg_button='Yes'))
+        self.assertEqual(r.status_code, 403)
+
+    def test_cant_take_position_on_iesg_ballot(self):
+        draft = WgDraftFactory()
+        ballot = BallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name, ballot_id=ballot.pk))
+
+        self.client.login(username = self.username, password = self.username+'+password')
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(position='yes', comment='oib239sb', send_mail='Save and send email'))
+        self.assertEqual(r.status_code, 403)
+
+    def test_take_and_email_position(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name, ballot_id=ballot.pk))
+        empty_outbox()
+
+        login_testing_unauthorized(self, self.username, url)
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(position='yes', comment='oib239sb', send_mail='Save and send email'))
+        self.assertEqual(r.status_code, 302)
+        e = draft.latest_event(BallotPositionDocEvent)
+        self.assertEqual(e.pos.slug,'yes')
+        self.assertEqual(e.comment, 'oib239sb')
+
+        url = urlreverse('ietf.doc.views_ballot.send_ballot_comment', kwargs=dict(name=draft.name, ballot_id=ballot.pk))
+
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(cc_choices=['doc_authors','doc_group_chairs','doc_group_mail_list'], body="Stuff"))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(len(outbox),1)
+
+class IESGMemberTests(TestCase):
+
+    def test_cant_take_position_on_irtf_ballot(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name, ballot_id=ballot.pk))
+
+        self.assertEqual(self.client.login(username = 'ad', password = 'ad+password'), True)
+        
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.post(url, dict(position='yes', comment='oib239sb', send_mail='Save and send email'))
+        self.assertEqual(r.status_code, 403)
+
+class NobodyTests(TestCase):
+
+    def can_see_IRSG_tab(self):
+        draft=RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        BallotPositionDocEventFactory(ballot=ballot, by=get_active_irsg()[0], pos_id='yes', comment='b2390sn3')
+
+        url = urlreverse('ietf.doc.views_doc.document_irsg_ballot',kwargs=dict(name=draft.name))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertIn('b2390sn3',unicontent(r))
+
+    def test_cant_take_position_on_irtf_ballot(self):
+        draft = RgDraftFactory()
+        ballot = IRSGBallotDocEventFactory(doc=draft)
+        url = urlreverse('ietf.doc.views_ballot.edit_position', kwargs=dict(name=draft.name, ballot_id=ballot.pk))
+
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/accounts/login', r['Location'])
+
+        r = self.client.post(url, dict(position='yes', comment='oib239sb', send_mail='Save and send email'))
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/accounts/login', r['Location'])

@@ -246,13 +246,19 @@ def create_ballot(request, doc, by, ballot_slug, time=None):
     e.desc = 'Created "%s" ballot' % e.ballot_type.name
     e.save()
 
-def create_ballot_if_not_open(request, doc, by, ballot_slug, time=None):
+def create_ballot_if_not_open(request, doc, by, ballot_slug, time=None, duedate=None):
     ballot_type = BallotType.objects.get(doc_type=doc.type, slug=ballot_slug)
     if not doc.ballot_open(ballot_slug):
         if time:
-            e = BallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev, time=time)
+            if duedate:
+                e = IRSGBallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev, time=time, duedate=duedate)
+            else:
+                e = BallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev, time=time)
         else:
-            e = BallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev)
+            if duedate:
+                e = IRSGBallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev, duedate=duedate)
+            else:
+                e = BallotDocEvent(type="created_ballot", by=by, doc=doc, rev=doc.rev)
         e.ballot_type = ballot_type
         e.desc = 'Created "%s" ballot' % e.ballot_type.name
         e.save()
@@ -405,7 +411,6 @@ def add_state_change_event(doc, by, prev_state, new_state, prev_tags=[], new_tag
         assert prev_state.type_id == new_state.type_id
 
     if prev_state == new_state and set(prev_tags) == set(new_tags):
-        debug.say("add_state_change_event had common prev/new")
         return None
 
     e = StateDocEvent(doc=doc, rev=doc.rev, by=by)

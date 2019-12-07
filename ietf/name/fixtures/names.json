@@ -9787,6 +9787,14 @@
 },
 {
  "model": "mailtrigger.recipient",
+ "pk": "irsg",
+ "fields": {
+  "desc": "The IRSG",
+  "template": "The IRSG <irsg@irtf.org>"
+ }
+},
+{
+ "model": "mailtrigger.recipient",
  "pk": "liaison_admin",
  "fields": {
   "desc": "Alias for secretariat liaison administration",
@@ -10208,27 +10216,6 @@
 },
 {
  "model": "mailtrigger.mailtrigger",
- "pk": "ballot_saved",
- "fields": {
-  "desc": "Recipients when a new ballot position (with discusses, other blocking positions, or comments) is saved",
-  "to": [
-   "iesg"
-  ],
-  "cc": [
-   "conflict_review_stream_manager",
-   "doc_affecteddoc_authors",
-   "doc_affecteddoc_group_chairs",
-   "doc_affecteddoc_notify",
-   "doc_authors",
-   "doc_group_chairs",
-   "doc_group_mail_list",
-   "doc_notify",
-   "doc_shepherd"
-  ]
- }
-},
-{
- "model": "mailtrigger.mailtrigger",
  "pk": "charter_external_review",
  "fields": {
   "desc": "Recipients for a charter external review",
@@ -10607,6 +10594,15 @@
 },
 {
  "model": "mailtrigger.mailtrigger",
+ "pk": "iesg_ballot_saved",
+ "fields": {
+  "desc": "Recipients when a new ballot position (with discusses, other blocking positions, or comments) is saved",
+  "to": [],
+  "cc": []
+ }
+},
+{
+ "model": "mailtrigger.mailtrigger",
  "pk": "interim_announced",
  "fields": {
   "desc": "Recipients when an interim meeting is announced",
@@ -10694,6 +10690,17 @@
    "ipr_updatedipr_contacts",
    "ipr_updatedipr_holders"
   ]
+ }
+},
+{
+ "model": "mailtrigger.mailtrigger",
+ "pk": "irsg_ballot_saved",
+ "fields": {
+  "desc": "Recipients when a new IRSG ballot position with comments is saved",
+  "to": [
+   "irsg"
+  ],
+  "cc": []
  }
 },
 {
@@ -11738,15 +11745,6 @@
   "version": "yanglint 0.14.80",
   "used": true
  }
-},
-{
- "fields": {
-  "path": "/group/defaults/email/review_assigned.txt",
-  "type_id": "django",
-  "content": "{{ assigner.ascii }} has assigned you as a reviewer for this document.\n\n{% if prev_team_reviews %}This team has completed other reviews of this document:{% endif %}{% for assignment in prev_team_reviews %}\n- {{ assignment.completed_on }} {{ assignment.reviewer.person.ascii }} -{% if assignment.reviewed_rev %}{{ assignment.reviewed_rev }}{% else %}{{ assignment.review_request.requested_rev }}{% endif %} {{ assignment.result.name }}\n{% endfor %}"
- },
- "model": "dbtemplate.dbtemplate",
- "pk": "1000"
 },
 {
  "model": "utils.versioninfo",

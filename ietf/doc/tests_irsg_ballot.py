@@ -392,7 +392,9 @@ class BaseManipulationTests():
 
     def test_view_outstanding_ballots(self):
         draft = RgDraftFactory()
-        ballot = IRSGBallotDocEventFactory(doc=draft)
+        # PEY: Commented out RJS' following line.,  Will need this in the future when irsg_ballot_status changes to take a ballot not a doc
+        # ballot = IRSGBallotDocEventFactory(doc=draft)
+        IRSGBallotDocEventFactory(doc=draft)
         url = urlreverse('ietf.doc.views_ballot.irsg_ballot_status')
 
         login_testing_unauthorized(self, self.username, url)
@@ -437,7 +439,9 @@ class IRSGMemberTests(TestCase):
 
     def test_cant_close_irsg_ballot(self):
         draft = RgDraftFactory()
-        ballot = IRSGBallotDocEventFactory(doc=draft)
+        # PEY: Commented out RJS' following line.  Will need this in the future when close_irsg_ballot changes to taking a ballot not a doc
+        # ballot = IRSGBallotDocEventFactory(doc=draft)
+        IRSGBallotDocEventFactory(doc=draft)
         url = urlreverse('ietf.doc.views_ballot.close_irsg_ballot', kwargs=dict(name=draft.name))
 
         self.client.login(username = self.username, password = self.username+'+password')

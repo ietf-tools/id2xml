@@ -673,7 +673,7 @@ def ballot_writeupnotes(request, name):
                     pos.pos_id = "yes"
                     pos.desc = "[Ballot Position Update] New position, %s, has been recorded for %s" % (pos.pos.name, pos.ad.plain_name())
                     pos.save()
-                    # Consider mailing this position to 'ballot_saved'
+                    # Consider mailing this position to 'iesg_ballot_saved'
 
                 msg = generate_issue_ballot_mail(request, charter, ballot)
                 send_mail_preformatted(request, msg)

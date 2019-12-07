@@ -79,7 +79,7 @@ def change_state(request, name, option=None):
                         pos.pos_id = "yes"
                         pos.desc = "[Ballot Position Update] New position, %s, has been recorded for %s" % (pos.pos.name, pos.pos_by.plain_name())
                         pos.save()
-                        # Consider mailing that position to 'ballot_saved'
+                        # Consider mailing that position to 'iesg_ballot_saved'
                     send_conflict_eval_email(request,review)
 
 

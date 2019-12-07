@@ -463,6 +463,8 @@ def assign_review_request_to_reviewer(request, review_req, reviewer, add_skip=Fa
     )
 
     try:
+        debug.say("DBTemplate")
+        debug.show("review_req.team.acronym")
         template = DBTemplate.objects.get(
             path="/group/%s/email/review_assigned.txt" % review_req.team.acronym)
     except DBTemplate.DoesNotExist:

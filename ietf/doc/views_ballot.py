@@ -333,8 +333,7 @@ def build_position_email(pos_by, doc, pos):
     if doc.stream_id == "irtf":
         addrs = gather_address_lists('irsg_ballot_saved',doc=doc)
     else:
-        addrs = gather_address_lists('ballot_saved',doc=doc)
-    debug.show("addrs")
+        addrs = gather_address_lists('iesg_ballot_saved',doc=doc)
 
     return addrs, frm, subject, body
 
@@ -375,9 +374,14 @@ def send_ballot_comment(request, name, ballot_id):
 
     addrs, frm, subject, body = build_position_email(pos_by, doc, pos)
 
+    if doc.stream_id == 'irtf':
+        mailtrigger_slug='irsg_ballot_saved'
+    else:
+        mailtrigger_slug='iesg_ballot_saved'
+        
     if request.method == 'POST':
         cc = []
-        cc_select_form = CcSelectForm(data=request.POST,mailtrigger_slug='ballot_saved',mailtrigger_context={'doc':doc})
+        cc_select_form = CcSelectForm(data=request.POST,mailtrigger_slug=mailtrigger_slug,mailtrigger_context={'doc':doc})
         if cc_select_form.is_valid():
             cc.extend(cc_select_form.get_selected_addresses())
         extra_cc = [x.strip() for x in request.POST.get("extra_cc","").split(',') if x.strip()]
@@ -390,7 +394,7 @@ def send_ballot_comment(request, name, ballot_id):
 
     else: 
 
-        cc_select_form = CcSelectForm(mailtrigger_slug='ballot_saved',mailtrigger_context={'doc':doc})
+        cc_select_form = CcSelectForm(mailtrigger_slug=mailtrigger_slug,mailtrigger_context={'doc':doc})
   
         return render(request, 'doc/ballot/send_ballot_comment.html',
                       dict(doc=doc,
@@ -626,7 +630,7 @@ def ballot_writeupnotes(request, name):
                     pos.desc = "[Ballot Position Update] New position, %s, has been recorded for %s" % (pos.pos.name, pos.pos_by.plain_name())
                     pos.save()
 
-                    # Consider mailing this position to 'ballot_saved'
+                    # Consider mailing this position to 'iesg_ballot_saved'
 
                 approval = doc.latest_event(WriteupDocEvent, type="changed_ballot_approval_text")
                 if not approval:

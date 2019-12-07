@@ -104,6 +104,8 @@ class EditPositionTests(TestCase):
 
         # vote
         events_before = draft.docevent_set.count()
+        debug.say("outbox at the start")
+        debug.show("outbox")
         mailbox_before = len(outbox)
 
         r = self.client.post(url, dict(
@@ -116,6 +118,7 @@ class EditPositionTests(TestCase):
         self.assertContains(r, "Done")
 
         pos = draft.latest_event(BallotPositionDocEvent, pos_by=ad)
+        debug.show("pos")
         self.assertEqual(pos.pos.slug, "discuss")
         self.assertTrue(" This is a discussion test." in pos.discuss)
         self.assertTrue(pos.discuss_time != None)
@@ -123,6 +126,8 @@ class EditPositionTests(TestCase):
         self.assertTrue(pos.comment_time != None)
         self.assertTrue("New position" in pos.desc)
         self.assertEqual(draft.docevent_set.count(), events_before + 3)
+        debug.say("outbox at the second point")
+        debug.show("outbox")
         self.assertEqual(len(outbox), mailbox_before + 1)
 
         # recast vote
@@ -258,6 +263,7 @@ class EditPositionTests(TestCase):
         self.assertTrue(draft.name in m['Subject'])
         self.assertTrue("clearer title" in str(m))
         self.assertTrue("Test!" in str(m))
+        debug.show("m")
         self.assertTrue("iesg@" in m['To'])
         # cc_choice doc_group_chairs
         self.assertTrue("mars-chairs@" in m['Cc'])

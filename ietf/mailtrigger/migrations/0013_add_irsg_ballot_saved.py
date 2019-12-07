@@ -11,7 +11,7 @@ def forward(apps, shema_editor):
     irsg = Recipient.objects.create(
         slug = 'irsg',
         desc = 'The IRSG',
-        template = 'irsg@irtf.org'
+        template = 'The IRSG <irsg@irtf.org>'
     )
 
     MailTrigger = apps.get_model('mailtrigger', 'MailTrigger')
@@ -22,14 +22,18 @@ def forward(apps, shema_editor):
         desc=desc
     )
     irsg_ballot_saved.to.add(irsg)
+    for ccstr in ['doc_affecteddoc_authors','doc_affecteddoc_group_chairs','doc_affecteddoc_notify','doc_authors','doc_group_chairs','doc_group_mail_list','doc_notify','doc_shepherd']:
+        cc = Recipient.objects.filter(slug=ccstr)
+        irsg_ballot_saved.cc.add(cc)
+
+    MailTrigger.objects.filter(slug='ballot_saved').update(slug='iesg_ballot_saved')
 
 def reverse(apps, shema_editor):
     MailTrigger = apps.get_model('mailtrigger', 'MailTrigger')
-    MailTrigger.object.filter(slug='irsg_ballot_saved').delete()
-
+    MailTrigger.objects.filter(slug='irsg_ballot_saved').delete()
+    MailTrigger.objects.filter(slug='iesg_ballot_saved').update(slug='ballot_saved')
     Recipient = apps.get_model('mailtrigger','Recipient')
-    Recipient.object.filter(slug='irsg').delete()
-
+    Recipient.objects.filter(slug='irsg').delete()
 
 class Migration(migrations.Migration):
 

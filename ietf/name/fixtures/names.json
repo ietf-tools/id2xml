@@ -10597,8 +10597,20 @@
  "pk": "iesg_ballot_saved",
  "fields": {
   "desc": "Recipients when a new ballot position (with discusses, other blocking positions, or comments) is saved",
-  "to": [],
-  "cc": []
+  "to": [
+   "iesg"
+  ],
+  "cc": [
+   "conflict_review_stream_manager",
+   "doc_affecteddoc_authors",
+   "doc_affecteddoc_group_chairs",
+   "doc_affecteddoc_notify",
+   "doc_authors",
+   "doc_group_chairs",
+   "doc_group_mail_list",
+   "doc_notify",
+   "doc_shepherd"
+  ]
  }
 },
 {
@@ -10696,11 +10708,20 @@
  "model": "mailtrigger.mailtrigger",
  "pk": "irsg_ballot_saved",
  "fields": {
-  "desc": "Recipients when a new IRSG ballot position with comments is saved",
+  "desc": "Recipients when a new IRSG ballot position comments is saved",
   "to": [
    "irsg"
   ],
-  "cc": []
+  "cc": [
+   "doc_affecteddoc_authors",
+   "doc_affecteddoc_group_chairs",
+   "doc_affecteddoc_notify",
+   "doc_authors",
+   "doc_group_chairs",
+   "doc_group_mail_list",
+   "doc_notify",
+   "doc_shepherd"
+  ]
  }
 },
 {

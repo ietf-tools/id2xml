@@ -1082,8 +1082,6 @@ expand-draft-ietf-ames-test.all@virtual.ietf.org  ames-author@example.ames, ames
     def testExpansions(self):
         url = urlreverse('ietf.doc.views_doc.document_email', kwargs=dict(name="draft-ietf-mars-test"))
         r = self.client.get(url)
-        debug.say("doc/tests.py r value")
-        debug.show("r")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'draft-ietf-mars-test.all@ietf.org')
         self.assertContains(r, 'iesg_ballot_saved')

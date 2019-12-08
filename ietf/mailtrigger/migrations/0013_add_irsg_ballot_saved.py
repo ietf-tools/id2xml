@@ -22,9 +22,10 @@ def forward(apps, shema_editor):
         desc=desc
     )
     irsg_ballot_saved.to.add(irsg)
+    cclist = []
     for ccstr in ['doc_affecteddoc_authors','doc_affecteddoc_group_chairs','doc_affecteddoc_notify','doc_authors','doc_group_chairs','doc_group_mail_list','doc_notify','doc_shepherd']:
-        cc = Recipient.objects.filter(slug=ccstr)
-        irsg_ballot_saved.cc.add(cc)
+        cclist.append(Recipient.objects.filter(slug=ccstr))
+    irsg_ballot_saved.cc.set(cclist)
 
     MailTrigger.objects.filter(slug='ballot_saved').update(slug='iesg_ballot_saved')
 

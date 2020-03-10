@@ -1,4 +1,4 @@
-# Copyright The IETF Trust 2012-2019, All Rights Reserved
+# Copyright The IETF Trust 2012-2020, All Rights Reserved
 # -*- coding: utf-8 -*-
 
 
@@ -23,7 +23,7 @@ from ietf.doc.views_conflict_review import default_approval_text
 from ietf.group.models import Person
 from ietf.iesg.models import TelechatDate
 from ietf.name.models import StreamName
-from ietf.utils.test_utils import TestCase
+from ietf.utils.test_utils import TestCase, unicontent
 from ietf.utils.mail import outbox, empty_outbox, get_payload
 from ietf.utils.test_utils import login_testing_unauthorized
 
@@ -170,6 +170,11 @@ class ConflictReviewTests(TestCase):
         self.assertTrue(review_doc.latest_event(DocEvent,type="added_comment").desc.startswith('TGmZtEjt'))
         self.assertTrue(review_doc.active_ballot())
         self.assertEqual(review_doc.latest_event(BallotPositionDocEvent, type="changed_ballot_position").pos_id,'yes')
+
+        # Verify that IESG ballot is live
+        r = self.client.get(r.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("IESG Evaluation Ballot has not been created yet", unicontent(r))
 
 
     def test_edit_notices(self):

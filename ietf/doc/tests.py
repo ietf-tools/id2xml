@@ -34,7 +34,7 @@ from ietf.doc.models import ( Document, DocAlias, DocRelationshipName, RelatedDo
 from ietf.doc.factories import ( DocumentFactory, DocEventFactory, CharterFactory, 
     ConflictReviewFactory, WgDraftFactory, IndividualDraftFactory, WgRfcFactory, 
     IndividualRfcFactory, StateDocEventFactory, BallotPositionDocEventFactory, 
-    BallotDocEventFactory )
+    BallotDocEventFactory, Auth48StateDocEventFactory, )
 from ietf.doc.utils import create_ballot_if_not_open
 from ietf.group.models import Group
 from ietf.group.factories import GroupFactory, RoleFactory
@@ -781,7 +781,53 @@ Man                    Expires September 22, 2015               [Page 3]
             r = self.client.get(urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=doc.name,rev="00")))
             self.assertEqual(r.status_code, 200)
             self.assertContains(r, "%s-00"%docname)
+            
+    def test_rfcqueue_auth48_views(self):
+        """Test view handling of RFC editor queue auth48 state"""
+        def _change_state(doc, event):
+            doc.set_state(event.state)
+            doc.save_with_history([event])
+            
+        draft = IndividualDraftFactory()
+        
+        # Put in an rfceditor state other than auth48
+        for evt in [
+            StateDocEventFactory(doc=draft, state=('draft-iesg', 'rfcqueue')),
+            StateDocEventFactory(doc=draft, state=('draft-rfceditor', 'rfc-edit')),
+        ]:
+            _change_state(draft, evt)
+        r = self.client.get(urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=draft.name)))
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, 'Auth48 status')
 
+        # Put in auth48 state without a URL
+        event = Auth48StateDocEventFactory(doc=draft, url='')
+        self.assertEqual(event.auth48_url, '')
+        _change_state(draft, event)
+        r = self.client.get(urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=draft.name)))
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, 'Auth48 status')
+
+        # Put in auth48 state with a URL
+        event = Auth48StateDocEventFactory(doc=draft)
+        self.assertIsNotNone(event.auth48_url)
+        self.assertNotEqual(event.auth48_url, '')
+        _change_state(draft, event)
+        r = self.client.get(urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=draft.name)))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'Auth48 status')
+        self.assertContains(r, event.auth48_url)
+
+        # Put in auth48-done state with a URL
+        event = Auth48StateDocEventFactory(doc=draft, state=('draft-rfceditor', 'auth48-done'))
+        self.assertIsNotNone(event.auth48_url)
+        self.assertNotEqual(event.auth48_url, '')
+        _change_state(draft, event)
+        r = self.client.get(urlreverse("ietf.doc.views_doc.document_main", kwargs=dict(name=draft.name)))
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, 'Auth48 status')
+        
+    
 class DocTestCase(TestCase):
     def test_document_charter(self):
         CharterFactory(name='charter-ietf-mars')

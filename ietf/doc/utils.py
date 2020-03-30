@@ -26,7 +26,7 @@ import debug                            # pyflakes:ignore
 from ietf.community.models import CommunityList
 from ietf.community.utils import docs_tracked_by_community_list
 
-from ietf.doc.models import Document, DocHistory, State, DocumentAuthor, DocHistoryAuthor
+from ietf.doc.models import Document, DocHistory, State, DocumentAuthor, DocHistoryAuthor, Auth48StateDocEvent
 from ietf.doc.models import DocAlias, RelatedDocument, RelatedDocHistory, BallotType, DocReminder
 from ietf.doc.models import DocEvent, ConsensusDocEvent, BallotDocEvent, IRSGBallotDocEvent, NewRevisionDocEvent, StateDocEvent
 from ietf.doc.models import TelechatDocEvent
@@ -409,15 +409,21 @@ def get_document_content(key, filename, split=True, markup=True):
 def tags_suffix(tags):
     return ("::" + "::".join(t.name for t in tags)) if tags else ""
 
-def add_state_change_event(doc, by, prev_state, new_state, prev_tags=[], new_tags=[], timestamp=None):
-    """Add doc event to explain that state change just happened."""
+def _add_state_change_event_helper(state_doc_event_model, 
+                                   doc, by, prev_state, new_state, 
+                                   prev_tags=(), new_tags=(), 
+                                   timestamp=None):
+    """Prepare a doc event to explain that state change just happened.
+    
+    Helper method that does not save resource.
+    """
     if prev_state and new_state:
         assert prev_state.type_id == new_state.type_id
 
     if prev_state == new_state and set(prev_tags) == set(new_tags):
         return None
 
-    e = StateDocEvent(doc=doc, rev=doc.rev, by=by)
+    e = state_doc_event_model(doc=doc, rev=doc.rev, by=by)
     e.type = "changed_state"
     e.state_type = (prev_state or new_state).type
     e.state = new_state
@@ -426,6 +432,34 @@ def add_state_change_event(doc, by, prev_state, new_state, prev_tags=[], new_tag
         e.desc += " from %s" % (prev_state.name + tags_suffix(prev_tags))
     if timestamp:
         e.time = timestamp
+    return e
+    
+def add_state_change_event(doc, by, prev_state, new_state,
+                           prev_tags=(), new_tags=(),
+                           timestamp=None):
+    """Add doc event to explain that state change just happened."""
+    e = _add_state_change_event_helper(
+        state_doc_event_model=StateDocEvent, 
+        doc=doc, by=by, prev_state=prev_state, new_state=new_state,
+        prev_tags=prev_tags, new_tags=new_tags,
+        timestamp=timestamp
+    )
+    e.save()
+    return e
+
+def add_auth48_state_change_event(auth48_url, 
+                                  doc, by, prev_state, new_state,
+                                  prev_tags=(), new_tags=(),
+                                  timestamp=None):
+    """Add doc event with an auth48 url"""
+    e = _add_state_change_event_helper(
+        state_doc_event_model=Auth48StateDocEvent,
+        doc=doc, by=by, prev_state=prev_state, new_state=new_state,
+        prev_tags=prev_tags, new_tags=new_tags,
+        timestamp=timestamp
+    )
+    e.auth48_url = auth48_url
+    e.desc = re.sub(r"(<b>.*</b>)", "<a href=\"%s\">\\1</a>" % auth48_url, e.desc)
     e.save()
     return e
 

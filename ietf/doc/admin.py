@@ -13,7 +13,7 @@ from .models import (StateType, State, RelatedDocument, DocumentAuthor, Document
     StateDocEvent, ConsensusDocEvent, BallotType, BallotDocEvent, WriteupDocEvent, LastCallDocEvent,
     TelechatDocEvent, BallotPositionDocEvent, ReviewRequestDocEvent, InitialReviewDocEvent,
     AddedMessageEvent, SubmissionDocEvent, DeletedEvent, EditedAuthorsDocEvent, DocumentURL,
-    ReviewAssignmentDocEvent, IanaExpertDocEvent, IRSGBallotDocEvent )
+    ReviewAssignmentDocEvent, IanaExpertDocEvent, IRSGBallotDocEvent, Auth48StateDocEvent)
 
 
 class StateTypeAdmin(admin.ModelAdmin):
@@ -153,6 +153,7 @@ admin.site.register(DocEvent, DocEventAdmin)
 
 admin.site.register(NewRevisionDocEvent, DocEventAdmin)
 admin.site.register(StateDocEvent, DocEventAdmin)
+admin.site.register(Auth48StateDocEvent, DocEventAdmin)
 admin.site.register(ConsensusDocEvent, DocEventAdmin)
 admin.site.register(BallotDocEvent, DocEventAdmin)
 admin.site.register(WriteupDocEvent, DocEventAdmin)

@@ -17,7 +17,7 @@ from ietf.doc.models import (BallotType, DeletedEvent, StateType, State, Documen
     InitialReviewDocEvent, DocHistoryAuthor, BallotDocEvent, RelatedDocument,
     RelatedDocHistory, BallotPositionDocEvent, AddedMessageEvent, SubmissionDocEvent,
     ReviewRequestDocEvent, ReviewAssignmentDocEvent, EditedAuthorsDocEvent, DocumentURL,
-    IanaExpertDocEvent, IRSGBallotDocEvent )
+    IanaExpertDocEvent, IRSGBallotDocEvent, Auth48StateDocEvent )
 
 from ietf.name.resources import BallotPositionNameResource, DocTypeNameResource
 class BallotTypeResource(ModelResource):
@@ -767,3 +767,34 @@ class IRSGBallotDocEventResource(ModelResource):
             "ballotdocevent_ptr": ALL_WITH_RELATIONS,
         }
 api.doc.register(IRSGBallotDocEventResource())
+
+
+from ietf.person.resources import PersonResource
+class Auth48StateDocEventResource(ModelResource):
+    by               = ToOneField(PersonResource, 'by')
+    doc              = ToOneField(DocumentResource, 'doc')
+    docevent_ptr     = ToOneField(DocEventResource, 'docevent_ptr')
+    state_type       = ToOneField(StateTypeResource, 'state_type')
+    state            = ToOneField(StateResource, 'state', null=True)
+    statedocevent_ptr = ToOneField(StateDocEventResource, 'statedocevent_ptr')
+    class Meta:
+        queryset = Auth48StateDocEvent.objects.all()
+        serializer = api.Serializer()
+        cache = SimpleCache()
+        #resource_name = 'auth48statedocevent'
+        ordering = ['statedocevent_ptr', ]
+        filtering = { 
+            "id": ALL,
+            "time": ALL,
+            "type": ALL,
+            "rev": ALL,
+            "desc": ALL,
+            "auth48_url": ALL,
+            "by": ALL_WITH_RELATIONS,
+            "doc": ALL_WITH_RELATIONS,
+            "docevent_ptr": ALL_WITH_RELATIONS,
+            "state_type": ALL_WITH_RELATIONS,
+            "state": ALL_WITH_RELATIONS,
+            "statedocevent_ptr": ALL_WITH_RELATIONS,
+        }
+api.doc.register(Auth48StateDocEventResource())

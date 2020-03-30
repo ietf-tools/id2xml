@@ -1077,6 +1077,10 @@ class StateDocEvent(DocEvent):
     state_type = ForeignKey(StateType)
     state = ForeignKey(State, blank=True, null=True)
 
+class Auth48StateDocEvent(StateDocEvent):
+    """StateDocEvent with an associated Auth48 URL"""
+    auth48_url = models.URLField()
+    
 class ConsensusDocEvent(DocEvent):
     consensus = models.NullBooleanField(default=None)
 

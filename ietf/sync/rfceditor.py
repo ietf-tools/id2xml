@@ -22,7 +22,7 @@ import debug                            # pyflakes:ignore
 from ietf.doc.models import ( Document, DocAlias, State, StateType, DocEvent, DocRelationshipName,
     DocTagName, DocTypeName, RelatedDocument )
 from ietf.doc.expire import move_draft_files_to_archive
-from ietf.doc.utils import add_state_change_event, prettify_std_name
+from ietf.doc.utils import add_state_change_event, add_auth48_state_change_event, prettify_std_name
 from ietf.group.models import Group
 from ietf.name.models import StdLevelName, StreamName
 from ietf.person.models import Person
@@ -202,11 +202,15 @@ def update_drafts_from_queue(drafts):
         if prev_state != next_state:
             d.set_state(next_state)
 
-            e = add_state_change_event(d, system, prev_state, next_state)
+            # Create the event. If we have an auth48 URL, use an event class that can persist
+            # it. Normally only AUTH48 and AUTH48-DONE states should have this URL, but save the
+            # URL for any state that includes it.
+            event_kwargs = dict(doc=d, by=system, prev_state=prev_state, new_state=next_state)
 
             if auth48:
-                e.desc = re.sub(r"(<b>.*</b>)", "<a href=\"%s\">\\1</a>" % auth48, e.desc)
-                e.save()
+                e = add_auth48_state_change_event(auth48_url=auth48, **event_kwargs)
+            else:
+                e = add_state_change_event(**event_kwargs)
 
             if e:
                 events.append(e)

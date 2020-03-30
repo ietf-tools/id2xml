@@ -57,7 +57,7 @@ import debug                            # pyflakes:ignore
 
 from ietf.doc.models import ( Document, DocAlias, DocHistory, DocEvent, BallotDocEvent, BallotType,
     ConsensusDocEvent, NewRevisionDocEvent, TelechatDocEvent, WriteupDocEvent, IanaExpertDocEvent,
-    IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
+     Auth48StateDocEvent, IESG_BALLOT_ACTIVE_STATES, STATUSCHANGE_RELATIONS )
 from ietf.doc.utils import (add_links_in_new_revision_events, augment_events_with_revision,
     can_adopt_draft, can_unadopt_draft, get_chartering_type, get_tags_for_stream_id,
     needed_ballot_positions, nice_consensus, prettify_std_name, update_telechat, has_same_ballot,
@@ -422,6 +422,12 @@ def document_main(request, name, rev=None):
         exp_comment = doc.latest_event(IanaExpertDocEvent,type="comment")
         iana_experts_comment = exp_comment and exp_comment.desc
 
+        # See if we should show an Auth48 URL
+        auth48_url = None  # stays None unless we are in the auth48 state
+        if doc.get_state_slug('draft-rfceditor') == 'auth48':
+            last_auth48_event = doc.latest_event(Auth48StateDocEvent)
+            auth48_url = last_auth48_event.auth48_url  # not None, may be ''
+
         return render(request, "doc/document_draft.html",
                                   dict(doc=doc,
                                        group=group,
@@ -479,6 +485,7 @@ def document_main(request, name, rev=None):
                                        iesg_state=iesg_state,
                                        iesg_state_summary=iesg_state_summary,
                                        rfc_editor_state=doc.get_state("draft-rfceditor"),
+                                       rfc_editor_auth48_url=auth48_url,
                                        iana_review_state=doc.get_state("draft-iana-review"),
                                        iana_action_state=doc.get_state("draft-iana-action"),
                                        iana_experts_state=doc.get_state("draft-iana-experts"),

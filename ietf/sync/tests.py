@@ -12,12 +12,14 @@ import quopri
 import shutil
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse as urlreverse
 
 import debug                            # pyflakes:ignore
 
 from ietf.doc.factories import WgDraftFactory
-from ietf.doc.models import Document, DocAlias, DocEvent, DeletedEvent, DocTagName, RelatedDocument, State, StateDocEvent
+from ietf.doc.models import (Document, DocAlias, DocEvent, DeletedEvent, DocTagName, RelatedDocument, State, 
+    StateDocEvent, Auth48StateDocEvent, )
 from ietf.doc.utils import add_state_change_event
 from ietf.group.factories import GroupFactory
 from ietf.person.models import Person
@@ -383,17 +385,26 @@ class RFCSyncTests(TestCase):
         changed = list(rfceditor.update_docs_from_rfc_index(data, errata, today - datetime.timedelta(days=30)))
         self.assertEqual(len(changed), 0)
 
-
     def test_rfc_queue(self):
+        self._test_one_rfc_queue(include_auth48_url=True)
+        self._test_one_rfc_queue(include_auth48_url=False)
+
+    def _test_one_rfc_queue(self, include_auth48_url):
+        """Test RFC queue handling, optionally including an auth48 URL"""
         draft = WgDraftFactory(states=[('draft-iesg','ann')])
 
+        if include_auth48_url:
+            auth48_url = 'http://www.rfc-editor.org/auth48/rfc1234'
+        else:
+            auth48_url = ''  # we will strip out the empty tag later
+            
         t = '''<rfc-editor-queue xmlns="http://www.rfc-editor.org/rfc-editor-queue">
 <section name="IETF STREAM: WORKING GROUP STANDARDS TRACK">
 <entry xml:id="%(name)s">
 <draft>%(name)s-%(rev)s.txt</draft>
 <date-received>2010-09-08</date-received>
 <state>EDIT*R*A(1G)</state>
-<auth48-url>http://www.rfc-editor.org/auth48/rfc1234</auth48-url>
+<auth48-url>%(auth48_url)s</auth48-url>
 <normRef>
 <ref-name>%(ref)s</ref-name>
 <ref-state>IN-QUEUE</ref-state>
@@ -410,8 +421,10 @@ class RFCSyncTests(TestCase):
                               rev=draft.rev,
                               title=draft.title,
                               group=draft.group.name,
-                              ref="draft-ietf-test")
-
+                              ref="draft-ietf-test",
+                              auth48_url=auth48_url)
+        t = t.replace('<auth48-url></auth48-url>\n', '')  # strip empty auth48-url tags
+        
         drafts, warnings = rfceditor.parse_queue(io.StringIO(t))
         self.assertEqual(len(drafts), 1)
         self.assertEqual(len(warnings), 0)
@@ -427,8 +440,10 @@ class RFCSyncTests(TestCase):
         self.assertEqual(draft_name, draft.name)
         self.assertEqual(state, "EDIT")
         self.assertEqual(set(tags), set(["iana", "ref"]))
-        self.assertEqual(auth48, "http://www.rfc-editor.org/auth48/rfc1234")
-
+        if include_auth48_url:
+            self.assertEqual(auth48, auth48_url)
+        else:
+            self.assertEqual(auth48, '')
 
         mailbox_before = len(outbox)
 
@@ -440,8 +455,18 @@ class RFCSyncTests(TestCase):
         self.assertEqual(draft.get_state_slug("draft-rfceditor"), "edit")
         self.assertEqual(draft.get_state_slug("draft-iesg"), "rfcqueue")
         self.assertEqual(set(draft.tags.all()), set(DocTagName.objects.filter(slug__in=("iana", "ref"))))
-        self.assertEqual(draft.docevent_set.all()[0].type, "changed_state") # changed draft-iesg state
-        self.assertEqual(draft.docevent_set.all()[1].type, "changed_state") # changed draft-rfceditor state
+        rfc_editor_docevent = draft.docevent_set.all()[0]  # changed draft-rfceditor state
+        self.assertEqual(rfc_editor_docevent.type, "changed_state")
+        if include_auth48_url:
+            # Expect Auth48StateDocEvent instance with the correct URL
+            a48sde = Auth48StateDocEvent.objects.get(id=rfc_editor_docevent.id)
+            self.assertIsNotNone(a48sde)
+            self.assertEqual(a48sde.auth48_url, auth48_url)
+        else:
+            # Expect non-Auth48StateDocEvent instance 
+            with self.assertRaises(ObjectDoesNotExist):
+                Auth48StateDocEvent.objects.get(id=rfc_editor_docevent.id)
+        self.assertEqual(draft.docevent_set.all()[1].type, "changed_state") # changed draft-iesg state
         self.assertEqual(draft.docevent_set.all()[2].type, "rfc_editor_received_announcement")
 
         self.assertEqual(len(outbox), mailbox_before + 1)

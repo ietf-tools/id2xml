@@ -15,7 +15,8 @@ if six.PY3:
 from django.conf import settings
 
 from ietf.doc.models import ( Document, DocEvent, NewRevisionDocEvent, DocAlias, State, DocumentAuthor,
-    StateDocEvent, BallotPositionDocEvent, BallotDocEvent, BallotType, IRSGBallotDocEvent, )
+    StateDocEvent, BallotPositionDocEvent, BallotDocEvent, BallotType, IRSGBallotDocEvent,
+    Auth48StateDocEvent, )
 from ietf.group.models import Group
 
 def draft_name_generator(type_id,group,n):
@@ -311,6 +312,32 @@ class StateDocEventFactory(DocEventFactory):
             obj.state = State.objects.get(type_id=state_type_id,slug=state_slug)
         else:
             obj.state = State.objects.get(type_id='draft-iesg',slug='ad-eval')
+        obj.save()
+
+class Auth48StateDocEventFactory(StateDocEventFactory):
+    class Meta:
+        model = Auth48StateDocEvent
+
+    _default_state = dict(type_id='draft-rfceditor', slug='auth48')
+    state_type_id = _default_state['type_id']
+    auth48_url = factory.Faker('uri')
+
+    @factory.post_generation
+    def url(obj, create, extracted, **kwargs):
+        if extracted is not None:
+            obj.auth48_url = extracted
+            obj.save()
+        
+    @factory.post_generation
+    def state(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            (state_type_id, state_slug) = extracted
+            obj.state_type_id = state_type_id
+            obj.state = State.objects.get(type_id=state_type_id,slug=state_slug)
+        else:
+            obj.state = State.objects.get(**Auth48StateDocEventFactory._default_state)
         obj.save()
 
 # All of these Ballot* factories are extremely skeletal. Flesh them out as needed by tests.

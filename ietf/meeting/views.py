@@ -81,6 +81,7 @@ from ietf.secr.proceedings.utils import handle_upload_file
 from ietf.secr.proceedings.proc_utils import (get_progress_stats, post_process, import_audio_files,
     create_recording)
 from ietf.utils.decorators import require_api_key
+from ietf.utils.history import find_history_replacements_active_at
 from ietf.utils.log import assertion
 from ietf.utils.mail import send_mail_message, send_mail_text
 from ietf.utils.pipe import pipe
@@ -1131,9 +1132,22 @@ def session_details(request, num, acronym):
     if not sessions:
         raise Http404
 
+    # Find the time of the meeting, so that we can look back historically
+    # for what the group was called at the time.
+    meeting_time = datetime.datetime.combine(meeting.date, datetime.time())
+    
+    groups = [ sessions[0].group ]
+    group_replacements = find_history_replacements_active_at(groups, meeting_time)
+
     status_names = {n.slug: n.name for n in SessionStatusName.objects.all()}
     for session in sessions:
 
+        session.historic_group = None
+        if session.group:
+            session.historic_group = group_replacements.get(session.group_id)
+            if session.historic_group:
+                session.historic_group.historic_parent = None
+                    
         session.type_counter = Counter()
         ss = session.timeslotassignments.filter(schedule=meeting.schedule).order_by('timeslot__time')
         if ss:

@@ -5,6 +5,15 @@
       {% if meeting.date >= thisweek %}
         <a class="regular pull-right" title="icalendar entry for {{acronym}} session {{ forloop.counter }}" href="{% url 'ietf.meeting.views.ical_agenda' num=meeting.number session_id=session.id %}"><span class="fa fa-calendar"></span></a>
       {% endif %}
+	<div style="float:right" class="session_buttons" id="session_{{session.id}}">
+	  {% with schedule=meeting.schedule %}
+	  {% with item=session.timeslotassignments.first %}
+	  {% with skip_meeting_materials=True %}
+	  {% include "meeting/session_buttons_include.html" %}
+	  {% endwith %}
+	  {% endwith %}
+	  {% endwith %}
+	</div>
     </h2>
     {% if session.agenda_note %}<h3>{{session.agenda_note}}</h3>{% endif %}
 

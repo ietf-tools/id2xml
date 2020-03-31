@@ -1094,6 +1094,13 @@ class SessionDetailsTests(TestCase):
         r = self.client.get(url)
         self.assertTrue(all([x in unicontent(r) for x in ('slides','agenda','minutes','draft')]))
         self.assertNotContains(r, 'deleted')
+
+        q = PyQuery(r.content)
+        self.assertTrue(q('div.session_buttons#session_%s' % session.id),
+                        'Session detail page does not contain session tool buttons')
+
+        self.assertFalse(q('div.session_buttons#session_%s span.fa-arrows-alt' % session.id),
+                        'The session detail page is incorrectly showing the "Show meeting materials" button')
         
     def test_add_session_drafts(self):
         group = GroupFactory.create(type_id='wg',state_id='active')

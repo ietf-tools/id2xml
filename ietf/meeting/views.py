@@ -87,7 +87,7 @@ from ietf.utils.mail import send_mail_message, send_mail_text
 from ietf.utils.pipe import pipe
 from ietf.utils.pdf import pdf_pages
 from ietf.utils.text import xslugify
-from ietf.utils.validators import get_mime_type
+from ietf.utils.mime import get_mime_type
 
 from .forms import (InterimMeetingModelForm, InterimAnnounceForm, InterimSessionModelForm,
     InterimCancelForm, InterimSessionInlineFormSet, FileUploadForm, RequestMinutesForm,)
@@ -222,7 +222,7 @@ def materials_document(request, document, num=None, ext=None):
         bytes = file.read()
     
     mtype, chset = get_mime_type(bytes)
-    content_type = "%s; %s" % (mtype, chset)
+    content_type = "%s; charset=%s" % (mtype, chset)
 
     file_ext = os.path.splitext(filename)
     if len(file_ext) == 2 and file_ext[1] == '.md' and mtype == 'text/plain':
@@ -963,7 +963,7 @@ def ical_agenda(request, num=None, name=None, acronym=None, session_id=None):
 
 @cache_page(15 * 60)
 def json_agenda(request, num=None ):
-    meeting = get_meeting(num)
+    meeting = get_meeting(num, type_in=['ietf','interim'])
 
     sessions = []
     locations = set()
@@ -1173,6 +1173,7 @@ def session_details(request, num, acronym):
     # we somewhat arbitrarily use the group of the last session we get from
     # get_sessions() above when checking can_manage_session_materials()
     can_manage = can_manage_session_materials(request.user, session.group, session)
+    can_view_request = can_view_interim_request(meeting, request.user)
 
     scheduled_sessions = [s for s in sessions if s.current_status == 'sched']
     unscheduled_sessions = [s for s in sessions if s.current_status != 'sched']
@@ -1190,7 +1191,9 @@ def session_details(request, num, acronym):
                     'pending_suggestions' : pending_suggestions,
                     'meeting' :meeting ,
                     'acronym' :acronym,
+                    'is_materials_manager' : session.group.has_role(request.user, session.group.features.matman_roles),
                     'can_manage_materials' : can_manage,
+                    'can_view_request': can_view_request,
                     'thisweek': datetime.date.today()-datetime.timedelta(days=7),
                   })
 
@@ -1933,7 +1936,7 @@ def ajax_get_utc(request):
 @role_required('Secretariat',)
 def interim_announce(request):
     '''View which shows interim meeting requests awaiting announcement'''
-    meetings, _ = data_for_meetings_overview(Meeting.objects.filter(type='interim').order_by('date'), interim_status='scheda')
+    meetings = data_for_meetings_overview(Meeting.objects.filter(type='interim').order_by('date'), interim_status='scheda')
     menu_entries = get_interim_menu_entries(request)
     selected_menu_entry = 'announce'
 
@@ -1996,7 +1999,7 @@ def interim_skip_announcement(request, number):
 @role_required('Area Director', 'Secretariat', 'IRTF Chair', 'WG Chair', 'RG Chair')
 def interim_pending(request):
     '''View which shows interim meeting requests pending approval'''
-    meetings, group_parents = data_for_meetings_overview(Meeting.objects.filter(type='interim').order_by('date'), interim_status='apprw')
+    meetings = data_for_meetings_overview(Meeting.objects.filter(type='interim').order_by('date'), interim_status='apprw')
 
     menu_entries = get_interim_menu_entries(request)
     selected_menu_entry = 'pending'
@@ -2031,6 +2034,8 @@ def interim_request(request):
             is_virtual = form.is_virtual()
             meeting_type = form.cleaned_data.get('meeting_type')
 
+            requires_approval = not ( is_approved or ( is_virtual and not settings.VIRTUAL_INTERIMS_REQUIRE_APPROVAL ))
+
             # pre create meeting
             if meeting_type in ('single', 'multi-day'):
                 meeting = form.save(date=get_earliest_session_date(formset))
@@ -2040,13 +2045,13 @@ def interim_request(request):
                     InterimSessionModelForm.__init__,
                     user=request.user,
                     group=group,
-                    is_approved_or_virtual=(is_approved or is_virtual))
+                    requires_approval=requires_approval)
                 formset = SessionFormset(instance=meeting, data=request.POST)
                 formset.is_valid()
                 formset.save()
                 sessions_post_save(request, formset)
 
-                if not (is_approved or is_virtual):
+                if requires_approval:
                     send_interim_approval_request(meetings=[meeting])
                 elif not has_role(request.user, 'Secretariat'):
                     send_interim_announcement_request(meeting=meeting)
@@ -2060,7 +2065,7 @@ def interim_request(request):
                     InterimSessionModelForm.__init__,
                     user=request.user,
                     group=group,
-                    is_approved_or_virtual=(is_approved or is_virtual))
+                    requires_approval=requires_approval)
                 formset = SessionFormset(instance=Meeting(), data=request.POST)
                 formset.is_valid()  # re-validate
                 for session_form in formset.forms:
@@ -2077,7 +2082,7 @@ def interim_request(request):
                     series.append(meeting)
                     sessions_post_save(request, [session_form])
 
-                if not (is_approved or is_virtual):
+                if requires_approval:
                     send_interim_approval_request(meetings=series)
                 elif not has_role(request.user, 'Secretariat'):
                     send_interim_announcement_request(meeting=meeting)
@@ -2205,7 +2210,7 @@ def interim_request_edit(request, number):
             InterimSessionModelForm.__init__,
             user=request.user,
             group=group,
-            is_approved_or_virtual=is_approved)
+            requires_approval= not is_approved)
 
         formset = SessionFormset(instance=meeting, data=request.POST)
 
@@ -2236,17 +2241,33 @@ def past(request):
     '''List of past meetings'''
     today = datetime.datetime.today()
 
-    meetings, group_parents = data_for_meetings_overview(Meeting.objects.filter(date__lte=today).order_by('-date'))
+    meetings = data_for_meetings_overview(Meeting.objects.filter(date__lte=today).order_by('-date'))
 
     return render(request, 'meeting/past.html', {
                   'meetings': meetings,
-                  'group_parents': group_parents})
+                  })
 
 def upcoming(request):
     '''List of upcoming meetings'''
-    today = datetime.datetime.today()
+    today = datetime.date.today()
 
-    meetings, group_parents = data_for_meetings_overview(Meeting.objects.filter(date__gte=today).order_by('date'))
+    # Get ietf meetings starting 7 days ago, and interim meetings starting today
+    ietf_meetings = Meeting.objects.filter(type_id='ietf', date__gte=today-datetime.timedelta(days=7))
+    for m in ietf_meetings:
+        m.end = m.date+datetime.timedelta(days=m.days)
+    interim_sessions = add_event_info_to_session_qs(
+        Session.objects.filter(
+            meeting__type_id='interim', 
+            timeslotassignments__schedule=F('meeting__schedule'),
+            timeslotassignments__timeslot__time__gte=today
+        )
+    ).filter(current_status__in=('sched','canceled'))
+    for session in interim_sessions:
+        session.historic_group = session.group
+
+    entries = list(ietf_meetings)
+    entries.extend(list(interim_sessions))
+    entries.sort(key = lambda o: pytz.utc.localize(datetime.datetime.combine(o.date, datetime.datetime.min.time())) if isinstance(o,Meeting) else o.official_timeslotassignment().timeslot.utc_start_time())
 
     # add menu entries
     menu_entries = get_interim_menu_entries(request)
@@ -2261,23 +2282,25 @@ def upcoming(request):
                     reverse('ietf.meeting.views.upcoming_ical')))
 
     return render(request, 'meeting/upcoming.html', {
-                  'meetings': meetings,
+                  'entries': entries,
                   'menu_actions': actions,
                   'menu_entries': menu_entries,
                   'selected_menu_entry': selected_menu_entry,
-                  'group_parents': group_parents})
+                  })
 
 
 def upcoming_ical(request):
     '''Return Upcoming meetings in iCalendar file'''
     filters = request.GET.getlist('filters')
-    today = datetime.datetime.today()
+    today = datetime.date.today()
 
-    meetings, _ = data_for_meetings_overview(Meeting.objects.filter(date__gte=today).order_by('date'))
+    # get meetings starting 7 days ago -- we'll filter out sessions in the past further down
+    meetings = data_for_meetings_overview(Meeting.objects.filter(date__gte=today-datetime.timedelta(days=7)).order_by('date'))
 
     assignments = list(SchedTimeSessAssignment.objects.filter(
         schedule__meeting__schedule=F('schedule'),
-        session__in=[s.pk for m in meetings for s in m.sessions]
+        session__in=[s.pk for m in meetings for s in m.sessions],
+        timeslot__time__gte=today,
     ).order_by(
         'schedule__meeting__date', 'session__type', 'timeslot__time'
     ).select_related(

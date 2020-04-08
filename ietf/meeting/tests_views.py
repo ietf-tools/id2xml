@@ -23,7 +23,7 @@ from six.moves.urllib.parse import urlparse
 from django.urls import reverse as urlreverse
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import Client
+from django.test import Client, override_settings
 from django.db.models import F
 
 import debug           # pyflakes:ignore
@@ -39,11 +39,10 @@ from ietf.meeting.models import Session, TimeSlot, Meeting, SchedTimeSessAssignm
 from ietf.meeting.test_data import make_meeting_test_data, make_interim_meeting
 from ietf.meeting.utils import finalize, condition_slide_order
 from ietf.meeting.utils import add_event_info_to_session_qs
-from ietf.meeting.utils import current_session_status
 from ietf.meeting.views import session_draft_list
 from ietf.name.models import SessionStatusName, ImportantDateName
 from ietf.utils.decorators import skip_coverage
-from ietf.utils.mail import outbox, empty_outbox
+from ietf.utils.mail import outbox, empty_outbox, get_payload
 from ietf.utils.test_utils import TestCase, login_testing_unauthorized, unicontent
 from ietf.utils.text import xslugify
 
@@ -1101,6 +1100,24 @@ class SessionDetailsTests(TestCase):
 
         self.assertFalse(q('div.session_buttons#session_%s span.fa-arrows-alt' % session.id),
                         'The session detail page is incorrectly showing the "Show meeting materials" button')
+
+    def test_session_details_past_interim(self):
+        group = GroupFactory.create(type_id='wg',state_id='active')
+        chair = RoleFactory(name_id='chair',group=group)
+        session = SessionFactory.create(meeting__type_id='interim',group=group, meeting__date=datetime.date.today()-datetime.timedelta(days=90))
+        SessionPresentationFactory.create(session=session,document__type_id='draft',rev=None)
+        SessionPresentationFactory.create(session=session,document__type_id='minutes')
+        SessionPresentationFactory.create(session=session,document__type_id='slides')
+        SessionPresentationFactory.create(session=session,document__type_id='agenda')
+
+        url = urlreverse('ietf.meeting.views.session_details', kwargs=dict(num=session.meeting.number, acronym=group.acronym))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn('The materials upload cutoff date for this session has passed', unicontent(r))
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        self.client.login(username=chair.person.user.username,password=chair.person.user.username+'+password')
+        self.assertTrue(all([x in unicontent(r) for x in ('slides','agenda','minutes','draft')]))
         
     def test_add_session_drafts(self):
         group = GroupFactory.create(type_id='wg',state_id='active')
@@ -1268,6 +1285,8 @@ class InterimTests(TestCase):
     def test_interim_send_announcement(self):
         make_meeting_test_data()
         meeting = add_event_info_to_session_qs(Session.objects.filter(meeting__type='interim', group__acronym='mars')).filter(current_status='apprw').first().meeting
+        meeting.time_zone = 'America/Los_Angeles'
+        meeting.save()
         url = urlreverse("ietf.meeting.views.interim_send_announcement", kwargs={'number': meeting.number})
         login_testing_unauthorized(self, "secretary", url)
         r = self.client.get(url)
@@ -1279,6 +1298,8 @@ class InterimTests(TestCase):
         self.assertRedirects(r, urlreverse('ietf.meeting.views.interim_announce'))
         self.assertEqual(len(outbox), len_before + 1)
         self.assertIn('WG Virtual Meeting', outbox[-1]['Subject'])
+        self.assertIn('09:00 to 09:20 America/Los_Angeles', get_payload(outbox[-1]))
+        self.assertIn('(17:00 to 17:20 UTC)', get_payload(outbox[-1]))
 
     def test_interim_approve_by_ad(self):
         make_meeting_test_data()
@@ -1307,13 +1328,14 @@ class InterimTests(TestCase):
         today = datetime.date.today()
         last_week = today - datetime.timedelta(days=7)
         ietf = SessionFactory(meeting__type_id='ietf',meeting__date=last_week,group__state_id='active',group__parent=GroupFactory(state_id='active'))
-        interim = SessionFactory(meeting__type_id='interim',meeting__date=last_week,status_id='canceled',group__state_id='active',group__parent=GroupFactory(state_id='active'))
+        SessionFactory(meeting__type_id='interim',meeting__date=last_week,status_id='canceled',group__state_id='active',group__parent=GroupFactory(state_id='active'))
         url = urlreverse('ietf.meeting.views.past')
         r = self.client.get(url)
         self.assertContains(r, 'IETF - %02d'%int(ietf.meeting.number))
         q = PyQuery(r.content)
-        id="-%s" % interim.group.acronym
-        self.assertIn('CANCELLED', q('[id*="'+id+'"]').text())
+        #id="-%s" % interim.group.acronym
+        #self.assertIn('CANCELLED', q('[id*="'+id+'"]').text())
+        self.assertIn('CANCELLED', q('tr>td>a>span').text())
 
     def test_upcoming(self):
         make_meeting_test_data()
@@ -1325,10 +1347,11 @@ class InterimTests(TestCase):
         r = self.client.get(url)
         self.assertContains(r, mars_interim.number)
         self.assertContains(r, ames_interim.number)
-        self.assertContains(r, 'IETF - 72')
+        self.assertContains(r, 'IETF 72')
         # cancelled session
         q = PyQuery(r.content)
-        self.assertIn('CANCELLED', q('[id*="-ames"]').text())
+#        self.assertIn('CANCELLED', q('[id*="-ames"]').text())
+        self.assertIn('CANCELLED', q('tr>td>a>span').text())
         self.check_interim_tabs(url)
 
     def test_upcoming_ical(self):
@@ -1382,7 +1405,7 @@ class InterimTests(TestCase):
         r = self.client.get("/meeting/interim/request/")
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
-        self.assertEqual(Group.objects.filter(type__in=('wg', 'rg'), state__in=('active', 'proposed')).count(),
+        self.assertEqual(Group.objects.filter(type__in=('wg', 'rg', 'ag'), state__in=('active', 'proposed')).count(),
             len(q("#id_group option")) - 1)  # -1 for options placeholder
         self.client.logout()
 
@@ -1405,7 +1428,7 @@ class InterimTests(TestCase):
         count = person.role_set.filter(name='chair',group__type__in=('wg', 'rg'), group__state__in=('active', 'proposed')).count()
         self.assertEqual(count, len(q("#id_group option")) - 1)  # -1 for options placeholder
 
-    def test_interim_request_single_virtual(self):
+    def do_interim_request_single_virtual(self):
         make_meeting_test_data()
         group = Group.objects.get(acronym='mars')
         date = datetime.date.today() + datetime.timedelta(days=30)
@@ -1447,7 +1470,6 @@ class InterimTests(TestCase):
         session = meeting.session_set.first()
         self.assertEqual(session.remote_instructions,remote_instructions)
         self.assertEqual(session.agenda_note,agenda_note)
-        self.assertEqual(current_session_status(session).slug,'scheda')
         timeslot = session.official_timeslotassignment().timeslot
         self.assertEqual(timeslot.time,dt)
         self.assertEqual(timeslot.duration,duration)
@@ -1458,8 +1480,22 @@ class InterimTests(TestCase):
         self.assertTrue(os.path.exists(path))
         # check notice to secretariat
         self.assertEqual(len(outbox), length_before + 1)
-        self.assertIn('interim meeting ready for announcement', outbox[-1]['Subject'])
+        return meeting
+
+    @override_settings(VIRTUAL_INTERIMS_REQUIRE_APPROVAL = True)
+    def test_interim_request_single_virtual_settings_approval_required(self):
+        meeting = self.do_interim_request_single_virtual()
+        self.assertEqual(meeting.session_set.last().schedulingevent_set.last().status_id,'apprw')
+        self.assertIn('New Interim Meeting Request', outbox[-1]['Subject'])
+        self.assertIn('session-request@ietf.org', outbox[-1]['To'])
+        self.assertIn('aread@example.org', outbox[-1]['Cc'])
+
+    @override_settings(VIRTUAL_INTERIMS_REQUIRE_APPROVAL = False)
+    def test_interim_request_single_virtual_settings_approval_not_required(self):
+        meeting = self.do_interim_request_single_virtual()
+        self.assertEqual(meeting.session_set.last().schedulingevent_set.last().status_id,'scheda')
         self.assertIn('iesg-secretary@ietf.org', outbox[-1]['To'])
+        self.assertIn('interim meeting ready for announcement', outbox[-1]['Subject'])
 
     def test_interim_request_single_in_person(self):
         make_meeting_test_data()
@@ -1720,9 +1756,12 @@ class InterimTests(TestCase):
         # related AD
         user = User.objects.get(username='ad')
         self.assertTrue(can_approve_interim_request(meeting=meeting,user=user))
-        # other AD
+        # AD from other area
         user = User.objects.get(username='ops-ad')
         self.assertFalse(can_approve_interim_request(meeting=meeting,user=user))
+        # AD from other area assigned as the WG AD anyhow (cross-area AD)
+        user = RoleFactory(name_id='ad',group=group).person.user
+        self.assertTrue(can_approve_interim_request(meeting=meeting,user=user))
         # WG Chair
         user = User.objects.get(username='marschairman')
         self.assertFalse(can_approve_interim_request(meeting=meeting,user=user))
@@ -1856,7 +1895,7 @@ class InterimTests(TestCase):
                 'session_set-0-id':meeting.session_set.first().id,
                 'session_set-0-date':formset_initial['date'].strftime('%Y-%m-%d'),
                 'session_set-0-time':new_time.strftime('%H:%M'),
-                'session_set-0-requested_duration':formset_initial['requested_duration'],
+                'session_set-0-requested_duration': '00:30',
                 'session_set-0-remote_instructions':formset_initial['remote_instructions'],
                 #'session_set-0-agenda':formset_initial['agenda'],
                 'session_set-0-agenda_note':formset_initial['agenda_note'],
@@ -2042,6 +2081,20 @@ class IphoneAppJsonTests(TestCase):
     def tearDown(self):
         pass
 
+    def test_iphone_app_json_interim(self):
+        make_meeting_test_data()
+        meeting = Meeting.objects.filter(type_id='interim').order_by('id').last()
+        url = urlreverse('ietf.meeting.views.json_agenda',kwargs={'num':meeting.number})
+        r = self.client.get(url)
+        self.assertEqual(r.status_code,200)
+        data = r.json()
+        self.assertIn(meeting.number, data.keys())
+        jsessions = [ s for s in data[meeting.number] if s['objtype'] == 'session' ]
+        msessions = meeting.session_set.exclude(type__in=['lead','offagenda','break','reg'])
+        self.assertEqual(len(jsessions), msessions.count())
+        for s in jsessions:
+            self.assertTrue(msessions.filter(group__acronym=s['group']['acronym']).exists())
+
     def test_iphone_app_json(self):
         make_meeting_test_data()
         meeting = Meeting.objects.filter(type_id='ietf').order_by('id').last()
@@ -2056,6 +2109,13 @@ class IphoneAppJsonTests(TestCase):
         url = urlreverse('ietf.meeting.views.json_agenda',kwargs={'num':meeting.number})
         r = self.client.get(url)
         self.assertEqual(r.status_code,200)
+        data = r.json()
+        self.assertIn(meeting.number, data.keys())
+        jsessions = [ s for s in data[meeting.number] if s['objtype'] == 'session' ]
+        msessions = meeting.session_set.exclude(type__in=['lead','offagenda','break','reg'])
+        self.assertEqual(len(jsessions), msessions.count())
+        for s in jsessions:
+            self.assertTrue(msessions.filter(group__acronym=s['group']['acronym']).exists())
 
 class FinalizeProceedingsTests(TestCase):
     @patch('six.moves.urllib.request.urlopen')

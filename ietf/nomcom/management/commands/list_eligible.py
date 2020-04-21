@@ -33,8 +33,9 @@ class Command(BaseCommand):
     def list_report(self, list_name, list_instance, **options):
         print ("%s has %d members" % (list_name, len(list_instance)))
         if not options['summary']:
-            list_instance.sort(key=lambda p: p.last_name() )
-            for person in list_instance:
+            forced_list = list(list_instance)
+            forced_list.sort(key=lambda p: p.last_name() )
+            for person in forced_list:
                 print ("    ", person.plain_name())
 
     def handle(self, *args, **options):

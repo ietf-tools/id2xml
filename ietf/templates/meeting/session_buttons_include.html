@@ -6,7 +6,9 @@
 {% origin %}
 
 {% if item.session.agenda %}
-  <button class="btn btn-default btn-xs" data-toggle="modal" data-target="#modal-{{item.slug}}" title="Show meeting materials"><span class="fa fa-arrows-alt"></span></button>
+  {% if not skip_meeting_materials %}
+    <button class="btn btn-default btn-xs" data-toggle="modal" data-target="#modal-{{item.slug}}" title="Show meeting materials"><span class="fa fa-arrows-alt"></span></button>
+  {% endif %}
   <a class="btn btn-default btn-xs" href="/meeting/{{schedule.meeting.number}}/agenda/{{item.session.historic_group.acronym}}-drafts.tgz" title="Download meeting materials as .tar archive"><span class="fa fa-file-archive-o"></span></a>
   <a class="btn btn-default btn-xs" href="/meeting/{{ schedule.meeting.number }}/agenda/{{item.session.historic_group.acronym}}-drafts.pdf" title="Download meeting materials as PDF file"><span class="fa fa-file-pdf-o"></span></a>
 {% endif %}

@@ -1,0 +1,59 @@
+#!/bin/bash
+
+version=0.10
+program=${0##*/}
+progdir=${0%/*}
+if [ "$progdir" = "$program" ]; then progdir="."; fi
+
+function die() { 
+    echo -e "\n$program: Error: ${1:0:160} ..."  >&2
+    exit 1
+}
+
+function warn() { 
+	logger -i -p user.warn -t $program "$*"
+	echo "$program: Warning: $*" 1>&2; 
+}
+
+function note() { 
+	logger -i -p user.notice -t $program "$*"
+	if [ -n "$OPT_VERBOSE" ]; then echo -e "$*"; fi
+}
+
+function version() {  
+	echo -e "$program: v$version\n\nRunning as $(id -urn) on $(date +'%Y-%m-%d %H:%M')"
+}
+
+[ "$1" ] || die "Usage: $program IETFNUMBER"
+
+num=$1
+major=${1%.*}
+if [[ $num =~ \. ]]; then
+   pass
+else
+   major=$((major-1))
+fi
+for part in Sprint SprintSignUp; do
+    prev=$major
+    oldpage="IETF${prev}${part}"
+    newpage="IETF${num}${part}"
+    if ! trac-admin /www/tools.ietf.org/tools/ietfdb wiki export $oldpage /dev/null; then
+	prevold=$oldpage
+	prev="$prev.1"
+	oldpage="IETF${prev}${part}"
+	warn "Could not find $prevold, will try $oldpage"
+    fi
+    if ! trac-admin /www/tools.ietf.org/tools/ietfdb wiki export $oldpage /dev/null; then
+	die "Could not find $oldpage"
+    fi
+    if trac-admin /www/tools.ietf.org/tools/ietfdb wiki export $newpage /dev/null; then
+	echo "Not creating $newpage, it already exists"
+    else
+	echo "Using $oldpage to create $newpage"
+	onum=$prev
+	nnum=$num
+	trac-admin /www/tools.ietf.org/tools/ietfdb wiki export $oldpage > /tmp/$oldpage.wiki || exit
+	sed -r -e "s/$onum/$nnum/g" /tmp/$oldpage.wiki > /tmp/$newpage.wiki
+	trac-admin /www/tools.ietf.org/tools/ietfdb wiki import $newpage /tmp/$newpage.wiki
+    fi
+done

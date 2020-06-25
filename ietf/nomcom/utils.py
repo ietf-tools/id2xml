@@ -24,6 +24,7 @@ from django.utils.encoding import force_str
 
 from ietf.dbtemplate.models import DBTemplate
 from ietf.person.models import Email, Person
+from ietf.meeting.models import Meeting
 from ietf.mailtrigger.utils import gather_address_lists
 from ietf.utils.pipe import pipe
 from ietf.utils.mail import send_mail_text, send_mail, get_payload_text
@@ -473,4 +474,31 @@ def create_feedback_email(nomcom, msg):
 class EncryptedException(Exception):
     pass
 
-    
+def previous_five_meetings(date = datetime.date.today()):
+    return Meeting.objects.filter(type='ietf',date__lte=date).order_by('-date')[:5]
+
+def three_of_five_eligible(date = datetime.date.today(), previous_five = None):
+    """ Return a list of Person records who attended at least 
+        3 of the 5 type_id='ietf' meetings before the given
+        date. Does not disqualify anyone based on held roles.
+    """
+    # It would be nicer if this returned a queryset
+    if not previous_five:
+        previous_five = previous_five_meetings(date)
+    attendees = {}
+    potentials = set()
+    for m in previous_five:
+        registration_emails = m.meetingregistration_set.values_list('email',flat=True)
+        attendees[m] = Person.objects.filter(email__address__in=registration_emails).distinct()
+        # See RFC8713 section 4.15
+        potentials.update(attendees[m])
+    eligible_persons = []
+    for p in potentials:
+        count = 0
+        for m in previous_five:
+            if p in attendees[m]:
+                count += 1
+        if count >= 3:
+            eligible_persons.append(p)  
+    return eligible_persons
+

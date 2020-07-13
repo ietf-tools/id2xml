@@ -1,5 +1,6 @@
 # Copyright The IETF Trust 2020, All Rights Reserved
-import json
+
+#import json 
 
 from django.core.management.base import BaseCommand
 from django.db.models import F

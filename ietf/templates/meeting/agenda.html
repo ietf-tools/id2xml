@@ -155,9 +155,9 @@
           {% for item in filtered_assignments %}
 
             {% ifchanged item.timeslot.time|date:"Y-m-d" %}
-              <tr><th class="gap" colspan="6"></th></tr>
+              <tr><th class="gap" colspan="5"></th></tr>
               <tr class="warning">
-                <th colspan="6">
+                <th colspan="5">
 		   {# The anchor here needs to be in a div, not in the th, in order for the anchor-target margin hack to work #}
 		   <div class="anchor-target" id="{{item.timeslot.time|slugify}}"></div>
 	          {% if "-utc" in request.path %}
@@ -179,7 +179,7 @@
 	              {{item.timeslot.time|date:"G:i"}}-{{item.timeslot.end_time|date:"G:i"}}
 	            {% endif %}
 	          </th>
-	          <th colspan="5">
+	          <th colspan="4">
 	            {% if "-utc" in request.path %}
 	              {{ item.timeslot.utc_start_time|date:"l"}}
 	            {% else %}
@@ -218,6 +218,22 @@
 	            {% endif %}
 	          </td>
                   <td>
+            <div class="pull-right padded-left">
+              {% if item.timeslot.type.slug == 'other' %}
+                {% if item.session.agenda or item.session.remote_instructions or item.session.agenda_note %}
+              {% include "meeting/session_buttons_include.html" with show_agenda=True session=item.session meeting=schedule.meeting %}
+            {% else %}
+              {% for slide in item.session.slides %}
+                <a href="{{slide.get_href}}">{{ slide.title|clean_whitespace }}</a>
+                <br>
+              {% endfor %}
+            {% endif %}
+              {% endif %}
+            </div>
+
+                    {% if item.session.current_status == 'canceled' %}
+              <span class="label label-danger pull-right">CANCELLED</span>
+
 		    {% if item.session.agenda %}
 		      <a href="{{ item.session.agenda.get_href }}">
 			{{item.timeslot.name}}
@@ -226,24 +242,7 @@
 		      {{item.timeslot.name}}
 		    {% endif %}
 
-                    {% if item.session.current_status == 'canceled' %}
-		      <span class="label label-danger pull-right">CANCELLED</span>
 		    {% endif %}
-
-	          </td>
-		  <td class="col-md-2 text-right">
-		    <span class="hidden-xs">
-		      {% if item.timeslot.type.slug == 'other' %}
-		        {% if item.session.agenda or item.session.remote_instructions or item.session.agenda_note %}
-			  {% include "meeting/session_buttons_include.html" with show_agenda=True session=item.session meeting=schedule.meeting %}
-			{% else %}
-			  {% for slide in item.session.slides %}
-			    <a href="{{slide.get_href}}">{{ slide.title|clean_whitespace }}</a>
-			    <br>
-			  {% endfor %}
-			{% endif %}
-		      {% endif %}
-		    </span>
 		  </td>
                 </tr>
             {% endif %}
@@ -272,7 +271,7 @@
 		    </td>
 
 		  {% else %}
-		    <td>
+		    <td class="hidden-xs">
 		      {% with item.timeslot.location.floorplan as floor %}
 		      {% if item.timeslot.location.floorplan %}
 			<a href="{% url 'ietf.meeting.views.floor_plan' num=schedule.meeting.number %}#{{floor.name|xslugify}}"
@@ -303,9 +302,21 @@
                     </td>
                   {% endif %}
 
-                  <td>
+                  <td colspan="2">
+          <div class="pull-right padded-left">
+            {% include "meeting/session_buttons_include.html" with show_agenda=True session=item.session meeting=schedule.meeting %}
+          </div>
+
+                    {% if item.session.historic_group.state_id == "bof" %}
+                      <span class="label label-success pull-right">BOF</span>
+                    {% endif %}
+
+                    {% if item.session.current_status == 'canceled' %}
+                      <span class="label label-danger pull-right">CANCELLED</span>
+                    {% endif %}
+
                     {% if item.session.agenda %}
-		      <a href="{{ item.session.agenda.get_href }}">
+              <a href="{{ item.session.agenda.get_href }}">
                     {% endif %}
                     {% if item.timeslot.type.slug == 'plenary' %}
                       {{item.timeslot.name}}
@@ -316,25 +327,11 @@
                       </a>
                     {% endif %}
 
-                    {% if item.session.historic_group.state_id == "bof" %}
-                      <span class="label label-success pull-right">BOF</span>
-                    {% endif %}
-
-                    {% if item.session.current_status == 'canceled' %}
-                      <span class="label label-danger pull-right">CANCELLED</span>
-                    {% endif %}
-
                     {% if item.session.agenda_note|first_url|conference_url %}
                       <br><a href={{item.session.agenda_note|first_url}}>{{item.session.agenda_note|slice:":23"}}</a>
                     {% elif item.session.agenda_note %}
                       <br><span class="text-danger">{{item.session.agenda_note}}</span>
                     {% endif %}
-
-		  </td>
-		  <td class="text-nowrap text-right">
-		  <span class="hidden-xs">
-		    {% include "meeting/session_buttons_include.html" with show_agenda=True session=item.session meeting=schedule.meeting %}
-		  </span>
 		  </td>
 		</tr>
               {% endif %}

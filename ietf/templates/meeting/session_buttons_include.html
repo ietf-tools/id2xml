@@ -19,9 +19,9 @@
   <!-- etherpad -->
   {% if use_codimd %}
     {% if item.timeslot.type.slug == 'plenary' %}
-      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-plenary title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-plenary title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% else %}
-      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-{{acronym}}" title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-{{acronym}}" title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% endif %}
   {% else %}
     {% if item.timeslot.type.slug == 'plenary' %}

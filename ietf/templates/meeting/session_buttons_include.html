@@ -9,61 +9,61 @@
   {% if session.agenda and show_agenda %}
     {% include "meeting/session_agenda_include.html" %}
     <!-- agenda pop-up button -->
-    <a class="" data-toggle="modal" data-target="#modal-{{item.slug}}" title="Show meeting materials"><span class="fa fa-fw fa-arrows-alt"></span></a>
+    <a {# class="" #} data-toggle="modal" data-target="#modal-{{item.slug}}" title="Show meeting materials"><span class="fa fa-fw fa-arrows-alt"></span></a>
     <!-- materials tar file -->
-    <a class="" href="/meeting/{{meeting.number}}/agenda/{{acronym}}-drafts.tgz" title="Download meeting materials as .tar archive"><span class="fa fa-fw fa-file-archive-o"></span></a>
+    <a {# class="" #} href="/meeting/{{meeting.number}}/agenda/{{acronym}}-drafts.tgz" title="Download meeting materials as .tar archive"><span class="fa fa-fw fa-file-archive-o"></span></a>
     <!-- materials PDF file -->
-    <a class="" href="/meeting/{{ meeting.number }}/agenda/{{acronym}}-drafts.pdf" title="Download meeting materials as PDF file"><span class="fa fa-fw fa-file-pdf-o"></span></a>
+    <a {# class="" #} href="/meeting/{{ meeting.number }}/agenda/{{acronym}}-drafts.pdf" title="Download meeting materials as PDF file"><span class="fa fa-fw fa-file-pdf-o"></span></a>
   {% endif %}
 
   <!-- etherpad -->
   {% if use_codimd %}
     {% if item.timeslot.type.slug == 'plenary' %}
-      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-plenary title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a {# class="" #} href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-plenary title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% else %}
-      <a class="" href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-{{acronym}}" title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a {# class="" #} href="https://codimd.ietf.org/notes-ietf-{{ meeting.number }}-{{acronym}}" title="CodiMD for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% endif %}
   {% else %}
     {% if item.timeslot.type.slug == 'plenary' %}
-      <a class="" href="https://etherpad.ietf.org:9009/p/notes-ietf-{{ meeting.number }}-plenary?useMonospaceFont=true" title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a {# class="" #} href="https://etherpad.ietf.org:9009/p/notes-ietf-{{ meeting.number }}-plenary?useMonospaceFont=true" title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% else %}
-      <a class="" href="https://etherpad.ietf.org:9009/p/notes-ietf-{{ meeting.number }}-{{acronym}}?useMonospaceFont=true" title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
+      <a {# class="" #} href="https://etherpad.ietf.org:9009/p/notes-ietf-{{ meeting.number }}-{{acronym}}?useMonospaceFont=true" title="Etherpad for note-takers"><span class="fa fa-fw fa-edit"></span></a>
     {% endif %}
   {% endif %}
 
   {# show stream buttons up till end of session, then show archive buttons #}
   {% if now < item.timeslot.end_time %}
     <!-- Jabber -->
-    <a class=""
+    <a {# class="" #}
       href="xmpp:{{session.jabber_room_name}}@jabber.ietf.org?join"
       title="Jabber room for {{session.jabber_room_name}}"><span class="fa fa-fw fa-lightbulb-o"></span></a>
     <!-- Video stream (meetecho) -->
     {% if item.timeslot.location.video_stream_url %}
-      <a class=""
+      <a {# class="" #}
         href="{{item.timeslot.location.video_stream_url|format:session }}"
         title="Meetecho video stream"><span class="fa fa-fw fa-video-camera"></span>
       </a>
     {% endif %}
     <!-- Audio stream -->
     {% if item.timeslot.location.audio_stream_url %}
-      <a class=""
+      <a {# class="" #}
         href="{{item.timeslot.location.audio_stream_url|format:session }}"
         title="Audio stream"><span class="glyphicon glyphicon-headphones"></span>
       </a>
     {% endif %}
     <!-- Remote call-in -->
     {% if session.agenda_note|first_url|conference_url %}
-      <a class=""
+      <a {# class="" #}
         href="{{ session.agenda_note|first_url }}"
         title="Online conference"><span class="fa fa-fw fd-group"></span>
       </a>
     {% elif session.remote_instructions|first_url|conference_url %}
-      <a class=""
+      <a {# class="" #}
         href="{{ session.remote_instructions|first_url }}"
         title="Online conference"><span class="fa fa-fw fd-group"></span>
       </a>
     {% elif item.timeslot.location.webex_url %}
-        <a class=""
+        <a {# class="" #}
           href="{{item.timeslot.location.webex_url|format:session }}"
           title="Webex session"><span class="fa fa-fw fd-group"></span>
         </a>
@@ -77,7 +77,7 @@
   {% else %}
     <!-- Jabber logs -->
     {% if meeting.number|add:"0" >= 60 %}
-      <a class="" href="https://www.ietf.org/jabber/logs/{{session.jabber_room_name}}?C=M;O=D" title="Jabber logs for {{session.jabber_room_name}}">
+      <a {# class="" #} href="https://www.ietf.org/jabber/logs/{{session.jabber_room_name}}?C=M;O=D" title="Jabber logs for {{session.jabber_room_name}}">
         <span class="fa-stack-1"><i class="fa fa-fw fa-file-o fa-stack-1x"></i><i class="fa fa-fw fa-lightbulb-o fa-stack-sm"></i></span>
       </a>
     {% endif %}
@@ -89,25 +89,25 @@
           <!-- First, the audio recordings, if any -->
           {% for r in recordings %}
             {% if r.get_href and 'audio' in r.get_href %}
-              <a class="" href="{{ r.get_href }}" title="{{ r.title}}"><span class="fa fa-fw fa-file-audio-o"></span></a>
+              <a {# class="" #} href="{{ r.get_href }}" title="{{ r.title}}"><span class="fa fa-fw fa-file-audio-o"></span></a>
             {% endif %}
           {% endfor %}
           <!-- Then the youtube recordings -->
           {% for r in recordings %}
             {% if r.get_href and 'youtu' in r.get_href %}
-              <a class="" href="{{ r.get_href }}" title="{{ r.title }}"><span class="fa fa-fw fa-file-video-o"></span></a>
+              <a {# class="" #} href="{{ r.get_href }}" title="{{ r.title }}"><span class="fa fa-fw fa-file-video-o"></span></a>
             {% endif %}
           {% endfor %}
           <!-- Finally, any other recordings -->
           {% for r in recordings %}
             {% if r.get_href and not 'audio' in r.get_href and not 'youtu' in r.get_href %}
-              <a class="" href="{{ r.get_href }}" title="{{ r.title }}"><span class="fa fa-fw fa-file-o"></span></a>
+              <a {# class="" #} href="{{ r.get_href }}" title="{{ r.title }}"><span class="fa fa-fw fa-file-o"></span></a>
             {% endif %}
           {% endfor %}
         {% endif %}
       {% endwith %}
       {% if item.timeslot.location.video_stream_url %}
-        <a class=""
+        <a {# class="" #}
           href="http://www.meetecho.com/ietf{{meeting.number}}/recordings#{{acronym.upper}}"
          title="Meetecho session recording"><span class="fd fa-fw fd-meetecho"></span></a>
       {% endif %}

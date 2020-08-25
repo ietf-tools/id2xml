@@ -15,9 +15,10 @@ if python_ver.major == 3 and python_ver.minor < 7:
 from django.core.management.base import BaseCommand
 from django.db.models import Q, Count
 
-from ietf.nomcom.utils import three_of_five_eligible, iab_iesg, actual_volunteers
+from ietf.nomcom.utils import three_of_five_eligible, iab_iesg, actual_volunteers, DISQUALIFYING_ROLE_QUERY_EXPRESSION
 from ietf.meeting.models import Meeting
 from ietf.person.models import Person
+from ietf.group.models import Role
 
 
 class Command(BaseCommand):
@@ -38,6 +39,7 @@ class Command(BaseCommand):
         parser.add_argument('--rfc_date', dest='rfc_date', type=datetime.date.fromisoformat, default = five_years_ago, help="Was an author of some IETF stream RFCs since date")
         parser.add_argument('--rfc_count', dest='rfc_count', type=int, default = 2, help="Was an author of at least this many IETF stream rfcs")
         parser.add_argument('--file_out', dest='file_out', default = 'elig', help="Provide the base of a file name for list outputs")
+        parser.add_argument('--disqualify', dest='disqualify', action='store_true', help='Disqualify people as per RFC8713 section 4.15')
 
     def list_report(self, list_name, list_instance, **options):
         print ("%s has %d members" % (list_name, len(list_instance)))
@@ -67,6 +69,7 @@ class Command(BaseCommand):
             previous_five = None
             print ("Using the five meetings before", date)
 
+
         list1 = three_of_five_eligible(date, previous_five)
 
         list2 = Person.objects.filter(
@@ -84,61 +87,43 @@ class Command(BaseCommand):
         ).distinct()
 
                 
-        # This is broken - it's not returning past members accurately
-        #
-        # list4 = Person.objects.filter(
-        #             Q(role__name_id__in=['member'],
-        #               role__group__acronym='iab',
-        #             ) 
-        #           | Q(role__name='ad',
-        #               role__group__type_id='area',
-        #               role__group__state_id='active',
-        #               role__name_id='ad',
-        #             )
-        #           | Q(rolehistory__group__acronym='iab',
-        #               rolehistory__group__time__gte=options['iesg_iab_date'],
-        #               rolehistory__name_id__in='member',
-        #             )
-        #           | Q(rolehistory__group__type_id='area',
-        #               rolehistory__group__time__gte=options['iesg_iab_date'],
-        #               rolehistory__name_id='ad',
-        #             )
-        # ).distinct()
+        list3 = iab_iesg(options['iesg_iab_date'],datetime.date.today())
 
-        list4 = iab_iesg(options['iesg_iab_date'],datetime.date.today())
-
-        list5 = Person.objects.filter(
-            documentauthor__document__stream_id='ietf' ,
-            documentauthor__document__docevent__type='published_rfc', 
-            documentauthor__document__docevent__time__gte=options['rfc_date']
+        list4 = Person.objects.filter(documentauthor__document__stream_id='ietf',documentauthor__document__type_id='draft').filter(
+            Q (documentauthor__document__docevent__type='published_rfc', 
+               documentauthor__document__docevent__time__gte=options['rfc_date']) | 
+            Q (documentauthor__document__docevent__type='iesg_approved',
+               documentauthor__document__docevent__time__gte=options['rfc_date'])
         ).annotate(
             document_author_count = Count('documentauthor')
         ).filter(document_author_count__gte=options['rfc_count']).distinct()
 
-        union245 = list( set(list2) | set(list4) | set(list5) )
-        intersect_1_union245 = list( set(list1) & set(union245) )
+        if options['disqualify']:
+            disqualified_roles=Role.objects.filter(DISQUALIFYING_ROLE_QUERY_EXPRESSION)
+            disqualified_pks=list(set(disqualified_roles.values_list('person__pk',flat=True)))
+            list1 = [p for p in list1 if p.pk not in disqualified_pks]
+            list2 = list2.exclude(pk__in=disqualified_pks)
+            list3 = list3.exclude(pk__in=disqualified_pks)
+            list4 = list4.exclude(pk__in=disqualified_pks)
 
-        volunteers = actual_volunteers(options['date'].year)
+        union234 = set(list2) | set(list3) | set(list4)
+        volunteers = actual_volunteers(date.year)
         list1_intersect_volunteers = list(set(list1) & set(volunteers))
-        union245_intersect_volunteers = list(set(union245) & set(volunteers))
-        intersect_1_union245_volunteers = list(set(intersect_1_union245) & set(volunteers))
+        union234_intersect_volunteers = list(set(union234) & set(volunteers))
+        list1_intersect_union234 = list(set(list1) & set(union234))
+        list1_intersect_union234_intersect_volunteers = list(set(list1) & set(union234) & set(volunteers))
 
         self.list_report("List1", list1, **options)
         self.list_report("List2", list2, **options)
-        self.list_report("List2-i", list(set(list2)-set(list1)), **options)
-        self.list_report("List2-ii", list(set(list1)-set(list2)), **options)
+        self.list_report("List3", list3, **options)
         self.list_report("List4", list4, **options)
-        self.list_report("List4-i", list( set(list4) - set(list1).union(set(list2)) ), **options)
-        self.list_report("List4-ii", list( set(list1).union(set(list2)) - set(list4)) , **options)
-        self.list_report("List5", list5, **options)
-        self.list_report("List5-i", list( set(list5) - set(list2).union(set(list1)) ), **options)
-        self.list_report("List5-ii", list( set(list2).union(set(list1)) - set(list5) ), **options)
 
+        self.list_report("Volunteers in "+str(date.year), volunteers, **options )
 
-        self.list_report("union245", union245, **options )
-        self.list_report("List1_intersect_union245 ", intersect_1_union245, **options )
-        self.list_report("Volunteers in "+str(options['date'].year), volunteers, **options )
+        self.list_report("union234 ", union234, **options )
+
+        self.list_report("List1_intersect_union234 ", list1_intersect_union234, **options )
         self.list_report("List1_intersect_volunteers", list1_intersect_volunteers, **options )
-        self.list_report("union245_intersect_volunteers", union245_intersect_volunteers, **options )
-        self.list_report("intersect_1_union245_volunteers", intersect_1_union245_volunteers, **options )
+        self.list_report("union234_intersect_volunteers", union234_intersect_volunteers, **options )
+        self.list_report("List1_intersect_union234_intersect_volunteers", list1_intersect_union234_intersect_volunteers, **options )
 

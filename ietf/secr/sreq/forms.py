@@ -74,12 +74,12 @@ class NameModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
     
 class SessionForm(forms.Form):
-    num_session = forms.ChoiceField(choices=NUM_SESSION_CHOICES)
-    length_session1 = forms.ChoiceField(choices=LENGTH_SESSION_CHOICES)
+    num_session = forms.ChoiceField(choices=NUM_SESSION_CHOICES,required=False)
+    length_session1 = forms.ChoiceField(choices=LENGTH_SESSION_CHOICES,required=False)
     length_session2 = forms.ChoiceField(choices=LENGTH_SESSION_CHOICES,required=False)
     session_time_relation = forms.ChoiceField(choices=SESSION_TIME_RELATION_CHOICES, required=False)
     length_session3 = forms.ChoiceField(choices=LENGTH_SESSION_CHOICES,required=False)
-    attendees = forms.IntegerField()
+    attendees = forms.IntegerField(required=False)
     # FIXME: it would cleaner to have these be
     # ModelMultipleChoiceField, and just customize the widgetry, that
     # way validation comes for free
@@ -212,7 +212,7 @@ class SessionForm(forms.Form):
 
 class VirtualSessionForm(SessionForm):
     '''A SessionForm customized for special virtual meeting requirements'''
-    length_session1 = forms.ChoiceField(choices=VIRTUAL_LENGTH_SESSION_CHOICES)
+    length_session1 = forms.ChoiceField(choices=VIRTUAL_LENGTH_SESSION_CHOICES,required=False)
     length_session2 = forms.ChoiceField(choices=VIRTUAL_LENGTH_SESSION_CHOICES,required=False)
     length_session3 = forms.ChoiceField(choices=VIRTUAL_LENGTH_SESSION_CHOICES,required=False)
     attendees = forms.IntegerField(required=False)

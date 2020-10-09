@@ -682,6 +682,10 @@ def new(request, acronym):
             return redirect('ietf.secr.sreq.views.main')
 
         form = FormClass(group, request.POST)
+
+        if form.data.get('num_session',None) == "" or form.data.get('length_session1',None) == "":
+            return redirect('ietf.secr.sreq.views.main')
+
         if form.is_valid():
             return confirm(request, acronym)
 

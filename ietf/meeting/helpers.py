@@ -237,6 +237,9 @@ def preprocess_assignments_for_agenda(assignments_queryset, meeting, extra_prefe
             d.get_href(meeting=meeting)
             d.get_versionless_href(meeting=meeting)
 
+        a.start_time = int(a.timeslot.utc_start_time().timestamp())
+        a.end_time = int(a.timeslot.utc_end_time().timestamp())
+
     return assignments
 
 def read_session_file(type, num, doc):

@@ -48,7 +48,13 @@
       {% load cache %}
       {% cache cache_time ietf_meeting_agenda_utc schedule.meeting.number request.path %}
         <h1>Agenda</h1>
-
+        <div id="timezone">Timezone:
+	   <select id="timezone_select"></select>
+	   <button id="meeting-timezone" onclick="use_timezone(0)">Meeting Timezone</button>
+	   <button id="local-timezone" onclick="use_timezone(1)">Local Timezone</button>
+	   <button id="utc-timezone" onclick="use_timezone(2)">UTC</button>
+	   <span id="current-time"></span>
+	</div>
       {% if is_current_meeting %}
 	<p class="alert alert-info">
 	  <b>Note:</b> IETF agendas are subject to change, up to and during a meeting.
@@ -92,19 +98,17 @@
                 <th colspan="5">
 		   {# The anchor here needs to be in a div, not in the th, in order for the anchor-target margin hack to work #}
 		   <div class="anchor-target" id="{{item.timeslot.time|slugify}}"></div>
-	          {% if "-utc" in request.path %}
-	            {{ item.timeslot.utc_start_time|date:"l, F j, Y" }} (UTC)
-	          {% else %}
-	            {{ item.timeslot.time|date:"l, F j, Y" }} ({{item.timeslot.tzname}})
-	          {% endif %}
+	            {{ item.timeslot.time|date:"l, F j, Y" }}
 	        </th>
               </tr>
             {% endifchanged %}
 
             {% if item.timeslot.type_id == 'regular' %}
               {% ifchanged %}
-                <tr class="info">
-	          <th class="text-nowrap text-right">
+                <tr class="info"
+                    slot_start="{{item.start_time}}"
+                    slot_end="{{item.end_time}}">
+                  <th class="text-nowrap text-right">
                     <span class="hidden-xs">
                        {% include "meeting/timeslot_start_end.html" %}
                     </span>
@@ -113,11 +117,7 @@
                     <span class="hidden-sm hidden-md hidden-lg">
                        {% include "meeting/timeslot_start_end.html" %}
                     </span>
-	            {% if "-utc" in request.path %}
-	              {{ item.timeslot.utc_start_time|date:"l"}}
-	            {% else %}
-	              {{ item.timeslot.time|date:"l"}}
-	            {% endif %}
+	            {{ item.timeslot.time|date:"l"}}
 	            {{item.timeslot.name|capfirst_allcaps}}
 	          </th>
                 </tr>
@@ -126,6 +126,8 @@
 
             {% if item.timeslot.type.slug == 'break' or item.timeslot.type.slug == 'reg' or item.timeslot.type.slug == 'other' %}
                 <tr id="row-{{ item.slug }}"
+                    slot_start="{{item.start_time}}"
+                    slot_end="{{item.end_time}}"
                     data-item-group="{% if item.session.historic_group %}{{ item.session.historic_group.acronym }}{% endif %}"
                     data-item-area="{% if item.session.historic_group and item.session.historic_group.historic_parent %}{{ item.session.historic_group.historic_parent.acronym }}{% endif %}"
                     data-timeslot-type="{{item.timeslot.type.slug}}">
@@ -188,6 +190,8 @@
             {% if item.timeslot.type_id == 'regular' or item.timeslot.type.slug == 'plenary' %}
               {% if item.session.historic_group %}
                 <tr id="row-{{item.slug}}"
+                    slot_start="{{item.start_time}}"
+                    slot_end="{{item.end_time}}"
                     data-item-group="{{ item.session.historic_group.acronym }}"
                     data-item-area="{% if item.session.historic_group.historic_parent %}{{ item.session.historic_group.historic_parent.acronym }}{% endif  %}"
                     data-timeslot-type="{{item.timeslot.type.slug}}"
@@ -277,11 +281,13 @@
                         RESCHEDULED
                         {% if item.session.rescheduled_to %}
                           TO
+                          <span class="timetooltip reschedtimetooltip"><span class="time" start_time="{{item.session.rescheduled_to.utc_start_time|date:"U"}}" end_time="{{item.session.rescheduled_to.utc_end_time|date:"U"}}" {% if item.timeslot.time|date:"l" != item.session.rescheduled_to.time|date:"l" %} weekday="1"{% endif %}>
 		          {% if "-utc" in request.path %}
                             {{ item.session.rescheduled_to.utc_start_time|date:"l G:i"|upper }}-{{ item.session.rescheduled_to.utc_end_time|date:"G:i" }}
 		          {% else %}
                             {{ item.session.rescheduled_to.time|date:"l G:i"|upper }}-{{ item.session.rescheduled_to.end_time|date:"G:i" }}
 		          {% endif %}
+			  </span></span>
                         {% endif %}
                       </span>
                     {% endif %}
@@ -301,6 +307,7 @@
     </div>
     <div class="col-md-2 hidden-print bs-docs-sidebar" id="affix">
       <ul class="nav nav-pills nav-stacked small" data-spy="affix">
+        <li><a href="#now">Now</a></li>
         {% for item in filtered_assignments %}
           {% ifchanged item.timeslot.time|date:"Y-m-d" %}
             <li><a href="#{{item.timeslot.time|slugify}}">{{ item.timeslot.time|date:"l, F j, Y" }}</a></li>
@@ -429,5 +436,251 @@
            });
        }
    });
+   </script>
+   <script src="{% static 'moment/moment.min.js' %}"></script>
+   <script src="{% static 'moment/moment-timezone-with-data-10-year-range.min.js' %}"></script>
+   <script>
+
+   // Initialize moments
+   function initialize_moments() {
+     var times=$('span.time')
+     $.each(times, function(i, item) {
+       item.start_time = moment.unix(this.getAttribute("start_time")).utc();
+       item.end_time = moment.unix(this.getAttribute("end_time")).utc();
+       if (this.hasAttribute("weekday")) {
+         item.format=2;
+       } else {
+         item.format=1;
+       }
+     });
+     var times=$('[slot_start]')
+     $.each(times, function(i, item) {
+       item.slot_start = moment.unix(this.getAttribute("slot_start")).utc();
+       item.slot_end = moment.unix(this.getAttribute("slot_end")).utc();
+     });
+   }
+   
+   // Initialize timezone system
+   function timezone_init(current) {
+     var tz_names = moment.tz.names();
+     var select = $('#timezone_select');
+
+     $.each(tz_names, function(i, item) {
+       if (current == item) {
+         select.append($('<option/>', {
+           selected: "selected", html: item, value: item }));
+       } else {
+         select.append($('<option/>', {
+           html: item, value: item }));
+       }
+     });
+     initialize_moments();
+     select.change(function () {
+       update_times(this.value);
+     });
+     update_times(current);
+     add_tooltips();
+   }
+
+   // Select which timezone is used, 0 = meeting, 1 = browser local, 2 = UTC
+   function use_timezone (val) {
+     switch (val) {
+     case 0:
+       tz = meeting_timezone;
+       break;
+     case 1:
+       tz = local_timezone;
+       break;       
+     default:
+       tz = 'UTC';
+       break;
+     }
+     $('#timezone_select').val(tz);
+     update_times(tz);
+   }
+
+   // Format time for item for timezone. If short is true, then use short format
+   function format_time(t, tz, fmt) {
+     var out;
+
+     switch (fmt) {
+     case 0:
+       out = t.tz(tz).format('dddd, ') + '<span class="hidden-xs">' +
+	   t.tz(tz).format('MMMM Do YYYY, ') + '</span>' +
+	   t.tz(tz).format('HH:mm') + '<span class="hidden-xs">' +
+	   t.tz(tz).format(' Z z') + '</span>';
+       break;
+     case 1:
+       out = t.tz(tz).format("HH:mm");
+       if (+t.tz(tz).date() < +t.tz(meeting_timezone).date()) {
+         out = out + " (-1)";
+       } else if (+t.tz(tz).date() > +t.tz(meeting_timezone).date()) {
+         out = out + " (+1)";
+       }
+       break;
+     case 2:
+       out = t.tz(meeting_timezone).format("dddd, ").toUpperCase() +
+         t.tz(tz).format("HH:mm");
+       if (+t.tz(tz).date() < +t.tz(meeting_timezone).date()) {
+         out = out + " (-1)";
+       } else if (+t.tz(tz).date() > +t.tz(meeting_timezone).date()) {
+         out = out + " (+1)";
+       }
+       break;
+     }
+     return out;
+   }
+
+
+   // Format tooltip notice
+   function format_tooltip_notice(start, end) {
+     var notice = "";
+
+     if (end.isBefore()) {
+       notice = "Event ended " + end.fromNow();
+     } else if (start.isAfter()) {
+       notice = "Event will start " + start.fromNow();
+     } else {
+       notice = "Event started " + start.fromNow() + " and will end " +
+         end.fromNow();
+     }
+     return '<span class="tooltipnotice">' + notice + '</span>';
+   }
+
+   // Format tooltip table
+   function format_tooltip_table(start, end) {
+     return '<table><tr><th>Timezone</th><th>Start</th><th>End</th></tr>' +
+       '<tr><td class="timehead">Meeting timezone:</td><td>' + 
+       format_time(start, meeting_timezone, 0) + '</td><td>' +
+       format_time(end, meeting_timezone, 0) + '</td></tr>' +
+       '<tr><td class="timehead">Local timezone:</td><td>' + 
+       format_time(start, local_timezone, 0) + '</td><td>' +
+       format_time(end, local_timezone, 0) + '</td></tr>' +
+       '<tr><td class="timehead">Selected Timezone:</td><td>' + 
+       format_time(start, current_timezone, 0) + '</td><td>' +
+       format_time(end, current_timezone, 0) + '</td></tr>' +
+       '<tr><td class="timehead">UTC:</td><td>' + 
+       format_time(start, 'UTC', 0) + '</td><td>' +
+       format_time(end, 'UTC', 0) + '</td></tr>' +
+       '</table>' +
+       format_tooltip_notice(start, end);
+   }
+   
+   // Format tooltip for item
+   function format_tooltip(start, end) {
+     return '<span class="timetooltiptext">' +
+       format_tooltip_table(start, end) +
+       '</span>';
+   }
+
+   // Add tooltips
+   function add_tooltips() {
+     $('span.time').each(function () {
+       var tooltip = $(format_tooltip(this.start_time, this.end_time));
+       tooltip[0].start_time = this.start_time;
+       tooltip[0].end_time = this.end_time;
+       tooltip[0].ustart_time = moment(this.start_time).add(-2, 'hours');
+       tooltip[0].uend_time = moment(this.end_time).add(2, 'hours');
+       $(this).parent().append(tooltip);
+     });
+   }
+
+   // Update times on the agenda based on the selected timezone
+   function update_times(newtz) {
+     current_timezone = newtz;
+     $('span.time').each(function () {
+       $(this).html(format_time(this.start_time, newtz, this.format) + '-' +
+         format_time(this.end_time, newtz, 1));
+     });
+     update_tooltips_all();
+     update_clock();
+    }
+
+   // Highlight ongoing based on the current time
+   function highlight_ongoing() {
+     $("div").remove("#now");
+     var agenda_rows=$('[slot_start]')
+     agenda_rows.removeClass("ongoing");
+     agenda_rows = agenda_rows.filter(function() {
+         return moment().isBetween(this.slot_start, this.slot_end);
+       });
+     agenda_rows.addClass("ongoing");
+     agenda_rows.first().children("th, td").
+       prepend($('<div id="now" class="anchor-target"></div>'));
+   }
+
+   // Update tooltips
+   function update_tooltips() {
+     var tooltips=$('.timetooltiptext');
+     tooltips.filter(function() {
+       return moment().isBetween(this.ustart_time, this.uend_time);
+     }).each(function () {
+       $(this).html(format_tooltip_table(this.start_time, this.end_time));
+     });
+   }
+
+   // Update all tooltips
+   function update_tooltips_all() {
+     var tooltips=$('.timetooltiptext');
+     tooltips.each(function () {
+       $(this).html(format_tooltip_table(this.start_time, this.end_time));
+     });
+   }
+   
+   // Update clock
+   function update_clock() {
+     $('#current-time').html(format_time(moment(), current_timezone, 0));
+   }
+
+   // This should be if debug, that does not work.
+   {% if True %}
+
+   $.urlParam = function(name) {
+     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+     if (results == null) {
+       return null;
+     } else {
+       return results[1] || 0;
+     }
+   }
+
+   speedup = +$.urlParam('speedup');
+   if (speedup < 1) {
+     speedup = 1;
+   }
+   start_time = moment().utc();
+   if ($.urlParam('date')) {
+     offset_time = moment.tz(decodeURIComponent($.urlParam('date')), "UTC");
+   } else {
+     offset_time = start_time;
+   }
+   if (speedup > 1 || offset_time != start_time) {
+     moment.now = function () {
+       return (+new Date() - start_time) * speedup + offset_time;
+     }
+   }
+   {% else %}
+   speedup = 1;
+   {% endif %}
+
+   // Get meeting and local times, initialize timezone system
+   meeting_timezone = "{{timezone}}";
+   local_timezone = moment.tz.guess();
+   current_timezone = 'UTC';
+   {% if "-utc" in request.path %}
+   timezone_init('UTC');
+   {% else %}
+   timezone_init(meeting_timezone);
+   {% endif %}
+
+   function init_timers() {
+     update_clock();
+     highlight_ongoing();
+     setInterval(function() { update_clock(); }, 60000 / speedup);
+     setInterval(function() { highlight_ongoing(); }, 60000 / speedup);
+     setInterval(function() { update_tooltips(); }, 60000 / speedup);
+     setInterval(function() { update_tooltips_all(); }, 3600000 / speedup);
+  }
+  init_timers();
   </script>
 {% endblock %}

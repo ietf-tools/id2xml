@@ -1374,6 +1374,7 @@ def agenda(request, num=None, name=None, base=None, ext=None, owner=None, utc=""
         "updated": updated,
         "group_parents": group_parents,
         "now": datetime.datetime.now(),
+        "timezone": meeting.time_zone,
         "is_current_meeting": is_current_meeting,
         "use_codimd": True if meeting.date>=settings.MEETING_USES_CODIMD_DATE else False,
         "cache_time": 150 if is_current_meeting else 3600,

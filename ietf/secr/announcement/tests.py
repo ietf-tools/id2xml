@@ -73,7 +73,7 @@ class UnauthorizedAnnouncementCase(TestCase):
         self.client.login(username=person.user.username, password=person.user.username+"+password")
         r = self.client.get(url)
         self.assertEqual(r.status_code, 403)
-    
+
 class SubmitAnnouncementCase(TestCase):
     def test_invalid_submit(self):
         "Invalid Submit"
@@ -84,7 +84,22 @@ class SubmitAnnouncementCase(TestCase):
         self.assertEqual(r.status_code, 200)
         q = PyQuery(r.content)
         self.assertTrue(len(q('form ul.errorlist')) > 0)
-        
+
+    def test_invalid_submit_non_ascii(self):
+        "Invalid Submit Non-ASCII"
+        url = reverse('ietf.secr.announcement.views.main')
+        post_data = {'to': 'IETF Announcement List &lt;ietf-announce@ietf.org&gt;',
+                     'to_custom': '',
+                     'frm': 'IETF Secretariat &lt;ietf-secretariat@ietf.org&gt;',
+                     'cc': 'bob@example.com,\xa0joe@example.com',
+                     'subject': 'Test Subject',
+                     'body': 'This is a test.'}
+        self.client.login(username="secretary", password="secretary+password")
+        r = self.client.post(url, post_data)
+        self.assertEqual(r.status_code, 200)
+        q = PyQuery(r.content)
+        self.assertTrue(len(q('form ul.errorlist')) > 0)
+
     def test_valid_submit(self):
         "Valid Submit"
         nomcom_test_data()

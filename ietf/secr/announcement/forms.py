@@ -77,7 +77,8 @@ class AnnounceForm(forms.ModelForm):
 
     class Meta:
         model = Message
-        fields = ('nomcom', 'to','to_custom','frm','cc','bcc','reply_to','subject','body')
+        fields = ('nomcom', 'to', 'to_custom', 'frm', 'cc', 'bcc', 'reply_to',
+            'subject', 'body')
 
     def __init__(self, *args, **kwargs):
         if 'hidden' in kwargs:
@@ -116,6 +117,22 @@ class AnnounceForm(forms.ModelForm):
             data[k] = unescape(data[k])
 
         return data
+
+    def clean_cc(self):
+        cc = self.cleaned_data['cc']
+        try:
+            cc.encode('ascii')
+        except UnicodeEncodeError:
+            raise forms.ValidationError('Must use only ASCII characters')
+        return cc
+
+    def clean_bcc(self):
+        bcc = self.cleaned_data['cc']
+        try:
+            bcc.encode('ascii')
+        except UnicodeEncodeError:
+            raise forms.ValidationError('Must use only ASCII characters')
+        return bcc
 
     def save(self, *args, **kwargs):
         user = kwargs.pop('user')

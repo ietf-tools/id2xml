@@ -127,7 +127,7 @@ class AnnounceForm(forms.ModelForm):
         return cc
 
     def clean_bcc(self):
-        bcc = self.cleaned_data['cc']
+        bcc = self.cleaned_data['bcc']
         try:
             bcc.encode('ascii')
         except UnicodeEncodeError:

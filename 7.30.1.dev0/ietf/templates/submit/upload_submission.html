@@ -1,0 +1,70 @@
+{% extends "submit/submit_base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin %}
+{% load ietf_filters %}
+{% load bootstrap3 %}
+
+{% block title %}Upload{% endblock %}
+
+{% block submit_content %}
+  {% origin %}
+  {% if form.shutdown and user|has_role:"Secretariat" %}
+  <p class="bg-warning">WARNING: currently in draft submission blackout period</p>
+  {% endif %}
+  
+  <p>This page is used to submit Internet-Drafts to the Internet-Draft repository.</p>
+  
+  {% if form.cutoff_warning %}
+    <div class="cutoff-warning">
+      {{ form.cutoff_warning|safe }}
+    </div>
+  {% endif %}
+
+  {% if not form.shutdown or user|has_role:"Secretariat" %}
+    <p>
+      By submitting your I-D, you are granting some rights to the IETF Trust.  Before you submit your I-D,
+      review the information on the NOTE WELL tab and <a href="{% url 'ietf.doc.views_doc.document_html' name='rfc5378' %}">BCP 78</a>,
+      "Rights Contributors Provide to the IETF Trust".
+    </p>
+
+    <p>
+      Before you submit your I-D, it is recommended that you check it for nits
+      using the <b><a href="{{settings.IDNITS_BASE_URL}}">idnits tool</a></b>.
+    </p>
+    
+    {% include "submit/problem-reports-footer.html" %}
+
+      <h2>Upload an Internet-Draft</h2>
+
+      <p>
+	 <i>
+            The best way to submit an Internet-Draft is to provide a single v3 .xml source file.
+            The datatracker will generate the .txt and other formats from that file.
+            <br/>
+            Source v3 .xml which include external files must be preprocessed through xml2rfc with
+            the <tt>--expand</tt> option, to produce a completely expanded (standalone) .xml source 
+            file for upload. 
+            <br/>
+            The <a href="{{settings.XML2RFC_BASE_URL}}">online conversion tool</a> can be used to
+            convert v2 .xml documents to v3. 
+            <br/>
+            A single v3 .xml source is preferred. A single v2 .xml source will be accepted. If
+            neither of those are available, a plain-text document may be provided. One of these
+            three options <b>must</b> be provided.
+            <br/>
+            Other file types are optional.
+         </i>
+      </p>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% bootstrap_form form %}
+
+        {% buttons %}
+          <input class="btn btn-primary" type="submit" value="Upload" name="upload">
+        {% endbuttons %}
+      </form>
+  {% endif %}
+
+{% endblock %}

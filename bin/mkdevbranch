@@ -208,30 +208,15 @@ fi
 
 while true; do
     case "$1" in
-    -h | --help)
-        usage
-        exit
-        ;; # Show this help, then exit
-    -m | --meeting)
-        num=$2
-        shift
-        ;; # Specify the IETF meeting number
-    -M | --message)
-        msg=$2
-        shift
-        ;; # Specify extra message text
+    -h | --help)    usage; exit ;; # Show this help, then exit
+    -m | --meeting) num=$2; shift ;; # Specify the IETF meeting number
+    -M | --message) msg=$2; shift ;; # Specify extra message text
     -n | --dry-run) do="echo -- ==>" ;; # Only show what would be done
-    -s | --sprint) SPRINT=1 ;; # Make branches for sprint sign-ups
+    -s | --sprint)  SPRINT=1 ;; # Make branches for sprint sign-ups
     -v | --verbose) VERBOSE=1 ;; # Be more talkative
-    -V | --version)
-        version
-        exit
-        ;; # Show program version, then exit
-    --)
-        shift
-        break
-        ;;
-    *) die "Internal error, inconsistent option specification: '$1'" ;;
+    -V | --version) version; exit ;; # Show program version, then exit
+    --)             shift; break ;;
+    *)              die "Internal error, inconsistent option specification: '$1'" ;;
     esac
     shift
 done

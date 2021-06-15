@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=0.10
+version=0.20
 program=${0##*/}
 progdir=${0%/*}
 if [ "$progdir" = "$program" ]; then progdir="."; fi
@@ -26,7 +26,7 @@ DESCRIPTION
 	datatracker in development mode.  It uses docker/Dockerfile;
 	i.e., the Dockerfile in the same directory as this script.
 	It assumes that the user has upload rights for the docker
-	ietf/datatracker-environment repository, in order to push the
+	repository, in order to push the
 	image.
 
 EOF
@@ -80,9 +80,9 @@ shortopts=hlt:vV
 longopts=help,local,tag=,verbose,version
 
 # Default values
-BRANCH=$(svn log -v ^/tags -l 2 | grep 'A /tags/[1-9]' | awk '{print $2}')
-TAG=${BRANCH##*/}
+TAG=$(basename $(svn info $parent | grep ^URL | awk '{print $2}'))
 LOCAL=""
+REPO=ietf/datatracker-environment
 
 if   [ "$(uname)" = "Linux" ]; then
     args=$(getopt -o "$shortopts" --long "$longopts" -n '$program' -- $SV "$@")
@@ -117,10 +117,10 @@ if [ "$(uname)" == "Linux" ]; then
     die "Didn't expect to run this script on Linux -- are you inside docker?"
 fi
 
-docker rmi -f ietf/datatracker-environment:trunk || true
-docker build -t ietf/datatracker-environment:$TAG docker/
-docker tag $(docker images -q ietf/datatracker-environment | head -n 1) ietf/datatracker-environment:latest
+docker rmi -f $REPO:trunk || true
+docker build -t $REPO:$TAG docker/
+docker tag $(docker images -q $REPO | head -n 1) $REPO:latest
 if [ -z "$LOCAL" ]; then
-    docker push ietf/datatracker-environment:latest
-    docker push ietf/datatracker-environment:$TAG
+    docker push $REPO:latest
+    docker push $REPO:$TAG
 fi

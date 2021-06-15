@@ -28,7 +28,7 @@ if [ ! -d "$MYSQLDIR/ietf_utf8" ]; then
 fi
 
 echo "Setting up a default settings_local.py ..."
-cp docker/settings_local.py "$HOME/ietf/settings_local.py"
+cp docker/settings_local.py "/root/src/ietf/settings_local.py"
 
 for sub in \
     test/id \
@@ -57,7 +57,7 @@ for sub in \
     data/developers/www6/iesg \
     data/developers/www6/iesg/evaluation \
     ; do
-    dir="$HOME/$sub"
+    dir="/root/src/$sub"
     if [ ! -d "$dir"  ]; then
         echo "Creating dir $dir"
         mkdir -p "$dir";
@@ -65,12 +65,12 @@ for sub in \
     fi
 done
 
-if [ ! -f "$HOME/test/data/draft-aliases" ]; then
+if [ ! -f "/root/src/test/data/draft-aliases" ]; then
     echo "Generating draft aliases ..."
     ietf/bin/generate-draft-aliases
 fi
 
-if [ ! -f "$HOME/test/data/group-aliases" ]; then
+if [ ! -f "/root/src/test/data/group-aliases" ]; then
     echo "Generating group aliases ..."
     ietf/bin/generate-wg-aliases
 fi

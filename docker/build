@@ -117,8 +117,8 @@ if [ "$(uname)" == "Linux" ]; then
     die "Didn't expect to run this script on Linux -- are you inside docker?"
 fi
 
-docker rmi -f $REPO:trunk || true
-docker build -t $REPO:$TAG docker/
+docker rmi -f $REPO:latest || true
+docker build --progress=plain --pull --tag $REPO:$TAG docker/
 docker tag $(docker images -q $REPO | head -n 1) $REPO:latest
 if [ -z "$LOCAL" ]; then
     docker push $REPO:latest

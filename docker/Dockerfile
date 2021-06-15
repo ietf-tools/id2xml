@@ -1,17 +1,14 @@
-# This file is a docker (https://www.docker.com/what-docker) recipe, which can
-# be used to build a docker image which is ready to run a datatracker in
-# development mode.
+# This file is a Docker (https://www.docker.com/why-docker) recipe, which can
+# be used to run a datatracker in development mode.
 #
-# It is used to build an image (once you've installed docker) using a command
-# like this (assuming suitable replacement of $variables):
-#
-# $ docker build -t ietf/datatracker:latest .
+# The "build" script in this directory can be used to build a Docker image for
+# the current branch locally.
 #
 # To use a pre-built image, assuming we have a checked-out datatracker
-# repository at /home/me/src/6.8.1.dev0, you would start (again assuming you've
-# installed docker) a container from an image, as follows:
+# repository at /datatracker/6.8.1.dev0, you would start a container from an
+# image, as follows:
 #
-# $ docker run -ti -v /home/me/src/6.8.1.dev0:/root ietf/datatracker:latest
+# $ docker run -ti -v /datatracker/6.8.1.dev0:/root/src ietf/datatracker:latest
 
 FROM ubuntu:latest
 LABEL maintainer="IETF Tools Team <tools-discuss@ietf.org>"
@@ -19,35 +16,38 @@ LABEL maintainer="IETF Tools Team <tools-discuss@ietf.org>"
 # Default django runserver port
 EXPOSE 8000
 
-# Fetch apt package information, and upgrade to latest package versions
+# Install all dependencies that are available as packages
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -qy dist-upgrade
-
-# Install the packages we need
-RUN apt-get install -qy \
+RUN apt-get -y update && \
+    apt-get -y dist-upgrade && \
+    apt-get -y install -y \
         apache2-utils \
-        chromium-chromedriver \
+        curl \
         enscript \
         ghostscript \
+        git \
         graphviz \
         libmariadbclient-dev \
         mariadb-server \
+        npm \
         python-is-python3 \
         python3-pip \
-        yang-tools
+        yang-tools && \
+    apt-get -y clean
 
-# Get rid of installation files we don't need in the image, to reduce size
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install bower
+RUN npm install -g bower
 
-# idnits and dependencies
+# Install idnits
 ADD https://tools.ietf.org/tools/idnits/idnits /usr/local/bin/
 RUN chmod +rx /usr/local/bin/idnits
 
-# Install current datatracker dependencies
-WORKDIR /root
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Install current datatracker python dependencies
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
 
 COPY docker-init.sh /docker-init.sh
 RUN chmod +x /docker-init.sh
+
+WORKDIR /root/src
 ENTRYPOINT ["/docker-init.sh"]

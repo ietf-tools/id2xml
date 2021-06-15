@@ -21,12 +21,11 @@ SYNOPSIS
 DESCRIPTION
 
     This is a wrapper which runs docker with suitable arguments on a
-    debian-based docker image which has been set up with the dependencies
+    docker image which has been set up with the dependencies
     needed to easily run the IETF datatracker in development mode.  By
     default, it expects to find the MySQL database files at
     $parent/data/mysql, which is mapped inside the
-    container to /var/lib/mysql, and it will set up a home directory for
-    the current user ($USER) and map it to $HOME.
+    container to /var/lib/mysql.
 
 EOF
     echo -e "OPTIONS"
@@ -109,5 +108,5 @@ echo -e "\nThe web interface for 'runserver' should appear on 127.0.0.1:$PORT\n"
 
 docker run -ti -p "$PORT:8000" \
   -v "$MYSQLDIR:/var/lib/mysql:cached" \
-  -v "$parent:/root:cached" \
+  -v "$parent:/root/src:cached" \
   "$REPO:$TAG" "$@"

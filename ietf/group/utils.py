@@ -116,6 +116,8 @@ def can_manage_group_type(user, group, type_id=None):
         return has_role(user, ('IRTF Chair', 'Secretariat'))
     elif type_id == "wg":
         return has_role(user, ('Area Director', 'Secretariat'))
+    elif type_id == "dir" or type_id == "review":
+        return has_role(user, ('Area Director', 'Secretariat'))
     elif type_id == "team":
         if group and group.is_decendant_of("ietf"):
             return has_role(user, ('Area Director', 'Secretariat'))
@@ -229,7 +231,7 @@ def construct_group_menu_context(request, group, selected, group_type, others):
     # actions
     actions = []
 
-    can_manage = can_manage_group(request.user, group)
+    can_manage = others['can_manage']
     can_edit_group = False              # we'll set this further down
 
     if group.features.has_milestones:

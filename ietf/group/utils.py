@@ -231,7 +231,10 @@ def construct_group_menu_context(request, group, selected, group_type, others):
     # actions
     actions = []
 
-    can_manage = others['can_manage']
+    if 'can_manage' in others.keys():
+        can_manage = others['can_manage']
+    else:
+        can_manage = can_manage_group_type(request.user, group)
     can_edit_group = False              # we'll set this further down
 
     if group.features.has_milestones:

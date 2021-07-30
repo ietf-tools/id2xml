@@ -63,10 +63,11 @@ from ietf.meeting.helpers import get_all_assignments_from_schedule
 from ietf.meeting.helpers import get_modified_from_assignments
 from ietf.meeting.helpers import get_wg_list, find_ads_for_meeting
 from ietf.meeting.helpers import get_meeting, get_ietf_meeting, get_current_ietf_meeting_num
-from ietf.meeting.helpers import get_schedule, schedule_permissions, is_regular_agenda_filter_group
+from ietf.meeting.helpers import get_schedule, schedule_permissions
 from ietf.meeting.helpers import preprocess_assignments_for_agenda, read_agenda_file
-from ietf.meeting.helpers import filter_keywords_for_session, tag_assignments_with_filter_keywords, filter_keyword_for_specific_session
-from ietf.meeting.helpers import convert_draft_to_pdf, get_earliest_session_date
+from ietf.meeting.helpers import filter_keywords_for_session, tag_assignments_with_filter_keywords
+from ietf.meeting.helpers import filter_keyword_for_specific_session, is_regular_agenda_filter_group
+from ietf.meeting.helpers import convert_draft_to_pdf, get_earliest_session_date, AgendaFilterOrganizer
 from ietf.meeting.helpers import can_view_interim_request, can_approve_interim_request
 from ietf.meeting.helpers import can_edit_interim_request
 from ietf.meeting.helpers import can_request_interim_meeting, get_announcement_initial
@@ -1589,7 +1590,7 @@ def agenda(request, num=None, name=None, base=None, ext=None, owner=None, utc=""
 
     # We do not have the appropriate data in the datatracker for IETF 64 and earlier.
     # So that we're not producing misleading pages...
-    
+
     assert num is None or num.isdigit()
 
     meeting = get_ietf_meeting(num)
@@ -1623,11 +1624,7 @@ def agenda(request, num=None, name=None, base=None, ext=None, owner=None, utc=""
     if ext == ".csv":
         return agenda_csv(schedule, filtered_assignments)
 
-    # Now prep the filter UI
-    filter_categories, non_area_labels = prepare_filter_keywords(
-        filtered_assignments,
-        extract_groups_hierarchy(filtered_assignments),
-    )
+    filter_organizer = AgendaFilterOrganizer(assignments=filtered_assignments)
 
     is_current_meeting = (num is None) or (num == get_current_ietf_meeting_num())
 
@@ -1635,8 +1632,8 @@ def agenda(request, num=None, name=None, base=None, ext=None, owner=None, utc=""
         "schedule": schedule,
         "filtered_assignments": filtered_assignments,
         "updated": updated,
-        "filter_categories": filter_categories,
-        "non_area_keywords": [label.lower() for label in non_area_labels],
+        "filter_categories": filter_organizer.get_filter_categories(),
+        "non_area_keywords": filter_organizer.get_non_area_keywords(),
         "now": datetime.datetime.now().astimezone(pytz.UTC),
         "timezone": meeting.time_zone,
         "is_current_meeting": is_current_meeting,
@@ -1798,10 +1795,7 @@ def agenda_personalize(request, num):
         assignment.session_keyword = filter_keyword_for_specific_session(assignment.session)
 
     # Now prep the filter UI
-    filter_categories, non_area_labels = prepare_filter_keywords(
-        filtered_assignments,
-        extract_groups_hierarchy(filtered_assignments),
-    )
+    filter_organizer = AgendaFilterOrganizer(assignments=filtered_assignments)
 
     is_current_meeting = (num is None) or (num == get_current_ietf_meeting_num())
 
@@ -1812,8 +1806,7 @@ def agenda_personalize(request, num):
             'schedule': meeting.schedule,
             'updated': meeting.updated(),
             'filtered_assignments': filtered_assignments,
-            'filter_categories': filter_categories,
-            'non_area_labels': non_area_labels,
+            'filter_categories': filter_organizer.get_filter_categories(),
             'timezone': meeting.time_zone,
             'is_current_meeting': is_current_meeting,
             'cache_time': 150 if is_current_meeting else 3600,
@@ -3575,34 +3568,9 @@ def upcoming(request):
         )
     ).filter(current_status__in=('sched','canceled'))
 
-    # get groups for group UI display - same algorithm as in agenda(), but
-    # using group / parent instead of historic_group / historic_parent
-    groups = [s.group for s in interim_sessions
-              if s.group
-              and is_regular_agenda_filter_group(s.group)
-              and s.group.parent]
-    group_parents = {g.parent for g in groups if g.parent}
-    seen = set()
-    for p in group_parents:
-        p.group_list = []
-        for g in groups:
-            if g.acronym not in seen and g.parent.acronym == p.acronym:
-                p.group_list.append(g)
-                seen.add(g.acronym)
+    # Set up for agenda filtering - only one filter_category here
+    filter_organizer = AgendaFilterOrganizer(sessions=interim_sessions, single_category=True)
 
-    # only one category
-    filter_categories = [[
-        dict(
-            label=p.acronym, 
-            keyword=p.acronym.lower(),
-            children=[dict(
-                label=g.acronym,
-                keyword=g.acronym.lower(),
-                is_bof=g.is_bof(),
-            ) for g in p.group_list]
-        ) for p in group_parents
-    ]]
-    
     for session in interim_sessions:
         session.historic_group = session.group
         session.filter_keywords = filter_keywords_for_session(session)
@@ -3644,7 +3612,7 @@ def upcoming(request):
 
     return render(request, 'meeting/upcoming.html', {
                   'entries': entries,
-                  'filter_categories': filter_categories,
+                  'filter_categories': filter_organizer.get_filter_categories(),
                   'menu_actions': actions,
                   'menu_entries': menu_entries,
                   'selected_menu_entry': selected_menu_entry,

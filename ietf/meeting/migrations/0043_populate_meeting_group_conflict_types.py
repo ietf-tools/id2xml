@@ -34,7 +34,9 @@ def reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('group', '0045_groupfeatures_agenda_filter_type'),  # fix interleaving
         ('meeting', '0042_meeting_group_conflict_types'),
+        ('name', '0028_agendafiltertypename'),  # fix interleaving
     ]
 
     operations = [

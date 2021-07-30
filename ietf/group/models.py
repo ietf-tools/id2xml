@@ -13,7 +13,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, PROTECT
 from django.dispatch import receiver
 
 #from simple_history.models import HistoricalRecords
@@ -21,7 +21,8 @@ from django.dispatch import receiver
 import debug                            # pyflakes:ignore
 
 from ietf.group.colors import fg_group_colors, bg_group_colors
-from ietf.name.models import GroupStateName, GroupTypeName, DocTagName, GroupMilestoneStateName, RoleName, AgendaTypeName, ExtResourceName
+from ietf.name.models import (GroupStateName, GroupTypeName, DocTagName, GroupMilestoneStateName, RoleName, 
+                              AgendaTypeName, AgendaFilterTypeName, ExtResourceName)
 from ietf.person.models import Email, Person
 from ietf.utils.mail import formataddr, send_mail_text
 from ietf.utils import log
@@ -277,6 +278,7 @@ class GroupFeatures(models.Model):
     customize_workflow      = models.BooleanField("Workflow",   default=False)
     is_schedulable          = models.BooleanField("Schedulable",default=False)
     show_on_agenda          = models.BooleanField("On Agenda",  default=False)
+    agenda_filter_type      = models.ForeignKey(AgendaFilterTypeName, default='none', on_delete=PROTECT)
     req_subm_approval       = models.BooleanField("Subm. Approval",  default=False)
     #
     agenda_type             = models.ForeignKey(AgendaTypeName, null=True, default="ietf", on_delete=CASCADE)

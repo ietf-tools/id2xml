@@ -11,7 +11,7 @@ from ietf.name.models import (
     ReviewRequestStateName, ReviewResultName, ReviewTypeName, RoleName, RoomResourceName,
     SessionStatusName, StdLevelName, StreamName, TimeSlotTypeName, TopicAudienceName,
     DocUrlTagName, ReviewAssignmentStateName, ReviewerQueuePolicyName, TimerangeName,
-    ExtResourceName, ExtResourceTypeName, SlideSubmissionStatusName)
+    ExtResourceName, ExtResourceTypeName, SlideSubmissionStatusName, AgendaFilterTypeName)
 
 
 from ietf.stats.models import CountryAlias
@@ -52,6 +52,7 @@ class ExtResourceNameAdmin(NameAdmin):
     list_display = ["slug", "name", "type", "desc", "used",]
 admin.site.register(ExtResourceName,ExtResourceNameAdmin)
 
+admin.site.register(AgendaFilterTypeName, NameAdmin)
 admin.site.register(AgendaTypeName, NameAdmin)
 admin.site.register(BallotPositionName, NameAdmin)
 admin.site.register(ConstraintName, NameAdmin)

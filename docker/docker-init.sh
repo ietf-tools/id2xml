@@ -30,9 +30,16 @@ if ! service mariadb status; then
     exit 1
 fi
 
+echo
 if [ ! -f /root/src/ietf/settings_local.py ]; then
-    echo "Setting up a default settings_local.py ..."
+    echo "Setting up a default ietf/settings_local.py file"
     cp /root/src/docker/settings_local.py /root/src/ietf/settings_local.py
+else
+    echo "Using existing ietf/settings_local.py file"
+    if ! cmp -s /root/src/docker/settings_local.py /root/src/ietf/settings_local.py; then
+        echo "NOTE: Differences detected compared to docker/settings_local.py!"
+        echo "We'll assume you made these deliberately."
+    fi
 fi
 
 for sub in					\

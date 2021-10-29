@@ -128,6 +128,22 @@ RUN sed -i 's/\[mysqld\]/\[mysqld\]\ninnodb_buffer_pool_size = 1G\ninnodb_log_bu
     rm -rf /ietf_utf8.sql /mariadb-sys-master && \
     mv /var/lib/mysql /
 
+# Make various assets available
+RUN mkdir -p /root/data/proceedings
+ENV RSYNC_OPT="-auz --info=progress2 --exclude *.p7s --exclude *.xml --exclude *.html --exclude *.pdf --exclude *.ps --exclude *.Z --exclude *.mib --exclude *.ZIP"
+RUN rsync $RSYNC_OPT ftp.rfc-editor.org::rfcs-text-only/      /root/data/rfc/
+RUN rsync $RSYNC_OPT rsync.ietf.org::charter/                 /root/data/charter/
+RUN rsync $RSYNC_OPT rsync.ietf.org::conflict-reviews/        /root/data/conflict-reviews/
+RUN rsync $RSYNC_OPT rsync.ietf.org::dev.media/floor/         /root/data/floor/
+RUN rsync $RSYNC_OPT rsync.ietf.org::everything-ftp/yang/     /root/data/yang/
+RUN rsync $RSYNC_OPT rsync.ietf.org::id-archive/              /root/data/internet-drafts/
+RUN rsync $RSYNC_OPT rsync.ietf.org::status-changes/          /root/data/status-changes/
+# These are either very large or unneeded:
+#RUN rsync $RSYNC_OPT rsync.ietf.org::dev.media/photo/         /root/data/photo/
+#RUN rsync $RSYNC_OPT rsync.ietf.org::everything-ftp/review/   /root/data/review/
+#RUN rsync $RSYNC_OPT rsync.ietf.org::rfc/                     /root/data/rfc/
+#RUN rsync $RSYNC_OPT rsync.ietf.org::slides/                  /root/data/slides/
+
 # Copy the startup file
 COPY docker-init.sh /docker-init.sh
 RUN chmod +x /docker-init.sh

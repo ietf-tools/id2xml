@@ -38,7 +38,7 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
                 {% csrf_token %}
 
                 <div class="form-group">
@@ -95,13 +95,63 @@
 
     {% include "submit/problem-reports-footer.html" %}{% endif %}
 
+    <div class="modal fade" id="no-xml" tabindex="-1" role="dialog" aria-labelledby="no-xml-label">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="no-xml-label">
+                Attempting I-D submission without XML
+            </h4>
+          </div>
+          <div class="modal-body">
+            <p>
+                <b>
+                    You are attempting to submit an Internet-Draft without
+                    including the XML source. This is discouraged.
+                </b>
+            </p>
+            <p>
+                If you have the XML source available, please return to the
+                upload form and include it with the submission.
+            </p>
+            <p>
+                If you do not have the XML source, you may proceed.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="upload-anyway" data-dismiss="modal">
+                Proceed without XML source
+            </button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">
+                Return to form
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
 <script>
     $(document).ready(function() {
-        if ($("#checkbox").is(':checked'))
-            $("#other-formats").collapse('show')
+        if ($("#checkbox").is(":checked") || $("#other-formats .has-error").length) {
+            $("#checkbox").attr("checked", true);
+            $("#other-formats").collapse("show");
+        }
+    });
+
+    $("#upload-form").submit(function(e) {
+        e.preventDefault();
+        if ($("#id_xml").val() == "")
+            $("#no-xml").modal();
+        else
+            this.submit();
+    });
+
+    $("#upload-anyway").click(function() {
+        $("#upload-form").unbind("submit").submit();
     });
 </script>
 {% endblock %}

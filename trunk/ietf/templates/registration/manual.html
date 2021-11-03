@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{# Copyright The IETF Trust 2015, All Rights Reserved #}
+{% load origin %}
+
+{% load bootstrap3 %}
+
+{% block title %}Complete account creation{% endblock %}
+
+{% block content %}
+  {% origin %}
+
+    <h1>Additional Assistance Required</h1>
+
+    <p>
+        Our apologies, it looks like there was an issue creating your Datatracker account.
+        Please send an email to support@ietf.org and we'll get you set up promptly.
+
+        Best, IETF Secretariat
+    </p>
+
+{% endblock %}

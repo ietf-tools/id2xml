@@ -15,14 +15,12 @@ services:
         volumes:
             - ..:/root/src:cached  
         init: true
-        # stdin_open: true
-        # tty: true
         
         # Overrides default command so things don't shut down after the process ends.
-        # command: sleep infinity
+        command: sleep infinity
         
         # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-        network_mode: service:db
+        # network_mode: service:db
 
         depends_on:
             - db
@@ -61,7 +59,6 @@ services:
             - '--innodb-write-io-threads=8'
             - '--innodb-flush-log-at-trx-commit=0'
             - '--performance-schema=1'
-
             
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)

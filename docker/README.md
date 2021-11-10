@@ -79,9 +79,18 @@ You can also open the datatracker project folder and click the **Reopen in conta
 
 1. From the terminal, in the top-level directory of the datatracker project:
 
+    On Linux / macOS:
+
     ```sh
     cd docker
-    docker-compose up
+    run
+    ```
+
+    On Windows:
+    ```sh
+    cd docker
+    docker-compose -f docker-compose.yml -f docker-compose.extend.yml up -d
+    docker-compose exec app /bin/sh /docker-init.sh
     ```
 
 2. Wait for the containers to initialize. Upon completion, you will be dropped into a shell from which you can start the datatracker and execute related commands as usual, for example
@@ -96,14 +105,29 @@ You can also open the datatracker project folder and click the **Reopen in conta
 
     Note that unlike the VS Code setup, a debug SMTP server is launched automatically. Any email will be discarded and logged to the shell.
 
+3. To exit the dev environment, simply enter command `exit` in the shell. The containers will automatically be shut down on Linux / macOS.
+
+    On Windows, type the command
+    ```sh
+    docker-compose down
+    ```
+    to terminate the containers.
+
 ## Notes / Troubleshooting
 
 ### Windows .ics files incorrectly linked
 
 When checking out the project on Windows, the `.ics` files are not correctly linked and will cause many tests to fail. To fix this issue, run the **Fix Windows Timezone File Linking** task in VS Code or run manually the script `docker/scripts/app-win32-timezone-fix.sh`
 
-The content of the source files will be copied into the target .ics files. Make sure not to add these modified files when committing code!
+The content of the source files will be copied into the target `.ics` files. Make sure not to add these modified files when committing code!
 
 ### Missing assets in the data folder
 
 Because including all assets in the image would significantly increase the file size, they are not included by default. You can however fetch them by running the **Fetch assets via rsync** task in VS Code or run manually the script `docker/scripts/app-rsync-extras.sh`
+
+### MariaDB Exposed Port
+
+When using VS Code, the mysql port is automatically exposed as `3306`. When using the generic method, the port is exposed but not mapped to `3306` to avoid potential conflicts. To get the mapped port, run the command *(from the project `/docker` directory)*:
+```sh
+docker-compose port db 3306
+```

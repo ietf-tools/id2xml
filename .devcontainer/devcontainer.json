@@ -6,7 +6,7 @@
     "service": "app",
     "workspaceFolder": "/root/src",
     "shutdownAction": "stopCompose",
-    "postCreateCommand": ".devcontainer/init.sh",
+    "postCreateCommand": "/docker-init.sh",
     "containerEnv": {
         "EDITOR_VSCODE": "true"
     },

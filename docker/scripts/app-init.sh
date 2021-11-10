@@ -2,13 +2,6 @@
 
 WORKSPACEDIR="/root/src"
 
-env
-
-if [ -n "$EDITOR_VSCODE" ] &&  [ -z "$EDITOR_VSCODE_INIT" ]; then
-    echo "Running in VS Code mode..."
-    sleep infinity
-fi
-
 service rsyslog start
 
 # Copy config files if needed
@@ -84,14 +77,14 @@ for sub in					\
 done
 
 # Wait for DB container
-
-echo "Waiting for DB container to come online ..."
-echo "(this can take a while if the database is being initialized for the first time)"
-wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.1.3/wait-for | sh -s -- localhost:3306 -- echo "DB ready"
+if [ -n "$EDITOR_VSCODE" ]; then
+    echo "Waiting for DB container to come online ..."
+    wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.1.3/wait-for | sh -s -- localhost:3306 -- echo "DB ready"
+fi
 
 # Initial checks
 
-echo "Run initial checks..."
+echo "Running initial checks..."
 /usr/local/bin/python $WORKSPACEDIR/ietf/manage.py check --settings=settings_local
 # /usr/local/bin/python $WORKSPACEDIR/ietf/manage.py migrate --settings=settings_local
 
@@ -113,6 +106,5 @@ if [ -z "$EDITOR_VSCODE" ]; then
         echo
         bash -c "$*"
     fi
-    service mariadb stop
     service rsyslog stop
 fi

@@ -101,4 +101,4 @@ RUN sed -i 's/\r$//' /docker-init.sh && \
     chmod +x /docker-init.sh
 
 WORKDIR /root/src
-ENTRYPOINT [ "/docker-init.sh" ]
+# ENTRYPOINT [ "/docker-init.sh" ]

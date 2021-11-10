@@ -63,6 +63,8 @@ You can also open the datatracker project folder and click the **Reopen in conta
 
 - Under the **SQL Tools** tab, a connection **Local Dev** is preconfigured to connect to the DB container. Using this tool, you can list tables, view records and execute SQL queries directly from VS Code.
 
+    > The port `3306` is also exposed to the host automatically, should you prefer to use your own SQL tool.
+
     ![](assets/vscode-sqltools.png)
 
 - Under the **Task Explorer** tab, a list of available preconfigured tasks is displayed. *(You may need to expand the tree to `src > vscode` to see it.)* These are common scritps you can run *(e.g. run tests, fetch assets, etc.)*.
@@ -105,13 +107,45 @@ You can also open the datatracker project folder and click the **Reopen in conta
 
     Note that unlike the VS Code setup, a debug SMTP server is launched automatically. Any email will be discarded and logged to the shell.
 
-3. To exit the dev environment, simply enter command `exit` in the shell. The containers will automatically be shut down on Linux / macOS.
+### Exit Environment
 
-    On Windows, type the command
-    ```sh
-    docker-compose down
-    ```
-    to terminate the containers.
+To exit the dev environment, simply enter command `exit` in the shell.
+
+The containers will automatically be shut down on Linux / macOS.
+
+On Windows, type the command (from the `docker/` directory)
+
+```sh
+docker-compose down
+```
+
+to terminate the containers.
+
+### Clean / Rebuild / Fetch Latest DB Image
+
+To delete the active DB container, its volume and get the latest image / DB dump, simply run the following command:
+
+On Linux / macOS:
+
+```sh
+cd docker
+cleandb
+```
+
+On Windows:
+```sh
+cd docker
+docker-compose down -v
+docker-compose pull db
+docker-compose build --no-cache db
+```
+
+### Accessing MariaDB Port
+
+The port is exposed but not mapped to `3306` to avoid potential conflicts with the host. To get the mapped port, run the command *(from the project `/docker` directory)*:
+```sh
+docker-compose port db 3306
+```
 
 ## Notes / Troubleshooting
 
@@ -124,10 +158,3 @@ The content of the source files will be copied into the target `.ics` files. Mak
 ### Missing assets in the data folder
 
 Because including all assets in the image would significantly increase the file size, they are not included by default. You can however fetch them by running the **Fetch assets via rsync** task in VS Code or run manually the script `docker/scripts/app-rsync-extras.sh`
-
-### MariaDB Exposed Port
-
-When using VS Code, the mysql port is automatically exposed as `3306`. When using the generic method, the port is exposed but not mapped to `3306` to avoid potential conflicts. To get the mapped port, run the command *(from the project `/docker` directory)*:
-```sh
-docker-compose port db 3306
-```

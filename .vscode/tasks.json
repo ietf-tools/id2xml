@@ -117,7 +117,7 @@
             "type": "shell",
             "command": "/bin/bash",
             "args": [
-                "${workspaceFolder}/docker/app-win32-timezone-fix.sh"
+                "${workspaceFolder}/docker/scripts/app-win32-timezone-fix.sh"
             ],
             "presentation": {
                 "echo": true,

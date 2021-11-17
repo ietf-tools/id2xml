@@ -23,6 +23,9 @@ services:
         depends_on:
             - db
 
+        # Required for cypress
+        ipc: host
+
         # environment:
             # USER: django
             # UID: 1001

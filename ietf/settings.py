@@ -1235,6 +1235,13 @@ qvNU+qRWi+YXrITsgn92/gVxX5AoK0n+s5Lx7fpjxkARVi66SF6zTJnX
 -----END PRIVATE KEY-----
 """
 
+
+# Meetecho API setup
+MEETECHO_API_BASE = 'https://meetings.conf.meetecho.com/api/v1/'
+MEETECHO_CLIENT_ID = 'datatracker'
+MEETECHO_CLIENT_SECRET = 'some secret'
+
+
 # Put the production SECRET_KEY in settings_local.py, and also any other
 # sensitive or site-specific changes.  DO NOT commit settings_local.py to svn.
 from ietf.settings_local import *            # pyflakes:ignore pylint: disable=wildcard-import

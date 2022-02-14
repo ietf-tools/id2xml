@@ -8,6 +8,7 @@ from unittest.mock import patch
 from urllib.parse import urljoin
 
 from django.conf import settings
+from django.test import override_settings
 
 from ietf.utils.tests import TestCase
 from .meetecho import Conference, ConferenceManager, MeetechoAPI, MeetechoAPIError
@@ -15,8 +16,14 @@ from .meetecho import Conference, ConferenceManager, MeetechoAPI, MeetechoAPIErr
 API_BASE = 'https://meetecho-api.example.com'
 CLIENT_ID = 'datatracker'
 CLIENT_SECRET = 'very secret'
+API_CONFIG={
+    'api_base': API_BASE,
+    'client_id': CLIENT_ID,
+    'client_secret': CLIENT_SECRET,
+}
 
 
+@override_settings(MEETECHO_API_CONFIG=API_CONFIG)
 class APITests(TestCase):
     retrieve_token_url = urljoin(API_BASE, 'auth/ietfservice/tokens')
     schedule_meeting_url = urljoin(API_BASE, 'meeting/interim/createRoom')
@@ -25,32 +32,12 @@ class APITests(TestCase):
 
     def setUp(self):
         super().setUp()
-        self._replace_settings(
-            MEETECHO_API_BASE=API_BASE,
-            MEETECHO_CLIENT_ID=CLIENT_ID,
-            MEETECHO_CLIENT_SECRET=CLIENT_SECRET,
-        )
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
 
     def tearDown(self):
         self.requests_mock.stop()
-        self._restore_settings()
         super().tearDown()
-
-    def _replace_settings(self, **new_settings):
-        if not hasattr(self, '_saved_settings'):
-            self._saved_settings = {}
-        for k, v in new_settings.items():
-            self._saved_settings[k] = getattr(settings, k, None)
-            setattr(settings, k, v)
-
-    def _restore_settings(self):
-        for k, v in getattr(self, '_saved_settings', {}).items():
-            if v is None:
-                delattr(settings, k)
-            else:
-                setattr(settings, k, v)
 
     def test_retrieve_wg_tokens(self):
         data_to_fetch = {
@@ -257,6 +244,7 @@ class APITests(TestCase):
         self.assertEqual(api._deserialize_time(api._serialize_time(time)), time)
 
 
+@override_settings(MEETECHO_API_CONFIG=API_CONFIG)
 class ConferenceManagerTests(TestCase):
     def test_conference_from_api_dict(self):
         confs = Conference.from_api_dict(

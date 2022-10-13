@@ -1774,7 +1774,10 @@ class DraftParser(Base):
         self.skip(boilerplate['base_copyright_body'])
         text = self.next_text()
         if text and text.startswith(boilerplate['ipr_200902_copyright_ietfbody'][:32]):
-            self.skip(boilerplate['ipr_200902_copyright_ietfbody'])
+            if 'Revised BSD' in text:
+                self.skip(boilerplate['ipr_200902_copyright_ietfbody'].replace('Simplified', 'Revised'))
+            else:
+                self.skip(boilerplate['ipr_200902_copyright_ietfbody'])
         text = self.next_text()
         if text and text.startswith(boilerplate['ipr_pre5378Trust200902_copyright'][:32]):
             self.skip(boilerplate['ipr_pre5378Trust200902_copyright'])

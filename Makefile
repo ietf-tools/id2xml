@@ -12,7 +12,6 @@ testfiles= \
 	draft-ietf-ospf-encapsulation-cap-02.txt		\
 	draft-ietf-perc-dtls-tunnel-01.txt			\
 	draft-ietf-sipcore-name-addr-guidance-01.txt		\
-	draft-ietf-v6ops-rfc7084-bis-01.txt			\
 	draft-jones-cose-rsa-03.txt				\
 	draft-miek-test.txt					\
 	draft-sparks-genarea-review-tracker-03.txt		\
@@ -20,10 +19,6 @@ testfiles= \
 	rfc7629.txt						\
 	rfc7752.txt						\
 	rfc7842.txt						\
-	draft-ietf-curdle-cms-ecdh-new-curves-07.txt		\
-	draft-ietf-sidr-bgpsec-protocol-23mod.txt		\
-	draft-ietf-bess-evpn-vpws-14b.txt			\
-	draft-ietf-trill-rbridge-multilevel-07a.txt		\
 # draft-ietf-curdle-cms-ecdh-new-curves-07.txt is a modified copy, with
 # some reference fixes
 
@@ -107,7 +102,7 @@ test/out/%.diff:	test/in/%.raw test/out/%.raw
 	diff $(word 1,$^) $(word 2,$^) > $@ || true
 
 test/out/%.txt:	test/out/%.xml
-	xml2rfc $< -o $@
+	xml2rfc --legacy $< -o $@
 
 test/out/%.xml:	test/in/%.txt $(pyfiles)
 	@echo ""

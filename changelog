@@ -1,3 +1,11 @@
+id2xml (1.5.1) ietf; urgency=medium
+
+  * test: Improve tests (#14)
+
+  * fix: Parse boilerplate with revised BSD license (#13)
+
+ -- Kesara Rathnayake  <kesara@staff.ietf.org>  12 Jul 2023 21:47:44 +1200
+
 id2xml (1.5.0) ietf; urgency=medium
 
   * Fixed a few Python 3.x nits in the parser code.

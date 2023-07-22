@@ -1493,8 +1493,6 @@ class DraftParser(Base):
                         res.status = category_names[status_text]
                 else:
                     self.warn(line.num, "Expected 'Intended status: ', found '%s'" % (line.txt, ))
-                    lines.insert(0, line)
-                    self.dsay("pushing '%s'" % line.txt)
             else:
                 if line.txt.startswith('Category: '):
                     status_text = line.txt.split(None, 1)[-1].strip()
@@ -1504,8 +1502,6 @@ class DraftParser(Base):
                         res.status = category_names[status_text]
                 else:
                     self.warn(line.num, "Expected 'Category: ', found '%s'" % (line.txt, ))
-                    lines.insert(0, line)
-                    self.dsay("pushing '%s'" % line.txt)
 
         @dtrace
         def get_expiration(self, lines, res):

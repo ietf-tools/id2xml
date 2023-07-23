@@ -1,3 +1,9 @@
+id2xml (1.5.2) ietf; urgency=medium
+
+  * fix: Avoid category loop (#18)
+
+ -- Kesara Rathnayake  <kesara@staff.ietf.org>  22 Jul 2023 19:32:44 +1200
+
 id2xml (1.5.1) ietf; urgency=medium
 
   * test: Improve tests (#14)

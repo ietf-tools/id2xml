@@ -181,7 +181,7 @@ changes=$( sed -n "/^$PROJ ($VER)/,/^ -- /p" changelog )
 note "$changes"
 
 note "Upgrading the python library modules before checking migrations and running tests ..."
-$do pip install --upgrade -r requirements.txt
+$do pip install --upgrade .
 
 note "Running the tests suite ..."
 $do make test

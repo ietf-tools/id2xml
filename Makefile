@@ -1,6 +1,8 @@
 
 version := $(shell python id2xml/run.py --version | awk '{print $$2}' )
 
+pyversion := $(shell python -c "import sys; print(str(sys.version_info.major) + str(sys.version_info.minor))" )
+
 testfiles= \
 	draft-baba-iot-problems-03.txt				\
 	draft-ietf-6man-rfc2460bis-11.txt			\
@@ -32,7 +34,7 @@ diffiles = $(addsuffix .diff, $(basename $(resfiles)))
 tests    = $(addsuffix .test, $(basename $(resfiles)))
 pyfiles  = $(wildcard  id2xml/*.py)
 
-all: install upload
+all: install upload man
 
 %.1: id2xml/run.py id2xml/__init__.py Makefile
 	id2xml -h | sed -e 's/^  -/\n  -/'			\
@@ -40,18 +42,15 @@ all: install upload
 		  | txt2man -s1 -r'RFC Format Tools' -t $< > $@
 
 
-%.1.gz:	%.1
+man: %.1
 	gzip < $< > $@
 
 pyflakes:
 	pyflakes id2xml
 
 	
-install: id2xml/id2xml.1.gz
-	python setup.py -q install
-
-env/bin/id2xml:	$(pyfiles) setup.py
-	python setup.py -q install
+install: $(pyfiles) pyproject.toml
+	python -m pip install .[test]
 
 
 # ------------------------------------------------------------------------
@@ -62,7 +61,7 @@ env/bin/id2xml:	$(pyfiles) setup.py
 # ------------------------------------------------------------------------
 # test
 
-test:	env/bin/id2xml clean $(resfiles) $(xml3files) $(diffiles) $(tests) 
+test:	id2xml clean $(resfiles) $(xml3files) $(diffiles) $(tests) 
 
 .PHONY: clean
 clean:
@@ -114,17 +113,17 @@ test/out/%.v3.xml:	test/in/%.txt $(pyfiles)
 
 # ------------------------------------------------------------------------
 
-dist/id2xml-$(version).tar.gz: MANIFEST.in setup.py $(pyfiles)
-	python setup.py -q sdist
+dist/id2xml-$(version).tar.gz: MANIFEST.in pyproject.toml $(pyfiles)
+	python -m build --sdist
 
-dist/id2xml-$(version)-py27-none-any.whl: MANIFEST.in setup.py $(pyfiles)
-	python setup.py -q bdist_wheel --python-tag py27
+dist/id2xml-$(version)-py$(pyversion)-none-any.whl: MANIFEST.in pyproject.toml $(pyfiles)
+	python -m build --wheel
 
 dist/%.asc: dist/%
 	gpg --detach-sign -a $<
 
 sdist:		dist/id2xml-$(version).tar.gz			dist/id2xml-$(version).tar.gz.asc
-bdist_wheel:	dist/id2xml-$(version)-py27-none-any.whl	dist/id2xml-$(version)-py27-none-any.whl.asc
+bdist_wheel:	dist/id2xml-$(version)-py$(pyversion)-none-any.whl	dist/id2xml-$(version)-py$(pyversion)-none-any.whl.asc
 
 dist:	test sdist # bdist_wheel
 

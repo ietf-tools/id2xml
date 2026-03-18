@@ -50,7 +50,7 @@ jobs:
         echo "Installing pip + wheel..."
         python -m pip install --upgrade pip wheel
         echo "Installing python dependencies..."
-        python -m pip install -r requirements.txt
+        python -m pip install .
 
     - name: Test
       env:
@@ -80,7 +80,7 @@ jobs:
         echo "Installing pip + wheel..."
         python -m pip install --upgrade pip wheel
         echo "Installing dependencies..."
-        python -m pip install -r requirements.txt
+        python -m pip install .
 
     - name: Test
       env:

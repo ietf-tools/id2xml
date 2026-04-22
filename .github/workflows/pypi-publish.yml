@@ -1,0 +1,211 @@
+name: Publish Python Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Create Production Release'
+        required: true
+        type: boolean
+
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-latest
+    outputs:
+      pkg_version: ${{ steps.semver.outputs.next }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Get Next Version
+      if: ${{ inputs.publish_release }}
+      id: semver
+      uses: ietf-tools/semver-action@v1
+      with:
+        patchList: fix, bugfix, perf, refactor, test, tests, chore, revert
+        token: ${{ github.token }}
+        branch: main
+
+    - name: Set Next Version Env Var
+      if: ${{ inputs.publish_release }}
+      env:
+        NEXT_VERSION: ${{ steps.semver.outputs.next }}
+      run: |
+        echo "NEXT_VERSION=$next" >> $GITHUB_ENV
+
+    - name: Create Draft Release
+      uses: ncipollo/release-action@v1
+      if: ${{ inputs.publish_release }}
+      with:
+        prerelease: true
+        draft: false
+        commit: ${{ github.sha }}
+        tag: ${{ env.NEXT_VERSION }}
+        name: ${{ env.NEXT_VERSION }}
+        body: '*pending*'
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set Build Variables
+      run: |
+        if [[ $NEXT_VERSION ]]; then
+          echo "Using AUTO SEMVER mode: $NEXT_VERSION"
+          echo "PKG_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+          echo "PKG_VERSION_STRICT=${NEXT_VERSION#?}" >> $GITHUB_ENV
+        elif [[ "$GITHUB_REF" =~ ^refs/tags/v* ]]; then
+          echo "Using TAG mode: $GITHUB_REF_NAME"
+          echo "PKG_VERSION=$GITHUB_REF_NAME" >> $GITHUB_ENV
+          echo "PKG_VERSION_STRICT=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
+        else
+          echo "Using TEST mode: v3.0.0-dev.$GITHUB_RUN_NUMBER"
+          echo "PKG_VERSION=v3.0.0-dev.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          echo "PKG_VERSION_STRICT=3.0.0-dev.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+        fi
+
+    - name: Install pypa/build
+      run: >-
+        python3 -m
+        pip install
+        build
+        setuptools
+        --user
+
+    - name: Build a binary wheel and a source tarball
+      run: |
+        echo "Using version $PKG_VERSION_STRICT"
+        sed -i -r -e "s/^__version__ += '.*'$/__version__ = '$PKG_VERSION_STRICT'/" id2xml/__init__.py
+        python3 -m build
+
+    - name: Store the distribution packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Store updated __init__.py
+      uses: actions/upload-artifact@v4
+      with:
+        name: id2xml-init
+        path: id2xml/__init__.py
+
+  publish-to-pypi:
+    name: >-
+      Publish Python 🐍 distribution 📦 to PyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://pypi.org/p/id2xml
+    permissions:
+      id-token: write
+    if: ${{ inputs.publish_release }}
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: >-
+      Sign the Python 🐍 distribution 📦 with Sigstore
+      and upload them to GitHub Release
+    needs:
+    - build
+    - publish-to-pypi
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Download updated init file
+      uses: actions/download-artifact@v4
+      with:
+        name: id2xml-init
+        path: id2xml/
+        merge-multiple: true
+
+    - name: Set Variables
+      run: echo "PKG_VERSION=${{needs.build.outputs.pkg_version}}" >> $GITHUB_ENV
+
+    - name: Update CHANGELOG
+      id: changelog
+      uses: Requarks/changelog-action@v1
+      with:
+        token: ${{ github.token }}
+        tag: ${{ env.PKG_VERSION }}
+        excludeTypes: ''
+
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v3.0.0
+      with:
+        inputs: >-
+          ./dist/*.tar.gz
+          ./dist/*.whl
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        draft: false
+        tag: ${{ env.PKG_VERSION }}
+        name: ${{ env.PKG_VERSION }}
+        body: ${{ steps.changelog.outputs.changes }}
+        artifacts: "dist/**"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        makeLatest: true
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v7
+      with:
+        commit-message: 'docs: update CHANGELOG.md + py file versions for ${{ env.PKG_VERSION }} [skip ci]'
+
+  publish-to-testpypi:
+    name: Publish Python 🐍 distribution 📦 to TestPyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://test.pypi.org/p/id2xml
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish distribution 📦 to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/

@@ -18,15 +18,15 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v4
       with:
         languages: python
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v4
 
   tests-linux:
     name: Unit Tests (Linux)
@@ -34,14 +34,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2.3.1
+      uses: actions/setup-python@v6.2.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -50,7 +50,7 @@ jobs:
         echo "Installing pip + wheel..."
         python -m pip install --upgrade pip wheel
         echo "Installing python dependencies..."
-        python -m pip install -r requirements.txt
+        python -m pip install .
 
     - name: Test
       env:
@@ -63,14 +63,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2.3.1
+      uses: actions/setup-python@v6.2.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -80,7 +80,7 @@ jobs:
         echo "Installing pip + wheel..."
         python -m pip install --upgrade pip wheel
         echo "Installing dependencies..."
-        python -m pip install -r requirements.txt
+        python -m pip install .
 
     - name: Test
       env:

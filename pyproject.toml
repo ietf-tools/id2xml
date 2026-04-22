@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "id2xml"
-version = "1.5.2"
+dynamic = ["version"]
 authors = [
   {name = "Henrik Levkowetz", email = "henrik@levkowetz.com"},
 ]
@@ -63,3 +63,6 @@ include-package-data = true
 
 [tool.setuptools.package-data]
 id2xml = ["data/*", "debug.py", "utils.py", "run.py"]
+
+[tool.setuptools.dynamic]
+version = {attr = "id2xml.__version__"}

@@ -550,3 +550,21 @@ id2xml (0.10)
     * Project created
 
  -- Henrik Levkowetz 2016-09-18 14:00:28 PDT
+
+## [v1.6.0] - 2026-04-23
+### :sparkles: New Features
+- [`ed2dce9`](https://github.com/ietf-tools/id2xml/commit/ed2dce9243599b165e4d0daad3887b1510e0b94f) - Use pyproject.toml and test on supported python versions *(PR [#22](https://github.com/ietf-tools/id2xml/pull/22) by [@bkmgit](https://github.com/bkmgit))*
+  - :arrow_lower_right: *addresses issue [#20](https://github.com/ietf-tools/id2xml/issues/20) opened by [@bkmgit](https://github.com/bkmgit)*
+- [`e32acb6`](https://github.com/ietf-tools/id2xml/commit/e32acb616fc5dc835f92abaf7f50588a21e69e3a) - Drop support for Python 3.9 *(PR [#25](https://github.com/ietf-tools/id2xml/pull/25) by [@kesara](https://github.com/kesara))*
+  - :arrow_lower_right: *addresses issue [#23](https://github.com/ietf-tools/id2xml/issues/23) opened by [@kesara](https://github.com/kesara)*
+
+### :construction_worker: Build System
+- [`a4788fc`](https://github.com/ietf-tools/id2xml/commit/a4788fc2d089bd3a1685df978a07bc763dd82263) - Use dynamic version *(PR [#26](https://github.com/ietf-tools/id2xml/pull/26) by [@kesara](https://github.com/kesara))*
+- [`be3a4af`](https://github.com/ietf-tools/id2xml/commit/be3a4af24789b8098962f5a3a3c22faf3874dce7) - Use PyPI publishing *(PR [#27](https://github.com/ietf-tools/id2xml/pull/27) by [@kesara](https://github.com/kesara))*
+  - :arrow_lower_right: *addresses issue [#24](https://github.com/ietf-tools/id2xml/issues/24) opened by [@kesara](https://github.com/kesara)*
+- [`3ca88bd`](https://github.com/ietf-tools/id2xml/commit/3ca88bd61259cb0a7484d7d362b5b5a87836df81) - Fix pypi publish version update logic *(PR [#28](https://github.com/ietf-tools/id2xml/pull/28) by [@kesara](https://github.com/kesara))*
+
+### :memo: Documentation Changes
+- [`f73504b`](https://github.com/ietf-tools/id2xml/commit/f73504b02392ec813b4d99f61e9c9ee5f78299ee) - Move changelog to CHANGELOG.md *(PR [#29](https://github.com/ietf-tools/id2xml/pull/29) by [@kesara](https://github.com/kesara))*
+
+[v1.6.0]: https://github.com/ietf-tools/id2xml/compare/v1.5.2...v1.6.0

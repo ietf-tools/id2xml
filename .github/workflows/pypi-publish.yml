@@ -81,7 +81,7 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: |
         echo "Using version $PKG_VERSION_STRICT"
-        sed -i -r -e "s/^__version__ += '.*'$/__version__ = '$PKG_VERSION_STRICT'/" id2xml/__init__.py
+        sed -i -r -e "s/^__version__ = \".*\"$/__version__ = \"$PKG_VERSION_STRICT\"/" id2xml/__init__.py
         python3 -m build
 
     - name: Store the distribution packages
